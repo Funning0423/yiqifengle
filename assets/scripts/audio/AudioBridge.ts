@@ -17,6 +17,7 @@ export class AudioBridge extends Component {
   private lastVisualKey = '';
   private rewardBaseline: string | null = null;
   private scanTimer = 0;
+  private taggedNodes = new Set<Node>();
 
   static ensure() {
     try {
@@ -25,7 +26,11 @@ export class AudioBridge extends Component {
     } catch (e) { console.warn('[AudioBridge] mount failed (silent, gameplay unaffected)', e); }
   }
   onLoad() { AudioBridge.instance = this; }
-  onDestroy() { if (AudioBridge.instance === this) AudioBridge.instance = null; }
+  onDestroy() {
+    for (const n of this.taggedNodes) if (isValid(n, true)) { n.targetOff(this); if ((n as any)[TAGGED] === this) delete (n as any)[TAGGED]; }
+    this.taggedNodes.clear(); this.board = null; this.rewardBaseline = null;
+    if (AudioBridge.instance === this) AudioBridge.instance = null;
+  }
 
   update(dt: number) {
     try { this.observeBoard(); } catch (e) { /* observation only */ }
@@ -76,6 +81,7 @@ export class AudioBridge extends Component {
 
   // 4) click sound on real buttons only: nav buttons, board back/pause, result/stage panel buttons, tool slot taps
   private scanButtons() {
+    for (const n of this.taggedNodes) if (!isValid(n, true)) this.taggedNodes.delete(n);
     const scene = director.getScene(); if (!scene) return;
     const nav = this.findNode(scene, 'WorldNavigationCanvas');
     if (nav) for (const n of nav.children) if (n.name !== 'LabelPlate' && !n.name.startsWith('Approved') && n.getComponent(Graphics)) this.tag(n, false);
@@ -91,7 +97,7 @@ export class AudioBridge extends Component {
     }
   }
   private tag(n: Node, tapOnly: boolean) {
-    if ((n as any)[TAGGED]) return; (n as any)[TAGGED] = true;
+    if ((n as any)[TAGGED]) return; (n as any)[TAGGED] = this; this.taggedNodes.add(n);
     let start: { x: number, y: number } | null = null;
     if (tapOnly) n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { const p = e.getUILocation(); start = { x: p.x, y: p.y }; }, this);
     n.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
@@ -108,5 +114,5 @@ export class AudioBridge extends Component {
   }
 }
 
-// Self-mount: project scripts load before the first scene launches; mount again after every scene change.
-director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => AudioBridge.ensure());
+// Mount once after the first scene. GameAudio is persistent across subsequent scene changes; no permanent director listener.
+director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AudioBridge.ensure());

@@ -1,14 +1,14 @@
 // GameAudio.ts — 音频管理脚本草案 v0.2（Voice Bot，2026-10-09；按 GGbot 审稿 AUDIO-HOOK-v1-REVIEW 修改）
 // 状态：草案，待 GGbot 审；未在 Cocos 里编译或运行（not_run）。不改任何现有文件，接入点见 AUDIO-EVENT-MAP-v1.md。
 // 资源位置：assets/resources/audio_sfx/sfx_*.mp3（resources 是启动时加载的分包，合计约 88 KB）。
-import { _decorator, Component, Node, AudioSource, AudioClip, resources, director, game, Game, sys } from 'cc';
+import { _decorator, Component, Node, AudioSource, AudioClip, resources, director, game, Game, sys, isValid } from 'cc';
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear';
 
 const SFX_DIR = 'audio_sfx';
-const MUTE_KEY = 'qfl.audio.muted';
+const MUTE_KEY = 'dot-audio-r1-test-20261009:muted';
 const MIN_GAP_MS = 60;        // 同一个音效 60 ms 内只播一次，防止同帧多次触发叠成爆音
 const MAX_VOICES = 6;         // 同时最多 6 个音效；微信小游戏同时存在的音频实例数量有限，宁少勿多
 
@@ -22,6 +22,7 @@ export class GameAudio extends Component {
   private lastPlay = new Map<string, number>();
   private voices: number[] = [];               // 最近播放的结束时间戳，用来粗略限制同时发声数
   private muted = false;
+  private hidden = false;
   private cascade = 0;                         // 本次操作里第几波消除（0 = 还没消）
   private prevState: string | undefined;       // 上一次 render 的 state；undefined = 还没有基准
 
@@ -39,11 +40,12 @@ export class GameAudio extends Component {
     this.sfxSource = this.node.addComponent(AudioSource);
     this.loopSource = this.node.addComponent(AudioSource);
     this.loopSource.loop = true;
-    this.muted = sys.localStorage.getItem(MUTE_KEY) === '1';
+    try { this.muted = sys.localStorage.getItem(MUTE_KEY) === '1'; } catch { this.muted = false; }
     // 资源加载失败不影响游戏：没加载到的音效 play() 时直接跳过
     resources.loadDir(SFX_DIR, AudioClip, (err, list) => {
+      if (!isValid(this.node, true) || GameAudio.instance !== this) return;
       if (err) { console.warn('[GameAudio] sfx load failed', err); return; }
-      for (const c of list) this.clips.set(c.name, c);
+      for (const c of list) { c.addRef(); this.clips.set(c.name, c); }
     });
     game.on(Game.EVENT_HIDE, this.onHide, this);
     game.on(Game.EVENT_SHOW, this.onShow, this);
@@ -52,12 +54,15 @@ export class GameAudio extends Component {
   onDestroy() {
     game.off(Game.EVENT_HIDE, this.onHide, this);
     game.off(Game.EVENT_SHOW, this.onShow, this);
+    this.loopSource?.stop();
+    for (const c of this.clips.values()) c.decRef();
+    this.clips.clear(); this.voices = []; this.lastPlay.clear();
     if (GameAudio.instance === this) GameAudio.instance = null;
   }
 
   // ---------- 通用 ----------
   play(name: SfxName, volume = 1) {
-    if (this.muted) return;
+    if (this.muted || this.hidden) return;
     const clip = this.clips.get(name);
     if (!clip) return;
     const now = Date.now();
@@ -71,14 +76,14 @@ export class GameAudio extends Component {
 
   setMuted(m: boolean) {
     this.muted = m;
-    sys.localStorage.setItem(MUTE_KEY, m ? '1' : '0');
-    if (m) this.loopSource.pause(); else if (this.loopSource.clip) this.loopSource.play();
+    try { sys.localStorage.setItem(MUTE_KEY, m ? '1' : '0'); } catch (e) { console.warn('[GameAudio] isolated mute preference not saved', e); }
+    if (m) this.loopSource.pause(); else if (!this.hidden && this.loopSource.clip) this.loopSource.play();
   }
   isMuted() { return this.muted; }
 
   // 切后台暂停循环声，回前台恢复（微信里来电、切出时音频会被系统打断）
-  private onHide() { this.loopSource.pause(); }
-  private onShow() { if (!this.muted && this.loopSource.clip) this.loopSource.play(); }
+  private onHide() { this.hidden = true; this.loopSource.pause(); this.voices = []; }
+  private onShow() { this.hidden = false; if (!this.muted && this.loopSource.clip) this.loopSource.play(); }
 
   // ---------- 棋盘 ----------
   /** 挂在 ManagedMobileBoardUI.bind() 里 animate 回调的开头，回调第一个参数就是 visual：GameAudio.instance?.onBoardFrame(v)
