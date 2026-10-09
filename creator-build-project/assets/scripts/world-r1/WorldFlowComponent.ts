@@ -5,6 +5,9 @@ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Sn
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
 import { createFirstsliceRoutes } from './FirstsliceRoutes';
+import { applyCameraPose, fromLookAt, createCameraTrack, frameCheck, characterBox, cameraWriteLog } from './CameraPose';
+import type { CameraPose, V3 } from './CameraPose';
+import { REGION_CAMERA, islandPoseEntry } from './RegionCameraData';
 const {ccclass,property}=_decorator;
 type Job={elapsed:number;seconds:number;tick:(t:number)=>void;resolve:()=>void;reject:(e:Error)=>void;off:()=>void};
 function resolvePath(root:Node,path:string):Node {
@@ -33,7 +36,7 @@ export class WorldFlowComponent extends Component {
   private disposed=false;
   private safetyFailure:string|null=null;
   private onStatus:((status:Snapshot)=>void)|undefined;
-  private savedCamera:{position:Vec3;rotation:any}|null=null;
+  private savedCamera:CameraPose|null=null;
   /** Called once by a composition root, after real adapters are ready. Character may be omitted for scene inspection. */
   async initialize(levels:LevelAdapter,character?:CharacterAdapter,mode:Mode='fixed',onStatus?:(s:Snapshot)=>void) {
     if(this.flow||this.disposed)throw Error('WorldFlowComponent already initialized/disposed');
@@ -41,7 +44,8 @@ export class WorldFlowComponent extends Component {
     identity(this.node);
     if(descendant(this.node,this.worldCamera.node)||descendant(this.worldCamera.node,this.node))throw Error('Camera and world owner must be independent siblings');
     this.onStatus=onStatus;
-    const cam=this.worldCamera.node;this.savedCamera={position:cam.worldPosition.clone(),rotation:cam.worldRotation.clone()};
+    const cam=this.worldCamera.node,p=cam.worldPosition,q=cam.worldRotation;this.savedCamera={position:[p.x,p.y,p.z],rotation:[q.x,q.y,q.z,q.w],fovVerticalDeg:this.worldCamera.fov};
+    this.installCameraDebug();
     this.flow=new WorldFlow({config:createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE),mode,levels,character,onChange:onStatus,loadWorld:t=>this.createWorld(t)});
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);
     return this.flow.load();
@@ -78,8 +82,11 @@ export class WorldFlowComponent extends Component {
       // Reject unclassified renderers. No hidden duplicate combined/interior prefab or residual preview nodes.
       const known=new Set(Array.from(renderers.values()).flat());
       for(const r of model.getComponentsInChildren(MeshRenderer))if(!known.has(r)){if(['env_interior_floor_skirt_preview','character_height_reference_1p626'].includes(r.node.name))r.enabled=false;else throw Error('Unclassified renderer: '+r.node.name);}
-      const camera=this.worldCamera!.node;
-      const setCamera=(pose:Pose)=>{camera.setWorldPosition(...pose.position);camera.lookAt(new Vec3(...pose.target));};
+      const camera=this.worldCamera!;
+      // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
+      // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
+      const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,camera.fov);
+      const setCamera=(pose:Pose)=>{if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
@@ -88,15 +95,9 @@ export class WorldFlowComponent extends Component {
         setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=layers[entry.layer];},
         setDoor,setCamera,assertStaticWorld,
         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
-        animateCamera:(path,seconds,t)=>this.run(seconds,t,p=>{
-          if(path.length<2){setCamera(path[0]);return;}
-          let i=0;
-          const timed=path.length>2&&path.every(k=>k.progress!==undefined)&&path[0].progress===0&&path[path.length-1].progress===1;
-          const key=(j:number)=>timed?path[j].progress!:j/(path.length-1);
-          while(i<path.length-2&&p>key(i+1))i++;
-          const local=(p-key(i))/Math.max(1e-9,key(i+1)-key(i));
-          setCamera({position:interpolate(path[i].position,path[i+1].position,local),target:interpolate(path[i].target,path[i+1].target,local)});
-        }),
+        // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
+        // writes the end pose (see createCameraTrack); never continues silently.
+        animateCamera:(path,seconds,t)=>{const track=createCameraTrack(camera,path,'world.animateCamera');return this.run(seconds,t,track.tick);},
         cancelTransient:()=>this.cancelJobs(),
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
@@ -110,6 +111,23 @@ export class WorldFlowComponent extends Component {
     });
   }
   private cancelJobs():void {for(const j of Array.from(this.jobs)){j.off();j.reject(new Cancelled());}this.jobs.clear();}
+  /** 0007 v1.2 debug (read-only): __worldCamera.frameCheck(aspect?) projects the island character bbox for the CURRENT island pose. */
+  private installCameraDebug():void {
+    const self=this;
+    (globalThis as any).__worldCamera={owner:this,
+      writes:()=>({...cameraWriteLog}),
+      sources:()=>({islandPoseSource:REGION_CAMERA.islandPoseSource,homePoseSource:REGION_CAMERA.homePoseSource}),
+      frameCheck:(aspect?:number)=>{
+        const c=REGION_CAMERA.islandCharacter,root:V3=[c.root[0],c.root[1],c.root[2]],pose=fromLookAt(islandPoseEntry());
+        const box=characterBox(root,c.heightM,c.halfWidthM);
+        const live=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:undefined;
+        return (aspect!==undefined?[aspect]:[live??.46,.46,.75]).map(a=>frameCheck(pose,a,box,REGION_CAMERA.frameLimits));
+      },
+      liveFrameCheck:()=>{const last=cameraWriteLog.last;if(!last||!self.worldCamera)return null;const c=REGION_CAMERA.islandCharacter;
+        const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
+        return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
+    };
+  }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
     try {identity(this.node);if(this.ownedModel){identity(this.ownedModel);identity(resolvePath(this.ownedModel,'scene_root'));}}
@@ -131,7 +149,8 @@ export class WorldFlowComponent extends Component {
   onDestroy():void {
     if(this.disposed)return;this.disposed=true;game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.ownedModel?.destroy();this.ownedModel=null;
-    if(this.worldCamera?.node.isValid&&this.savedCamera){this.worldCamera.node.setWorldPosition(this.savedCamera.position);this.worldCamera.node.setWorldRotation(this.savedCamera.rotation);}
+    if(this.worldCamera?.node.isValid&&this.savedCamera)applyCameraPose(this.worldCamera,this.savedCamera,'world.dispose-restore',{allowRoll:true});
+    if((globalThis as any).__worldCamera?.owner===this)delete (globalThis as any).__worldCamera;
     this.savedCamera=null;this.onStatus=undefined;
   }
 }

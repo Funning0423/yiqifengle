@@ -6,7 +6,8 @@ export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | '
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'walking-home' | 'crossing-in' |
   'closing-door' | 'walking-to-seat' | 'sitting' | 'paused' | 'error' | 'disposed';
 export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean}>;
-export type Pose = Readonly<{position:Vec; target:Vec; progress?:number}>;
+/** Authoring/look-at form. Converted to CameraPose (CameraPose.ts) and written ONLY by applyCameraPose. fovVerticalDeg omitted = keep current fov. */
+export type Pose = Readonly<{position:Vec; target:Vec; progress?:number; fovVerticalDeg?:number}>;
 export type Seat = Readonly<{position:Vec; back:Vec; yawRad:number; seatedFoot:Vec; standingFoot:Vec; seatedControllerRoot:Vec; standingControllerRoot:Vec}>;
 export type StablePose = {kind:'seated'; seat:Seat} | {kind:'standing'; controllerRoot:Vec; yawRad:number};
 export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number};
@@ -54,6 +55,8 @@ export interface RouteConfig {
   toThreshold:readonly Vec[]; inCrossing:readonly Vec[]; toSeat:readonly Vec[];
   cameraHome:Pose; cameraToDoor:readonly Pose[]; cameraInside:Pose; cameraOutside:Pose; cameraIsland:Pose;
   openDeg:number; speed:number;
+  /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
+  islandYawRad?:number;
 }
 export type Result={ok:true}|{ok:false;reason:string};
 export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null}>;
@@ -90,7 +93,7 @@ export class WorldFlow {
       c.clearanceRadiusM>0&&c.clearanceRadiusM<=.18&&distance(c.standingRoot,s.standingControllerRoot)<1e-4&&
       distance(c.seatedRoot,s.seatedControllerRoot)<1e-4&&Math.abs(c.seatYawRad-s.yawRad)<1e-5);
   }
-  private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:0};}
+  private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
   private restore():void {
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.config.openDeg);
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
