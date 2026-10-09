@@ -13,6 +13,13 @@
             "fallbackOptions": {
               "compressionType": "merge_dep",
               "isRemote": false
+            },
+            "configMode": "overwrite",
+            "overwriteSettings": {
+              "wechatgame": {
+                "isRemote": false,
+                "compressionType": "subpackage"
+              }
             }
           },
           "native": {
