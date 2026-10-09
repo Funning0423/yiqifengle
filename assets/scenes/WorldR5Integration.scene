@@ -294,10 +294,6 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "model": {
-      "__uuid__": "498b3fa5-2dd3-4e86-93b8-637ae51438fe@87291",
-      "__expectedType__": "cc.Prefab"
-    },
     "smokeFixture": {
       "__uuid__": "4bce6d5e-650d-4325-9ef1-68c769f374b1",
       "__expectedType__": "cc.JsonAsset"
