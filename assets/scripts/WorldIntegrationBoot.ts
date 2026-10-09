@@ -1,4 +1,4 @@
-import {_decorator,Component,Prefab,assetManager,isValid,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler} from 'cc';
+import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
@@ -23,10 +23,10 @@ class FlowReferenceStandin implements CharacterAdapter {
 }
 @ccclass('WorldIntegrationBoot')
 export class WorldIntegrationBoot extends Component {
- private model:Prefab|null=null;private loading=false;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private error='';
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
- const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');scene.addChild(reference);const shape=new Node('GeometricFlowMarker_NOT_CHARACTER_ART');reference.addChild(shape);shape.setPosition(0,.78,0);const renderer=shape.addComponent(MeshRenderer);renderer.mesh=utils.createMesh(primitives.capsule(.12,.12,1.4));const mat=new Material();mat.initialize({effectName:'builtin-standard'});mat.setProperty('albedo',new Color('#b278bb'));mat.setProperty('roughness',1);renderer.setMaterial(mat,0);
+ const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');scene.addChild(reference);const shape=new Node('GeometricFlowMarker_NOT_CHARACTER_ART');reference.addChild(shape);shape.setPosition(0,.78,0);const renderer=shape.addComponent(MeshRenderer);renderer.mesh=utils.createMesh(primitives.capsule(.12,.12,1.4));shape.active=false;this.markerRenderer=renderer;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  const adapter=new FlowReferenceStandin(reference);
  (this as any)._referenceAdapter=adapter;
@@ -41,7 +41,17 @@ export class WorldIntegrationBoot extends Component {
  }
  private setStatus(text:string,retry:boolean){if(!this.status)return;this.status.string=text;const plate=this.status.node.parent!;plate.active=true;plate.off(Node.EventType.TOUCH_END,this.retryLoad,this);if(retry)plate.on(Node.EventType.TOUCH_END,this.retryLoad,this);}
  private retryLoad(){if(this.composition)return;this.status.node.parent!.off(Node.EventType.TOUCH_END,this.retryLoad,this);this.loadWorld();}
- private mountWorld(){const scene=director.getScene()!;const camera=scene.getComponentsInChildren(Camera)[0];camera.visibility&=~Layers.Enum.UI_2D;this.error='';
+ /** E2 fix: the start scene no longer depends on the island GLB, so 'builtin-standard' may not be loaded yet at start().
+  * Material creation by effect name is therefore deferred until the island prefab (and its effects) has loaded,
+  * checks the effect is registered, falls back to builtin-unlit, and never blocks startup. */
+ private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
+  try{const pick=(n:string)=>EffectAsset.get(n)?n:null;const effect=pick('builtin-standard')||pick('builtin-unlit');
+   if(!effect){console.warn('Reference marker: no builtin effect loaded, marker stays hidden');return;}
+   const mat=new Material();mat.initialize({effectName:effect});const c=new Color('#b278bb');
+   if(effect==='builtin-standard'){mat.setProperty('albedo',c);mat.setProperty('roughness',1);}else mat.setProperty('mainColor',c);
+   r.setMaterial(mat,0);r.node.active=true;}catch(e){console.error('Reference marker material failed (non-fatal)',e);}
+ }
+ private mountWorld(){const scene=director.getScene()!;this.applyMarkerMaterial();const camera=scene.getComponentsInChildren(Camera)[0];camera.visibility&=~Layers.Enum.UI_2D;this.error='';
  const owner=new Node('IsolatedWorldComposition');scene.addChild(owner);this.composition=owner.addComponent(WorldNativeComposition);this.composition.firstsliceModel=this.model;this.composition.worldCamera=camera;this.composition.smokeFixture=this.smokeFixture;
  (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Flow reference placeholder, NOT B/calibrated clothing.'};
  }
