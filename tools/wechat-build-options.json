@@ -1,0 +1,19 @@
+{
+  "platform": "wechatgame",
+  "debug": true,
+  "outputName": "wechat-firstslice-smoke",
+  "name": "ForestFirstsliceImport",
+  "startScene": "e0114b68-a4b0-4f45-ae5e-2d8b221a4d00",
+  "scenes": [
+    {
+      "url": "db://assets/scenes/FirstsliceImport.scene",
+      "uuid": "e0114b68-a4b0-4f45-ae5e-2d8b221a4d00"
+    }
+  ],
+  "mainBundleCompressionType": "merge_dep",
+  "packages": {
+    "wechatgame": {
+      "appid": "wx3bdd911c5c06f591"
+    }
+  }
+}

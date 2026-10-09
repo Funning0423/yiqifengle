@@ -1,0 +1,2209 @@
+{
+  "r05-tide-01": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          31,
+          38
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 500,
+      "expectedState": "{\"board\":[{\"id\":50,\"type\":5,\"special\":null},{\"id\":70,\"type\":4,\"special\":null},{\"id\":71,\"type\":2,\"special\":null},{\"id\":89,\"type\":4,\"special\":null},{\"id\":54,\"type\":1,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":56,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":51,\"type\":1,\"special\":null},{\"id\":69,\"type\":5,\"special\":null},{\"id\":88,\"type\":2,\"special\":null},{\"id\":5,\"type\":0,\"special\":null},{\"id\":6,\"type\":2,\"special\":null},{\"id\":7,\"type\":4,\"special\":null},{\"id\":8,\"type\":3,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":68,\"type\":0,\"special\":null},{\"id\":87,\"type\":5,\"special\":null},{\"id\":12,\"type\":2,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":14,\"type\":5,\"special\":null},{\"id\":15,\"type\":1,\"special\":null},{\"id\":9,\"type\":0,\"special\":null},{\"id\":67,\"type\":0,\"special\":null},{\"id\":86,\"type\":3,\"special\":null},{\"id\":19,\"type\":4,\"special\":null},{\"id\":20,\"type\":3,\"special\":null},{\"id\":21,\"type\":1,\"special\":null},{\"id\":29,\"type\":1,\"special\":null},{\"id\":16,\"type\":5,\"special\":null},{\"id\":59,\"type\":2,\"special\":null},{\"id\":85,\"type\":2,\"special\":null},{\"id\":33,\"type\":1,\"special\":null},{\"id\":34,\"type\":5,\"special\":null},{\"id\":35,\"type\":2,\"special\":null},{\"id\":36,\"type\":3,\"special\":null},{\"id\":30,\"type\":4,\"special\":null},{\"id\":58,\"type\":0,\"special\":null},{\"id\":84,\"type\":0,\"special\":null},{\"id\":40,\"type\":3,\"special\":null},{\"id\":41,\"type\":5,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":0,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":52,\"type\":0,\"special\":null},{\"id\":80,\"type\":4,\"special\":null},{\"id\":47,\"type\":2,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":3,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"pearls\":0},\"score\":500,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":90,\"version\":16,\"random\":3337878820,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":24,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 38
+        },
+        {
+          "kind": "pearl-collected",
+          "index": 24
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          40,
+          41
+        ],
+        [
+          "swap",
+          25,
+          32
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 620,
+      "expectedState": "{\"board\":[{\"id\":56,\"type\":2,\"special\":null},{\"id\":57,\"type\":2,\"special\":null},{\"id\":71,\"type\":0,\"special\":null},{\"id\":97,\"type\":4,\"special\":null},{\"id\":80,\"type\":3,\"special\":null},{\"id\":83,\"type\":3,\"special\":null},{\"id\":70,\"type\":2,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":59,\"type\":3,\"special\":null},{\"id\":96,\"type\":5,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":82,\"type\":3,\"special\":null},{\"id\":55,\"type\":3,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":9,\"type\":3,\"special\":null},{\"id\":58,\"type\":3,\"special\":null},{\"id\":95,\"type\":5,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":81,\"type\":2,\"special\":null},{\"id\":52,\"type\":5,\"special\":null},{\"id\":15,\"type\":2,\"special\":null},{\"id\":16,\"type\":2,\"special\":null},{\"id\":3,\"type\":1,\"special\":null},{\"id\":94,\"type\":1,\"special\":null},{\"id\":74,\"type\":3,\"special\":null},{\"id\":69,\"type\":4,\"special\":null},{\"id\":51,\"type\":3,\"special\":null},{\"id\":29,\"type\":0,\"special\":null},{\"id\":30,\"type\":2,\"special\":null},{\"id\":31,\"type\":3,\"special\":null},{\"id\":93,\"type\":3,\"special\":null},{\"id\":73,\"type\":0,\"special\":null},{\"id\":54,\"type\":0,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":37,\"type\":1,\"special\":null},{\"id\":38,\"type\":4,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":33,\"type\":1,\"special\":null},{\"id\":34,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":45,\"type\":1,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":47,\"type\":5,\"special\":null},{\"id\":48,\"type\":5,\"special\":null},{\"id\":28,\"type\":0,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"pearls\":0},\"score\":620,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":98,\"version\":16,\"random\":3401769689,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":24,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 24
+        },
+        {
+          "kind": "pearl-collected",
+          "index": 38
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 3,
+      "actions": [
+        [
+          "swap",
+          3,
+          10
+        ],
+        [
+          "swap",
+          24,
+          25
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 430,
+      "expectedState": "{\"board\":[{\"id\":50,\"type\":3,\"special\":null},{\"id\":51,\"type\":4,\"special\":null},{\"id\":52,\"type\":4,\"special\":null},{\"id\":80,\"type\":2,\"special\":null},{\"id\":81,\"type\":0,\"special\":null},{\"id\":82,\"type\":4,\"special\":null},{\"id\":62,\"type\":3,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":2,\"type\":3,\"special\":null},{\"id\":3,\"type\":5,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":60,\"type\":2,\"special\":null},{\"id\":61,\"type\":0,\"special\":null},{\"id\":7,\"type\":3,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":9,\"type\":0,\"special\":null},{\"id\":10,\"type\":4,\"special\":null},{\"id\":78,\"type\":5,\"special\":null},{\"id\":5,\"type\":2,\"special\":null},{\"id\":6,\"type\":5,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":15,\"type\":4,\"special\":null},{\"id\":16,\"type\":5,\"special\":null},{\"id\":17,\"type\":1,\"special\":null},{\"id\":77,\"type\":2,\"special\":null},{\"id\":12,\"type\":4,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":21,\"type\":3,\"special\":null},{\"id\":29,\"type\":5,\"special\":null},{\"id\":30,\"type\":5,\"special\":null},{\"id\":31,\"type\":0,\"special\":null},{\"id\":76,\"type\":3,\"special\":null},{\"id\":56,\"type\":5,\"special\":null},{\"id\":20,\"type\":1,\"special\":null},{\"id\":35,\"type\":0,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":37,\"type\":1,\"special\":null},{\"id\":38,\"type\":3,\"special\":null},{\"id\":74,\"type\":1,\"special\":null},{\"id\":40,\"type\":0,\"special\":null},{\"id\":41,\"type\":2,\"special\":null},{\"id\":42,\"type\":4,\"special\":null},{\"id\":43,\"type\":1,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":45,\"type\":5,\"special\":null},{\"id\":73,\"type\":2,\"special\":null},{\"id\":47,\"type\":1,\"special\":null},{\"id\":48,\"type\":3,\"special\":null},{\"id\":49,\"type\":1,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"pearls\":0},\"score\":430,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":83,\"version\":12,\"random\":3161762045,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":24,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 24
+        },
+        {
+          "kind": "pearl-collected",
+          "index": 38
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-tide-02": [
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          1,
+          8
+        ],
+        [
+          "swap",
+          14,
+          15
+        ],
+        [
+          "swap",
+          47,
+          48
+        ],
+        [
+          "swap",
+          39,
+          40
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          18,
+          25
+        ],
+        [
+          "swap",
+          37,
+          44
+        ],
+        [
+          "swap",
+          22,
+          29
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 860,
+      "expectedState": "{\"board\":[{\"id\":120,\"type\":4,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":123,\"type\":4,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":125,\"type\":4,\"special\":null},{\"id\":97,\"type\":4,\"special\":null},{\"id\":68,\"type\":1,\"special\":null},{\"id\":107,\"type\":3,\"special\":null},{\"id\":119,\"type\":0,\"special\":null},{\"id\":122,\"type\":2,\"special\":null},{\"id\":106,\"type\":4,\"special\":null},{\"id\":103,\"type\":2,\"special\":null},{\"id\":96,\"type\":5,\"special\":null},{\"id\":67,\"type\":4,\"special\":null},{\"id\":50,\"type\":1,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":109,\"type\":2,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":86,\"type\":3,\"special\":null},{\"id\":95,\"type\":5,\"special\":null},{\"id\":66,\"type\":3,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":117,\"type\":3,\"special\":null},{\"id\":101,\"type\":1,\"special\":null},{\"id\":104,\"type\":3,\"special\":null},{\"id\":71,\"type\":0,\"special\":null},{\"id\":94,\"type\":1,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":55,\"type\":3,\"special\":null},{\"id\":116,\"type\":0,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":84,\"type\":4,\"special\":\"column\"},{\"id\":62,\"type\":5,\"special\":null},{\"id\":93,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":15,\"type\":2,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":99,\"type\":1,\"special\":null},{\"id\":18,\"type\":1,\"special\":null},{\"id\":5,\"type\":4,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":3,\"type\":1,\"special\":null},{\"id\":32,\"type\":2,\"special\":null},{\"id\":19,\"type\":5,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":27,\"type\":1,\"special\":null}],\"moves\":3,\"goals\":{\"roots\":0,\"type2\":0,\"pearls\":0},\"score\":860,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":126,\"version\":40,\"random\":2863907829,\"clock\":8,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":8,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":40,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 36
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 11,
+      "actions": [
+        [
+          "swap",
+          1,
+          8
+        ],
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          7,
+          8
+        ],
+        [
+          "swap",
+          40,
+          41
+        ],
+        [
+          "swap",
+          37,
+          44
+        ],
+        [
+          "swap",
+          15,
+          16
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 1380,
+      "expectedState": "{\"board\":[{\"id\":157,\"type\":3,\"special\":null},{\"id\":159,\"type\":4,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":161,\"type\":5,\"special\":null},{\"id\":133,\"type\":2,\"special\":null},{\"id\":135,\"type\":3,\"special\":null},{\"id\":136,\"type\":2,\"special\":null},{\"id\":139,\"type\":1,\"special\":null},{\"id\":158,\"type\":1,\"special\":null},{\"id\":149,\"type\":4,\"special\":null},{\"id\":127,\"type\":2,\"special\":null},{\"id\":129,\"type\":5,\"special\":null},{\"id\":134,\"type\":0,\"special\":null},{\"id\":132,\"type\":4,\"special\":null},{\"id\":138,\"type\":0,\"special\":null},{\"id\":156,\"type\":3,\"special\":null},{\"id\":148,\"type\":3,\"special\":null},{\"id\":106,\"type\":1,\"special\":null},{\"id\":107,\"type\":3,\"special\":null},{\"id\":131,\"type\":5,\"special\":null},{\"id\":101,\"type\":3,\"special\":null},{\"id\":137,\"type\":2,\"special\":null},{\"id\":155,\"type\":4,\"special\":null},{\"id\":147,\"type\":2,\"special\":null},{\"id\":70,\"type\":3,\"special\":null},{\"id\":97,\"type\":5,\"special\":null},{\"id\":130,\"type\":2,\"special\":\"bomb\"},{\"id\":100,\"type\":1,\"special\":null},{\"id\":91,\"type\":3,\"special\":null},{\"id\":154,\"type\":0,\"special\":null},{\"id\":126,\"type\":5,\"special\":null},{\"id\":59,\"type\":2,\"special\":null},{\"id\":71,\"type\":1,\"special\":null},{\"id\":118,\"type\":1,\"special\":null},{\"id\":99,\"type\":5,\"special\":null},{\"id\":15,\"type\":3,\"special\":null},{\"id\":153,\"type\":1,\"special\":null},{\"id\":88,\"type\":4,\"special\":null},{\"id\":4,\"type\":0,\"special\":null},{\"id\":62,\"type\":5,\"special\":null},{\"id\":114,\"type\":0,\"special\":null},{\"id\":68,\"type\":1,\"special\":null},{\"id\":29,\"type\":2,\"special\":null},{\"id\":150,\"type\":4,\"special\":\"bomb\"},{\"id\":77,\"type\":0,\"special\":null},{\"id\":11,\"type\":4,\"special\":null},{\"id\":61,\"type\":1,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":20,\"type\":2,\"special\":null}],\"moves\":3,\"goals\":{\"roots\":0,\"type2\":0,\"pearls\":0},\"score\":1380,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":162,\"version\":50,\"random\":3641411598,\"clock\":8,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":8,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":40,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 36
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 12,
+      "actions": [
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          25,
+          32
+        ],
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          30,
+          37
+        ],
+        [
+          "swap",
+          28,
+          29
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 1080,
+      "expectedState": "{\"board\":[{\"id\":127,\"type\":1,\"special\":null},{\"id\":137,\"type\":5,\"special\":null},{\"id\":138,\"type\":4,\"special\":null},{\"id\":139,\"type\":0,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":120,\"type\":3,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":121,\"type\":0,\"special\":null},{\"id\":136,\"type\":0,\"special\":null},{\"id\":123,\"type\":5,\"special\":null},{\"id\":129,\"type\":0,\"special\":null},{\"id\":99,\"type\":4,\"special\":null},{\"id\":119,\"type\":4,\"special\":null},{\"id\":78,\"type\":3,\"special\":null},{\"id\":80,\"type\":5,\"special\":null},{\"id\":135,\"type\":4,\"special\":null},{\"id\":112,\"type\":1,\"special\":\"row\"},{\"id\":106,\"type\":5,\"special\":\"row\"},{\"id\":83,\"type\":5,\"special\":null},{\"id\":118,\"type\":1,\"special\":null},{\"id\":77,\"type\":3,\"special\":null},{\"id\":73,\"type\":3,\"special\":null},{\"id\":134,\"type\":1,\"special\":null},{\"id\":103,\"type\":3,\"special\":null},{\"id\":82,\"type\":2,\"special\":null},{\"id\":62,\"type\":3,\"special\":null},{\"id\":117,\"type\":1,\"special\":null},{\"id\":76,\"type\":4,\"special\":null},{\"id\":88,\"type\":2,\"special\":null},{\"id\":132,\"type\":5,\"special\":null},{\"id\":97,\"type\":0,\"special\":null},{\"id\":18,\"type\":2,\"special\":null},{\"id\":12,\"type\":5,\"special\":null},{\"id\":116,\"type\":2,\"special\":null},{\"id\":75,\"type\":3,\"special\":null},{\"id\":51,\"type\":2,\"special\":null},{\"id\":131,\"type\":0,\"special\":null},{\"id\":24,\"type\":0,\"special\":null},{\"id\":32,\"type\":5,\"special\":null},{\"id\":19,\"type\":5,\"special\":null},{\"id\":115,\"type\":4,\"special\":null},{\"id\":21,\"type\":4,\"special\":null},{\"id\":15,\"type\":4,\"special\":null},{\"id\":130,\"type\":4,\"special\":null},{\"id\":31,\"type\":2,\"special\":null},{\"id\":46,\"type\":0,\"special\":null},{\"id\":26,\"type\":2,\"special\":null},{\"id\":114,\"type\":5,\"special\":null},{\"id\":28,\"type\":4,\"special\":null}],\"moves\":5,\"goals\":{\"roots\":0,\"type2\":0,\"pearls\":0},\"score\":1080,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":140,\"version\":38,\"random\":527310509,\"clock\":6,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":8,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":40,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 36
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-tide-03": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          32,
+          33
+        ],
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          7,
+          14
+        ],
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          8,
+          9
+        ],
+        [
+          "swap",
+          31,
+          38
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 1585,
+      "expectedState": "{\"board\":[{\"id\":168,\"type\":0,\"special\":null},{\"id\":169,\"type\":5,\"special\":null},{\"id\":170,\"type\":3,\"special\":null},{\"id\":171,\"type\":3,\"special\":null},{\"id\":172,\"type\":2,\"special\":null},{\"id\":173,\"type\":4,\"special\":null},{\"id\":174,\"type\":1,\"special\":null},{\"id\":143,\"type\":4,\"special\":null},{\"id\":162,\"type\":4,\"special\":null},{\"id\":165,\"type\":2,\"special\":null},{\"id\":166,\"type\":0,\"special\":null},{\"id\":167,\"type\":4,\"special\":null},{\"id\":141,\"type\":5,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":131,\"type\":2,\"special\":null},{\"id\":149,\"type\":5,\"special\":null},{\"id\":163,\"type\":3,\"special\":null},{\"id\":153,\"type\":1,\"special\":null},{\"id\":164,\"type\":2,\"special\":null},{\"id\":126,\"type\":1,\"special\":null},{\"id\":127,\"type\":3,\"special\":null},{\"id\":130,\"type\":2,\"special\":null},{\"id\":137,\"type\":3,\"special\":null},{\"id\":161,\"type\":4,\"special\":null},{\"id\":148,\"type\":3,\"special\":\"row\"},{\"id\":154,\"type\":1,\"special\":null},{\"id\":109,\"type\":1,\"special\":null},{\"id\":110,\"type\":4,\"special\":null},{\"id\":129,\"type\":3,\"special\":null},{\"id\":132,\"type\":2,\"special\":null},{\"id\":159,\"type\":1,\"special\":null},{\"id\":139,\"type\":2,\"special\":null},{\"id\":107,\"type\":1,\"special\":null},{\"id\":84,\"type\":0,\"special\":null},{\"id\":14,\"type\":5,\"special\":null},{\"id\":36,\"type\":3,\"special\":null},{\"id\":51,\"type\":1,\"special\":null},{\"id\":157,\"type\":4,\"special\":null},{\"id\":116,\"type\":1,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":20,\"type\":3,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":0,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":155,\"type\":1,\"special\":null},{\"id\":114,\"type\":5,\"special\":null},{\"id\":98,\"type\":4,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":3,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"roots\":0,\"pearls\":0},\"score\":1585,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":175,\"version\":59,\"random\":1034408295,\"clock\":7,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":25,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":31,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          32,
+          39
+        ],
+        [
+          "swap",
+          36,
+          43
+        ],
+        [
+          "swap",
+          9,
+          10
+        ],
+        [
+          "swap",
+          16,
+          17
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 1475,
+      "expectedState": "{\"board\":[{\"id\":111,\"type\":0,\"special\":null},{\"id\":147,\"type\":4,\"special\":null},{\"id\":159,\"type\":1,\"special\":null},{\"id\":152,\"type\":2,\"special\":null},{\"id\":132,\"type\":4,\"special\":\"color\"},{\"id\":135,\"type\":0,\"special\":null},{\"id\":136,\"type\":1,\"special\":null},{\"id\":86,\"type\":3,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":158,\"type\":3,\"special\":null},{\"id\":134,\"type\":4,\"special\":null},{\"id\":128,\"type\":3,\"special\":null},{\"id\":122,\"type\":2,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":66,\"type\":3,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":157,\"type\":3,\"special\":null},{\"id\":125,\"type\":4,\"special\":null},{\"id\":119,\"type\":0,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":82,\"type\":3,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":94,\"type\":1,\"special\":null},{\"id\":156,\"type\":0,\"special\":null},{\"id\":137,\"type\":0,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":81,\"type\":2,\"special\":null},{\"id\":22,\"type\":4,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":155,\"type\":0,\"special\":null},{\"id\":106,\"type\":4,\"special\":null},{\"id\":117,\"type\":3,\"special\":null},{\"id\":77,\"type\":5,\"special\":null},{\"id\":80,\"type\":3,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":60,\"type\":4,\"special\":\"column\"},{\"id\":154,\"type\":4,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":116,\"type\":0,\"special\":null},{\"id\":20,\"type\":2,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":153,\"type\":5,\"special\":null},{\"id\":102,\"type\":4,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":48,\"type\":5,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":5,\"goals\":{\"moss\":0,\"roots\":0,\"pearls\":0},\"score\":1475,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":160,\"version\":44,\"random\":797814287,\"clock\":6,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":25,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":31,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 9
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 3,
+      "actions": [
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          35,
+          36
+        ],
+        [
+          "swap",
+          29,
+          30
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 1535,
+      "expectedState": "{\"board\":[{\"id\":160,\"type\":0,\"special\":null},{\"id\":161,\"type\":1,\"special\":null},{\"id\":169,\"type\":0,\"special\":null},{\"id\":156,\"type\":5,\"special\":null},{\"id\":159,\"type\":0,\"special\":null},{\"id\":146,\"type\":3,\"special\":null},{\"id\":108,\"type\":4,\"special\":null},{\"id\":102,\"type\":1,\"special\":null},{\"id\":126,\"type\":0,\"special\":null},{\"id\":168,\"type\":5,\"special\":null},{\"id\":155,\"type\":4,\"special\":null},{\"id\":158,\"type\":5,\"special\":null},{\"id\":143,\"type\":2,\"special\":null},{\"id\":66,\"type\":1,\"special\":null},{\"id\":101,\"type\":3,\"special\":null},{\"id\":125,\"type\":1,\"special\":null},{\"id\":167,\"type\":3,\"special\":null},{\"id\":154,\"type\":1,\"special\":null},{\"id\":157,\"type\":1,\"special\":null},{\"id\":62,\"type\":3,\"special\":null},{\"id\":65,\"type\":2,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":116,\"type\":4,\"special\":null},{\"id\":166,\"type\":4,\"special\":null},{\"id\":153,\"type\":3,\"special\":null},{\"id\":145,\"type\":0,\"special\":null},{\"id\":61,\"type\":0,\"special\":null},{\"id\":64,\"type\":5,\"special\":null},{\"id\":90,\"type\":3,\"special\":null},{\"id\":103,\"type\":4,\"special\":null},{\"id\":165,\"type\":2,\"special\":null},{\"id\":152,\"type\":4,\"special\":null},{\"id\":114,\"type\":3,\"special\":null},{\"id\":6,\"type\":5,\"special\":null},{\"id\":7,\"type\":3,\"special\":null},{\"id\":89,\"type\":5,\"special\":null},{\"id\":93,\"type\":3,\"special\":null},{\"id\":164,\"type\":4,\"special\":null},{\"id\":151,\"type\":3,\"special\":null},{\"id\":106,\"type\":1,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":15,\"type\":4,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":163,\"type\":5,\"special\":null},{\"id\":150,\"type\":2,\"special\":null},{\"id\":76,\"type\":3,\"special\":null},{\"id\":48,\"type\":3,\"special\":null},{\"id\":49,\"type\":1,\"special\":null}],\"moves\":5,\"goals\":{\"moss\":0,\"roots\":0,\"pearls\":0},\"score\":1535,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":170,\"version\":48,\"random\":593782798,\"clock\":6,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":25,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":31,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 31
+        },
+        {
+          "kind": "pearl-collected",
+          "index": 9
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-tide-04": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          2,
+          3
+        ],
+        [
+          "swap",
+          33,
+          40
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          5,
+          12
+        ],
+        [
+          "swap",
+          32,
+          39
+        ],
+        [
+          "swap",
+          40,
+          47
+        ],
+        [
+          "swap",
+          36,
+          43
+        ]
+      ],
+      "movesRemaining": 6,
+      "score": 1930,
+      "expectedState": "{\"board\":[{\"id\":201,\"type\":2,\"special\":null},{\"id\":202,\"type\":0,\"special\":null},{\"id\":203,\"type\":0,\"special\":null},{\"id\":184,\"type\":5,\"special\":null},{\"id\":187,\"type\":0,\"special\":null},{\"id\":190,\"type\":4,\"special\":null},{\"id\":193,\"type\":5,\"special\":null},{\"id\":181,\"type\":5,\"special\":null},{\"id\":200,\"type\":1,\"special\":null},{\"id\":183,\"type\":1,\"special\":null},{\"id\":179,\"type\":4,\"special\":null},{\"id\":186,\"type\":3,\"special\":null},{\"id\":189,\"type\":1,\"special\":null},{\"id\":192,\"type\":3,\"special\":null},{\"id\":167,\"type\":4,\"special\":null},{\"id\":199,\"type\":3,\"special\":null},{\"id\":178,\"type\":3,\"special\":null},{\"id\":175,\"type\":4,\"special\":null},{\"id\":185,\"type\":0,\"special\":null},{\"id\":188,\"type\":0,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":161,\"type\":4,\"special\":null},{\"id\":198,\"type\":0,\"special\":null},{\"id\":169,\"type\":5,\"special\":null},{\"id\":146,\"type\":0,\"special\":null},{\"id\":180,\"type\":4,\"special\":null},{\"id\":177,\"type\":2,\"special\":null},{\"id\":174,\"type\":1,\"special\":null},{\"id\":126,\"type\":1,\"special\":null},{\"id\":197,\"type\":3,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":117,\"type\":5,\"special\":null},{\"id\":176,\"type\":2,\"special\":null},{\"id\":173,\"type\":4,\"special\":null},{\"id\":143,\"type\":4,\"special\":null},{\"id\":123,\"type\":5,\"special\":null},{\"id\":196,\"type\":2,\"special\":null},{\"id\":159,\"type\":1,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":130,\"type\":2,\"special\":null},{\"id\":166,\"type\":0,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":36,\"type\":3,\"special\":null},{\"id\":194,\"type\":2,\"special\":null},{\"id\":154,\"type\":1,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":153,\"type\":1,\"special\":null},{\"id\":141,\"type\":5,\"special\":null}],\"moves\":6,\"goals\":{\"roots\":0,\"moss\":0,\"pearls\":0},\"score\":1930,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":204,\"version\":62,\"random\":6700710,\"clock\":8,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 36
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "activate",
+          43
+        ],
+        [
+          "swap",
+          39,
+          46
+        ],
+        [
+          "swap",
+          35,
+          36
+        ],
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          2,
+          3
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          17,
+          18
+        ],
+        [
+          "swap",
+          8,
+          9
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 1940,
+      "expectedState": "{\"board\":[{\"id\":188,\"type\":2,\"special\":null},{\"id\":189,\"type\":4,\"special\":null},{\"id\":204,\"type\":3,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":197,\"type\":4,\"special\":null},{\"id\":193,\"type\":4,\"special\":null},{\"id\":194,\"type\":5,\"special\":null},{\"id\":176,\"type\":2,\"special\":null},{\"id\":185,\"type\":3,\"special\":null},{\"id\":203,\"type\":4,\"special\":null},{\"id\":187,\"type\":2,\"special\":null},{\"id\":196,\"type\":1,\"special\":null},{\"id\":154,\"type\":4,\"special\":null},{\"id\":122,\"type\":2,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":178,\"type\":1,\"special\":null},{\"id\":202,\"type\":2,\"special\":null},{\"id\":182,\"type\":4,\"special\":null},{\"id\":195,\"type\":1,\"special\":null},{\"id\":127,\"type\":2,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":87,\"type\":4,\"special\":null},{\"id\":177,\"type\":0,\"special\":null},{\"id\":201,\"type\":2,\"special\":null},{\"id\":152,\"type\":2,\"special\":null},{\"id\":192,\"type\":0,\"special\":null},{\"id\":126,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":166,\"type\":5,\"special\":\"column\"},{\"id\":200,\"type\":5,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":111,\"type\":0,\"special\":null},{\"id\":125,\"type\":4,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":70,\"type\":2,\"special\":null},{\"id\":141,\"type\":1,\"special\":null},{\"id\":199,\"type\":0,\"special\":null},{\"id\":76,\"type\":0,\"special\":null},{\"id\":109,\"type\":2,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":28,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":139,\"type\":0,\"special\":null},{\"id\":198,\"type\":4,\"special\":null},{\"id\":58,\"type\":3,\"special\":null},{\"id\":108,\"type\":2,\"special\":null},{\"id\":123,\"type\":4,\"special\":null},{\"id\":35,\"type\":4,\"special\":null}],\"moves\":3,\"goals\":{\"roots\":0,\"moss\":0,\"pearls\":0},\"score\":1940,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":205,\"version\":73,\"random\":2862645886,\"clock\":11,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 9
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 3,
+      "actions": [
+        [
+          "activate",
+          38
+        ],
+        [
+          "swap",
+          38,
+          45
+        ],
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          36,
+          43
+        ],
+        [
+          "swap",
+          29,
+          36
+        ],
+        [
+          "swap",
+          33,
+          34
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          8,
+          9
+        ]
+      ],
+      "movesRemaining": 6,
+      "score": 1530,
+      "expectedState": "{\"board\":[{\"id\":112,\"type\":0,\"special\":null},{\"id\":146,\"type\":3,\"special\":null},{\"id\":167,\"type\":3,\"special\":null},{\"id\":156,\"type\":5,\"special\":null},{\"id\":157,\"type\":1,\"special\":null},{\"id\":153,\"type\":3,\"special\":null},{\"id\":154,\"type\":1,\"special\":null},{\"id\":105,\"type\":2,\"special\":null},{\"id\":147,\"type\":3,\"special\":null},{\"id\":166,\"type\":4,\"special\":null},{\"id\":148,\"type\":1,\"special\":null},{\"id\":152,\"type\":4,\"special\":null},{\"id\":135,\"type\":0,\"special\":null},{\"id\":151,\"type\":3,\"special\":null},{\"id\":76,\"type\":3,\"special\":null},{\"id\":144,\"type\":2,\"special\":null},{\"id\":165,\"type\":2,\"special\":null},{\"id\":137,\"type\":4,\"special\":null},{\"id\":125,\"type\":1,\"special\":null},{\"id\":123,\"type\":3,\"special\":null},{\"id\":150,\"type\":2,\"special\":null},{\"id\":50,\"type\":3,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":164,\"type\":4,\"special\":null},{\"id\":120,\"type\":0,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":110,\"type\":3,\"special\":null},{\"id\":149,\"type\":2,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":141,\"type\":4,\"special\":null},{\"id\":163,\"type\":5,\"special\":null},{\"id\":90,\"type\":3,\"special\":null},{\"id\":122,\"type\":4,\"special\":\"row\"},{\"id\":104,\"type\":4,\"special\":null},{\"id\":111,\"type\":3,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":140,\"type\":0,\"special\":null},{\"id\":162,\"type\":0,\"special\":null},{\"id\":83,\"type\":4,\"special\":null},{\"id\":91,\"type\":0,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":101,\"type\":3,\"special\":\"column\"},{\"id\":15,\"type\":4,\"special\":null},{\"id\":139,\"type\":5,\"special\":null},{\"id\":161,\"type\":1,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":69,\"type\":3,\"special\":null},{\"id\":95,\"type\":2,\"special\":null},{\"id\":42,\"type\":4,\"special\":null}],\"moves\":6,\"goals\":{\"roots\":0,\"moss\":0,\"pearls\":0},\"score\":1530,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":168,\"version\":54,\"random\":2394002812,\"clock\":8,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"layers\":2,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"layers\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pearl-collected",
+          "index": 9
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-meadow-01": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          21,
+          22
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          24,
+          25
+        ],
+        [
+          "swap",
+          45,
+          46
+        ],
+        [
+          "swap",
+          23,
+          24
+        ]
+      ],
+      "movesRemaining": 6,
+      "score": 940,
+      "expectedState": "{\"board\":[{\"id\":126,\"type\":1,\"special\":null},{\"id\":127,\"type\":3,\"special\":null},{\"id\":128,\"type\":0,\"special\":null},{\"id\":129,\"type\":3,\"special\":null},{\"id\":133,\"type\":0,\"special\":null},{\"id\":134,\"type\":4,\"special\":null},{\"id\":135,\"type\":5,\"special\":null},{\"id\":103,\"type\":0,\"special\":null},{\"id\":120,\"type\":2,\"special\":null},{\"id\":123,\"type\":5,\"special\":null},{\"id\":124,\"type\":4,\"special\":null},{\"id\":125,\"type\":0,\"special\":null},{\"id\":97,\"type\":3,\"special\":null},{\"id\":56,\"type\":0,\"special\":null},{\"id\":102,\"type\":1,\"special\":null},{\"id\":99,\"type\":2,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":122,\"type\":0,\"special\":null},{\"id\":54,\"type\":1,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":7,\"type\":4,\"special\":null},{\"id\":101,\"type\":5,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":106,\"type\":0,\"special\":null},{\"id\":119,\"type\":3,\"special\":null},{\"id\":5,\"type\":0,\"special\":null},{\"id\":6,\"type\":2,\"special\":null},{\"id\":14,\"type\":5,\"special\":null},{\"id\":98,\"type\":4,\"special\":null},{\"id\":84,\"type\":0,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":12,\"type\":2,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":21,\"type\":1,\"special\":null},{\"id\":50,\"type\":5,\"special\":null},{\"id\":66,\"type\":5,\"special\":null},{\"id\":104,\"type\":2,\"special\":null},{\"id\":117,\"type\":5,\"special\":null},{\"id\":62,\"type\":2,\"special\":null},{\"id\":20,\"type\":3,\"special\":null},{\"id\":35,\"type\":2,\"special\":null},{\"id\":43,\"type\":0,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":81,\"type\":3,\"special\":null},{\"id\":114,\"type\":5,\"special\":null},{\"id\":46,\"type\":0,\"special\":\"row\"},{\"id\":41,\"type\":5,\"special\":null},{\"id\":49,\"type\":3,\"special\":null}],\"moves\":6,\"goals\":{\"type1\":0,\"blooms\":0},\"score\":940,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":136,\"version\":41,\"random\":4092761106,\"clock\":5,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":23,\"pollen\":[1,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":38,\"pollen\":[3,1],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 38,
+          "type": 1,
+          "step": 2
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 38
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          7,
+          14
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 640,
+      "expectedState": "{\"board\":[{\"id\":99,\"type\":1,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":101,\"type\":1,\"special\":null},{\"id\":102,\"type\":4,\"special\":null},{\"id\":103,\"type\":2,\"special\":null},{\"id\":104,\"type\":3,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":96,\"type\":5,\"special\":null},{\"id\":97,\"type\":4,\"special\":null},{\"id\":88,\"type\":0,\"special\":null},{\"id\":98,\"type\":2,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":81,\"type\":2,\"special\":null},{\"id\":87,\"type\":4,\"special\":null},{\"id\":85,\"type\":4,\"special\":null},{\"id\":95,\"type\":5,\"special\":null},{\"id\":64,\"type\":4,\"special\":null},{\"id\":65,\"type\":0,\"special\":null},{\"id\":66,\"type\":3,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":75,\"type\":5,\"special\":null},{\"id\":84,\"type\":4,\"special\":null},{\"id\":89,\"type\":2,\"special\":null},{\"id\":12,\"type\":0,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":61,\"type\":2,\"special\":null},{\"id\":72,\"type\":5,\"special\":null},{\"id\":58,\"type\":3,\"special\":null},{\"id\":19,\"type\":5,\"special\":null},{\"id\":20,\"type\":2,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":77,\"type\":5,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":71,\"type\":0,\"special\":null},{\"id\":56,\"type\":2,\"special\":null},{\"id\":26,\"type\":0,\"special\":null},{\"id\":27,\"type\":1,\"special\":null},{\"id\":28,\"type\":0,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":67,\"type\":4,\"special\":null},{\"id\":53,\"type\":0,\"special\":null},{\"id\":47,\"type\":5,\"special\":null},{\"id\":48,\"type\":5,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":5,\"goals\":{\"type1\":0,\"blooms\":0},\"score\":640,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":106,\"version\":28,\"random\":2266602913,\"clock\":6,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":23,\"pollen\":[1,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":38,\"pollen\":[3,1],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [],
+      "toolActions": 0
+    },
+    {
+      "seed": 3,
+      "actions": [
+        [
+          "swap",
+          21,
+          22
+        ],
+        [
+          "swap",
+          9,
+          10
+        ],
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          30,
+          31
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 920,
+      "expectedState": "{\"board\":[{\"id\":103,\"type\":4,\"special\":null},{\"id\":127,\"type\":2,\"special\":null},{\"id\":128,\"type\":0,\"special\":null},{\"id\":129,\"type\":0,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":119,\"type\":2,\"special\":null},{\"id\":92,\"type\":0,\"special\":null},{\"id\":102,\"type\":1,\"special\":null},{\"id\":105,\"type\":2,\"special\":null},{\"id\":114,\"type\":3,\"special\":null},{\"id\":126,\"type\":0,\"special\":null},{\"id\":116,\"type\":4,\"special\":null},{\"id\":91,\"type\":0,\"special\":null},{\"id\":85,\"type\":1,\"special\":null},{\"id\":50,\"type\":3,\"special\":null},{\"id\":104,\"type\":4,\"special\":null},{\"id\":112,\"type\":0,\"special\":null},{\"id\":125,\"type\":1,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":72,\"type\":2,\"special\":null},{\"id\":56,\"type\":5,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":77,\"type\":2,\"special\":null},{\"id\":111,\"type\":3,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":99,\"type\":0,\"special\":null},{\"id\":55,\"type\":2,\"special\":null},{\"id\":7,\"type\":3,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":51,\"type\":4,\"special\":null},{\"id\":107,\"type\":5,\"special\":null},{\"id\":123,\"type\":3,\"special\":null},{\"id\":90,\"type\":3,\"special\":null},{\"id\":6,\"type\":5,\"special\":null},{\"id\":35,\"type\":0,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":37,\"type\":1,\"special\":null},{\"id\":94,\"type\":0,\"special\":null},{\"id\":121,\"type\":2,\"special\":null},{\"id\":40,\"type\":0,\"special\":null},{\"id\":41,\"type\":2,\"special\":null},{\"id\":42,\"type\":4,\"special\":null},{\"id\":43,\"type\":1,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":45,\"type\":5,\"special\":null},{\"id\":120,\"type\":0,\"special\":null},{\"id\":47,\"type\":1,\"special\":null},{\"id\":48,\"type\":3,\"special\":null},{\"id\":49,\"type\":1,\"special\":null}],\"moves\":5,\"goals\":{\"type1\":0,\"blooms\":0},\"score\":920,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":130,\"version\":38,\"random\":149963782,\"clock\":6,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":23,\"pollen\":[1,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":38,\"pollen\":[3,1],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 38,
+          "type": 1,
+          "step": 2
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 38
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-meadow-02": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          14,
+          15
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          10,
+          11
+        ],
+        [
+          "swap",
+          18,
+          25
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          39,
+          40
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 975,
+      "expectedState": "{\"board\":[{\"id\":122,\"type\":0,\"special\":null},{\"id\":123,\"type\":5,\"special\":null},{\"id\":124,\"type\":4,\"special\":null},{\"id\":125,\"type\":0,\"special\":null},{\"id\":126,\"type\":1,\"special\":null},{\"id\":127,\"type\":3,\"special\":null},{\"id\":128,\"type\":0,\"special\":null},{\"id\":82,\"type\":3,\"special\":null},{\"id\":102,\"type\":1,\"special\":null},{\"id\":103,\"type\":0,\"special\":null},{\"id\":104,\"type\":2,\"special\":null},{\"id\":119,\"type\":3,\"special\":null},{\"id\":120,\"type\":2,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":75,\"type\":4,\"special\":null},{\"id\":101,\"type\":5,\"special\":null},{\"id\":97,\"type\":3,\"special\":null},{\"id\":98,\"type\":4,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":112,\"type\":3,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":66,\"type\":5,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":91,\"type\":5,\"special\":null},{\"id\":116,\"type\":1,\"special\":null},{\"id\":80,\"type\":4,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":8,\"type\":3,\"special\":null},{\"id\":99,\"type\":2,\"special\":null},{\"id\":84,\"type\":0,\"special\":null},{\"id\":90,\"type\":1,\"special\":null},{\"id\":111,\"type\":3,\"special\":null},{\"id\":55,\"type\":4,\"special\":null},{\"id\":81,\"type\":3,\"special\":null},{\"id\":36,\"type\":3,\"special\":null},{\"id\":83,\"type\":3,\"special\":null},{\"id\":38,\"type\":5,\"special\":null},{\"id\":39,\"type\":5,\"special\":null},{\"id\":106,\"type\":0,\"special\":null},{\"id\":40,\"type\":3,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":0,\"special\":null},{\"id\":9,\"type\":0,\"special\":null},{\"id\":45,\"type\":3,\"special\":null},{\"id\":46,\"type\":0,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":3,\"special\":null}],\"moves\":3,\"goals\":{\"moss\":0,\"blooms\":0},\"score\":975,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":129,\"version\":35,\"random\":76067969,\"clock\":7,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":16,\"pollen\":[0,2],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":18,\"pollen\":[2,4],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":31,\"pollen\":[4,0],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 31,
+          "type": 0,
+          "step": 2
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 31
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          33,
+          40
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 845,
+      "expectedState": "{\"board\":[{\"id\":99,\"type\":1,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":102,\"type\":4,\"special\":null},{\"id\":104,\"type\":3,\"special\":null},{\"id\":106,\"type\":4,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":108,\"type\":2,\"special\":null},{\"id\":72,\"type\":5,\"special\":null},{\"id\":89,\"type\":2,\"special\":null},{\"id\":101,\"type\":1,\"special\":null},{\"id\":103,\"type\":2,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":114,\"type\":4,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":86,\"type\":3,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":75,\"type\":5,\"special\":null},{\"id\":98,\"type\":2,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":73,\"type\":0,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":68,\"type\":1,\"special\":null},{\"id\":96,\"type\":5,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":22,\"type\":4,\"special\":null},{\"id\":23,\"type\":4,\"special\":null},{\"id\":82,\"type\":3,\"special\":null},{\"id\":63,\"type\":0,\"special\":null},{\"id\":95,\"type\":5,\"special\":null},{\"id\":111,\"type\":0,\"special\":null},{\"id\":28,\"type\":0,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":37,\"type\":1,\"special\":null},{\"id\":81,\"type\":2,\"special\":null},{\"id\":61,\"type\":2,\"special\":null},{\"id\":94,\"type\":1,\"special\":null},{\"id\":110,\"type\":3,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":79,\"type\":5,\"special\":null},{\"id\":55,\"type\":3,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":109,\"type\":2,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":5,\"goals\":{\"moss\":0,\"blooms\":0},\"score\":845,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":116,\"version\":27,\"random\":1755710339,\"clock\":5,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":16,\"pollen\":[0,2],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":18,\"pollen\":[2,4],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":31,\"pollen\":[4,0],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [],
+      "toolActions": 0
+    },
+    {
+      "seed": 4,
+      "actions": [
+        [
+          "swap",
+          10,
+          11
+        ],
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          24,
+          25
+        ],
+        [
+          "swap",
+          39,
+          40
+        ],
+        [
+          "swap",
+          36,
+          43
+        ]
+      ],
+      "movesRemaining": 5,
+      "score": 1215,
+      "expectedState": "{\"board\":[{\"id\":145,\"type\":2,\"special\":null},{\"id\":148,\"type\":5,\"special\":null},{\"id\":138,\"type\":2,\"special\":null},{\"id\":139,\"type\":4,\"special\":null},{\"id\":140,\"type\":1,\"special\":null},{\"id\":141,\"type\":0,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":144,\"type\":4,\"special\":null},{\"id\":147,\"type\":1,\"special\":null},{\"id\":125,\"type\":5,\"special\":null},{\"id\":127,\"type\":1,\"special\":null},{\"id\":128,\"type\":3,\"special\":null},{\"id\":122,\"type\":5,\"special\":null},{\"id\":119,\"type\":4,\"special\":null},{\"id\":143,\"type\":0,\"special\":null},{\"id\":146,\"type\":2,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":126,\"type\":3,\"special\":null},{\"id\":121,\"type\":2,\"special\":null},{\"id\":118,\"type\":5,\"special\":null},{\"id\":66,\"type\":5,\"special\":null},{\"id\":136,\"type\":2,\"special\":null},{\"id\":137,\"type\":1,\"special\":null},{\"id\":76,\"type\":1,\"special\":null},{\"id\":102,\"type\":5,\"special\":null},{\"id\":116,\"type\":3,\"special\":null},{\"id\":6,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":69,\"type\":1,\"special\":null},{\"id\":131,\"type\":1,\"special\":null},{\"id\":73,\"type\":4,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":115,\"type\":1,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":28,\"type\":4,\"special\":null},{\"id\":36,\"type\":1,\"special\":null},{\"id\":130,\"type\":2,\"special\":null},{\"id\":61,\"type\":4,\"special\":null},{\"id\":99,\"type\":5,\"special\":null},{\"id\":114,\"type\":2,\"special\":null},{\"id\":27,\"type\":2,\"special\":null},{\"id\":35,\"type\":3,\"special\":null},{\"id\":43,\"type\":5,\"special\":null},{\"id\":129,\"type\":1,\"special\":null},{\"id\":45,\"type\":2,\"special\":null},{\"id\":93,\"type\":3,\"special\":null},{\"id\":111,\"type\":0,\"special\":null},{\"id\":11,\"type\":3,\"special\":null},{\"id\":42,\"type\":4,\"special\":null}],\"moves\":5,\"goals\":{\"moss\":0,\"blooms\":0},\"score\":1215,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":149,\"version\":39,\"random\":4233578056,\"clock\":5,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":16,\"pollen\":[0,2],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":18,\"pollen\":[2,4],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":31,\"pollen\":[4,0],\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 16,
+          "type": 2,
+          "step": 2
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 16
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-meadow-03": [
+    {
+      "seed": 7,
+      "actions": [
+        [
+          "activate",
+          37
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          39,
+          40
+        ],
+        [
+          "swap",
+          24,
+          25
+        ],
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          44,
+          45
+        ],
+        [
+          "swap",
+          25,
+          26
+        ]
+      ],
+      "movesRemaining": 7,
+      "score": 1420,
+      "expectedState": "{\"board\":[{\"id\":131,\"type\":5,\"special\":null},{\"id\":132,\"type\":5,\"special\":null},{\"id\":143,\"type\":2,\"special\":null},{\"id\":163,\"type\":5,\"special\":null},{\"id\":170,\"type\":1,\"special\":null},{\"id\":173,\"type\":3,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":106,\"type\":4,\"special\":null},{\"id\":107,\"type\":1,\"special\":null},{\"id\":142,\"type\":2,\"special\":null},{\"id\":162,\"type\":0,\"special\":null},{\"id\":169,\"type\":4,\"special\":null},{\"id\":172,\"type\":4,\"special\":null},{\"id\":118,\"type\":5,\"special\":null},{\"id\":90,\"type\":1,\"special\":null},{\"id\":98,\"type\":1,\"special\":null},{\"id\":141,\"type\":0,\"special\":null},{\"id\":161,\"type\":3,\"special\":null},{\"id\":168,\"type\":2,\"special\":null},{\"id\":171,\"type\":0,\"special\":null},{\"id\":84,\"type\":4,\"special\":null},{\"id\":88,\"type\":4,\"special\":null},{\"id\":60,\"type\":0,\"special\":null},{\"id\":140,\"type\":4,\"special\":null},{\"id\":151,\"type\":4,\"special\":null},{\"id\":167,\"type\":1,\"special\":null},{\"id\":159,\"type\":5,\"special\":null},{\"id\":7,\"type\":2,\"special\":null},{\"id\":87,\"type\":3,\"special\":null},{\"id\":52,\"type\":1,\"special\":null},{\"id\":136,\"type\":1,\"special\":null},{\"id\":150,\"type\":0,\"special\":null},{\"id\":166,\"type\":2,\"special\":null},{\"id\":153,\"type\":2,\"special\":null},{\"id\":35,\"type\":4,\"special\":null},{\"id\":86,\"type\":1,\"special\":null},{\"id\":50,\"type\":5,\"special\":null},{\"id\":135,\"type\":2,\"special\":null},{\"id\":149,\"type\":3,\"special\":null},{\"id\":165,\"type\":3,\"special\":null},{\"id\":117,\"type\":2,\"special\":null},{\"id\":42,\"type\":1,\"special\":null},{\"id\":43,\"type\":3,\"special\":null},{\"id\":23,\"type\":0,\"special\":null},{\"id\":144,\"type\":5,\"special\":null},{\"id\":145,\"type\":1,\"special\":null},{\"id\":164,\"type\":2,\"special\":null},{\"id\":110,\"type\":0,\"special\":null},{\"id\":49,\"type\":2,\"special\":null}],\"moves\":7,\"goals\":{\"roots\":0,\"type4\":0,\"blooms\":0},\"score\":1420,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":174,\"version\":53,\"random\":2414180118,\"clock\":9,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"pollen\":[1,4,2],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":25,\"pollen\":[2,1],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"pollen\":[4,2,1],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 39,
+          "type": 1,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 39
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 10,
+      "actions": [
+        [
+          "swap",
+          26,
+          33
+        ],
+        [
+          "swap",
+          21,
+          28
+        ],
+        [
+          "swap",
+          38,
+          45
+        ],
+        [
+          "activate",
+          2
+        ],
+        [
+          "swap",
+          16,
+          17
+        ],
+        [
+          "swap",
+          30,
+          37
+        ],
+        [
+          "swap",
+          32,
+          39
+        ],
+        [
+          "swap",
+          25,
+          32
+        ],
+        [
+          "swap",
+          26,
+          27
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          33,
+          40
+        ],
+        [
+          "swap",
+          25,
+          32
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 1500,
+      "expectedState": "{\"board\":[{\"id\":132,\"type\":3,\"special\":null},{\"id\":156,\"type\":5,\"special\":null},{\"id\":157,\"type\":4,\"special\":null},{\"id\":164,\"type\":4,\"special\":null},{\"id\":177,\"type\":1,\"special\":null},{\"id\":170,\"type\":3,\"special\":null},{\"id\":161,\"type\":3,\"special\":null},{\"id\":109,\"type\":1,\"special\":null},{\"id\":126,\"type\":2,\"special\":null},{\"id\":154,\"type\":3,\"special\":null},{\"id\":163,\"type\":0,\"special\":null},{\"id\":176,\"type\":3,\"special\":null},{\"id\":169,\"type\":3,\"special\":null},{\"id\":152,\"type\":2,\"special\":null},{\"id\":83,\"type\":4,\"special\":null},{\"id\":147,\"type\":4,\"special\":null},{\"id\":153,\"type\":3,\"special\":null},{\"id\":162,\"type\":5,\"special\":null},{\"id\":175,\"type\":1,\"special\":null},{\"id\":168,\"type\":5,\"special\":null},{\"id\":151,\"type\":5,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":100,\"type\":1,\"special\":null},{\"id\":149,\"type\":2,\"special\":null},{\"id\":143,\"type\":5,\"special\":\"row\"},{\"id\":174,\"type\":4,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":150,\"type\":0,\"special\":null},{\"id\":8,\"type\":4,\"special\":null},{\"id\":61,\"type\":3,\"special\":null},{\"id\":148,\"type\":4,\"special\":null},{\"id\":142,\"type\":2,\"special\":null},{\"id\":173,\"type\":5,\"special\":null},{\"id\":146,\"type\":4,\"special\":null},{\"id\":137,\"type\":4,\"special\":null},{\"id\":15,\"type\":1,\"special\":null},{\"id\":2,\"type\":1,\"special\":null},{\"id\":124,\"type\":0,\"special\":null},{\"id\":98,\"type\":0,\"special\":null},{\"id\":172,\"type\":5,\"special\":null},{\"id\":56,\"type\":4,\"special\":null},{\"id\":91,\"type\":0,\"special\":\"column\"},{\"id\":43,\"type\":1,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":122,\"type\":4,\"special\":null},{\"id\":32,\"type\":3,\"special\":null},{\"id\":171,\"type\":1,\"special\":null},{\"id\":50,\"type\":0,\"special\":null},{\"id\":49,\"type\":1,\"special\":null}],\"moves\":4,\"goals\":{\"roots\":0,\"type4\":0,\"blooms\":0},\"score\":1500,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":178,\"version\":64,\"random\":1034912273,\"clock\":12,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"pollen\":[1,4,2],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":25,\"pollen\":[2,1],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"pollen\":[4,2,1],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 39,
+          "type": 1,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 39
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 14,
+      "actions": [
+        [
+          "swap",
+          3,
+          10
+        ],
+        [
+          "activate",
+          37
+        ],
+        [
+          "swap",
+          34,
+          41
+        ],
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          44,
+          45
+        ],
+        [
+          "swap",
+          17,
+          24
+        ],
+        [
+          "swap",
+          46,
+          47
+        ],
+        [
+          "swap",
+          4,
+          11
+        ]
+      ],
+      "movesRemaining": 7,
+      "score": 1660,
+      "expectedState": "{\"board\":[{\"id\":181,\"type\":0,\"special\":null},{\"id\":182,\"type\":4,\"special\":null},{\"id\":193,\"type\":5,\"special\":null},{\"id\":185,\"type\":2,\"special\":null},{\"id\":186,\"type\":0,\"special\":null},{\"id\":179,\"type\":1,\"special\":null},{\"id\":180,\"type\":1,\"special\":null},{\"id\":108,\"type\":2,\"special\":null},{\"id\":161,\"type\":4,\"special\":null},{\"id\":192,\"type\":3,\"special\":null},{\"id\":177,\"type\":5,\"special\":null},{\"id\":166,\"type\":4,\"special\":null},{\"id\":173,\"type\":3,\"special\":null},{\"id\":120,\"type\":1,\"special\":null},{\"id\":80,\"type\":3,\"special\":null},{\"id\":158,\"type\":1,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":163,\"type\":5,\"special\":null},{\"id\":172,\"type\":0,\"special\":null},{\"id\":114,\"type\":3,\"special\":null},{\"id\":62,\"type\":4,\"special\":null},{\"id\":152,\"type\":5,\"special\":null},{\"id\":190,\"type\":4,\"special\":null},{\"id\":157,\"type\":5,\"special\":null},{\"id\":150,\"type\":4,\"special\":null},{\"id\":171,\"type\":2,\"special\":null},{\"id\":104,\"type\":2,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":117,\"type\":2,\"special\":null},{\"id\":189,\"type\":2,\"special\":null},{\"id\":155,\"type\":5,\"special\":\"row\"},{\"id\":123,\"type\":2,\"special\":null},{\"id\":170,\"type\":4,\"special\":null},{\"id\":79,\"type\":0,\"special\":null},{\"id\":15,\"type\":1,\"special\":null},{\"id\":85,\"type\":2,\"special\":null},{\"id\":188,\"type\":0,\"special\":null},{\"id\":126,\"type\":2,\"special\":null},{\"id\":112,\"type\":4,\"special\":null},{\"id\":169,\"type\":0,\"special\":null},{\"id\":7,\"type\":2,\"special\":null},{\"id\":43,\"type\":2,\"special\":null},{\"id\":23,\"type\":4,\"special\":null},{\"id\":187,\"type\":1,\"special\":null},{\"id\":87,\"type\":4,\"special\":null},{\"id\":72,\"type\":0,\"special\":null},{\"id\":167,\"type\":4,\"special\":null},{\"id\":49,\"type\":2,\"special\":null}],\"moves\":7,\"goals\":{\"roots\":0,\"type4\":0,\"blooms\":0},\"score\":1660,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":194,\"version\":65,\"random\":3780080341,\"clock\":9,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":9,\"pollen\":[1,4,2],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":25,\"pollen\":[2,1],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":39,\"pollen\":[4,2,1],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 9,
+          "type": 2,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 9
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-meadow-04": [
+    {
+      "seed": 4,
+      "actions": [
+        [
+          "swap",
+          21,
+          28
+        ],
+        [
+          "swap",
+          18,
+          25
+        ],
+        [
+          "swap",
+          26,
+          27
+        ],
+        [
+          "swap",
+          7,
+          8
+        ],
+        [
+          "swap",
+          36,
+          43
+        ],
+        [
+          "swap",
+          29,
+          36
+        ],
+        [
+          "swap",
+          25,
+          26
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          9,
+          10
+        ],
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          25,
+          26
+        ],
+        [
+          "swap",
+          25,
+          32
+        ],
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          11,
+          12
+        ],
+        [
+          "swap",
+          38,
+          39
+        ],
+        [
+          "swap",
+          39,
+          46
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 2280,
+      "expectedState": "{\"board\":[{\"id\":213,\"type\":2,\"special\":null},{\"id\":216,\"type\":3,\"special\":null},{\"id\":223,\"type\":5,\"special\":null},{\"id\":226,\"type\":5,\"special\":null},{\"id\":227,\"type\":1,\"special\":null},{\"id\":228,\"type\":3,\"special\":null},{\"id\":229,\"type\":0,\"special\":null},{\"id\":196,\"type\":1,\"special\":null},{\"id\":215,\"type\":1,\"special\":null},{\"id\":222,\"type\":4,\"special\":null},{\"id\":225,\"type\":4,\"special\":null},{\"id\":210,\"type\":3,\"special\":null},{\"id\":211,\"type\":3,\"special\":null},{\"id\":212,\"type\":4,\"special\":null},{\"id\":195,\"type\":5,\"special\":null},{\"id\":214,\"type\":1,\"special\":null},{\"id\":221,\"type\":5,\"special\":null},{\"id\":224,\"type\":2,\"special\":null},{\"id\":204,\"type\":4,\"special\":null},{\"id\":205,\"type\":5,\"special\":null},{\"id\":209,\"type\":2,\"special\":null},{\"id\":194,\"type\":4,\"special\":null},{\"id\":188,\"type\":5,\"special\":null},{\"id\":220,\"type\":4,\"special\":null},{\"id\":190,\"type\":2,\"special\":null},{\"id\":203,\"type\":2,\"special\":null},{\"id\":192,\"type\":0,\"special\":null},{\"id\":208,\"type\":4,\"special\":null},{\"id\":126,\"type\":3,\"special\":null},{\"id\":178,\"type\":2,\"special\":null},{\"id\":219,\"type\":4,\"special\":null},{\"id\":180,\"type\":1,\"special\":null},{\"id\":202,\"type\":5,\"special\":null},{\"id\":185,\"type\":1,\"special\":null},{\"id\":207,\"type\":0,\"special\":null},{\"id\":125,\"type\":5,\"special\":null},{\"id\":151,\"type\":2,\"special\":null},{\"id\":218,\"type\":5,\"special\":null},{\"id\":172,\"type\":3,\"special\":null},{\"id\":201,\"type\":1,\"special\":null},{\"id\":166,\"type\":4,\"special\":null},{\"id\":206,\"type\":3,\"special\":null},{\"id\":122,\"type\":5,\"special\":null},{\"id\":150,\"type\":0,\"special\":null},{\"id\":217,\"type\":5,\"special\":null},{\"id\":165,\"type\":0,\"special\":null},{\"id\":200,\"type\":5,\"special\":null},{\"id\":164,\"type\":5,\"special\":null},{\"id\":193,\"type\":2,\"special\":null}],\"moves\":3,\"goals\":{\"moss\":0,\"roots\":0,\"blooms\":0},\"score\":2280,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":230,\"version\":91,\"random\":300824407,\"clock\":17,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":1,\"pollen\":[0,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":20,\"pollen\":[3,5,0],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":28,\"pollen\":[5,0],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":47,\"pollen\":[0,5,3],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 47,
+          "type": 3,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 47
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 11,
+      "actions": [
+        [
+          "swap",
+          1,
+          8
+        ],
+        [
+          "activate",
+          28
+        ],
+        [
+          "swap",
+          47,
+          48
+        ],
+        [
+          "swap",
+          11,
+          18
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          18,
+          19
+        ],
+        [
+          "swap",
+          19,
+          20
+        ],
+        [
+          "swap",
+          19,
+          20
+        ],
+        [
+          "swap",
+          33,
+          34
+        ],
+        [
+          "swap",
+          11,
+          18
+        ],
+        [
+          "swap",
+          12,
+          13
+        ],
+        [
+          "swap",
+          19,
+          20
+        ],
+        [
+          "swap",
+          19,
+          26
+        ],
+        [
+          "swap",
+          1,
+          8
+        ],
+        [
+          "swap",
+          32,
+          39
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 2620,
+      "expectedState": "{\"board\":[{\"id\":204,\"type\":3,\"special\":null},{\"id\":205,\"type\":4,\"special\":null},{\"id\":206,\"type\":1,\"special\":null},{\"id\":207,\"type\":0,\"special\":null},{\"id\":226,\"type\":5,\"special\":null},{\"id\":239,\"type\":2,\"special\":null},{\"id\":236,\"type\":1,\"special\":null},{\"id\":201,\"type\":5,\"special\":null},{\"id\":148,\"type\":3,\"special\":\"row\"},{\"id\":202,\"type\":4,\"special\":null},{\"id\":203,\"type\":1,\"special\":null},{\"id\":225,\"type\":4,\"special\":null},{\"id\":238,\"type\":3,\"special\":null},{\"id\":235,\"type\":1,\"special\":null},{\"id\":147,\"type\":2,\"special\":null},{\"id\":177,\"type\":5,\"special\":null},{\"id\":173,\"type\":0,\"special\":null},{\"id\":179,\"type\":0,\"special\":null},{\"id\":224,\"type\":1,\"special\":null},{\"id\":237,\"type\":2,\"special\":null},{\"id\":234,\"type\":2,\"special\":null},{\"id\":104,\"type\":4,\"special\":null},{\"id\":105,\"type\":1,\"special\":null},{\"id\":154,\"type\":0,\"special\":null},{\"id\":174,\"type\":3,\"special\":null},{\"id\":220,\"type\":0,\"special\":null},{\"id\":230,\"type\":4,\"special\":null},{\"id\":223,\"type\":0,\"special\":null},{\"id\":70,\"type\":3,\"special\":null},{\"id\":96,\"type\":2,\"special\":null},{\"id\":106,\"type\":1,\"special\":null},{\"id\":155,\"type\":4,\"special\":null},{\"id\":144,\"type\":3,\"special\":null},{\"id\":229,\"type\":0,\"special\":null},{\"id\":175,\"type\":0,\"special\":\"column\"},{\"id\":1,\"type\":1,\"special\":null},{\"id\":92,\"type\":2,\"special\":null},{\"id\":3,\"type\":2,\"special\":null},{\"id\":4,\"type\":0,\"special\":null},{\"id\":116,\"type\":4,\"special\":null},{\"id\":228,\"type\":2,\"special\":null},{\"id\":20,\"type\":2,\"special\":null},{\"id\":15,\"type\":3,\"special\":null},{\"id\":91,\"type\":3,\"special\":null},{\"id\":38,\"type\":1,\"special\":null},{\"id\":39,\"type\":5,\"special\":null},{\"id\":40,\"type\":1,\"special\":null},{\"id\":227,\"type\":5,\"special\":null},{\"id\":78,\"type\":4,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"roots\":0,\"blooms\":0},\"score\":2620,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":240,\"version\":88,\"random\":1646038540,\"clock\":16,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":1,\"pollen\":[0,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":20,\"pollen\":[3,5,0],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":28,\"pollen\":[5,0],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":47,\"pollen\":[0,5,3],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 47,
+          "type": 3,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 47
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 14,
+      "actions": [
+        [
+          "activate",
+          28
+        ],
+        [
+          "swap",
+          45,
+          46
+        ],
+        [
+          "swap",
+          46,
+          47
+        ],
+        [
+          "swap",
+          33,
+          34
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          23,
+          30
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          15,
+          22
+        ],
+        [
+          "swap",
+          25,
+          26
+        ],
+        [
+          "swap",
+          5,
+          12
+        ],
+        [
+          "swap",
+          17,
+          18
+        ],
+        [
+          "swap",
+          15,
+          22
+        ],
+        [
+          "swap",
+          21,
+          28
+        ],
+        [
+          "swap",
+          7,
+          14
+        ]
+      ],
+      "movesRemaining": 6,
+      "score": 2200,
+      "expectedState": "{\"board\":[{\"id\":213,\"type\":5,\"special\":null},{\"id\":214,\"type\":2,\"special\":null},{\"id\":221,\"type\":1,\"special\":null},{\"id\":222,\"type\":0,\"special\":null},{\"id\":223,\"type\":5,\"special\":null},{\"id\":224,\"type\":3,\"special\":null},{\"id\":225,\"type\":0,\"special\":null},{\"id\":206,\"type\":2,\"special\":null},{\"id\":207,\"type\":2,\"special\":null},{\"id\":220,\"type\":1,\"special\":null},{\"id\":209,\"type\":4,\"special\":null},{\"id\":210,\"type\":4,\"special\":null},{\"id\":211,\"type\":1,\"special\":null},{\"id\":212,\"type\":1,\"special\":null},{\"id\":190,\"type\":4,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":219,\"type\":0,\"special\":null},{\"id\":204,\"type\":1,\"special\":null},{\"id\":205,\"type\":5,\"special\":null},{\"id\":201,\"type\":4,\"special\":null},{\"id\":202,\"type\":3,\"special\":null},{\"id\":189,\"type\":2,\"special\":null},{\"id\":185,\"type\":2,\"special\":null},{\"id\":218,\"type\":5,\"special\":null},{\"id\":193,\"type\":5,\"special\":null},{\"id\":200,\"type\":1,\"special\":null},{\"id\":176,\"type\":4,\"special\":null},{\"id\":177,\"type\":5,\"special\":null},{\"id\":188,\"type\":0,\"special\":null},{\"id\":157,\"type\":5,\"special\":null},{\"id\":217,\"type\":5,\"special\":null},{\"id\":165,\"type\":2,\"special\":null},{\"id\":198,\"type\":1,\"special\":null},{\"id\":126,\"type\":2,\"special\":null},{\"id\":173,\"type\":3,\"special\":null},{\"id\":187,\"type\":1,\"special\":null},{\"id\":153,\"type\":2,\"special\":null},{\"id\":216,\"type\":2,\"special\":null},{\"id\":143,\"type\":5,\"special\":null},{\"id\":197,\"type\":4,\"special\":null},{\"id\":111,\"type\":3,\"special\":null},{\"id\":172,\"type\":0,\"special\":null},{\"id\":50,\"type\":2,\"special\":null},{\"id\":134,\"type\":3,\"special\":null},{\"id\":215,\"type\":2,\"special\":null},{\"id\":10,\"type\":2,\"special\":null},{\"id\":195,\"type\":4,\"special\":null},{\"id\":83,\"type\":1,\"special\":null},{\"id\":169,\"type\":0,\"special\":null}],\"moves\":6,\"goals\":{\"moss\":0,\"roots\":0,\"blooms\":0},\"score\":2200,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":226,\"version\":82,\"random\":400986613,\"clock\":14,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":1,\"pollen\":[0,3],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":20,\"pollen\":[3,5,0],\"progress\":3,\"done\":true,\"shifted\":false},{\"index\":28,\"pollen\":[5,0],\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":47,\"pollen\":[0,5,3],\"progress\":3,\"done\":true,\"shifted\":false}],\"cursor\":0}",
+      "regionalEvents": [
+        {
+          "kind": "pollen-delivered",
+          "index": 28,
+          "type": 0,
+          "step": 2
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 28
+        },
+        {
+          "kind": "pollen-delivered",
+          "index": 47,
+          "type": 3,
+          "step": 3
+        },
+        {
+          "kind": "bloom-opened",
+          "index": 47
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-sky-01": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          31,
+          32
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 810,
+      "expectedState": "{\"board\":[{\"id\":50,\"type\":5,\"special\":null},{\"id\":96,\"type\":0,\"special\":null},{\"id\":102,\"type\":1,\"special\":null},{\"id\":106,\"type\":0,\"special\":null},{\"id\":112,\"type\":3,\"special\":null},{\"id\":84,\"type\":0,\"special\":null},{\"id\":85,\"type\":2,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":59,\"type\":2,\"special\":null},{\"id\":101,\"type\":5,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":111,\"type\":3,\"special\":null},{\"id\":57,\"type\":2,\"special\":null},{\"id\":58,\"type\":0,\"special\":null},{\"id\":15,\"type\":1,\"special\":null},{\"id\":51,\"type\":1,\"special\":null},{\"id\":100,\"type\":2,\"special\":null},{\"id\":104,\"type\":2,\"special\":null},{\"id\":110,\"type\":4,\"special\":null},{\"id\":6,\"type\":2,\"special\":null},{\"id\":7,\"type\":4,\"special\":null},{\"id\":22,\"type\":0,\"special\":null},{\"id\":23,\"type\":0,\"special\":null},{\"id\":97,\"type\":3,\"special\":null},{\"id\":103,\"type\":0,\"special\":null},{\"id\":88,\"type\":2,\"special\":null},{\"id\":20,\"type\":3,\"special\":null},{\"id\":21,\"type\":1,\"special\":null},{\"id\":29,\"type\":1,\"special\":null},{\"id\":30,\"type\":4,\"special\":null},{\"id\":24,\"type\":2,\"special\":null},{\"id\":91,\"type\":5,\"special\":null},{\"id\":65,\"type\":4,\"special\":null},{\"id\":34,\"type\":5,\"special\":null},{\"id\":35,\"type\":2,\"special\":null},{\"id\":36,\"type\":3,\"special\":null},{\"id\":37,\"type\":2,\"special\":null},{\"id\":31,\"type\":5,\"special\":null},{\"id\":90,\"type\":1,\"special\":null},{\"id\":33,\"type\":1,\"special\":null},{\"id\":41,\"type\":5,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":0,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":45,\"type\":3,\"special\":null},{\"id\":89,\"type\":4,\"special\":null},{\"id\":47,\"type\":2,\"special\":null},{\"id\":48,\"type\":0,\"special\":null},{\"id\":49,\"type\":3,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"relays\":0},\"score\":810,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":113,\"version\":24,\"random\":2642427889,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":38,\"polarity\":0,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"partner\":10,\"polarity\":1,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":2}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 38,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 38,
+          "partner": 10
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          37,
+          38
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 390,
+      "expectedState": "{\"board\":[{\"id\":50,\"type\":1,\"special\":null},{\"id\":51,\"type\":3,\"special\":null},{\"id\":74,\"type\":3,\"special\":null},{\"id\":77,\"type\":5,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":61,\"type\":2,\"special\":null},{\"id\":62,\"type\":5,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":2,\"type\":2,\"special\":null},{\"id\":63,\"type\":0,\"special\":null},{\"id\":76,\"type\":0,\"special\":null},{\"id\":70,\"type\":2,\"special\":null},{\"id\":6,\"type\":0,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":15,\"type\":2,\"special\":null},{\"id\":16,\"type\":2,\"special\":null},{\"id\":3,\"type\":1,\"special\":null},{\"id\":75,\"type\":5,\"special\":null},{\"id\":68,\"type\":1,\"special\":null},{\"id\":20,\"type\":2,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":22,\"type\":4,\"special\":null},{\"id\":23,\"type\":4,\"special\":null},{\"id\":17,\"type\":0,\"special\":null},{\"id\":66,\"type\":3,\"special\":null},{\"id\":19,\"type\":5,\"special\":null},{\"id\":27,\"type\":1,\"special\":null},{\"id\":28,\"type\":0,\"special\":null},{\"id\":29,\"type\":0,\"special\":null},{\"id\":30,\"type\":2,\"special\":null},{\"id\":24,\"type\":1,\"special\":null},{\"id\":65,\"type\":0,\"special\":null},{\"id\":26,\"type\":0,\"special\":null},{\"id\":34,\"type\":3,\"special\":null},{\"id\":35,\"type\":4,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":37,\"type\":1,\"special\":null},{\"id\":57,\"type\":2,\"special\":null},{\"id\":64,\"type\":4,\"special\":null},{\"id\":33,\"type\":1,\"special\":null},{\"id\":41,\"type\":4,\"special\":null},{\"id\":42,\"type\":5,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":45,\"type\":1,\"special\":null},{\"id\":56,\"type\":2,\"special\":null},{\"id\":47,\"type\":5,\"special\":null},{\"id\":48,\"type\":5,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"relays\":0},\"score\":390,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":79,\"version\":12,\"random\":5309408,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":38,\"polarity\":0,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"partner\":10,\"polarity\":1,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":2}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 38,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 38,
+          "partner": 10
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 3,
+      "actions": [
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          24,
+          25
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 530,
+      "expectedState": "{\"board\":[{\"id\":56,\"type\":5,\"special\":null},{\"id\":81,\"type\":0,\"special\":null},{\"id\":84,\"type\":1,\"special\":null},{\"id\":87,\"type\":2,\"special\":null},{\"id\":88,\"type\":4,\"special\":null},{\"id\":69,\"type\":3,\"special\":null},{\"id\":70,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":57,\"type\":1,\"special\":null},{\"id\":82,\"type\":4,\"special\":null},{\"id\":86,\"type\":2,\"special\":null},{\"id\":73,\"type\":2,\"special\":null},{\"id\":6,\"type\":5,\"special\":null},{\"id\":7,\"type\":3,\"special\":null},{\"id\":8,\"type\":2,\"special\":null},{\"id\":2,\"type\":3,\"special\":null},{\"id\":58,\"type\":1,\"special\":null},{\"id\":85,\"type\":1,\"special\":null},{\"id\":71,\"type\":4,\"special\":null},{\"id\":13,\"type\":3,\"special\":null},{\"id\":14,\"type\":4,\"special\":null},{\"id\":15,\"type\":4,\"special\":null},{\"id\":9,\"type\":0,\"special\":null},{\"id\":53,\"type\":0,\"special\":null},{\"id\":78,\"type\":5,\"special\":null},{\"id\":63,\"type\":0,\"special\":null},{\"id\":20,\"type\":1,\"special\":null},{\"id\":21,\"type\":3,\"special\":null},{\"id\":22,\"type\":1,\"special\":null},{\"id\":16,\"type\":5,\"special\":null},{\"id\":3,\"type\":5,\"special\":null},{\"id\":77,\"type\":2,\"special\":null},{\"id\":19,\"type\":1,\"special\":null},{\"id\":27,\"type\":4,\"special\":null},{\"id\":28,\"type\":5,\"special\":null},{\"id\":36,\"type\":2,\"special\":null},{\"id\":23,\"type\":2,\"special\":null},{\"id\":17,\"type\":1,\"special\":null},{\"id\":76,\"type\":3,\"special\":null},{\"id\":26,\"type\":3,\"special\":null},{\"id\":41,\"type\":2,\"special\":null},{\"id\":42,\"type\":4,\"special\":null},{\"id\":43,\"type\":1,\"special\":null},{\"id\":44,\"type\":2,\"special\":null},{\"id\":45,\"type\":5,\"special\":null},{\"id\":74,\"type\":1,\"special\":null},{\"id\":47,\"type\":1,\"special\":null},{\"id\":48,\"type\":3,\"special\":null},{\"id\":49,\"type\":1,\"special\":null}],\"moves\":4,\"goals\":{\"moss\":0,\"relays\":0},\"score\":530,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":89,\"version\":16,\"random\":3477665627,\"clock\":2,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":38,\"polarity\":0,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":38,\"partner\":10,\"polarity\":1,\"hits\":1,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":2}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 38,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 38,
+          "partner": 10
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-sky-02": [
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          40,
+          47
+        ],
+        [
+          "swap",
+          24,
+          25
+        ]
+      ],
+      "movesRemaining": 8,
+      "score": 1160,
+      "expectedState": "{\"board\":[{\"id\":119,\"type\":0,\"special\":null},{\"id\":122,\"type\":2,\"special\":null},{\"id\":140,\"type\":4,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":143,\"type\":3,\"special\":null},{\"id\":135,\"type\":0,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":95,\"type\":5,\"special\":null},{\"id\":121,\"type\":3,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":141,\"type\":1,\"special\":null},{\"id\":133,\"type\":2,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":57,\"type\":2,\"special\":null},{\"id\":120,\"type\":4,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":132,\"type\":4,\"special\":\"bomb\"},{\"id\":129,\"type\":4,\"special\":null},{\"id\":78,\"type\":0,\"special\":null},{\"id\":89,\"type\":2,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":101,\"type\":1,\"special\":null},{\"id\":111,\"type\":0,\"special\":null},{\"id\":116,\"type\":0,\"special\":null},{\"id\":127,\"type\":2,\"special\":null},{\"id\":76,\"type\":0,\"special\":\"row\"},{\"id\":88,\"type\":0,\"special\":null},{\"id\":15,\"type\":2,\"special\":null},{\"id\":96,\"type\":5,\"special\":null},{\"id\":67,\"type\":4,\"special\":\"column\"},{\"id\":99,\"type\":1,\"special\":null},{\"id\":62,\"type\":5,\"special\":null},{\"id\":64,\"type\":4,\"special\":null},{\"id\":87,\"type\":4,\"special\":null},{\"id\":29,\"type\":0,\"special\":null},{\"id\":30,\"type\":2,\"special\":null},{\"id\":31,\"type\":3,\"special\":null},{\"id\":94,\"type\":1,\"special\":null},{\"id\":61,\"type\":2,\"special\":null},{\"id\":6,\"type\":0,\"special\":\"row\"},{\"id\":82,\"type\":3,\"special\":null},{\"id\":43,\"type\":4,\"special\":null},{\"id\":44,\"type\":5,\"special\":null},{\"id\":45,\"type\":1,\"special\":null},{\"id\":72,\"type\":5,\"special\":null},{\"id\":26,\"type\":0,\"special\":null},{\"id\":34,\"type\":3,\"special\":null},{\"id\":7,\"type\":1,\"special\":null}],\"moves\":8,\"goals\":{\"roots\":0,\"type5\":0,\"relays\":0},\"score\":1160,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":144,\"version\":45,\"random\":2428599807,\"clock\":7,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":26,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":39,\"partner\":22,\"polarity\":1,\"hits\":1,\"type\":5,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":23,\"partner\":3,\"polarity\":0,\"hits\":1,\"type\":3,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 23,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 23,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 5,
+      "actions": [
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          33,
+          34
+        ],
+        [
+          "swap",
+          10,
+          11
+        ],
+        [
+          "swap",
+          39,
+          40
+        ],
+        [
+          "swap",
+          18,
+          19
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          16,
+          23
+        ]
+      ],
+      "movesRemaining": 8,
+      "score": 1240,
+      "expectedState": "{\"board\":[{\"id\":116,\"type\":1,\"special\":null},{\"id\":119,\"type\":0,\"special\":null},{\"id\":152,\"type\":2,\"special\":null},{\"id\":154,\"type\":1,\"special\":null},{\"id\":155,\"type\":1,\"special\":null},{\"id\":147,\"type\":0,\"special\":null},{\"id\":148,\"type\":4,\"special\":null},{\"id\":109,\"type\":0,\"special\":null},{\"id\":118,\"type\":5,\"special\":null},{\"id\":139,\"type\":3,\"special\":null},{\"id\":153,\"type\":0,\"special\":null},{\"id\":150,\"type\":4,\"special\":null},{\"id\":129,\"type\":3,\"special\":null},{\"id\":115,\"type\":1,\"special\":null},{\"id\":86,\"type\":1,\"special\":null},{\"id\":121,\"type\":2,\"special\":null},{\"id\":138,\"type\":5,\"special\":null},{\"id\":107,\"type\":3,\"special\":null},{\"id\":149,\"type\":5,\"special\":null},{\"id\":127,\"type\":0,\"special\":null},{\"id\":82,\"type\":5,\"special\":null},{\"id\":76,\"type\":4,\"special\":null},{\"id\":110,\"type\":1,\"special\":null},{\"id\":136,\"type\":0,\"special\":null},{\"id\":4,\"type\":5,\"special\":null},{\"id\":146,\"type\":0,\"special\":null},{\"id\":89,\"type\":1,\"special\":\"column\"},{\"id\":75,\"type\":4,\"special\":null},{\"id\":22,\"type\":2,\"special\":null},{\"id\":87,\"type\":5,\"special\":null},{\"id\":135,\"type\":1,\"special\":null},{\"id\":18,\"type\":2,\"special\":null},{\"id\":108,\"type\":1,\"special\":null},{\"id\":92,\"type\":0,\"special\":null},{\"id\":7,\"type\":2,\"special\":null},{\"id\":29,\"type\":3,\"special\":null},{\"id\":30,\"type\":1,\"special\":null},{\"id\":134,\"type\":1,\"special\":null},{\"id\":32,\"type\":4,\"special\":null},{\"id\":33,\"type\":1,\"special\":null},{\"id\":91,\"type\":1,\"special\":null},{\"id\":34,\"type\":2,\"special\":null},{\"id\":43,\"type\":2,\"special\":null},{\"id\":44,\"type\":3,\"special\":null},{\"id\":133,\"type\":4,\"special\":null},{\"id\":46,\"type\":0,\"special\":null},{\"id\":47,\"type\":2,\"special\":null},{\"id\":81,\"type\":4,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":8,\"goals\":{\"roots\":0,\"type5\":0,\"relays\":0},\"score\":1240,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":156,\"version\":51,\"random\":1128314634,\"clock\":7,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":26,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":39,\"partner\":22,\"polarity\":1,\"hits\":1,\"type\":5,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":23,\"partner\":3,\"polarity\":0,\"hits\":1,\"type\":3,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 23,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 23,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 7,
+      "actions": [
+        [
+          "swap",
+          17,
+          24
+        ],
+        [
+          "swap",
+          8,
+          9
+        ],
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          12,
+          13
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          38,
+          39
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          4,
+          11
+        ],
+        [
+          "swap",
+          12,
+          13
+        ],
+        [
+          "swap",
+          25,
+          32
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 1710,
+      "expectedState": "{\"board\":[{\"id\":184,\"type\":0,\"special\":null},{\"id\":185,\"type\":3,\"special\":null},{\"id\":187,\"type\":2,\"special\":null},{\"id\":189,\"type\":0,\"special\":null},{\"id\":190,\"type\":5,\"special\":null},{\"id\":176,\"type\":3,\"special\":null},{\"id\":177,\"type\":1,\"special\":null},{\"id\":169,\"type\":4,\"special\":null},{\"id\":170,\"type\":1,\"special\":null},{\"id\":180,\"type\":4,\"special\":null},{\"id\":188,\"type\":5,\"special\":null},{\"id\":166,\"type\":2,\"special\":null},{\"id\":167,\"type\":1,\"special\":null},{\"id\":168,\"type\":2,\"special\":null},{\"id\":162,\"type\":0,\"special\":null},{\"id\":163,\"type\":5,\"special\":null},{\"id\":179,\"type\":5,\"special\":null},{\"id\":181,\"type\":0,\"special\":null},{\"id\":150,\"type\":0,\"special\":null},{\"id\":161,\"type\":3,\"special\":null},{\"id\":158,\"type\":0,\"special\":null},{\"id\":146,\"type\":3,\"special\":null},{\"id\":147,\"type\":3,\"special\":null},{\"id\":178,\"type\":1,\"special\":null},{\"id\":141,\"type\":0,\"special\":null},{\"id\":142,\"type\":2,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":157,\"type\":2,\"special\":null},{\"id\":81,\"type\":1,\"special\":null},{\"id\":125,\"type\":5,\"special\":null},{\"id\":172,\"type\":4,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":86,\"type\":1,\"special\":\"row\"},{\"id\":151,\"type\":4,\"special\":null},{\"id\":155,\"type\":4,\"special\":null},{\"id\":29,\"type\":0,\"special\":null},{\"id\":109,\"type\":3,\"special\":null},{\"id\":171,\"type\":0,\"special\":null},{\"id\":84,\"type\":4,\"special\":null},{\"id\":33,\"type\":0,\"special\":null},{\"id\":97,\"type\":2,\"special\":null},{\"id\":153,\"type\":2,\"special\":null},{\"id\":43,\"type\":3,\"special\":null},{\"id\":44,\"type\":4,\"special\":null},{\"id\":45,\"type\":1,\"special\":null},{\"id\":77,\"type\":1,\"special\":null},{\"id\":47,\"type\":5,\"special\":null},{\"id\":90,\"type\":1,\"special\":null},{\"id\":152,\"type\":1,\"special\":null}],\"moves\":4,\"goals\":{\"roots\":0,\"type5\":0,\"relays\":0},\"score\":1710,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":191,\"version\":65,\"random\":4248718093,\"clock\":11,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":10,\"partner\":26,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":39,\"partner\":22,\"polarity\":1,\"hits\":1,\"type\":5,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":23,\"partner\":3,\"polarity\":0,\"hits\":1,\"type\":3,\"progress\":1,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 23,
+          "step": 1
+        },
+        {
+          "kind": "relay-linked",
+          "index": 23,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-sky-03": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          3,
+          10
+        ],
+        [
+          "swap",
+          10,
+          11
+        ],
+        [
+          "swap",
+          4,
+          5
+        ],
+        [
+          "swap",
+          18,
+          25
+        ],
+        [
+          "swap",
+          17,
+          18
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          1,
+          8
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          38,
+          45
+        ],
+        [
+          "swap",
+          9,
+          16
+        ],
+        [
+          "swap",
+          2,
+          9
+        ],
+        [
+          "swap",
+          10,
+          11
+        ],
+        [
+          "swap",
+          25,
+          32
+        ],
+        [
+          "swap",
+          16,
+          23
+        ]
+      ],
+      "movesRemaining": 2,
+      "score": 2850,
+      "expectedState": "{\"board\":[{\"id\":252,\"type\":4,\"special\":null},{\"id\":266,\"type\":0,\"special\":null},{\"id\":272,\"type\":4,\"special\":null},{\"id\":274,\"type\":2,\"special\":null},{\"id\":275,\"type\":2,\"special\":null},{\"id\":263,\"type\":5,\"special\":null},{\"id\":264,\"type\":0,\"special\":null},{\"id\":222,\"type\":3,\"special\":null},{\"id\":265,\"type\":4,\"special\":null},{\"id\":268,\"type\":2,\"special\":null},{\"id\":273,\"type\":4,\"special\":null},{\"id\":238,\"type\":4,\"special\":null},{\"id\":239,\"type\":2,\"special\":null},{\"id\":234,\"type\":4,\"special\":null},{\"id\":196,\"type\":2,\"special\":null},{\"id\":255,\"type\":3,\"special\":null},{\"id\":267,\"type\":5,\"special\":null},{\"id\":261,\"type\":3,\"special\":null},{\"id\":232,\"type\":4,\"special\":null},{\"id\":233,\"type\":0,\"special\":null},{\"id\":215,\"type\":2,\"special\":null},{\"id\":123,\"type\":5,\"special\":null},{\"id\":254,\"type\":2,\"special\":null},{\"id\":258,\"type\":2,\"special\":null},{\"id\":260,\"type\":3,\"special\":null},{\"id\":210,\"type\":2,\"special\":null},{\"id\":214,\"type\":4,\"special\":null},{\"id\":195,\"type\":4,\"special\":null},{\"id\":117,\"type\":5,\"special\":null},{\"id\":253,\"type\":5,\"special\":null},{\"id\":257,\"type\":1,\"special\":null},{\"id\":259,\"type\":2,\"special\":null},{\"id\":208,\"type\":3,\"special\":null},{\"id\":212,\"type\":0,\"special\":null},{\"id\":166,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":242,\"type\":2,\"special\":null},{\"id\":256,\"type\":1,\"special\":null},{\"id\":248,\"type\":3,\"special\":null},{\"id\":193,\"type\":5,\"special\":null},{\"id\":211,\"type\":5,\"special\":null},{\"id\":143,\"type\":4,\"special\":null},{\"id\":8,\"type\":3,\"special\":null},{\"id\":241,\"type\":1,\"special\":null},{\"id\":251,\"type\":5,\"special\":null},{\"id\":247,\"type\":3,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":192,\"type\":3,\"special\":null},{\"id\":116,\"type\":1,\"special\":null}],\"moves\":2,\"goals\":{\"moss\":0,\"relays\":0},\"score\":2850,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":276,\"version\":99,\"random\":1627613774,\"clock\":15,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":17,\"partner\":31,\"polarity\":0,\"hits\":2,\"type\":1,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":22,\"partner\":26,\"polarity\":1,\"hits\":1,\"type\":4,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":45,\"partner\":3,\"polarity\":1,\"hits\":2,\"type\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 45,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 45,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 4,
+      "actions": [
+        [
+          "swap",
+          3,
+          10
+        ],
+        [
+          "swap",
+          39,
+          46
+        ],
+        [
+          "swap",
+          5,
+          12
+        ],
+        [
+          "swap",
+          17,
+          18
+        ],
+        [
+          "swap",
+          21,
+          22
+        ],
+        [
+          "swap",
+          36,
+          43
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          15,
+          22
+        ],
+        [
+          "swap",
+          38,
+          45
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          30,
+          31
+        ]
+      ],
+      "movesRemaining": 6,
+      "score": 2230,
+      "expectedState": "{\"board\":[{\"id\":200,\"type\":5,\"special\":null},{\"id\":201,\"type\":1,\"special\":null},{\"id\":222,\"type\":4,\"special\":null},{\"id\":224,\"type\":2,\"special\":null},{\"id\":225,\"type\":4,\"special\":null},{\"id\":221,\"type\":5,\"special\":null},{\"id\":218,\"type\":5,\"special\":null},{\"id\":163,\"type\":4,\"special\":null},{\"id\":168,\"type\":4,\"special\":null},{\"id\":202,\"type\":5,\"special\":null},{\"id\":223,\"type\":5,\"special\":null},{\"id\":215,\"type\":1,\"special\":null},{\"id\":220,\"type\":4,\"special\":null},{\"id\":212,\"type\":4,\"special\":null},{\"id\":141,\"type\":0,\"special\":null},{\"id\":167,\"type\":2,\"special\":null},{\"id\":191,\"type\":1,\"special\":null},{\"id\":208,\"type\":4,\"special\":null},{\"id\":210,\"type\":3,\"special\":null},{\"id\":219,\"type\":4,\"special\":null},{\"id\":190,\"type\":2,\"special\":null},{\"id\":127,\"type\":1,\"special\":null},{\"id\":166,\"type\":4,\"special\":null},{\"id\":170,\"type\":5,\"special\":null},{\"id\":207,\"type\":0,\"special\":null},{\"id\":196,\"type\":1,\"special\":null},{\"id\":217,\"type\":5,\"special\":null},{\"id\":189,\"type\":0,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":164,\"type\":5,\"special\":null},{\"id\":169,\"type\":4,\"special\":null},{\"id\":206,\"type\":3,\"special\":null},{\"id\":194,\"type\":4,\"special\":null},{\"id\":211,\"type\":3,\"special\":null},{\"id\":117,\"type\":4,\"special\":null},{\"id\":29,\"type\":4,\"special\":null},{\"id\":157,\"type\":0,\"special\":null},{\"id\":158,\"type\":1,\"special\":null},{\"id\":205,\"type\":5,\"special\":null},{\"id\":184,\"type\":5,\"special\":null},{\"id\":27,\"type\":2,\"special\":null},{\"id\":35,\"type\":3,\"special\":null},{\"id\":36,\"type\":1,\"special\":null},{\"id\":119,\"type\":4,\"special\":\"column\"},{\"id\":129,\"type\":1,\"special\":null},{\"id\":204,\"type\":4,\"special\":null},{\"id\":132,\"type\":0,\"special\":null},{\"id\":34,\"type\":4,\"special\":null},{\"id\":42,\"type\":4,\"special\":null}],\"moves\":6,\"goals\":{\"moss\":0,\"relays\":0},\"score\":2230,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":226,\"version\":81,\"random\":3262185075,\"clock\":11,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":17,\"partner\":31,\"polarity\":0,\"hits\":2,\"type\":1,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":22,\"partner\":26,\"polarity\":1,\"hits\":1,\"type\":4,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":45,\"partner\":3,\"polarity\":1,\"hits\":2,\"type\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 45,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 45,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 15,
+      "actions": [
+        [
+          "activate",
+          45
+        ],
+        [
+          "swap",
+          26,
+          33
+        ],
+        [
+          "swap",
+          10,
+          17
+        ],
+        [
+          "swap",
+          17,
+          24
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          36,
+          37
+        ],
+        [
+          "swap",
+          16,
+          17
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          23,
+          30
+        ],
+        [
+          "swap",
+          36,
+          37
+        ],
+        [
+          "swap",
+          36,
+          37
+        ],
+        [
+          "swap",
+          44,
+          45
+        ],
+        [
+          "activate",
+          37
+        ],
+        [
+          "swap",
+          37,
+          38
+        ]
+      ],
+      "movesRemaining": 3,
+      "score": 2130,
+      "expectedState": "{\"board\":[{\"id\":163,\"type\":3,\"special\":null},{\"id\":189,\"type\":0,\"special\":null},{\"id\":204,\"type\":5,\"special\":null},{\"id\":206,\"type\":3,\"special\":null},{\"id\":207,\"type\":3,\"special\":null},{\"id\":148,\"type\":5,\"special\":null},{\"id\":149,\"type\":4,\"special\":null},{\"id\":129,\"type\":5,\"special\":null},{\"id\":179,\"type\":1,\"special\":null},{\"id\":192,\"type\":0,\"special\":null},{\"id\":205,\"type\":3,\"special\":null},{\"id\":199,\"type\":3,\"special\":null},{\"id\":147,\"type\":2,\"special\":null},{\"id\":135,\"type\":5,\"special\":null},{\"id\":115,\"type\":2,\"special\":null},{\"id\":178,\"type\":5,\"special\":null},{\"id\":190,\"type\":1,\"special\":null},{\"id\":201,\"type\":4,\"special\":null},{\"id\":198,\"type\":0,\"special\":null},{\"id\":146,\"type\":2,\"special\":null},{\"id\":128,\"type\":3,\"special\":null},{\"id\":110,\"type\":0,\"special\":null},{\"id\":177,\"type\":2,\"special\":null},{\"id\":186,\"type\":5,\"special\":null},{\"id\":195,\"type\":1,\"special\":null},{\"id\":197,\"type\":4,\"special\":null},{\"id\":144,\"type\":1,\"special\":null},{\"id\":108,\"type\":3,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":164,\"type\":3,\"special\":null},{\"id\":180,\"type\":4,\"special\":null},{\"id\":194,\"type\":0,\"special\":null},{\"id\":122,\"type\":0,\"special\":null},{\"id\":141,\"type\":5,\"special\":null},{\"id\":28,\"type\":0,\"special\":null},{\"id\":30,\"type\":2,\"special\":\"column\"},{\"id\":154,\"type\":5,\"special\":null},{\"id\":175,\"type\":3,\"special\":null},{\"id\":191,\"type\":0,\"special\":null},{\"id\":80,\"type\":2,\"special\":\"row\"},{\"id\":41,\"type\":1,\"special\":null},{\"id\":42,\"type\":2,\"special\":null},{\"id\":43,\"type\":5,\"special\":null},{\"id\":150,\"type\":2,\"special\":null},{\"id\":167,\"type\":4,\"special\":null},{\"id\":187,\"type\":3,\"special\":null},{\"id\":26,\"type\":5,\"special\":null},{\"id\":48,\"type\":3,\"special\":null},{\"id\":49,\"type\":4,\"special\":null}],\"moves\":3,\"goals\":{\"moss\":0,\"relays\":0},\"score\":2130,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":208,\"version\":76,\"random\":2534797184,\"clock\":14,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":17,\"partner\":31,\"polarity\":0,\"hits\":2,\"type\":1,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":22,\"partner\":26,\"polarity\":1,\"hits\":1,\"type\":4,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":45,\"partner\":3,\"polarity\":1,\"hits\":2,\"type\":2,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":3}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 45,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 45,
+          "partner": 3
+        }
+      ],
+      "toolActions": 0
+    }
+  ],
+  "r05-sky-04": [
+    {
+      "seed": 1,
+      "actions": [
+        [
+          "swap",
+          4,
+          11
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          36,
+          37
+        ],
+        [
+          "swap",
+          39,
+          46
+        ],
+        [
+          "swap",
+          23,
+          24
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          14,
+          15
+        ],
+        [
+          "activate",
+          47
+        ],
+        [
+          "swap",
+          2,
+          3
+        ],
+        [
+          "swap",
+          37,
+          44
+        ],
+        [
+          "swap",
+          39,
+          40
+        ],
+        [
+          "swap",
+          32,
+          33
+        ],
+        [
+          "swap",
+          46,
+          47
+        ]
+      ],
+      "movesRemaining": 7,
+      "score": 2565,
+      "expectedState": "{\"board\":[{\"id\":234,\"type\":4,\"special\":null},{\"id\":241,\"type\":1,\"special\":null},{\"id\":243,\"type\":3,\"special\":null},{\"id\":251,\"type\":5,\"special\":null},{\"id\":252,\"type\":4,\"special\":null},{\"id\":253,\"type\":5,\"special\":null},{\"id\":233,\"type\":0,\"special\":null},{\"id\":213,\"type\":1,\"special\":null},{\"id\":240,\"type\":3,\"special\":null},{\"id\":242,\"type\":2,\"special\":null},{\"id\":245,\"type\":2,\"special\":null},{\"id\":248,\"type\":3,\"special\":null},{\"id\":232,\"type\":4,\"special\":null},{\"id\":209,\"type\":1,\"special\":null},{\"id\":199,\"type\":3,\"special\":null},{\"id\":235,\"type\":3,\"special\":null},{\"id\":237,\"type\":2,\"special\":null},{\"id\":238,\"type\":4,\"special\":null},{\"id\":247,\"type\":3,\"special\":null},{\"id\":230,\"type\":2,\"special\":null},{\"id\":186,\"type\":3,\"special\":null},{\"id\":167,\"type\":4,\"special\":null},{\"id\":215,\"type\":2,\"special\":null},{\"id\":236,\"type\":3,\"special\":null},{\"id\":224,\"type\":5,\"special\":null},{\"id\":206,\"type\":2,\"special\":null},{\"id\":229,\"type\":1,\"special\":null},{\"id\":133,\"type\":0,\"special\":null},{\"id\":108,\"type\":1,\"special\":null},{\"id\":214,\"type\":4,\"special\":null},{\"id\":217,\"type\":4,\"special\":null},{\"id\":223,\"type\":0,\"special\":null},{\"id\":205,\"type\":5,\"special\":null},{\"id\":228,\"type\":0,\"special\":null},{\"id\":118,\"type\":4,\"special\":null},{\"id\":74,\"type\":5,\"special\":null},{\"id\":200,\"type\":1,\"special\":null},{\"id\":216,\"type\":2,\"special\":null},{\"id\":222,\"type\":3,\"special\":null},{\"id\":203,\"type\":0,\"special\":\"bomb\"},{\"id\":227,\"type\":1,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":110,\"type\":4,\"special\":null},{\"id\":174,\"type\":1,\"special\":null},{\"id\":201,\"type\":2,\"special\":null},{\"id\":221,\"type\":1,\"special\":null},{\"id\":192,\"type\":3,\"special\":null},{\"id\":226,\"type\":1,\"special\":null},{\"id\":67,\"type\":0,\"special\":null}],\"moves\":7,\"goals\":{\"roots\":0,\"moss\":0,\"relays\":0},\"score\":2565,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":254,\"version\":95,\"random\":4070030264,\"clock\":13,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":11,\"partner\":37,\"polarity\":1,\"hits\":1,\"type\":0,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"partner\":12,\"polarity\":0,\"hits\":2,\"type\":5,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"partner\":36,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":37,\"partner\":11,\"polarity\":1,\"hits\":2,\"type\":4,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":4}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 37,
+          "step": 1
+        },
+        {
+          "kind": "relay-charged",
+          "index": 37,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 37,
+          "partner": 11
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 2,
+      "actions": [
+        [
+          "swap",
+          2,
+          9
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          36,
+          37
+        ],
+        [
+          "swap",
+          17,
+          18
+        ],
+        [
+          "swap",
+          22,
+          29
+        ],
+        [
+          "swap",
+          28,
+          29
+        ],
+        [
+          "swap",
+          43,
+          44
+        ],
+        [
+          "swap",
+          24,
+          25
+        ],
+        [
+          "swap",
+          31,
+          38
+        ],
+        [
+          "swap",
+          11,
+          12
+        ],
+        [
+          "swap",
+          38,
+          39
+        ],
+        [
+          "swap",
+          32,
+          33
+        ],
+        [
+          "swap",
+          25,
+          32
+        ],
+        [
+          "swap",
+          30,
+          31
+        ],
+        [
+          "swap",
+          22,
+          23
+        ],
+        [
+          "swap",
+          30,
+          37
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 1585,
+      "expectedState": "{\"board\":[{\"id\":143,\"type\":3,\"special\":null},{\"id\":144,\"type\":5,\"special\":null},{\"id\":158,\"type\":3,\"special\":null},{\"id\":159,\"type\":1,\"special\":null},{\"id\":162,\"type\":5,\"special\":null},{\"id\":163,\"type\":1,\"special\":null},{\"id\":142,\"type\":1,\"special\":null},{\"id\":113,\"type\":3,\"special\":null},{\"id\":133,\"type\":2,\"special\":null},{\"id\":157,\"type\":3,\"special\":null},{\"id\":148,\"type\":2,\"special\":null},{\"id\":161,\"type\":0,\"special\":null},{\"id\":141,\"type\":1,\"special\":null},{\"id\":112,\"type\":1,\"special\":null},{\"id\":92,\"type\":5,\"special\":null},{\"id\":116,\"type\":0,\"special\":null},{\"id\":156,\"type\":0,\"special\":null},{\"id\":146,\"type\":5,\"special\":null},{\"id\":160,\"type\":0,\"special\":null},{\"id\":123,\"type\":4,\"special\":null},{\"id\":104,\"type\":3,\"special\":null},{\"id\":76,\"type\":0,\"special\":null},{\"id\":124,\"type\":5,\"special\":null},{\"id\":155,\"type\":0,\"special\":null},{\"id\":140,\"type\":4,\"special\":null},{\"id\":126,\"type\":3,\"special\":null},{\"id\":109,\"type\":2,\"special\":null},{\"id\":69,\"type\":4,\"special\":null},{\"id\":73,\"type\":0,\"special\":null},{\"id\":105,\"type\":3,\"special\":null},{\"id\":154,\"type\":4,\"special\":null},{\"id\":136,\"type\":1,\"special\":null},{\"id\":129,\"type\":4,\"special\":\"row\"},{\"id\":6,\"type\":0,\"special\":null},{\"id\":7,\"type\":1,\"special\":null},{\"id\":1,\"type\":1,\"special\":null},{\"id\":91,\"type\":2,\"special\":null},{\"id\":153,\"type\":5,\"special\":null},{\"id\":135,\"type\":0,\"special\":null},{\"id\":122,\"type\":2,\"special\":null},{\"id\":20,\"type\":2,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":22,\"type\":4,\"special\":null},{\"id\":90,\"type\":5,\"special\":null},{\"id\":152,\"type\":2,\"special\":null},{\"id\":130,\"type\":4,\"special\":\"bomb\"},{\"id\":13,\"type\":3,\"special\":\"column\"},{\"id\":27,\"type\":1,\"special\":\"bomb\"},{\"id\":28,\"type\":0,\"special\":null}],\"moves\":4,\"goals\":{\"roots\":0,\"moss\":0,\"relays\":0},\"score\":1585,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":164,\"version\":64,\"random\":1046442675,\"clock\":16,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":11,\"partner\":37,\"polarity\":1,\"hits\":1,\"type\":0,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"partner\":12,\"polarity\":0,\"hits\":2,\"type\":5,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"partner\":36,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":37,\"partner\":11,\"polarity\":1,\"hits\":2,\"type\":4,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":4}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 37,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 37,
+          "partner": 11
+        }
+      ],
+      "toolActions": 0
+    },
+    {
+      "seed": 18,
+      "actions": [
+        [
+          "swap",
+          5,
+          12
+        ],
+        [
+          "swap",
+          32,
+          33
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          4,
+          11
+        ],
+        [
+          "swap",
+          2,
+          3
+        ],
+        [
+          "swap",
+          37,
+          44
+        ],
+        [
+          "swap",
+          37,
+          38
+        ],
+        [
+          "swap",
+          14,
+          21
+        ],
+        [
+          "swap",
+          15,
+          16
+        ],
+        [
+          "swap",
+          12,
+          13
+        ],
+        [
+          "swap",
+          21,
+          28
+        ],
+        [
+          "swap",
+          29,
+          30
+        ],
+        [
+          "swap",
+          16,
+          23
+        ],
+        [
+          "swap",
+          24,
+          31
+        ],
+        [
+          "swap",
+          31,
+          32
+        ],
+        [
+          "swap",
+          23,
+          30
+        ]
+      ],
+      "movesRemaining": 4,
+      "score": 2375,
+      "expectedState": "{\"board\":[{\"id\":211,\"type\":2,\"special\":null},{\"id\":213,\"type\":0,\"special\":null},{\"id\":216,\"type\":1,\"special\":null},{\"id\":236,\"type\":4,\"special\":null},{\"id\":237,\"type\":5,\"special\":null},{\"id\":238,\"type\":2,\"special\":null},{\"id\":227,\"type\":3,\"special\":null},{\"id\":210,\"type\":3,\"special\":null},{\"id\":212,\"type\":2,\"special\":null},{\"id\":215,\"type\":0,\"special\":null},{\"id\":231,\"type\":2,\"special\":null},{\"id\":234,\"type\":4,\"special\":null},{\"id\":235,\"type\":4,\"special\":null},{\"id\":143,\"type\":0,\"special\":null},{\"id\":185,\"type\":5,\"special\":null},{\"id\":191,\"type\":0,\"special\":null},{\"id\":214,\"type\":3,\"special\":null},{\"id\":223,\"type\":1,\"special\":null},{\"id\":233,\"type\":5,\"special\":null},{\"id\":230,\"type\":5,\"special\":null},{\"id\":140,\"type\":4,\"special\":null},{\"id\":173,\"type\":0,\"special\":null},{\"id\":186,\"type\":3,\"special\":null},{\"id\":209,\"type\":5,\"special\":null},{\"id\":220,\"type\":2,\"special\":null},{\"id\":184,\"type\":0,\"special\":null},{\"id\":226,\"type\":4,\"special\":null},{\"id\":132,\"type\":2,\"special\":null},{\"id\":165,\"type\":3,\"special\":null},{\"id\":180,\"type\":1,\"special\":null},{\"id\":207,\"type\":0,\"special\":null},{\"id\":219,\"type\":3,\"special\":null},{\"id\":163,\"type\":4,\"special\":null},{\"id\":164,\"type\":5,\"special\":null},{\"id\":52,\"type\":3,\"special\":null},{\"id\":73,\"type\":3,\"special\":null},{\"id\":159,\"type\":1,\"special\":null},{\"id\":206,\"type\":4,\"special\":null},{\"id\":218,\"type\":3,\"special\":null},{\"id\":157,\"type\":0,\"special\":null},{\"id\":158,\"type\":2,\"special\":null},{\"id\":21,\"type\":5,\"special\":null},{\"id\":36,\"type\":1,\"special\":null},{\"id\":144,\"type\":2,\"special\":null},{\"id\":203,\"type\":5,\"special\":null},{\"id\":217,\"type\":2,\"special\":null},{\"id\":77,\"type\":1,\"special\":null},{\"id\":41,\"type\":2,\"special\":null},{\"id\":42,\"type\":0,\"special\":null}],\"moves\":4,\"goals\":{\"roots\":0,\"moss\":0,\"relays\":0},\"score\":2375,\"status\":\"won\",\"moss\":[],\"roots\":[],\"nextId\":239,\"version\":90,\"random\":2027067536,\"clock\":16,\"hold\":0,\"charges\":1,\"pieces\":[{\"index\":11,\"partner\":37,\"polarity\":1,\"hits\":1,\"type\":0,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":36,\"partner\":12,\"polarity\":0,\"hits\":2,\"type\":5,\"progress\":2,\"done\":true,\"shifted\":false},{\"index\":12,\"partner\":36,\"polarity\":0,\"hits\":1,\"type\":2,\"progress\":1,\"done\":true,\"shifted\":false},{\"index\":37,\"partner\":11,\"polarity\":1,\"hits\":2,\"type\":4,\"progress\":2,\"done\":true,\"shifted\":false}],\"cursor\":4}",
+      "regionalEvents": [
+        {
+          "kind": "relay-charged",
+          "index": 37,
+          "step": 2
+        },
+        {
+          "kind": "relay-linked",
+          "index": 37,
+          "partner": 11
+        }
+      ],
+      "toolActions": 0
+    }
+  ]
+}
