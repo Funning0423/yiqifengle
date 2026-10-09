@@ -1,4 +1,5 @@
 import { _decorator, Component, Prefab, instantiate, Camera, Vec3, MeshRenderer, Node, game, Game } from 'cc';
+import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
 import { WorldFlow, Cancellation, Cancelled, interpolate } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot } from './WorldFlowCore';
 import { CHARACTER_REFERENCE } from './CharacterReference';
@@ -54,7 +55,7 @@ export class WorldFlowComponent extends Component {
   }
   bindCharacter(adapter:CharacterAdapter) {if(!this.flow)throw Error('World not initialized');return this.flow.bindCharacter(adapter);}
   private async createWorld(token:Cancellation):Promise<WorldLease> {
-    token.check();const model=instantiate(this.firstsliceModel!);this.ownedModel=model;this.node.addChild(model);
+    token.check();const model=instantiate(this.firstsliceModel!);const ambient=model.addComponent(RegionAmbientAnimation);ambient.clipUuids=['498b3fa5-2dd3-4e86-93b8-637ae51438fe@f2bf2'];this.ownedModel=model;this.node.addChild(model);
     try {
       identity(model);const sceneRoot=resolvePath(model,'scene_root');identity(sceneRoot);
       for(const anchor of Object.values(FIRSTSLICE.anchors)) {
