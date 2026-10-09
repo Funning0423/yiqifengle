@@ -1,5 +1,5 @@
-const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('/opt/homebrew/lib/node_modules/playwright'),W=require('./mainline-fixtures/verified-replays.json')[0];
-const exe='/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',ns='dot-mainline-r1-isolated-20261009:';
+const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('./qf-env.cjs').playwright(),W=require('./mainline-fixtures/verified-replays.json')[0];
+const exe=require('./qf-env.cjs').chromiumExecutable(),ns='dot-mainline-r1-isolated-20261009:';
 (async()=>{const runId=crypto.randomUUID(),startedAt=new Date().toISOString(),errors=[],checks=[];let c,p,profile;
 const launch=async()=>{c=await chromium.launchPersistentContext(profile,{headless:true,executablePath:exe,viewport:{width:402,height:874},deviceScaleFactor:3,hasTouch:true});p=c.pages()[0];p.on('pageerror',e=>errors.push(String(e)));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});await p.goto('http://127.0.0.1:8773/',{waitUntil:'networkidle'});await p.waitForFunction(()=>{try{return __worldIntegration.snapshot().characterReady}catch{return false}})};
 const nav=async k=>{await p.waitForFunction(k=>__worldIntegration.layout().targets[k],k);const q=await p.evaluate(k=>__worldIntegration.layout().targets[k],k);await p.touchscreen.tap(q.x,q.y)};

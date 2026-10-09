@@ -1,5 +1,5 @@
-'use strict';const fs=require('fs');const{chromium}=require('/opt/homebrew/lib/node_modules/playwright');
-(async()=>{const b=await chromium.launch({headless:true,executablePath:'/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'});const results=[];fs.mkdirSync('output/ui-contrast',{recursive:true});try{
+'use strict';const fs=require('fs');const{chromium}=require('./qf-env.cjs').playwright();
+(async()=>{const b=await chromium.launch({headless:true,executablePath:require('./qf-env.cjs').chromiumExecutable()});const results=[];fs.mkdirSync('output/ui-contrast',{recursive:true});try{
  for(const config of [{name:'iphone16pro',width:402,height:874,dpr:3},{name:'landscape',width:874,height:402},{name:'window',width:1280,height:800,resize:{width:640,height:600}}]){
   const p=await b.newPage({viewport:{width:config.width,height:config.height},deviceScaleFactor:config.dpr||1,hasTouch:true});const errors=[],checks=[];p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});p.on('pageerror',e=>errors.push(String(e)));
   try{await p.goto('http://127.0.0.1:8767/',{waitUntil:'networkidle'});await p.waitForFunction(()=>globalThis.__nativeBoard?.layout().spriteReady);const snap=()=>p.evaluate(()=>globalThis.__nativeBoard.snapshot());const layout=()=>p.evaluate(()=>globalThis.__nativeBoard.layout());const wait=s=>p.waitForFunction(s=>globalThis.__nativeBoard.snapshot().state===s,s,{timeout:15000});

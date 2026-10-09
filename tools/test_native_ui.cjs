@@ -1,5 +1,5 @@
-'use strict';const fs=require('fs');const{chromium}=require('/opt/homebrew/lib/node_modules/playwright');
-(async()=>{const b=await chromium.launch({headless:true,executablePath:'/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'});let p;const errors=[],messages=[],checks=[];try{
+'use strict';const fs=require('fs');const{chromium}=require('./qf-env.cjs').playwright();
+(async()=>{const b=await chromium.launch({headless:true,executablePath:require('./qf-env.cjs').chromiumExecutable()});let p;const errors=[],messages=[],checks=[];try{
  p=await b.newPage({viewport:{width:1280,height:800},hasTouch:true});p.on('console',m=>{messages.push({type:m.type(),text:m.text()});if(m.type()==='error')errors.push(m.text())});p.on('pageerror',e=>errors.push(String(e)));await p.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});await p.waitForFunction(()=>globalThis.__nativeBoard);fs.mkdirSync('output/native-ui',{recursive:true});
  const state=()=>p.evaluate(()=>globalThis.__nativeBoard.snapshot());const wait=s=>p.waitForFunction(s=>globalThis.__nativeBoard.snapshot().state===s,s,{timeout:10000});
  const tap=(x,y)=>p.touchscreen.tap(x,y);const tile=i=>({x:995+(i%7-3)*56,y:408-(3-Math.floor(i/7))*56});

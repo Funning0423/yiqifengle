@@ -2,11 +2,11 @@
 // Independent disposable browser context. No user profile, credentials or external pages.
 const fs = require('node:fs');
 const path = require('node:path');
-const {chromium} = require('/opt/homebrew/lib/node_modules/playwright');
+const {chromium} = require('./qf-env.cjs').playwright();
 const base = path.resolve(__dirname, '..');
 (async () => {
   const browser = await chromium.launch({headless: true,
-    executablePath: '/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'});
+    executablePath: require('./qf-env.cjs').chromiumExecutable()});
   try {
     const page = await browser.newPage({viewport: {width: 1280, height: 800}});
     const messages = [], errors = [];
@@ -23,7 +23,7 @@ const base = path.resolve(__dirname, '..');
     const output = path.join(base, 'output/playwright'); fs.mkdirSync(output, {recursive: true});
     await page.screenshot({path: path.join(output, 'cocos-firstslice-chromium.png')});
     const report = {scope: 'Mac desktop Cocos debug fixture; not phone acceptance', browser: browser.version(),
-      driver: require('/opt/homebrew/lib/node_modules/playwright/package.json').version, result, errors, messages};
+      driver: require('./qf-env.cjs').playwrightPackage().version, result, errors, messages};
     fs.writeFileSync(path.join(base, 'evidence/cocos-chromium-runtime.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify({browser: report.browser, r4: result.r4, scene: result.scene, errors}));
     if (!result.r4 || !result.scene || errors.length || result.reporterErrors.length) process.exitCode = 1;

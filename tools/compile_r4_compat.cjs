@@ -2,7 +2,7 @@
 // Standards-preserving syntax prepass; no business-rule edits or generated-code string patches.
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
 const base = path.resolve(__dirname, '..');
-const modules = path.join(base, 'tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/resources/3d/engine/node_modules');
+const modules = require('./qf-env.cjs').babelNodeModules();
 const babel = require(path.join(modules, '@babel/core'));
 const plugins = ['plugin-transform-spread', 'plugin-transform-for-of', 'plugin-transform-destructuring'];
 const source = path.join(base, 'inputs/R4-portable');

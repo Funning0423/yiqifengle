@@ -1,5 +1,5 @@
-const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('/opt/homebrew/lib/node_modules/playwright');
-(async()=>{const runId=crypto.randomUUID(),startedAt=new Date().toISOString(),checks=[],errors=[],b=await chromium.launch({headless:true,executablePath:'/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'});let c;
+const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('./qf-env.cjs').playwright();
+(async()=>{const runId=crypto.randomUUID(),startedAt=new Date().toISOString(),checks=[],errors=[],b=await chromium.launch({headless:true,executablePath:require('./qf-env.cjs').chromiumExecutable()});let c;
 const v3={version:3,records:Array.from({length:12},(_,i)=>({bestStars:i===0?1:0,bestScore:null,bestMoves:null,clears:i===0?1:0})),openedChests:[],toolsSpent:{windBell:0,tideBottle:0,tideNet:0,sunSeed:0,starShears:0},regionClaims:[false,false,false]};
 try{for(const kind of ['valid-v3','future-v99','corrupt-json']){c=await b.newContext({viewport:{width:402,height:874},deviceScaleFactor:3,hasTouch:true});const p=await c.newPage();p.on('pageerror',e=>errors.push(String(e)));await p.goto('http://127.0.0.1:8773/',{waitUntil:'networkidle'});await p.waitForFunction(()=>{try{return __worldIntegration.snapshot().characterReady}catch{return false}});
 const raw=kind==='corrupt-json'?'{not valid':JSON.stringify({...v3,version:kind==='future-v99'?99:3});

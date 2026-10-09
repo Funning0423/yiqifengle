@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),vm=require('vm'),assert=require('assert/strict');
-const ts=require('../../cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/Resources/app.asar.unpacked/node_modules/typescript/lib/typescript.js');
+const ts=require('./qf-env.cjs').typescript();
 const root=path.resolve('creator-build-project/assets/scripts'),sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const compiled=[],transpile=rel=>{const r=ts.transpileModule(fs.readFileSync(path.join(root,rel),'utf8'),{reportDiagnostics:true,compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2017,experimentalDecorators:true,esModuleInterop:true}});const errors=(r.diagnostics||[]).filter(x=>x.category===ts.DiagnosticCategory.Error);assert.equal(errors.length,0,JSON.stringify(errors));compiled.push({file:rel,sha256:sha(path.join(root,rel))});return r.outputText;};
 for(const rel of ['world-r2/NativeWorldLevelAdapter.ts','world-r2/WorldNativeComposition.ts','world-r2/R5PersistenceProbe.ts','WorldIntegrationBoot.ts'])transpile(rel);

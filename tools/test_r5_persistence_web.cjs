@@ -1,6 +1,6 @@
-const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('/opt/homebrew/lib/node_modules/playwright');
+const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('./qf-env.cjs').playwright();
 const W=require('./persistence-fixtures/verified-replays.json');
-const exe='/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+const exe=require('./qf-env.cjs').chromiumExecutable();
 (async()=>{const runId=crypto.randomUUID(),startedAt=new Date().toISOString(),namespace='dot-r5-v12-test-'+runId+':',profile=path.resolve('output/persistence-profile-'+runId),checks=[],errors=[];let context;
 const launch=async()=>{context=await chromium.launchPersistentContext(profile,{headless:true,executablePath:exe,viewport:{width:402,height:874},deviceScaleFactor:3,hasTouch:true});const p=context.pages()[0];p.on('pageerror',e=>errors.push(String(e)));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});await p.goto('http://127.0.0.1:8772/',{waitUntil:'networkidle'});await p.waitForFunction(()=>globalThis.__r5PersistenceProbe);return p;};
 try{let p=await launch();const viewport=await p.evaluate(()=>({width:innerWidth,height:innerHeight,devicePixelRatio,maxTouchPoints:navigator.maxTouchPoints}));
