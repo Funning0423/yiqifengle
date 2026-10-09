@@ -1,0 +1,15 @@
+export type Region = 'tide' | 'meadow' | 'sky';
+export type Special = 'row' | 'column' | 'bomb' | 'color' | null;
+export type Action = ['swap', number, number] | ['activate', number] | ['tool', 'tideAnchor'] | ['tool', 'sunSeed', number] | ['tool', 'prismShift'];
+export interface Tile { readonly id: number; readonly type: number; readonly special: Special; }
+export interface Piece { readonly index: number; readonly progress: number; readonly done: boolean; readonly shifted: boolean; readonly layers?: number; readonly pollen?: readonly number[]; readonly partner?: number; readonly polarity?: 0 | 1; readonly hits?: number; readonly type?: number; }
+export interface Stage { readonly id: string; readonly region: Region; readonly ordinal: number; readonly name: string; readonly contentRevision: 'r5.1'; readonly seedBank: readonly number[]; readonly config: { readonly moves: number; readonly goals: Readonly<Record<string, number>>; }; readonly designIntent: string; readonly intendedBand: string; }
+export interface Frame { readonly kind: 'action' | 'clear' | 'drop' | 'tool' | 'scene' | 'shuffle'; readonly [key: string]: unknown; }
+export interface Snapshot { readonly schemaVersion: 1; readonly packId: 'regional-r05'; readonly stageId: string; readonly region: Region; readonly seed: number; readonly turn: number; readonly board: readonly Tile[]; readonly moves: number; readonly goals: Readonly<Record<string, number>>; readonly status: 'playing' | 'won' | 'lost'; readonly score: number; readonly moss: readonly number[]; readonly roots: readonly (readonly [number, number])[]; readonly pieces: readonly Piece[]; readonly scene: { readonly phase: string | number; readonly clock: number; readonly heldTurns: number; }; readonly tool: { readonly kind: string; readonly charges: number; }; readonly frames: readonly Frame[]; }
+export interface Checkpoint { readonly version: 1; readonly packId: 'regional-r05'; readonly stageId: string; readonly contentRevision: string; readonly contentSignature: string; readonly seed: number; readonly actions: readonly Action[]; readonly expectedState: string; }
+export interface Session { snapshot(): Snapshot; preview(action: Action): { readonly ok: boolean; readonly token?: string; readonly reason?: string }; commit(token: string): { readonly ok: boolean; readonly snapshot?: Snapshot; readonly reason?: string }; cancelPreview(): void; act(action: Action): boolean; checkpoint(): Checkpoint; legalActions(options?: { tools?: boolean }): Action[]; }
+export const packId: 'regional-r05';
+export const catalog: readonly Stage[];
+export function getStage(id: string): Stage | null;
+export function createSession(id: string, seed?: number): Session;
+export function restore(data: Checkpoint): Session;
