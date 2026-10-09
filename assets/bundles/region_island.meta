@@ -7,8 +7,14 @@
   "subMetas": {},
   "userData": {
     "isBundle": true,
-    "bundleConfigID": "default",
+    "bundleConfigID": "wx_subpackage",
     "bundleName": "region_island",
-    "priority": 1
+    "priority": 1,
+    "compressionType": {
+      "wechatgame": "subpackage"
+    },
+    "isRemoteBundle": {
+      "wechatgame": false
+    }
   }
 }

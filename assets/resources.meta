@@ -7,8 +7,14 @@
   "subMetas": {},
   "userData": {
     "isBundle": true,
-    "bundleConfigID": "default",
+    "bundleConfigID": "wx_subpackage",
     "bundleName": "resources",
-    "priority": 8
+    "priority": 8,
+    "compressionType": {
+      "wechatgame": "subpackage"
+    },
+    "isRemoteBundle": {
+      "wechatgame": false
+    }
   }
 }
