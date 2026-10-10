@@ -39,7 +39,14 @@ export const REGION_CAMERA = {
   /** Future 0007 drag stops; null = region not open (drag only bounces). */
   stops: [
     { id: 'tide', pose: 'island' },
-    { id: 'meadow', pose: null },
+    // meadow (E4 v1.3.1, GGbot): FINAL pose = Grok Bot art v0.8.1a team/art/outbox-to-dot/20261010T0127Z-grokbot2-meadow_camera_pose-v0.8.1a.json
+    // (sha256 12525f15...b3ef; identical copy in team/cinematic/inbox/meadow_camera_pose.json), cross-checked by 运镜bot in team/cinematic/work/meadow-pose-check/
+    // (SHA256SUMS c1d1deff..., check_alt_x-4.json): passes at aspect 0.46 and 0.75, character box 0.053 above the bottom button band (NDC y -0.5).
+    // Same AuthoredPose form as island 'yunjing-final' (position + target + fovVerticalDeg, up +Y, no rotation). position/target are meadow-root LOCAL
+    // (meadow_greybox_v0_8.glb scene_root at the origin); world = local + rootOffset. rootOffset: where the meadow root sits in the region world was NOT FOUND
+    // in 0007 code/scenes (no region_meadow bundle, meadow scene or placement code in this project) -> explicit [0, 0, 0]; change it here once the meadow root is placed.
+    { id: 'meadow', pose: { position: [-4, 24, 62], target: [0.3151, 3.4577, -0.6059], fovVerticalDeg: 45, rootOffset: [0, 0, 0], status: 'final',
+      source: 'Grok Bot meadow_camera_pose v0.8.1a (sha256 12525f15...b3ef); 运镜bot meadow-pose-check: pass 0.46/0.75, 0.053 margin to button band; meadow-root local' } },
     { id: 'sky', pose: null },
   ],
 } as const;
