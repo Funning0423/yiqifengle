@@ -17,6 +17,15 @@
 - 镜头轨迹检查：`node tools/scene-fx/test_camera_track_fx.cjs`。读运镜bot 导出的 `previews/运镜bot/camera-track.json`，按出门、待机、回家分别统计镜头穿入光锥和烟的帧数、屏幕平均亮度的最大跳变，以及每帧淡出系数的最大步长。
 - 离线预览：`tools/scene-fx/dump_fx_frames.cjs` 用真实的 Core 逐帧导出状态，再由 `tools/scene-fx/blender_fx_preview.py` 用 Blender Cycles 复刻渲染（不是 Cocos 渲染）。
 
+## 月亮和月光倒影带（fx_moon / fx_moon_halo / fx_moonlight_band，只在夜里）
+
+- 节点：`fx_moon`（月盘）、`fx_moon_halo`（月晕），都是面向镜头的软边圆盘；`fx_moonlight_band` 是海面上的倒影带。三个都挂在 `IslandAtmosphereFx` 根下，用 `builtin-unlit` 加顶点色、technique 2（加法），不用贴图，不加实时灯，所以回程主光翻转对它们没有影响。没有碰撞体，不在 `lighthouseTargets` 里。
+- 位置：按 `previews/运镜bot/camera-track.json` 的 `islandIdlePose`（位置 [-12,15.5,48]，fov 42，586×1266）来定。月亮放在屏幕 (0.17, 0.085)（从左上角算）那条视线方向上、离镜头 200 m 的地方，世界坐标 [19.58,17.49,-149.48]，在天空球（半径 282 m）里面。它落在地平线上方那条天空带（屏幕顶部约 19%）的中间，在灯塔/她那一列（x 0.39）的左边，避开云（`test_island_fx` 把云层顶点投影到屏幕检查过，月晕范围内一个都没有），也远离路牌（右下，x 0.62–0.82）。月盘半径 2.3 m，在 1266 高的屏幕上约 19 px；月晕半径 7.6 m。
+- 倒影带：海面上的一条加法长条，高度用 `seaY`（和 seaglint 一样，GGbot 的海水材质和夜间参数都不动）。每帧从主相机脚下出发，朝“相机→月亮”的水平方向铺开（倒影跟着看的人走），16–285 m 之间的行按对数间隔排，亮暗交替成波纹；整条带每 3 s 均匀放大两行的距离，所以波纹看起来在慢慢往外漂。远端会被收在海面方块（±255 m）以内，固定机位下一直铺到地平线、正好在月亮下面。镜头离海面低于 4 m 时逐渐变淡，低于 1 m 时完全消失。屏幕上它在左边（x 约 0.18–0.24），从路牌左边过去；岛和她挡在它前面（深度测试）。
+- 昼夜：`lightFromNight(propNightWeight())`，和光束是同一个值；白天权重为 0，节点设为 inactive，完全不显示。
+- 原来模型里的 `env_sky_moon_night_v22`/halo（天空背景的一部分，屋里从窗户也能看到）不动。它不在岛上固定机位的画面里；按 camera-track 逐帧算，它和 fx_moon 从来不会同时出现在画面里（0/1430 帧）。
+- 测试：`test_island_fx` 的 `moon-fixed-view-composition`、`moon-day-hidden-night-fade`、`moonlight-band-on-sea-safe`、`byte-budget`（terser 压缩后相对 29690bb 增加的字节数）；`test_camera_track_fx` 把月盘、月晕、倒影带算进屏幕亮度，还检查月亮离镜头 ≥100 m、倒影带近端离镜头 ≥10 m、alpha 每帧步长 <0.03。
+
 ## 海鸥（fx_gull_N）
 
 - 替换：`env_anim_seagull_fly_01/02_v22`（各一个身体 + 两片翅膀，绕灯塔转圈）在 `WorldFlowComponent` 的 `replacedFx` 里关掉（现在一共 12 个渲染器）；`IslandAtmosphereFx` 下的 `fx_gulls` 里放 6 只 `fx_gull_N`（`fx_gull_N_body`、`fx_gull_N_wing_L/R`），直接用 fly_01 的三块网格和 M_env_palette 的一份拷贝（拷贝只用来乘夜色，原调色板不动）。沙滩上站着的 `env_anim_seagull_01` 不动。没有新网格、贴图、音频。

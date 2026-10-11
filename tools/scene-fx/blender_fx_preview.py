@@ -66,6 +66,11 @@ G = cfg['geometry']; ADD = material('fx_add', True); BLEND = material('fx_blend'
 beam = mesh_obj('fx_lighthouse_beam', G['beam']); glow = mesh_obj('fx_lighthouse_glow', G['glow']); glint = mesh_obj('fx_lighthouse_seaglint', G['glint'])
 for o in (beam, glow, glint): o.data.materials.append(ADD)
 beam.location = v(cfg['lamp']); glint.location = v([cfg['lamp'][0], cfg['seaY'], cfg['lamp'][2]])
+MOON = None
+if 'moon' in G:  # fx_moon / fx_moon_halo / fx_moonlight_band (IslandAtmosphereFx), additive like the beam
+    MOON = [mesh_obj('fx_moon_halo', G['halo']), mesh_obj('fx_moon', G['moon']), mesh_obj('fx_moonlight_band', G['band'])]
+    for o in MOON: o.data.materials.append(ADD)
+    MOON[0].location = MOON[1].location = v(cfg['moon']['pos']); MOON[0].scale = (cfg['moon']['halo'],) * 3; MOON[1].scale = (cfg['moon']['radius'],) * 3
 puffs = []
 for i in range(len(cfg['frames'][0]['puffs'])):
     o = mesh_obj('fx_chimney_smoke_puff_%d' % i, G['puff%d' % (i % 2)]); o.data.materials.append(BLEND); puffs.append(o)
@@ -107,7 +112,7 @@ for attr, val in (('use_raytracing', False), ('use_gtao', False), ('use_shadows'
 sc.render.resolution_x, sc.render.resolution_y = RX, RY; sc.view_settings.view_transform = 'Standard'
 def lerp(x, y, k): return tuple(x[i] + (y[i] - x[i]) * k for i in range(len(x)))
 def srgb2lin(c): return [((x / 255) / 12.92 if x / 255 <= .04045 else (((x / 255) + .055) / 1.055) ** 2.4) for x in c]
-COL = {k: srgb2lin(cfg['colors'][k]) for k in ('beam', 'glow', 'glint')}
+COL = {k: srgb2lin(cfg['colors'][k]) for k in ('beam', 'glow', 'glint', 'moon', 'halo', 'band') if k in cfg['colors']}
 def setfx(o, a, rgb):
     o['fxa'] = float(a); o['fxc'] = list(rgb); o.hide_render = a <= 1 / 255
 for k, f in enumerate(cfg['frames']):
@@ -124,6 +129,10 @@ for k, f in enumerate(cfg['frames']):
     beam.rotation_quaternion = q(f['beam']['rot']); setfx(beam, f['beam']['alpha'], COL['beam'])
     glow.location = v(f['glow']['pos']); glow.rotation_quaternion = q(f['glow']['rot']); s = f['glow']['scale']; glow.scale = (s, s, s); setfx(glow, f['glow']['alpha'], COL['glow'])
     glint.rotation_quaternion = q(f['glint']['rot']); setfx(glint, f['glint']['alpha'], COL['glint'])
+    if MOON and 'moon' in f:
+        hm, mo, bd = MOON; mo.rotation_quaternion = hm.rotation_quaternion = q(f['moon']['rot'])
+        setfx(mo, f['moon']['alpha'], COL['moon']); setfx(hm, f['moon']['halo'], COL['halo'])
+        bd.location = v(f['band']['pos']); bd.rotation_quaternion = q(f['band']['rot']); s = f['band']['scale']; bd.scale = (s, s, 1); setfx(bd, f['band']['alpha'], COL['band'])
     for o, pf in zip(puffs, f['puffs']):
         o.location = v(pf['pos']); o.rotation_quaternion = q(pf['rot']); sx, sy, sz = pf['scale']; o.scale = (sx, sz, sy); setfx(o, pf['alpha'], srgb2lin(pf['color']))
     if 'camera' in f:

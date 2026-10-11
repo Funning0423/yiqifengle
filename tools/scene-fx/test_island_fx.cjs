@@ -3,7 +3,8 @@
  * 1 maths (basis quaternions), 2 anchors vs the real GLB (lamp pivot, chimney mouth), 3 beam/glint/disc geometry profiles,
  * 4 day/night (day = no light, night smoke not white), 5 flash from the LIVE camera, 6 near-camera fades over the whole
  * home->island->home flow (flow_sim, this tree; optional CAMERA_TREE=<other worktree> to replay another camera branch),
- * 7 tap safety (lighthouseTargets unchanged, no colliders), 8 wiring + byte cost.
+ * 7 tap safety (lighthouseTargets unchanged, no colliders), 8 wiring + byte cost,
+ * 9 moon + moonlight band (fixed-view composition from camera-track islandIdlePose, day hidden, night fade, sea bounds, live-camera band).
  * Usage: node tools/scene-fx/test_island_fx.cjs [--json out.json]   (QF_TYPESCRIPT_MODULE, DRACO3D as for camera-frame-test) */
 const fs=require('fs'),path=require('path'),os=require('os');
 const root=path.resolve(__dirname,'..','..'),scripts=path.join(root,'creator-build-project/assets/scripts');
@@ -97,16 +98,53 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
   check('inside-cone-zero',F.beamState(0,inCone,1).alpha===0&&F.beamState(0,[X.lamp[0]+.3,X.lamp[1],X.lamp[2]],1).alpha===0&&F.smokePuffs(1,0,0,1,F.smokePuffs(1,0,0,1,[-9,4,13])[2].position)[2].alpha===0,{});
   // ES5 output identical numbers
   const e5=F5.beamState(7.7,[-9,4,13],1),e6=F.beamState(7.7,[-9,4,13],1);check('es5-same-result',JSON.stringify(e5)===JSON.stringify(e6),{});
+  // 9 moon + moonlight band
+  {const trackFile9=process.env.CAMERA_TRACK||path.resolve(root,'../../previews/运镜bot/camera-track.json');
+   const T9=fs.existsSync(trackFile9)?JSON.parse(fs.readFileSync(trackFile9,'utf8')):null;
+   const pose=T9?T9.islandIdlePose:{position:[-12,15.5,48],rotation:[-0.1473,-0.13302,-0.02,0.9799],fovVerticalDeg:42},aspect=T9&&T9.aspect||586/1266,hero=T9?T9.frames.find(f=>f.phase==='islandIdle').root:[-2.1135,0,5.2814];
+   const cam=pose.position,q=pose.rotation,tY=Math.tan(pose.fovVerticalDeg*Math.PI/360),R=qrot(q,[1,0,0]),U=qrot(q,[0,1,0]),W=qrot(q,[0,0,-1]);
+   const pj=p=>{const d=[p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]],z=d[0]*W[0]+d[1]*W[1]+d[2]*W[2];if(z<=0)return null;return [((d[0]*R[0]+d[1]*R[1]+d[2]*R[2])/z/(tY*aspect)+1)/2,(1-(d[0]*U[0]+d[1]*U[1]+d[2]*U[2])/z/tY)/2,z];};
+   const M=X.moon,B=X.band,mc=pj(M.pos),dist=d3(M.pos,cam),rScr=M.radiusM/dist/(2*tY),haloScr=M.haloRadiusM*.5/dist/(2*tY); // halo core radius (vertex alpha > ~.25), fraction of screen height
+   const S=X.seaY,SG=[-1.2,-1.15,18.8],sign=[pj([SG[0]-1.2,S,SG[2]]),pj([SG[0]+1.2,S+3.2,SG[2]])],head=pj([hero[0],1.75,hero[2]]),feet=pj(hero);
+   const horizon=pj([cam[0]+W[0]*250/Math.hypot(W[0],W[2]),S,cam[2]+W[2]*250/Math.hypot(W[0],W[2])]);
+   let cloudHits=0,cloudVerts=0;if(G&&G.meshes.env_cloud_layer){for(const tri of G.meshes.env_cloud_layer)for(const v of tri){const c=pj(v);if(!c)continue;cloudVerts++;const dx=(c[0]-mc[0])*aspect,dy=c[1]-mc[1];if(Math.hypot(dx,dy)<haloScr*1.4)cloudHits++;}}
+   const signRect={x0:Math.min(sign[0][0],sign[1][0]),x1:Math.max(sign[0][0],sign[1][0]),y0:Math.min(sign[0][1],sign[1][1]),y1:Math.max(sign[0][1],sign[1][1])};
+   const ms=F.moonState(10,cam,1),bandAt=y=>{ // screen point of the band centre line nearest to screen row y (sampled along the strip)
+     const h=qrot(ms.bandRotation,[0,0,1]);let best=null;for(let z=B.startM*ms.bandScale;z<=B.endM*ms.bandScale;z+=.25){const c=pj([ms.bandPos[0]+h[0]*z,S,ms.bandPos[2]+h[2]*z]);if(c&&(!best||Math.abs(c[1]-y)<Math.abs(best[1]-y)))best=c;}return best;};
+   const bSign=bandAt((signRect.y0+signRect.y1)/2),bHero=bandAt(feet[1]),bHorizon=bandAt(horizon[1]+.004),bBottom=bandAt(.999);
+   const ok=mc&&mc[1]-rScr>0&&mc[1]+haloScr<horizon[1]&&Math.abs(mc[0]-head[0])>.15&&mc[0]-rScr/aspect>0&&!(mc[0]>signRect.x0-.1&&mc[0]<signRect.x1+.1)&&cloudHits===0&&dist>150&&dist<270&&Math.hypot(...M.pos)<282-20
+     &&Math.abs(bHorizon[0]-mc[0])<.03&&bSign&&(bSign[0]<signRect.x0-.08)&&bBottom[1]>.99;
+   check('moon-fixed-view-composition',!!ok,{track:T9?path.relative(path.resolve(root,'../..'),trackFile9):'built-in pose',moonScreen:mc&&mc.slice(0,2).map(v=>+v.toFixed(3)),moonRadiusPxOn1266:+(rScr*1266).toFixed(1),moonDistM:+dist.toFixed(1),
+     horizonY:+horizon[1].toFixed(3),heroHeadScreen:head.slice(0,2).map(v=>+v.toFixed(3)),signpostRect:Object.fromEntries(Object.entries(signRect).map(([k,v])=>[k,+v.toFixed(3)])),cloudVertsNearMoon:cloudHits,cloudVertsInView:cloudVerts,
+     bandScreen:{atHorizon:bHorizon.slice(0,2).map(v=>+v.toFixed(3)),atHerFeetRow:bHero.slice(0,2).map(v=>+v.toFixed(3)),atSignpostRow:bSign.slice(0,2).map(v=>+v.toFixed(3)),atBottom:bBottom.slice(0,2).map(v=>+v.toFixed(3))}});
+   // day hidden, night fade without jumps (T9n weight -> lightFromNight like the beam)
+   let dayMax=0;for(let t=0;t<30;t+=.1){const m=F.moonState(t,cam,0);dayMax=Math.max(dayMax,m.moonAlpha,m.haloAlpha,m.bandAlpha);}
+   let w=0,prev=null,maxStep=0;for(let i=0;i<40;i++){w=F.approachNight(w,true,1/60);const m=F.moonState(3,cam,F.lightFromNight(w));if(prev)maxStep=Math.max(maxStep,Math.abs(m.moonAlpha-prev.moonAlpha),Math.abs(m.bandAlpha-prev.bandAlpha));prev=m;}
+   check('moon-day-hidden-night-fade',dayMax===0&&maxStep<.06&&prev.moonAlpha>.85&&prev.bandAlpha>.1,{dayMax,maxAlphaStepPer60fpsFrame:+maxStep.toFixed(4),night:{moon:+prev.moonAlpha.toFixed(3),halo:+prev.haloAlpha.toFixed(3),band:+prev.bandAlpha.toFixed(3)}});
+   // band: far end on the sea for every camera on the track, near end >= 10 m from the lens, aimed at the moon from the live camera
+   const bgm=F.bandGeometry(),ba=[];for(let i=3;i<bgm.colors.length;i+=4)ba.push(bgm.colors[i]);
+   let offSea=0,minNear=1e9,maxScaleStep=0,minMoonCam=1e9,aim=0;const cams=T9?T9.frames.map(f=>f.position).concat([cam]):[cam];
+   for(const c of cams)for(const t of [0,.7,1.4,2.2,2.9]){const m=F.moonState(t,c,1),h=qrot(m.bandRotation,[0,0,1]),far=B.endM*m.bandScale,e=[c[0]+h[0]*far,c[2]+h[2]*far];
+     if(Math.abs(e[0])>B.seaHalfM||Math.abs(e[1])>B.seaHalfM)offSea++;if(m.bandAlpha>0)minNear=Math.min(minNear,m.bandNearM);minMoonCam=Math.min(minMoonCam,m.moonCamM);
+     const toM=[M.pos[0]-c[0],M.pos[2]-c[2]],l=Math.hypot(...toM);aim=Math.max(aim,1-(h[0]*toM[0]+h[2]*toM[1])/l);}
+   for(let t=0;t<B.shimmerS*2;t+=1/60){const a=F.moonState(t,cam,1).bandScale,b=F.moonState(t+1/60,cam,1).bandScale;if(Math.floor(t/B.shimmerS)===Math.floor((t+1/60)/B.shimmerS))maxScaleStep=Math.max(maxScaleStep,Math.abs(b-a));}
+   check('moonlight-band-on-sea-safe',offSea===0&&minNear>=10&&minMoonCam>100&&aim<1e-9&&ba.every(a=>a>=0&&a<=1)&&ba.filter((a,i)=>i%5===0||i%5===4).every(a=>a===0),{camerasChecked:cams.length,farEndOffSea:offSea,minBandDistToCameraM:+minNear.toFixed(2),minMoonDistToCameraM:+minMoonCam.toFixed(1),maxAimError:aim,bandVerts:bgm.positions.length/3,bandTris:bgm.indices.length/3,maxScaleStepPerFrame:+maxScaleStep.toFixed(4)});
+  }
   // 7 taps
   const wfc=fs.readFileSync(path.join(scripts,'world-r1/WorldFlowComponent.ts'),'utf8'),fx=fs.readFileSync(path.join(scripts,'render/IslandAtmosphereFx.ts'),'utf8');
-  check('taps-unchanged',wfc.includes("for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell'])")&&!/Collider|UITransform|EventType|\.on\(/.test(fx)&&!/fx_lighthouse|fx_chimney|atmosphere/.test(wfc.slice(wfc.indexOf('private hitLighthouse'),wfc.indexOf('private roomView'))),{lighthouseTargets:['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']});
+  check('taps-unchanged',wfc.includes("for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell'])")&&!/Collider|UITransform|EventType|\.on\(/.test(fx)&&!/fx_lighthouse|fx_chimney|fx_moon|atmosphere/.test(wfc.slice(wfc.indexOf('private hitLighthouse'),wfc.indexOf('private roomView'))),{lighthouseTargets:['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']});
   // 8 wiring + bytes
   const wired=['new IslandAtmosphereFx(director.getScene()!)','this.atmosphere?.setView(this.exteriorVisible,','this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength())'].every(s=>wfc.includes(s))&&(wfc.match(/this\.atmosphere\?\.dispose\(\);this\.atmosphere=null;/g)||[]).length===3;
-  const names=['fx_lighthouse_beam','fx_lighthouse_glow','fx_lighthouse_seaglint','fx_chimney_smoke','fx_chimney_smoke_puff_'].every(n=>fx.includes("'"+n+"'"));
+  const names=['fx_lighthouse_beam','fx_lighthouse_glow','fx_lighthouse_seaglint','fx_chimney_smoke','fx_chimney_smoke_puff_','fx_moon','fx_moon_halo','fx_moonlight_band'].every(n=>fx.includes("'"+n+"'"));
   check('wiring-and-names',wired&&names&&/replacedFx\(r\)\)r\.enabled=false/.test(wfc),{});
   const files=['render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts','render/IslandAtmosphereFxCore.ts.meta','render/IslandAtmosphereFx.ts.meta'];
   const bytes=files.reduce((s,f)=>s+fs.statSync(path.join(scripts,f)).size,0);
-  check('byte-budget',bytes<=30*1024,{sourceBytes:bytes,textures:0,newAssets:0,runtimeMeshVertices:bg.positions.length/3+gg.positions.length/3+dg.positions.length/3*2+37,files});
+  // Shipped cost = the ES5 modules after terser (Cocos minifies bundles); the moon commit is measured against BYTE_BASE (git rev, default 29690bb).
+  let terser=null;for(const p of [process.env.TERSER_MODULE,'/tmp/terser/node_modules/terser',path.join(root,'tools/vendor-node/node_modules/terser'),'terser'])try{if(p){terser=require(p);break;}}catch(e){}
+  const mini=async src=>{const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES5}}).outputText;return terser?(await terser.minify(js,{compress:{passes:2},mangle:true})).code.length:js.length;};
+  const code=['render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts'];let now=0,base=0,baseRev=process.env.BYTE_BASE||'29690bb',baseOk=true;
+  for(const f of code){now+=await mini(fs.readFileSync(path.join(scripts,f),'utf8'));try{base+=await mini(require('child_process').execFileSync('git',['show',baseRev+':creator-build-project/assets/scripts/'+f],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}));}catch(e){baseOk=false;}}
+  check('byte-budget',(baseOk?now-base<=10*1024:true)&&now<=24*1024,{minifiedJsBytes:now,minifier:terser?'terser':'none (raw ES5)',baseRev:baseOk?baseRev:'unavailable',addedSinceBaseBytes:baseOk?now-base:null,budgetAddedBytes:10240,sourceBytes:bytes,textures:0,newAssets:0,runtimeMeshVertices:bg.positions.length/3+gg.positions.length/3+dg.positions.length/3*2+37+F.bandGeometry().positions.length/3+57+49,files});
   const fail=checks.filter(c=>!c.ok).length;if(jsonOut)fs.writeFileSync(jsonOut,JSON.stringify({checks},null,1));
   console.log(fail?'FAILED '+fail:'ALL PASS island-fx ('+checks.length+' checks)');process.exitCode=fail?1:0;
 })().catch(e=>{console.error(e);process.exitCode=1;});

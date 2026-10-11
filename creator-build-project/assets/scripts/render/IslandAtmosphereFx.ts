@@ -1,5 +1,5 @@
 import { Node, Scene, MeshRenderer, Material, Mesh, Color, Vec3, EffectAsset, utils, isValid } from 'cc';
-import { ISLAND_FX, approachNight, lightFromNight, pickNight, beamGeometry, beamState, discGeometry, glintGeometry, smokePuffs } from './IslandAtmosphereFxCore';
+import { ISLAND_FX, approachNight, lightFromNight, pickNight, beamGeometry, beamState, bandGeometry, discGeometry, glintGeometry, moonState, smokePuffs } from './IslandAtmosphereFxCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 import { GullFlock } from './GullFlock';
 import type { FxGeometry, V3 } from './IslandAtmosphereFxCore';
@@ -8,14 +8,15 @@ import type { FxGeometry, V3 } from './IslandAtmosphereFxCore';
  * static-world checks and lighthouseTargets are untouched). No colliders: none of these nodes can take a tap.
  * Night light only shows with the exterior layer; smoke shows with the exterior layer day and night.
  * Night weight: GGbot's propNightWeight() (same value as signpost/sea/tags) when live, else our own replica (pickNight).
- * Gulls (fx_gulls/fx_gull_N): GullFlock, same root, same night weight. */
+ * Gulls (fx_gulls/fx_gull_N): GullFlock, same root, same night weight.
+ * Moon (fx_moon, fx_moon_halo, fx_moonlight_band): additive unlit like the beam, night only (hidden at weight 0). */
 type Fx = { node: Node; material: Material; applied: string };
 const TECH_ADD = 2, TECH_ALPHA_BLEND = 3; // builtin-unlit 3.8.8: opaque, transparent, add, alpha-blend
 export class IslandAtmosphereFx {
   private root: Node | null = null; private meshes: Mesh[] = []; private materials: Material[] = [];
-  private beam: Fx | null = null; private glow: Fx | null = null; private glint: Fx | null = null; private puffs: Fx[] = [];
+  private beam: Fx | null = null; private glow: Fx | null = null; private glint: Fx | null = null; private moon: Fx | null = null; private halo: Fx | null = null; private band: Fx | null = null; private puffs: Fx[] = [];
   private exterior = false; private night = false; private lightShown = 0; private smokeShown = 0; private nightShown = 0; private synced = false; private time = 0; private ownNight = 0; private gulls: GullFlock | null = null;
-  private readonly tmp = new Vec3(); private last: { beam: number; flash: number; puffs: number[] } = { beam: 0, flash: 0, puffs: [] };
+  private readonly tmp = new Vec3(); private last: { beam: number; flash: number; puffs: number[]; moon: number; band: number } = { beam: 0, flash: 0, puffs: [], moon: 0, band: 0 };
   constructor(scene: Scene) {
     if (!EffectAsset.get('builtin-unlit')) { console.warn('[SCENE_FX] builtin-unlit unavailable; island smoke/beam skipped'); return; }
     const root = new Node('IslandAtmosphereFx'); scene.addChild(root); this.root = root;
@@ -24,6 +25,12 @@ export class IslandAtmosphereFx {
     this.beam = this.fx(root, 'fx_lighthouse_beam', beamMesh, TECH_ADD);
     this.glow = this.fx(root, 'fx_lighthouse_glow', glowMesh, TECH_ADD);
     this.glint = this.fx(root, 'fx_lighthouse_seaglint', glintMesh, TECH_ADD);
+    const M = ISLAND_FX.moon;
+    this.halo = this.fx(root, 'fx_moon_halo', this.mesh(discGeometry(24, .2, .5, 0, 0, 0)), TECH_ADD);
+    this.moon = this.fx(root, 'fx_moon', this.mesh(discGeometry(28, .9, 1, 0, .14, 0)), TECH_ADD);
+    this.band = this.fx(root, 'fx_moonlight_band', this.mesh(bandGeometry()), TECH_ADD);
+    this.moon.node.setWorldPosition(M.pos[0], M.pos[1], M.pos[2]); this.moon.node.setScale(M.radiusM, M.radiusM, M.radiusM);
+    this.halo.node.setWorldPosition(M.pos[0], M.pos[1], M.pos[2]); this.halo.node.setScale(M.haloRadiusM, M.haloRadiusM, M.haloRadiusM);
     const L = ISLAND_FX.lamp, sea = ISLAND_FX.seaY;
     this.beam.node.setWorldPosition(L[0], L[1], L[2]); this.glint.node.setWorldPosition(L[0], sea, L[2]);
     const smoke = new Node('fx_chimney_smoke'); root.addChild(smoke);
@@ -65,6 +72,10 @@ export class IslandAtmosphereFx {
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
     this.place(this.glow, b.glowPos, b.glowRotation, [b.glowScale, b.glowScale, b.glowScale], ISLAND_FX.glow.color, b.glowAlpha);
     this.place(this.glint, null, b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
+    const m = moonState(this.time, cam, this.lightShown); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
+    this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
+    this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);
+    this.place(this.band, m.bandPos, m.bandRotation, [m.bandScale, 1, m.bandScale], ISLAND_FX.band.color, m.bandAlpha);
     const puffs = smokePuffs(this.time, Number.isFinite(wind) ? wind : 0, this.nightShown, this.smokeShown, cam); this.last.puffs = [];
     for (let i = 0; i < puffs.length && i < this.puffs.length; i++) { const q = puffs[i]; this.last.puffs.push(q.alpha); this.place(this.puffs[i], q.position, q.rotation, q.scale, q.color, q.alpha); }
   }
@@ -76,13 +87,13 @@ export class IslandAtmosphereFx {
     const r = Math.round(rgb[0]), g = Math.round(rgb[1]), bl = Math.round(rgb[2]), a = Math.round(alpha * 255), key = r + ',' + g + ',' + bl + ',' + a;
     if (key !== fx.applied) { fx.material.setProperty('mainColor', new Color(r, g, bl, a)); fx.applied = key; }
   }
-  private hideAll(): void { const all = [this.beam, this.glow, this.glint].concat(this.puffs); for (let i = 0; i < all.length; i++) { const f = all[i]; if (f && isValid(f.node, true)) f.node.active = false; } if (this.root && isValid(this.root, true)) this.root.active = false; }
-  diagnostics() { return { time: this.time, lightShown: this.lightShown, smokeShown: this.smokeShown, nightShown: this.nightShown, beamAlpha: this.last.beam, flash: this.last.flash, puffAlpha: this.last.puffs.slice(), ownNight: this.ownNight, gulls: this.gulls ? this.gulls.diagnostics() : null }; }
+  private hideAll(): void { const all = [this.beam, this.glow, this.glint, this.moon, this.halo, this.band].concat(this.puffs); for (let i = 0; i < all.length; i++) { const f = all[i]; if (f && isValid(f.node, true)) f.node.active = false; } if (this.root && isValid(this.root, true)) this.root.active = false; }
+  diagnostics() { return { time: this.time, lightShown: this.lightShown, smokeShown: this.smokeShown, nightShown: this.nightShown, beamAlpha: this.last.beam, flash: this.last.flash, puffAlpha: this.last.puffs.slice(), moonAlpha: this.last.moon, bandAlpha: this.last.band, ownNight: this.ownNight, gulls: this.gulls ? this.gulls.diagnostics() : null }; }
   dispose(): void {
     if (this.gulls) this.gulls.dispose(); this.gulls = null;
     if (this.root && isValid(this.root, true)) this.root.destroy();
     for (let i = 0; i < this.materials.length; i++) this.materials[i].destroy();
     for (let i = 0; i < this.meshes.length; i++) this.meshes[i].destroy();
-    this.root = null; this.beam = this.glow = this.glint = null; this.puffs = []; this.materials = []; this.meshes = [];
+    this.root = null; this.beam = this.glow = this.glint = this.moon = this.halo = this.band = null; this.puffs = []; this.materials = []; this.meshes = [];
   }
 }

@@ -9,6 +9,10 @@
  * Rendering: builtin-unlit with vertex colour (alpha profile in the mesh), technique 2 (add) for light,
  * technique 3 (alpha-blend) for smoke. No textures, no new effect asset. Near-camera fades are per object on the CPU
  * (camera distance to the cone surface / puff surface), so a camera passing through never sees a full-screen layer.
+ *  - moon (new, night only): fx_moon + fx_moon_halo, camera-facing discs far out in the empty sky of the fixed island view
+ *    (upper left, clear of her, the signpost and the cloud), and fx_moonlight_band, an additive streak on the sea from below
+ *    the moon toward the LIVE camera (a reflection path follows the viewer). The island's own env_sky_moon_night_v22 (sky
+ *    backdrop, out of the fixed frame, also seen through the indoor window) is left as it is.
  * None of these nodes has a collider and none is in WorldFlowComponent.lighthouseTargets: they never take taps.
  */
 export type V3 = [number, number, number];
@@ -36,6 +40,18 @@ export const ISLAND_FX = {
   /** Independent additive overlay on top of the sea (sea material/night params untouched). Only while the beam sweeps
    * toward the camera side (facing^power), restrained: the sea gets darker at night, this must not paint it white. */
   glint: { startM: 9, endM: 42, w0: 0.7, w1: 4.2, alphaNight: 0.09, facingPower: 6, color: [255, 222, 168] as V3 },
+  /** Moon: position from previews/运镜bot/camera-track.json islandIdlePose (e3863fb export 4ec8f72a; pos [-12,15.5,48],
+   * fov 42, 586x1266): 200 m out along the ray of screen (0.17, 0.085) from top-left, i.e. the middle of the sky band above
+   * the horizon (sky = top ~17.5 %), left of the lighthouse/her column (x 0.39) and of the cloud (x 0.47-0.80), far from
+   * the signpost (bottom right, x 0.71). Angular radius ~0.66 deg (about 20 px on 1266). Inside the sky dome (r 282). */
+  moon: { pos: [19.58, 17.49, -149.48] as V3, radiusM: 2.3, haloRadiusM: 7.6, color: [250, 246, 230] as V3, alphaNight: 0.92,
+    haloColor: [176, 196, 236] as V3, haloAlphaNight: 0.2, nearInnerM: 40, nearOuterM: 80 },
+  /** Moonlight band on the sea: strip in local XZ along +Z, rows log-spaced from startM to endM ahead of the camera foot,
+   * aimed at the moon's horizontal direction. Independent additive overlay at seaY (sea material untouched, like the
+   * glint), restrained on GGbot's darkened night sea. Ripples drift outward by uniform scaling (2 rows per shimmerS),
+   * clamped so the far end stays on the sea (half size seaHalfM). Fades out when the camera gets low over the water. */
+  band: { startM: 16, endM: 285, rows: 40, w0: .5, w1: 3.4, alphaNight: .18, color: [190, 208, 236] as V3, shimmerS: 3,
+    seaHalfM: 255, lowInnerM: 1, lowOuterM: 4 },
   smoke: {
     count: 7, lifeS: 7.5, riseM: 2.6, r0: 0.17, r1: 0.95,
     leanDir: [0.99, 0, -0.14] as V3, // authored v22 smoke drifted +X / slightly -Z
@@ -190,6 +206,39 @@ export function beamState(t: number, cam: V3, shown: number): BeamState {
   const glintRotation = basisQuat(norm(cross([0, 1, 0], h)), [0, 1, 0], h);
   const glintAlpha = clamp01(Gl.alphaNight * shown * Math.pow(facingH, Gl.facingPower) * smoothstep(1, 4, cam[1] - ISLAND_FX.seaY));
   return { dir, rotation, alpha, flash, cameraFade: near.fade, cameraInside: near.inside, glowPos, glowRotation: billboardQuat(glowPos, cam), glowScale, glowAlpha, glintRotation, glintAlpha };
+}
+
+/** Moonlight band geometry (see ISLAND_FX.band): log-spaced rows, alternating bright/dim ripples, soft sides and ends. */
+export function bandGeometry(): FxGeometry {
+  const B = ISLAND_FX.band, positions: number[] = [], colors: number[] = [], indices: number[] = [], cols = [-1, -.45, 0, .45, 1];
+  for (let r = 0; r < B.rows; r++) {
+    const u = r / (B.rows - 1), z = B.startM * Math.pow(B.endM / B.startM, u), w = B.w0 + (B.w1 - B.w0) * (z - B.startM) / (B.endM - B.startM);
+    const along = smoothstep(0, .25, u) * (1 - smoothstep(.92, 1, u)) * (.35 + .65 * u), ripple = r % 2 === 0 ? 1 : .22 + .25 * hash01(r + 400);
+    for (let c = 0; c < cols.length; c++) {
+      const v = cols[c], wob = .4 * (hash01(r * 5 + c + 700) - .5);
+      positions.push((v + (Math.abs(v) < 1 ? wob * .35 : 0)) * w, 0, z);
+      colors.push(1, 1, 1, Math.abs(v) >= 1 ? 0 : clamp01(along * ripple * Math.exp(-2.2 * v * v)));
+    }
+  }
+  grid(cols.length, B.rows, indices, 0);
+  const g = { positions, colors, indices, min: [0, 0, 0] as V3, max: [0, 0, 0] as V3 }, b = bounds(g); g.min = [b.min[0], -.01, b.min[2]]; g.max = [b.max[0], .01, b.max[2]]; return g;
+}
+export type MoonState = { moonRotation: Q4; moonAlpha: number; haloAlpha: number; moonCamM: number;
+  bandPos: V3; bandRotation: Q4; bandScale: number; bandAlpha: number; bandNearM: number };
+/** shown: 0..1 night-and-exterior visibility (lightFromNight). Everything from the LIVE camera position of this frame. */
+export function moonState(t: number, cam: V3, shown: number): MoonState {
+  const M = ISLAND_FX.moon, B = ISLAND_FX.band, moonCamM = len(sub(M.pos, cam)), far = smoothstep(M.nearInnerM, M.nearOuterM, moonCamM);
+  let h = norm([M.pos[0] - cam[0], 0, M.pos[2] - cam[2]]); if (len(h) < .5) h = [0, 0, -1];
+  // Far end stays on the sea square (|x|,|z| <= seaHalfM) whatever the camera position.
+  let edge = 1e9; for (let k = 0; k < 3; k += 2) if (Math.abs(h[k]) > 1e-6) edge = Math.min(edge, ((h[k] > 0 ? B.seaHalfM : -B.seaHalfM) - cam[k]) / h[k]);
+  const step = Math.pow(B.endM / B.startM, 2 / (B.rows - 1)), ph = ((t / B.shimmerS) % 1 + 1) % 1;
+  const bandScale = Math.max(0, Math.pow(step, ph) * Math.min(1, (edge - 3) / (B.endM * step)));
+  const low = smoothstep(B.lowInnerM, B.lowOuterM, cam[1] - ISLAND_FX.seaY), breathe = .9 + .1 * Math.sin(t * 1.3) * Math.sin(t * .47 + .8);
+  const bandAlpha = bandScale > .2 ? clamp01(B.alphaNight * shown * low * breathe) : 0;
+  const bandPos: V3 = [cam[0], ISLAND_FX.seaY, cam[2]];
+  return { moonRotation: billboardQuat(M.pos, cam), moonAlpha: clamp01(M.alphaNight * shown * far), haloAlpha: clamp01(M.haloAlphaNight * shown * far), moonCamM,
+    bandPos, bandRotation: basisQuat(norm(cross([0, 1, 0], h)), [0, 1, 0], h), bandScale, bandAlpha,
+    bandNearM: Math.sqrt(Math.pow(B.startM * bandScale, 2) + Math.pow(cam[1] - ISLAND_FX.seaY, 2)) };
 }
 
 export type Puff = { position: V3; rotation: Q4; scale: V3; color: V3; alpha: number; age: number; cameraFade: number };

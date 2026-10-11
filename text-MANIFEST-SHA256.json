@@ -1186,8 +1186,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts",
-    "bytes": 8255,
-    "sha256": "ea322b88b652ea175d91c224bad46871dfc712af36a68cd9efb232fa3d38bee8"
+    "bytes": 9665,
+    "sha256": "9efccc5a896ef18135b654e5eb487b38ece82710a3f707e2d9e0b0b7cc53fefc"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts.meta",
@@ -1196,8 +1196,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts",
-    "bytes": 17803,
-    "sha256": "b1b531a51fdb35ca613fc5d06ff57e509e3a4e5c0964c053168858ad8175b98b"
+    "bytes": 22492,
+    "sha256": "86871cc8a07643b6e39eef711eb955a0b7e14e626f4af9b6cfe7b82c88d26c0a"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts.meta",
