@@ -1,7 +1,8 @@
 import {fromLookAt,projectPoint,yawPitch} from './CameraPose';
 import type {CameraPose,LookAtPose,V3} from './CameraPose';
-/** Fixed-origin room inspection. No camera travel, zoom, route, character or persistence writes. */
-export const ROOM_LOOK=Object.freeze({minYaw:-150,maxYaw:32,minPitch:-12,maxPitch:12,degreesPerScreen:110,doorInset:.10});
+/** Fixed-origin room inspection. No camera travel, zoom, route, character or persistence writes.
+ * T2+ (Funning 2026-10-11): look-around only; ~50 deg per screen width measured on device (was ~86 deg at 110). */
+export const ROOM_LOOK=Object.freeze({minYaw:-150,maxYaw:32,minPitch:-12,maxPitch:12,degreesPerScreen:64,doorInset:.10});
 export class RoomLook {
  private yaw=0;private pitch=0;
  constructor(readonly home:LookAtPose){}
