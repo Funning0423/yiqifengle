@@ -191,3 +191,39 @@ Offline previews (Blender Workbench, labelled, door open 86.4 deg): /workspace/y
   <= 120 deg/s^2, <= 3 m/s^2, no standstill > 0.1 s before the home settle). FAILS on 4be7adf (1.13 deg/frame,
   0.035 m/frame, 207 deg/s^2, 9.8 m/s^2, 2.47 s standstill).
 - Rollback: `TRANSITION_CAMERA.entry.enabled = false` (old C1..IR / stop / S1..S6 moves come back unchanged).
+
+## Mac round 3 follow-ups (night "frond", room slide ends, sit_down timing)
+### 1. Night return crane-down: dark shape across a corner (video 41.7 s)
+- Mapping: R2 night video starts 23:04:12.330 (r2-vstart); `state:walking-home` wall 23:04:49.866 = video 37.54 s =
+  sim 21.82 s, so video 41.7 s = walking-home + 4.16 s = sim ~26.0 s; the lens is then at y 10-7 dropping onto the rail.
+- It was not a palm frond: frame-by-frame (41.55-41.9 s) it is the GLB idle_loop flying gull
+  `env_anim_seagull_fly_01_v22` (grey wings, white leading edge, orange beak) passing the lens. Its orbit: 6 m radius
+  about (0, -2.65), y 6.6-8.1 with wings (`_02`: 8 m, y 7.8-9.0), 12.04 s loop. The generated crane-down keys crossed
+  that band 4.3-5.9 m from the centre: 0.47 m from the swept orbit at sim 26.33 s, up to 278 of 512 frustum rays (54 %).
+- Why the checks missed it: glb_geometry IGNOREs `env_anim_seagull_fly` (animated, rest pose meaningless) and poses every
+  other mesh (incl. palm fronds) at REST; nothing evaluated idle_loop. The gull's clip phase is not tied to the flow clock
+  (it starts with the scene), which is why night hit it and day did not: a phase lottery, not night-specific path/timing.
+- Fix: `TRANSITION_CAMERA.craneDown.positions` (authored lens positions for the 3 crane keys; target/fov still spherical):
+  the lens reaches the column above her path before dropping through the gull band inside the ring. Min 2.48 m from
+  either swept orbit (any phase), no frustum ray meets it within 2.5 m. Only frames 21.85-28.77 s change (max 2.09 m);
+  descent peak accel 14.4 m/s^2 (default / accel / chained walk profiles; limit 15).
+- New check `collision:lens-near-movers`: tools/camera-frame-test/glb_anim.cjs evaluates the GLB idle_loop (rigid +
+  skinned) and builds the swept envelope of every animated mesh over the WHOLE loop (flyers every 1/15 s, palms/animals
+  every 0.25 s). Every frame: flyer within 2.5 m on any 16x32 frustum ray (all frame edges included) or within 2.0 m of
+  the lens fails; palm/animal sway within 1.0 m on any ray fails. FAILS on the old keys (0.47 m, 278 rays), passes now.
+### 2. Room explore slide ends (r1-s3 / r1-s5)
+- RoomLook never moves the lens (cameraHome, static clearance 7.9 cm); at the old yaw ends -150 / +32 the frustum looked
+  straight into the doorway wall/shelf and the stair post: geometry at 0.20-0.25 m on up to 20 % of the rays.
+- Fix: `ROOM_LOOK` minYaw -150 -> -140, maxYaw 32 -> 14: nearest geometry in view >= 0.50 m (-140) / 0.60 m (+14) at every
+  pitch. The door handle enters view at yaw -111 and stays visible to the new end (x 0.16): still found by dragging.
+- Check `room-look-clearance` (test_camera_frames): yaw every 1 deg x pitch every 3 deg over the whole range, every frustum
+  ray >= 0.45 m, door visible somewhere in range. FAILS on the old range (0.20 m at +32, 0.25 m at -150).
+### 3. sit_down length at runtime
+- Verified (e3863fb): `FlowReferenceStandin.actionSeconds('sit')` = `this.anim.clips.find(name === 'sit_down').duration`
+  (cc AnimationClip.duration of the loaded GLB clip, the same value perform() plays for); entrySpan used 1.0 s only when
+  the adapter returns undefined (no clip -> perform() throws anyway). Now via CLIP_ROLES.sitDown.
+- Added `CharacterAdapter.actionSettleSeconds('sit')`: anim_meta `clips.sit_down` settle_time_s | settleTime |
+  settle_frame/fps (CharacterMotion parseClip), rescaled like the events when anim_meta's duration disagrees with the clip,
+  clamped to it. When exposed the camera lands on cameraHome at turn + settle; 'home' still waits for the clip end.
+- Test: tools/camera-frame-test/test_sit_timing.cjs (clip 0.8 / 2.37 / 3.6 s, settle, fallback; --real-walk: the real
+  standin + GLB, sit_down 1.25 s -> lands at turn + 1.25 s).

@@ -18,5 +18,5 @@ function create(M,W){const ROOT=path.resolve(__dirname,'..','..'),S=path.join(RO
     createState(c,n){const st={clip:c,time:0,playing:false,setTime(t){this.time=t;},sample(){c.apply(this.time);},stop(){this.playing=false;},pause(){},play(){this.playing=true;}};states.set(n,st);return st;},play(n){this.getState(n).play();}};
   const node={active:true,worldPosition:{x:0,y:0,z:0},yaw:0,setWorldPosition(x,y,z){this.worldPosition={x,y,z};},setRotationFromEuler(a,b,c){this.yaw=b*Math.PI/180;},destroy(){}};
   const s=new ctx.exports.Standin(node);s.setAnimMeta(meta);s.bindVisual({getComponent:()=>anim,getComponentInChildren:()=>null});
-  return {standin:s,node,glb:path.relative(path.join(ROOT,'..','..'),glb)};}
+  return {standin:s,node,meta,clips:clips.reduce((o,c)=>(o[c.name]=c.duration,o),{}),glb:path.relative(path.join(ROOT,'..','..'),glb)};}
 module.exports={create};

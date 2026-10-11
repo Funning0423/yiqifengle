@@ -218,8 +218,16 @@ export const TRANSITION_CAMERA = Object.freeze({
       { seg: 'sit', progress: 0.5, position: [-0.7, 1.45, -1.85], targetHeight: 0.95, fovVerticalDeg: 74 },
     ] as EntryKey[],
   },
-  /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn. */
-  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861 },
+  /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn.
+   *  positions (optional, steps-1 entries): authored lens positions for the intermediate crane keys (target/fov still from
+   *  the spherical crane). Gull keep-out (Mac round 3 night, video 41.7 s = sim ~26.0-26.3 s: a dark wing swept a corner):
+   *  the generated keys descended through y 9..6.6 at 4.3-5.9 m from the orbit centre (0, -2.65) of the GLB idle_loop gull
+   *  env_anim_seagull_fly_01_v22 (6 m radius, y 6.6-8.1 incl. wings; _02: 8 m, y 7.8-9.0) and passed 0.54 m from its swept
+   *  envelope. The gull's clip phase is not tied to the flow clock, so the lens must clear the WHOLE orbit: these keys reach
+   *  the column above her path before dropping, inside the ring (min 2.48 m from either swept orbit, no frustum ray meets it within 2.5 m; key 1 stays
+   *  high/out so the descent's peak acceleration is <= 14.4 m/s^2 also with the accel/chained walk profiles).
+   *  Generated (rollback: delete positions): [-3.38,11.04,3.89], [-2.56,7.34,1.33], [-1.96,4.36,0.24]. */
+  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861, positions: [[-3.1, 11.6, 2.6], [-1.7, 7.8, -0.3], [-1.75, 4.4, 0]] as Array<[number, number, number]> },
 });
 export type EntryKey = Readonly<{ seg: 'cross' | 'door' | 'seat' | 'sit'; progress: number; position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>;
 export type RailKey = Readonly<{ progress: number; side: 1 | -1; distance: number; height: number; lead: number; look: number; targetHeight: number; fovVerticalDeg: number; frontal?: boolean }>;

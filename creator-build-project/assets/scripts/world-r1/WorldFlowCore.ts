@@ -42,6 +42,9 @@ export interface CharacterAdapter {
   /** T2+ optional: seconds the next stand/sit/turn will take (e.g. the stand_up clip length), so ONE camera move can be
    *  timed over stand + turn. Omitted/undefined = flow defaults (stand 1.0 s, turn 1.5 s). */
   actionSeconds?(kind:'stand'|'sit'|'turn'):number|undefined;
+  /** T2+ optional: seconds into the sit clip where she is visually settled (anim_meta settle frame). The return-entry camera
+   *  lands on cameraHome there; the clip still plays out before 'home'. Omitted/undefined = land at the clip end. */
+  actionSettleSeconds?(kind:'sit'):number|undefined;
   /** Walk-duration contract (optional): distance-travelled fraction 0..1 of the CURRENT walk action, null/undefined when
    *  not walking. When present, camera track progress follows distance instead of elapsed time. */
   walkProgress?():number|null;
@@ -444,7 +447,10 @@ export class WorldFlow {
    *  lens reaches each key when she is at it. */
   private async entrySpan(segs:SpanSegment[],t:Cancellation):Promise<void> {
     const c=this.config,E=c.cameraEntry!,dd=c.doorDrift,o=c.cameraTracks!.inbound!;
-    const sitClip=this.character?.actionSeconds?.('sit'),sitS=this.turnSeconds()+(sitClip&&sitClip>0&&Number.isFinite(sitClip)?sitClip:1.0);
+    // sit segment (camera clock) = turn + the RUNTIME sit_down length (or its settle point when exposed); 1.0 s only when the
+    // adapter reports no clip at all (perform() then fails anyway).
+    const sitClip=this.character?.actionSeconds?.('sit'),clipOk=!!sitClip&&sitClip>0&&Number.isFinite(sitClip),settle=clipOk?this.character?.actionSettleSeconds?.('sit'):undefined;
+    const sitS=this.turnSeconds()+(clipOk?(settle!==undefined&&settle>0&&settle<=sitClip!?settle:sitClip!):1.0);
     const tIn=segs.reduce((x,g)=>x+g.seconds,0),crossS=this.walkSeconds(c.inCrossing),doorS=E.doorSeconds>0?E.doorSeconds:1;
     segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'),
       {seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();}},

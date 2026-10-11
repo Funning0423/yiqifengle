@@ -40,4 +40,18 @@ function sample(C,I,cam,aspect,quads){const p=cam.position,near={},R=rays(C,cam,
     if(qt<=COVER_M){cover++;if(!arch(qn))coverProps++;continue;}
     const h2=I.occluded(p,[p[0]+d[0]*(COVER_M+.05),p[1]+d[1]*(COVER_M+.05),p[2]+d[2]*(COVER_M+.05)]);if(h2){cover++;if(!ARCH.test(h2))coverProps++;}}
   return {near,nearProps,nearArch,cover:cover/R.length,coverProps:coverProps/R.length};}
-module.exports={NEAR_M,COVER_M,COLS,ROWS,ARCH,DOOR,doorQuad,hitQuad,quadDist,rays,sample};
+/** Animated movers (Mac round 3 night, video 41.7 s: a GLB idle_loop gull wing - env_anim_seagull_fly_01_v22 - swept a
+ * corner of the frame on the return crane-down; the static index ignores the flying gulls and poses palms at REST, so
+ * lens-near-geometry could not see it). Indexes are built from glb_anim.sweep(): the union of every mover pose over the
+ * whole loop (phase-agnostic - the runtime clip phase is not tied to the flow clock), i.e. the gull orbit band and the
+ * palm sway envelope. FLYER_NEAR_M = 2.5 m: a 1.1 m gull wingspan at 2.5 m still spans ~45% of the frame height at
+ * fov 50-58, anything nearer reads as a dark wipe; no frustum ray may meet the swept orbit within it, and the lens keeps
+ * FLYER_CLEAR_M = 2.0 m from it in 3D (out-of-frame passes cannot pop in at the frame edge). Sway: same NEAR_M (1.0 m) as
+ * the static props, but against the swept envelope. */
+const FLYER=/^env_anim_seagull_fly/,FLYER_NEAR_M=2.5,FLYER_CLEAR_M=2.0;
+/** -> {flyerRays, swayRays, who:{mesh:rays}} for one pose; If = flyer sweep index, Is = other movers' sweep index. */
+function sampleMovers(C,If,Is,cam,aspect){const p=cam.position,R=rays(C,cam,aspect),who={};let flyerRays=0,swayRays=0;
+  for(const d of R){const hf=If.occluded(p,[p[0]+d[0]*(FLYER_NEAR_M+.05),p[1]+d[1]*(FLYER_NEAR_M+.05),p[2]+d[2]*(FLYER_NEAR_M+.05)]);if(hf){flyerRays++;who[hf]=(who[hf]||0)+1;}
+    const hs=Is.occluded(p,[p[0]+d[0]*(NEAR_M+.05),p[1]+d[1]*(NEAR_M+.05),p[2]+d[2]*(NEAR_M+.05)]);if(hs){swayRays++;who[hs]=(who[hs]||0)+1;}}
+  return {flyerRays,swayRays,who};}
+module.exports={NEAR_M,COVER_M,COLS,ROWS,ARCH,DOOR,FLYER,FLYER_NEAR_M,FLYER_CLEAR_M,doorQuad,hitQuad,quadDist,rays,sample,sampleMovers};

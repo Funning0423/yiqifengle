@@ -10,7 +10,7 @@
  *   lighting   interior weight continuous (per-frame step <= 0.05), 0 on island, 1 at home
  * Usage: node test_camera_frames.cjs [--json out.json] [--no-geometry]
  * Exit 0 = all checks pass. Engine-free: says nothing about shaders/materials/frame time (native capture needed). */
-const T9=require('./t9_props.cjs'),S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),LR=require('./lens_rays.cjs'),fs=require('fs');
+const T9=require('./t9_props.cjs'),S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),LR=require('./lens_rays.cjs'),A=require('./glb_anim.cjs'),fs=require('fs');
 const args=process.argv.slice(2),jsonOut=args.includes('--json')?args[args.indexOf('--json')+1]:null;
 // --walk-profile accel: synthetic walk-duration contract (what 角色动画bot will plug in): walkDuration = L/0.7 + 0.3 s and a
 // trapezoidal speed profile (0.3 s linear accel and decel); the sim character reports walkProgress() = distance fraction.
@@ -30,7 +30,7 @@ const profile=(q,T,path)=>{const [ri,ro]=ramps(path),r=Math.min(RAMP,T/2),ri_=ri
 const envOpts=wp==='accel'||wp==='chained'?{walkDuration:p=>{const [ri,ro]=ramps(p);return pathLen(p)/V+RAMP*((ri?1:0)+(ro?1:0))/2;},walkProfile:profile,reportWalkProgress:!args.includes('--no-walk-progress')}:{};
 if(args.includes('--real-walk'))envOpts.realWalk=true;
 if(envOpts.walkDuration)console.log('walk profile: synthetic',wp,'(0.3 s linear accel/decel ramps, walkDuration = L/0.7 + ramp/2 per ramp), walkProgress reported:',envOpts.reportWalkProgress);
-const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5,
+const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5,
   // return-entry span: 0.75 deg/frame = 45 deg/s, 0.025 m/frame = 1.5 m/s, fov 0.15 deg/frame = 9 deg/s; standstill = v < 0.02 m/s and w < 0.5 deg/s
   entry:{turnDegPerFrame:.75,moveMPerFrame:.025,fovDegPerFrame:.15,angAccel:120,linAccel:3,stillV:.02,stillW:.5,maxStillS:.1,settleS:.05}};
 (async()=>{
@@ -102,6 +102,29 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
         check('collision:door-leaf-clearance',!leafBad,{minLensToLeafM:leafMin,limitM:LIMITS.clearanceM,note:'lens vs the posed door leaf quad, every frame'});
         {const q=LR.doorQuad(cfg.doorDrift?cfg.doorDrift.islandDeg:cfg.openDeg,cfg.openDeg);add('islandIdlePose',LR.sample(C,I,C.fromLookAt(cfg.cameraIsland,cfg.cameraIsland.fovVerticalDeg),K.SCREEN.aspect,[q]),null,-1);}
         check('collision:lens-near-geometry',hits.length===0,{nearM:LR.NEAR_M,coverM:LR.COVER_M,grid:LR.COLS+'x'+LR.ROWS,sampling:'every frame',archExempt:String(LR.ARCH),firstHits:hits,phases:R});}
+      // Animated movers (Mac round 3 night gull wing on the return crane-down): every frame vs the swept envelope of the GLB
+      // idle_loop (all phases; glb_anim.sweep): flying gulls within LR.FLYER_NEAR_M on any frustum ray or within
+      // LR.FLYER_CLEAR_M of the lens fail; palm/animal sway within LR.NEAR_M on any ray fails (outside the room).
+      {const sw=await A.sweep();if(!sw)check('collision:lens-near-movers',false,{skipped:'draco3d not found'});else{
+        const If=G.index(sw,{ignore:/^(?!env_anim_seagull_fly)/}),Is=G.index(sw,{ignore:/^env_anim_seagull_fly/});let flyMin={d:9},bad=[],sway=[],maxFly=0;
+        F.forEach((f,i)=>{const s=LR.sampleMovers(C,If,Is,f.cam,K.SCREEN.aspect),c=If.clearance(f.cam.position,LR.FLYER_CLEAR_M+1);
+          if(c.d<flyMin.d)flyMin={d:+c.d.toFixed(3),mesh:c.who,frame:i,t:+f.t.toFixed(3),state:f.state};maxFly=Math.max(maxFly,s.flyerRays);
+          if((s.flyerRays||c.d<LR.FLYER_CLEAR_M)&&bad.length<8)bad.push({frame:i,t:+f.t.toFixed(3),state:f.state,flyerRays:s.flyerRays,lensToOrbitM:+c.d.toFixed(3),who:s.who});
+          if(s.swayRays&&sway.length<8)sway.push({frame:i,t:+f.t.toFixed(3),state:f.state,swayRays:s.swayRays,who:s.who});});
+        check('collision:lens-near-movers',bad.length===0&&sway.length===0,{flyerNearM:LR.FLYER_NEAR_M,flyerClearM:LR.FLYER_CLEAR_M,swayNearM:LR.NEAR_M,clip:sw.clip,loopS:+sw.seconds.toFixed(3),
+          phases:sw.phases,union:'all phases',movers:sw.names,minLensToFlyerOrbit:flyMin,maxFlyerRaysPerFrame:maxFly,flyerViolations:bad,swayViolations:sway,sampling:'every frame'});}}
+      // Room explore slide (Mac round 3 r1-s3/r1-s5: lens looked into the stair post / wall at the drag ends): RoomLook over the
+      // FULL yaw x pitch range (yaw every 1 deg + both ends, pitch every 3 deg + both ends): every 16x32 frustum ray must meet
+      // geometry no nearer than LIMITS.roomLookViewM; the door handle must still be on screen (RoomLook.door) somewhere in range.
+      {const RL=env.M.RoomLook||require('./load_ts.cjs').load(['CameraPose','RegionCameraData','RoomLook']).RoomLook,RLC=RL.ROOM_LOOK,home=env.M.RegionCameraData.homePoseEntry();
+        const handle=env.M.FirstsliceFacts.FIRSTSLICE.anchors.door_handle.position,lim=LIMITS.roomLookViewM;let worst={d:9},doorYaws=[],bad=[];
+        const R=1.0,near=cam=>{const p=cam.position;let mn=9,who=null;for(const d of LR.rays(C,cam,K.SCREEN.aspect)){if(!I.occluded(p,[p[0]+d[0]*(R+.05),p[1]+d[1]*(R+.05),p[2]+d[2]*(R+.05)]))continue;
+          for(let r=.05;r<=Math.min(R,mn)+1e-9;r+=.025){const h=I.occluded(p,[p[0]+d[0]*(r+.05),p[1]+d[1]*(r+.05),p[2]+d[2]*(r+.05)]);if(h){if(r<mn){mn=r;who=h;}break;}}}return {d:mn,who};};
+        const ys=[];for(let y=Math.ceil(RLC.minYaw);y<=RLC.maxYaw;y++)ys.push(y);ys.push(RLC.minYaw,RLC.maxYaw);const ps=[];for(let q=RLC.minPitch;q<=RLC.maxPitch+1e-9;q+=3)ps.push(q);ps.push(RLC.maxPitch);
+        for(const y of ys){for(const q of ps){const L=new RL.RoomLook(home);L.drag(0,0);L.yaw=y;L.pitch=q;const n=near(L.pose());if(n.d<worst.d)worst={d:+n.d.toFixed(3),yaw:y,pitch:q,mesh:n.who};if(n.d<lim&&bad.length<6)bad.push({yaw:y,pitch:q,nearestM:+n.d.toFixed(3),mesh:n.who});}
+          const L=new RL.RoomLook(home);L.yaw=y;if(L.door(handle,K.SCREEN.aspect).visible)doorYaws.push(y);}
+        check('room-look-clearance',!bad.length&&doorYaws.length>0,{limitM:lim,range:{yaw:[RLC.minYaw,RLC.maxYaw],pitch:[RLC.minPitch,RLC.maxPitch]},nearestInView:worst,violations:bad,
+          doorVisibleYaws:doorYaws.length?[Math.min(...doorYaws),Math.max(...doorYaws)]:null,note:'lens fixed at cameraHome; distance along every frustum ray (16x32)'});}
       const palms=occl.filter(o=>/palm/.test(o.mesh)&&o.part!=='feet');check('occlusion:palms',palms.length===0,{headChestSamples:palms.length,byMesh:palms.reduce((a,o)=>(a[o.mesh]=(a[o.mesh]||0)+1,a),{}),sampling:'every 2nd frame'});}}
   // --- T2+ doorway-clean door drift (RegionCameraData doorDrift): open on every crossing frame, islandDeg on the island,
   // smooth (excluding the original linear opening-door / closing-door animations), and whenever the leaf is NOT fully open

@@ -117,8 +117,13 @@ class FlowReferenceStandin implements CharacterAdapter {
  }
  private idleGustTick(step:number){const g=this.motionConfig.idleGust,c=this.clock!;if(!g||this.job||c.base?.clip!==CLIP_ROLES.idle||this.wind>0||c.gust){this.idleFor=0;return;}
   if(this.nextGust<0)this.nextGust=g.minS+Math.random()*Math.max(0,g.maxS-g.minS);this.idleFor+=step;if(this.idleFor>=this.nextGust){this.idleFor=0;this.nextGust=-1;this.apronGust(g.durationS);}}
- /** T2+: stand/sit = authored clip length; turn = the fixed 1.5 s used by perform(). */
- actionSeconds(kind:'stand'|'sit'|'turn'){if(kind==='turn')return 1.5;const clip=this.anim?.clips.find(c=>c?.name===(kind==='stand'?'stand_up':'sit_down'));const d=clip?.duration;return Number.isFinite(d)&&d!>0?d:undefined;}
+ /** T2+: stand/sit = the loaded clip's AnimationClip.duration (stand_up / sit_down, the same value perform() plays for);
+  *  turn = the fixed 1.5 s used by perform(). undefined only when the clip is missing (perform() would throw). */
+ actionSeconds(kind:'stand'|'sit'|'turn'){if(kind==='turn')return 1.5;const clip=this.anim?.clips.find(c=>c?.name===(kind==='stand'?CLIP_ROLES.standUp:CLIP_ROLES.sitDown));const d=clip?.duration;return Number.isFinite(d)&&d!>0?d:undefined;}
+ /** T2+: seconds into sit_down where she is settled, when anim_meta exposes it (clips.sit_down settle_time_s | settleTime |
+  *  settle_frame / fps), rescaled like the events when anim_meta's duration disagrees with the clip; clamped to the clip. */
+ actionSettleSeconds(kind:'sit'){const d=this.actionSeconds(kind),m=this.motionConfig.clips[CLIP_ROLES.sitDown];let s=m?m.settleTime:undefined;
+  if(d===undefined||s===undefined||!(s>0))return undefined;if(m!.duration&&Math.abs(m!.duration-d)>1e-3)s*=d/m!.duration;return Math.min(s,d);}
  perform(action:Action,token:Cancellation):Promise<void>{token.check();if(this.disposed)return Promise.reject(Error('Character disposed'));if(this.job)return Promise.reject(Error('Character action busy'));
   if(action.kind==='sit'){
    const from=this.yawRad,delta=wrapAngle(action.seat.yawRad-from);
