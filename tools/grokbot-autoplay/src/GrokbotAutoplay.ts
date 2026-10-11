@@ -99,7 +99,14 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();}
+ /** Walk driver (GGbot work/GGbot-walk): __worldIntegration.onFoot / onApronLift. Absent = not merged = no mark. */
+ private motionFor:any=null;private motionOff:Array<()=>void>=[];
+ private hookMotion(){const w=G.__worldIntegration;if(!w||w===this.motionFor||typeof w.onFoot!=='function')return;for(let i=0;i<this.motionOff.length;i++){try{this.motionOff[i]();}catch{}}this.motionOff=[];this.motionFor=w;const ctx=this.ctx;
+  const f3=(v:any)=>typeof v==='number'&&isFinite(v)?v.toFixed(3):'-';
+  try{const off=w.onFoot((e:any)=>{const p=e&&e.pos;ctx.mark('anim:foot',`event=${e?.event} bone=${e?.bone} body=${e?.body} clip=${e?.clip} phase=${f3(e?.phase)} cycle=${e?.cycle} pos=${p?f3(p[0])+','+f3(p[2]):'-'}`);});if(typeof off==='function')this.motionOff.push(off);
+   if(typeof w.onApronLift==='function'){const off2=w.onApronLift((strength:string,dur:number)=>ctx.mark('anim:apron-lift',`strength=${strength} dur=${f3(dur)}`));if(typeof off2==='function')this.motionOff.push(off2);}
+   ctx.mark('anim:hooked','source=__worldIntegration');}catch(e){ctx.mark('anim:hooked','failed='+String(e));}}
  /** T9: IslandPropTaps via the boot's QA object (__worldIntegration.onPropTap); real and injected taps alike. Absent = T9 not merged = no mark. */
  private propTapsFor:any=null;private propTapsOff:(()=>void)|null=null;
  private hookPropTaps(){const w=G.__worldIntegration;if(!w||w===this.propTapsFor||typeof w.onPropTap!=='function')return;this.propTapsOff?.();this.propTapsFor=w;const ctx=this.ctx;

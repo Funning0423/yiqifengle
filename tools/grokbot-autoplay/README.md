@@ -15,6 +15,7 @@
 | `src/GrokbotMarks.ts` | **GB_MARK 名字的唯一登记表**。新增打点只往这里加一行；没登记的名字照样输出，但会带 `unregistered=1` |
 | | `ui:cheer-text`（T6 飘字）：只有工程里有 `CheerTextHost` 时才会出现，包住它的 `show()` 记下档位、结果（show/replace/skip/no-board）、位置来源（clear/center）、坐标。 |
 | | `ui:tap`（T9 岛屿道具）：`target=signpost|bag|book|settings phase=press|confirm blocked=0|1 props=0|1`。来自 T9 的 `__worldIntegration.onPropTap`（真点和注入点都会有）；没合 T9 时不出现。`ui:tap-hooked` = 订阅成功。 |
+| | `anim:foot` / `anim:apron-lift`（走路驱动，新的 `anim` 组）：`anim:foot ... event=foot:R bone=foot.R body=L clip=walk_loop phase=0.000 cycle=n pos=x,z`（每次脚跟着地，来自按距离推进的走路相位；bone 和 body 左右相反，body 是身体左右），`anim:apron-lift ... strength=full|soft dur=秒`。来自 `__worldIntegration.onFoot / onApronLift`；没合走路驱动时不出现。`anim:hooked` = 订阅成功。 |
 | `src/*.meta` | 固定 uuid（92fca7bf / 59ace17b / 24830118 / 16cf1f79 / c0b1e7a5（Combo），目录 d370c13f） |
 | `prelude/gb-touch-prelude.js` | 只用于自动演示构建：`inject_prelude.sh` 把它加到 game.js 最前面，记下所有 wx.onTouch* 监听，回放合成的原始触摸 |
 | `install.sh` / `uninstall.sh` | 前置 SHA 校验（`prereq-allowlist.txt`）。不跟随符号链接，失败就整体撤回；卸载前核对 manifest |

@@ -7,6 +7,9 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  // after the autoplay: observers must keep logging (manual play by Voice bot)
  const A:any=FakeGameAudio.instance;const T6=new FakeCheerTextHost();A.onBoardFrame({kind:'action'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});T6.show(0,{kind:'clear',wave:{removed:[{index:0}]}});T6.show(1,{kind:'clear',wave:{removed:[]}});T6.show(0,undefined);A.onRender('result.saved',true);A.onChestResult({newlyGrantedRewards:[1]});A.onClaimResult({ok:true});A.setMusic('audio_bgm/bgm_main');
  A.setMusicVolume(0.5);A.loopSource.playing=true;A.loopSource.currentTime=47.9;await run(0.1,()=>false);A.loopSource.currentTime=0.05;await run(0.05,()=>false);A.setMuted(true);A.play('sfx_ui_click',0.8);A.setMuted(false);(game as any).emit(Game.EVENT_HIDE);A.loopSource.playing=false;await run(0.1,()=>false);(game as any).emit(Game.EVENT_SHOW);(globalThis as any).__wxHide?.();(globalThis as any).__wxShow?.();
+ // walk driver marks via __worldIntegration.onFoot / onApronLift (fake emitter with the real payload shape)
+ {let foot:any=null,apron:any=null;(globalThis as any).__worldIntegration={onFoot:(cb:any)=>{foot=cb;return ()=>{foot=null;};},onApronLift:(cb:any)=>{apron=cb;return ()=>{apron=null;};}};await run(0.05,()=>false);
+  if(!foot||!apron)fail('anim hooks not installed');foot({event:'foot:R',bone:'foot.R',body:'L',clip:'walk_loop',phase:0,time:0,cycle:3,pos:[1.23456,0,-2.5]});apron('full',1.6);}
  const L=marks(),N=names();console.error(L.join('\n'));
  if(ap().phase()!=='done')fail('phase '+ap().phase());
  if(calls.leave!==1||calls.ret!==1)fail('calls '+JSON.stringify(calls));
@@ -27,6 +30,8 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  const C=L.filter(l=>l.includes(' ui:cheer-text '));if(C.length!==3||!/tier=0 word=Great! decision=show source=clear x=-96 y=84 replaced=-1/.test(C[0])||!/tier=1 .*decision=replace source=center .*replaced=0/.test(C[1])||!/tier=0 .*decision=skip/.test(C[2]))fail('ui:cheer-text '+C.join(' | '));
  if(!L.some(l=>l.includes('audio:chest')&&l.includes('source=chest'))||!L.some(l=>l.includes('audio:chest')&&l.includes('source=claim')))fail('chest source');
  if(JSON.stringify(A.played)!==JSON.stringify(['sfx_match_normal','sfx_combo_1','sfx_combo_2','sfx_level_clear','sfx_chest_open','sfx_chest_open','sfx_ui_click']))fail('audio behaviour changed '+A.played);
+ if(!L.some(l=>/ anim:foot \d+ .* event=foot:R bone=foot\.R body=L clip=walk_loop phase=0\.000 cycle=3 pos=1\.235,-2\.500$/.test(l)))fail('anim:foot line');
+ if(!L.some(l=>/ anim:apron-lift \d+ .* strength=full dur=1\.600$/.test(l))||!N.includes('anim:hooked'))fail('anim:apron-lift / anim:hooked');
  if(!L.some(l=>/audio:sfx .*name=sfx_combo_1 accepted=1 clip=sfx_combo_1 vol=1 effVol=1 loop=0 dur=0.8/.test(l)))fail('sfx detail');
  if(!L.some(l=>/audio:sfx .*name=sfx_ui_click accepted=0 .*effVol=0 .*muted=1/.test(l)))fail('muted sfx');
  if(!L.some(l=>/audio:bgm-playing .*clip=bgm_main vol=0.5 musicVolume=0.5 effVol=0.5 loop=1 pos=47.9 dur=48/.test(l)))fail('bgm detail');

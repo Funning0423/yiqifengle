@@ -77,3 +77,9 @@ observe 6a1a2f94a8fdaa85bb4d70b1ff7634b3c26fe785cdded70c263325446b291b4f audio/G
 #  unchanged. Boot/GameAudio/AudioBridge at 138bca5 == f8f5fdc3/6a1a2f94/45fc0889 (listed). Observe-only, append only.
 observe 4e9022bd153007f094f69c75c0b8d0d10f947db55efee764b9cd570243fcab8d world-r1/WorldFlowComponent.ts   运镜bot wind (work/运镜bot-wind 138bca5)
 observe 1c9c8147f5aa63a4d621fdf78416d628e2287723491c4520cbe6f6e4acb1d8bb world-r1/WorldFlowCore.ts         运镜bot wind (work/运镜bot-wind 138bca5)
+# --- GGbot walk driver (work/GGbot-walk afb5d7b on int/v1 e439b62; merges cleanly with 运镜bot-wind 138bca5, Boot identical there) ---
+#  FlowReferenceStandin rewritten (distance-driven walk clock, phase continuity, yaw limit, walkProgress, onFoot, crossfade +
+#  masked additive wind layers via new CharacterMotion.ts) + optional anim_meta load + __worldIntegration.onFoot/onApronLift/
+#  apronGust/motion. Glue reviewed: _referenceAdapter, composition/worldCommands, loadPhase/ready/busy, button(), paintNavigation,
+#  __worldIntegration.onPropTap unchanged. New T0 marks anim:foot / anim:apron-lift hook __worldIntegration. Verified sha256sum. Append only.
+strict a4f2254d50bc2ded590a4199e3c83157ab14cdf77acaea04d5b5b6a2d0f857ce WorldIntegrationBoot.ts            int/v1 e439b62 + GGbot walk driver (work/GGbot-walk afb5d7b)

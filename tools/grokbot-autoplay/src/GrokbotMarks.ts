@@ -1,7 +1,7 @@
 /** T0 GB_MARK registry (GGbot): the ONE place mark names live. Engine-independent. Debug/test-build only.
  * Line format: GB_MARK <name> <ms since autoplay installed> wall=<local ISO+offset> epoch=<ms> frame=<n> state=<WorldFlow state|-> [k=v ...]
  * To add a mark: append an entry here (pattern may use one or more '*'), then call ctx.mark(name). Unregistered names still log, tagged unregistered=1. */
-export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui'|'combo';
+export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui'|'combo'|'anim';
 export type MarkDef={pattern:string;group:MarkGroup;desc:string};
 export const MARKS:MarkDef[]=[
  {pattern:'autoplay-installed',group:'autoplay',desc:'glue armed; mode, touch backend, log file'},
@@ -61,6 +61,9 @@ export const MARKS:MarkDef[]=[
  {pattern:'touch:suite-aborted',group:'touch',desc:'world error/disposed'},
  {pattern:'touch:scenario-invalid',group:'touch',desc:'unknown name / invalid definition'},
  {pattern:'touch:custom-invalid',group:'touch',desc:'GROKBOT_TOUCH_SCENARIOS entry rejected'},
+ {pattern:'anim:foot',group:'anim',desc:'walk driver heel strike (FlowReferenceStandin.onFoot via __worldIntegration.onFoot; phase crossings of the distance-driven walk clock): event=foot:R|foot:L bone=foot.R|foot.L body=L|R (body side; bone L = body R) clip phase=<0..1> cycle=<n> pos=<x>,<z>'},
+ {pattern:'anim:apron-lift',group:'anim',desc:'walk driver onApronLift (__worldIntegration.onApronLift): strength=full (wind crossed the apron_lift threshold upward, at the clip lift frame) | soft (idle gust) dur=<s>'},
+ {pattern:'anim:hooked',group:'anim',desc:'walk driver subscriptions installed; source=__worldIntegration (absent before the walk driver is merged)'},
  {pattern:'combo:armed',group:'combo',desc:'autoplay=combo runner created; enter=level|none, clears, gapMs, path=feed'},
  {pattern:'combo:skip-walk',group:'combo',desc:'combo:here (enter=none) or already in a level: no door/island/level walk'},
  {pattern:'combo:enter-level',group:'combo',desc:"level entered through the real UI path; via=mainline-button-touch(<backend>)@x,y or WorldIntegrationBoot.invoke(composition.enterMainline) (same action the '继续旅程' WarmButton runs)"},
