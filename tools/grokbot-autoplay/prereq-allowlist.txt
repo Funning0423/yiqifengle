@@ -33,3 +33,5 @@ strict c94266111399bbf53da5f0e70d407470d1df3f78c6779616d2abbbf4af2ed6c9 WorldInt
 strict 95eeae2e6a281d31d4d80bafe9cc13716269e395e2ef6e88d193f67607f36db3 WorldIntegrationBoot.ts            + GGbot HUD (work/GGbot-post-t2 4a26789)
 observe f7c881cf541a9d28dd1c7460719c0d727ba4b28de1f8cb700fa9742288c70540 world-r1/WorldFlowComponent.ts   int/v1 5d66c30 + T2+ 7f2b623 (932570a/4a26789)
 observe 97983791763946746baae4f807de3c9596dde7f298dbe7d810e8c8224ca4cc47 world-r1/WorldFlowCore.ts         T2+ 7f2b623 (== 932570a/4a26789)
+# GGbot HUD content policy (work/GGbot-post-t2 5ef0e53): Boot adds statusText + content-gated plate only; T0 glue fields unchanged. StatusHud.ts is not read by T0 (no entry).
+strict 35ae7272540e48fddc168168eaf17b967ef957f3e757fe8a44ccc0cf50726424 WorldIntegrationBoot.ts            + GGbot HUD content policy (work/GGbot-post-t2 5ef0e53)
