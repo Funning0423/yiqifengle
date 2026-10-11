@@ -29,10 +29,10 @@ export const ISLAND_FX = {
     color: [255, 236, 196] as V3,
     alphaNight: 0.34,
     nearInnerM: 0.6,        // camera this close to the cone surface (or inside) -> beam alpha 0
-    nearOuterM: 3.5,        // full alpha from here
+    nearOuterM: 6.0,        // full alpha from here (wide band: no per-frame pop while the crane sweeps past)
   },
-  glow: { baseAlpha: 0.16, flashAlpha: 0.9, flashPower: 26, baseRadiusM: 0.75, flashRadiusM: 2.3, towardCameraM: 0.9,
-    color: [255, 226, 170] as V3, nearInnerM: 1.0, nearOuterM: 3.0 },
+  glow: { baseAlpha: 0.16, flashAlpha: 0.9, flashPower: 16, baseRadiusM: 0.75, flashRadiusM: 2.3, towardCameraM: 0.9,
+    color: [255, 226, 170] as V3, nearInnerM: 1.0, nearOuterM: 3.0, flashNearM: 5, flashFullM: 12 },
   /** Independent additive overlay on top of the sea (sea material/night params untouched). Only while the beam sweeps
    * toward the camera side (facing^power), restrained: the sea gets darker at night, this must not paint it white. */
   glint: { startM: 9, endM: 42, w0: 0.7, w1: 4.2, alphaNight: 0.13, facingPower: 6, color: [255, 222, 168] as V3 },
@@ -182,8 +182,10 @@ export function beamState(t: number, cam: V3, shown: number): BeamState {
   const towards = norm(toCam), dist = len(toCam), off = Math.min(Gw.towardCameraM, Math.max(0, dist - 1));
   const glowPos: V3 = [lamp[0] + towards[0] * off, lamp[1] + towards[1] * off, lamp[2] + towards[2] * off];
   const glowNear = smoothstep(Gw.nearInnerM, Gw.nearOuterM, dist - off);
-  const glowAlpha = clamp01(shown * glowNear * (Gw.baseAlpha + Gw.flashAlpha * flash));
-  const glowScale = Gw.baseRadiusM + (Gw.flashRadiusM - Gw.baseRadiusM) * flash;
+  // Close to the lamp (crane / return descent pass within a few metres) the flash would swing with the camera: hold it back.
+  const flashRange = smoothstep(Gw.flashNearM, Gw.flashFullM, dist);
+  const glowAlpha = clamp01(shown * glowNear * (Gw.baseAlpha + Gw.flashAlpha * flash * flashRange));
+  const glowScale = Gw.baseRadiusM + (Gw.flashRadiusM - Gw.baseRadiusM) * flash * flashRange;
   const h = norm([dir[0], 0, dir[2]]), camH = norm([toCam[0], 0, toCam[2]]), facingH = Math.max(0, dot(h, camH));
   const glintRotation = basisQuat(norm(cross([0, 1, 0], h)), [0, 1, 0], h);
   const glintAlpha = clamp01(Gl.alphaNight * shown * Math.pow(facingH, Gl.facingPower) * smoothstep(1, 4, cam[1] - ISLAND_FX.seaY));

@@ -10,8 +10,9 @@
 - 代码：`render/IslandAtmosphereFxCore.ts`（不依赖引擎的数学和网格，可测），`render/IslandAtmosphereFx.ts`（cc 封装）。接入点在 `WorldFlowComponent`：`createWorld` 里新建，`applyDayNight` 里调 `setView(exterior, night)`，`lateUpdate` 里调 `advance(dt, worldCamera.node, getWindStrength())`，三处 dispose。原来的 6 个渲染器仍然导入并参与分类，只是 `enabled=false`，也从 v22 昼夜列表里移除了。
 - 渲染：`builtin-unlit` 加顶点色，透明度曲线做在网格顶点上。光的部分用 technique 2（add），烟用 technique 3（alpha-blend）。不用贴图，不加新 effect，不加实时灯。新增节点都挂在场景根下的 `IslandAtmosphereFx` 里，不在模型里面。
 - 昼夜：和 T9n 道具用同一套机制，即 `IslandPropsLayout.approachNight` 的同款函数：0.5 s 线性过渡，dt 上限 0.1 s，首帧直接对齐当前模式。光的显隐再套一层 smoothstep。白天光束、光晕、海面反光都是 0。
-- 近镜头淡出：按物体在 CPU 上算。镜头在光锥（含外层雾）里面，或离锥面不到 0.6 m 时，光束 alpha 为 0；离锥面 3.5 m 以外恢复满值。烟团是镜头到烟团表面不到 0.25 m 时为 0，1.4 m 以外为满值。光晕是离镜头不到 1 m 时为 0。
-- 闪光：每帧用主相机的实时位置算，取光束和“灯室→相机”方向的水平夹角，算 cos^26；垂直方向只要在光锥的软边范围内就算数。
+- 近镜头淡出：按物体在 CPU 上算。镜头在光锥（含外层雾）里面，或离锥面不到 0.6 m 时，光束 alpha 为 0；离锥面 6 m 以外恢复满值。烟团是镜头到烟团表面不到 0.25 m 时为 0，1.4 m 以外为满值。光晕是离镜头不到 1 m 时为 0。
+- 闪光：每帧用主相机的实时位置算，取光束和“灯室→相机”方向的水平夹角，算 cos^16；垂直方向只要在光锥的软边范围内就算数。镜头离灯不到 5 m 时不闪光，12 m 以外闪光强度为满值（升降和下降镜头会从灯旁边掠过）。
 - 点击：这些节点都没有碰撞体，也不在 `lighthouseTargets`（ext/door/interior_shell）里，所以 `hitLighthouse` 不会命中它们。
 - 测试：`node tools/scene-fx/test_island_fx.cjs`（需要 QF_TYPESCRIPT_MODULE、DRACO3D；可选 CAMERA_TREE=<运镜bot worktree>、CAMERA_TRACK=<camera-track.json>）。
+- 镜头轨迹检查：`node tools/scene-fx/test_camera_track_fx.cjs`。读运镜bot 导出的 `previews/运镜bot/camera-track.json`，按出门、待机、回家分别统计镜头穿入光锥和烟的帧数、屏幕平均亮度的最大跳变，以及每帧淡出系数的最大步长。
 - 离线预览：`tools/scene-fx/dump_fx_frames.cjs` 用真实的 Core 逐帧导出状态，再由 `tools/scene-fx/blender_fx_preview.py` 用 Blender Cycles 复刻渲染（不是 Cocos 渲染）。
