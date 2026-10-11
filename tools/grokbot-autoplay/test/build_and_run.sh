@@ -110,7 +110,8 @@ if [ -n "${GB_INT_DIR:-}" ]; then
     r bgm-start-global-hook GB_BGM_HOOK=global GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
     r bgm-start-late-replay GB_BGM_HOOK=late GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
     r bgm-start-absent GB_BGM_HOOK=none GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
-    if [ "${GB_LOOSE:-1}" != 0 ]; then r loose-bgm-start-load-first GB_BGM_ORDER=load-first GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; r loose-bgm-start-absent GB_BGM_HOOK=none GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; fi
+    r peak-instances-over8 GB_BGM_PEAK=1 GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    if [ "${GB_LOOSE:-1}" != 0 ]; then r loose-bgm-start-load-first GB_BGM_ORDER=load-first GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; r loose-bgm-start-absent GB_BGM_HOOK=none GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; r loose-peak-instances-over8 GB_BGM_PEAK=1 GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; fi
   else echo "SKIP bgm-start (GameAudio before v0.5: no onMusicStart)"; fi
 else echo "SKIP combo integration (set GB_INT_DIR=<int/v1 checkout> to run against the real GameAudio/CheerText)"; fi
 if [ -n "${GB_UNLOCK_DIR:-}" ]; then

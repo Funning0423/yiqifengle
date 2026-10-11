@@ -8,7 +8,7 @@
  *  - combo mode: door -> island -> real '继续旅程' mainline button (injected touch; else the same action via boot.invoke) -> level,
  *    then synthetic clear frames into GameAudio.instance.onBoardFrame (real cascade/tier/onCheer/cheer clip/CheerText); see GrokbotCombo.ts
  * Observers (all modes, read-only wrappers): app hide/show, GameAudio calls, WorldFlow walk segments, camera settle. */
-import {director,Director,game,Game,js,screen,input,Input,assetManager,resources} from 'cc';
+import {director,Director,game,Game,js,screen,input,Input,assetManager,resources,AudioSource} from 'cc';
 import {EDITOR} from 'cc/env';
 import {AutoplaySequencer,parseAutoplayQuery} from './GrokbotAutoplaySequencer';
 import type {AutoplayDriver,StepResult,AutoplayConfig} from './GrokbotAutoplaySequencer';
@@ -134,10 +134,10 @@ class Observers {
  private bgmPlaying:boolean|null=null;private audioHooked=false;private cheerHooked=false;private flowHooked:any=null;private settleHookFor:any=null;private settleHookAvailable=false;
  private craneHookFor:any=null;private craneReported=false;private settle:{place:string;since:number;last:number[]|null;still:number;done:boolean}|null=null;private lastState:string|null=null;private reportedNoHook=false;
  constructor(private ctx:Ctx){
-  game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
+  game.on(Game.EVENT_HIDE,()=>{ctx.mark('app:hide','source=cc.game');this.peakSummary('app-hide');});game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.deviceCaps();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.samplePeak();this.deviceCaps();}
  /** device:caps once: when the boot is ready (apron renderer bound, __worldIntegration.morph available) or 20 s after install. */
  private capsDone=false;
  private deviceCaps(){if(this.capsDone)return;const ready=this.ctx.ready(this.ctx.findBoot());if(!ready&&now()-this.ctx.t0<CAPS_TIMEOUT_MS)return;this.capsDone=true;
@@ -200,6 +200,28 @@ class Observers {
    ` unlockToStartMs=${d(this.unlockAtT,p.startT)} requestToLoadMs=${d(req,ld)} loadToStartMs=${d(ld,at)} requestToStartMs=${d(req,at)}`+
    ` roomReadyToRequestMs=${d(this.roomReadyAt,reqT)} roomReadyToStartMs=${d(this.roomReadyAt,p.startT)} roomReadyVia=${this.roomReadyVia}`+
    ` unlocked=${this.unlockAtT!==null?1:0} via=${p.via} replay=${p.replay?1:0}`);}
+ /** audio:peak-instances (for Voice bot: WeChat caps simultaneous InnerAudioContexts; flag > 8). Every frame: playing cc.AudioSource
+  *  components = scene scan (cached, refreshed every 1 s: GameAudio, WindAudio, AmbienceAudio, AmbienceNight... all add AudioSource to
+  *  their nodes) + GameAudio.instance sfxVoices/loopSource/loopPartner/fadeOutSource read live (voices created between refreshes).
+  *  Logged on every NEW maximum (peak, clips), and ONE summary (summary=1) when the autoplay runner finishes, else at the first app hide.
+  *  Raw wx.createInnerAudioContext users that bypass cc.AudioSource are NOT counted. Read-only; every probe try/catch. */
+ private peakMax=0;private peakAt=0;private peakClips='-';private peakCache:any[]=[];private peakCacheAt=-1e9;private peakSamples=0;
+ private overMs=0;private overSince:number|null=null;private peakCur=-1;private peakSummaryDone=false;
+ private samplePeak(){try{const t=now();
+  if(t-this.peakCacheAt>=1000){this.peakCacheAt=t;let list:any[]=[];try{const sc:any=director.getScene();list=sc&&typeof sc.getComponentsInChildren==='function'?(sc.getComponentsInChildren(AudioSource)||[]):[];}catch(e){list=[];}this.peakCache=list;}
+  const all:any[]=[];const add=(x:any)=>{if(x&&all.indexOf(x)<0)all.push(x);};
+  for(let i=0;i<this.peakCache.length;i++)add(this.peakCache[i]);
+  let a:any=null;try{const C:any=js.getClassByName('GameAudio');a=C?C.instance:null;}catch(e){a=null;}
+  if(a){try{const v=a.sfxVoices;if(v&&typeof v.forEach==='function')v.forEach((_x:any,k:any)=>add(k&&k.playing!==undefined?k:(_x&&_x.source)));}catch(e){/* ignore */}
+   try{add(a.loopSource);add(a.loopPartner);add(a.fadeOutSource);}catch(e){/* ignore */}}
+  const clips:string[]=[];let n=0;for(let i=0;i<all.length;i++){let on=false;try{on=!!all[i].playing&&all[i].isValid!==false;}catch(e){on=false;}if(on){n++;let c='-';try{c=String(all[i].clip&&all[i].clip.name||'-');}catch(e){c='-';}clips.push(c);}}
+  this.peakSamples++;
+  if(n>8){if(this.overSince===null)this.overSince=t;}else if(this.overSince!==null){this.overMs+=t-this.overSince;this.overSince=null;}
+  if(n>this.peakMax){this.peakMax=n;this.peakAt=t;this.peakClips=capTok(clips.join(','));
+   this.ctx.mark('audio:peak-instances',`peak=${n} playing=${n} clips=${this.peakClips} limit=8 over=${n>8?1:0} sources=${all.length}`);}
+  this.peakCur=n;}catch(e){/* ignore */}}
+ peakSummary(reason:string){if(this.peakSummaryDone)return;this.peakSummaryDone=true;try{const t=now();const over=this.overMs+(this.overSince!==null?t-this.overSince:0);
+  this.ctx.mark('audio:peak-instances',`summary=1 reason=${reason} peak=${this.peakMax} peakAtMs=${this.peakMax?Math.round(this.peakAt-this.ctx.t0):'-'} peakClips=${this.peakClips} limit=8 over=${this.peakMax>8?1:0} overMs=${Math.round(over)} now=${this.peakCur<0?'-':this.peakCur} samples=${this.peakSamples}`);}catch(e){/* ignore */}}
  /** T9: IslandPropTaps via the boot's QA object (__worldIntegration.onPropTap); real and injected taps alike. Absent = T9 not merged = no mark. */
  private propTapsFor:any=null;private propTapsOff:(()=>void)|null=null;
  private hookPropTaps(){const w=G.__worldIntegration;if(!w||w===this.propTapsFor||typeof w.onPropTap!=='function')return;this.propTapsOff?.();this.propTapsFor=w;const ctx=this.ctx;
@@ -420,10 +442,12 @@ function install(){
   ctx.mark('touch:suite-start',`spec=${cfg.scenarios} count=${sel.list.length} variant=${cfg.variant||'-'}`);
   // Proof that injected touches reached Cocos input (location as the engine sees it).
   input.on(Input.EventType.TOUCH_START,(e:any)=>{const id=e.getID?.();if(id>=1000&&id<1100){const l=e.getLocation();ctx.mark('touch:cocos-seen',`f=${id-1000} loc=${Math.round(l.x)},${Math.round(l.y)} touches=${e.getAllTouches?.().length??'?'}`);}});}
- let waitStarted=false;
+ let waitStarted=false,peakLogged=false;
+ const endPeak=(why:string)=>{if(peakLogged)return;peakLogged=true;try{obs.peakSummary(why);}catch(e){/* ignore */}};
  const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}try{bootProbe?.tick();}catch(e){console.error('GB_MARK boot-probe-exception',e);}
   if(runner&&!runner.finished()){if(cfg.mode==='touch'&&!waitStarted){if(ctx.state()!=='home'||!ctx.idle())return;waitStarted=true;ctx.mark('world-ready');}
-   try{runner.tick();}catch(e){console.error('GB_MARK autoplay-exception',e);ctx.mark('autoplay-failed','reason=exception');runner=null;}}};
+   try{runner.tick();}catch(e){console.error('GB_MARK autoplay-exception',e);ctx.mark('autoplay-failed','reason=exception');runner=null;endPeak('autoplay-end:exception');}
+   if(runner&&runner.finished())endPeak('autoplay-end:'+String((runner as any).current??'done'));}};
  director.on(Director.EVENT_AFTER_UPDATE,tick); // stays on: observers keep logging audio/app/camera for manual play too
  G.__GB_AUTOPLAY={config:cfg,touchBackend:touch.kind,phase:()=>runner?((runner as any).current??(runner.finished()?'done':'running')):'observe',touchResults:()=>touchRunner?.results.slice()??[],logFile:ctx.logFile};
 }

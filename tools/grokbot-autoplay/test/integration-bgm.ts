@@ -5,7 +5,7 @@
  *  and the new track playing after the scene crossfade. */
 import {run,marks} from './harness';
 import {clock} from './setup';
-import {director,AudioSource,AudioClip,resources,assetManager} from 'cc';
+import {director,AudioSource,AudioClip,resources,assetManager,Node} from 'cc';
 import {GameAudio} from '#gameaudio';
 import * as GAM from '#gameaudio';
 import {game,Game,js} from 'cc';
@@ -83,7 +83,17 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  if(L1.some(l=>l.includes(' audio:bgm-stopped ')))fail('bgm-stopped across a loop crossfade');
  if(!(passes>=3))fail('loop seams '+passes);if(xf!==undefined&&!(xf>=3))fail('GameAudio loopCrossfade.completed '+xf);
  if(!L1.some(l=>/ audio:bgm-playing .*clip=bgm_main .*loop=1 /.test(l)))fail('bgm-playing detail');
+ // audio:peak-instances: 2 music voices during loop crossfades; GB_BGM_PEAK=1 adds 9 more playing AudioSources -> over=1
+ if(V5&&process.env.GB_BGM_PEAK){const n=new (Node as any)('GB_TEST_PEAK');director.getScene()!.addChild(n);const extra:any[]=[];for(let i=0;i<9;i++){const a=n.addComponent(AudioSource);a.clip=new (AudioClip as any)('sfx_test_'+i,30);a.play();extra.push(a);}
+  await run(1.5,()=>false,tick);for(const a of extra)a.stop();}
+ if(V5){const P=marks().filter(l=>l.includes(' audio:peak-instances ')&&!l.includes('summary=1'));const top=P.length?Number(/ peak=(\d+)/.exec(P[P.length-1])![1]):0;
+  const want=process.env.GB_BGM_PEAK?10:2;if(process.env.GB_BGM_PEAK?top<want:top!==want)fail('peak-instances max '+top+' want '+want+'\n'+P.join('\n'));
+  if(!P.some(l=>/ peak=2 playing=2 clips=bgm_main,bgm_main limit=8 over=0 /.test(l)))fail('peak 2 during loop crossfade');
+  if(process.env.GB_BGM_PEAK&&!/ limit=8 over=1 /.test(P[P.length-1]))fail('over=1 flag');}
  if(refire)await refire();
+ if(V5&&refire){const S=marks().filter(l=>l.includes(' audio:peak-instances ')&&l.includes('summary=1'));if(S.length!==1||!/ reason=app-hide peak=\d+ /.test(S[0]))fail('peak summary at app hide '+S.join(' | '));
+  if(process.env.GB_BGM_PEAK&&!/ over=1 overMs=(\d+)/.test(S[0]))fail('summary over');if(process.env.GB_BGM_PEAK&&!(Number(/ overMs=(\d+)/.exec(S[0])![1])>=1000))fail('overMs '+S[0]);
+  console.error(S[0]);}
  // scene switch through the new optional bundle arg
  A.setMusic('audio/bgm_skycity','region_skycity');
  const bl=AM.bundleLoads.find((b:any)=>b.name==='region_skycity');if(!bl)fail('no loadBundle(region_skycity)');

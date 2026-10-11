@@ -42,6 +42,7 @@ const CHEERS=['sfx_cheer_1_great','sfx_cheer_2_excellent','sfx_cheer_3_amazing',
   :/^.* combo:result .*expect=0,1,2,3 tiers=0,1,2,3 sfx=sfx_cheer_1_great,sfx_cheer_2_excellent,sfx_cheer_3_amazing,sfx_cheer_4_unbelievable text=0,1,2,3 textSource=clear,clear,clear,clear muted=0 suspended=0 tiersOk=1 sfxOk=1 textOk=1 PASS$/;
  if(!wantRes.test(res))fail('result '+res);
  if(!L.some(l=>/ audio:clear .*wave=5 tier=combo_3 synthetic=1 token=gb-combo:5/.test(l)))fail('audio:clear synthetic tag');
+ {const S=L.filter(l=>l.includes(' audio:peak-instances ')&&l.includes('summary=1'));if(S.length!==1||!new RegExp(' reason=autoplay-end:done peak='+(muted?'0':'[1-9]\\d*')+' ').test(S[0]))fail('peak summary at combo end '+S.join(' | '));}
  if(L.some(l=>l.includes('unregistered=1')))fail('unregistered '+L.find(l=>l.includes('unregistered=1')));
  void scene;
  console.error(`PASS integration combo prelude=${env.prelude} deadButton=${env.deadButton} muted=${muted} (real GameAudio + CheerText)`);
