@@ -1,0 +1,68 @@
+{
+ "ui_signpost": {
+  "tris": 808,
+  "verts": 440,
+  "bbox_m": [
+   2.471,
+   0.365,
+   1.875
+  ],
+  "glb_bytes": 6464,
+  "preview_glb_bytes": 39336,
+  "text_quad_local": [
+   [
+    -0.4845,
+    -0.182,
+    1.22
+   ],
+   [
+    0.9555,
+    -0.182,
+    1.22
+   ],
+   [
+    0.9555,
+    -0.182,
+    0.74
+   ],
+   [
+    -0.4845,
+    -0.182,
+    0.74
+   ]
+  ]
+ },
+ "ui_satchel": {
+  "tris": 696,
+  "verts": 364,
+  "bbox_m": [
+   0.86,
+   0.515,
+   0.915
+  ],
+  "glb_bytes": 5080,
+  "preview_glb_bytes": 29508
+ },
+ "ui_notebook": {
+  "tris": 584,
+  "verts": 308,
+  "bbox_m": [
+   0.665,
+   0.315,
+   0.89
+  ],
+  "glb_bytes": 4952,
+  "preview_glb_bytes": 28200
+ },
+ "ui_compass": {
+  "tris": 532,
+  "verts": 292,
+  "bbox_m": [
+   0.84,
+   0.289,
+   1.051
+  ],
+  "glb_bytes": 5340,
+  "preview_glb_bytes": 29676
+ }
+}
