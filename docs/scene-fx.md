@@ -21,10 +21,10 @@
 
 - 节点：`fx_moon`（月盘）、`fx_moon_halo`（月晕），都是面向镜头的软边圆盘；`fx_moonlight_band` 是海面上的倒影带。三个都挂在 `IslandAtmosphereFx` 根下，用 `builtin-unlit` 加顶点色、technique 2（加法），不用贴图，不加实时灯，所以回程主光翻转对它们没有影响。没有碰撞体，不在 `lighthouseTargets` 里。
 - 位置：按 `previews/运镜bot/camera-track.json` 的 `islandIdlePose`（位置 [-12,15.5,48]，fov 42，586×1266）来定。月亮放在屏幕 (0.17, 0.085)（从左上角算）那条视线方向上、离镜头 200 m 的地方，世界坐标 [19.58,17.49,-149.48]，在天空球（半径 282 m）里面。它落在地平线上方那条天空带（屏幕顶部约 19%）的中间，在灯塔/她那一列（x 0.39）的左边，避开云（`test_island_fx` 把云层顶点投影到屏幕检查过，月晕范围内一个都没有），也远离路牌（右下，x 0.62–0.82）。月盘半径 2.3 m，在 1266 高的屏幕上约 19 px；月晕半径 7.6 m。
-- 倒影带：海面上的一条加法长条，高度用 `seaY`（和 seaglint 一样，GGbot 的海水材质和夜间参数都不动）。每帧从主相机脚下出发，朝“相机→月亮”的水平方向铺开（倒影跟着看的人走），16–285 m 之间的行按对数间隔排，亮暗交替成波纹；整条带每 3 s 均匀放大两行的距离，所以波纹看起来在慢慢往外漂。远端会被收在海面方块（±255 m）以内，固定机位下一直铺到地平线、正好在月亮下面。镜头离海面低于 4 m 时逐渐变淡，低于 1 m 时完全消失。屏幕上它在左边（x 约 0.18–0.24），从路牌左边过去；岛和她挡在它前面（深度测试）。
+- 倒影（v3 碎波光光路，Funning 确认）：不再是一整条带子，而是 1300 个细长的软边菱形波光片，只有中心顶点有 alpha，所以没有直线边。它们轮流分到 3 个网格 `fx_moonlight_band_0..2`（3 个 draw call），三层按 2.1、2.8、3.4 rad/s 错相闪烁（每层亮度在 20%–100% 之间变）。网格在局部 XZ 里沿 +Z 铺开，每帧从主相机脚下朝“相机→月亮”的水平方向放，高度是 `seaY`（不动海水材质）。波光片按俯角均匀分布，偏向地平线：远处窄（半宽 0.95°）、密、亮；近处宽（7.2°）、散、暗。宽度和亮度沿长度按噪声随机起伏。岛前面那段（离镜头 28 m 以内，到 95 m 逐渐恢复）压到 42%。颜色冷白 (196,212,236)。远端会被收在海面方块（±255 m）以内。镜头离海面低于 4 m 时逐渐变淡，低于 1 m 时完全消失。屏幕上光路在左边（x 约 0.18–0.24），从路牌左边过去，岛和她挡在它前面。
 - 昼夜：`lightFromNight(propNightWeight())`，和光束是同一个值；白天权重为 0，节点设为 inactive，完全不显示。
 - 原来模型里的 `env_sky_moon_night_v22`/halo（天空背景的一部分，屋里从窗户也能看到）不动。它不在岛上固定机位的画面里；按 camera-track 逐帧算，它和 fx_moon 从来不会同时出现在画面里（0/1430 帧）。
-- 测试：`test_island_fx` 的 `moon-fixed-view-composition`、`moon-day-hidden-night-fade`、`moonlight-band-on-sea-safe`、`byte-budget`（terser 压缩后相对 29690bb 增加的字节数）；`test_camera_track_fx` 把月盘、月晕、倒影带算进屏幕亮度，还检查月亮离镜头 ≥100 m、倒影带近端离镜头 ≥10 m、alpha 每帧步长 <0.03。
+- 测试：`test_island_fx` 的 `moon-fixed-view-composition`、`moon-day-hidden-night-fade`、`moonlight-glitter-geometry`（只有中心有 alpha、远窄亮近宽暗、岛前压暗、宽度/亮度起伏）、`moonlight-glitter-twinkle`（白天每层为 0、每帧步长 <0.03）、`moonlight-band-on-sea-safe`、`byte-budget`（terser 压缩后相对 29690bb 和 e903139 增加的字节数）；`test_camera_track_fx` 用真实的波光网格（每层按重心坐标插值 alpha，乘以该层的闪烁系数）、月盘、月晕算屏幕亮度，还检查月亮离镜头 ≥100 m、光路近端离镜头 ≥10 m、alpha 每帧步长 <0.03。
 
 ## 海鸥（fx_gull_N）
 

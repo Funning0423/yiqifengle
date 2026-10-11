@@ -4,7 +4,8 @@
  * 4 day/night (day = no light, night smoke not white), 5 flash from the LIVE camera, 6 near-camera fades over the whole
  * home->island->home flow (flow_sim, this tree; optional CAMERA_TREE=<other worktree> to replay another camera branch),
  * 7 tap safety (lighthouseTargets unchanged, no colliders), 8 wiring + byte cost,
- * 9 moon + moonlight band (fixed-view composition from camera-track islandIdlePose, day hidden, night fade, sea bounds, live-camera band).
+ * 9 moon + moonlight glitter path (fixed-view composition from camera-track islandIdlePose, day hidden, night fade, glitter geometry:
+ *   centre-only alpha, far narrow/bright vs near wide/dark, island front held down, wandering envelope; 3-layer twinkle; sea bounds).
  * Usage: node tools/scene-fx/test_island_fx.cjs [--json out.json]   (QF_TYPESCRIPT_MODULE, DRACO3D as for camera-frame-test) */
 const fs=require('fs'),path=require('path'),os=require('os');
 const root=path.resolve(__dirname,'..','..'),scripts=path.join(root,'creator-build-project/assets/scripts');
@@ -122,29 +123,50 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
    let w=0,prev=null,maxStep=0;for(let i=0;i<40;i++){w=F.approachNight(w,true,1/60);const m=F.moonState(3,cam,F.lightFromNight(w));if(prev)maxStep=Math.max(maxStep,Math.abs(m.moonAlpha-prev.moonAlpha),Math.abs(m.bandAlpha-prev.bandAlpha));prev=m;}
    check('moon-day-hidden-night-fade',dayMax===0&&maxStep<.06&&prev.moonAlpha>.85&&prev.bandAlpha>.1,{dayMax,maxAlphaStepPer60fpsFrame:+maxStep.toFixed(4),night:{moon:+prev.moonAlpha.toFixed(3),halo:+prev.haloAlpha.toFixed(3),band:+prev.bandAlpha.toFixed(3)}});
    // band: far end on the sea for every camera on the track, near end >= 10 m from the lens, aimed at the moon from the live camera
-   const bgm=F.bandGeometry(),ba=[];for(let i=3;i<bgm.colors.length;i+=4)ba.push(bgm.colors[i]);
-   let offSea=0,minNear=1e9,maxScaleStep=0,minMoonCam=1e9,aim=0;const cams=T9?T9.frames.map(f=>f.position).concat([cam]):[cam];
-   for(const c of cams)for(const t of [0,.7,1.4,2.2,2.9]){const m=F.moonState(t,c,1),h=qrot(m.bandRotation,[0,0,1]),far=B.endM*m.bandScale,e=[c[0]+h[0]*far,c[2]+h[2]*far];
+   // glitter geometry (v3): per layer 5 vertices per sparkle (centre + 4 tips), alpha only at the centre (soft, no straight edges)
+   const layers=[];for(let k=0;k<B.layers;k++)layers.push(F.bandGeometry(k));
+   const sp=[];let shapeOk=true;for(const g of layers){if(g.positions.length%15||g.indices.length!==g.positions.length/15*12)shapeOk=false;
+     for(let i=0;i<g.positions.length/3;i+=5){const al=g.colors[i*4+3];if(al<0||al>1)shapeOk=false;for(let j=1;j<5;j++)if(g.colors[(i+j)*4+3]!==0)shapeOk=false;sp.push({x:g.positions[i*3],z:g.positions[i*3+2],a:al,hl:Math.abs(g.positions[(i+2)*3]-g.positions[(i+1)*3])/2});}}
+   const thF=Math.atan(B.eyeM/B.endM),thN=Math.atan(B.eyeM/B.startM),nOf=z=>(Math.atan(B.eyeM/z)-thF)/(thN-thF),third=k=>sp.filter(q=>{const n=nOf(q.z);return n>=k/3&&n<(k+1)/3;});
+   const pct=(arr,p)=>{const v=arr.slice().sort((a,b)=>a-b);return v.length?v[Math.min(v.length-1,Math.floor(p*v.length))]:0;};
+   const spreadDeg=arr=>pct(arr.map(q=>Math.abs(Math.atan2(q.x,q.z))*180/Math.PI),.9),meanA=arr=>arr.reduce((s,q)=>s+q.a,0)/Math.max(1,arr.length);
+   const far3=third(0),mid3=third(1),near3=third(2),spread=[spreadDeg(far3),spreadDeg(mid3),spreadDeg(near3)],bright=[meanA(far3),meanA(mid3),meanA(near3)];
+   // island front (< frontM[0]) held down vs the open water just behind it
+   const front=sp.filter(q=>q.z<B.frontM[0]),open=sp.filter(q=>q.z>=B.frontM[1]&&q.z<B.frontM[1]*1.6),frontRatio=meanA(front)/Math.max(1e-9,meanA(open));
+   // envelope wanders: 12 m windows in the mid range, CV of angular spread and of mean alpha
+   const win=[];for(let z=40;z<200;z+=12){const w=sp.filter(q=>q.z>=z&&q.z<z+12);if(w.length>8)win.push({s:spreadDeg(w)/(B.farHalfDeg+(B.nearHalfDeg-B.farHalfDeg)*Math.pow(nOf(z+6),.8)),a:meanA(w)});}
+   const cv=v=>{const m=v.reduce((s,x)=>s+x,0)/v.length;return Math.sqrt(v.reduce((s,x)=>s+(x-m)*(x-m),0)/v.length)/m;};
+   const glitterOk=shapeOk&&sp.length===B.count&&layers.length===B.layers&&spread[0]*1.4<spread[1]&&spread[0]*1.4<spread[2]&&bright[0]>bright[1]&&bright[1]>bright[2]&&frontRatio<.75&&cv(win.map(w=>w.s))>.08&&cv(win.map(w=>w.a))>.12&&Math.max(...sp.map(q=>q.a))<=1;
+   check('moonlight-glitter-geometry',glitterOk,{sparkles:sp.length,layers:layers.length,vertsPerLayer:layers.map(g=>g.positions.length/3),centreOnlyAlpha:shapeOk,spread90Deg_far_mid_near:spread.map(v=>+v.toFixed(2)),meanAlpha_far_mid_near:bright.map(v=>+v.toFixed(3)),
+     islandFrontVsOpenWater:+frontRatio.toFixed(2),envelopeCV:{width:+cv(win.map(w=>w.s)).toFixed(2),brightness:+cv(win.map(w=>w.a)).toFixed(2)},sparkleHalfLenM:{far:+pct(far3.map(q=>q.hl),.5).toFixed(2),near:+pct(near3.map(q=>q.hl),.5).toFixed(2)}});
+   // twinkle (3 layers out of phase), day hidden per layer, per-frame steps small
+   let twMin=1e9,twMax=0,twStep=0,dayLayers=0,pw=null;for(let t=0;t<20;t+=1/60){const m=F.moonState(t,cam,1);for(const v of m.bandLayerAlpha){twMin=Math.min(twMin,v/m.bandAlpha);twMax=Math.max(twMax,v/m.bandAlpha);}
+     if(pw)for(let k=0;k<pw.length;k++)twStep=Math.max(twStep,Math.abs(m.bandLayerAlpha[k]-pw[k]));pw=m.bandLayerAlpha;dayLayers=Math.max(dayLayers,...F.moonState(t,cam,0).bandLayerAlpha);}
+   check('moonlight-glitter-twinkle',dayLayers===0&&twMin>=.19&&twMax<=1.0001&&twMax-twMin>.6&&twStep<.03,{dayMaxLayerAlpha:dayLayers,layerFactorRange:[+twMin.toFixed(2),+twMax.toFixed(2)],maxLayerAlphaStepPer60fpsFrame:+twStep.toFixed(4)});
+   let offSea=0,minNear=1e9,minMoonCam=1e9,aim=0,scales=new Set();const cams=T9?T9.frames.map(f=>f.position).concat([cam]):[cam];
+   for(const c of cams)for(const t of [0,.7,1.4,2.2,2.9]){const m=F.moonState(t,c,1),h=qrot(m.bandRotation,[0,0,1]),far=B.endM*m.bandScale,e=[c[0]+h[0]*far,c[2]+h[2]*far];scales.add(+m.bandScale.toFixed(3));
      if(Math.abs(e[0])>B.seaHalfM||Math.abs(e[1])>B.seaHalfM)offSea++;if(m.bandAlpha>0)minNear=Math.min(minNear,m.bandNearM);minMoonCam=Math.min(minMoonCam,m.moonCamM);
      const toM=[M.pos[0]-c[0],M.pos[2]-c[2]],l=Math.hypot(...toM);aim=Math.max(aim,1-(h[0]*toM[0]+h[2]*toM[1])/l);}
-   for(let t=0;t<B.shimmerS*2;t+=1/60){const a=F.moonState(t,cam,1).bandScale,b=F.moonState(t+1/60,cam,1).bandScale;if(Math.floor(t/B.shimmerS)===Math.floor((t+1/60)/B.shimmerS))maxScaleStep=Math.max(maxScaleStep,Math.abs(b-a));}
-   check('moonlight-band-on-sea-safe',offSea===0&&minNear>=10&&minMoonCam>100&&aim<1e-9&&ba.every(a=>a>=0&&a<=1)&&ba.filter((a,i)=>i%5===0||i%5===4).every(a=>a===0),{camerasChecked:cams.length,farEndOffSea:offSea,minBandDistToCameraM:+minNear.toFixed(2),minMoonDistToCameraM:+minMoonCam.toFixed(1),maxAimError:aim,bandVerts:bgm.positions.length/3,bandTris:bgm.indices.length/3,maxScaleStepPerFrame:+maxScaleStep.toFixed(4)});
+   check('moonlight-band-on-sea-safe',offSea===0&&minNear>=10&&minMoonCam>100&&aim<1e-9,{camerasChecked:cams.length,farEndOffSea:offSea,minBandDistToCameraM:+minNear.toFixed(2),minMoonDistToCameraM:+minMoonCam.toFixed(1),maxAimError:aim,bandScaleRange:[Math.min(...scales),Math.max(...scales)]});
   }
   // 7 taps
   const wfc=fs.readFileSync(path.join(scripts,'world-r1/WorldFlowComponent.ts'),'utf8'),fx=fs.readFileSync(path.join(scripts,'render/IslandAtmosphereFx.ts'),'utf8');
   check('taps-unchanged',wfc.includes("for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell'])")&&!/Collider|UITransform|EventType|\.on\(/.test(fx)&&!/fx_lighthouse|fx_chimney|fx_moon|atmosphere/.test(wfc.slice(wfc.indexOf('private hitLighthouse'),wfc.indexOf('private roomView'))),{lighthouseTargets:['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']});
   // 8 wiring + bytes
   const wired=['new IslandAtmosphereFx(director.getScene()!)','this.atmosphere?.setView(this.exteriorVisible,','this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength())'].every(s=>wfc.includes(s))&&(wfc.match(/this\.atmosphere\?\.dispose\(\);this\.atmosphere=null;/g)||[]).length===3;
-  const names=['fx_lighthouse_beam','fx_lighthouse_glow','fx_lighthouse_seaglint','fx_chimney_smoke','fx_chimney_smoke_puff_','fx_moon','fx_moon_halo','fx_moonlight_band'].every(n=>fx.includes("'"+n+"'"));
+  const names=['fx_lighthouse_beam','fx_lighthouse_glow','fx_lighthouse_seaglint','fx_chimney_smoke','fx_chimney_smoke_puff_','fx_moon','fx_moon_halo','fx_moonlight_band_'].every(n=>fx.includes("'"+n+"'"));
   check('wiring-and-names',wired&&names&&/replacedFx\(r\)\)r\.enabled=false/.test(wfc),{});
   const files=['render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts','render/IslandAtmosphereFxCore.ts.meta','render/IslandAtmosphereFx.ts.meta'];
   const bytes=files.reduce((s,f)=>s+fs.statSync(path.join(scripts,f)).size,0);
   // Shipped cost = the ES5 modules after terser (Cocos minifies bundles); the moon commit is measured against BYTE_BASE (git rev, default 29690bb).
   let terser=null;for(const p of [process.env.TERSER_MODULE,'/tmp/terser/node_modules/terser',path.join(root,'tools/vendor-node/node_modules/terser'),'terser'])try{if(p){terser=require(p);break;}}catch(e){}
   const mini=async src=>{const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES5}}).outputText;return terser?(await terser.minify(js,{compress:{passes:2},mangle:true})).code.length:js.length;};
-  const code=['render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts'];let now=0,base=0,baseRev=process.env.BYTE_BASE||'29690bb',baseOk=true;
-  for(const f of code){now+=await mini(fs.readFileSync(path.join(scripts,f),'utf8'));try{base+=await mini(require('child_process').execFileSync('git',['show',baseRev+':creator-build-project/assets/scripts/'+f],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}));}catch(e){baseOk=false;}}
-  check('byte-budget',(baseOk?now-base<=10*1024:true)&&now<=24*1024,{minifiedJsBytes:now,minifier:terser?'terser':'none (raw ES5)',baseRev:baseOk?baseRev:'unavailable',addedSinceBaseBytes:baseOk?now-base:null,budgetAddedBytes:10240,sourceBytes:bytes,textures:0,newAssets:0,runtimeMeshVertices:bg.positions.length/3+gg.positions.length/3+dg.positions.length/3*2+37+F.bandGeometry().positions.length/3+57+49,files});
+  // Bases: 29690bb (before the moon, budget 10 KB for moon + glitter) and e903139 (moon v1 strip; glitter delta reported).
+  const code=['render/IslandAtmosphereFxCore.ts','render/IslandAtmosphereFx.ts'];let now=0;for(const f of code)now+=await mini(fs.readFileSync(path.join(scripts,f),'utf8'));
+  const sizeAt=async rev=>{let n=0;try{for(const f of code)n+=await mini(require('child_process').execFileSync('git',['show',rev+':creator-build-project/assets/scripts/'+f],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}));return n;}catch(e){return null;}};
+  const baseRev=process.env.BYTE_BASE||'29690bb',base=await sizeAt(baseRev),v1=await sizeAt('e903139'),baseOk=base!==null;
+  const glitterVerts=Array.from({length:X.band.layers},(_,k)=>F.bandGeometry(k).positions.length/3).reduce((a,b)=>a+b,0);
+  check('byte-budget',(baseOk?now-base<=10*1024:true)&&now<=24*1024,{minifiedJsBytes:now,minifier:terser?'terser':'none (raw ES5)',baseRev:baseOk?baseRev:'unavailable',addedSinceBaseBytes:baseOk?now-base:null,addedSinceMoonV1_e903139:v1===null?null:now-v1,budgetAddedBytes:10240,drawCallsMoon:2+X.band.layers,glitterVertices:glitterVerts,sourceBytes:bytes,textures:0,newAssets:0,runtimeMeshVertices:bg.positions.length/3+gg.positions.length/3+dg.positions.length/3*2+37+glitterVerts+57+49,files});
   const fail=checks.filter(c=>!c.ok).length;if(jsonOut)fs.writeFileSync(jsonOut,JSON.stringify({checks},null,1));
   console.log(fail?'FAILED '+fail:'ALL PASS island-fx ('+checks.length+' checks)');process.exitCode=fail?1:0;
 })().catch(e=>{console.error(e);process.exitCode=1;});
