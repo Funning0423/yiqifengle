@@ -67,7 +67,13 @@ test('AudioBridge: subscribes onPropTap in onLoad, unsubscribes in onDestroy, no
   assert.match(b, /if \(propTap\) return;/); assert.match(b, /if \(back\) \{ GameAudio\.instance\?\.onUiBack\(\); return; \}/);
   // the names must still exist where T9 / the overlay create them
   const o = fs.readFileSync(path.join(S, 'world-r2/IslandJourneyOverlay.ts'), 'utf8');
-  assert.match(o, /'Island-'\+role/); assert.match(o, /this\.button\('Close'/); assert.match(o, /this\.button\('BackToChapters'/); assert.match(o, /'IslandParchment'/);
+  assert.match(o, /'Island-'\+role/);
+  // board-ui: island pages are PopupKit panels (not WarmButtons, so AudioBridge adds no click); close × and
+  // back-to-chapters play sfx_ui_back through PopupKit's own sound option.
+  const kit = fs.readFileSync(path.join(S, 'ui/PopupKit.ts'), 'utf8'), pages = fs.readFileSync(path.join(S, 'ui/IslandPanels.ts'), 'utf8');
+  assert.match(o, /new PopupStack\(/); assert(!/warmButton\(/.test(pages) && !/warmButton\(/.test(kit), 'popup buttons are not WarmButtons');
+  assert.match(kit, /pressable\(n, s\.node, \(\) => this\.close\(\), \{ sound: 'back' \}\)/); assert.match(pages, /name: 'BackToChapters', sound: 'back'/);
+  assert.match(kit, /else if \(kind === 'back'\) a\.onUiBack\(\)/);
   assert.match(fs.readFileSync(path.join(S, 'WorldIntegrationBoot.ts'), 'utf8'), /if\(id==='mainline'\)emitPropTap\('signpost','confirm'/);
 });
 test('ui-soft mp3 + meta (no sfx_ui_settings): mono 44.1 kHz MPEG-1 L3, total <= 40 KB, unique uuids, cheer-style meta', () => {

@@ -20,19 +20,479 @@
     "sha256": "2a1d2519c89d66d877591ed0daefa6fbeb2d1753e1446f8d055c1d1b6c457dcb"
   },
   {
-    "path": "creator-build-project/assets/bundles/background_foliage.meta",
-    "bytes": 413,
-    "sha256": "5555e2920a633f216ca99e004ce39fe933a0b6648693da34911a65c7d1a7b6c2"
+    "path": "creator-build-project/assets/bundles/board_art.meta",
+    "bytes": 404,
+    "sha256": "9352ea76b11a503343e2bf3e6f253dc0501e7d00441388b949b5e1238e54d02b"
   },
   {
-    "path": "creator-build-project/assets/bundles/background_foliage/painted-cloud.png.meta",
-    "bytes": 983,
-    "sha256": "99cb65c46b00fa77236b180cacc3347e4f7261994e71761b5e9d4f50a5b478b6"
+    "path": "creator-build-project/assets/bundles/board_art/board.meta",
+    "bytes": 169,
+    "sha256": "7f01cab462ca2f883c2dbcc16373e1ed71e206bbda5514131aec9eac3871ebdf"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/hud_levelplate.png.meta",
+    "bytes": 998,
+    "sha256": "7d34a30214f8d740aa5bee04cf69c5d2689b1457fbdfef981cf421fdf158ffb8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/hud_pause.png.meta",
+    "bytes": 993,
+    "sha256": "fe8d2410e35a68e6dc89964969830dc067889a98b4a094ced3f4c0eebc9330b8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/icon_moves.png.meta",
+    "bytes": 994,
+    "sha256": "88ab7358d32a6a6abe29116c8a70957c3838a6a0d61ca722558d9e2118e86241"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_moss.png.meta",
+    "bytes": 997,
+    "sha256": "55757966f826773a5f6a3baebc4bf6683728622f455123005296d9ffe3f89884"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_roots.png.meta",
+    "bytes": 998,
+    "sha256": "dab0d403d06fe1f821bd8506830a761ff0f729baa87dc9ceb69d3b31baed3f87"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_shell_1.png.meta",
+    "bytes": 1000,
+    "sha256": "9279539fcb6680d02ba8b404328a8e0677c026abb3efdf724f876cce9c5f3741"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_shell_2.png.meta",
+    "bytes": 1000,
+    "sha256": "58aff7e4710ea093b752625c98b0a7ddcab664f87d7e55a228c2e25ea42d5101"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_acorn.png.meta",
+    "bytes": 995,
+    "sha256": "2ec307776dce2e82ef87df12ca5944fd4656f1660a96396ff87db56b4a7048cc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_blueberry.png.meta",
+    "bytes": 999,
+    "sha256": "c197b521cb9b85093107d3851a462106ed3e19fd42838bd3fb7b1416f56f1ee9"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_flower.png.meta",
+    "bytes": 996,
+    "sha256": "58bacd0e5a800cd152a7c72d35ea805656a89c32d73621d91a81666a23815e33"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_leaf.png.meta",
+    "bytes": 994,
+    "sha256": "d4042bc3edf8b3949503b1c8d888425421cbb74a378209d986c0b9fa0598891b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_shell.png.meta",
+    "bytes": 995,
+    "sha256": "8da03e31a22ebf09c7cf3138102d7166df1918bd8424e7456877cb941f082143"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_strawberry.png.meta",
+    "bytes": 1000,
+    "sha256": "521c9bf6fcb234bb1f70c264457d44858aed216c49d9c9f894dbcb0c6da7f8a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_bomb.png.meta",
+    "bytes": 996,
+    "sha256": "d9d7516d51039db779ab429465e632d7a9dc54b8abe4b4da4f72cb9abb16ef32"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_line_h.png.meta",
+    "bytes": 998,
+    "sha256": "8f6bd0b2e9f0f93c660010f13c53ee2a6951566b168d098754850ec6474e5b2c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_line_v.png.meta",
+    "bytes": 998,
+    "sha256": "dc7b63871805a0742c1805149810053c996e5990638c66c4ed325021e1bb1ca7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tile_a.png.meta",
+    "bytes": 990,
+    "sha256": "8647889787493095a34cbd8e4a30a2ba39333f9c0d481a5207ba28d20a64e494"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tile_b.png.meta",
+    "bytes": 990,
+    "sha256": "feb49332531048655bd6757d599b24a80a714da8d41b3c95736df3e105286f0a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_starlight.png.meta",
+    "bytes": 998,
+    "sha256": "4bfdd40d94f8cd4b0546cb7c4345805aec56beec1683b3c39f161d3910f718ef"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_tidebottle.png.meta",
+    "bytes": 999,
+    "sha256": "ee3538dcd8d93d8f00df5ac425383c689509ea046b8b5aea434bf6a5262b0237"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_windbell.png.meta",
+    "bytes": 997,
+    "sha256": "8607afbca4c3981bb5e5106aab99b11200eb4be604b492ee9e595fe87e6a24ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tray_frame.png.meta",
+    "bytes": 994,
+    "sha256": "b349bf061af6e34339189afa950ca7bee99f6603d3f63a71eab938552d7ea594"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/chest.meta",
+    "bytes": 169,
+    "sha256": "cada359cb1e914dee6376e668a04bc580db893d16bc19ad15d5814a103734e4b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/chest/result_chest.glb.meta",
+    "bytes": 187,
+    "sha256": "4b658706f144e630ee3169cd3420a32a296052c20b9b15f9034f8a98dd649807"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses.meta",
+    "bytes": 169,
+    "sha256": "c9a1b6d647f0b993fcb613caa1e8b496d9c07fa9291e3b2f65d44a6661840db4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/babel-helpers-mit.txt",
+    "bytes": 1189,
+    "sha256": "4be9d87b56a306293223b490c0d0b245e9e94f39884147bf051a6c7b825aeb30"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/babel-helpers-mit.txt.meta",
+    "bytes": 179,
+    "sha256": "d4ed42efe19c9467bb0dfb82fb38c9c98aa57f4d353c4427ac3442105449eeb2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/fredoka-ofl.txt",
+    "bytes": 4388,
+    "sha256": "5c9e7eee5c6b25f4b05b8d53b2e470ea4962f9ced742d044a98f7d95d1375bab"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/fredoka-ofl.txt.meta",
+    "bytes": 179,
+    "sha256": "7864b64d82607e03bec4ada3e725985f676093d3abf067579d1c8535db5d0c85"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/lxgw-wenkai-ofl.txt",
+    "bytes": 5171,
+    "sha256": "1a25e35da1031c6c3436fde545bb9cb5aca954e9873afe510c834b8b79bd21a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/licenses/lxgw-wenkai-ofl.txt.meta",
+    "bytes": 179,
+    "sha256": "0187baf6f07e1356d55ea26fcf22ee1ebf5bd8f18ec70dcfb9e2f57a3c2ed38e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup.meta",
+    "bytes": 169,
+    "sha256": "f952a57f9b407e00781d3029141fdf200bbb4095b57d39fe08b92f94705b9528"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_close.png.meta",
+    "bytes": 993,
+    "sha256": "f546a332e7deca917e21988a450f8ff42b9da26004dcb1a3298b30f606661ea7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_primary_3s.png.meta",
+    "bytes": 998,
+    "sha256": "022af8581ca303dda9c73fdea5393af762213ba9e7fabb4dd5b0261bc47c08cb"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_secondary_3s.png.meta",
+    "bytes": 1000,
+    "sha256": "a5ba75e2f9bc53bc636f5b833185aaed298d7b3c19220a8bb18efd34b4731b40"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/chest_closed.png.meta",
+    "bytes": 996,
+    "sha256": "6c7438b3093e7aadb6cf4049f6b500c84bb12c2e29ca3972e3c795dcf32beb18"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/fx_rays.png.meta",
+    "bytes": 991,
+    "sha256": "ae9e780b70ac99fa11258f7076e0e5d68eacd41439ddd4440bccec40032909d1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_about.png.meta",
+    "bytes": 994,
+    "sha256": "da5be17d22a664e074be6b693af7f2a870024e9a1dcf9fca2645ea3b81cefe5b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_home.png.meta",
+    "bytes": 993,
+    "sha256": "85d302376e564526e26b38043e6f001a8f958b67508e7eb136fcfe34eaa16b9b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_moon.png.meta",
+    "bytes": 993,
+    "sha256": "a9664ec3c48d7d84a26c4c63542d6b9a3c5cb61d7bb367ff3253cfc0a3306261"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_motion.png.meta",
+    "bytes": 995,
+    "sha256": "788bbef8ff73a0672037d59df6a10117cdd2943c299f9791a846657938220dcc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_music.png.meta",
+    "bytes": 994,
+    "sha256": "3af746f788d54e7c2cfee2aee91e3b5ebd5b4d7e113336711d0158ce0ff321ee"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_play.png.meta",
+    "bytes": 993,
+    "sha256": "a4ac832587064acc9f6937a5e5b1e7318880071263781caee958e28fdd72bba3"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_sfx.png.meta",
+    "bytes": 992,
+    "sha256": "c6df4cacf919cdd33b9b77105e183a6430bb8718ac68c094edb23e10c12c3980"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png.meta",
+    "bytes": 992,
+    "sha256": "4682d249a90a07a486acffac2993b991d829f9c261e38f2c1427dd3bfd84df9a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png.meta",
+    "bytes": 998,
+    "sha256": "f22e7776c0af9a10bd693b5aca47006f3169e044f2233f5e43649ae4861b20fd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_meadow.png.meta",
+    "bytes": 1002,
+    "sha256": "a42531fb60feb4d607e7cd6c54dbe2e1e53e4218c2dabf1d2657b36af3082c46"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_sky.png.meta",
+    "bytes": 999,
+    "sha256": "b4466e6cd85e2b381004aa8396b0403e3dacc5627c6a5f36924437fc6acf98aa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_tide.png.meta",
+    "bytes": 1000,
+    "sha256": "002e01eea0f8c5205107019338341e6c4574d365fe3ca3cb1510bf60e12d104b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/stamp_claimed.png.meta",
+    "bytes": 997,
+    "sha256": "b1cfc872d049833afa60b7de0d0ce01cced7e32bf72e70716ab9441c1d77d0ca"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/star_empty.png.meta",
+    "bytes": 994,
+    "sha256": "9c4d05e03ca75846f6cd9dae564ea22a505010c5ff5fb75f3d71b4437256271e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/star_full.png.meta",
+    "bytes": 993,
+    "sha256": "816323ae2aacb3c8621ecd661246ec09f03e8a7e4dd0ae6cb92501734e684c19"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_bag.png.meta",
+    "bytes": 992,
+    "sha256": "12b0a7078ad9a3a09ce76fd3296eda4ec011b56e79310214757e077585f170fb"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_restart.png.meta",
+    "bytes": 996,
+    "sha256": "c6280aa99bcc7c45e86965965716774dfe07af79a1427606d57a93a2e79c6b3f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_settings.png.meta",
+    "bytes": 997,
+    "sha256": "a995b8e755a29e6b072d597ff8be17a43476f81be81ccde9e0cf9f52874a0acc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_0.png.meta",
+    "bytes": 991,
+    "sha256": "a61e7688ecca90ee3b430754374fd8e44dd86ee08d499a27b0a28dd8d1c00fef"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_1.png.meta",
+    "bytes": 991,
+    "sha256": "577a2be6dcddf183326f248106dd14455b283201684c177251770a6a86e75b7d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_2.png.meta",
+    "bytes": 991,
+    "sha256": "2a333f030d3201286c841a5b25c805682f525c44f979987aae03b00fd5eb6559"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_3.png.meta",
+    "bytes": 991,
+    "sha256": "8ae1911d4e1aa7766dc73db79fc59779e6ca4c9f4137bf0d9fb8b36a44ca746a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_4.png.meta",
+    "bytes": 991,
+    "sha256": "beaaff9acd06875bd4b828e429e9269bbc0f80b2699a69cfee3c26e6879fa62e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_5.png.meta",
+    "bytes": 991,
+    "sha256": "571910c1bcd06079f0288c34a32da1bf391af090751d72ac05117a568cdf84e4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_plank_3s.png.meta",
+    "bytes": 998,
+    "sha256": "d7fd97cde778420b6b927aad680a29491e520bb436fe26354bcaf08bd2b74010"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_knob.png.meta",
+    "bytes": 995,
+    "sha256": "673ed2a758d5fbaec23b8f7d3d5b548ab5c4fd7070d787ab6c618e5c80223fff"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_off.png.meta",
+    "bytes": 994,
+    "sha256": "8c2b5c19b7c0cc17efc0c2cb23fcd7b47a12976b73b5afc124bb12b3da2ae05f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_on.png.meta",
+    "bytes": 993,
+    "sha256": "9418a88953c67d6b4669d2dac63e231ff659cea09d89e91cd202b63923b15de0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2.meta",
+    "bytes": 169,
+    "sha256": "ea58e14289d440a725bc4335bce1a3f753e7918e1f2aaecb9ce4f0a9898d4ae7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/beacon_lighthouse.png.meta",
+    "bytes": 1001,
+    "sha256": "b79d2e15cd680c83efe0fe5031f141e53a377e6e2854e1181bce0f3c9cf7cf52"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/beacon_ring.png.meta",
+    "bytes": 995,
+    "sha256": "ea0d14ec35d64dfe52588c49e3aeabd59ebdbbc4944d752162ef2a74b4747847"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_meadow.png.meta",
+    "bytes": 998,
+    "sha256": "246cab0589e85870ba042539a86090c2317864954d9ebe8bb69971eea5a83c96"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_sky.png.meta",
+    "bytes": 995,
+    "sha256": "996f01feb611eddb928b95f633d43f14347c82e0beca7fd38c43932abbd176a1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_tide.png.meta",
+    "bytes": 996,
+    "sha256": "79314a01dd1b1ec9f234d60cfbdc8ab9eb02bc80645c13335af172f3cdeefe76"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_starlight.png.meta",
+    "bytes": 998,
+    "sha256": "988792b54d897a30728ff8fbd7f63c6f5c133b873bd0699492f82276653a4097"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_tidebottle.png.meta",
+    "bytes": 999,
+    "sha256": "39b4109d6ff5cacbbf1277d885a796903791829ec6ce7b52882121cc38a3fd62"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_windbell.png.meta",
+    "bytes": 997,
+    "sha256": "7c48015ebae30af431d2c19596597c6e31dd2e4d7139e7ba65fa210495ff2e8d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/icon_charm.png.meta",
+    "bytes": 994,
+    "sha256": "30e36fd312c2de0507975eaa5ec517bf92101623108535b79e357e6f4fbdf526"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/icon_lock.png.meta",
+    "bytes": 993,
+    "sha256": "96757bc27ed520f9c81605c8e332bb84d3d2f261542c2bf78a87867aff11b0e8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_meadow.png.meta",
+    "bytes": 997,
+    "sha256": "5426c9726df954d27cd3e890c16fbaa44baa3fea96dd0b96cbdb452b46cdf3ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_sky.png.meta",
+    "bytes": 994,
+    "sha256": "e75481b56e36cfaf8e8661f0611bb78e3b512500eb6f3d004b2b4975547c8507"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_tide.png.meta",
+    "bytes": 995,
+    "sha256": "9b7072a85f67f385011153203f9ff43bfb46c8afa9b79cdca18ccbbd9cdc788d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/sign_plank_3s.png.meta",
+    "bytes": 997,
+    "sha256": "800d6956e0612838d1ca2b724602c2b544dbe4fc9011a3326f1cba7d10541522"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_bag.png.meta",
+    "bytes": 993,
+    "sha256": "e5a127362ace59e22c40ebfab289b1abfd1973178b212473c19105a370a37ab5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_journey.png.meta",
+    "bytes": 997,
+    "sha256": "25d0b55759eb95416ea241e29e086290e872f882f93b5ec66567a90679e4535f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_rest.png.meta",
+    "bytes": 994,
+    "sha256": "1035bc4eca56793f4106364acd5a75841e26e0625f866d1c42f588dc7b98577c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_review.png.meta",
+    "bytes": 996,
+    "sha256": "f0f4ea55b9acda02ff5024af684b8c83883f7d10abe08ad48a1e0778073f1257"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_starlight.png.meta",
+    "bytes": 999,
+    "sha256": "f53ef124d576381f6b38a6835e48b80febe0f6868d5d90009b537c3301c3df72"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_unsaved.png.meta",
+    "bytes": 997,
+    "sha256": "255886bec45c6e3a8d570099cab01bbc2016aeb33872306ed99f24cae141b187"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3.meta",
+    "bytes": 169,
+    "sha256": "849cfed6f3c3c23ecde30a869cff19ff5703248353cc021d166e1cbe4008cb00"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/about_gamename.png.meta",
+    "bytes": 998,
+    "sha256": "7eb62fb53c17d9a2195092515af266a26b3be7724dcb304d936b46425ec3764c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/cabin_glow.png.meta",
+    "bytes": 994,
+    "sha256": "91d6dcabbd17942c951c6fe7dc7bb6a1b0cde1e271dbc1e3f6afc0e0dda496f4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/title_about.png.meta",
+    "bytes": 995,
+    "sha256": "f150abedc13d80e8a42656b6e80034ee39ab46a4d89c6460149ba9bffef5c2af"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island.meta",
     "bytes": 408,
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/board.meta",
+    "bytes": 169,
+    "sha256": "8596908941dfcf05aa9574f2e7eb1cb9e65e259c58c6343e3cc9cf245917417b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg.meta",
+    "bytes": 1000,
+    "sha256": "f2523cb846e8e81405754d1440b28eff8827236b8144ffda2fa89582e9aaa34a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character.meta",
@@ -330,21 +790,6 @@
     "sha256": "67f96a16ef6f8770af087e2b7149688a94174982457821c7bedf19705d07a1c3"
   },
   {
-    "path": "creator-build-project/assets/resources/result-chest.meta",
-    "bytes": 169,
-    "sha256": "9c6fdac7fa9393a6618a1f988c62326cdc74fff56fddab3d9eea775413462fec"
-  },
-  {
-    "path": "creator-build-project/assets/resources/result-chest/chest-lit.effect",
-    "bytes": 2469,
-    "sha256": "b2c958ad391fc7c699b19bb30b7ea83b646545c112b616cd065975f06485581e"
-  },
-  {
-    "path": "creator-build-project/assets/resources/result-chest/chest-lit.effect.meta",
-    "bytes": 181,
-    "sha256": "2ea108650afacad13428781012f18c99c3000b31671a30456a25f9ddfe9aabf2"
-  },
-  {
     "path": "creator-build-project/assets/resources/ui.meta",
     "bytes": 169,
     "sha256": "ae49239f34dbcf95be59dbc923efbb35d3d09af680c12d755da4743d19126ea6"
@@ -368,16 +813,6 @@
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png.meta",
     "bytes": 2398,
     "sha256": "268276a7f025dc0104d9b15b38c2c168fab659158712e467e7848f086d5c1b05"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ui/loading-reference.jpg.meta",
-    "bytes": 988,
-    "sha256": "f9e59d9143760fe54c4fd87bbdb911b565e350a1b3545598d6b7db79285763e8"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ui/pieces.png.meta",
-    "bytes": 976,
-    "sha256": "66c115ab389fbd70069615a90e83d1856f19c3d736d96eab74259ca30e52799c"
   },
   {
     "path": "creator-build-project/assets/resources/ui/tools-original.png.meta",
@@ -445,6 +880,16 @@
     "sha256": "8496bb27f35ac5c076bb63bf963c5ab78ae4c8900979a5ecaa747925ed6cdc57"
   },
   {
+    "path": "creator-build-project/assets/scripts/BuildInfo.ts",
+    "bytes": 65,
+    "sha256": "8e99bf81590f4903af0e7ea09be1613c3b676bf30ce5bfc0823271b0a8628b75"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/BuildInfo.ts.meta",
+    "bytes": 171,
+    "sha256": "3d421047704f06daf95db1ef9459fcf3ad7812782a613fca4d8ef1d90444045d"
+  },
+  {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
     "bytes": 33883,
     "sha256": "a6b4ad7c2fcac39e3b77a7a48b04117f48526259e1dfa758f2a8727ed54699db"
@@ -476,8 +921,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 53521,
-    "sha256": "91f45984efb11c23435a01793d42f57fee01955561a626208d04d6860b13dccf"
+    "bytes": 61176,
+    "sha256": "61a48f6a6c1f587ef4ac3daa3c10b4b6d91a44dd5fc64f9ad4864c6ec11f2994"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -496,8 +941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/NativeBoardUI.ts",
-    "bytes": 17554,
-    "sha256": "0544ace6b7b2f127cb2bfd8c7ad3d9d85373414d8b7d381489af1554d33ee544"
+    "bytes": 17424,
+    "sha256": "7fc768d043248543a9febe5307ee389209f675d5afc19cf4ab71910fad4fcdc0"
   },
   {
     "path": "creator-build-project/assets/scripts/NativeBoardUI.ts.meta",
@@ -505,64 +950,14 @@
     "sha256": "340f592a62ccf4741866b5052b822d307d1fa353cb66e4ef51f143d2f0c654d4"
   },
   {
-    "path": "creator-build-project/assets/scripts/OriginalResultChestPainter.ts",
-    "bytes": 6058,
-    "sha256": "f0a44f01927d75dc4353a9b3bfb289dbc035c7a7995748d047c20bea78b55d45"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/OriginalResultChestPainter.ts.meta",
-    "bytes": 171,
-    "sha256": "52845172a9e11c8e184f8e3bac02391febffceb1e4c5a2e9b3fb9259b31d2fbf"
-  },
-  {
     "path": "creator-build-project/assets/scripts/ResultChest3D.ts",
-    "bytes": 11966,
-    "sha256": "e1eac542409a0a92a6f83605e08fb43cec74297ed2b14b1b5e61ddf0aa678827"
+    "bytes": 7244,
+    "sha256": "3b0f8f437ee0b4575a78c485e8a3dc711763052a6eab5f3ac0b568164f5814b9"
   },
   {
     "path": "creator-build-project/assets/scripts/ResultChest3D.ts.meta",
     "bytes": 171,
     "sha256": "f1f6224484e4a5a2da903b76ee181a30c8b48ca5b79ed6b8b4f7523e95147115"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestGeometry.ts",
-    "bytes": 430541,
-    "sha256": "642e5df8768288e709ed0dfa62c56eb6b993e7a66e4fc26f07cfd93d7c960091"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestGeometry.ts.meta",
-    "bytes": 171,
-    "sha256": "77153cec04e03522594761093ec8939ec5313563395f9b68264f0ad64d680d57"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestResource.ts",
-    "bytes": 4896,
-    "sha256": "657d4e97769285d5fd72874f616fc70c86c785dfac38f2be330af027b298b6ac"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestResource.ts.meta",
-    "bytes": 171,
-    "sha256": "bf52f56c293b1fd480111b572e2bfd988f5421268f23589415a5856eae943913"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestView.ts",
-    "bytes": 2792,
-    "sha256": "584cf948379eca1c811a4704a6484e581986276e91d285db48dbb2f46ad497b5"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultChestView.ts.meta",
-    "bytes": 171,
-    "sha256": "2d5609adfb107a6351b25c868f5e70e7790f7a044e5a570c64c274a048a06d13"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultLayout.ts",
-    "bytes": 2299,
-    "sha256": "bd590c913322e5ef31b420a42e34406b34a9412e2286f56b5a5921c1a6582465"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/ResultLayout.ts.meta",
-    "bytes": 171,
-    "sha256": "8a7a0e36d5f32b2b7fdcb63802617b0885dd69f7f28f6de0b3753deb389170a1"
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
@@ -606,8 +1001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 58818,
-    "sha256": "49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401"
+    "bytes": 58318,
+    "sha256": "87b7d194c120e83a0aedde8353579f3c0311cadbfdb566725a45bfd42bf0f6fb"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -661,8 +1056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 57185,
-    "sha256": "b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670"
+    "bytes": 57975,
+    "sha256": "117926bfbb90a3757112aaff79e6f247643ae85439ea6dd6bfaae7033ad3d0ed"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -776,8 +1171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js",
-    "bytes": 10515,
-    "sha256": "734d78bf1f36dffe27edc88abfc2fd2efde34674603536d5994e4f9ca1c2c9ea"
+    "bytes": 11070,
+    "sha256": "071b550b279ad9702cda2db223138ddffa1e444ba2ddf5456239a11d707f7b55"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js.meta",
@@ -856,8 +1251,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.d.ts",
-    "bytes": 3477,
-    "sha256": "1d3d7f9560dc06cceb6ab5f0be11c35534f12458943955ab6462854318c4712b"
+    "bytes": 3522,
+    "sha256": "1df7aec2b0d3a4355bb85e5de4eeac484a0b3c79a5e920c432766fbd69f78f93"
   },
   {
     "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.d.ts.meta",
@@ -866,8 +1261,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js",
-    "bytes": 28762,
-    "sha256": "db49e3de4d7693574e48ea766e591997c5a3565ddd765f3c9c88ac725535e5b3"
+    "bytes": 28818,
+    "sha256": "941dff664ec8091e9b191a558721ceaf0b35c46315b83f5389372a7a388a1c5f"
   },
   {
     "path": "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js.meta",
@@ -1225,6 +1620,36 @@
     "sha256": "ee5b7488b5fb25cf3f4e0ac1d8d7e10ab019b4ac2e0c3bd7ad1fd5d68d312cab"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
+    "bytes": 5697,
+    "sha256": "d066e8bdd04dc538618be0007169f15b4abcd481131d876ec44ac45b9b22e887"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
+    "bytes": 171,
+    "sha256": "61ea7cb7d08677bec4b6ba8f06f74af6a8d1c19c9e02a08bd2c1ea9f4db4a6ea"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts",
+    "bytes": 6498,
+    "sha256": "014b2058f81215022ad346357ecbae36bcfff42610a0b50c07e467a5507d1a18"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/BoardLayout.ts.meta",
+    "bytes": 171,
+    "sha256": "fc6cb28b59c72faa64ee48765d3d450db54d36e3fc856d8a2e6e0bb2fc2ef758"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
+    "bytes": 10839,
+    "sha256": "d62d4372e47bf8fcce2bd81b2fb343d8d12be7c56b43a32e7ffa295283175e48"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
+    "bytes": 171,
+    "sha256": "a04d52b4986ab9d96d0fd180afa558d592250b12b93774f724a22b69864103ab"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/CheerText.ts",
     "bytes": 8427,
     "sha256": "4ff08b190ef526e16dd44fce1f6b016815b6671683b9c5524efd4b34f95d8cc7"
@@ -1245,6 +1670,26 @@
     "sha256": "74d5918288b0e533e719e25fe614ea7002436f5e81c953228d47c0d3612e44d2"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
+    "bytes": 18029,
+    "sha256": "f28c583e6be9cb881fb323b82a6ba4a0ad45822568e317612414a772a2d83eae"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
+    "bytes": 171,
+    "sha256": "f4970d12d81bca43418935f1ba0baf7a0c50118dd077ea7570933bd1e4afe3cd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts",
+    "bytes": 8199,
+    "sha256": "1b31747876bcf55e903ad709a12a5c6812fde81f2e37a745e0b62fd09b85400a"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/IslandPanels.ts.meta",
+    "bytes": 171,
+    "sha256": "e223957e3b5e494aaf6493524a39c4d507d7cd9b15f8f76b50fe14b52dc3b33a"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/JourneyNavigationSkin.ts",
     "bytes": 2186,
     "sha256": "050ab501333d26208689678d71b1d3f634cd0fefa45c23e9fe73df366c1857c4"
@@ -1255,9 +1700,29 @@
     "sha256": "da06ba2e532a1fc81969b1365e509b2fd3907ecdfc3f882767d4dce286912e32"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/NightTint.ts",
+    "bytes": 3192,
+    "sha256": "6bd269e64681659f5af75f9da37e18da98a1486bce97c4cb2d5d212be17c21a0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/NightTint.ts.meta",
+    "bytes": 171,
+    "sha256": "adfaf6afdb2521fc392ec5dcef488ff732d7cda484c477e5d841ad6465b0b28d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
+    "bytes": 22016,
+    "sha256": "d6dcc9bdca4edde45ffe7313fcf0c058e313ff9ab3e07aea22ee575cb60b2d1f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",
+    "bytes": 171,
+    "sha256": "8e779e0160bd39b1c41a28cb111be32b1d8e6f554e49788e80eba9022bf977b3"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts",
-    "bytes": 8203,
-    "sha256": "11320b14ad3887f9ccc0ad486f4b3c692175e1a66f805dc2a2e3cff15c121c1e"
+    "bytes": 8846,
+    "sha256": "d45ba599ebfd6889273a8235d8e846a82309c27553523600f469249b1fb1eb96"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts.meta",
@@ -1275,14 +1740,14 @@
     "sha256": "2fba1d33bad96f87412ce3b8129a91075492cb793d110a2c314061d06ec0b6c5"
   },
   {
-    "path": "creator-build-project/assets/scripts/ui/TactileToolButton.ts",
-    "bytes": 6037,
-    "sha256": "6bf5a527ea60d7c59f7144ac6a54df1a67ee9259bcf5f205263d78e45178df75"
+    "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts",
+    "bytes": 1573,
+    "sha256": "67b3eca93cc9fa3f54fd735a3a35f13950ec95037ff4c3004d7a27d943081f43"
   },
   {
-    "path": "creator-build-project/assets/scripts/ui/TactileToolButton.ts.meta",
+    "path": "creator-build-project/assets/scripts/ui/UiPrefs.ts.meta",
     "bytes": 171,
-    "sha256": "5854315bbc4950636ac5e2e4e65499732351e6d0f36111db5ccacc3c10bcc07a"
+    "sha256": "e9744a891f443e5c8289fb29c748d98407bd165d619c619a72f031b7af7e940f"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/WarmButtonGeometry.ts",
@@ -1391,8 +1856,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 46727,
-    "sha256": "b96d4d93e5d2db8545ec8efa64bf218d86994bdef43e3e2106fc5a90fb65d735"
+    "bytes": 47553,
+    "sha256": "ddcbdf00107cf19c5fd6cf4114f253e02959154921e8803352f84533fed71e05"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1425,9 +1890,29 @@
     "sha256": "469792b77b6d1079d688e63146eb84659a74bf7a86b39c2ce4716a043211a213"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r2/CabinHint.ts",
+    "bytes": 4492,
+    "sha256": "3d03d9c7ab31ec5c523516285e597db581fe917f57887ac4822f55e845cfc28f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/CabinHint.ts.meta",
+    "bytes": 171,
+    "sha256": "6afd89112735e7a686893a50705fb827ee8feca580dd03cedf08b01939988ef2"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts",
+    "bytes": 4778,
+    "sha256": "1b14cd347a567cd5099ef12ed841f7183271ff577ce2eebffa21644ee04a40af"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts.meta",
+    "bytes": 171,
+    "sha256": "5919c645be7c0c8714a01cb01bf3343fa76ce5fc022381c2310e1503f3a52d77"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
-    "bytes": 6012,
-    "sha256": "a9e7de32d8f8c5857ebcaa82128161137e4db7a83e209c0fd932809378f7cd99"
+    "bytes": 6509,
+    "sha256": "8adc02a4fdd9330d5c3a691719a2fb7f421df0d98fa25f016750819670793877"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
@@ -1436,8 +1921,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
-    "bytes": 13773,
-    "sha256": "893ce0c9f357c99fc7cffcc999b7eb4dc02677bb568b14665f7cc334caa523ed"
+    "bytes": 9871,
+    "sha256": "df38095600e3ed4a9a9e6688dc25c7ac6a21d78a4fee6255270b1711f51a8ca1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
@@ -1536,8 +2021,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedTools.ts",
-    "bytes": 1517,
-    "sha256": "895ca05641382bb85c7a8ea0a4504e90422bc6c56d8836b6ea69b2c11fe1a2ec"
+    "bytes": 1414,
+    "sha256": "c5390cdeb7d8286a336da2e71fd5c64913a682181176624d4144075b26cd87ae"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedTools.ts.meta",
@@ -1553,26 +2038,6 @@
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",
     "bytes": 171,
     "sha256": "cbc26c3604ed56c530f1297ce3e379f7645a92622abe4cd3a17e0dba0f5363b0"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/world-r2/OriginalLevelBackground.ts",
-    "bytes": 18592,
-    "sha256": "934c4298e82267357e3798abb67c14e4a6378094ea0112ef685f344768a5b6b0"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/world-r2/OriginalLevelBackground.ts.meta",
-    "bytes": 171,
-    "sha256": "2e175c0c6399c74c864e847b50de33b00794b19501c2b5076940f5275e1fd02d"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/world-r2/OriginalLevelEnvironment.ts",
-    "bytes": 22913,
-    "sha256": "072c6378e63f9942a343e3a7232b778fb8f558a9e6d07ecd774a788c58679a85"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/world-r2/OriginalLevelEnvironment.ts.meta",
-    "bytes": 171,
-    "sha256": "afdb2b85990f2a61a2ad49319673899669c5e20963b05cc9b80c71daef87c974"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/PersistentMainlinePort.ts",
@@ -1606,8 +2071,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts",
-    "bytes": 3638,
-    "sha256": "c3f137829093e4fe9d65039c2caad264f8cfb1019b35020d17b6dc388131ac84"
+    "bytes": 3647,
+    "sha256": "3f09fddbc65b9f76e8be638e87cf2f820af451712557031e5bd1ab2b25f85480"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts.meta",
@@ -1626,8 +2091,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
-    "bytes": 12046,
-    "sha256": "ea951b0ebdfa099a6ba3a9adbc6abe658f59bc00df7dac187dfab901baf531df"
+    "bytes": 12469,
+    "sha256": "8d309347756bafb20c3a408e3a02b3d98e675d3e40026a10b67e80e8dabf3e70"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta",
@@ -1716,8 +2181,8 @@
   },
   {
     "path": "tools/check_wechat_build.py",
-    "bytes": 1226,
-    "sha256": "3e74ac49d392c63a740884e2fc9466022eb26623db4b66cc07fc1f9411d6970c"
+    "bytes": 2000,
+    "sha256": "facb98c8e8555eebcd1c0b0b1cc5498c4a543fa00b6c3a16fbba0635cc7dd468"
   },
   {
     "path": "tools/compile_r4_compat.cjs",

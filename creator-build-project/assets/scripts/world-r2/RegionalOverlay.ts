@@ -1,11 +1,11 @@
 import { Node, Label, Color, UITransform, Layers, Graphics, Sprite } from 'cc';
-/** Presentation only: progress comes from the existing regional snapshot. Frames are borrowed
- * from the board atlas, so no new textures/frames or independent resource lifetime is introduced. */
+/** Presentation only: progress comes from the existing regional snapshot. Frames are borrowed from the board art.
+ * Plain cells keep the board's 1.21-cell piece size; fixed regional cells shrink the piece above their tag. */
 export function paintRegionalOverlay(snapshot:any,cells:Node[]):void {
  const pieces=snapshot.active?.regionPieces||[],region=snapshot.active?.region,current=pieces.find((p:any)=>!p.done),settled=['run.ready','run.paused'].includes(snapshot.state)?snapshot.active?.guide:null;
  for(let index=0;index<cells.length;index++){
   const cell=cells[index],size=cell.getComponent(UITransform)!.width,art=cell.getChildByName('ProjectPieceArt')!,p=pieces.find((p:any)=>p.index===index);
-  art.setPosition(0,p?size*.13:0,0);art.getComponent(UITransform)!.setContentSize(size*(p ? .66 : .82),size*(p ? .66 : .82));
+  if(p){art.setPosition(0,size*.13,0);art.getComponent(UITransform)!.setContentSize(size*.74,size*.74);}
   let tag=cell.getChildByName('RegionalFixedCell');
   if(!tag){tag=new Node('RegionalFixedCell');tag.layer=Layers.Enum.UI_2D;cell.addChild(tag);tag.addComponent(UITransform);tag.addComponent(Graphics);
    const text=new Node('MechanismText');text.layer=tag.layer;tag.addChild(text);text.addComponent(UITransform);const l=text.addComponent(Label);l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;

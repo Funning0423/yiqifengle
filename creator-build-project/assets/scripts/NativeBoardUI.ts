@@ -1,4 +1,5 @@
-import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, resources, ImageAsset, Texture2D, SpriteFrame, Sprite, Rect, director } from 'cc';
+import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, SpriteFrame, Sprite, director } from 'cc';
+import { BoardArt, PIECE_KEYS } from './ui/BoardArt';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
 const { ccclass } = _decorator;
@@ -41,7 +42,7 @@ export class NativeBoardUI extends Component {
     this.status=this.text(this.root,'',0,0,12,250);
     this.stagePanel=this.box('NativeStageSelection',this.root,0,0,1,1);this.resultPanel=this.box('NativeResult',this.root,0,0,1,1);
     this.layout();this.bind();game.on(Game.EVENT_HIDE,this.hide);game.on(Game.EVENT_SHOW,this.show);view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
-    resources.load('ui/pieces',ImageAsset,(error,asset)=>{if(error){console.error('Project piece atlas failed',error);return;}const texture=new Texture2D();texture.image=asset;for(let i=0;i<6;i++){const frame=new SpriteFrame();frame.texture=texture;frame.rect=new Rect(i%3*320,Math.floor(i/3)*320,320,320);this.frames.push(frame);}this.spriteReady=true;this.paint();});
+    const art=BoardArt.shared(),ready=()=>{if(!art.loaded('board')||this.spriteReady)return;this.frames=PIECE_KEYS.map(k=>art.frame(k)!);this.spriteReady=true;this.paint();};art.onChange(ready);void art.load('board');ready();
     (globalThis as any).__nativeBoard={snapshot:()=>this.controller.snapshot(),storage:()=>Array.from(this.values),coldReload:()=>this.coldReload(),hide:()=>this.hide(),show:()=>this.show(),fixture:()=>this.fixture,layout:()=>this.measureLayout(),scope:'Native Cocos UI; existing project art; disposable memory'};
   }
   private safeInsets(w:number,h:number){

@@ -1,103 +1,83 @@
-import { Node, UITransform, Sprite, SpriteFrame, RenderTexture, Camera, Color, Vec3, Vec4, Mesh, MeshRenderer, Material, EffectAsset, resources, utils, director, Director, isValid } from 'cc';
-import { RESULT_CHEST_GEOMETRY as DATA } from './ResultChestGeometry';
-import type { ResultChestResource, ResultChestLease } from './ResultChestResource';
-
-const SIZE=112,LAYER=1<<19,PIXELS=256,ORIGIN=new Vec3(10000,10000,10000);
-function hull(points:number[][]){
-  const p=points.sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross=(a:number[],b:number[],c:number[])=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
-  const lower:number[][]=[],upper:number[][]=[];
-  for(const v of p){while(lower.length>1&&cross(lower[lower.length-2],lower[lower.length-1],v)<=0)lower.pop();lower.push(v);}
-  for(let i=p.length-1;i>=0;i--){const v=p[i];while(upper.length>1&&cross(upper[upper.length-2],upper[upper.length-1],v)<=0)upper.pop();upper.push(v);}
-  lower.pop();upper.pop();return lower.concat(upper);
+import { Camera, Color, Layers, Material, MeshRenderer, Node, Prefab, Quat, RenderTexture, SphereLight, Sprite, SpriteFrame, UITransform, Vec3, assetManager, director, instantiate, isValid } from 'cc';
+import { BoardArt } from './ui/BoardArt';
+import { ISLAND_PROPS } from './world-r2/IslandPropsLayout';
+/** Reward chest (c-popups/glb/result_chest.glb, bundle board_art/chest): rendered off-screen into a RenderTexture shown by
+ *  a UI Sprite. The GLB carries M_env_palette_piece without textures, so every renderer is rebound to the island's shared
+ *  M_env_palette material (same palette UVs). The lid (child `chest_lid`, origin on the hinge) follows the GLB's
+ *  `chest_open` keys: 0.5 s, 0 → −126° → −114° → −118°, ending open so the inside is visible from the 40° camera. */
+export const CHEST_LAYER = 1 << 19;
+export const CHEST_PIXELS = 512;
+const ORIGIN = new Vec3(10000, 10000, 10000);
+/** chest_open rotation keys (degrees about +X), sampled every 1/30 s from the GLB. */
+export const LID_KEYS: readonly number[] = [0, -4.32, -15.9, -32.67, -52.54, -73.46, -93.33, -110.1, -121.68, -126, -122.89, -117.11, -114, -115.04, -116.96, -118];
+export const OPEN_SECONDS = 0.5;
+export function lidAngleAt(t: number): number {
+  const x = Math.max(0, Math.min(OPEN_SECONDS, t)) * 30, i = Math.min(LID_KEYS.length - 2, Math.floor(x)), f = x - i;
+  return LID_KEYS[i] + (LID_KEYS[i + 1] - LID_KEYS[i]) * f;
 }
-/** One analytic union fit for every angle in the complete 0..105 degree animation.
- * Extrema of A*cos(angle)+B*sin(angle) include both endpoints and all critical angles.
- * The camera never zooms/recentres while the lid is moving.
- */
-const FULL_ANIMATION_FRAME=(()=>{
-  const distance=Math.hypot(4.5,2.9,6),forward=[4.5/distance,2.9/distance,6/distance],right=[.8,0,-.6],up=[-forward[1]*.6,forward[2]*.8+forward[0]*.6,-forward[1]*.8],lo=DATA.openDegrees*Math.PI/180;
-  const range=(axis:number[])=>{let min=Infinity,max=-Infinity;
-    for(const g of DATA.boundsMeshes)for(let i=0;i<g.positions.length;i+=3){const x=g.positions[i],y=g.positions[i+1],z=g.positions[i+2];
-      if(g.part==='body'){const v=x*axis[0]+y*axis[1]+z*axis[2];min=Math.min(min,v);max=Math.max(max,v);continue;}
-      const fixed=x*axis[0]+DATA.hinge[1]*axis[1]+DATA.hinge[2]*axis[2],A=y*axis[1]+z*axis[2],B=y*axis[2]-z*axis[1],phase=Math.atan2(B,A),angles=[lo,0];
-      for(let k=-2;k<=2;k++){const a=phase+k*Math.PI;if(a>lo&&a<0)angles.push(a);}for(const a of angles){const v=fixed+A*Math.cos(a)+B*Math.sin(a);min=Math.min(min,v);max=Math.max(max,v);}
-    }return {min,max};};
-  const x=range(right),y=range(up),minX=x.min,maxX=x.max,minY=y.min,maxY=y.max,cx=(minX+maxX)/2,cy=(minY+maxY)/2,focus=right.map((v,i)=>v*cx+up[i]*cy);
-  return {focus,position:[focus[0]+4.5,focus[1]+2.9,focus[2]+6],halfHeight:Math.max(maxX-minX,maxY-minY)*.56,bounds:{minX,maxX,minY,maxY}};
-})();
-export function resultChestFrame(_open:number){return FULL_ANIMATION_FRAME;}
-
-/** Actual light-direction projection of the opaque mesh silhouette onto the ground, with a soft edge.
- * No shared scene shadow settings/lights are touched. This is a projected shadow, not shadow-map self-shadowing.
- */
-export function resultChestShadow(open:number){
-  const a=DATA.openDegrees*Math.PI/180*open,c=Math.cos(a),s=Math.sin(a),points:number[][]=[];
-  for(const g of DATA.boundsMeshes)for(let i=0;i<g.positions.length;i+=3){let x=g.positions[i],y=g.positions[i+1],z=g.positions[i+2];if(g.part==='lid'){const Y=y*c-z*s;z=y*s+z*c+DATA.hinge[2];y=Y+DATA.hinge[1];}points.push([x+y*.55/.82,z-y*.50/.82]);}
-  let ring=hull(points);
-  // Round the projected silhouette into a penumbra instead of displaying a rectangular floor card.
-  for(let pass=0;pass<2;pass++)ring=ring.flatMap((p,i)=>{const q=ring[(i+1)%ring.length];return [[p[0]*.75+q[0]*.25,p[1]*.75+q[1]*.25],[p[0]*.25+q[0]*.75,p[1]*.25+q[1]*.75]];});
-  const cx=ring.reduce((v,p)=>v+p[0],0)/ring.length,cz=ring.reduce((v,p)=>v+p[1],0)/ring.length;
-  const positions=[cx,.002,cz],normals=[0,1,0],colors=[1,1,1,.70],indices:number[]=[];
-  const rings=[[.72,.60],[.88,.40],[1.0,.15],[1.14,0]];
-  for(const [scale,alpha] of rings)for(const p of ring){positions.push(cx+(p[0]-cx)*scale,.002,cz+(p[1]-cz)*scale);normals.push(0,1,0);colors.push(1,1,1,alpha);}
-  const n=ring.length;for(let i=0;i<n;i++){const j=(i+1)%n;indices.push(0,j+1,i+1);for(let r=0;r<rings.length-1;r++){const a=1+r*n+i,b=1+r*n+j,c=1+(r+1)*n+j,d=1+(r+1)*n+i;indices.push(a,b,c,a,c,d);}}
-
-  return {positions,normals,colors,indices};
+/** Camera pitched 40° down at the chest; framing covers the whole lid sweep (highest point ≈ y 2.0 at −93°). */
+export const CHEST_CAMERA = { pitchDeg: 40, fovDeg: 30, target: [0, 0.9, -0.35] as const, distance: 5.9 };
+export function chestCameraPosition(): number[] {
+  const p = CHEST_CAMERA.pitchDeg * Math.PI / 180, t = CHEST_CAMERA.target, d = CHEST_CAMERA.distance;
+  return [t[0], t[1] + d * Math.sin(p), t[2] + d * Math.cos(p)];
 }
-
-export const RESULT_CHEST_3D_RESOURCE:ResultChestResource={
-  id:'woodland-thick-mesh-chest-v1',kind:'model-3d',source:'ResultChestGeometry.ts + chest-lit.effect; original CommonR2 woodland palette reference',
-  create(host:Node):ResultChestLease{
-    let rig:Node|null=null,surface:Node|null=null,lid:Node|null=null,camera:Camera|null=null,target:RenderTexture|null=null,frame:SpriteFrame|null=null,effect:EffectAsset|null=null,shadowRenderer:MeshRenderer|null=null,shadowMesh:Mesh|null=null;
-    const meshes:Mesh[]=[],materials:Material[]=[];let disposed=false,visible=true,queued=false,current=0,goal=0,initialized=false,elapsed=0,start=0;
-    const status={state:'loading',error:null as string|null,triangles:DATA.meshes.reduce((n,g)=>n+g.indices.length/3,0),drawGroups:DATA.meshes.length+1,pixels:PIXELS,open:0};
-    const afterDraw=()=>{queued=false;if(disposed)return;if(!isValid(host,true)||!isValid(surface,true)||!isValid(rig,true)||!isValid(camera,true)||!isValid(camera.node,true)){dispose();return;}camera.enabled=false;if(!visible||status.state!=='awaiting-first-frame'||!target)return;try{const row=target.readPixels(0,PIXELS/2,PIXELS,1);if(!row||row.length<PIXELS*4)throw Error('Result chest target returned an incomplete pixel row');let opaque=0;for(let i=3;i<row.length;i+=4)if(row[i]>32)opaque++;if(opaque<16)throw Error('Result chest target is empty after its first draw');status.state='ready';}catch(e){const message=String(e);dispose();status.state='error';status.error=message;}};
-    const dirty=()=>{if(!camera||disposed||!visible)return;if(!isValid(host,true)||!isValid(surface,true)||!isValid(rig,true)||!isValid(camera,true)||!isValid(camera.node,true)){dispose();return;}camera.enabled=true;if(!queued){queued=true;director.once(Director.EVENT_AFTER_DRAW,afterDraw);}};
-    const dispose=()=>{
-      if(disposed)return;disposed=true;director.off(Director.EVENT_AFTER_DRAW,afterDraw);queued=false;
-      // UI descendants or the scene-owned rig may already be destructed before this lease.
-      if(isValid(camera,true)&&isValid(camera.node,true)){camera.enabled=false;camera.targetTexture=null;}camera=null;
-      if(surface&&isValid(surface,true)){const s=surface.getComponent(Sprite);if(isValid(s,true))s.spriteFrame=null;surface.removeFromParent();surface.destroy();}surface=null;
-      if(rig&&isValid(rig,true)){rig.active=false;rig.removeFromParent();rig.destroy();}rig=null;lid=null;shadowRenderer=null;
-      frame?.destroy();frame=null;target?.destroy();target=null;shadowMesh?.destroy();shadowMesh=null;
-      for(const mesh of meshes)mesh.destroy();meshes.length=0;for(const mat of materials)mat.destroy();materials.length=0;
-      effect?.decRef();effect=null;status.state='disposed';
-    };
-    const apply=()=>{
-      if(disposed||!lid||!shadowRenderer)return;
-      if(!isValid(host,true)||!isValid(surface,true)||!isValid(rig,true)||!isValid(lid,true)||!isValid(shadowRenderer,true)||!isValid(shadowRenderer.node,true)||!isValid(camera,true)||!isValid(camera.node,true)){dispose();return;}
-      try{lid.setRotationFromEuler(DATA.openDegrees*current,0,0);status.open=current;if(camera){const f=resultChestFrame(current);camera.orthoHeight=f.halfHeight;camera.node.setPosition(f.position[0],f.position[1],f.position[2]);camera.node.lookAt(new Vec3(ORIGIN.x+f.focus[0],ORIGIN.y+f.focus[1],ORIGIN.z+f.focus[2]));}
-      const next=utils.createMesh(resultChestShadow(current),undefined,{calculateBounds:true});
-      // Publish ownership only after binding succeeds; the old mesh stays owned on setter failure.
-      try{shadowRenderer.mesh=next;}catch(error){next.destroy();throw error;}
-      const old=shadowMesh;shadowMesh=next;old?.destroy();dirty();
-      }catch(error){const message=String(error);dispose();status.state='error';status.error=message;}
-    };
-    try{
-      const scene=director.getScene();if(!scene)throw Error('Result chest requires an active scene');
-      // Fail closed on a layer collision instead of silently changing existing camera masks.
-      const checkLayer=()=>{for(const cam of scene.getComponentsInChildren(Camera))if((cam.visibility&LAYER)!==0)throw Error('Result chest layer 19 is visible to an existing camera');};checkLayer();
-      surface=new Node('ResultChest3DSurface');surface.layer=host.layer;host.addChild(surface);surface.addComponent(UITransform).setContentSize(SIZE,SIZE);const sprite=surface.addComponent(Sprite);sprite.sizeMode=Sprite.SizeMode.CUSTOM;
-      resources.load('result-chest/chest-lit',EffectAsset,(error,asset)=>{
-        if(disposed)return;
-        if(!isValid(host,true)||!isValid(surface,true)||!isValid(sprite,true)||!isValid(scene,true)){dispose();return;}
-        if(error||!asset){status.state='error';status.error=String(error||'Missing result chest effect');return;}
-        try{
-          checkLayer();effect=asset;effect.addRef();rig=new Node('IsolatedResultChest3D');rig.layer=LAYER;scene.addChild(rig);rig.setPosition(ORIGIN);rig.active=visible;
-          lid=new Node('IndependentLidHinge');lid.layer=LAYER;rig.addChild(lid);lid.setPosition(DATA.hinge[0],DATA.hinge[1],DATA.hinge[2]);
-          const byMaterial=new Map<string,Material>();for(const [name,properties]of Object.entries(DATA.materials)){const mat=new Material();materials.push(mat);mat.initialize({effectAsset:effect});mat.setProperty('baseColor',new Color(Math.round(properties.color[0]*255),Math.round(properties.color[1]*255),Math.round(properties.color[2]*255),255));mat.setProperty('surfaceParams',new Vec4(properties.wood,properties.metal,0,0));byMaterial.set(name,mat);}
-          for(const g of DATA.meshes){const n=new Node(g.part+'_'+g.material);n.layer=LAYER;(g.part==='lid'?lid:rig).addChild(n);const mesh=utils.createMesh({positions:g.positions,normals:g.normals,indices:g.indices},undefined,{calculateBounds:true});meshes.push(mesh);const renderer=n.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setMaterial(byMaterial.get(g.material)!,0);}
-          const sn=new Node('ProjectedContactShadow');sn.layer=LAYER;rig.addChild(sn);shadowRenderer=sn.addComponent(MeshRenderer);const sm=new Material();materials.push(sm);sm.initialize({effectAsset:effect,technique:1,defines:{USE_SHADOW:true}});shadowRenderer.setMaterial(sm,0);
-          const cn=new Node('ResultChestOnlyCamera');cn.layer=LAYER;rig.addChild(cn);cn.setPosition(4.5,4.2,6);cn.lookAt(new Vec3(ORIGIN.x,ORIGIN.y+1.30,ORIGIN.z));camera=cn.addComponent(Camera);camera.enabled=false;camera.projection=Camera.ProjectionType.ORTHO;camera.orthoHeight=1.85;camera.near=.1;camera.far=30;camera.priority=45;camera.visibility=LAYER;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(0,0,0,0);
-          target=new RenderTexture();target.reset({width:PIXELS,height:PIXELS});camera.targetTexture=target;frame=new SpriteFrame();frame.texture=target;sprite.spriteFrame=frame;status.state='awaiting-first-frame';apply();
-        }catch(e){const message=String(e);dispose();status.state='error';status.error=message;}
-      });
-    }catch(e){dispose();throw e;}
-    return {
-      setOpen(value:number){if(disposed)return;const next=Number.isFinite(value)?Math.max(0,Math.min(1,value)):0;if(!initialized){initialized=true;current=goal=next;apply();return;}if(next===goal)return;start=current;goal=next;elapsed=0;},
-      tick(dt:number){if(disposed||!visible||status.state!=='ready'||current===goal)return;elapsed=Math.min(.65,elapsed+Math.max(0,Math.min(dt,.1)));const t=elapsed/.65,e=1-Math.pow(1-t,3);current=start+(goal-start)*e;if(t===1)current=goal;apply();},
-      setVisible(value:boolean){if(disposed)return;visible=value;if(isValid(surface,true))surface.active=value;if(isValid(rig,true))rig.active=value;if(!value){if(isValid(camera,true)&&isValid(camera.node,true))camera.enabled=false;}else dirty();},
-      diagnostics(){return {...status};},dispose,
-    };
-  },
-};
+function find(n: Node, name: string): Node | null {
+  if (n.name === name) return n; for (let i = 0; i < n.children.length; i++) { const r = find(n.children[i], name); if (r) return r; } return null;
+}
+function setLayer(n: Node, layer: number) { n.layer = layer; for (let i = 0; i < n.children.length; i++) setLayer(n.children[i], layer); }
+export class ResultChest3D {
+  readonly sprite: Sprite;
+  private rig: Node | null = null; private lid: Node | null = null; private camera: Camera | null = null;
+  private texture: RenderTexture | null = null; private frame: SpriteFrame | null = null;
+  private t = 0; private playing = false; private disposed = false; private state = 'loading'; private error = '';
+  private rest = new Quat(); private q = new Quat();
+  constructor(host: Node, size: number) {
+    const n = new Node('ResultChest3D'); n.layer = Layers.Enum.UI_2D; host.addChild(n);
+    n.addComponent(UITransform).setContentSize(size, size);
+    this.sprite = n.addComponent(Sprite); this.sprite.sizeMode = Sprite.SizeMode.CUSTOM; this.sprite.trim = false;
+  }
+  get node() { return this.sprite.node; }
+  get ready() { return this.state === 'ready'; }
+  async load(): Promise<boolean> {
+    try {
+      const prefab: Prefab | null = await BoardArt.shared().chestPrefab();
+      if (this.disposed) return false; if (!prefab) throw Error('chest prefab unavailable');
+      const palette = await new Promise<Material | null>(ok => assetManager.loadAny({ uuid: ISLAND_PROPS.paletteMaterialUuid }, (e: any, m: Material) => ok(e || !m ? null : m)));
+      if (this.disposed) return false;
+      const scene = director.getScene(); if (!scene || !isValid(this.sprite, true)) throw Error('no scene');
+      const rig = new Node('ResultChestRig'); scene.addChild(rig); rig.setWorldPosition(ORIGIN); this.rig = rig;
+      const model = instantiate(prefab); rig.addChild(model); setLayer(model, CHEST_LAYER);
+      if (palette) { const rs = model.getComponentsInChildren(MeshRenderer); for (let i = 0; i < rs.length; i++) { const r = rs[i]; for (let k = 0; k < r.sharedMaterials.length; k++) r.setSharedMaterial(palette, k); r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; } }
+      this.lid = find(model, 'chest_lid'); if (this.lid) this.rest.set(this.lid.rotation);
+      const light = (name: string, p: number[], color: string, lum: number, range: number) => {
+        const ln = new Node(name); ln.layer = CHEST_LAYER; rig.addChild(ln); ln.setPosition(p[0], p[1], p[2]);
+        const l = ln.addComponent(SphereLight); l.color = new Color(color); l.size = 0.4; l.range = range; l.luminance = l.luminance * lum; l.visibility = CHEST_LAYER;
+      };
+      light('KeyLight', [-1.6, 3.2, 2.6], '#fff1d8', 2.5, 9); light('FillLight', [2.2, 1.6, 2.2], '#dbe9ff', 1, 8); light('InnerGlow', [0, 0.95, 0.0], '#ffd890', 0.6, 1.6);
+      const cn = new Node('ResultChestCamera'); cn.layer = CHEST_LAYER; rig.addChild(cn); const cp = chestCameraPosition(); cn.setPosition(cp[0], cp[1], cp[2]);
+      cn.lookAt(new Vec3(ORIGIN.x + CHEST_CAMERA.target[0], ORIGIN.y + CHEST_CAMERA.target[1], ORIGIN.z + CHEST_CAMERA.target[2]));
+      const cam = cn.addComponent(Camera); cam.projection = Camera.ProjectionType.PERSPECTIVE; cam.fov = CHEST_CAMERA.fovDeg; cam.fovAxis = Camera.FOVAxis.VERTICAL;
+      cam.near = 0.5; cam.far = 30; cam.visibility = CHEST_LAYER; cam.clearFlags = Camera.ClearFlag.SOLID_COLOR; cam.clearColor = new Color(0, 0, 0, 0); cam.priority = 45; cam.usePostProcess = false;
+      const rt = new RenderTexture(); rt.reset({ width: CHEST_PIXELS, height: CHEST_PIXELS }); cam.targetTexture = rt; this.texture = rt; this.camera = cam;
+      const f = new SpriteFrame(); f.texture = rt; f.packable = false; this.frame = f;
+      if (!isValid(this.sprite, true)) throw Error('host destroyed');
+      this.sprite.spriteFrame = f; this.apply(); this.state = 'ready'; return true;
+    } catch (e) { this.state = 'failed'; this.error = String(e); console.warn('[RESULT_CHEST] 3D chest unavailable', this.error); this.disposeRig(); return false; }
+  }
+  /** Start the 0.5 s open animation (or jump to the end). */
+  open(animate = true) { this.t = animate ? 0 : OPEN_SECONDS; this.playing = animate; this.apply(); }
+  close() { this.t = 0; this.playing = false; this.apply(); }
+  update(dt: number) { if (!this.playing) return; this.t = Math.min(OPEN_SECONDS, this.t + Math.max(0, Math.min(dt, 0.1))); if (this.t >= OPEN_SECONDS) this.playing = false; this.apply(); }
+  angle() { return lidAngleAt(this.t); }
+  private apply() { if (!this.lid || !isValid(this.lid, true)) return; Quat.fromEuler(this.q, lidAngleAt(this.t), 0, 0); Quat.multiply(this.q, this.rest, this.q); this.lid.setRotation(this.q); }
+  diagnostics() { return { state: this.state, error: this.error, t: this.t, angle: this.angle(), pixels: CHEST_PIXELS, layer: CHEST_LAYER }; }
+  private disposeRig() {
+    if (this.camera && isValid(this.camera, true)) { this.camera.targetTexture = null; this.camera.enabled = false; }
+    if (this.rig && isValid(this.rig, true)) this.rig.destroy(); this.rig = null; this.lid = null; this.camera = null;
+  }
+  dispose() {
+    if (this.disposed) return; this.disposed = true;
+    if (isValid(this.sprite, true)) this.sprite.spriteFrame = null;
+    this.disposeRig(); this.frame?.destroy(); this.frame = null; this.texture?.destroy(); this.texture = null;
+  }
+}

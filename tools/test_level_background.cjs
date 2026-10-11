@@ -11,7 +11,7 @@ function load(file,exportName,globals){
 }
 const checks=[];
 (async()=>{
-  const ui=load('ManagedMobileBoardUI.ts','ManagedMobileBoardUI',{_decorator:{ccclass:()=>()=>{}},Component:class{},Vec3:class{},Port:{}});
+  const ui=require('./board-ui/harness.cjs').createHarness().load('ManagedMobileBoardUI').ManagedMobileBoardUI;
   const u=new ui();let initialized=null;u.initialize=(fixture,frame)=>{initialized={fixture,frame};};
   const f=()=>{},status=()=>({state:'ready',stageId:'01'});u.initializeManaged({id:'fixture'},{},f,status);
   assert.equal(initialized.frame,f);assert.equal(u.backgroundStatus,status);assert.throws(()=>u.initializeManaged({},{}));checks.push('actual managed UI forwards callback and status, rejects reinitialization');

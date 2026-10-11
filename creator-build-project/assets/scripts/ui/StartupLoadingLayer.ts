@@ -19,7 +19,7 @@ export class StartupLoadingLayer {
  readonly mask:Node;readonly root:Node;readonly timeline=new LoadingTimeline();
  private dynamic:Node;private base:Sprite;private fill:Sprite;private pin:Node;private hintNode:Node;private hint:Label;
  private rootOpacity:UIOpacity;private maskOpacity:UIOpacity;private dynOpacity:UIOpacity;
- private size={w:1,h:1};private started=false;private retry=false;private disposed=false;
+ private size={w:1,h:1};private maskAlpha=-1;private started=false;private retry=false;private disposed=false;
  private sources:{[k:string]:string}={composite:'pending',fill:'pending',pinwheel:'pending'};
  private firstScreen:any=null;
  constructor(parent:Node,private onRetry:()=>void){
@@ -27,7 +27,6 @@ export class StartupLoadingLayer {
   this.root=uiNode('StartupLoadingLayer',parent);this.base=this.root.addComponent(Sprite);this.base.sizeMode=Sprite.SizeMode.CUSTOM;this.rootOpacity=this.root.addComponent(UIOpacity);
   this.dynamic=uiNode('LoadingDynamic',this.root);this.dynOpacity=this.dynamic.addComponent(UIOpacity);this.dynOpacity.opacity=0;
   const fillNode=uiNode('LoadingRibbonFill',this.dynamic);this.fill=fillNode.addComponent(Sprite);this.fill.sizeMode=Sprite.SizeMode.CUSTOM;
-  this.fill.type=Sprite.Type.FILLED;this.fill.fillType=Sprite.FillType.HORIZONTAL;this.fill.fillStart=0;this.fill.fillRange=ribbonHead(0).fillRange;
   this.pin=uiNode('LoadingPinwheel',this.dynamic);const ps=this.pin.addComponent(Sprite);ps.sizeMode=Sprite.SizeMode.CUSTOM;
   this.hintNode=uiNode('LoadingHint',this.dynamic);this.hint=this.hintNode.addComponent(Label);this.hint.string=hintForStage(0);
   this.hint.color=new Color(HINT.color);this.hint.horizontalAlign=Label.HorizontalAlign.CENTER;this.hint.verticalAlign=Label.VerticalAlign.CENTER;
@@ -38,15 +37,17 @@ export class StartupLoadingLayer {
  /** Prefer the decoded image the first screen already holds; else load the same file from the package root. */
  private adopt(key:'composite'|'fill'|'pinwheel',sprite:Sprite,ext:string){
   const fs=handoff();this.firstScreen=fs;const img=fs&&fs.images?fs.images[key]:null;
-  if(img){try{sprite.spriteFrame=frameOf(img);this.sources[key]='first-screen';return;}catch(e){this.sources[key]='first-screen-failed';}}
+  if(img){try{this.setFrame(sprite,frameOf(img));this.sources[key]='first-screen';return;}catch(e){this.sources[key]='first-screen-failed';}}
   const url=(ART as any)[key] as string;this.sources[key]=this.sources[key]==='pending'?'loadRemote':this.sources[key]+'>loadRemote';
   try{assetManager.loadRemote<ImageAsset>(url,{ext},(err,asset)=>{if(this.disposed||!isValid(sprite.node,true))return;
    if(err||!asset){this.sources[key]='failed';console.warn('[startup-loading] '+url+' unavailable',String(err));return;}
-   sprite.spriteFrame=frameOf(asset);this.sources[key]='loadRemote:ok';});}catch(e){this.sources[key]='failed';}
+   this.setFrame(sprite,frameOf(asset));this.sources[key]='loadRemote:ok';});}catch(e){this.sources[key]='failed';}
  }
+ /** The ribbon turns FILLED only once it has a frame: a FILLED Sprite without one crashes its assembler in 3.8.8. */
+ private setFrame(sprite:Sprite,frame:SpriteFrame){sprite.spriteFrame=frame;if(sprite!==this.fill)return;
+  this.fill.type=Sprite.Type.FILLED;this.fill.fillType=Sprite.FillType.HORIZONTAL;this.fill.fillStart=0;this.fill.fillRange=ribbonHead(this.timeline.shown).fillRange;}
  layout(w:number,h:number){if(this.disposed)return;this.size={w,h};const c=coverTransform(w,h);
-  this.mask.getComponent(UITransform)!.setContentSize(w,h);const g=this.mask.getComponent(Graphics)!;g.clear();
-  g.fillColor=new Color(BACKDROP_RGB[0],BACKDROP_RGB[1],BACKDROP_RGB[2],255);g.rect(-w/2,-h/2,w,h);g.fill();
+  this.mask.getComponent(UITransform)!.setContentSize(w,h);this.maskAlpha=-1;
   this.root.setPosition(0,0,0);this.root.getComponent(UITransform)!.setContentSize(DESIGN_W*c.s,DESIGN_H*c.s);
   this.dynamic.getComponent(UITransform)!.setContentSize(DESIGN_W*c.s,DESIGN_H*c.s);
   const fp=toCentered(c,BAR.x+BAR.w/2,BAR.y+BAR.h/2);this.fill.node.setPosition(fp.x,fp.y,0);this.fill.node.getComponent(UITransform)!.setContentSize(BAR.w*c.s,BAR.h*c.s);
@@ -66,8 +67,11 @@ export class StartupLoadingLayer {
   if(!this.started){this.started=true;this.timeline.begin();}else this.timeline.tick(dt);
   this.apply();return this.timeline.hidden;}
  private apply(){const t=this.timeline,c=coverTransform(this.size.w,this.size.h),head=ribbonHead(t.shown);
-  this.rootOpacity.opacity=t.layerOpacity();this.maskOpacity.opacity=t.layerOpacity();this.dynOpacity.opacity=t.introOpacity();
-  this.fill.fillRange=head.fillRange;const pp=toCentered(c,head.x,head.y);this.pin.setPosition(pp.x,pp.y,0);this.pin.angle=t.spin;}
+  this.rootOpacity.opacity=t.layerOpacity();this.maskOpacity.opacity=t.layerOpacity();this.dynOpacity.opacity=t.introOpacity();this.paintMask(t.layerOpacity());
+  if(this.fill.spriteFrame&&this.fill.type===Sprite.Type.FILLED)this.fill.fillRange=head.fillRange;const pp=toCentered(c,head.x,head.y);this.pin.setPosition(pp.x,pp.y,0);this.pin.angle=t.spin;}
+ /** Graphics ignores UIOpacity: the cream mask fades by redrawing its fill alpha. */
+ private paintMask(alpha:number){const a=Math.max(0,Math.min(255,Math.round(alpha)));if(a===this.maskAlpha)return;this.maskAlpha=a;
+  const g=this.mask.getComponent(Graphics)!,w=this.size.w,h=this.size.h;g.clear();if(a<=0)return;g.fillColor=new Color(BACKDROP_RGB[0],BACKDROP_RGB[1],BACKDROP_RGB[2],a);g.rect(-w/2,-h/2,w,h);g.fill();}
  diagnostics(){const fs=this.firstScreen;const t=this.timeline;
   return {sources:{composite:this.sources.composite,fill:this.sources.fill,pinwheel:this.sources.pinwheel},art:ART.composite,artSha256:ART.compositeSha256,
    progressShown:t.shown,progressTarget:t.target,stage:t.stage,introOpacity:t.introOpacity(),layerOpacity:t.layerOpacity(),fading:t.fading,hidden:t.hidden,hint:this.hint.string,retry:this.retry,

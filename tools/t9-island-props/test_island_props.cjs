@@ -81,13 +81,12 @@ ok('IslandPropTaps: subscribe/unsubscribe, info flags, listener errors isolated'
 });
 // ---- real overlay through the cloud-ui harness
 const H=require('../cloud-ui/harness.cjs')(),{Node,UITransform,Label,warm}=H;
-const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:warm.warmButtonGraphics});
 const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
 const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout','propNightWeight','tagColorsAt','setPropNightWeight'],camPose);
 const taps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap','setPropTapLook']);
-class UIOpacity{constructor(){this.opacity=255;}}
-const {IslandJourneyOverlay:Overlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:warm.warmButton,...skin,...propLayout,emitPropTap:taps.emitPropTap,UIOpacity});
-function setup(w=390,h=844){H.setup('mainline-v33',0,w,h);const calls=[],o=new Overlay(new Node('Canvas'),{invoke:fn=>{calls.push('invoke');return fn();},mainlineStatus:()=>({}),gates:()=>({r5:[],r4:[]}),enterRegion:()=>{},enterR4:()=>{},enterSkycity:()=>{},returnHome:()=>{},toggleDayNight:()=>calls.push('dayNight'),dayNight:()=>({mode:'day'})});o.sync(w,h,true);return {o,calls};}
+const {UIOpacity}=H.cc;
+const {IslandJourneyOverlay:Overlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay']);
+function setup(w=390,h=844){H.H.setViewport(w,h);const calls=[],o=new Overlay(new Node('Canvas'),{invoke:fn=>{calls.push('invoke');return fn();},mainlineStatus:()=>({}),gates:()=>({r5:[],r4:[]}),enterRegion:()=>{},enterR4:()=>{},enterSkycity:()=>{},returnHome:()=>{},toggleDayNight:()=>calls.push('dayNight'),dayNight:()=>({mode:'day'})});o.sync(w,h,true);return {o,calls};}
 ok('overlay prop mode: same three WarmButton nodes become invisible hit areas at the prop slots, cream tags with labels; off restores',()=>{
   for(const [w,h] of FRAMES){const {o}=setup(w,h);assert(o.dockVisible());o.setPropMode(true);const lay=L.propButtonLayout(w,h);
     o.buttons.forEach((n,i)=>{const t=n.getComponent(UITransform),s=lay.slots[i];assert.equal(n.getComponent(UIOpacity).opacity,0);assert.equal(t.width,s.hit.width);assert.equal(t.height,s.hit.height);assert.equal(n.position.x,s.hit.x);assert.equal(n.position.y,s.hit.y);});
@@ -101,7 +100,7 @@ ok('overlay taps: press+confirm per target (journal -> book), same action; block
   H.tapNode(o.buttons[1]);assert.equal(o.page,'journal');o.close();H.tapNode(o.buttons[2]);assert.equal(o.page,'settings');
   const n=o.buttons[0];o.page='settings';H.tapNode(n);assert.equal(o.page,'settings','tap on hidden dock leaves the open page');o.close();
   // blocked confirm: finger down on bag, a page opens before the finger lifts -> confirm(blocked), no action
-  const e=H.event(H.point(n),5);n.emit('start',e);o.page='journal';n.emit('end',e);assert.equal(o.page,'journal');o.close();
+  const e=H.event(H.point(n),5);n.emit(Node.EventType.TOUCH_START,e);o.page='journal';n.emit(Node.EventType.TOUCH_END,e);assert.equal(o.page,'journal');o.close();
   o.sync(390,844,false);const before=got.length;H.tapNode(o.buttons[2]);const late=got.slice(before);
   assert.deepEqual(got.slice(0,9),['bag:press','bag:confirm','book:press','book:confirm','settings:press','settings:confirm','bag:press:blocked','bag:press','bag:confirm:blocked']);
   assert(late.every(x=>x.endsWith(':blocked')),'disabled overlay: only blocked events '+late);assert.equal(calls.length,0,'opening pages never invokes a command');off();o.dispose();

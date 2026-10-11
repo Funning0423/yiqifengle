@@ -472,6 +472,7 @@ var ChallengeController = /*#__PURE__*/function () {
           moss: Array.from(e.moss),
           roots: Array.from(e.roots),
           beaconTarget: e.beaconTarget(),
+          beaconRoute: Array.from(e.beaconRoute || []),
           status: e.status
         } : null
       });
