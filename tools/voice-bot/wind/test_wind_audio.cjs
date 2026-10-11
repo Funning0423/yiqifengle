@@ -116,47 +116,79 @@ function env(opts = {}) {
   ok(e.mod.WindAudio.instance === null && global.__voiceWind === undefined, 'destroy -> static/global cleared');
   e.mod.WindAudio.notifyApronLift('full', 1); ok(true, 'notify after destroy is a no-op');
 }
-// ---- exit sequence: waves floor + gull triggers (AmbienceAudio + WindAudio together) ----
+// ---- exit sequence: waves floor + gull triggers (AmbienceAudio + WindAudio together), gull v6 rules ----
 const ramp = (e, from, to, sec, key = 'wind') => { const n = Math.round(sec * 60); for (let i = 1; i <= n; i++) { e.flow[key] = from + (to - from) * i / n; e.run(1 / 60); } };
-{ const e = env({ withAmbience: true }); const A = e.amb.EXIT_AUDIO, GV = 0.5;
-  ok(!!e.a && e.amb.AmbienceAudio.windExit === 0, 'both components mounted');
+const gaps = (g) => g.slice(1).map((x, i) => +(x.t - g[i].t).toFixed(3));
+{ const e = env({ withAmbience: true }); const A = e.amb.EXIT_AUDIO;
+  ok(A.gullMinGapS === 2.5 && A.distant[0].vol === 0.3 && A.distant[1].vol === 0.38 && A.nearVol === 0.5 && A.craneVol === 0.6 && A.waveWindDuck === 0.25, 'v6 constants: gap 2.5 s, distant 0.30/0.38, near 0.5, crane 0.6 (GULL_VOL), wave duck 0.25', A);
   e.run(3); ok(e.a.src.volume === 0 && !e.a.src.playing && e.gulls.length === 0, 'indoors (w=1, rig, wind 0): waves silent, no gulls (T5 contract)');
-  // exit: wind 0 -> 0.15 (still w=1 at the door)
   ramp(e, 0, 0.15, 0.3); e.run(2);
-  ok(e.amb.AmbienceAudio.windExit > 0.14 && e.a.src.playing && near(e.a.src.volume, 0.35 * 0.028, 1e-3), 'wind 0.15 at the door (w still 1): waves start fading in (0.35*smoothstep(.1,.6,.15)=0.0098)', +e.a.src.volume.toFixed(4));
+  ok(e.a.src.playing && near(e.a.src.volume, 0.35 * 0.028, 1e-3), 'wind 0.15 at the door (w still 1): waves start fading in (0.35*smoothstep(.1,.6,.15)=0.0098)', +e.a.src.volume.toFixed(4));
   ok(e.gulls.length === 0, 'no gull below 0.4');
-  ramp(e, 0.15, 1, 3);
-  const g1 = e.gulls.slice();
-  ok(g1.length === 2 && g1[0].n === A.distant[0].clip && near(g1[0].v, 0.35 * GV) && g1[1].n === A.distant[1].clip && near(g1[1].v, 0.45 * GV), 'rising: distant gulls at 0.4 / 0.7, quiet, different clips', g1);
-  ok(g1[1].t - g1[0].t >= A.gullMinGapS - 1e-6, 'gap >= 0.8 s between them', +(g1[1].t - g1[0].t).toFixed(2));
-  ok(near(e.a.src.volume, 0.35, 0.01), 'w=1 + wind 1 -> waves at floor 0.35', +e.a.src.volume.toFixed(3));
-  // flap full -> near gull 0.4 s later
-  const tFlap = e.now(); e.flow.listeners[0]('full', 1); e.run(1.5);
-  const near1 = e.gulls.slice(2);
-  ok(near1.length === 1 && near1[0].n === A.nearClip && near(near1[0].v, 0.8 * GV) && near(near1[0].t - tFlap, 0.4, 0.04), "onApronLift('full') -> near gull ~0.4 s later at 0.8x", { dt: +(near1[0] && near1[0].t - tFlap).toFixed(3), near1 });
-  // stays high, wobble down/up above 0.1: no repeat
+  ramp(e, 0.15, 1, 9);   // slow rise: crossings 0.4 and 0.7 are > 2.5 s apart -> both play
+  const g = e.gulls.slice();
+  ok(g.length === 2 && g[0].n === A.distant[0].clip && near(g[0].v, 0.3) && g[1].n === A.distant[1].clip && near(g[1].v, 0.38) && g[1].t - g[0].t >= 2.5 - 1e-6, 'slow rise: distant gulls at 0.4 and 0.7 (gap >= 2.5 s), different clips, quiet', { g, gaps: gaps(g) });
+  ok(near(e.a.src.volume, 0.35 * 0.75, 0.01), 'w=1 + wind 1 -> waves at floor 0.35, ducked 25% = 0.2625', +e.a.src.volume.toFixed(3));
+  e.run(3); const tFlap = e.now(); e.flow.listeners[0]('full', 1); e.run(1.5);
+  const n1 = e.gulls.slice(2);
+  ok(n1.length === 1 && n1[0].n === A.nearClip && near(n1[0].v, 0.5) && near(n1[0].t - tFlap, 0.4, 0.04), "onApronLift('full') (gap free) -> near gull 0.4 s later at 0.5", n1);
   ramp(e, 1, 0.3, 1); ramp(e, 0.3, 1, 1); e.run(1);
   ok(e.gulls.length === 3, 'dip to 0.3 and back up: no repeat distant gulls (once per exit)');
-  // island outdoor: w -> 0, random gulls suppressed while wind >= 0.1
   ramp(e, 1, 0, 2, 'w'); e.run(25);
   ok(e.gulls.length === 3, 'outdoor + exit wind still on: random island gulls suppressed for 25 s');
-  ramp(e, 1, 0.05, 2); e.run(2);
-  ok(e.amb.AmbienceAudio.windExit < 0.1, 'wind back below 0.1 -> exit sequence reset');
-  ramp(e, 0.05, 0.8, 2); const g2 = e.gulls.slice(3).filter(x => x.v !== GV);
-  ok(g2.length === 2 && g2[0].n === A.distant[0].clip, 'second exit sequence -> distant gulls again', g2);
+  ramp(e, 1, 0.05, 2); e.run(3);
+  ramp(e, 0.05, 0.8, 4); const g2 = e.gulls.slice(3).filter(x => x.n === A.distant[0].clip && near(x.v, 0.3));
+  ok(g2.length === 1, 'wind below 0.1 resets -> next exit plays the distant gull again', e.gulls.slice(3));
+}
+// REAL timeline (运镜bot 138bca5 flow_sim, 60 fps): wind + room-light weight per frame, apron lift 14.82 (GGbot), crane 15.483
+{ const TL = JSON.parse(fs.readFileSync(path.join(__dirname, 'exit138_timeline.json'), 'utf8'));
+  const e = env({ withAmbience: true }); const A = e.amb.EXIT_AUDIO; e.a.gullIn = 1e9;   // no random gull at t<9 (she is indoors anyway)
+  let flapDone = false, craneDone = false, wavesAtSill = null, wavesAt12 = null;
+  for (const [t, wind, weight, layers] of TL.frames) {
+    e.flow.wind = wind; e.flow.w = weight; e.flow.visible = layers > 0;
+    if (!flapDone && t >= TL.events.apronLift) { flapDone = true; e.flow.listeners[0]('full', 0.8); }
+    if (!craneDone && t >= TL.events.craneStart) { craneDone = true; e.flow.cranes[0]({ segment: 'toIsland', progress: .538, seconds: 5.95 }); }
+    e.run(1 / 60);
+    if (wavesAtSill === null && t >= 11) wavesAtSill = e.a.src.playing ? e.a.src.volume : 0;
+    if (wavesAt12 === null && t >= 13.5) wavesAt12 = e.a.src.volume;
+  }
+  const t0 = e.now() - TL.frames.length / 60;   // harness clock -> seconds from leaveHome
+  const G = e.gulls.map(x => ({ ...x, t: +(x.t - t0).toFixed(2) }));
+  ok(wavesAtSill > 0.002 && wavesAtSill < 0.02 && wavesAt12 > 0.15, 'real: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s (w ramp + floor)', { at11: +wavesAtSill.toFixed(4), at13_5: +wavesAt12.toFixed(4) });
+  ok(G.length === 2, 'real: exactly two gulls over the exit (0.7 merged, crane gull skipped)', G);
+  ok(G[0] && G[0].n === A.distant[0].clip && near(G[0].v, 0.3) && G[0].t > 13 && G[0].t < 13.6, 'real: one distant gull at the 0.4 crossing (~13.3 s)', G[0]);
+  ok(!G.some(x => x.n === A.distant[1].clip), 'real: 0.7 crossing (~0.6 s later) merged into the first');
+  ok(G[1] && G[1].n === A.nearClip && near(G[1].v, 0.5) && G[1].t >= G[0].t + 2.5 - 0.02 && G[1].t <= TL.events.apronLift + 0.4 + 4, 'real: near gull after apron lift, waits for the 2.5 s gap', { near: G[1], fromFlap: G[1] && +(G[1].t - TL.events.apronLift).toFixed(2) });
+  ok(gaps(G).every(x => x >= 2.5 - 0.02), 'real: all gull gaps >= 2.5 s', gaps(G));
+}
+// crane gull: plays 1.5 s after onCraneStart when >= 2.5 s since last gull; skipped otherwise (no wait)
+{ const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1.2); e.gulls.length = 0; e.a.gullIn = 1e9;
+  e.flow.cranes[0]({ segment: 'toIsland', progress: .5, seconds: 3 }); const t0 = e.now(); e.run(2);
+  ok(e.gulls.length === 1 && e.gulls[0].n === 'sfx_amb_gull_1' && near(e.gulls[0].t - t0, 1.5, 0.04) && near(e.gulls[0].v, 0.6), 'crane gull 1.5 s after onCraneStart (gap free) at 0.6', e.gulls);
+  e.run(0.5); e.flow.cranes[0]({}); e.run(5);
+  ok(e.gulls.length === 1, 'crane gull 2.0 s after the previous one -> skipped, not delayed', e.gulls);
+}
+// near gull waits for the gap but is dropped if it would be > nearMaxLateS late
+{ const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1); e.gulls.length = 0; e.a.gullIn = 1e9;
+  e.flow.cranes[0]({}); e.run(1.6); const tc = e.gulls[0] && e.gulls[0].t;
+  e.flow.listeners[0]('full', 1); e.run(4);   // due 0.4 s later = 0.5 s after crane gull -> waits to +2.5
+  ok(e.gulls.length === 2 && near(e.gulls[1].t - tc, 2.5, 0.04), 'near gull waits until 2.5 s after the previous gull', gaps(e.gulls));
+  const A = e.amb.EXIT_AUDIO, keep = A.nearMaxLateS; A.nearMaxLateS = 1;
+  e.flow.cranes[0]({}); e.run(1.6); const before = e.gulls.length;      // crane gull (gap was ok) -> new last gull
+  e.flow.listeners[0]('full', 1); e.run(4);                           // would need +2.1 s wait > 1 s -> dropped
+  ok(before === 3 && e.gulls.length === 3, 'near gull dropped when the wait exceeds nearMaxLateS', { before, after: e.gulls.length });
+  A.nearMaxLateS = keep;
 }
 // soft lift: no near gull, no distant gulls (gust envelope does not count as exit wind)
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0; e.a.gullIn = 99;
   e.mod.WindAudio.notifyApronLift('soft', 4); e.run(5);
   ok(e.gulls.length === 0, "'soft' -> no near gull, no distant gulls", e.gulls);
 }
-// crane gull kept + min gap with near gull
-{ const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1.2); e.gulls.length = 0; e.a.gullIn = 99;
-  e.flow.cranes[0]({ segment: 'toIsland', progress: .5, seconds: 3 }); const t0 = e.now(); e.run(1.3);
-  e.flow.listeners[0]('full', 1); e.run(2);   // near due at t0+1.7, crane at t0+1.5 -> near pushed to >= t0+2.3
-  const c = e.gulls[0], n = e.gulls[1];
-  ok(c && c.n === 'sfx_amb_gull_1' && near(c.t - t0, 1.5, 0.04) && near(c.v, 0.5), 'crane gull 1.5 s after onCraneStart', c);
-  ok(n && n.t - c.t >= 0.8 - 1e-6, 'near gull deferred to keep >= 0.8 s gap after crane gull', { gap: n && +(n.t - c.t).toFixed(2) });
+// random island gulls respect the 2.5 s gap (any queued gull also re-arms the random timer)
+{ const e = env({ withAmbience: true }); e.flow.w = 0; e.run(0.5); e.gulls.length = 0;
+  e.a.lastGullAt = e.a.clock - 1; const tLast = e.now() - 1; e.a.gullIn = 0.1; e.run(5);
+  ok(e.gulls.length === 1 && e.gulls[0].t - tLast >= 2.5 - 1e-6 && near(e.gulls[0].v, 0.6), 'random gull due 1.1 s after the last gull -> postponed past the 2.5 s gap, vol 0.6', { since: e.gulls[0] && +(e.gulls[0].t - tLast).toFixed(2) });
+  e.flow.cranes[0]({}); e.run(1.6); ok(e.gulls.length === 2 && e.a.gullIn >= 8 - 1e-6, 'crane gull re-arms the random timer (8..20 s)', +e.a.gullIn.toFixed(2));
 }
 // gated: muted -> no exit gulls, no waves floor; invisible world -> no waves floor
 { const e = env({ withAmbience: true }); e.GameAudio.instance.can = false; ramp(e, 0, 1, 3); e.flow.listeners[0]('full', 1); e.run(1);
