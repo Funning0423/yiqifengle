@@ -151,3 +151,13 @@ N=<work/GGbot>/tools/vendor-node/node-runtime/node-v23.11.0-linux-x64/bin/node
 QF_TYPESCRIPT_MODULE=<work/GGbot>/tools/vendor-node/node_modules/typescript $N --no-warnings tools/t5/test_room_light_blend.cjs
 QF_TYPESCRIPT_MODULE=... $N tools/t5/print_walk_durations.cjs     # toIsland / toThreshold 时长
 ```
+
+## T2+ 合并后（work/GGbot-post-t2）
+- 运镜bot 的 T2+ 已经接上 w：WorldFlowCore 在 `config.interiorLighting` 的匝道里调用 `blendRoomLight` / `setRoomLightWeight`，按走路/相机分段推进 w。WorldFlowCore 仍然只通过 WorldLease 上文档化的 API 写 w，不持有任何光照状态，也不读回 w。
+- 原来的冻结检查（“WorldFlowCore == near”）已经换成三项：A5 钉住 T2+ 文件（sha256 9798379…，git blob 9aa7011）；A6 检查调用点白名单，并确认 Core 里没有 rig 或光照字段；E1 用真实 Core、真实路由、真实 rig 和逐字提取的 job runner 跑 60 fps 往返，验证以下合约：
+  - 每段单调；
+  - 每帧 Δw ≤ 0.006（实测 0.00532）；
+  - 到岛 w 正好为 0、到家 w 正好为 1；
+  - restore(ISLAND) 在同一步写入 0，而且前一帧已经是 0；
+  - 去程 setLayers(BOTH) 同步写入 w=1；回程 setLayers(BOTH) 在同一步被覆盖成 0，第一帧没有闪亮屋内光。
+- 共 19/19 项。改 Core 后 A5 会失败（负对照已验证），需要先复核合约，再重新钉住。

@@ -1,0 +1,62 @@
+{
+ "pass": 14,
+ "total": 14,
+ "results": [
+  [
+   "PASS",
+   "hide/slideIn idempotent; no double slide; slide is position-only and monotone"
+  ],
+  [
+   "PASS",
+   "outbound hooks: settled BEFORE Boot polls island (real T2+ order) -> path=settled, no timer"
+  ],
+  [
+   "PASS",
+   "outbound hooks: island EARLY (mid-crane), settle later -> waits for settle (no mid-crane slide)"
+  ],
+  [
+   "PASS",
+   "outbound hooks + crane, settle never comes -> timeout = crane remaining + 2 s (path=timeout-crane, logged)"
+  ],
+  [
+   "PASS",
+   "outbound hooks + crane: fallback capped at 10 s after island"
+  ],
+  [
+   "PASS",
+   "no T2+ hooks (no onCameraSettled API) -> 2 s after island (path=timeout-nohooks)"
+  ],
+  [
+   "PASS",
+   "hooks but no crane (fixed mode) -> 2 s (path=timeout-nocrane)"
+  ],
+  [
+   "PASS",
+   "return: hide on walking-home; home after sitting + settled(home) -> settled; without settle -> 2 s; no hooks -> 2 s"
+  ],
+  [
+   "PASS",
+   "interruptions: cancelled leave -> home, paused, error, bounce standing->home->standing"
+  ],
+  [
+   "PASS",
+   "stale/foreign settles ignored; settle from a previous run cannot release the next hide"
+  ],
+  [
+   "PASS",
+   "never stuck: 60 s max hidden (path=timeout-max)"
+  ],
+  [
+   "PASS",
+   "topInset: WeChat capsule bottom + 4 (canvas px), safe-area fallback, 0 off-WeChat"
+  ],
+  [
+   "PASS",
+   "Boot wiring: driver on state poll, plate slide per frame, hooks bound after ready, unsubscribed on destroy"
+  ],
+  [
+   "PASS",
+   "replay REAL WorldFlow (flow_sim, T2+ routes, 60 fps): hide at standing, slideIn exactly at settled island/home, never mid-crane"
+  ]
+ ]
+}

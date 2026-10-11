@@ -1,6 +1,7 @@
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
 import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
+import {StatusHud,StatusHudDriver,topInset} from './ui/StatusHud';
 import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { resultLayout } from './ResultLayout';
@@ -77,6 +78,8 @@ export class WorldIntegrationBoot extends Component {
  private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private islandEntrance=-1;private error='';private doorReached=false;
+ /** GGbot HUD API (ui/StatusHud.ts): status plate hide()/slideIn() around the outbound/return cutscenes. */
+ readonly statusHud=new StatusHud();private readonly hudDriver=new StatusHudDriver(this.statusHud,{hasHooks:false});private hudHooksOff:Array<()=>void>=[];private hudInset={height:-1,top:0};
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -134,7 +137,7 @@ export class WorldIntegrationBoot extends Component {
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
- this.ready=true;girl.active=true;this.error='';
+ this.ready=true;girl.active=true;this.error='';this.bindHudHooks();
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
  (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
@@ -166,18 +169,26 @@ export class WorldIntegrationBoot extends Component {
   n.setScale(1,1,1);n.setPosition(r.x,r.y,0);
  }
  /** Funning 2026-10-11: the top status plate is HIDDEN during outbound/return transitions and slides back in (position
-  * animation, no opacity fade) once the character is still and operable. GGbot owns the HUD API.
-  * TODO(GGbot): wire 'hide' -> statusHud.hide() and 'slideIn' -> statusHud.slideIn(). Intentionally a no-op here. */
- private hudTransition(_kind:'hide'|'slideIn',_place:string){}
+  * animation, no opacity fade) once the character is still and operable. GGbot HUD API: ui/StatusHud.ts (contract,
+  * camera-relative fallback, interruption rules). Hooks: WorldFlowComponent.onCameraSettled / onCraneStart (T2+). */
+ private bindHudHooks(){for(const off of this.hudHooksOff)try{off();}catch{}this.hudHooksOff=[];const w=(this.composition as any)?.world;
+  const settled=!!w&&typeof w.onCameraSettled==='function',crane=settled&&typeof w.onCraneStart==='function';this.hudDriver.setHooks({hasHooks:settled});
+  if(settled)this.hudHooksOff.push(w.onCameraSettled((place:string)=>this.hudDriver.onSettled(place)));
+  if(crane)this.hudHooksOff.push(w.onCraneStart((info:any)=>this.hudDriver.onCraneStart(info)));
+  console.info('[OI_HUD] hooks '+JSON.stringify({settled,crane}));}
+ /** Public HUD API (idempotent): manual hide/slideIn for other modules; the driver below calls the same methods. */
+ hideHud(reason='api'){return this.statusHud.hide(reason);}
+ slideInHud(reason='api'){return this.statusHud.slideIn(reason,'direct');}
  /** Call-site timing (see docs/camera/T2-T3a-DELIVERY.md): hide on 'standing' (leaveHome) / 'walking-home' (returnHome);
-  * settled + slideIn on 'island' after crossing-out and on 'home' after sitting. */
+  * slideIn on 'island' after crossing-out + onCameraSettled('island'), on 'home' after sitting (+ settled('home')). */
  private trackTransitionHud(state:string){const prev=this.hudState;if(state===prev)return;this.hudState=state;
-  if(state==='standing'||state==='walking-home')this.hudTransition('hide',state);
-  const place=state==='island'&&prev==='crossing-out'?'island':state==='home'&&prev==='sitting'?'home':null;
   if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
-  // Same instant as WorldFlowComponent.onCameraSettled(place) (camera at rest, girl still).
-  if(place)this.hudTransition('slideIn',place);
+  this.hudDriver.onState(state);
  }
+ /** Position-only slide of the status plate; base pose clamped below the WeChat capsule / safe-area top. */
+ private applyStatusHud(dt:number){this.hudDriver.tick(dt);const plate=this.status?.node.parent,t=plate?.getComponent(UITransform),c=this.canvas?.getComponent(UITransform);if(!plate||!t||!c)return;
+  const H=c.height;if(this.hudInset.height!==H)this.hudInset={height:H,top:topInset(H)};
+  const ph=t.height,base=Math.min(H/2-130,H/2-this.hudInset.top-ph/2),gap=H/2-(base+ph/2);plate.setPosition(0,base+this.statusHud.offsetY(gap,ph),0);}
  /** T2: island buttons enter with a 0.25 s slide (24 px) + scale (0.94->1). Position/scale only: no opacity, so the
   * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame. */
  private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0)return;
@@ -192,7 +203,7 @@ export class WorldIntegrationBoot extends Component {
  this.notice.node.parent!.active=false;this.status.node.parent!.active=!!this.error||!!transitionText;this.status.string=this.error||transitionText||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':'');if(s.state==='skycity')this.status.node.parent!.active=true;
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  for(const [k,n]of this.controls)n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.applyStatusHud(dt);if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
  if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
  if(registered&&board){this.placeResultButtons(board.hostLayout(),['next','claim']);const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
@@ -205,5 +216,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
 
  }
  update(dt:number){if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
- onDestroy(){this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ onDestroy(){for(const off of this.hudHooksOff)try{off();}catch{}this.hudHooksOff=[];this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }
