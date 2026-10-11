@@ -46,3 +46,4 @@ Thumbs.db
 .idea/
 npm-debug.log*
 yarn-error.log*
+audio-preview/
