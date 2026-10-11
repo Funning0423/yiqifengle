@@ -17,4 +17,4 @@ function load(files=['world-r1/CameraPose','world-r2/IslandPropsLayout','world-r
     fs.writeFileSync(out,js);}
   const M={};for(const f of files)M[path.basename(f)]=require(path.join(tmp,f+'.js'));M.tsVersion=ts.version;M.tmp=tmp;return M;
 }
-module.exports={load,ROOT,SRC};
+module.exports={load,ROOT,SRC,typescript};

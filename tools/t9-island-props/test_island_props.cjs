@@ -3,7 +3,7 @@
  * IslandJourneyOverlay + WarmButton through tools/cloud-ui/harness.cjs (memory-only Cocos doubles).
  * Engine rendering, GLB import and native touch are NOT covered (Mac build + T0 autoplay taps). */
 const fs=require('fs'),path=require('path'),assert=require('assert/strict');
-const {load,SRC}=require('./load_ts.cjs');
+const {load,SRC,typescript}=require('./load_ts.cjs');
 const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout','world-r2/IslandPropTaps']);
 const C=M.CameraPose,L=M.IslandPropsLayout,T=M.IslandPropTaps,P=L.ISLAND_PROPS;
 const checks=[];const ok=(name,fn)=>{fn();checks.push(name);console.log('PASS',name);};
@@ -114,5 +114,36 @@ ok('WorldIntegrationBoot wiring (source): mainline emits signpost press/confirm 
   assert(/try\{const props=new IslandProps\(scene,camera\);this\.islandProps=props;void props\.load\(\)\.then\(ok=>\{if\(this\.islandProps!==props\|\|!ok\)return;this\.islandJourney\?\.setPropMode\(true\);\}\);\}catch/.test(s));
   assert(s.includes('onPropTap,'),'__worldIntegration.onPropTap for T0');
   assert(!/playSfx|AudioSource|GameAudio\.instance/.test(fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8')+fs.readFileSync(path.join(SRC,'world-r2/IslandPropTaps.ts'),'utf8')),'no sound played by T9');
+});
+ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTransitionHud, transpiled): buttons first (0.25 s, cubic ease-out, 24 px), mainline hit area never moved/scaled, then the signpost rises 24 px + fades in with the same duration/easing; hit area live only after; no entrance -> shown at once',()=>{
+  const src=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+  const grab=name=>{const i=src.indexOf(' private '+name+'(');assert(i>0,name);const j=src.indexOf('\n }\n',i);return src.slice(i,j+3).replace(' private ',' ');};
+  const cls='class B{'+['trackTransitionHud','applyIslandEntrance','gateSignEntrance'].map(grab).join('\n')+'}\nmodule.exports=B;';
+  const js=typescript().transpileModule(cls,{compilerOptions:{target:99,module:1}}).outputText;const mod={exports:{}};new Function('module','exports',js)(mod,mod.exports);const B=mod.exports;
+  // the same constants as the T2 button entrance
+  assert(/Math\.max\(0,Math\.min\(dt,\.1\)\)\/\.25/.test(src)&&/1-Math\.pow\(1-this\.signEntrance,3\)/.test(src)&&/setSignEntrance\(e,24\*\(1-e\)\)/.test(src),'same duration/easing/slide');
+  const calls=[],moved=[],dockLog=[];
+  const node=(name,log)=>({active:true,position:{x:0,y:0,z:0},setPosition(x,y,z){this.position={x,y,z};log&&log.push(['p',y]);},setScale(k){log&&log.push(['s',k]);}});
+  const dock=node('dock',dockLog),mainline=node('mainline',moved);
+  const b=Object.assign(new B(),{hudState:'',islandEntrance:-1,signEntrance:-1,propSign:true,islandProps:{ready:true,setSignEntrance:(e,r)=>calls.push([+e.toFixed(4),+(r||0).toFixed(3)])},
+    canvas:{getChildByName:()=>({getChildByName:()=>dock})}});
+  const frame=(state,dt)=>{b.trackTransitionHud(state);if(state==='island')b.applyIslandEntrance(dt,mainline);b.gateSignEntrance(state);};
+  frame('crossing-out',1/60);assert.deepEqual(calls.pop(),[0,0],'hidden while flying out');
+  let t=0,firstSign=null,signDone=null;const live=[];
+  for(let i=0;i<60;i++){const before=calls.length;frame('island',1/60);t+=1/60;const hitLive=!(b.islandEntrance>=0||b.signEntrance>=0);live.push(hitLive);
+    const c=calls.slice(before);if(firstSign===null&&c.some(x=>x[0]>0))firstSign=t;if(signDone===null&&c.some(x=>x[0]===1))signDone=t;}
+  assert.equal(moved.length,0,'transparent mainline hit area not moved/scaled by the entrance');
+  assert(dockLog.length>0&&dockLog.some(x=>x[0]==='p'&&x[1]<0),'buttons slide');
+  assert(firstSign>0.25-1e-6&&firstSign<=0.25+3/60,'sign starts after the buttons: '+firstSign);
+  assert(Math.abs(signDone-0.5)<=3/60,'sign done at ~0.5 s: '+signDone);
+  const anim=calls.filter(x=>x[0]>0&&x[0]<1);assert(anim.length>=10,'animated frames');
+  for(let i=1;i<anim.length;i++)assert(anim[i][0]>anim[i-1][0]&&anim[i][1]<anim[i-1][1],'alpha up, rise down');
+  assert(Math.abs(anim[0][1]-24*(1-anim[0][0]))<5e-3,'rise = 24 px * (1-e)');
+  const firstLive=live.indexOf(true);assert(firstLive>=0&&live.slice(firstLive).every(Boolean)&&Math.abs((firstLive+1)/60-signDone)<=2/60,'hit area live once the sign entrance ends');
+  // arrival without entrance (e.g. back from a level) -> shown at once, hit area live
+  calls.length=0;b.hudState='level';b.islandEntrance=-1;b.signEntrance=-1;frame('island',1/60);assert.deepEqual(calls.pop(),[1,0]);assert(!(b.islandEntrance>=0||b.signEntrance>=0));
+  // flat-button fallback (no props): mainline gets the T2 entrance as before
+  const b2=Object.assign(new B(),{hudState:'crossing-out',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:null,canvas:b.canvas});moved.length=0;b2.trackTransitionHud('island');b2.applyIslandEntrance(1/60,mainline);assert(moved.length===2,'flat mainline still animated');
+  assert(/if\(sign&&\(this\.islandEntrance>=0\|\|this\.signEntrance>=0\)\)sign=\{x:sign\.x,y:sign\.y,width:0,height:0\};/.test(src),'zero-size hit area during the entrance');
 });
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');

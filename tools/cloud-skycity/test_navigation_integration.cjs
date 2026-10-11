@@ -1,13 +1,19 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');const H=require('../cloud-ui/harness.cjs')();
-const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:H.warm.warmButtonGraphics});const {IslandJourneyOverlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:H.warm.warmButton,...skin});
+const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:H.warm.warmButtonGraphics});// T9: the overlay and the Boot import the prop layout + IslandPropTaps (engine-free real sources); IslandProps itself
+// (3D host) is a stub that never becomes ready here, so this test keeps covering the flat-button path.
+const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
+const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout'],camPose);
+const propTaps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap','setPropTapLook']);
+class UIOpacity{constructor(){this.opacity=255;}}
+const {IslandJourneyOverlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:H.warm.warmButton,...skin,...propLayout,emitPropTap:propTaps.emitPropTap,UIOpacity});
 const layout=H.evaluate(path.join(H.root,'world-r2/WorldNavigationLayout.ts'),['ISLAND_NAV_IDS','worldNavigationLayout']);
 // Funning final 2026-10-11: the top status bar is REMOVED. Capture the Boot's console-only [OI_HUD] log.
 const hudLog=[];const consoleInfo=console.info;console.info=(...a)=>{if(typeof a[0]==='string'&&a[0].startsWith('[OI_HUD]'))hudLog.push(a[0]);else consoleInfo(...a);};
 // T1 (lighthouse tap -> returnHome) stub: records the Boot's per-frame enable decision; the real class has its own
 // harness (tools/t1). Here we only assert the Boot wiring: enabled exactly on a stable, operable island; disposed with Boot.
 const islandHomes=[];class IslandHomeInteraction{constructor(parent,options){this.parent=parent;this.options=options;this.syncs=[];this.disposed=false;islandHomes.push(this);}sync(w,h,enabled){this.syncs.push(enabled);}dispose(){this.disposed=true;}get last(){return this.syncs[this.syncs.length-1];}}
-let skinCalls=0;const vars={...H.cc,...H.warm,...layout,IslandJourneyOverlay,IslandHomeInteraction,StartupReadyGate:class{dispose(){}},RoomExploreOverlay:class{sync(){}diagnostics(){return null;}dispose(){}},assetManager:{loadBundle(){}},applyJourneyNavigationSkin:(...args)=>{skinCalls++;skin.applyJourneyNavigationSkin(...args);}};
+let skinCalls=0;const vars={...H.cc,...H.warm,...layout,...propTaps,UIOpacity,IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}},IslandJourneyOverlay,IslandHomeInteraction,StartupReadyGate:class{dispose(){}},RoomExploreOverlay:class{sync(){}diagnostics(){return null;}dispose(){}},assetManager:{loadBundle(){}},applyJourneyNavigationSkin:(...args)=>{skinCalls++;skin.applyJourneyNavigationSkin(...args);}};
 H.cc.director.getScene=()=>null;
 let code=fs.readFileSync(path.join(H.root,'WorldIntegrationBoot.ts'),'utf8').replace(/^import .*?;\n/gm,'').replace(/@ccclass\([^\n]*\)/g,'').replace(/@property\([^\n]*?\)/g,'').replace(/@property\s+/g,'').replace(/export /g,'');code=stripTypeScriptTypes(code,{mode:'transform'});const Boot=new Function(...Object.keys(vars),code+';return WorldIntegrationBoot;')(...Object.values(vars));
 let cases=0,hudCases=0;

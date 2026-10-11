@@ -79,7 +79,7 @@ export class WorldIntegrationBoot extends Component {
  private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private error='';private doorReached=false;
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private doorReached=false;
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -184,20 +184,32 @@ export class WorldIntegrationBoot extends Component {
  private logSuppressedStatus(kind:string,text:string){const key=kind+'|'+text;if(key===this.suppressedStatus)return;this.suppressedStatus=key;
   if(text)console.info('[OI_HUD] suppressed '+JSON.stringify({kind,text}));}
  /** T2: island buttons enter with a 0.25 s slide (24 px) + scale (0.94->1). Position/scale only: no opacity, so the
-  * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame. */
- private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0)return;
-  this.islandEntrance=Math.min(1,this.islandEntrance+Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
-  if(mainline?.active){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
+  * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame.
+  * T9 signpost mode: the transparent mainline hit area tracks the signpost projection, so it is NOT moved/scaled here;
+  * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
+  * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
+ private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.islandProps?.setSignEntrance(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
+  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
-  if(this.islandEntrance>=1)this.islandEntrance=-1;
+  if(this.islandEntrance>=1){this.islandEntrance=-1;if(this.propSign)this.signEntrance=0;}
+ }
+ /** T9: signpost visibility outside its entrance step: hidden while flying out (crossing-out) and while the buttons
+  * enter; shown at once on any other arrival (no entrance). */
+ private gateSignEntrance(state:string){const p=this.islandProps;if(!p?.ready)return;
+  if(state==='crossing-out'||state==='island'&&this.islandEntrance>=0&&this.propSign){p.setSignEntrance(0);return;}
+  if(state!=='island')this.signEntrance=-1;if(this.signEntrance<0)p.setSignEntrance(1);
  }
  /** T9: drive the 3D props and, while the signpost is on screen, make the (invisible) mainline control its hit area. */
  private syncIslandProps(s:any,f:{width:number;height:number}){
   const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
-   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height});
+   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
+   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
+  if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
   if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
   else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}
  }
@@ -208,7 +220,7 @@ export class WorldIntegrationBoot extends Component {
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  for(const [k,n]of Array.from(this.controls))n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state);
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
  if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
  if(registered&&board){this.placeResultButtons(board.hostLayout(),['next','claim']);const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
