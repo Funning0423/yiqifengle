@@ -1,0 +1,20 @@
+{
+  "pass": true,
+  "checks": [
+    "actual Node/EventTouch valid lighthouse tap invokes once, pending double tap cannot re-enter",
+    "sea never returns home",
+    "drag-out-and-back never returns home",
+    "multi never returns home",
+    "second-finger-on-UI never returns home",
+    "cancel never returns home",
+    "hidden never returns home",
+    "modal never returns home",
+    "resized never returns home",
+    "disposed never returns home",
+    "same-size safe-area change between down/up cancels; no stale cache",
+    "capsule plus adjacent system game icon expanded exclusion rejects underlying lighthouse",
+    "1800 stable frames perform no native safe-area query or geometry raycast"
+  ],
+  "audioGestureUnlocks": 1,
+  "scope": "Real Cocos3.8.8 Node/Touch/EventTouch/game lifecycle; injected hit predicate isolates gesture/state/safe-area handling. Exact 3-mesh ray geometry tested separately; native OS event delivery pending."
+}

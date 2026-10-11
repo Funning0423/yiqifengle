@@ -1,0 +1,226 @@
+[
+ {
+  "case": "clean_roundtrip",
+  "installer": "frozen",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [],
+  "pathLost": false
+ },
+ {
+  "case": "clean_roundtrip",
+  "installer": "v2",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [],
+  "pathLost": false
+ },
+ {
+  "case": "dangling_ts_link",
+  "installer": "frozen",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [
+   "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+  ],
+  "pathLost": true
+ },
+ {
+  "case": "dangling_ts_link",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "dangling_meta_link",
+  "installer": "frozen",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [
+   "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta"
+  ],
+  "pathLost": true
+ },
+ {
+  "case": "dangling_meta_link",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "live_ts_link",
+  "installer": "frozen",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Current hash mismatch: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "live_ts_link",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "backup_root_alias_into_assets",
+  "installer": "frozen",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/STATE.json",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/SUCCESS.txt",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts/world-r1",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts/world-r2",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/original/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged/creator-build-project",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged/creator-build-project/assets",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged/creator-build-project/assets/scripts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged/creator-build-project/assets/scripts/world-r1",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-25cdc090/staged/creator-build-project/assets/scripts/world-r2",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/STATE.json",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/SUCCESS.txt",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r1",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r2",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/original/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged/creator-build-project",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged/creator-build-project/assets",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged/creator-build-project/assets/scripts",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged/creator-build-project/assets/scripts/world-r1",
+   "creator-build-project/assets/scripts/island-lighthouse-return-room-hud-20261011T105936Z-bd088fa2/staged/creator-build-project/assets/scripts/world-r2"
+  ],
+  "pathLost": true
+ },
+ {
+  "case": "backup_root_alias_into_assets",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Backup root not a real directory (symlink): .cloud-patch-backups"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "internal_parent_alias",
+  "installer": "frozen",
+  "check": 0,
+  "checkMsg": [
+   "Preflight PASS; zero writes"
+  ],
+  "apply": 0,
+  "rollback": 0,
+  "diffAfterRoundTrip": [],
+  "pathLost": false
+ },
+ {
+  "case": "internal_parent_alias",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Parent not a real directory (symlink) for dependency: creator-build-project/assets/scripts/world-r2",
+   "Parent not a real directory (symlink) for dependency: creator-build-project/assets/scripts/world-r2"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "external_parent_alias",
+  "installer": "frozen",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Dependency hash mismatch: creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
+   "Dependency hash mismatch: creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "external_parent_alias",
+  "installer": "v2",
+  "check": 1,
+  "checkMsg": [
+   "No files changed.",
+   "Parent not a real directory (symlink) for dependency: creator-build-project/assets/scripts/world-r2",
+   "Parent not a real directory (symlink) for dependency: creator-build-project/assets/scripts/world-r2"
+  ],
+  "zeroWritesOnReject": true,
+  "applyAlsoRejected": true,
+  "zeroWritesAfterApplyAttempt": true
+ },
+ {
+  "case": "rollback_refuses_nonregular_new_path",
+  "installer": "v2",
+  "rollback": 1,
+  "msg": [
+   "No files changed.",
+   "Target not a regular file (symlink): creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+  ],
+  "zeroWrites": true
+ }
+]

@@ -1,0 +1,210 @@
+{
+ "pass": true,
+ "total": 23,
+ "failed": [],
+ "rows": [
+  {
+   "case": "roundtrip-baseline-l123",
+   "pass": true,
+   "check": 0,
+   "checkZeroWrites": true,
+   "apply": 0,
+   "verifyAfterApply": 10,
+   "rollback": 0,
+   "verifyAfterRollback": 0,
+   "treeIdentical": true
+  },
+  {
+   "case": "roundtrip-baseline-l12",
+   "pass": true,
+   "check": 0,
+   "checkZeroWrites": true,
+   "apply": 0,
+   "verifyAfterApply": 10,
+   "rollback": 0,
+   "verifyAfterRollback": 0,
+   "treeIdentical": true
+  },
+  {
+   "case": "prereq-dependency-mismatch:WorldFlowCore.ts",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Dependency hash mismatch: creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts"
+   ]
+  },
+  {
+   "case": "prereq-dependency-mismatch:combined_visual_m.glb",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Dependency hash mismatch: creator-build-project/assets/bundles/region_island/combined_visual_m.glb"
+   ]
+  },
+  {
+   "case": "prereq-dependency-mismatch:WarmButton.ts",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Dependency hash mismatch: creator-build-project/assets/scripts/WarmButton.ts"
+   ]
+  },
+  {
+   "case": "prereq-target-mismatch:Boot",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Current hash mismatch: creator-build-project/assets/scripts/WorldIntegrationBoot.ts"
+   ]
+  },
+  {
+   "case": "wrong-tree-near-rejected",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Dependency hash mismatch: creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
+    "Dependency hash mismatch: creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
+    "Dependency hash mismatch: creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts"
+   ]
+  },
+  {
+   "case": "mutually-exclusive-l12-on-l123",
+   "pass": true,
+   "apply": 1,
+   "rollback": 1
+  },
+  {
+   "case": "path-dangling-ts-link",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+   ]
+  },
+  {
+   "case": "path-dangling-meta-link",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta"
+   ]
+  },
+  {
+   "case": "path-live-ts-link",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Target must be truly absent but is symlink: creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+   ]
+  },
+  {
+   "case": "path-backup-root-alias-into-assets",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Backup root not a real directory (symlink): .cloud-patch-backups"
+   ]
+  },
+  {
+   "case": "path-internal-parent-alias-world-r2",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Parent not a real directory (symlink) for target: creator-build-project/assets/scripts/world-r2"
+   ]
+  },
+  {
+   "case": "path-external-parent-alias-world-r2",
+   "pass": true,
+   "check": 1,
+   "apply": 1,
+   "msg": [
+    "Parent not a real directory (symlink) for target: creator-build-project/assets/scripts/world-r2"
+   ]
+  },
+  {
+   "case": "apply-fault-after-1-full-restore",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Patch failed: Injected fault (T1_FAULT_AFTER) before creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "apply-fault-after-2-full-restore",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Patch failed: Injected fault (T1_FAULT_AFTER) before creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "apply-fault-after-3-full-restore",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Patch failed: Injected fault (T1_FAULT_AFTER) before creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "apply-fault-after-4-full-restore",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Patch failed: Injected fault (T1_FAULT_AFTER) before creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "rollback-fault-after-3-full-restore",
+   "pass": true,
+   "rollback": 1,
+   "msg": [
+    "Patch failed: Injected fault (T1_FAULT_AFTER) before creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "apply-real-permission-error-full-restore",
+   "pass": true,
+   "apply": 1,
+   "msg": [
+    "Patch failed: [Errno 13] Permission denied: '/tmp/ggbot-t1-run/inst/perm/.cloud-patch-backups/T1-lighthouse-return-baseline-l123-20261011T105935Z-6a939acb/staged/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts' -> '/tmp/ggbot-t1-run/inst/perm/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts'",
+    "Automatic restoration verified."
+   ]
+  },
+  {
+   "case": "rollback-refuses-edited-file",
+   "pass": true,
+   "rollback": 1,
+   "msg": [
+    "Current hash mismatch: creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts"
+   ]
+  },
+  {
+   "case": "rollback-refuses-nonregular-new-path",
+   "pass": true,
+   "rollback": 1,
+   "msg": [
+    "Target not a regular file (symlink): creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts"
+   ]
+  },
+  {
+   "case": "tampered-package-rejected",
+   "pass": true,
+   "verify": 3,
+   "apply": 1
+  }
+ ]
+}

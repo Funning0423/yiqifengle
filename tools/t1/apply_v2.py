@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""T1 PROTOTYPE installer v2 (GGbot 2026-10-11) — 未作为正式安装器发布。
+"""T1 exact-file installer v2 (GGbot 2026-10-11)。用法: apply.py <repo> [--check|--rollback]
 相对冻结 apply.py (268789cb…) 的改动：
  1. 所有目标/依赖路径用 lstat 判定类型：只接受「真实缺失」或「普通文件(非链接)」。悬空链接、链接、目录、FIFO 等一律写前拒绝。
  2. 从仓库根到目标父目录的每一级必须是真实目录或尚不存在（不跟随任何符号链接，包括仓库内部链接）。
@@ -78,9 +78,10 @@ def main():
         p = root / f['path']; k = kind(p)
         if chain_errors(root, f['path'], 'target') or (f[expect] is None and k != 'absent') or (f[expect] is not None and (k != 'file' or digest(p) != f[expect])):
             sys.exit('No target files changed; concurrent edit detected: ' + f['path'] + '; backup ' + str(backup))
-    changed = []
+    changed = []; fault = int(os.environ['T1_FAULT_AFTER']) if os.environ.get('T1_FAULT_AFTER', '').isdigit() else None  # test-only fault injection
     try:
         for f in m['files']:
+            if fault is not None and len(changed) >= fault: raise RuntimeError('Injected fault (T1_FAULT_AFTER) before ' + f['path'])
             p = root / f['path']; changed.append(f['path'])
             if f[target] is None:
                 if kind(p) != 'file': raise RuntimeError('Refusing to unlink non-regular path: ' + f['path'])
@@ -94,9 +95,11 @@ def main():
             if (f[target] is None and kind(p) != 'absent') or (f[target] is not None and digest(p) != f[target]): raise RuntimeError('Postwrite mismatch: ' + f['path'])
     except BaseException as error:
         failures = []
+        want = {f['path']: f[expect] for f in m['files']}
         for rel in reversed(changed):
             p = root / rel; saved = backup / 'original' / rel
             try:
+                if (want[rel] is None and kind(p) == 'absent') or (want[rel] is not None and digest(p) == want[rel]): continue  # untouched or already original
                 if kind(saved) == 'file':
                     tmp = p.parent / ('.restore-' + uuid.uuid4().hex[:8]); tmp.write_bytes(saved.read_bytes()); os.replace(tmp, p)
                 elif kind(p) == 'file': p.unlink()

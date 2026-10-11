@@ -1,0 +1,113 @@
+{
+  "name": "T1-lighthouse-return-baseline-l123",
+  "task_id": "T1",
+  "baseline_commit": "1ef9f1d1f784293209eff158c15479e04327deaf",
+  "status": "HOLD: isolated validation only; not for production install",
+  "mutually_exclusive_with": [
+    "T1-lighthouse-return-baseline-l12",
+    "island-lighthouse-return-room-hud",
+    "island-lighthouse-return-near-hud"
+  ],
+  "files": [
+    {
+      "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
+      "before_sha256": "4b4be7ab333b0f5263390e6a73a04e3ea75ef1bf6ca3143560ebfb226a3cf08e",
+      "after_sha256": "99ee910dfd5e78f537f5ae1c1e6392785bdd161ea025697016fb8c69457aa21a",
+      "before_bytes": 32545,
+      "after_bytes": 33160
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
+      "before_sha256": "2aba051baabd4e79c77cd6655f6a7ea588d28741223253025eb3bbade061d1a5",
+      "after_sha256": "d7be489e134dca868f303ce240404542c9fd68aa958ca4f7d39facc42f70da49",
+      "before_bytes": 35443,
+      "after_bytes": 37009
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts",
+      "before_sha256": "aae6157ce78918e0481dceb61c731ae5fb3bdff6c9a41e81faaa91da23e8d6a9",
+      "after_sha256": "c83ca5e17adaeb017457ed7078c05bdc4cbd98a9c46977712395f38b230e71d6",
+      "before_bytes": 10337,
+      "after_bytes": 10310
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
+      "before_sha256": null,
+      "after_sha256": "a9e7de32d8f8c5857ebcaa82128161137e4db7a83e209c0fd932809378f7cd99",
+      "before_bytes": 0,
+      "after_bytes": 6012
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
+      "before_sha256": null,
+      "after_sha256": "7bedcae779edc09d10335b117d1ca9d738f95351f4dc92f4e764ed602a0398c8",
+      "before_bytes": 0,
+      "after_bytes": 171
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
+      "sha256": "0d6a4d40f58c108adf93dbb1ebf8b47c2d757d5812284f6e441f5fe58468ec7d"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
+      "sha256": "a3c4c1e2cc11b524dd34288560ff0cd306d419bc9f7aa7fc5e08cca307575fd9"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts",
+      "sha256": "0a98e3408074ac429f11035226b292a83c722c7eb7a010e731d89dab76daebc2"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
+      "sha256": "02e07f07ee496faf237e79b5658fa90a5399fcde153d6c2064760b679f9af7ad"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/CameraPose.ts",
+      "sha256": "13da387a435468b878cb005750e2d70d6f10ac90a6c60c4d07c755c767ad7cf1"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/RoomLook.ts",
+      "sha256": "0207bc47df4c38688b762979171797f043aef07e272501f04e1e320efc8f83de"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
+      "sha256": "a141d0b292c12c0196369439dd9160b24579ca31927b3cdd1fe1b0517fac35cb"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/WarmButton.ts",
+      "sha256": "9c1c0d57a9607e924636a872a1308386f4096b30e8eb21378c0261cd63f77abb"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts",
+      "sha256": "ea951b0ebdfa099a6ba3a9adbc6abe658f59bc00df7dac187dfab901baf531df"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
+      "sha256": "d067086fb4bcfe0d8fa8f97a2f89f8a0d0eac060008606186a0955c35c1cb424"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
+      "sha256": "96b45de1c827ee9ecbf0145abe34cee46d669e92927cb0189c6ca6a38a08e599"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
+      "sha256": "f1ccab5495ac4e9bbea294a137824140a02b682bab2b87e405c600e7ed3241b9"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts.meta",
+      "sha256": "ddebe0a9a3c20c9ac664a0443e4e262610dadd77b08e494de1563c7e407e25bd"
+    },
+    {
+      "path": "creator-build-project/assets/scripts/world-r2.meta",
+      "sha256": "469792b77b6d1079d688e63146eb84659a74bf7a86b39c2ce4716a043211a213"
+    },
+    {
+      "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb",
+      "sha256": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b"
+    }
+  ],
+  "native_status": "NOT_RUN",
+  "new_media_bytes": 0,
+  "production_delta_bytes": 8337
+}

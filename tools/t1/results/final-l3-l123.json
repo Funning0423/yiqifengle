@@ -1,0 +1,11 @@
+{
+ "pass": true,
+ "hasL3": true,
+ "checks": [
+  "registers once; dispose removes the same listener exactly once; post-dispose raw event inert",
+  "no wx global: constructs/disposes",
+  "wx without offTouchStart: L3 not registered (no leak)",
+  "onTouchStart throwing: tolerated, no off call",
+  "malformed raw events ignored"
+ ]
+}

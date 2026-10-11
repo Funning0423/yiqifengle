@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 /* T1 几何解码夹具原型（只读 GLB，输出到指定路径；不进生产包）。
- * 用法: DRACO3D=/path/node_modules/draco3d node decode_pick_geometry.cjs <combined_visual_m.glb> <out.json>
+ * 准备: (cd tools/vendor-node && npm ci)   # draco3d 1.5.7 精确锁定
+ * 用法: [DRACO3D=…] node decode_pick_geometry.cjs <combined_visual_m.glb> <out.json>
  * 解码 env_lighthouse_ext / env_lighthouse_door / env_interior_shell 的 KHR_draco_mesh_compression 三角流，
  * 写入身份：GLB sha256、节点索引/TRS、解码器版本、每条流 sha256、计数与 min/max。 */
 const fs=require('fs'),crypto=require('crypto'),path=require('path');
 const [glbPath,outPath]=process.argv.slice(2);if(!glbPath||!outPath)throw Error('usage: decode_pick_geometry.cjs GLB OUT');
-const dracoDir=process.env.DRACO3D||require.resolve('draco3d').replace(/[\\/][^\\/]+$/,'');
+const dracoDir=process.env.DRACO3D||path.resolve(__dirname,'../vendor-node/node_modules/draco3d');
 const draco=require(path.join(dracoDir,'draco3d.js'));const dracoPkg=JSON.parse(fs.readFileSync(path.join(dracoDir,'package.json'),'utf8'));
 const NAMES=['env_lighthouse_ext','env_lighthouse_door','env_interior_shell'];
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');

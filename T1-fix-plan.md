@@ -268,3 +268,7 @@
 - 实际 OS 多指派发、真实点击回屋的视觉和音频解锁。
 - 包体实测。
 - 作者 test_wiring、test_hosts、49 项事务测试在 baseline 变体上的重跑。
+
+
+---
+**2026-10-11 06:05 更新**：baseline 变体已实现并在共享电脑上测完，见 `T1-implementation-report.md` 与 `candidates/T1-lighthouse-return-baseline/README.md`。原型文件已由正式文件替代（`tools/t1/apply_v2.py`、`tools/t1/src/IslandHomeInteraction.L123.ts` / `.L12.ts`）。

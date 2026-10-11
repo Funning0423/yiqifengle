@@ -1,0 +1,160 @@
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 36667e4..d1fe0ea 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -1,3 +1,4 @@
++import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
+ import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
+ import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
+ import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
+@@ -72,7 +73,7 @@ export class WorldIntegrationBoot extends Component {
+  @property initialSeatedClip='sit_hold';
+  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
+  private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+- private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
++ private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
+  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private error='';private doorReached=false;
+  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
+  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
+@@ -143,7 +144,7 @@ export class WorldIntegrationBoot extends Component {
+  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
+  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
+  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
+- this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});}
++ this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome())});}
+  private createLoadingBackdrop(){const mask=new Node('LoadingOpaqueUntilWorldReady');mask.layer=Layers.Enum.UI_2D;this.canvas.addChild(mask);mask.addComponent(UITransform);mask.addComponent(Graphics);this.loadingMask=mask;const n=new Node('ApprovedLoadingReference_INTERNAL_TEST_ONLY');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform);this.loadingBackdrop=n;const sprite=n.addComponent(Sprite);sprite.sizeMode=Sprite.SizeMode.CUSTOM;
+   assetManager.loadBundle('resources',(bundleError)=>{if(bundleError){console.error('Loading backdrop bundle failed',bundleError);return;}resources.load('ui/loading-reference',ImageAsset,(error,image)=>{if(!isValid(n,true))return;if(error){console.error('Loading backdrop image failed',error);return;}const texture=new Texture2D();texture.image=image;const frame=new SpriteFrame();frame.texture=texture;sprite.spriteFrame=frame;this.loadingImageSize={width:image.width,height:image.height};n.active=this.loadPhase!=='ready';this.resize();});});}
+  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
+@@ -164,7 +165,7 @@ export class WorldIntegrationBoot extends Component {
+  this.notice.node.parent!.active=false;this.status.node.parent!.active=!!this.error||!!transitionText;this.status.string=this.error||transitionText||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':'');if(s.state==='skycity')this.status.node.parent!.active=true;
+  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
+  for(const [k,n]of this.controls)n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
+- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);
++ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);
+  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
+  if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
+  if(registered&&board){this.placeResultButtons(board.hostLayout(),['next','claim']);const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
+@@ -177,5 +178,5 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+ 
+  }
+  update(){if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation();}
+- onDestroy(){this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
++ onDestroy(){this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ }
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+index 8e06a47..851c8ea 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts
+@@ -1,5 +1,5 @@
+ import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
+-import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx } from 'cc';
++import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry } from 'cc';
+ import { RoomLook } from './RoomLook';
+ import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
+ import { RoomLightingRig } from '../render/RoomLightingRig';
+@@ -130,6 +130,7 @@ export class WorldFlowComponent extends Component {
+   private roomLook=new RoomLook(homePoseEntry());
+   private roomLookToken:Cancellation|null=null;
+   private jobs=new Set<Job>();
++  private lighthouseTargets:MeshRenderer[]=[];private readonly lighthouseRay=new geometry.Ray();private readonly lighthouseRayOptions={mode:geometry.ERaycastMode.ANY,distance:500,doubleSided:true};
+   private ownedModel:Node|null=null;
+   private disposed=false;
+   private safetyFailure:string|null=null;
+@@ -178,12 +179,19 @@ export class WorldFlowComponent extends Component {
+   /** UI receives this command facade, never scene/model/camera references. */
+   commands() {
+     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
+-    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),
++    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),
+       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
+       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
+       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
+       dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true)});
+   }
++  private hitLighthouse(x:number,y:number):boolean {
++    const s=this.flow?.snapshot();if(!s||s.state!=='island'||s.hidden||s.needsResume||!s.characterReady||this.disposed||this.safetyFailure||!this.worldCamera||!Number.isFinite(x)||!Number.isFinite(y))return false;
++    const ray=this.lighthouseRay;ray.o.set(NaN,NaN,NaN);ray.d.set(NaN,NaN,NaN);this.worldCamera.screenPointToRay(x,y,ray);
++    if(!Number.isFinite(ray.o.x)||!Number.isFinite(ray.o.y)||!Number.isFinite(ray.o.z)||!Number.isFinite(ray.d.x)||!Number.isFinite(ray.d.y)||!Number.isFinite(ray.d.z))return false;
++    // The hidden interior shell is an exact-geometry fallback for open doorway/window holes, never a bounding-box hotzone.
++    for(const r of this.lighthouseTargets){if(!isValid(r,true)||!isValid(r.node,true)||!r.node.activeInHierarchy||!r.model)continue;if(geometry.intersect.rayModel(ray,r.model,this.lighthouseRayOptions)>0)return true;}return false;
++  }
+   private roomView(aspect:number){const s=this.flow?.snapshot();return {enabled:!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0,settling:!!this.roomLookToken,door:this.roomLook.door(FIRSTSLICE.anchors.door_handle.position,aspect),angles:this.roomLook.angles()};}
+   private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera||!this.roomLook.drag(dx,dy))return false;return applyCameraPose(this.worldCamera,this.roomLook.pose(),'room.look');}
+   private cancelRoomLook(){const changed=this.roomLook.moved()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
+@@ -232,6 +240,7 @@ export class WorldFlowComponent extends Component {
+       const lightNode=director.getScene()?.getChildByName('Main Light');this.mainLight=lightNode?.getComponent(DirectionalLight)??null;
+       if(this.mainLight){this.lightHome=this.mainLight.illuminance;this.lightHomeColor=this.mainLight.color.clone();}
+       for(const r of model.getComponentsInChildren(MeshRenderer))if(!known.has(r)){if(['env_interior_floor_skirt_preview','character_height_reference_1p626'].includes(r.node.name))r.enabled=false;else throw Error('Unclassified renderer: '+r.node.name);}
++      this.lighthouseTargets=[];for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']){const entry=FIRSTSLICE.renderers.find(e=>e.name===name);const list=entry?renderers.get(entry.path):null;if(!list||list.length!==1)throw Error('Exact lighthouse tap mesh missing: '+name);this.lighthouseTargets.push(list[0]);}
+       const rearGlass=renderers.get('scene_root/env_rear_window_glass');
+       if(!rearGlass||rearGlass.length!==1)throw Error('Expected one exact rear-window glass renderer');
+       this.releaseRearGlass=bindRearWindowAlpha(rearGlass[0]);
+@@ -336,7 +345,7 @@ export class WorldFlowComponent extends Component {
+   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
+   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
+   onDestroy():void {
+-    if(this.disposed)return;this.disposed=true;this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
++    if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
+     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
+     // The light belongs to the scene; a retry must capture the authored day baseline.
+     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome;if(this.lightHomeColor)this.mainLight.color=this.lightHomeColor;}
+diff --git b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts
+new file mode 100644
+index 0000000..7640f4f
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts
+@@ -0,0 +1,26 @@
++import {Node,UITransform,Layers,Vec2,EventTouch,game,Game,isValid,input,Input} from 'cc';
++import {GameAudio} from '../audio/GameAudio';
++type Options={canUse:()=>boolean;hit:(screenX:number,screenY:number)=>boolean;returnHome:()=>unknown};
++type RawTouchEvent={touches?:{identifier:number}[];changedTouches?:{identifier:number}[]};
++/** Actual scene hit only; no visible button or persistent floating label. UI siblings stay above this surface. */
++export class IslandHomeInteraction {
++ private root:Node;private transform:UITransform;private pointer:number|null=null;private start=new Vec2();private point=new Vec2();private screen=new Vec2();private moved=false;private blocked=false;private hitStart=false;private pending=false;private dead=false;private width=1;private height=1;private rawStart:((e:RawTouchEvent)=>void)|null=null;
++ constructor(parent:Node,private options:Options){this.root=new Node('IslandLighthouseTouch');this.root.layer=Layers.Enum.UI_2D;parent.addChild(this.root);this.root.setSiblingIndex(0);this.transform=this.root.addComponent(UITransform);this.root.active=false;this.root.on(Node.EventType.TOUCH_START,this.down,this);this.root.on(Node.EventType.TOUCH_MOVE,this.move,this);this.root.on(Node.EventType.TOUCH_END,this.up,this);this.root.on(Node.EventType.TOUCH_CANCEL,this.cancel,this);game.on(Game.EVENT_HIDE,this.cancel,this);input.on(Input.EventType.TOUCH_START,this.observeTouch,this);this.listenRaw();}
++ /** L3: WeChat platform listener sees every finger even when a UI sibling claims it before Cocos GLOBAL dispatch. */
++ private listenRaw(){const wx=(globalThis as any).wx;if(!wx||typeof wx.onTouchStart!=='function'||typeof wx.offTouchStart!=='function')return;const f=(e:RawTouchEvent)=>this.observeRaw(e);try{wx.onTouchStart(f);this.rawStart=f;}catch{}}
++ private observeRaw(e:RawTouchEvent){if(this.pointer===null)return;for(const t of [...(e?.touches??[]),...(e?.changedTouches??[])])if(t&&t.identifier!==this.pointer){this.blocked=true;return;}}
++ sync(width:number,height:number,enabled:boolean){if(this.dead)return;if(!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0){this.root.active=false;this.cancel();return;}if(width!==this.width||height!==this.height){this.cancel();this.width=width;this.height=height;this.transform.setContentSize(width,height);}this.root.active=enabled;if(!this.root.active){this.cancel();return;}this.poll();}
++ /** L2: touchManager is updated before any dispatcher, so a finger claimed by UI is still counted (checked every frame and on own events). */
++ private poll(){if(this.pointer!==null&&input.getTouchCount()>1)this.blocked=true;}
++ /** True when any touch other than the tracked pointer is down; valid whether or not END lists the released touch. */
++ private others(e:EventTouch){return e.getAllTouches().some(t=>t.getID()!==this.pointer);}
++ private allowed(){return !this.dead&&this.root.active&&!this.pending&&this.options.canUse();}
++ /** Query only on pointer down/up, so same-size safe-area changes cannot leave a stale clickable zone. */
++ private safe(p:Vec2){if(p.x<0||p.y<0||p.x>this.width||p.y>this.height)return false;const wx=(globalThis as any).wx;if(!wx)return true;try{const info=wx.getWindowInfo?.()??wx.getSystemInfoSync?.();const w=info?.windowWidth,h=info?.windowHeight;if(!(Number.isFinite(w)&&Number.isFinite(h)&&w>0&&h>0))return true;const x=p.x/this.width*w,y=(1-p.y/this.height)*h,a=info.safeArea;if(a&&[a.left,a.right,a.top,a.bottom].every(Number.isFinite)&&(x<a.left||x>a.right||y<a.top||y>a.bottom))return false;const r=wx.getMenuButtonBoundingClientRect?.();if(r&&[r.left,r.right,r.top,r.bottom].every(Number.isFinite)&&r.right>r.left&&r.bottom>r.top){const pad=4,left=r.left-(r.bottom-r.top)-12;if(x>=left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad)return false;}}catch{}return true;}
++ private observeTouch(e:EventTouch){if(this.pointer!==null&&(e.getID()!==this.pointer||this.others(e)))this.blocked=true;}
++ private down(e:EventTouch){if(!this.allowed())return;if(this.pointer!==null||e.getAllTouches().length>1||input.getTouchCount()>1){this.blocked=true;return;}const id=e.getID();if(id===null)return;const p=e.getUILocation(this.point);this.pointer=id;this.start.set(p.x,p.y);this.moved=false;this.blocked=false;const s=e.getLocation(this.screen);this.hitStart=this.safe(p)&&this.options.hit(s.x,s.y);}
++ private move(e:EventTouch){if(e.getID()!==this.pointer)return;if(this.others(e))this.blocked=true;this.poll();if(!this.allowed()){this.cancel();return;}const p=e.getUILocation(this.point);if(Math.hypot(p.x-this.start.x,p.y-this.start.y)>8)this.moved=true;}
++ private up(e:EventTouch){if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}/* L1: no other finger may still be down when the tracked finger lifts. */const self=e.getAllTouches().some(t=>t.getID()===this.pointer)?1:0,alone=!this.others(e)&&input.getTouchCount()<=self;const p=e.getUILocation(this.point),s=e.getLocation(this.screen);const fire=this.allowed()&&!this.blocked&&alone&&!this.moved&&this.hitStart&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.safe(p)&&this.options.hit(s.x,s.y);this.cancel();if(!fire)return;this.pending=true;try{GameAudio.notifyUserGesture();Promise.resolve(this.options.returnHome()).then(()=>{this.pending=false;},()=>{this.pending=false;});}catch(error){this.pending=false;throw error;}}
++ private cancel(){this.pointer=null;this.moved=false;this.blocked=false;this.hitStart=false;}
++ dispose(){if(this.dead)return;this.dead=true;this.cancel();game.off(Game.EVENT_HIDE,this.cancel,this);input.off(Input.EventType.TOUCH_START,this.observeTouch,this);const wx=(globalThis as any).wx;if(this.rawStart){try{wx?.offTouchStart?.(this.rawStart);}catch{}this.rawStart=null;}if(isValid(this.root,true)){this.root.off(Node.EventType.TOUCH_START,this.down,this);this.root.off(Node.EventType.TOUCH_MOVE,this.move,this);this.root.off(Node.EventType.TOUCH_END,this.up,this);this.root.off(Node.EventType.TOUCH_CANCEL,this.cancel,this);this.root.destroy();}}
++}
+diff --git b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta
+new file mode 100644
+index 0000000..912d053
+--- /dev/null
++++ b/creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "177535cd-ae23-41af-8c5c-1bd4ad2b4e31",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+index 7dc7d53..6f4f2bb 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts
+@@ -56,7 +56,7 @@ export class IslandJourneyOverlay {
+    this.text(this.panel,'在关卡中使用道具',0,-h/2+29,12,w-40,'#788466');
+   }else if(this.page==='settings'){
+    const night=this.safeRead(this.options.dayNight)?.mode==='night';this.text(this.panel,'让旅程慢一点',0,h/2-68,13,w-40,'#788466');
+-   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.button('ReturnHome','回屋小憩',0,-46,w-60,48,()=>this.dispatch(this.options.returnHome),true);
++   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.text(this.panel,'轻点灯塔，回屋小憩',0,-46,13,w-60,'#697b59');
+   }else{
+    const region=this.page,chapter=CHAPTERS.find(c=>c.id===region)!,gate=this.gate(region),extra=region==='tide'||region==='sky';
+    const blocked=gate?.reason==='stage-locked'?'主线解锁后开启':gate?.reason==='completion-unsaved'?'先保存当前成绩':['finish-or-discard-current-attempt','pending-stage-start'].includes(gate?.reason)?'请先继续当前挑战':'暂不可进入';
