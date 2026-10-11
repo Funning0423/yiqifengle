@@ -1,0 +1,14 @@
+# T0 autoplay prerequisite SHA-256 allowlist. Format: <level> <sha256> <path under creator-build-project/assets/scripts>
+# strict = glue reads private fields of this file; unknown SHA -> install refuses (override: --accept-unknown, logged).
+# observe = only feeds read-only observers (audio/segments); unknown SHA -> warning, observer degrades and logs.
+strict 4b4be7ab333b0f5263390e6a73a04e3ea75ef1bf6ca3143560ebfb226a3cf08e WorldIntegrationBoot.ts            baseline/near/matte
+strict 99ee910dfd5e78f537f5ae1c1e6392785bdd161ea025697016fb8c69457aa21a WorldIntegrationBoot.ts            T1 l123/l12 after
+strict a141d0b292c12c0196369439dd9160b24579ca31927b3cdd1fe1b0517fac35cb RoomExploreOverlay.ts              baseline/near/matte/T1
+strict aae6157ce78918e0481dceb61c731ae5fb3bdff6c9a41e81faaa91da23e8d6a9 world-r2/IslandJourneyOverlay.ts   baseline/near/matte
+strict c83ca5e17adaeb017457ed7078c05bdc4cbd98a9c46977712395f38b230e71d6 world-r2/IslandJourneyOverlay.ts   T1 after
+strict ea951b0ebdfa099a6ba3a9adbc6abe658f59bc00df7dac187dfab901baf531df world-r2/WorldNativeComposition.ts baseline/near/matte/T1
+observe 2aba051baabd4e79c77cd6655f6a7ea588d28741223253025eb3bbade061d1a5 world-r1/WorldFlowComponent.ts   baseline/near/matte
+observe d7be489e134dca868f303ce240404542c9fd68aa958ca4f7d39facc42f70da49 world-r1/WorldFlowComponent.ts   T1 after
+observe 0d6a4d40f58c108adf93dbb1ebf8b47c2d757d5812284f6e441f5fe58468ec7d world-r1/WorldFlowCore.ts         baseline/matte/T1
+observe c5cd721f94351c05b2ee80eb5ab56456398b57f41af31d461c990006aedf0558 world-r1/WorldFlowCore.ts         near
+observe d067086fb4bcfe0d8fa8f97a2f89f8a0d0eac060008606186a0955c35c1cb424 audio/GameAudio.ts              all
