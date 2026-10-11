@@ -2,7 +2,7 @@
 /** --real-walk: GGbot's REAL walk driver (FlowReferenceStandin from WorldIntegrationBoot.ts + CharacterMotion.ts, walk GLB
  * evaluated by tools/walk-driver/glb_rig.cjs) as the flow_sim character, so camera tracks follow the driver's own
  * walkProgress() (distance-driven) and her root/yaw come from the driven node. Setup mirrors tools/walk-driver/test_walk_driver.cjs.
- * env WALK_GLB (default 角色动画bot walk-v2, else walk-v1, else the repo interim GLB). */
+ * env WALK_GLB (default: the committed repo character GLB = walk_loop v2 since int/v1 c38c880). */
 const fs=require('fs'),path=require('path'),vm=require('vm');
 function create(M,W){const ROOT=path.resolve(__dirname,'..','..'),S=path.join(ROOT,'creator-build-project/assets/scripts');
   const ts=require(process.env.QF_TYPESCRIPT_MODULE||require('../qf-env.cjs').typescript()),G=require('../walk-driver/glb_rig.cjs');
@@ -11,7 +11,7 @@ function create(M,W){const ROOT=path.resolve(__dirname,'..','..'),S=path.join(RO
   const boot=fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8');const cls=boot.slice(boot.indexOf('/** Explicit flow-reference stand-in.'),boot.indexOf("@ccclass('WorldIntegrationBoot')"));
   const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},pointOnPath:W.pointOnPath,exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:{}};
   vm.runInNewContext(tx(cls+'\nexports.Standin=FlowReferenceStandin;'),ctx);
-  const P='/workspace/yiqifengle/previews/角色动画bot/';const glb=[process.env.WALK_GLB,P+'walk-v2/chr_b_r5g2_walk-v2_TEST.glb',P+'walk-v1/chr_b_r5g2_walk-v1_TEST.glb',path.join(ROOT,'creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')].find(p=>p&&fs.existsSync(p));
+  const P='/workspace/yiqifengle/previews/角色动画bot/';const glb=[process.env.WALK_GLB,path.join(ROOT,'creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb'),P+'walk-v2/chr_b_r5g2_walk-v2_TEST.glb'].find(p=>p&&fs.existsSync(p));
   const mp=path.join(path.dirname(glb),'anim_meta.json'),meta=fs.existsSync(mp)?JSON.parse(fs.readFileSync(mp,'utf8')):null;
   const rig=G.loadRig(glb),clips=Object.keys(rig.clips).map(k=>({name:k,duration:rig.clips[k].duration,apply:t=>G.applyClip(rig.clips[k],t)})),states=new Map();
   const anim={node:rig.root,clips,useBakedAnimation:true,getState(n){if(states.has(n))return states.get(n);const c=clips.find(x=>x.name===n);return c?this.createState(c,n):null;},
