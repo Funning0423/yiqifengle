@@ -1,5 +1,5 @@
 /** out-and-back end-to-end + observers (audio/app/segments/camera-settled). */
-import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerTextHost,engine,scene} from './harness';
+import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerTextHost,engine,scene,leaseLog} from './harness';
 import {Node} from 'cc';
 const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));process.exit(1);};
 (async()=>{
@@ -37,13 +37,23 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  const L=marks(),N=names();console.error(L.join('\n'));
  if(ap().phase()!=='done')fail('phase '+ap().phase());
  if(calls.leave!==1||calls.ret!==1)fail('calls '+JSON.stringify(calls));
- const need=['standing','turning-out','walking-out','opening-door','crossing-out','island','walking-home','crossing-in','closing-door','walking-to-seat','sitting','home'];
+ // 运镜bot 0b6202e follow return: she walks through the doorway without stopping, no 'closing-door' state; the door shut is door:shut
+ const need=['standing','turning-out','walking-out','opening-door','crossing-out','island','walking-home','crossing-in','walking-to-seat','sitting','home'];
  const seen=states.slice(states.indexOf('standing'));if(JSON.stringify(seen)!==JSON.stringify(need))fail('flow states '+JSON.stringify(seen));
- const order=['autoplay-installed','autoplay-armed','world-ready','tap-door','state:standing','seg:toDoor:start','seg:toDoor:end','state:opening-door','seg:crossing-out:start','seg:crossing-out:end','seg:toIsland:start','seg:toIsland:end','state:island','island-arrived','hold-start','hold-end','tap-return','state:walking-home','seg:toThreshold:end','seg:crossing-in:start','seg:crossing-in:end','state:closing-door','seg:toSeat:start','seg:toSeat:end','state:sitting','home-seated','autoplay-done'];
+ const order=['autoplay-installed','autoplay-armed','world-ready','tap-door','state:standing','seg:toDoor:start','seg:toDoor:end','state:opening-door','seg:crossing-out:start','seg:crossing-out:end','seg:toIsland:start','seg:toIsland:end','state:island','island-arrived','hold-start','hold-end','tap-return','state:walking-home','seg:toThreshold:end','seg:crossing-in:start','seg:crossing-in:end','seg:toSeat:start','seg:toSeat:end','state:sitting','home-seated','autoplay-done'];
  const idx=order.map(o=>N.indexOf(o));if(idx.some(i=>i<0)||idx.some((v,i)=>i&&v<idx[i-1]))fail('order '+JSON.stringify(order.map((o,i)=>o+'@'+idx[i])));
+ {const D=L.filter(l=>l.split(' ')[1]==='door:shut'),get=(k:string,l:string)=>(l.match(new RegExp(' '+k+'=(\\S+)'))||[])[1];
+  if(N.includes('state:closing-door'))fail('closing-door state on the follow return');
+  if(D.length!==1)fail('door:shut count '+D.length);const d=D[0],di=N.indexOf('door:shut');
+  if(!(di>N.indexOf('seg:toSeat:start')&&di<N.indexOf('home-seated')))fail('door:shut outside toSeat..home-seated');
+  if(!/ state=(walking-to-seat|sitting) /.test(d)||get('n',d)!=='1'||get('via',d)!=='WorldLease.setLayers(HOME)'||get('door',d)!=='0'||get('leafZeroMs',d)!=='0'||!(Number(get('sinceWalkingHomeMs',d))>0))fail('door:shut fields '+d);
+  // the real onDoorShut -> homeLayers path: HOME arrives once while sitting/walking (door shut) and again from restore() before 'home'
+  if(leaseLog.layers.filter(x=>x==='I').length<2||leaseLog.door[leaseLog.door.length-1]!==0)fail('lease HOME/door '+JSON.stringify(leaseLog.layers)+' last door '+leaseLog.door[leaseLog.door.length-1]);
+  if(!L.some(l=>/ door:shut-hook .*status=subscribed via=WorldFlow.world setDoor=1/.test(l))||L.some(l=>/ door:shut-hook .*status=(missed|unavailable)/.test(l)))fail('door:shut-hook');}
  for(const st of ['state:crossing-out','state:crossing-in','state:walking-to-seat'])if(!N.includes(st))fail('missing '+st);
  if(!N.includes('seg:toThreshold:start')||N.indexOf('seg:toThreshold:start')<N.indexOf('hold-end'))fail('toThreshold start');
  const ms=(n:string)=>Number(L.find(l=>l.split(' ')[1]===n)!.split(' ')[2]);if(ms('hold-end')-ms('hold-start')<3000||ms('hold-end')-ms('hold-start')>3100)fail('hold');
+ if(env.loading&&!(ms('world-ready')>=ms('boot:loading-hidden')&&ms('tap-door')-ms('boot:loading-hidden')>=2000))fail('world-ready/tap-door under the loading layer');
  if(!L.every(l=>/^GB_MARK \S+ \d+ wall=\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}[+-]\d\d:\d\d epoch=\d+ frame=-?\d+ state=\S+/.test(l)))fail('format');
  const settleSrc=env.cameraHook?'source=hook':'source=fallback-velocity';
  for(const p of ['island','home'])if(!L.some(l=>l.includes(' camera-settled:'+p+' ')&&l.includes(settleSrc)))fail('camera-settled:'+p+' '+settleSrc);

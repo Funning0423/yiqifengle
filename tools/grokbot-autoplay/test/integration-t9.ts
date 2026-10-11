@@ -1,12 +1,13 @@
 /** T9 named prop targets end-to-end: REAL T9 IslandJourneyOverlay + REAL IslandPropTaps (+ real T1 IslandHomeInteraction from the same
  *  tree) behind the fake engine touch pipeline, injected through the REAL prelude. Expects ui:tap press/confirm per target. */
-import {run,marks,calls,engine} from './harness';
+import {run,marks,calls,engine,env,loadingGate} from './harness';
 const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));process.exit(1);};
 (async()=>{
  const ap=()=>(globalThis as any).__GB_AUTOPLAY;
  await run(600,()=>ap()&&ap().phase()==='done');
  const L=marks(),res=ap().touchResults();console.error(L.filter(l=>/ui:tap|touch:(start|scenario-result)/.test(l)).join('\n'));
  if(!L.some(l=>l.includes(' ui:tap-hooked ')&&l.includes('source=__worldIntegration.onPropTap')))fail('ui:tap-hooked');
+ if(env.loading)loadingGate(L,fail);
  if(res.length!==4||res.some((r:any)=>r.verdict!=='PASS'))fail('results '+JSON.stringify(res));
  const taps=L.filter(l=>l.includes(' ui:tap ')).map(l=>l.slice(l.indexOf('target=')));
  const want=['target=bag phase=press blocked=0 props=0','target=bag phase=confirm blocked=0 props=0','target=book phase=press blocked=0 props=0','target=book phase=confirm blocked=0 props=0',

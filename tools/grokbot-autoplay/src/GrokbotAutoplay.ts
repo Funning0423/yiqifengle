@@ -50,7 +50,11 @@ class Ctx {
  commands(){const b=this.findBoot();if(!this.ready(b))return null;try{return b.composition.worldCommands();}catch{return null;}}
  state():string|null{const c=this.commands();if(!c)return null;try{return c.snapshot().state;}catch{return null;}}
  flow(){const b=this.findBoot();return b?.composition?.world?.flow??null;}
- idle(){const b=this.findBoot(),c=this.commands();if(!c||b.busy)return false;let s:any;try{s=c.snapshot();}catch{return false;}return !s.needsResume&&!s.hidden&&!b.board?.()?.hostModalOpen?.()&&!b.islandJourney?.isOpen?.();}
+ idle(){const b=this.findBoot(),c=this.commands();if(!c||b.busy)return false;let s:any;try{s=c.snapshot();}catch{return false;}return !s.needsResume&&!s.hidden&&!b.board?.()?.hostModalOpen?.()&&!b.islandJourney?.isOpen?.()&&!this.loadingUp();}
+ /** Boot loading layer (loadingMask/loadingBackdrop) still on screen, outro included: room input waits for it (RoomExploreOverlay
+  *  gate !loadingLayer.fading; Mac r5: T9 started at state:home under the layer -> leave-overlay-not-allowed). Gone = the
+  *  boot:room-first-frame condition. Boots without these fields: never up. */
+ loadingUp(){const b=this.findBoot();if(!b)return false;const on=(n:any)=>{try{return !!n&&n.isValid!==false&&n.active!==false;}catch{return false;}};return on(b.loadingMask)||on(b.loadingBackdrop);}
  emitLine(line:string){console.log(line);(G.__GB_MARKS||(G.__GB_MARKS=[])).push(line);this.sink?.append(line);}
  readonly taps:((name:string,extra:string)=>void)[]=[];
  mark(name:string,extra=''){const ms=Math.round(now()-this.t0);if(!markDef(name))extra=(extra?extra+' ':'')+'unregistered=1';this.emitLine(`GB_MARK ${name} ${ms} wall=${wallText()} frame=${frameNo()} state=${this.state()??'-'}${extra?' '+extra:''}`);
@@ -137,6 +141,8 @@ const GFX_API_NAMES=['UNKNOWN','GLES2','GLES3','METAL','VULKAN','NVN','WEBGL','W
 const GFX_RGBA32F=44,GFX_SAMPLED_TEXTURE=2;
 const APRON_NODE='LOD0_G2_APRON';
 const POSE_GIRL='B_PASS2G_CURSOR',POSE_BONES=['thigh.L','spine'],POSE_WINDOW_MS=500,POSE_MAX=4,POSE_LIVE_DEG=0.5,POSE_SIT_DEG=5;
+/** Return states in which setLayers(HOME) is the door shutting ('closing-door' only exists on pre-0b6202e stop-at-the-door returns). */
+const DOOR_INBOUND=['crossing-in','closing-door','walking-to-seat','sitting'];
 function capTry(f:()=>any):any{try{return f();}catch{return undefined;}}
 function capTok(v:any):string{if(v===undefined||v===null||v==='')return '-';return String(v).replace(/\s+/g,'_').slice(0,96);}
 function capBool(v:any):string{return v===undefined||v===null?'-':(v?'1':'0');}
@@ -176,7 +182,7 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>{ctx.mark('app:hide','source=cc.game');this.peakSummary('app-hide');});game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.samplePeak();this.deviceCaps();this.poseLive();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.hookDoor();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.samplePeak();this.deviceCaps();this.poseLive();}
  /** device:caps once: when the boot is ready (apron renderer bound, __worldIntegration.morph available) or 20 s after install. */
  private capsDone=false;
  private deviceCaps(){if(this.capsDone)return;const ready=this.ctx.ready(this.ctx.findBoot());if(!ready&&now()-this.ctx.t0<CAPS_TIMEOUT_MS)return;this.capsDone=true;
@@ -325,6 +331,30 @@ class Observers {
    ctx.mark(`seg:${n}:start`,`mode=${this.mode}`);const p=orig.call(this,path,cams,token);
    return p.then((v:any)=>{ctx.mark(`seg:${n}:end`);return v;},(e:any)=>{ctx.mark(`seg:${n}:cancel`,'reason='+String(e?.name||e).replace(/\s+/g,'_'));throw e;});};
   ctx.mark('camera:segments-hooked');}
+ /** door:shut -- the return's door is shut. Since 运镜bot 0b6202e (follow return) there is no 'closing-door' state: the leaf closes
+  *  behind the lens during toSeat/sit. Every WorldFlowCore return variant marks the moment with WorldLease.setLayers(HOME: interior,
+  *  no exterior) right after the leaf reaches 0 (homeLayers() since e3863fb, inline before); restore() repeats setDoor(0)+HOME
+  *  with stable already 'home' (the landing, ignored). Wraps the live lease (WorldFlow's world field) setLayers/setDoor: original first, args/return
+  *  unchanged, then log. No lease = door:shut-hook status=unavailable; a return reaching home unseen = status=missed. */
+ private doorLease:any=null;private doorDeg:number|null=null;private doorZeroAt:number|null=null;private doorReturnAt:number|null=null;
+ private doorReturns=0;private doorShut=true;private doorState:string|null=null;private doorNoted=false;
+ private hookDoor(){const ctx=this.ctx,s=ctx.state();
+  if(s!==this.doorState){this.doorState=s;
+   if(s==='walking-home'){this.doorReturns++;this.doorReturnAt=now();this.doorShut=false;this.doorZeroAt=null;}
+   else if(s==='home'&&!this.doorShut){this.doorShut=true;ctx.mark('door:shut-hook',`status=missed n=${this.doorReturns} lease=${this.doorLease?1:0}`);}}
+  const flow=ctx.flow();if(!flow)return;let lease:any=null;try{lease=flow.world;}catch{lease=null;}
+  if(!lease||typeof lease.setLayers!=='function'){if(!this.doorNoted&&s!==null){this.doorNoted=true;ctx.mark('door:shut-hook','status=unavailable reason=no-WorldFlow.world.setLayers');}return;}
+  if(lease===this.doorLease)return;this.doorLease=lease;const self=this,landing=()=>{try{return flow.stable==='home';}catch{return false;}};
+  const inbound=()=>DOOR_INBOUND.indexOf(ctx.state()??'')>=0&&!landing();
+  const origLayers=lease.setLayers,origDoor=lease.setDoor;
+  lease.setLayers=function(this:any,layers:any){const r=origLayers.apply(this,arguments);
+   try{if(!self.doorShut&&layers&&layers.interior&&!layers.exterior&&inbound()){self.doorShut=true;const t=now();
+    ctx.mark('door:shut',`n=${self.doorReturns} via=WorldLease.setLayers(HOME) door=${self.doorDeg===null?'-':fmt(self.doorDeg)} leafZeroMs=${self.doorZeroAt===null?'-':Math.round(t-self.doorZeroAt)} sinceWalkingHomeMs=${self.doorReturnAt===null?'-':Math.round(t-self.doorReturnAt)}`);}}catch{}
+   return r;};
+  if(typeof origDoor==='function')lease.setDoor=function(this:any,angle:any){const r=origDoor.apply(this,arguments);
+   try{const a=Number(angle);self.doorDeg=a;if(a<=1e-6&&self.doorZeroAt===null&&!self.doorShut&&inbound())self.doorZeroAt=now();}catch{}
+   return r;};
+  ctx.mark('door:shut-hook',`status=subscribed via=WorldFlow.world setDoor=${typeof origDoor==='function'?1:0}`);}
  /** camera-settled: 运镜bot's onCameraSettled(listener) if present (T2), else clearly-labelled fallback from camera stillness. */
  private cameraSettle(){const b=this.ctx.findBoot(),comp=b?.composition,world=comp?.world,flow=this.ctx.flow();
   const host=[world,comp,flow,G.__worldCamera].find(h=>h&&typeof h.onCameraSettled==='function');
@@ -511,11 +541,13 @@ function install(){
   ctx.mark('touch:suite-start',`spec=${cfg.scenarios} count=${sel.list.length} variant=${cfg.variant||'-'}`);
   // Proof that injected touches reached Cocos input (location as the engine sees it).
   input.on(Input.EventType.TOUCH_START,(e:any)=>{const id=e.getID?.();if(id>=1000&&id<1100){const l=e.getLocation();ctx.mark('touch:cocos-seen',`f=${id-1000} loc=${Math.round(l.x)},${Math.round(l.y)} touches=${e.getAllTouches?.().length??'?'}`);}});}
- let waitStarted=false,peakLogged=false;
+ let waitStarted=false,roomAt:number|null=null,peakLogged=false;
  const endPeak=(why:string)=>{if(peakLogged)return;peakLogged=true;try{obs.peakSummary(why);}catch(e){/* ignore */}};
  const warmLh=cfg.mode==='out-and-back'||cfg.mode==='touch';
  const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}try{ctx.warmLighthouse(warmLh);}catch(e){console.error('GB_MARK lighthouse-warm-exception',e);}try{bootProbe?.tick();}catch(e){console.error('GB_MARK boot-probe-exception',e);}
-  if(runner&&!runner.finished()){if(cfg.mode==='touch'&&!waitStarted){if(ctx.state()!=='home'||!ctx.idle())return;waitStarted=true;ctx.mark('world-ready');}
+  if(runner&&!runner.finished()){if(cfg.mode==='touch'&&!waitStarted){ // room interactive (home, idle, loading layer gone), then gbStart
+    if(ctx.state()!=='home'||!ctx.idle()){roomAt=null;return;}if(roomAt===null)roomAt=now();if(now()-roomAt<cfg.options.startDelayMs)return;
+    waitStarted=true;ctx.mark('world-ready',`gate=room-interactive startDelayMs=${cfg.options.startDelayMs}`);}
    try{runner.tick();}catch(e){console.error('GB_MARK autoplay-exception',e);ctx.mark('autoplay-failed','reason=exception');runner=null;endPeak('autoplay-end:exception');}
    if(runner&&runner.finished())endPeak('autoplay-end:'+String((runner as any).current??'done'));}};
  director.on(Director.EVENT_AFTER_UPDATE,tick); // stays on: observers keep logging audio/app/camera for manual play too

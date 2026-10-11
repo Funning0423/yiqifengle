@@ -15,7 +15,7 @@ import {ManagedMobileBoardUI} from '#board';
 import * as T9 from '#proptaps';
 import {readFileSync} from 'fs';
 export const W=390,H=844,DPR=3;
-export const env={t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead',lhProj:process.env.GB_LH_PROJ||''};
+export const env={loading:!!process.env.GB_LOADING_LAYER,t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead',lhProj:process.env.GB_LH_PROJ||''};
 /* ---- fake WeChat platform + REAL prelude + fake Cocos touch source registered AFTER the prelude (as the engine is) ---- */
 const G:any=globalThis;/* fake wx + REAL prelude now live in setup.ts: they must exist BEFORE any game module evaluates
  * (real order: prelude -> adapter/engine -> game scripts; AudioUnlock registers wx.onTouch* at module load). */
@@ -39,10 +39,15 @@ G.wx.onTouchStart(source('start'));G.wx.onTouchMove(source('move'));G.wx.onTouch
 type Timer={at:number;resolve:()=>void};const timers:Timer[]=[];
 const after=(s:number,t:Cancellation)=>new Promise<void>((resolve,reject)=>{const tm={at:clock.ms+s*1000,resolve};timers.push(tm);t.onCancel(()=>{const i=timers.indexOf(tm);if(i>=0)timers.splice(i,1);reject(new Error('cancelled'));});});
 const cam={node:{worldPosition:{x:0,y:1.5,z:-2},worldRotation:{x:0,y:0,z:0,w:1}}};
-const moveCam=(s:number,t:Cancellation)=>{const end=clock.ms+s*1000;const step=()=>{if(clock.ms<end&&!t.cancelled){cam.node.worldPosition={x:Math.random(),y:1.5,z:-2};setImmediate(step);}};step();return after(s,t);};
-/* wait: WorldLease.wait (T2+ camera spans; 运镜bot e3863fb return entry times the closing-door segment with it -- without it the door
- * segment resolves at once and state:closing-door is never observed) */
-const lease:WorldLease={setLayers(){},setDoor(){},setCamera(){},animateDoor:(_a,_b,s,t)=>after(s,t),animateCamera:(_p,s,t)=>moveCam(s,t),wait:(s,t)=>after(s,t),cancelTransient(){},assertStaticWorld(){},dispose(){}};
+/* onSample: the span's wind/door channels (运镜bot 0b6202e follow return: the door closes during toSeat/sit and onDoorShut sends the
+ * layers HOME). Fed linear time progress once per fake-clock value, then 1 at the end (the real lease feeds eased key progress). */
+const moveCam=(s:number,t:Cancellation,onSample?:(e:number)=>void)=>{const start=clock.ms,end=start+s*1000;let last=-1;
+ const sample=()=>{if(!onSample||t.cancelled||clock.ms===last)return;last=clock.ms;onSample(s>0?Math.min(1,(clock.ms-start)/(s*1000)):1);};
+ const step=()=>{if(clock.ms<end&&!t.cancelled){cam.node.worldPosition={x:Math.random(),y:1.5,z:-2};sample();setImmediate(step);}};step();
+ return after(s,t).then(()=>{if(onSample&&!t.cancelled)onSample(1);});};
+/* wait: WorldLease.wait (T2+ camera spans time their stand/turn/sit segments with it). */
+export const leaseLog:{layers:string[];door:number[]}={layers:[],door:[]};
+const lease:WorldLease={setLayers(l){leaseLog.layers.push((l.interior?'I':'')+(l.exterior?'E':'')||'-');},setDoor(a){leaseLog.door.push(a);},setCamera(){},animateDoor:(_a,_b,s,t)=>after(s,t),animateCamera:(_p,s,t,_o,_pr,onSample)=>moveCam(s,t,onSample),wait:(s,t)=>after(s,t),cancelTransient(){},assertStaticWorld(){},dispose(){}};
 class Char implements CharacterAdapter{readonly calibrated=true;readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot as any,seatedRoot:REF.seatedRoot as any,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
  job:{left:number;resolve:()=>void}|null=null;actions:string[]=[];
  advance(dt:number){if(!this.job)return;this.job.left-=dt;if(this.job.left<=0){const j=this.job;this.job=null;j.resolve();}}
@@ -79,10 +84,10 @@ if(env.lhProj){worldComp.worldCamera={worldToScreen:(p:any)=>({x:(p.x+lhBox.dx)*
  worldComp.lighthouseTargets=[{node:{activeInHierarchy:true},model:{worldBounds:{center:{x:195,y:335,z:0},halfExtents:{x:45,y:85,z:10}}}}];}if(env.cameraHook){worldComp.onCameraSettled=(l:any)=>{settleListeners.push(l);return ()=>{};};worldComp.onCraneStart=(l:any)=>{craneListeners.push(l);return ()=>{};};}
 export const craneListeners:any[]=[];
 /** Copy of the WorldIntegrationBoot pieces autoplay touches (invoke + overlay wiring + paintNavigation sync), T1 wiring when bundled with T1. */
-class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=true;composition={worldCommands:()=>commands,world:worldComp,worldCamera:cam,enterMainline:()=>{calls.mainline++;return flow.enterLevel('mainline-01');}};mainline:any=null;roomExplore:any;islandJourney:any;islandHome:any=null;canvas:any=new Node('WorldNavigationCanvas');
- constructor(){engine.uiRoot=this.canvas;
+class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=true;loadingMask:any=null;loadingBackdrop:any=null;loadingFading=false;composition={worldCommands:()=>commands,world:worldComp,worldCamera:cam,enterMainline:()=>{calls.mainline++;return flow.enterLevel('mainline-01');}};mainline:any=null;roomExplore:any;islandJourney:any;islandHome:any=null;canvas:any=new Node('WorldNavigationCanvas');
+ constructor(){engine.uiRoot=this.canvas;if(env.loading){this.loadingMask=new Node('LoadingOpaqueUntilWorldReady');this.loadingBackdrop=new Node('StartupLoadingLayer');}
   this.islandJourney=new IslandJourneyOverlay(this.canvas as any,{invoke:(fn:any)=>{void this.invoke(fn);},mainlineStatus:()=>null,gates:()=>null,enterRegion:()=>null,enterR4:()=>null,enterSkycity:()=>null,returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()} as any);
-  this.roomExplore=new RoomExploreOverlay(this.canvas as any,()=>this.composition?.worldCommands()??null as any,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});
+  this.roomExplore=new RoomExploreOverlay(this.canvas as any,()=>this.composition?.worldCommands()??null as any,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingFading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});
   // T9 stand-in for WorldIntegrationBoot.button('mainline') wiring (same press/confirm/blocked rules) + __worldIntegration.onPropTap
   if(env.t9&&typeof (T9 as any).onPropTap==='function'){const P:any=T9;(globalThis as any).__worldIntegration={onPropTap:P.onPropTap};const n:any=new Node('mainline');this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(140,100);n.setPosition(100,-160);n.active=false;
    const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy);n.on(Node.EventType.TOUCH_START,()=>P.emitPropTap('signpost','press',blocked()));
@@ -117,10 +122,19 @@ let started=false,frames=0;
 export async function run(maxS:number,stop:()=>boolean,onFrame?:(f:number)=>void){
  if(!started){started=true;await import('../src/GrokbotAutoplay');const r=await flow.load();if(!r.ok)throw Error('load '+JSON.stringify(r));}
  const dt=1/60;const cold=Math.round(9/dt),end=frames+60*maxS;
- while(frames<end){frames++;clock.ms+=dt*1000;if(frames===cold){boot.loadPhase='ready';boot.ready=true;}
+ // GB_LOADING_LAYER: the boot's loading layer stays up through a 0.7 s outro after ready (room input waits: !loadingLayer.fading)
+ while(frames<end){frames++;clock.ms+=dt*1000;if(frames===cold){boot.loadPhase='ready';boot.ready=true;if(env.loading)boot.loadingFading=true;}
+  if(env.loading&&frames===cold+Math.round(.7/dt)){boot.loadingFading=false;boot.loadingMask.active=false;boot.loadingBackdrop.active=false;}
   flow.advance(dt);for(const t of [...timers])if(t.at<=clock.ms){timers.splice(timers.indexOf(t),1);t.resolve();}
   await flush();boot.update();onFrame?.(frames);(director as any)._frame();await flush();if(stop())break;}
 }
+/** Mac r5 (T9 4/4 leave-overlay-not-allowed): touch mode starts only once the loading layer is gone, then waits gbStart (query or 2000). */
+export function loadingGate(L:string[],fail:(m:string)=>void){const ms=(n:string)=>{const l=L.find(x=>x.split(' ')[1]===n);return l?Number(l.split(' ')[2]):NaN;};
+ const want=Number((/[?&]gbStart=(\d+)/.exec(process.env.GB_QUERY||'')||[])[1]??2000),wr=L.find(l=>l.split(' ')[1]==='world-ready')||'',hid=ms('boot:loading-hidden'),first=ms('touch:scenario-start');
+ if(!new RegExp(' gate=room-interactive startDelayMs='+want+'$').test(wr))fail('touch world-ready gate '+wr);
+ if(!(hid>0&&ms('world-ready')-hid>=want&&first>=ms('world-ready')))fail(`touch start under the loading layer / gbStart ignored: hidden=${hid} world-ready=${ms('world-ready')} first=${first} want=${want}`);
+ if(L.some(l=>/note=leave-overlay-not-allowed/.test(l)))fail('leave-overlay-not-allowed');
+ console.error(`loading gate: loading-hidden ${hid} ms, world-ready ${ms('world-ready')} ms (gbStart ${want}), first scenario ${first} ms`);}
 export const marks=()=>((globalThis as any).__testLogs as string[]).filter(l=>l.startsWith('GB_MARK'));
 export const names=()=>marks().map(l=>l.split(' ')[1]);
 export {game,Game};

@@ -33,6 +33,8 @@
 - `autoplay=out-and-back`（装上后的默认值）| `observe`（只打点，供人手动玩）| `touch` | `combo`（验证连击鼓励音和飘字，见下节）| `off`
 - 宏写法：`inject_prelude.sh <out> --mode touch:t1` 等于 `autoplay=touch&gbScenario=t1`；`--mode combo` 等于 `autoplay=combo`；`--mode combo:here` 等于 `autoplay=combo&gbComboEnter=none`
 - `home-seated` 带 `inboundMs=`（点回家到坐下的实际毫秒）和 `capMs=`（每段超时上限，默认 90000；回家现在约 21 s，坐下后才 settled）
+- 门关实：回程跟随运镜（运镜bot 0b6202e）后不再有 `closing-door` 状态，状态顺序为 walking-home → crossing-in → walking-to-seat → sitting → home。T0 改为打 `door:shut`（包住 WorldFlow.world 上的 setLayers/setDoor，在回程中第一次切到 HOME 图层时记一次，带 `door=` `leafZeroMs=` `sinceWalkingHomeMs=`）；钩子挂上时打 `door:shut-hook status=subscribed`，拿不到 lease 时打 `status=unavailable`，回到家仍没看到时打 `status=missed`。restore() 落地时的 HOME 不算。
+- `gbStart`（默认 2000）在 touch 模式下也生效：等到 state=home、空闲、并且加载层（Boot 的 loadingMask/loadingBackdrop）已隐藏，再等 gbStart 毫秒才打 `world-ready gate=room-interactive` 并开始第一个场景（T9 依赖这一点）。
 - 其他参数：`gbBoot=0`（关掉 boot:* 计时）、`gbHold=3000`、`gbStart=2000`、`gbDoor=direct|drag`、`gbReturn=panel|direct`、`gbScenario=t1|t1-multi|t9|名字,名字`、`gbVariant=l123|l12`、`gbExport=wx|only`
 - 自定义场景：`inject_prelude.sh <out> --scenarios my.json`，会写入全局 `GROKBOT_TOUCH_SCENARIOS`
 

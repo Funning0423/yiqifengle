@@ -21,7 +21,7 @@ export interface AutoplayDriver {
 }
 type Phase='wait-ready'|'settle'|'reveal'|'tap-door'|'outbound'|'hold'|'panel'|'tap-return'|'inbound'|'done'|'failed';
 const OUT_STATES=['standing','turning-out','walking-out','opening-door','crossing-out'];
-const IN_STATES=['walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
+const IN_STATES=['walking-home','crossing-in','walking-to-seat','sitting']; // door shut = GB_MARK door:shut (no closing-door state since 运镜bot 0b6202e)
 export class AutoplaySequencer {
  private phase:Phase='wait-ready';private phaseAt:number;private t0:number;private lastState:string|null=null;
  readonly marks:{name:string;ms:number;wall:string;state:string|null;frame:number}[]=[];
@@ -55,7 +55,7 @@ export const OUTBOUND_STATES=OUT_STATES,INBOUND_STATES=IN_STATES;
 export type AutoplayMode='out-and-back'|'touch'|'observe'|'combo';
 export type AutoplayConfig={mode:AutoplayMode;options:AutoplayOptions;scenarios:string;variant:string;exportWx:'off'|'wx'|'only';combo:ComboOptions};
 /** Launch query / macro keys: autoplay=out-and-back|touch|observe|combo|off, gbScenario=t1|t1-multi|name,name, gbVariant=l123|l12,
- * gbHold=ms, gbStart=ms, gbExport=wx|only (touch mode: also log automation_game_action commands; only = log without injecting), gbDoor=direct|drag, gbReturn=panel|direct. Macro form 'touch:t1' == autoplay=touch&gbScenario=t1.
+ * gbHold=ms, gbStart=ms (out-and-back/combo: after world-ready; touch: after the room is interactive, before the first scenario), gbExport=wx|only (touch mode: also log automation_game_action commands; only = log without injecting), gbDoor=direct|drag, gbReturn=panel|direct. Macro form 'touch:t1' == autoplay=touch&gbScenario=t1.
  * combo: gbComboEnter=level|none, gbComboClears=2..5, gbComboGap=100..2000 ms, gbComboBoardMs=0..120000; macro 'combo:here' == autoplay=combo&gbComboEnter=none.
  * Unknown/invalid values keep defaults; unknown mode disables. */
 export function parseAutoplayQuery(q:Record<string,string|undefined>|null|undefined,installedDefaultOn:boolean):AutoplayConfig|null{

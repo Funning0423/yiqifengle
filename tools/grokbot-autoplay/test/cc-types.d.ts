@@ -10,5 +10,6 @@ declare module 'cc' {
  export const screen:{devicePixelRatio:number;windowSize:{width:number;height:number}};
  export const input:{on(t:string,f:(e:any)=>void,target?:any):void;off(t:string,f:(e:any)=>void,target?:any):void;getTouchCount():number};
  export class Input{static readonly EventType:{TOUCH_START:string;TOUCH_MOVE:string;TOUCH_END:string;TOUCH_CANCEL:string}};
+ export class AudioSource{playing:boolean;volume:number;clip:any;node:any;}
 }
 declare module 'cc/env' { export const EDITOR:boolean; export const DEBUG:boolean; }

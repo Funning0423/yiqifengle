@@ -9,7 +9,7 @@ function world(opts:{rejectLeave?:boolean;pauseAt?:string;neverReady?:boolean;hi
   revealDoorStep:()=>{w.revealSteps++;return w.revealSteps>=(opts.hideDoorUntil??0)?'done':'pending';},
   tapDoor:():StepResult=>{if(opts.rejectLeave)return {ok:true,via:'test'};run(['standing','turning-out','walking-out','opening-door','crossing-out','island']);return {ok:true,via:'test'};},
   openReturnPanel:()=>{w.modal=true;return {ok:true};},
-  tapReturn:()=>{w.modal=false;run(['walking-home','crossing-in','closing-door','walking-to-seat','sitting','home']);return {ok:true,via:'test'};},
+  tapReturn:()=>{w.modal=false;run(['walking-home','crossing-in','walking-to-seat','sitting','home']);return {ok:true,via:'test'};},
   emit:l=>w.lines.push(l)};
  const step=(ms:number)=>{w.t+=ms;w.frame++;if(!opts.neverReady&&w.state===null&&w.t>9000)w.state='home';
   while(w.queue.length&&w.queue[0].at<=w.t){const q=w.queue.shift()!;if(q.s==='__idle')w.busy=false;else w.state=q.s;if(opts.pauseAt&&q.s===opts.pauseAt)w.state='paused';}};

@@ -39,7 +39,7 @@ const mkCombo=(entry,file,intScripts)=>({entryPoints:[path.join(here,entry)],out
   b.onResolve({filter:/^#gameaudio$/},()=>({path:path.join(intScripts,'audio/GameAudio.ts')}));b.onResolve({filter:/^#cheertext$/},()=>({path:path.join(intScripts,'ui/CheerText.ts')}));}}]});
 const base=[path.join(scripts,'world-r2/IslandJourneyOverlay.ts'),path.join(here,'empty.mjs')];
 const jobs=[esbuild.build(mk('boot.test.ts','bootunit.mjs',...base)),esbuild.build(mk('integration-boot.ts','int-boot.mjs',...base)),esbuild.build(mk('combo.test.ts','combounit.mjs',...base)),esbuild.build(mk('sequencer.test.ts','sequencer.mjs',...base)),esbuild.build(mk('touch.test.ts','touchunit.mjs',...base)),esbuild.build(mk('integration.ts','int-base.mjs',...base)),esbuild.build(mk('integration-touch.ts','touch-base.mjs',...base))];
-if(t1)for(const v of ['l123','l12']){const a=path.join(t1,'variants/baseline-'+v+'/after/creator-build-project/assets/scripts');const o=path.join(a,'world-r2/IslandJourneyOverlay.ts'),h=path.join(a,'world-r2/IslandHomeInteraction.ts');
+if(t1)for(const v of ['l123','l12']){const a=path.join(t1,'variants/baseline-'+v+'/after/creator-build-project/assets/scripts');if(!fs.existsSync(a)){console.log('SKIP T1 variant '+v+' (no '+a+')');continue;}const o=path.join(a,'world-r2/IslandJourneyOverlay.ts'),h=path.join(a,'world-r2/IslandHomeInteraction.ts');
  jobs.push(esbuild.build(mk('integration.ts','int-'+v+'.mjs',o,h)),esbuild.build(mk('integration-touch.ts','touch-'+v+'.mjs',o,h)));}
 /** T9 job: REAL work/GGbot-t9 overlay + IslandPropTaps + IslandHomeInteraction. */
 const t9=t9Dir&&path.join(t9Dir,'creator-build-project/assets/scripts');
@@ -75,6 +75,9 @@ r caps-throw GB_CAPS=throw node "$out/int-base.mjs"
 r caps-nodevice GB_CAPS=nodevice node "$out/int-base.mjs"
 r caps-apron-scene GB_CAPS_APRON=scene node "$out/int-base.mjs"
 r caps-apron-driver GB_CAPS_APRON=driver node "$out/int-base.mjs"
+# Mac r5: the boot loading layer (0.7 s outro after ready) blocks room input; autoplay must wait for it (touch: + gbStart)
+r oab-loading GB_LOADING_LAYER=1 node "$out/int-base.mjs"
+r touch-loading-noT1 GB_LOADING_LAYER=1 GB_QUERY='?autoplay=touch&gbScenario=t1&gbStart=3000' node "$out/touch-base.mjs"
 if GB_QUERY='?autoplay=off' node "$out/int-base.mjs" >"$out/off.log" 2>&1; then echo "FAIL: autoplay=off still ran"; exit 1; fi
 grep -q 'GB_MARK autoplay-disabled 0' "$out/off.log" && echo "PASS autoplay=off: nothing armed, no observers"
 if [ -n "$t1" ]; then
@@ -82,18 +85,23 @@ if [ -n "$t1" ]; then
   r oab-t1-l123-lhproj GB_T1=l123 GB_LH_PROJ=1 node "$out/int-l123.mjs"
   r oab-t1-l123-lhmoved GB_T1=l123 GB_LH_PROJ=moved node "$out/int-l123.mjs"
   r touch-t1-l123 GB_T1=l123 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-l123.mjs"
-  r touch-t1-l12 GB_T1=l12 GB_QUERY='?autoplay=touch&gbScenario=t1&gbVariant=l12' node "$out/touch-l12.mjs"
+  r touch-loading-t1-l123 GB_T1=l123 GB_LOADING_LAYER=1 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-l123.mjs"
   r export-l123 GB_T1=l123 GB_EXPORT=1 GB_QUERY='?autoplay=touch&gbScenario=t1&gbExport=only' node "$out/touch-l123.mjs"
   # negative control via a custom JSON scenario on an inert test button: L3 (l123) must hold, l12 must show its known same-frame limitation
   r neg-l123 GB_T1=l123 GB_INERT_BUTTON=1 GB_QUERY='?autoplay=touch&gbScenario=neg-same-frame-inert' node "$out/touch-l123.mjs"
+  if [ -f "$out/touch-l12.mjs" ]; then
+  r touch-t1-l12 GB_T1=l12 GB_QUERY='?autoplay=touch&gbScenario=t1&gbVariant=l12' node "$out/touch-l12.mjs"
   r neg-l12 GB_T1=l12 GB_INERT_BUTTON=1 GB_QUERY='?autoplay=touch&gbScenario=neg-same-frame-inert&gbVariant=l12' node "$out/touch-l12.mjs"
   if GB_T1=l12 GB_INERT_BUTTON=1 GB_QUERY='?autoplay=touch&gbScenario=neg-same-frame-inert' node "$out/touch-l12.mjs" >"$out/neg.log" 2>&1; then echo "FAIL: l12 judged as l123 passed"; exit 1; fi
   grep -q '"actual":"return","verdict":"FAIL"' "$out/neg.log" && echo "PASS negative control: l12 judged with l123 expectation -> FAIL (runner discriminates L3)"
+  else echo "SKIP T1 l12 jobs (no baseline-l12 variant in $t1)"; fi
 fi
 if [ -n "${GB_T9_DIR:-}" ]; then
   echo "t9 targets against REAL work/GGbot-t9 sources: IslandJourneyOverlay $(sha256sum "$GB_T9_DIR/creator-build-project/assets/scripts/world-r2/IslandJourneyOverlay.ts" | cut -c1-8) IslandPropTaps $(sha256sum "$GB_T9_DIR/creator-build-project/assets/scripts/world-r2/IslandPropTaps.ts" | cut -c1-8)"
   r t9-props GB_T9=1 GB_T1=l123 GB_QUERY='?autoplay=touch&gbScenario=t9' node "$out/int-t9.mjs"
+  r t9-props-loading GB_T9=1 GB_T1=l123 GB_LOADING_LAYER=1 GB_QUERY='?autoplay=touch&gbScenario=t9&gbStart=4000' node "$out/int-t9.mjs"
   [ "${GB_LOOSE:-1}" != 0 ] && r loose-t9-props GB_T9=1 GB_T1=l123 GB_QUERY='?autoplay=touch&gbScenario=t9' node "$out/int-t9-loose.mjs"
+  [ "${GB_LOOSE:-1}" != 0 ] && r loose-t9-props-loading GB_T9=1 GB_T1=l123 GB_LOADING_LAYER=1 GB_QUERY='?autoplay=touch&gbScenario=t9&gbStart=4000' node "$out/int-t9-loose.mjs"
 else echo "SKIP t9 prop targets (set GB_T9_DIR=<work/GGbot-t9 checkout>)"; fi
 if [ -n "${GB_INT_DIR:-}" ]; then
   IS="$GB_INT_DIR/creator-build-project/assets/scripts"; sh(){ if command -v sha256sum >/dev/null; then sha256sum "$1" | cut -c1-64; else shasum -a 256 "$1" | cut -c1-64; fi; }
@@ -138,6 +146,8 @@ if [ "${GB_LOOSE:-1}" != 0 ]; then
   r loose-caps-webgl1 GB_CAPS=webgl1 node "$out/int-base-loose.mjs"
   r loose-caps-throw GB_CAPS=throw GB_CAPS_APRON=scene node "$out/int-base-loose.mjs"
   r loose-touch-noT1 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-base-loose.mjs"
+  r loose-oab-loading GB_LOADING_LAYER=1 node "$out/int-base-loose.mjs"
+  r loose-touch-loading-noT1 GB_LOADING_LAYER=1 GB_QUERY='?autoplay=touch&gbScenario=t1&gbStart=3000' node "$out/touch-base-loose.mjs"
   if [ -n "${GB_INT_DIR:-}" ]; then r loose-combo-touch GB_COMBO=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; r loose-combo-muted GB_COMBO=1 GB_COMBO_MUTED=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; fi
   for f in "$out"/loose-*.js; do if grep -nE '\[\]\.concat\((this\.down|[a-zA-Z_.]*(Map|Set)\b)' "$f"; then echo "FAIL: loose output concat()s a Map/Set: $f"; exit 1; fi; done
   echo "PASS loose-ES5 (Cocos-like babel preset-env loose, ie 11): T0 sources $(ls "$out"/loose-*.js | wc -l | tr -d ' ') files transformed, key paths ran"

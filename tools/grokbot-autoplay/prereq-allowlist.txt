@@ -181,3 +181,14 @@ strict  49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401 WorldIn
 #  b3cfd1a7..d670. No other allowlisted file changed (11a1bac..52ed6ff: GameAudio.ts + audio_sfx assets/docs/tests only). No T0
 #  scenario/test references sfx_ui_settings (only sfx_ui_click). Observe-only; append only.
 observe b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670 audio/GameAudio.ts              Voice bot ui-soft 52ed6ff (on int/v1 11a1bac)
+# 运镜bot return FOLLOW (0b6202e on int/v1 52ed6ff; merged as int/v1 e793228, == 2f307b3 for this file): WorldFlowCore cameraEntry
+#  doorSeconds<=0 = she walks through the doorway without stopping, NO 'closing-door' state; the leaf closes behind the lens during
+#  toSeat (may run into the sit) and span onDoorShut -> homeLayers() = WorldLease.setLayers(HOME) once the door channel is 0;
+#  noExteriorKey skips the R3 exterior key. Verified sha256 of the working tree after `git merge e793228` == `git show 0b6202e:...` =
+#  4cacd384..df45. Glue reviewed: walk(path,cameras|null,token)/config paths unchanged (crossing-in/toSeat still go through this.walk);
+#  state order now walking-home, crossing-in, walking-to-seat, sitting, home. T0 listens for the door shut via GB_MARK door:shut (wraps the
+#  live lease's setLayers/setDoor on WorldFlow.world, reads WorldFlow.stable to ignore restore()'s landing HOME; read-only, absent =
+#  door:shut-hook unavailable/missed). Every other listed file is identical at e793228 and 2f307b3 (Boot 49987a3d, Component b96d4d93,
+#  GameAudio b3cfd1a7, AudioBridge 45fc0889, RoomExploreOverlay 119e5c2e, IslandJourneyOverlay 893ce0c9, WorldNativeComposition ea951b0e,
+#  ManagedMobileBoardUI 91f45984, CheerText 4ff08b19). Observe-only; append only.
+observe 4cacd38416f018ba0792f85fe75316420f1e6f7ec25f9fb16d729ce0227adf45 world-r1/WorldFlowCore.ts         运镜bot return follow 0b6202e (int/v1 e793228 / 2f307b3)
