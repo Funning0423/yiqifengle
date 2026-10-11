@@ -89,6 +89,99 @@ export function sampleLookAtPath(path: readonly LookAtPose[], progress: readonly
   const local = (p - key(i)) / Math.max(1e-9, key(i + 1) - key(i));
   return blendLookAt(path[i], path[i + 1], local, 'linear', fallbackFov);
 }
+/**
+ * T2/T3a (运镜bot 2026-10-11) opt-in track timing/shape. Omitted options = the original linear keyed track, bit for bit.
+ * - interpolation 'pchip': per-component monotone cubic Hermite (Fritsch-Carlson) over the key progress values for
+ *   position, target and fov. Passes exactly through every key (approved compositions unchanged at keys), C1 (no velocity
+ *   kink at keys), never overshoots between keys. Rotation is still derived by fromLookAt (roll 0).
+ * - easeIn / easeOut: fraction of the track time used to accelerate from / decelerate to zero speed. C2 time remap
+ *   (velocity AND acceleration continuous at the joins); the end pose is still reached exactly at p=1.
+ */
+export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number }>;
+/** C2 ease-in / linear / ease-out remap of [0,1] onto [0,1], f(0)=0, f(1)=1, f'(0)=0 if easeIn>0, f'(1)=0 if easeOut>0. */
+export function remapProgress(p: number, o?: TrackOptions): number {
+  const x = Math.max(0, Math.min(1, p)); if (!o) return x;
+  const a = Math.max(0, Math.min(0.5, o.easeIn ?? 0)), b = Math.max(0, Math.min(0.5, o.easeOut ?? 0));
+  if (a === 0 && b === 0) return x;
+  const s = 1 / (1 - (a + b) / 3);
+  if (a > 0 && x < a) { const u = x / a; return s * a * (u + Math.pow(1 - u, 3) / 3 - 1 / 3); }
+  if (b > 0 && x > 1 - b) { const u = (x - (1 - b)) / b; return Math.min(1, s * (2 * a / 3 + (1 - a - b)) + s * b * (u - u * u * u / 3)); }
+  return s * (2 * a / 3 + (x - a));
+}
+/** Walk-duration contract: camera track progress = time progress + a smoothed correction toward the reported
+ * distance-travelled progress. The correction ignores a dead band (deadbandSeconds; one-frame job scheduling lag is not a
+ * walk-profile deviation, so a constant-speed walk is exactly time-driven) and follows the rest with a critically damped
+ * second-order filter (omega = 1/tauSeconds): no velocity step, bounded acceleration. Null distance -> correction decays.
+ * Monotone; exactly 1 when the job ends. */
+export function createProgressFollower(seconds: number, tauSeconds = 0.25, deadbandSeconds = 0.05): (p: number, distance: number | null) => number {
+  let last = 0, lastP = 0, e = 0, ev = 0; const w = tauSeconds > 0 ? 1 / tauSeconds : 0, S = seconds > 0 ? seconds : 1;
+  return (p: number, distance: number | null) => {
+    const dt = Math.max(0, (p - lastP) * S); lastP = p;
+    let target = 0;
+    if (typeof distance === 'number' && Number.isFinite(distance)) {
+      const d = (Math.max(0, Math.min(1, distance)) - p) * S, m = Math.max(0, Math.abs(d) - deadbandSeconds);
+      target = (d < 0 ? -m : m) / S;
+    }
+    if (dt > 0) { if (w > 0) { ev += (w * w * (target - e) - 2 * w * ev) * dt; e += ev * dt; } else e = target; }
+    const v = p >= 1 ? 1 : Math.max(last, Math.max(0, Math.min(1, p + e))); last = v; return v;
+  };
+}
+/** Time fraction at which the eased track reaches key progress k (remapProgress is monotone; bisection). */
+export function invertProgress(k: number, o?: TrackOptions): number { let lo = 0, hi = 1; for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (remapProgress(m, o) < k) lo = m; else hi = m; } return (lo + hi) / 2; }
+/** Fritsch-Carlson monotone cubic tangents for knots t (strictly increasing) and values y. */
+function pchipTangents(t: readonly number[], y: readonly number[]): number[] {
+  const n = t.length, h: number[] = [], d: number[] = [], m: number[] = new Array(n).fill(0);
+  for (let i = 0; i < n - 1; i++) { h.push(t[i + 1] - t[i]); d.push((y[i + 1] - y[i]) / (t[i + 1] - t[i])); }
+  if (n === 2) { m[0] = m[1] = d[0]; return m; }
+  for (let i = 1; i < n - 1; i++) {
+    if (d[i - 1] === 0 || d[i] === 0 || Math.sign(d[i - 1]) !== Math.sign(d[i])) { m[i] = 0; continue; }
+    const w1 = 2 * h[i] + h[i - 1], w2 = h[i] + 2 * h[i - 1];
+    m[i] = (w1 + w2) / (w1 / d[i - 1] + w2 / d[i]);
+  }
+  // Shape-preserving three-point end conditions (same as MATLAB/SciPy pchip).
+  const end = (h0: number, h1: number, d0: number, d1: number) => {
+    let v = ((2 * h0 + h1) * d0 - h0 * d1) / (h0 + h1);
+    if (Math.sign(v) !== Math.sign(d0)) v = 0; else if (Math.sign(d0) !== Math.sign(d1) && Math.abs(v) > Math.abs(3 * d0)) v = 3 * d0;
+    return v;
+  };
+  m[0] = end(h[0], h[1], d[0], d[1]); m[n - 1] = end(h[n - 2], h[n - 3], d[n - 2], d[n - 3]);
+  return m;
+}
+function hermite(t: readonly number[], y: readonly number[], m: readonly number[], x: number): number {
+  let i = 0; while (i < t.length - 2 && x > t[i + 1]) i++;
+  const h = t[i + 1] - t[i], u = Math.max(0, Math.min(1, (x - t[i]) / h)), u2 = u * u, u3 = u2 * u;
+  return (2 * u3 - 3 * u2 + 1) * y[i] + (u3 - 2 * u2 + u) * h * m[i] + (-2 * u3 + 3 * u2) * y[i + 1] + (u3 - u2) * h * m[i + 1];
+}
+/** Pre-computed pchip sampler for a timed look-at path. Falls back to the linear sampler when keys are not timed. */
+export function createPathSampler(path: readonly LookAtPose[], progress: readonly (number | undefined)[], o?: TrackOptions) {
+  const timed = path.length > 2 && progress.length === path.length && progress.every(k => k !== undefined) && progress[0] === 0 && progress[path.length - 1] === 1;
+  const strictly = timed && progress.every((k, i) => i === 0 || (k as number) > (progress[i - 1] as number));
+  if (o?.interpolation !== 'pchip' || !strictly) return (p: number, fallbackFov: number) => sampleLookAtPath(path, progress, remapProgress(p, o), fallbackFov);
+  const t = progress as number[];
+  let cache: { fov: number; channels: { y: number[]; m: number[] }[] } | null = null;
+  const build = (fallbackFov: number) => {
+    const rows: number[][] = path.map(k => [k.position[0], k.position[1], k.position[2], k.target[0], k.target[1], k.target[2], k.fovVerticalDeg ?? fallbackFov]);
+    return { fov: fallbackFov, channels: [0, 1, 2, 3, 4, 5, 6].map(c => { const y = rows.map(r => r[c]); return { y, m: pchipTangents(t, y) }; }) };
+  };
+  return (p: number, fallbackFov: number): CameraPose => {
+    if (!cache || cache.fov !== fallbackFov) cache = build(fallbackFov);
+    const q = remapProgress(p, o);
+    if (q >= 1) return fromLookAt(path[path.length - 1], fallbackFov);
+    if (q <= 0) return fromLookAt(path[0], fallbackFov);
+    const v = cache.channels.map(ch => hermite(t, ch.y, ch.m, q));
+    // pchip is monotone, so fov stays inside the key range; clamp only removes float rounding (75.00000000000001 at a
+    // 75-degree key would be rejected by the pose guard and abort the track).
+    const fy = cache.channels[6].y, fov = Math.min(Math.max(v[6], Math.min(...fy)), Math.max(...fy));
+    return fromLookAt({ position: [v[0], v[1], v[2]], target: [v[3], v[4], v[5]], fovVerticalDeg: fov });
+  };
+}
+/** T2 lighting: smoothstep ramp of a 0..1 weight over [start,end] of walk progress (C1, monotone, exact endpoints). */
+export type WeightRamp = Readonly<{ from: number; to: number; start: number; end: number }>;
+export function smoothstep01(x: number): number { const t = Math.max(0, Math.min(1, x)); return t * t * (3 - 2 * t); }
+export function rampWeight(r: WeightRamp, p: number): number {
+  const x = (p - r.start) / Math.max(1e-9, r.end - r.start);
+  return r.from + (r.to - r.from) * smoothstep01(x);
+}
 /** For runtime-only poses (0006 §C: C0 -> cineCam(t)) that have no target: interpolate yaw (shortest arc) + pitch, keep roll 0. */
 export function yawPitch(q: Q4): { yaw: number; pitch: number } {
   const f = rotate(q, [0, 0, -1]); return { yaw: Math.atan2(f[0], f[2]), pitch: Math.asin(Math.max(-1, Math.min(1, f[1]))) };
@@ -153,9 +246,11 @@ export class CameraTrackFailure extends Error {
   }
 }
 /** Each sample goes through the single writer. Failure never writes an endpoint or reports arrival. */
-export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[], source: string) {
+export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[], source: string, options?: TrackOptions) {
   const status = { samples: 0, accepted: 0, aborted: false, abortReason: '', ended: 'running' as 'running' | 'end-pose' | 'last-accepted' | 'none' };
   let fallbackFov: number | undefined, lastAccepted: CameraPose | null = null;
+  // No options = createPathSampler returns exactly the original linear sampleLookAtPath call (remap is identity).
+  const sample = createPathSampler(path, path.map(k => (k as any).progress as number | undefined), options);
   const write = (pose: CameraPose, tag: string) => { const ok = applyCameraPose(camera, pose, tag); if (ok) lastAccepted = pose; return ok; };
   const abort = (p: number, reason: string): never => {
     status.aborted = true; status.abortReason = reason;
@@ -169,7 +264,7 @@ export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[
     if (fallbackFov === undefined) fallbackFov = camera.fov; // legacy waypoints without fov inherit the start fov
     status.samples++;
     let pose: CameraPose;
-    try { pose = sampleLookAtPath(path, path.map(k => (k as any).progress as number | undefined), p, fallbackFov); }
+    try { pose = sample(p, fallbackFov); }
     catch (e) { abort(p, 'sample: ' + String(e)); return; }
     if (!write(pose, source)) { abort(p, 'applyCameraPose rejected: ' + (validateCameraPose(pose) ?? 'unknown')); return; }
     status.accepted++;

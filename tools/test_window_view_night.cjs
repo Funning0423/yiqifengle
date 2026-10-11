@@ -41,6 +41,8 @@ const wire=src.slice(src.indexOf("const backdropNames=["),src.indexOf("const pal
 assert.match(wire,/filter\(r=>r\.node\.name==='env_window_blind_cards'\)/);
 assert.match(wire,/viewCards\.length!==1/);
 assert.match(wire,/try\{this\.unlitBackdrops\.set\(viewCards\[0\],bindUnlitBackdrop\(viewCards\[0\]\)\);\}catch/);
-assert.match(src,/for\(const \[r,b\]of this\.unlitBackdrops\)if\(isValid\(r,true\)\)b\.setNight\(this\.dayNightMode==='night'\)/);
+// ES5 (运镜bot T2+): Cocos loose ES5 does not iterate a Map in for-of, so the loop is Array.from(map.entries()).forEach;
+// either form still drives EVERY registered backdrop with isValid + setNight(night).
+assert.match(src,/for\(const \[r,b\]of this\.unlitBackdrops\)if\(isValid\(r,true\)\)b\.setNight\(this\.dayNightMode==='night'\)|Array\.from\(this\.unlitBackdrops\.entries\(\)\)\.forEach\(\(\[r,b\]\)=>\{if\(isValid\(r,true\)\)b\.setNight\(this\.dayNightMode==='night'\);\}\)/);
 checks.push('createWorld registers env_window_blind_cards in unlitBackdrops; applyDayNight drives every registered backdrop');
 console.log(JSON.stringify({status:'PASS',checks},null,1));
