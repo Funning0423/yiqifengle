@@ -18,6 +18,22 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  // walk driver marks via __worldIntegration.onFoot / onApronLift (fake emitter with the real payload shape)
  {let foot:any=null,apron:any=null;(globalThis as any).__worldIntegration={onFoot:(cb:any)=>{foot=cb;return ()=>{foot=null;};},onApronLift:(cb:any)=>{apron=cb;return ()=>{apron=null;};}};await run(0.05,()=>false);
   if(!foot||!apron)fail('anim hooks not installed');foot({event:'foot:R',bone:'foot.R',body:'L',clip:'walk_loop',phase:0,time:0,cycle:3,pos:[1.23456,0,-2.5]});apron('full',1.6);}
+ // anim:pose-live: girl thigh.L/spine local rotations + engine state _clipEval, activity from __worldLoading.motion().clip
+ {const G:any=globalThis;let girl:any=scene.children.find((n:any)=>n.name==='B_PASS2G_CURSOR');if(!girl){girl=new Node('B_PASS2G_CURSOR');scene.addChild(girl);}
+  const arm:any=new Node('Armature'),th:any=new Node('thigh.L'),sp:any=new Node('spine');girl.addChild(arm);arm.addChild(sp);arm.addChild(th);th.rotation={x:0,y:0,z:0,w:1};sp.rotation={x:0,y:0,z:0,w:1};
+  let evalOk=true,clip='idle_breathing_loop';arm._c.set('cc.SkeletalAnimation',{useBakedAnimation:false,getState:(n:string)=>({name:n,_clipEval:evalOk?{evaluate(){}}:undefined})});
+  G.__worldLoading={snapshot:()=>({phase:'ready'}),motion:()=>({clip,action:clip==='idle_breathing_loop'?null:clip.startsWith('sit')?'sit':'walk',motion:{blend:true,repairedStates:[],clipEval:{state:true,clipEval:evalOk,baked:false}}})};
+  const rot=(n:any,deg:number)=>{const h=deg*Math.PI/360;n.rotation={x:Math.sin(h),y:0,z:0,w:Math.cos(h)};};
+  const t0=performance.now();const sec=()=>(performance.now()-t0)/1000;const swing=(amp:number)=>(f:number)=>{const t=sec();rot(th,amp*Math.sin(2*Math.PI*t/1.1333));rot(sp,amp/8*Math.sin(2*Math.PI*t/1.1333));};
+  await run(0.1,()=>false);clip='walk_start';await run(0.3,()=>false,swing(30));clip='walk_loop';await run(0.4,()=>false,swing(30));   // one window across walk_start->walk_loop
+  const s0=sec();clip='sit_down';await run(0.6,()=>false,()=>{rot(th,30+60*Math.min(1,(sec()-s0)/1.5));});clip='sit_hold';rot(th,95);await run(0.2,()=>false);
+  clip='idle_breathing_loop';await run(0.1,()=>false);evalOk=false;clip='door_push';await run(0.6,()=>false);                                     // r4 bug: no evaluator, bones frozen
+  const P=marks().filter(l=>/ anim:pose-live /.test(l));const get=(k:string,l:string)=>(l.match(new RegExp(' '+k+'=(\\S+)'))||[])[1];
+  if(P.length!==3)fail('pose-live count '+P.length+'\n'+P.join('\n'));
+  const [w,si,dp]=P;if(get('activity',w)!=='walk'||get('clip',w)!=='walk_start->walk_loop'||get('clipEval',w)!=='1'||get('driverClipEval',w)!=='1'||get('baked',w)!=='0'||get('verdict',w)!=='live'||!(Number(get('thighL',w))>5)||!(Number(get('spine',w))>0.5))fail('pose-live walk '+w);
+  if(get('activity',si)!=='sit'||get('verdict',si)!=='live'||get('vsWalkThighL',si)==='-')fail('pose-live sit '+si);
+  if(get('activity',dp)!=='action'||get('clipEval',dp)!=='0'||get('thighL',dp)!=='0.00'||get('verdict',dp)!=='frozen')fail('pose-live frozen '+dp);
+  if(!/dtMs=\d+ verdict=/.test(w))fail('pose-live dtMs '+w);delete G.__worldLoading;}
  const L=marks(),N=names();console.error(L.join('\n'));
  if(ap().phase()!=='done')fail('phase '+ap().phase());
  if(calls.leave!==1||calls.ret!==1)fail('calls '+JSON.stringify(calls));

@@ -98,6 +98,7 @@ const CAPS_TIMEOUT_MS=20000;
 const GFX_API_NAMES=['UNKNOWN','GLES2','GLES3','METAL','VULKAN','NVN','WEBGL','WEBGL2','WEBGPU'];
 const GFX_RGBA32F=44,GFX_SAMPLED_TEXTURE=2;
 const APRON_NODE='LOD0_G2_APRON';
+const POSE_GIRL='B_PASS2G_CURSOR',POSE_BONES=['thigh.L','spine'],POSE_WINDOW_MS=500,POSE_MAX=4,POSE_LIVE_DEG=0.5,POSE_SIT_DEG=5;
 function capTry(f:()=>any):any{try{return f();}catch{return undefined;}}
 function capTok(v:any):string{if(v===undefined||v===null||v==='')return '-';return String(v).replace(/\s+/g,'_').slice(0,96);}
 function capBool(v:any):string{return v===undefined||v===null?'-':(v?'1':'0');}
@@ -137,11 +138,41 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>{ctx.mark('app:hide','source=cc.game');this.peakSummary('app-hide');});game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.samplePeak();this.deviceCaps();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.samplePeak();this.deviceCaps();this.poseLive();}
  /** device:caps once: when the boot is ready (apron renderer bound, __worldIntegration.morph available) or 20 s after install. */
  private capsDone=false;
  private deviceCaps(){if(this.capsDone)return;const ready=this.ctx.ready(this.ctx.findBoot());if(!ready&&now()-this.ctx.t0<CAPS_TIMEOUT_MS)return;this.capsDone=true;
   let extra='';try{extra=deviceCapsFields()+(ready?'':' worldReady=0');}catch(e){extra='error='+capTok(String(e));}this.ctx.mark('device:caps',extra);}
+ /** anim:pose-live (GGbot work/GGbot-animfix, Mac r4 'girl slides in bind pose'): proof that bones really move. While the walk
+  *  driver's clip (__worldLoading.motion().clip) is a walk/turn, sit or other action clip, the girl's thigh.L and spine LOCAL
+  *  rotations are read at the start of that activity and ~POSE_WINDOW_MS later; the mark carries both angular deltas plus whether
+  *  the engine state of the clip has a clip evaluator (SkeletalAnimationState._clipEval; without it sample() writes nothing).
+  *  Static holds (sit_hold) also report vsWalk = thigh.L vs the last walk sample. Max POSE_MAX marks per activity. Read-only. */
+ private poseWin:{act:string;clip:string;since:number;q:{[b:string]:number[]|null};done:boolean}|null=null;private poseN:{[a:string]:number}={};
+ private poseLastWalk:number[]|null=null;private poseGirl:any=null;private poseBones:{[b:string]:any}={};private poseAnim:any=null;
+ private poseNodes(){let g=this.poseGirl;if(!g||!g.isValid){g=null;this.poseBones={};this.poseAnim=null;const sc:any=capTry(()=>director.getScene());if(!sc)return null;
+   const q:any[]=[sc];let seen=0;while(q.length&&seen<20000&&!g){const n=q.shift();seen++;if(n&&n.name===POSE_GIRL)g=n;const k=n&&n.children;if(k)for(let i=0;i<k.length;i++)q.push(k[i]);}
+   this.poseGirl=g;if(!g)return null;
+   const q2:any[]=[g];seen=0;while(q2.length&&seen<5000){const n=q2.shift();seen++;if(!n)continue;if(POSE_BONES.indexOf(n.name)>=0&&!this.poseBones[n.name])this.poseBones[n.name]=n;
+    if(!this.poseAnim){const a=capTry(()=>n.getComponent('cc.SkeletalAnimation'));if(a)this.poseAnim=a;}const k=n.children;if(k)for(let i=0;i<k.length;i++)q2.push(k[i]);}}
+  return g;}
+ private poseRot(name:string):number[]|null{const n=this.poseBones[name];const r:any=n?capTry(()=>n.rotation||(typeof n.getRotation==='function'?n.getRotation():null)):null;
+  return r&&isFinite(r.w)?[Number(r.x)||0,Number(r.y)||0,Number(r.z)||0,Number(r.w)]:null;}
+ private poseLive(){const wl=G.__worldLoading;const d:any=wl&&typeof wl.motion==='function'?capTry(()=>wl.motion()):null;const clip=d&&typeof d.clip==='string'?d.clip:'';
+  const act=!clip?'':/^(walk|turn)/.test(clip)?'walk':/^sit/.test(clip)?'sit':/^(idle|stand)/.test(clip)?'':'action';
+  if(!act){this.poseWin=null;return;}if(!this.poseNodes())return;
+  const w=this.poseWin;if(!w||w.act!==act){const q:{[b:string]:number[]|null}={};for(let i=0;i<POSE_BONES.length;i++)q[POSE_BONES[i]]=this.poseRot(POSE_BONES[i]);this.poseWin={act:act,clip:clip,since:now(),q:q,done:false};return;}
+  const dt=now()-w.since;if(w.done||dt<POSE_WINDOW_MS)return;w.done=true;
+  const th=this.poseRot('thigh.L'),sp=this.poseRot('spine');if(act==='walk'&&th)this.poseLastWalk=th;
+  const n=(this.poseN[act]||0)+1;this.poseN[act]=n;if(n>POSE_MAX)return;
+  const dA=(a:number[]|null,b:number[]|null)=>a&&b?2*Math.acos(Math.min(1,Math.abs(a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3])))*180/Math.PI:null;
+  const f2=(v:number|null)=>v===null?'-':v.toFixed(2);const dTh=dA(w.q['thigh.L'],th),dSp=dA(w.q['spine'],sp),vsWalk=act==='sit'?dA(this.poseLastWalk,th):null;
+  const an=this.poseAnim;const st:any=an?capTry(()=>an.getState(clip)||an.getState(w.clip)):null;
+  const ev=st?(st._clipEval?1:0):'-',baked=an?(an.useBakedAnimation?1:0):'-';const m:any=d.motion||{};const de=m.clipEval&&typeof m.clipEval==='object'?(m.clipEval.clipEval===null?'-':m.clipEval.clipEval?1:0):'-';
+  const moved=(dTh!==null&&dTh>=POSE_LIVE_DEG)||(dSp!==null&&dSp>=POSE_LIVE_DEG);
+  const verdict=!th&&!sp?'no-bones':moved?'live':act==='sit'&&vsWalk===null?'static-hold':vsWalk!==null&&vsWalk>=POSE_SIT_DEG?'live':'frozen';
+  this.ctx.mark('anim:pose-live',`activity=${act} n=${n} clip=${capTok(w.clip)}${clip!==w.clip?'->'+capTok(clip):''} action=${capTok(d.action??'-')} clipEval=${ev} driverClipEval=${de} baked=${baked}`+
+   ` repaired=${Array.isArray(m.repairedStates)?m.repairedStates.length:'-'} blend=${m.blend===undefined?'-':m.blend?1:0} thighL=${f2(dTh)} spine=${f2(dSp)} vsWalkThighL=${f2(vsWalk)} dtMs=${Math.round(dt)} verdict=${verdict}`);}
  /** Walk driver (GGbot work/GGbot-walk): __worldIntegration.onFoot / onApronLift. Absent = not merged = no mark. */
  private motionFor:any=null;private motionOff:Array<()=>void>=[];
  private hookMotion(){const w=G.__worldIntegration;if(!w||w===this.motionFor||typeof w.onFoot!=='function')return;for(let i=0;i<this.motionOff.length;i++){try{this.motionOff[i]();}catch{}}this.motionOff=[];this.motionFor=w;const ctx=this.ctx;

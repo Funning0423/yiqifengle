@@ -170,3 +170,9 @@ strict  74a36704594fbb551338a1012afdfa58d27d44aaae06c36ffebaca8cb8186681 WorldIn
 observe 728b630b1e2a7f4eab25d8887d3ec5c749eb689a0a1bbe8d34e99a0be4af5bf8 world-r1/WorldFlowCore.ts         运镜bot 17eaaf5 (= r4 1908273: 6e9ce82+bfd5597+17eaaf5)
 # GGbot first screen (work/GGbot-firstscreen a7d9aa1 on 29690bb): loading layer handoff in WorldIntegrationBoot
 strict  0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f WorldIntegrationBoot.ts          GGbot first screen a7d9aa1
+# GGbot animfix (work/GGbot-animfix 11a1bac on int/v1 484d941; Mac r4 "girl slides in bind pose"): mountWorld sets
+#  useBakedAnimation=!CHARACTER_POSE_BLEND on the girl's SkeletalAnimation BEFORE reference.addChild(girl); AnimRig rebuilds
+#  states without _clipEval; diagnostics().motion gains repairedStates + clipEval (read by T0 anim:pose-live). Verified
+#  `git show 11a1bac:.../WorldIntegrationBoot.ts | sha256sum` = 49987a3d..b401. Core 728b630b unchanged. Glue reviewed: boot
+#  fields T0 reads, __worldIntegration/__worldLoading shapes (additive only) and flow state order unchanged. Append only.
+strict  49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401 WorldIntegrationBoot.ts          GGbot animfix 11a1bac
