@@ -103,7 +103,7 @@ type UnlitBackdropBinding={setNight:(night:boolean)=>void;release:()=>void};
 /** Imported sky/cloud use builtin-unlit: there is no nightBlend uniform and no light response. */
 function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
   const name=renderer.node.name,foamAlpha=({env_sea_foam:.9,env_sea_surf_foam_v22:.48,env_sea_wave_line_01_v22:.34,env_sea_wave_line_02_v22:.38} as Record<string,number>)[name];
-  const tint=name==='env_sky_dome'?[.18,.24,.46]:name==='env_cloud_layer'?[.22,.28,.43]:Number.isFinite(foamAlpha)?[.35,.48,.64]:null,alpha=Number.isFinite(foamAlpha)?foamAlpha:1;
+  const tint=name==='env_sky_dome'||name==='env_window_blind_cards'?[.18,.24,.46]:name==='env_cloud_layer'?[.22,.28,.43]:Number.isFinite(foamAlpha)?[.35,.48,.64]:null,alpha=Number.isFinite(foamAlpha)?foamAlpha:1;
   const shared=renderer.getSharedMaterial(0);
   if(!tint||!shared||shared.effectName!=='builtin-unlit'||renderer.getRenderMaterial(0)!==shared)throw Error('Unexpected unlit backdrop material');
   const read=(m:any)=>{const p=m.passes[0],h=p.getHandle('mainColor');if(!h)throw Error('Backdrop mainColor missing');const v=new Vec4();p.getUniform(h,v);return v;};
@@ -243,6 +243,11 @@ export class WorldFlowComponent extends Component {
       const backdrops=model.getComponentsInChildren(MeshRenderer).filter(r=>backdropNames.includes(r.node.name));
       if(backdrops.length!==6||new Set(backdrops.map(r=>r.node.name)).size!==6)throw Error('Expected exact sky/cloud/shore-foam backdrops');
       for(const r of backdrops)this.unlitBackdrops.set(r,bindUnlitBackdrop(r));
+      // The small window beside the door shows a painted unlit day-view card (env_window_views_1024), not the sky dome.
+      // Tint it with the dome's night colour so every window follows day/night. Non-fatal: a mismatch keeps the day card.
+      const viewCards=model.getComponentsInChildren(MeshRenderer).filter(r=>r.node.name==='env_window_blind_cards');
+      if(viewCards.length!==1)console.warn('[OI_WINDOW_SKY] expected one env_window_blind_cards renderer, found',viewCards.length);
+      else try{this.unlitBackdrops.set(viewCards[0],bindUnlitBackdrop(viewCards[0]));}catch(error){console.warn('[OI_WINDOW_SKY] window view card left in day colour',String(error));}
       const palm=renderers.get('env_rear_window_palm')?.[0] as any;
       console.info('[OI_REAR_PALM_BIND]',JSON.stringify({node:palm?.node.name,skeletonHash:palm?.skeleton?.hash,joints:palm?.skeleton?.joints?.length,expectedSourceSkeletonHash:4226273243,scope:'Skeleton binding only; native window visibility still requires visual check'}));
       // Runtime lighting is installed after source-renderer classification, never into imported GLB data.
