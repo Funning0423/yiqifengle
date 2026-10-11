@@ -14,6 +14,8 @@
 | 朝向 | 朝向“前方 0.2 m 处的路径点”做阻尼跟随（时间常数 0.12 s），限速 150°/s；拐角不再一帧跳。根节点仍严格在路径上。从静止起步时如果偏差 >100°，按旧行为直接对齐（见 §7）。 | `WALK_YAW_MAX_DEG_S=150` `YAW_TAU_S=0.12` `WALK_YAW_LOOKAHEAD_M=0.2` `WALK_YAW_SNAP_DEG=100` |
 | 交叉淡化 | 片段切换 0.2 s 淡入淡出（手动时钟里两套姿势按权重 slerp）。设为 0 关掉。 | `CROSSFADE_S=0.2` |
 | 姿势混合开关 | `true`：`useBakedAnimation=false`，驱动自己采样/混合（淡化 + 风效层）。`false`：回到烘焙模式，一次一个片段、硬切、风效层不生效（脚步/围裙事件、walkProgress、转向限速、按距离推进照常）。 | `CHARACTER_POSE_BLEND=true` |
+
+> **烘焙标志必须在女孩进场景之前设好（Mac r4 修复，work/GGbot-animfix）。** Creator 3.8.8 的 `SkeletalAnimationState` 在 `SkeletalAnimation.onLoad` 时创建（animation-component.ts:162-163 → createState :284-288 → initialize），初始化时把当时的 `useBakedAnimation` 记进 `_doNotCreateEval`（skeletal-animation-state.ts:75-76）；之后再 `setUseBaked(false)`（:101-113）虽然重跑 `AnimationState.initialize`，但 evaluator 只在 `!_doNotCreateEval` 时创建（animation-state.ts:370-379），`sample()` 什么骨骼都不写（:546-552），女孩停在 GLB 默认姿势滑行。所以 `mountWorld` 在 `reference.addChild(girl)` 之前就给女孩所有 `SkeletalAnimation` 设 `useBakedAnimation=!CHARACTER_POSE_BLEND`；`AnimRig` 构造时再兜底：任何没有 `_clipEval` 的状态 removeState+createState 重建（记录在 `diagnostics().motion.repairedStates`，`motion.clipEval` 报当前片段状态）。测试：`node tools/walk-driver/test_anim_eval_order.cjs`（按引擎源码转写的 mock + 真实 AnimRig；`--boot <旧 Boot>` 能复现 bug）。真机证据看 T0 `anim:pose-live`。
 | `walkProgress()` | 当前这段走路的距离比例 0..1，每段从 0 开始，不在走路时 `null`（`docs/camera/T2-T3a-DELIVERY.md` 的约定）。 | — |
 | `onFoot(cb)` | 由走路相位越过事件时间算出（不用 Cocos 片段事件）。返回取消订阅函数。 | — |
 | 风 | 每帧读 `WorldFlowComponent.getWindStrength()`（0..1，运镜bot）。驱动 `wind_flutter_loop` 权重和 `apron_lift` 触发。 | `APRON_LIFT_THRESHOLD=0.95` |

@@ -45,7 +45,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
    motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
     yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
-    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,morph:this.morphDiagnostics()}};}
+    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics()}};}
  /** Apron morph binding + last written weights (docs/walk-driver.md §8). status: unbound|ok|not-found|morph-disabled|no-morph|too-few-targets|error. */
  morphDiagnostics(){return this.morph?this.morph.diagnostics():{status:'unbound',reason:'no visual bound',mesh:this.motionConfig.morphMesh,targets:this.motionConfig.morphTargets,setWeightCalls:0};}
  /** anim_meta.json (character/anim_meta in region_island) parsed before bindVisual; null/invalid = built-in defaults. */
@@ -161,11 +161,24 @@ class FlowReferenceStandin implements CharacterAdapter {
  * one clip, play+pause+setTime+sample (the original path), hard cuts, layers ignored. */
 class AnimRig {
  readonly joints:Joint[]=[];private A:Float64Array;private B:Float64Array;private P:Float64Array;private L:Float64Array;private refs:{[clip:string]:Float64Array}={};private masks:{[clip:string]:number[]}={};private bakedName='';
+ /** States rebuilt because they had no clip evaluator (created while baked; see repairStates). */
+ readonly repaired:string[]=[];
  constructor(private anim:SkeletalAnimation,readonly blend:boolean){
   for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
-  if(blend){anim.useBakedAnimation=false;const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);}
+  if(blend){anim.useBakedAnimation=false;this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);}
   else anim.useBakedAnimation=true;
   const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);}
+ /** Creator 3.8.8: a SkeletalAnimationState initialized while useBakedAnimation was true keeps _doNotCreateEval=true
+  *  (skeletal-animation-state.ts:75-76); a later setUseBaked(false) re-runs AnimationState.initialize (:108-111) but the
+  *  evaluator is only built when !_doNotCreateEval (animation-state.ts:370-379), so sample() writes no joints
+  *  (_sampleCurves :546-552 needs _clipEval). Boot sets the flag before the girl enters the scene (mountWorld); this is the
+  *  defensive net: any state still without an evaluator is removed and created again (createState -> _doCreateState ->
+  *  initialize with the flag now false, animation-component.ts:284-288/:438-446). */
+ private repairStates(){const anim:any=this.anim;if(typeof anim.removeState!=='function'||typeof anim.createState!=='function')return;
+  for(const c of this.anim.clips){if(!c)continue;const st:any=anim.getState(c.name);if(!st||st._clipEval)continue;try{st.stop();anim.removeState(c.name);anim.createState(c,c.name);this.repaired.push(c.name);}catch(e){console.warn('[walk-driver] state repair failed',c.name,String(e));}}
+  if(this.repaired.length)console.warn('[walk-driver] rebuilt states without clip evaluator: '+this.repaired.join(','));}
+ /** T0 anim:pose-live: does the state that drives the pose have a clip evaluator (non-baked) / is it the baked state. */
+ evalStatus(name:string):{state:boolean;clipEval:boolean|null;baked:boolean} {const st:any=this.clip(name)?this.anim.getState(name):null;return {state:!!st,clipEval:st?!!st._clipEval:null,baked:!!this.anim.useBakedAnimation};}
  private clip(name:string){return this.anim.clips.find(c=>c?.name===name)||null;}
  has(name:string){const c=this.clip(name);return !!c&&Number.isFinite(c.duration)&&c.duration>0;}
  duration(name:string){const c=this.clip(name);return c&&c.duration>0?c.duration:0;}
@@ -246,7 +259,12 @@ export class WorldIntegrationBoot extends Component {
  }
  private async mountWorld(attempt:StartupAttempt){attempt.check();const scene=director.getScene()!;const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');this.startupReference=reference;scene.addChild(reference);(this as any)._referenceAdapter=new FlowReferenceStandin(reference);
  if(!this.characterPrefab)throw Error('Required character prefab missing');
- const girl=instantiate(this.characterPrefab);this.startupGirl=girl;girl.name='B_PASS2G_CURSOR';reference.addChild(girl);girl.setScale(1,1,1);
+ const girl=instantiate(this.characterPrefab);this.startupGirl=girl;girl.name='B_PASS2G_CURSOR';
+ // Pose-blend mode needs every SkeletalAnimationState built NON-baked: states are created in SkeletalAnimation.onLoad
+ // (animation-component.ts:162-163 clips setter -> createState -> initialize), which runs when the girl enters the active
+ // scene below. Set the flag first (setter :144-146; no states yet), else the states never get an evaluator (AnimRig.repairStates).
+ {const pre=girl.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<pre.length;i++)pre[i].useBakedAnimation=!CHARACTER_POSE_BLEND;}
+ reference.addChild(girl);girl.setScale(1,1,1);
  // The parent owns seatedRoot/seatYaw. The old standing-minus-seated child offset kept B standing.
  girl.setPosition(0,0,0);girl.setRotationFromEuler(0,0,0);
  const animations=girl.getComponentsInChildren(SkeletalAnimation);const seated=animations.filter(a=>a.clips.some(clip=>clip?.name===this.initialSeatedClip));

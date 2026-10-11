@@ -611,8 +611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 56468,
-    "sha256": "0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f"
+    "bytes": 58818,
+    "sha256": "49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
