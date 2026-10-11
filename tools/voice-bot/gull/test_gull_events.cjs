@@ -198,6 +198,12 @@ const G0 = env().amb.GULL_EVENTS;
 // ---- assets
 { const D = path.join(ROOT, 'creator-build-project/assets/resources/audio_sfx/gull_lr'); const fl = ['1', '2', '3'].map(i => ['L', 'R'].map(s => 'sfx_amb_gull_' + i + '_' + s + '.mp3')).reduce((x, y) => x.concat(y), []);
   ok(fl.every(f => fs.existsSync(path.join(D, f)) && fs.existsSync(path.join(D, f + '.meta'))) && fs.existsSync(D + '.meta'), 'gull_lr assets + metas present', fl);
-  const uu = fl.map(f => JSON.parse(fs.readFileSync(path.join(D, f + '.meta'), 'utf8')).uuid); ok(new Set(uu).size === 6, 'unique uuids'); }
+  const uu = fl.map(f => JSON.parse(fs.readFileSync(path.join(D, f + '.meta'), 'utf8')).uuid); ok(new Set(uu).size === 6, 'unique uuids');
+  // pack round (Grok Bot): 32 kbps joint-stereo, 44.1 kHz, MPEG-1 Layer III; L file silent right / R file silent left is checked by ear-proxy offline
+  const fmt = fl.map(f => { const b = fs.readFileSync(path.join(D, f)); let i = 0; if (b.slice(0, 3).toString() === 'ID3') i = 10 + ((b[6] << 21) | (b[7] << 14) | (b[8] << 7) | b[9]);
+    while (i < b.length - 4 && !(b[i] === 0xff && (b[i + 1] & 0xe0) === 0xe0)) i++; const KB = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
+    const fl1 = Math.floor(144000 * KB[(b[i + 2] >> 4) & 15] / 44100) + ((b[i + 2] >> 1) & 1); const j = i + fl1;   // skip the Xing/Info frame
+    return { f, kbps: KB[(b[j + 2] >> 4) & 15], sr: (b[j + 2] >> 2) & 3, mode: (b[j + 3] >> 6) & 3, bytes: b.length }; });
+  ok(fmt.every(x => x.kbps === 32 && x.sr === 0 && x.mode === 1 && x.bytes < 16000), 'gull_lr: 32 kbps joint-stereo 44.1 kHz, each < 16 KB', fmt); }
 console.log(fail ? 'FAILED ' + fail + ' / ' + n : 'ALL PASS gull-events (' + n + ' checks)');
 process.exit(fail ? 1 : 0);

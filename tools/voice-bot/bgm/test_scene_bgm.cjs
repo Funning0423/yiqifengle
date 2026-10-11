@@ -47,6 +47,8 @@ function world(opts = {}) {
   const GA = load('audio/GameAudio.ts'), SM = load('audio/SceneMusic.ts');
   GA.GameAudio.now = () => now;
   const a = GA.GameAudio.ensure();
+  // v0.5: GameAudio no longer loads a default track itself. Generic worlds request a plain resources track (old 1-arg call).
+  if (!opts.noInitial) a.setMusic('audio_bgm/test_main');
   const step = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) { now += dt * 1000; for (const s of sources) s.advance(dt); for (const c of a.node.comps) if (typeof c.update === 'function') c.update(dt); } };
   const live = () => sources.filter(s => !s.destroyed && s.playing && s.clip);
   const ready = (n = 'main', d = 10) => { const l = loads.find(x => !x.done); l.done = true; const c = clip(n, d); l.cb(null, c); return c; };
@@ -56,7 +58,9 @@ const unlock = w => w.input.emit('touch');
 
 // ---------- 1. bundle loading ----------
 { const w = world(); w.ready('main'); unlock(w);
-  ok(w.loads[0].p === 'audio_bgm/bgm_main' && w.a.musicDiagnostics().bundle === null, 'default track still loads via resources.load (unchanged call)', w.loads.map(l => l.p));
+  ok(w.loads[0].p === 'audio_bgm/test_main' && w.a.musicDiagnostics().bundle === null, 'old 1-arg setMusic(path) still loads via resources.load (unchanged call)', w.loads.map(l => l.p));
+  const w0 = world({ noInitial: true });
+  ok(w0.loads.length === 0 && w0.bundleLoads.length === 0 && w0.a.musicDiagnostics().path === null && w0.a.musicDiagnostics().status === 'idle', 'v0.5: GameAudio.onLoad requests no music at all (island BGM waits for the room)', w0.a.musicDiagnostics());
   w.a.setMusic('audio/bgm_meadow', 'region_meadow');
   ok(w.bundleLoads.length === 1 && w.bundleLoads[0].n === 'region_meadow', 'scene track with bundle: assetManager.loadBundle(region_meadow)');
   const b = w.mkBundle('region_meadow'); w.bundles.region_meadow = b; w.bundleLoads[0].cb(null, b);
@@ -187,28 +191,99 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
   const bad = T.filter(([p, e]) => sceneTrackFor(p) !== e).map(([p, e]) => ({ p, e, got: sceneTrackFor(p) }));
   ok(bad.length === 0, 'sceneTrackFor: home/island/tide/mainline -> island, skycity visit + sky region -> skycity, meadow -> meadow, transitions keep', bad);
 }
+const ISL = { p: 'audio/bgm_main', b: 'audio_bgm_island' };
+/** SceneMusic world: no initial track; `loading` = what __worldLoading.snapshot() returns; boot = WorldIntegrationBoot in scene. */
+function smWorld(o = {}) {
+  const w = world({ noInitial: true });
+  const G = global; let phase = o.phase === undefined ? 'loading' : o.phase;
+  if (o.boot !== false) w.scene.byName.WorldIntegrationBoot = [{ valid: true }];
+  if (o.loadingGlobal !== false) G.__worldLoading = { snapshot: () => ({ phase }) }; else delete G.__worldLoading;
+  w.onceCbs[0](); const sm = w.a.node.comps.find(c => c instanceof w.SM.SceneMusic);
+  const snapState = { snap: { state: 'home', stable: 'home' } };
+  w.scene.byName.WorldFlowComponent = [{ valid: true, commands: () => ({ snapshot: () => snapState.snap }) }];
+  const islandBundle = () => { const bl = w.bundleLoads.find(x => x.n === ISL.b && !x.done); if (!bl) return null; bl.done = true; const b = w.mkBundle(ISL.b); w.bundles[ISL.b] = b; bl.cb(null, b); return b; };
+  const islandClip = (b, d = 83.5) => { const l = b.loads.find(x => !x.done); l.done = true; const c = w.clip('bgm_main', d); l.cb(null, c); return c; };
+  return Object.assign(w, { sm, setPhase: v => { phase = v; }, snapState, islandBundle, islandClip, cleanup: () => { delete G.__worldLoading; } });
+}
 { const w = world(); w.ready('main'); unlock(w);
   ok(w.onceCbs.length === 1, 'SceneMusic self-mounts after the first scene launch');
-  w.onceCbs[0](); const sm = w.a.node.comps.find(c => c instanceof w.SM.SceneMusic);
-  ok(!!sm, 'SceneMusic component on the persistent GameAudio node');
-  let snap = { state: 'island', stable: 'island' }, pres = null;
-  const flow = { valid: true, commands: () => ({ snapshot: () => snap }) }, board = { valid: true, node: { valid: true }, hostPresentation: () => pres };
-  w.scene.byName.WorldFlowComponent = [flow];
-  w.step(1.1);
-  ok(w.a.musicDiagnostics().path === 'audio_bgm/bgm_main' && w.bundleLoads.length === 0, 'island: keeps the default island BGM, no reload');
-  snap = { state: 'level', stable: 'level' }; w.scene.byName.ManagedMobileBoardUI = [board]; pres = { provider: 'regional-r05', active: { region: 'meadow' } };
-  w.step(0.3);
-  ok(w.bundleLoads.length === 1 && w.bundleLoads[0].n === 'region_meadow' && w.a.musicDiagnostics().path === 'audio/bgm_meadow', 'meadow region board -> setMusic(audio/bgm_meadow, region_meadow)');
-  w.bundleLoads[0].cb(new Error('missing'), null); w.step(0.3);
-  ok(w.a.musicDiagnostics().path === 'audio_bgm/bgm_main' && w.a.musicDiagnostics().bundle === null, 'meadow BGM unavailable -> falls back to island BGM');
-  w.step(2); ok(w.bundleLoads.length === 1, 'fallback is sticky for this visit (no retry loop)');
-  pres = { provider: 'regional-r05', active: { region: 'sky' } }; w.step(0.3);
-  ok(w.a.musicDiagnostics().path === 'audio/bgm_skycity' && w.bundleLoads[1].n === 'region_skycity', 'sky region board -> sky city BGM from region_skycity');
-  w.scene.byName.ManagedMobileBoardUI = []; board.valid = false; snap = { state: 'island', stable: 'island' }; w.step(0.3);
-  ok(w.a.musicDiagnostics().path === 'audio_bgm/bgm_main', 'back on the island -> island BGM');
-  snap = { state: 'skycity-loading', stable: 'island' }; w.step(0.3); ok(w.a.musicDiagnostics().path === 'audio_bgm/bgm_main', 'skycity-loading: unchanged');
-  snap = { state: 'skycity', stable: 'skycity' }; w.step(0.3); ok(w.a.musicDiagnostics().path === 'audio/bgm_skycity', 'skycity visit -> sky city BGM');
 }
+// v0.5: nothing is loaded while the loading page is up; island BGM is requested once the room is interactive
+{ const w = smWorld();
+  ok(!!w.sm, 'SceneMusic component on the persistent GameAudio node');
+  w.step(3);
+  ok(w.loads.length === 0 && w.bundleLoads.length === 0 && w.a.musicDiagnostics().path === null, 'loading page (__worldLoading phase loading): no music request at all', { loads: w.loads.length, bundles: w.bundleLoads.length });
+  w.setPhase('error'); w.step(1); ok(w.bundleLoads.length === 0, 'world load error: still nothing');
+  w.setPhase('ready'); w.step(0.3);
+  ok(w.bundleLoads.length === 1 && w.bundleLoads[0].n === 'audio_bgm_island' && w.a.musicDiagnostics().path === ISL.p && w.a.musicDiagnostics().bundle === ISL.b && w.loads.length === 0,
+    'room interactive (phase ready) -> setMusic(audio/bgm_main, audio_bgm_island) via assetManager.loadBundle, nothing from resources', w.a.musicDiagnostics());
+  ok(w.sm.diagnostics().firstLoadAt !== null && w.a.musicDiagnostics().sceneCrossfade.fadeIn === true, 'first request carries the room fade-in');
+  w.setPhase('loading'); w.step(1); ok(w.bundleLoads.length === 1, 'once started, a later loading phase does not re-gate or reload');
+  w.cleanup(); }
+{ const w = smWorld({ loadingGlobal: false }); w.step(2);
+  ok(w.bundleLoads.length === 0, 'WorldIntegrationBoot present but __worldLoading not published yet (its start() not run): wait');
+  w.cleanup(); }
+{ const w = smWorld({ boot: false, loadingGlobal: false }); w.step(0.3);
+  ok(w.bundleLoads.length === 1 && w.bundleLoads[0].n === ISL.b, 'scene without WorldIntegrationBoot (no loading page): request at once');
+  w.cleanup(); }
+{ const { roomInteractiveFrom } = world().SM;
+  const T = [[false, null, true], [true, null, false], [true, { snapshot: () => ({ phase: 'loading' }) }, false], [true, { snapshot: () => ({ phase: 'ready' }) }, true], [true, { snapshot: () => { throw Error('x'); } }, false], [true, { snapshot: 1 }, false]];
+  ok(T.every(([h, l, e]) => roomInteractiveFrom(h, l) === e), 'roomInteractiveFrom: pure gate table'); }
+// ordering: unlock BEFORE the bundle arrives -> starts by itself when it arrives (gesture remembered), 1.5 s fade-in, one start event
+for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room']) {
+  const w = smWorld({ phase: order === 'unlock-before-room' ? 'loading' : 'ready' });
+  const starts = []; const off = w.GA.GameAudio.onMusicStart(i => starts.push(Object.assign({ now: w.now() }, i)));
+  const gStarts = []; const off2 = global.__gameAudioMusic.onMusicStart(i => gStarts.push(i));
+  if (order === 'unlock-before-room') { unlock(w); w.step(2); ok(w.bundleLoads.length === 0 && w.a.musicDiagnostics().gestureSeen, order + ': touch during the loading page unlocks but loads nothing'); w.setPhase('ready'); }
+  w.step(0.3);
+  let b;
+  if (order === 'unlock-then-load') { unlock(w); w.step(1); ok(!w.live().length && starts.length === 0 && w.a.musicDiagnostics().status === 'loading', order + ': unlocked while the bundle downloads: silent, waiting, no error'); }
+  b = w.islandBundle(); const c = w.islandClip(b);
+  if (order === 'load-then-unlock') { w.step(2); ok(!w.live().length && starts.length === 0 && w.a.musicDiagnostics().status === 'ready', order + ': clip ready before any touch: stays silent (no autoplay without a gesture)'); unlock(w); }
+  const t0 = w.now(); w.step(1 / 60);
+  ok(w.live().length === 1 && w.a.loopSource.clip === c, order + ': BGM starts without another touch', w.a.musicDiagnostics().playbackState);
+  ok(starts.length === 1 && starts[0].first === true && starts[0].fadeIn === true && starts[0].path === ISL.p && starts[0].bundle === ISL.b && gStarts.length === 1,
+    order + ': exactly one onMusicStart(first=true, fadeIn) event, also via globalThis.__gameAudioMusic', starts[0]);
+  ok(w.a.musicDiagnostics().lastStart && w.a.musicDiagnostics().lastStart.at === starts[0].at, order + ': musicDiagnostics().lastStart mirrors the event');
+  const v = w.a.musicDiagnostics().volume;
+  ok(w.a.loopSource.volume < 0.05 * v, order + ': starts silent (fade-in from 0)', w.a.loopSource.volume);
+  w.step(0.75); const mid = w.a.loopSource.volume;
+  ok(near(mid, v * Math.sin(Math.PI / 4), 0.05 * v), order + ': half-way (0.75 s) equal-power fade-in ~0.707 x volume', { mid, v });
+  w.step(0.8);
+  ok(near(w.a.loopSource.volume, v, 1e-9) && !w.a.musicDiagnostics().sceneCrossfade.fadeIn, order + ': after 1.5 s at full music volume', w.a.loopSource.volume);
+  w.game.emit('hide'); w.step(0.1); w.game.emit('show'); w.step(0.1);
+  ok(starts.length === 2 && starts[1].first === false && starts[1].fadeIn === false, order + ': resume after background = start event first=false (T0 keys on first=true)', starts.map(s => s.first));
+  off(); off2(); w.cleanup(); }
+// mute before the first start keeps the room fade-in; bundle failure is silent and non-blocking, no retry loop
+{ const w = smWorld({ phase: 'ready' }); w.step(0.3); unlock(w); w.a.setMuted(true);
+  const c = w.islandClip(w.islandBundle()); w.step(1);
+  ok(!w.live().length, 'muted: clip arrives, nothing plays');
+  w.a.setMuted(false); w.step(1 / 60);
+  ok(w.live().length === 1 && w.a.loopSource.volume < 0.05 * w.a.musicDiagnostics().volume, 'unmute before the first start: still fades in from 0');
+  w.cleanup(); }
+{ const w = smWorld({ phase: 'ready' }); w.step(0.3); unlock(w);
+  let threw = null; try { w.bundleLoads[0].cb(new Error('subpackage audio_bgm_island download failed'), null); w.step(5); } catch (e) { threw = e; }
+  ok(!threw && w.a.musicDiagnostics().status === 'error' && w.bundleLoads.length === 1 && w.live().length === 0, 'island bundle download fails: no throw, error observable, no retry spin, silence', w.a.musicDiagnostics().error);
+  w.cleanup(); }
+{ const w = smWorld({ phase: 'ready' }); w.step(0.3);
+  const c = w.islandClip(w.islandBundle()); unlock(w); w.step(0.1);
+  let snap = w.snapState; const board = { valid: true, node: { valid: true }, hostPresentation: () => pres }; let pres = null;
+  w.step(1.1);
+  ok(w.a.musicDiagnostics().path === ISL.p && w.bundleLoads.length === 1, 'island: keeps the island BGM, no reload');
+  snap.snap = { state: 'level', stable: 'level' }; w.scene.byName.ManagedMobileBoardUI = [board]; pres = { provider: 'regional-r05', active: { region: 'meadow' } };
+  w.step(0.3);
+  ok(w.bundleLoads.length === 2 && w.bundleLoads[1].n === 'region_meadow' && w.a.musicDiagnostics().path === 'audio/bgm_meadow', 'meadow region board -> setMusic(audio/bgm_meadow, region_meadow)');
+  ok(w.a.musicDiagnostics().sceneCrossfade.fadingOut && w.a.musicDiagnostics().sceneCrossfade.xfadeS === 1.5, 'scene switch still uses the 1.5 s crossfade (no room fade-in flag)');
+  w.bundleLoads[1].cb(new Error('missing'), null); w.step(0.3);
+  ok(w.a.musicDiagnostics().path === ISL.p && w.a.musicDiagnostics().bundle === ISL.b, 'meadow BGM unavailable -> falls back to island BGM (cached audio_bgm_island bundle)');
+  w.step(2); ok(w.bundleLoads.length === 2, 'fallback is sticky for this visit (no retry loop)');
+  pres = { provider: 'regional-r05', active: { region: 'sky' } }; w.step(0.3);
+  ok(w.a.musicDiagnostics().path === 'audio/bgm_skycity' && w.bundleLoads[2].n === 'region_skycity', 'sky region board -> sky city BGM from region_skycity');
+  w.scene.byName.ManagedMobileBoardUI = []; board.valid = false; snap.snap = { state: 'island', stable: 'island' }; w.step(0.3);
+  ok(w.a.musicDiagnostics().path === ISL.p, 'back on the island -> island BGM');
+  snap.snap = { state: 'skycity-loading', stable: 'island' }; w.step(0.3); ok(w.a.musicDiagnostics().path === ISL.p, 'skycity-loading: unchanged');
+  snap.snap = { state: 'skycity', stable: 'skycity' }; w.step(0.3); ok(w.a.musicDiagnostics().path === 'audio/bgm_skycity', 'skycity visit -> sky city BGM');
+  w.cleanup(); }
 
 // ---------- 5. loose-ES5 safety of the two files ----------
 { const files = ['audio/GameAudio.ts', 'audio/SceneMusic.ts'];
@@ -228,7 +303,14 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
   const strip = m => { const c = JSON.parse(JSON.stringify(m)); delete c.uuid; delete c.userData.bundleName; return c; };
   ok(JSON.stringify(strip(sky)) === JSON.stringify(strip(mea)) && mea.userData.bundleName === 'region_meadow' && mea.uuid !== sky.uuid && mea.userData.isBundle === true && mea.userData.compressionType.wechatgame === 'subpackage' && mea.userData.isRemoteBundle.wechatgame === false,
     'region_meadow.meta == region_skycity.meta except uuid + bundleName (wx_subpackage, priority 1, subpackage, not remote)', mea.userData);
-  for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['resources/audio_bgm/bgm_main.mp3', 83, 84.5]]) {
+  const isl = J(path.join(B, 'audio_bgm_island.meta'));
+  ok(JSON.stringify(strip(sky)) === JSON.stringify(strip(isl)) && isl.userData.bundleName === 'audio_bgm_island' && isl.uuid !== sky.uuid && isl.uuid !== mea.uuid && isl.userData.compressionType.wechatgame === 'subpackage' && isl.userData.isRemoteBundle.wechatgame === false,
+    'v0.5: audio_bgm_island.meta == region_skycity.meta except uuid + bundleName (wx_subpackage, priority 1, subpackage, NOT remote)', isl.userData);
+  ok(!fs.existsSync(path.join(P, 'assets/resources/audio_bgm')) && !fs.existsSync(path.join(P, 'assets/resources/audio_bgm.meta')), 'v0.5: resources/audio_bgm removed (island BGM no longer in resources)');
+  const allMetas = []; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { if (!/^(library|temp|build|node_modules)$/.test(e.name)) walk(f); } else if (e.name.endsWith('.meta')) allMetas.push(f); } })(path.join(P, 'assets'));
+  const uu = {}; let dup = []; for (const f of allMetas) { try { const u = J(f).uuid; if (u) { if (uu[u]) dup.push(u); uu[u] = f; } } catch (e) { /* ignore */ } }
+  ok(dup.length === 0, 'no duplicate uuids across assets/**/*.meta (' + allMetas.length + ' metas)', dup);
+  for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['bundles/audio_bgm_island/audio/bgm_main.mp3', 83, 84.5]]) {
     const p = path.join(P, 'assets', f), m = J(p + '.meta'), buf = fs.readFileSync(p);
     // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0110 = 48 kbps, mode != 3 (stereo)
     let i = 0; if (buf.slice(0, 3).toString() === 'ID3') i = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
@@ -241,7 +323,8 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
     // first frame may be the Xing/LAME info frame (still 48k CBR header with LAME); check a later frame too
     ok(m.importer === 'audio-clip' && kbps === 48 && sr === 0 && mode !== 3 && buf.length > 3e5 && buf.length < 6e5, f + ': audio-clip meta, MPEG-1 44.1 kHz stereo, ' + buf.length + ' B', { kbps, mode, uuid: m.uuid });
   }
-  ok(J(path.join(P, 'assets/resources/audio_bgm/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-…');
+  ok(J(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-… after the move');
+  ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a', 'island bgm_main.mp3 bytes unchanged by the move (sha256 21ca21ac…)');
 }
 console.log((fail ? 'FAILED ' + fail : 'ALL PASS') + ' scene-bgm (' + pass + ' checks)');
 process.exitCode = fail ? 1 : 0;

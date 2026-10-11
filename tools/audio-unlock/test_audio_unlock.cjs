@@ -41,6 +41,8 @@ function world(opts = {}) {
   const cc = { _decorator: { ccclass: () => C => C, property: () => () => {} }, Component, Node, UITransform, Label, Layers: { Enum: { UI_2D: 1 } }, Color: class { constructor(...a) { this.a = a; } }, EventTouch: class {},
     AudioSource, AudioClip: class {}, isValid: (o, _s) => !!o && o.valid !== false && o.destroyed !== true && o._destroyed !== true,
     resources: { load(p, T, cb) { loads.push({ p, cb }); }, loadDir(p, T, cb) { dirs.push({ p, cb }); } },
+    // Voice bot v0.5: island BGM lives in the audio_bgm_island subpackage bundle; bundle.load lands in the same `loads` list as '<bundle>:<path>'
+    assetManager: { getBundle: () => null, loadBundle(n, cb) { cb(null, { name: n, load(p, T, c) { loads.push({ p: n + ':' + p, cb: c }); } }); } },
     director: { getScene: () => scene, addPersistRootNode() {}, once(ev, cb) { onceCbs.push(cb); } }, Director: { EVENT_AFTER_SCENE_LAUNCH: 'after-launch' },
     game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, sys: { localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)) } },
     input, Input: { EventType } };
@@ -66,9 +68,12 @@ function world(opts = {}) {
   const button = new Node('SomeSwallowingUIButton'); canvas.addChild(button); button.active = false;   // any UI node that claims a touch and never forwards a gesture
   let buttonTouches = 0; button.on(EventType.TOUCH_START, () => { buttonTouches++; }); button.on(EventType.TOUCH_END, () => { buttonTouches++; });
   const ga = () => GameAudio.instance;
-  const mkGA = () => { const a = GameAudio.ensure(); return a; };
+  // Voice bot v0.5: GameAudio no longer loads the default BGM by itself; SceneMusic requests it once the room is interactive.
+  // These worlds start in an interactive room, so mkGA stands in for that request (same call SceneMusic makes).
+  const GAmod = load('audio/GameAudio.ts');
+  const mkGA = () => { const a = GameAudio.ensure(); a.setMusic(GAmod.DEFAULT_BGM_PATH, GAmod.DEFAULT_BGM_BUNDLE, { fadeIn: true }); return a; };
   if (opts.gameAudio !== false) mkGA();
-  const bgmReady = () => { const l = loads.find(x => x.p === 'audio_bgm/bgm_main'); if (l && !l.done) { l.done = true; l.cb(null, clip('bgm_main')); } };
+  const bgmReady = () => { const l = loads.find(x => x.p === 'audio_bgm_island:audio/bgm_main'); if (l && !l.done) { l.done = true; l.cb(null, clip('bgm_main')); } };
   /** Cocos 3.8 routing: wx platform listeners -> (UI claim: active hit node swallows) -> else global input. target: 'room' | 'button' | 'blank' */
   let ids = 0;
   function touch(target, phase, x = 50, y = 700) {

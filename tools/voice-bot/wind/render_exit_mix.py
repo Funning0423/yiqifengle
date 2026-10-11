@@ -43,7 +43,7 @@ def main():
          ('waves', 'audio_amb/amb_waves_loop.mp3'), ('flap', 'audio_sfx/sfx_apron_flap.mp3'))}
     gull = {c: decode(os.path.join(res, 'audio_sfx/sfx_amb_gull_%s.mp3' % c[-1]), 1)[:, 0] for c in ('sfx_amb_gull_1', 'sfx_amb_gull_2', 'sfx_amb_gull_3')}
     gl = {c: decode(os.path.join(res, 'audio_sfx/gull_lr/%s_R.mp3' % c), 2)[:, 1] for c in gull}   # what the game plays (R-only clip, right channel)
-    bgm = decode(os.path.join(res, 'audio_bgm/bgm_main.mp3'), 2)
+    bgm = decode(os.path.join(a.repo, 'creator-build-project/assets/bundles/audio_bgm_island/audio/bgm_main.mp3'), 2)   # moved to the audio_bgm_island subpackage
     amb_src = open(os.path.join(a.repo, 'creator-build-project/assets/scripts/audio/AmbienceAudio.ts'), encoding='utf8').read()
     law = a.pan_law or ('norm' if 'c / m' in amb_src else 'eqpow')
     th = (np.clip(a.pan, -1, 1) + 1) * np.pi / 4
