@@ -49,13 +49,13 @@ export const ISLAND_FX = {
   nightFadeS: 0.5,
 };
 
-const clamp01 = (v: number) => v < 0 ? 0 : v > 1 ? 1 : v;
+export const clamp01 = (v: number) => v < 0 ? 0 : v > 1 ? 1 : v;
 export function smoothstep(a: number, b: number, x: number): number { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); }
-const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-const dot = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-const len = (a: V3) => Math.sqrt(dot(a, a));
-const norm = (a: V3): V3 => { const l = len(a); return l > 1e-9 ? [a[0] / l, a[1] / l, a[2] / l] : [0, 0, 0]; };
+export const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+export const dot = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+export const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+export const len = (a: V3) => Math.sqrt(dot(a, a));
+export const norm = (a: V3): V3 => { const l = len(a); return l > 1e-9 ? [a[0] / l, a[1] / l, a[2] / l] : [0, 0, 0]; };
 /** Deterministic hash noise in [0,1). */
 export function hash01(i: number): number { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 
@@ -220,3 +220,9 @@ export function approachNight(w: number, night: boolean, dt: number): number {
 }
 /** Lighthouse light visibility from the night weight (0 slope at both ends, like the T9n lamp light). */
 export function lightFromNight(w: number): number { return smoothstep(0, 1, w); }
+/** Night weight actually used by the island FX (smoke, beam, gulls): GGbot's shared propNightWeight() (world-r2/IslandPropsLayout,
+ * same value as signpost/sea/tags) whenever it is live, i.e. within half a fade of our own replica `own`; otherwise (props not
+ * active, value frozen indoors, function missing) our own replica. Both follow the same 0.5 s linear rule, so they agree to a frame. */
+export function pickNight(own: number, shared: unknown): number {
+  return typeof shared === 'number' && isFinite(shared) && Math.abs(shared - own) <= .55 ? clamp01(shared) : own;
+}

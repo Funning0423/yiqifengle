@@ -12,7 +12,7 @@ sc = bpy.context.scene; sc.render.fps = cfg['fps']
 def v(p): return mathutils.Vector((p[0], -p[2], p[1]))
 def q(r): return mathutils.Quaternion((r[3], r[0], -r[2], r[1]))
 bpy.ops.import_scene.gltf(filepath=os.path.abspath(GLB))
-HIDE = ('env_lighthouse_beam_night_v22', 'env_chimney_smoke_', 'col_', 'character_height_reference', 'env_interior_floor_skirt_preview')
+HIDE = ('env_lighthouse_beam_night_v22', 'env_chimney_smoke_', 'env_anim_seagull_fly_0', 'col_', 'character_height_reference', 'env_interior_floor_skirt_preview')
 night_objs, sky, clouds = [], [], []
 for o in bpy.data.objects:
     if any(o.name.startswith(h) for h in HIDE): o.hide_render = True
@@ -69,6 +69,26 @@ beam.location = v(cfg['lamp']); glint.location = v([cfg['lamp'][0], cfg['seaY'],
 puffs = []
 for i in range(len(cfg['frames'][0]['puffs'])):
     o = mesh_obj('fx_chimney_smoke_puff_%d' % i, G['puff%d' % (i % 2)]); o.data.materials.append(BLEND); puffs.append(o)
+# Gulls (frames[].gulls from dump_gull_frames.cjs): fx_gull_N = copies of the imported env_anim_seagull_fly_01_v22 body/wing
+# meshes (as GullFlock.ts does), wings parented at (-/+0.04, 0.03, 0); one palette copy multiplied by the night tint (frames[].tint).
+GULLS = []
+if 'gulls' in cfg['frames'][0]:
+    src = {n: bpy.data.objects[n] for n in ('env_anim_seagull_fly_01_v22', 'env_anim_seagull_fly_01_v22_wing_L', 'env_anim_seagull_fly_01_v22_wing_R')}
+    gm = src['env_anim_seagull_fly_01_v22'].data.materials[0].copy(); gm.name = 'fx_gull_palette'; TINT = None
+    b = next((n for n in gm.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+    if b:
+        inp = b.inputs['Base Color']; mx = gm.node_tree.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1
+        if inp.is_linked: gm.node_tree.links.new(inp.links[0].from_socket, mx.inputs[6])
+        else: mx.inputs[6].default_value = tuple(inp.default_value)
+        gm.node_tree.links.new(mx.outputs[2], inp); TINT = mx
+    for i in range(len(cfg['frames'][0]['gulls'])):
+        def part(name, key, parent, loc):
+            ob = bpy.data.objects.new(name, src[key].data.copy()); sc.collection.objects.link(ob); ob.rotation_mode = 'QUATERNION'
+            ob.data.materials.clear(); ob.data.materials.append(gm)
+            if parent: ob.parent = parent; ob.location = v(loc)
+            return ob
+        body = part('fx_gull_%d' % i, 'env_anim_seagull_fly_01_v22', None, None)
+        GULLS.append((body, part('fx_gull_%d_wing_L' % i, 'env_anim_seagull_fly_01_v22_wing_L', body, [-.04, .03, 0]), part('fx_gull_%d_wing_R' % i, 'env_anim_seagull_fly_01_v22_wing_R', body, [.04, .03, 0])))
 c = cfg['camera']; cam = bpy.data.cameras.new('cam'); cam.sensor_fit = 'VERTICAL'; cam.angle_y = math.radians(c['fov']); cam.clip_start = .05; cam.clip_end = 1000
 co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
 p = v(c['pos']); t = v(c['target']); co.location = p; co.rotation_euler = (t - p).to_track_quat('-Z', 'Y').to_euler()
@@ -106,5 +126,13 @@ for k, f in enumerate(cfg['frames']):
     glint.rotation_quaternion = q(f['glint']['rot']); setfx(glint, f['glint']['alpha'], COL['glint'])
     for o, pf in zip(puffs, f['puffs']):
         o.location = v(pf['pos']); o.rotation_quaternion = q(pf['rot']); sx, sy, sz = pf['scale']; o.scale = (sx, sz, sy); setfx(o, pf['alpha'], srgb2lin(pf['color']))
+    if 'camera' in f:
+        cc = f['camera']; p = v(cc['pos']); t = v(cc['target']); co.location = p; co.rotation_euler = (t - p).to_track_quat('-Z', 'Y').to_euler(); cam.angle_y = math.radians(cc['fov'])
+    for (body, wl, wr), g in zip(GULLS, f.get('gulls', [])):
+        for o in (body, wl, wr): o.hide_render = not g['vis']
+        if not g['vis']: continue
+        body.location = v(g['pos']); body.rotation_quaternion = q(g['rot']); body.scale = (g['size'],) * 3
+        wl.rotation_quaternion = q(g['wl']); wr.rotation_quaternion = q(g['wr']); wl.scale = wr.scale = (g['ws'], 1, 1)
+    if GULLS and TINT: TINT.inputs[7].default_value = tuple(f.get('tint', [1, 1, 1])) + (1,)
     sc.render.filepath = os.path.join(OUT, 'f%05d.png' % k); bpy.ops.render.render(write_still=True)
 print('DONE', OUT)

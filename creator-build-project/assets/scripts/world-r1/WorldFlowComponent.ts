@@ -272,10 +272,11 @@ export class WorldFlowComponent extends Component {
       const v22Night=v22.filter(r=>r.node.name.includes('_night_v22'));
       for(const r of v22)known.add(r);
       for(const r of v22Night)r.enabled=false;
-      // Scene FX: the authored chimney balls and hard beam bar stay imported (classified, alpha-bound) but never render;
-      // IslandAtmosphereFx draws their replacements (fx_chimney_smoke, fx_lighthouse_beam/glow/seaglint) outside the model.
-      const replacedFx=(r:MeshRenderer)=>r.node.name==='env_lighthouse_beam_night_v22'||/^env_chimney_smoke_0[1-5]_v22$/.test(r.node.name);
-      if(v22.filter(replacedFx).length!==6)throw Error('Expected the authored beam bar and five chimney smoke balls');
+      // Scene FX: the authored chimney balls, hard beam bar and the two orbiting gulls stay imported (classified, alpha-bound) but
+      // never render; IslandAtmosphereFx draws their replacements (fx_chimney_smoke, fx_lighthouse_beam/glow/seaglint, fx_gull_N
+      // reusing the gull meshes) outside the model.
+      const replacedFx=(r:MeshRenderer)=>r.node.name==='env_lighthouse_beam_night_v22'||/^env_chimney_smoke_0[1-5]_v22$/.test(r.node.name)||/^env_anim_seagull_fly_0[12]_v22(_wing_[LR])?$/.test(r.node.name);
+      if(v22.filter(replacedFx).length!==12)throw Error('Expected the authored beam bar, five chimney smoke balls and two flying gulls (body + 2 wings)');
       for(const r of v22)if(replacedFx(r))r.enabled=false;
       for(let i=v22Day.length-1;i>=0;i--)if(replacedFx(v22Day[i]))v22Day.splice(i,1);
       for(let i=v22Night.length-1;i>=0;i--)if(replacedFx(v22Night[i]))v22Night.splice(i,1);
@@ -305,7 +306,7 @@ export class WorldFlowComponent extends Component {
       // Runtime lighting is installed after source-renderer classification, never into imported GLB data.
       this.roomLighting=new RoomLightingRig(director.getScene()!,model,director.getScene()?.getChildByName('FLOW_REFERENCE_PLACEHOLDER_NOT_B')??null);
       this.doorSpill=new DoorSpillHint(director.getScene()!); // T2+ room home camera option 1: door light-spill hint
-      this.atmosphere=new IslandAtmosphereFx(director.getScene()!); // scene FX: chimney smoke + lighthouse beam
+      this.atmosphere=new IslandAtmosphereFx(director.getScene()!); // scene FX: chimney smoke + lighthouse beam + gulls
       const camera=this.worldCamera!;
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).

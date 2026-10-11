@@ -1,16 +1,20 @@
 import { Node, Scene, MeshRenderer, Material, Mesh, Color, Vec3, EffectAsset, utils, isValid } from 'cc';
-import { ISLAND_FX, approachNight, lightFromNight, beamGeometry, beamState, discGeometry, glintGeometry, smokePuffs } from './IslandAtmosphereFxCore';
+import { ISLAND_FX, approachNight, lightFromNight, pickNight, beamGeometry, beamState, discGeometry, glintGeometry, smokePuffs } from './IslandAtmosphereFxCore';
+import * as PropsLayout from '../world-r2/IslandPropsLayout';
+import { GullFlock } from './GullFlock';
 import type { FxGeometry, V3 } from './IslandAtmosphereFxCore';
 /** cc wrapper for IslandAtmosphereFxCore (chimney smoke + lighthouse beam/glow/sea glint).
  * Nodes live under one scene-root node 'IslandAtmosphereFx' (outside the imported model: renderer classification,
  * static-world checks and lighthouseTargets are untouched). No colliders: none of these nodes can take a tap.
- * Night light only shows with the exterior layer; smoke shows with the exterior layer day and night. */
+ * Night light only shows with the exterior layer; smoke shows with the exterior layer day and night.
+ * Night weight: GGbot's propNightWeight() (same value as signpost/sea/tags) when live, else our own replica (pickNight).
+ * Gulls (fx_gulls/fx_gull_N): GullFlock, same root, same night weight. */
 type Fx = { node: Node; material: Material; applied: string };
 const TECH_ADD = 2, TECH_ALPHA_BLEND = 3; // builtin-unlit 3.8.8: opaque, transparent, add, alpha-blend
 export class IslandAtmosphereFx {
   private root: Node | null = null; private meshes: Mesh[] = []; private materials: Material[] = [];
   private beam: Fx | null = null; private glow: Fx | null = null; private glint: Fx | null = null; private puffs: Fx[] = [];
-  private exterior = false; private night = false; private lightShown = 0; private smokeShown = 0; private nightShown = 0; private synced = false; private time = 0;
+  private exterior = false; private night = false; private lightShown = 0; private smokeShown = 0; private nightShown = 0; private synced = false; private time = 0; private ownNight = 0; private gulls: GullFlock | null = null;
   private readonly tmp = new Vec3(); private last: { beam: number; flash: number; puffs: number[] } = { beam: 0, flash: 0, puffs: [] };
   constructor(scene: Scene) {
     if (!EffectAsset.get('builtin-unlit')) { console.warn('[SCENE_FX] builtin-unlit unavailable; island smoke/beam skipped'); return; }
@@ -24,6 +28,7 @@ export class IslandAtmosphereFx {
     this.beam.node.setWorldPosition(L[0], L[1], L[2]); this.glint.node.setWorldPosition(L[0], sea, L[2]);
     const smoke = new Node('fx_chimney_smoke'); root.addChild(smoke);
     for (let i = 0; i < ISLAND_FX.smoke.count; i++) this.puffs.push(this.fx(smoke, 'fx_chimney_smoke_puff_' + i, puffMeshes[i % 2], TECH_ALPHA_BLEND));
+    try { this.gulls = new GullFlock(scene, root); } catch (e) { this.gulls = null; console.warn('[SCENE_FX] gulls skipped', String(e)); }
     root.active = false;
   }
   private mesh(g: FxGeometry): Mesh {
@@ -41,17 +46,20 @@ export class IslandAtmosphereFx {
     return { node, material, applied: '' };
   }
   /** Called from WorldFlowComponent.applyDayNight (same inputs as DoorSpillHint/RoomLightingRig). */
-  setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
+  setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */
   advance(dt: number, camera: Node | null, wind: number): void {
     const root = this.root; if (!root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, .1) : 0; this.time += step;
     // Night weight: first sync snaps to the current mode, afterwards a switch fades over nightFadeS (T9n mechanism).
-    this.nightShown = this.synced ? approachNight(this.nightShown, this.night, step) : (this.night ? 1 : 0); this.synced = true;
+    this.ownNight = this.synced ? approachNight(this.ownNight, this.night, step) : (this.night ? 1 : 0); this.synced = true;
+    let shared: unknown = null; try { const f = (PropsLayout as any).propNightWeight; shared = typeof f === 'function' ? f() : null; } catch (e) { shared = null; }
+    this.nightShown = pickNight(this.ownNight, shared);
     // Exterior on/off is a layer cut (door / level change): no fade, like the other exterior renderers.
     this.smokeShown = this.exterior ? 1 : 0; this.lightShown = this.exterior ? lightFromNight(this.nightShown) : 0;
     const on = this.lightShown > 1e-3 || this.smokeShown > 1e-3; if (root.active !== on) root.active = on;
     if (!on || !camera || !isValid(camera, true)) return;
+    if (this.gulls) this.gulls.advance(step, camera, this.nightShown);
     const p = camera.worldPosition, cam: V3 = [p.x, p.y, p.z];
     const b = beamState(this.time, cam, this.lightShown); this.last.beam = b.alpha; this.last.flash = b.flash;
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
@@ -69,8 +77,9 @@ export class IslandAtmosphereFx {
     if (key !== fx.applied) { fx.material.setProperty('mainColor', new Color(r, g, bl, a)); fx.applied = key; }
   }
   private hideAll(): void { const all = [this.beam, this.glow, this.glint].concat(this.puffs); for (let i = 0; i < all.length; i++) { const f = all[i]; if (f && isValid(f.node, true)) f.node.active = false; } if (this.root && isValid(this.root, true)) this.root.active = false; }
-  diagnostics() { return { time: this.time, lightShown: this.lightShown, smokeShown: this.smokeShown, nightShown: this.nightShown, beamAlpha: this.last.beam, flash: this.last.flash, puffAlpha: this.last.puffs.slice() }; }
+  diagnostics() { return { time: this.time, lightShown: this.lightShown, smokeShown: this.smokeShown, nightShown: this.nightShown, beamAlpha: this.last.beam, flash: this.last.flash, puffAlpha: this.last.puffs.slice(), ownNight: this.ownNight, gulls: this.gulls ? this.gulls.diagnostics() : null }; }
   dispose(): void {
+    if (this.gulls) this.gulls.dispose(); this.gulls = null;
     if (this.root && isValid(this.root, true)) this.root.destroy();
     for (let i = 0; i < this.materials.length; i++) this.materials[i].destroy();
     for (let i = 0; i < this.meshes.length; i++) this.meshes[i].destroy();
