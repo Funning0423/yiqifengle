@@ -33,7 +33,15 @@
 // 公共 API（ensure / instance / play / setMuted / isMuted / onBoardFrame / onRender / resetRenderBaseline /
 // onChestResult / onClaimResult / onButton / onToolTap）与 R6、0005 完全一致，AudioBridge.ts 不用改。
 // 资源位置：assets/resources/audio_sfx/sfx_*.mp3（resources 是启动时加载的分包，合计约 88 KB）。
-import { _decorator, Component, Node, AudioSource, AudioClip, resources, director, game, Game, sys, isValid, input, Input } from 'cc';
+// v0.4（Voice bot，场景 BGM）：
+//   a) setMusic(path, bundle?)：bundle 为空 = resources（原行为，调用方式不变）；否则 assetManager.loadBundle(bundle) 后 bundle.load。
+//   b) 无缝循环：MP3 编码延迟 + 尾部填充约 41–46 ms，平台 loop 每圈会空一下。改为两个声源交叉循环：播到
+//      (时长 - MP3_PADDING_S - LOOP_XFADE_S) 时第二个声源从头起播，确认在播后做 LOOP_XFADE_S 的等功率交叉，然后它接任 loopSource。
+//      旧声源 loop 仍为 true：第二个声源起不来时平台循环兜底（退回原来的“空一下”，不会断音）。
+//   c) 切场景（setMusic 换曲且当前正在播）：旧声源先继续播，新曲确认在播后 SCENE_XFADE_S 等功率交叉；加载失败/超时则旧曲淡出。
+//   d) 静音 / 挂起 / 音量 0 / setMusic(null) / 销毁：交叉用的额外声源立即停掉销毁，只保留 loopSource（原有的解锁、重试、冷却规则不变）。
+//   loopSource 始终是“当前主声源”，T0 的 bgmInfo / pollBgm 照旧读它；musicDiagnostics() 增加 bundle / crossfade 字段。
+import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
@@ -69,6 +77,16 @@ const MAX_LOOP_RECOVERIES = 1; // Consecutive failure retries; confirmed playbac
 const LOOP_REBUILD_GAP_MS = 10000; // Bound repeated gate cancellations before playback is confirmed.
 const MAX_VOICES = 6;         // 同时最多 6 个音效；微信小游戏同时存在的音频实例数量有限，宁少勿多
 const SFX_START_TIMEOUT_MS = 10000; // Only unconfirmed starts; never a playing clip's duration limit.
+/** v0.4：LAME 编码延迟 + 尾部填充（44.1 kHz 下 1811–2016 个采样）。不裁 gapless 头的解码器把这段算进时长。 */
+export const MP3_PADDING_S = 0.045;
+/** v0.4：循环接缝的等功率交叉时长 */
+export const LOOP_XFADE_S = 0.15;
+/** v0.4：切场景 BGM 的等功率交叉时长 */
+export const SCENE_XFADE_S = 1.5;
+/** 交叉要在真正的尾巴之前做完：再留两帧余量（update 按帧检查） */
+const LOOP_SAFETY_S = 0.03;
+/** currentTime 在小游戏里可能按 ~250 ms 更新；外推最多超前这么多 */
+const POS_EXTRAPOLATE_MAX_S = 0.35;
 
 type SfxVoice = { source: AudioSource; name: SfxName; requestedAt: number; started: boolean };
 
@@ -101,6 +119,20 @@ export class GameAudio extends Component {
   private loopSource!: AudioSource;
   private musicClip: AudioClip | null = null;
   private musicPath: string | null = null;
+  private musicBundle: string | null = null;
+  /** v0.4 循环交叉：接任的第二个声源；xfadeAt = 它确认在播的时刻（null = 还没确认） */
+  private loopPartner: AudioSource | null = null;
+  private loopXfadeAt: number | null = null;
+  private loopXfades = 0;
+  /** v0.4 切场景交叉：正在淡出的旧曲声源；sceneFadeAt = 交叉开始时刻；sceneFadeIn = 新 loopSource 需要从 0 淡入 */
+  private fadeOutSource: AudioSource | null = null;
+  private fadeOutFrom = 1;
+  private sceneSwitchAt = 0;
+  private sceneFadeAt: number | null = null;
+  private sceneFadeIn = false;
+  /** currentTime 外推基准 */
+  private posCt = NaN;
+  private posAt = 0;
   private musicGeneration = 0;
   private musicVolume = 0.4;
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
@@ -154,6 +186,7 @@ export class GameAudio extends Component {
     this.destroying = true;
     // Stop immediately: Cocos destruction is deferred until the end of the frame.
     this.loopRequested = false;
+    this.retireMusicExtras();
     this.detachLoopSource();
     this.stopAllSfx();
     // Creator 3.8.8 validates the direct parent destroy.call form in editor builds.
@@ -200,6 +233,7 @@ export class GameAudio extends Component {
       this.staleGen = cur.staleGen; this.staleSince = cur.staleSince;
       cur.alive = false;
       cur.loopRequested = false;
+      cur.retireMusicExtras();
       cur.detachLoopSource();
       cur.stopAllSfx();
       this.gestureSeen = cur.gestureSeen;
@@ -220,16 +254,17 @@ export class GameAudio extends Component {
     if (cur && cur !== this) {
       this.muted = cur.muted; this.musicVolume = cur.musicVolume;
     }
-    this.loopSource.volume = this.musicVolume;
+    this.applyMusicGains();
     input.on(Input.EventType.TOUCH_END, this.onGesture, this);
     input.on(Input.EventType.MOUSE_UP, this.onGesture, this);
     input.on(Input.EventType.KEY_DOWN, this.onGesture, this);
-    this.setMusic(cur && cur !== this ? cur.musicPath : DEFAULT_BGM_PATH);
+    this.setMusic(cur && cur !== this ? cur.musicPath : DEFAULT_BGM_PATH, cur && cur !== this ? cur.musicBundle : null);
     // 资源加载失败不影响游戏：没加载到的音效 play() 时直接跳过
     const loadedSfx = (err: any, list: AudioClip[]) => {
       if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
       if (err || !Array.isArray(list)) { console.warn('[GameAudio] sfx load failed', err || 'empty clip list'); return; }
-      for (const c of list) {
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
         const previous = this.clips.get(c.name);
         if (previous === c) continue;
         c.addRef(); this.clips.set(c.name, c); previous?.decRef();
@@ -254,9 +289,9 @@ export class GameAudio extends Component {
     input.off(Input.EventType.KEY_DOWN, this.onGesture, this);
     game.off(Game.EVENT_HIDE, this.onHide, this);
     game.off(Game.EVENT_SHOW, this.onShow, this);
-    for (const [offName, cb] of this.wxRegistered) {
-      const off = wxFn(offName);
-      try { off?.(cb); } catch (e) { /* 忽略：残留回调由 alive 标志挡住 */ }
+    for (let i = 0; i < this.wxRegistered.length; i++) {
+      const off = wxFn(this.wxRegistered[i][0]);
+      try { off?.(this.wxRegistered[i][1]); } catch (e) { /* 忽略：残留回调由 alive 标志挡住 */ }
     }
     this.wxRegistered = [];
     this.reasons.clear();
@@ -264,9 +299,12 @@ export class GameAudio extends Component {
     this.node.off(AudioSource.EventType.STARTED, this.onSfxStarted, this);
     this.node.off(AudioSource.EventType.ENDED, this.onSfxEnded, this);
     this.stopAllSfx();
+    this.retireMusicExtras();
     this.detachLoopSource();
     this.musicClip?.decRef(); this.musicClip = null;
-    for (const c of this.clips.values()) c.decRef();
+    // loose ES5：Map 不能 for-of，先转数组
+    const owned = Array.from(this.clips.values());
+    for (let i = 0; i < owned.length; i++) owned[i].decRef();
     this.clips.clear(); this.lastPlay.clear();
     if (GameAudio.instance === this) GameAudio.instance = null;
   }
@@ -277,7 +315,8 @@ export class GameAudio extends Component {
     this.observeSfxVoices();
     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
-    } else this.observeLoopRequest();
+      if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
+    } else { this.observeLoopRequest(); this.tickMusic(); }
   }
 
   // ---------- 通用 ----------
@@ -328,10 +367,13 @@ export class GameAudio extends Component {
     try { source.destroy(); } catch (e) { console.warn('[GameAudio] sfx source destroy failed', e); }
   }
   private stopAllSfx() {
-    for (const source of Array.from(this.sfxVoices.keys())) this.retireSfx(source);
+    const sources = Array.from(this.sfxVoices.keys());
+    for (let i = 0; i < sources.length; i++) this.retireSfx(sources[i]);
   }
   private observeSfxVoices() {
-    for (const voice of Array.from(this.sfxVoices.values())) {
+    const all = Array.from(this.sfxVoices.values());
+    for (let i = 0; i < all.length; i++) {
+      const voice = all[i];
       try {
         if (voice.source.playing) { voice.started = true; continue; }
         if (voice.started) {
@@ -397,6 +439,7 @@ export class GameAudio extends Component {
   }
   /** Never reuse a retired source: Cocos guards late loads by clip identity, not generation. */
   private replaceLoopSource() {
+    this.retireLoopPartner();
     this.loopSource.destroy();
     this.loopSource = this.createLoopSource();
     this.loopNeedsReplacement = false;
@@ -423,6 +466,7 @@ export class GameAudio extends Component {
     }
   }
   private pauseLoop() {
+    this.retireMusicExtras();
     // A start can complete between frames immediately before Hide/Muted arrives.
     if (this.loopSource?.playing) this.observeLoopRequest();
     if (this.loopRequested && !this.loopSource.playing) {
@@ -433,6 +477,7 @@ export class GameAudio extends Component {
     }
     this.loopRequested = false; this.loopPendingSince = null;
     this.loopSource?.pause();
+    this.posCt = NaN;
   }
   private resumeLoopIfAllowed(fromGesture = false) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this || !this.loopSource) return;
@@ -450,6 +495,8 @@ export class GameAudio extends Component {
     if (!this.loopSource.clip) return;
     try {
       this.loopRequested = true; this.loopPendingSince = GameAudio.now();
+      this.posCt = NaN;
+      this.applyMusicGains();
       this.loopSource.play();
       this.musicError = null;
       this.observeLoopRequest();
@@ -460,47 +507,177 @@ export class GameAudio extends Component {
     }
   }
 
-  /** Explicit resources-relative path, without extension. null intentionally stops music.
-   * A missing asset is an observable error, never a successful silent fallback. */
-  setMusic(path: string | null) {
+  /** Explicit path without extension, relative to `bundle` (null/omitted = resources, the original behaviour).
+   * null path intentionally stops music. A missing asset is an observable error, never a successful silent fallback.
+   * v0.4: while the current track is audibly playing, a different track crossfades in (SCENE_XFADE_S) once it is confirmed playing. */
+  setMusic(path: string | null, bundle?: string | null) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
-    if (path === this.musicPath && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
+    const bundleName = bundle ? String(bundle) : null;
+    if (path === this.musicPath && bundleName === this.musicBundle && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
       this.resumeLoopIfAllowed(); return;
     }
     const generation = ++this.musicGeneration;
+    // v0.4: keep the audible track playing as the fade-out voice instead of cutting it.
+    const crossfade = !!path && this.musicPath !== null && !this.loopNeedsReplacement && this.canHearMusic() && !!this.loopSource?.playing;
     this.loopRequested = false; this.loopPendingSince = null; this.loopRecoveries = 0;
     this.loopNextReplacementAt = 0; this.loopRetryIsFailure = false;
-    this.detachLoopSource();
-    // A -> B/null -> A can reuse the same cached clip. A fresh source keeps an old
-    // native A load from matching the new A by identity and replacing its player.
-    if (this.musicPath !== null || this.loopNeedsReplacement) this.replaceLoopSource();
+    if (crossfade) {
+      this.retireLoopPartner();
+      this.retireFadeOut();
+      this.fadeOutSource = this.loopSource; this.fadeOutFrom = this.fadeOutSource.volume;
+      this.loopSource = this.createLoopSource();
+      this.loopNeedsReplacement = false;
+      this.sceneSwitchAt = GameAudio.now(); this.sceneFadeAt = null; this.sceneFadeIn = true;
+    } else {
+      this.retireMusicExtras();
+      this.detachLoopSource();
+      // A -> B/null -> A can reuse the same cached clip. A fresh source keeps an old
+      // native A load from matching the new A by identity and replacing its player.
+      if (this.musicPath !== null || this.loopNeedsReplacement) this.replaceLoopSource();
+    }
     this.musicClip?.decRef(); this.musicClip = null;
-    this.musicPath = path; this.musicError = null;
+    this.musicPath = path; this.musicBundle = path ? bundleName : null; this.musicError = null;
     this.musicStatus = path ? 'loading' : 'idle';
+    this.posCt = NaN;
     if (!path) return;
+    const where = bundleName || 'resources';
     const loaded = (err: any, clip: AudioClip) => {
       if (!GameAudio.usable(this) || GameAudio.instance !== this || generation !== this.musicGeneration) return;
       if (err || !clip) {
         this.musicStatus = 'error';
-        this.musicError = `Missing/unloadable BGM resources/${path}: ${String(err || 'empty clip')}`;
+        this.musicError = `Missing/unloadable BGM ${where}/${path}: ${String(err || 'empty clip')}`;
         console.warn('[GameAudio]', this.musicError); return;
       }
       clip.addRef(); this.musicClip = clip;
-      this.loopSource.clip = clip; this.loopSource.loop = true; this.loopSource.volume = this.musicVolume;
+      this.loopSource.clip = clip; this.loopSource.loop = true; this.applyMusicGains();
       this.musicStatus = 'ready'; this.resumeLoopIfAllowed();
     };
-    try { resources.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+    try {
+      if (!bundleName) { resources.load(path, AudioClip, loaded); return; }
+      const ready = assetManager.getBundle(bundleName);
+      if (ready) { ready.load(path, AudioClip, loaded); return; }
+      assetManager.loadBundle(bundleName, (err: any, b: any) => {
+        if (!GameAudio.usable(this) || GameAudio.instance !== this || generation !== this.musicGeneration) return;
+        if (err || !b) { loaded(err || new Error('bundle ' + bundleName + ' unavailable'), null as any); return; }
+        try { b.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+      });
+    } catch (e) { loaded(e, null as any); }
   }
   setMusicVolume(value: number) {
     if (!GameAudio.usable(this) || !Number.isFinite(value)) return;
     this.musicVolume = Math.max(0, Math.min(1, value));
-    this.loopSource.volume = this.musicVolume;
+    this.applyMusicGains();
     try { sys.localStorage.setItem(MUSIC_VOLUME_KEY, String(this.musicVolume)); } catch { /* optional preference */ }
     if (this.musicVolume === 0) this.pauseLoop(); else this.resumeLoopIfAllowed();
   }
+
+  // ---------- v0.4 crossfade looping / scene switch ----------
+  private canHearMusic() {
+    return this.reasons.size === 0 && !this.muted && this.gestureSeen && this.musicVolume > 0;
+  }
+  private static eqIn(t: number) { return Math.sin(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
+  private static eqOut(t: number) { return Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
+  private sceneT() { return this.sceneFadeAt === null ? 0 : (GameAudio.now() - this.sceneFadeAt) / (SCENE_XFADE_S * 1000); }
+  private loopT() { return this.loopXfadeAt === null ? 0 : (GameAudio.now() - this.loopXfadeAt) / (LOOP_XFADE_S * 1000); }
+  /** All music gains in one place: musicVolume x scene fade-in x loop crossfade. */
+  private applyMusicGains() {
+    const v = this.musicVolume;
+    const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
+    const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
+    const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
+    try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
+    try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
+    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+  }
+  private retireMusicSource(source: AudioSource | null) {
+    if (!source) return;
+    try { source.volume = 0; } catch (e) { /* ignore */ }
+    try { source.stop(); } catch (e) { /* ignore */ }
+    try { source.clip = null; } catch (e) { /* ignore */ }
+    try { source.destroy(); } catch (e) { console.warn('[GameAudio] music source destroy failed', e); }
+  }
+  private retireLoopPartner() {
+    const p = this.loopPartner; this.loopPartner = null; this.loopXfadeAt = null;
+    this.retireMusicSource(p);
+  }
+  private retireFadeOut() {
+    const f = this.fadeOutSource; this.fadeOutSource = null; this.sceneFadeAt = null;
+    this.retireMusicSource(f);
+  }
+  /** Gate / stop / destroy: only loopSource survives, at its plain volume. */
+  private retireMusicExtras() {
+    this.retireLoopPartner();
+    this.retireFadeOut();
+    this.sceneFadeIn = false;
+    this.applyMusicGains();
+  }
+  private clipDuration(source: AudioSource): number {
+    let d = NaN;
+    try { d = Number(source.duration); } catch (e) { d = NaN; }
+    if (!(d > 0)) { try { d = Number((this.musicClip as any)?.getDuration?.()); } catch (e) { d = NaN; } }
+    return d > 0 ? d : NaN;
+  }
+  /** currentTime, extrapolated by wall clock between coarse platform updates (never more than POS_EXTRAPOLATE_MAX_S ahead). */
+  private position(source: AudioSource): number {
+    let ct = NaN;
+    try { ct = Number(source.currentTime); } catch (e) { ct = NaN; }
+    if (!Number.isFinite(ct)) return NaN;
+    const now = GameAudio.now();
+    if (ct !== this.posCt) { this.posCt = ct; this.posAt = now; return ct; }
+    return ct + Math.min(POS_EXTRAPOLATE_MAX_S, Math.max(0, (now - this.posAt) / 1000));
+  }
+  /** Seconds into the clip at which the next loop pass must start (exported for tests). */
+  static loopStartAt(duration: number) { return duration - MP3_PADDING_S - LOOP_XFADE_S - LOOP_SAFETY_S; }
+  /** Called every unblocked frame. */
+  private tickMusic() {
+    if (!this.alive || !this.loopSource) return;
+    // Scene switch: start the crossfade when the new track is confirmed playing; failure/timeout just fades the old one out.
+    if (this.fadeOutSource && this.sceneFadeAt === null) {
+      const failed = this.musicStatus === 'error' || this.loopNeedsReplacement || this.musicPath === null
+        || GameAudio.now() - this.sceneSwitchAt >= LOOP_START_TIMEOUT_MS;
+      if (this.loopSource.playing || failed) this.sceneFadeAt = GameAudio.now();
+    }
+    if (this.sceneFadeAt !== null && this.sceneT() >= 1) { this.retireFadeOut(); this.sceneFadeIn = false; }
+    else if (this.sceneFadeIn && !this.fadeOutSource && this.sceneFadeAt === null && this.loopSource.playing) this.sceneFadeAt = GameAudio.now();
+    this.tickLoopCrossfade();
+    this.applyMusicGains();
+  }
+  private tickLoopCrossfade() {
+    const src = this.loopSource, clip = this.musicClip;
+    if (!clip || !src.playing || src.clip !== clip) { if (this.loopPartner && !src.playing) this.retireLoopPartner(); return; }
+    const dur = this.clipDuration(src);
+    if (!(dur > LOOP_XFADE_S * 4)) return;
+    const pos = this.position(src), startAt = GameAudio.loopStartAt(dur);
+    if (!Number.isFinite(pos)) return;
+    if (!this.loopPartner) {
+      if (pos < startAt) return;
+      let p: AudioSource | null = null;
+      try {
+        p = this.createLoopSource(); p.volume = 0; p.clip = clip; p.loop = true;
+        this.loopPartner = p; this.loopXfadeAt = null;
+        p.play();
+        if (p.playing) this.loopXfadeAt = GameAudio.now();   // platforms that report playing synchronously fade from this frame
+      } catch (e) { this.retireLoopPartner(); console.warn('[GameAudio] loop partner failed; platform loop remains', e); }
+      return;
+    }
+    const partner = this.loopPartner;
+    if (this.loopXfadeAt === null) {
+      // Platform loop already wrapped the old voice (partner never started in time): drop the partner, keep one voice.
+      if (pos < startAt - 1) { this.retireLoopPartner(); return; }
+      let started = false;
+      try { started = !!partner.playing; } catch (e) { started = false; }
+      if (started) this.loopXfadeAt = GameAudio.now();
+      return;
+    }
+    if (this.loopT() >= 1) {
+      // Swap roles: the partner is now the music source; the old voice is retired before it can wrap.
+      this.loopPartner = null; this.loopXfadeAt = null; this.loopSource = partner; this.posCt = NaN; this.loopXfades++;
+      this.retireMusicSource(src);
+    }
+  }
   /** Reports loading and player state only. It cannot establish audible device output. */
   musicDiagnostics() {
-    return { path: this.musicPath, status: this.musicStatus, error: this.musicError,
+    return { path: this.musicPath, bundle: this.musicBundle, status: this.musicStatus, error: this.musicError,
       gestureSeen: this.gestureSeen, muted: this.muted, volume: this.musicVolume,
       suspended: this.suspendReasons(), playRequested: this.loopRequested,
       playing: !!this.loopSource?.playing,
@@ -510,6 +687,9 @@ export class GameAudio extends Component {
       playbackRecoveries: this.loopRecoveries, playbackRecoveryLimit: MAX_LOOP_RECOVERIES,
       playbackRetryReason: this.loopNeedsReplacement ? (this.loopRetryIsFailure ? 'unconfirmed' : 'gate-canceled') : null,
       playbackRetryAfterMs: this.loopNeedsReplacement ? Math.max(0, this.loopNextReplacementAt - GameAudio.now()) : 0,
+      loopCrossfade: { partner: !!this.loopPartner, fading: this.loopXfadeAt !== null, completed: this.loopXfades,
+        paddingS: MP3_PADDING_S, xfadeS: LOOP_XFADE_S },
+      sceneCrossfade: { fadingOut: !!this.fadeOutSource, started: this.sceneFadeAt !== null, fadeIn: this.sceneFadeIn, xfadeS: SCENE_XFADE_S },
       audibleVerified: false };
   }
   /** 打断开始：已有生效的打断时是重复 Begin，忽略；否则开新的一代 */
@@ -630,9 +810,10 @@ export class GameAudio extends Component {
   private playCheer(level: number) {
     if (!GameAudio.usable(this) || this.muted || this.reasons.size > 0) return;
     let playingLevel = -1;
-    for (const v of this.sfxVoices.values()) playingLevel = Math.max(playingLevel, CHEERS.indexOf(v.name));
+    const voices = Array.from(this.sfxVoices.values());   // loose ES5：Map 不能 for-of
+    for (let i = 0; i < voices.length; i++) playingLevel = Math.max(playingLevel, CHEERS.indexOf(voices[i].name));
     if (playingLevel >= level) return;
-    for (const v of Array.from(this.sfxVoices.values())) if (CHEERS.indexOf(v.name) >= 0) this.retireSfx(v.source);
+    for (let i = 0; i < voices.length; i++) if (CHEERS.indexOf(voices[i].name) >= 0) this.retireSfx(voices[i].source);
     this.play(CHEERS[level]);
   }
 
