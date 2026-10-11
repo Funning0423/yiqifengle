@@ -9,7 +9,7 @@
  */
 import type { AuthoredPose } from './CameraPose';
 export type IslandPoseSource = 'legacy-capsule' | 'temporary-6m' | 'yunjing-final' | 'v23-wide' | 'v23-girl' | 'v24-readable';
-export type HomePoseSource = 'legacy-capsule' | 'oi-interim-standing' | 'sitting-room';
+export type HomePoseSource = 'legacy-capsule' | 'oi-interim-standing' | 'sitting-room' | 'corner-all-four';
 export type PoseEntry = AuthoredPose & Readonly<{ characterYawDeg?: number; source: string }>;
 export const REGION_CAMERA = {
   version: 2,
@@ -44,6 +44,11 @@ export const REGION_CAMERA = {
       // User-approved 2026-10-10 room/window portrait, pulled back only 0.10 m. Original actor route and transition timing stay unchanged.
       'sitting-room': { position: [-1.32022071, 1.38613379, -2.11374307], target: [0.04, 1.22, -4.45], fovVerticalDeg: 75,
         source: 'Approved rear-room-profile-e composition, 10 cm pullback. True arch/sea/palm. Static camera clearance 7.87 cm; native transition/HUD review required.' },
+      // T2+ CANDIDATE, NOT ACTIVE: the only lens volume in the existing room (CPU search over decoded GLB, LOS-checked)
+      // that frames seated girl + chair + front arched window + door at once in 586x1266 portrait. Needs fov 92 > CAMERA_FIXED.maxFov 75
+      // (pose would be rejected) and is a high back-wall angle (pitch -38), not a 3/4 side shot. Lead decision pending.
+      'corner-all-four': { position: [0.3, 2.35, -4.95], target: [0.8430, 0.8108, -3.0563], fovVerticalDeg: 92,
+        source: 'T2+ 运镜bot 2026-10-11 homesearch2 best (clearance 0.27 m, girl 45% H, door 12/20 + window 12 samples visible). Requires maxFov change.' },
     } as Record<HomePoseSource, PoseEntry | null>,
   },
   /** Debug frameCheck limits (NDC). Follow-up: tighten minY to -0.5 once Oi moves the nav buttons to the bottom 25%. */
@@ -88,3 +93,177 @@ export const INTERIOR_CAMERA_CLEARANCE = {
   ],
   outsidePosition: [-1.28, 1.65, 1.6],
 } as const;
+
+/** T2/T3a (运镜bot, 2026-10-11): transition camera keys. DATA only; FirstsliceRoutes turns each key into a look-at pose
+ * whose target is the girl's controller root at the key's walk progress + targetHeight (m). Designed by
+ * tools/camera-frame-test against the Blender room/door/exterior meshes: every sampled frame keeps hat, feet and a
+ * 0.6 m body box inside the NO-HUD safe area of a 586x1266 portrait screen (top = capsule bottom + 4% H, bottom/side
+ * 4%) with >= 2.5% spare, lens >= 0.15 m from any surface except at the approved cameraHome (0.079 m), and clear line
+ * of sight to head/chest/feet. Rollback: set enabled=false (pre-T2 linear tracks, keys and timings come back unchanged). */
+export const TRANSITION_CAMERA = Object.freeze({
+  enabled: true,
+  version: 'T2-T3a-2026-10-11',
+  keys: {
+    ST1:{position:[-1.1,1.75,-2.9],targetHeight:1.05,fovVerticalDeg:72},
+    R1:{position:[-0.533,1.6,0.822],targetHeight:1.0,fovVerticalDeg:73},
+    R2:{position:[-0.37,1.5,-0.1],targetHeight:1.0,fovVerticalDeg:73},
+    R3:{position:[-0.34,1.52,-1.0],targetHeight:1.0,fovVerticalDeg:70},
+    G:{position:[-1.137,1.795,-3.121],targetHeight:1.08,fovVerticalDeg:71.9},
+    D0:{position:[-1.934,1.82,-3.55],targetHeight:0.8,fovVerticalDeg:67.2},
+    D1:{position:[-1.786,1.799,-3.503],targetHeight:1.137,fovVerticalDeg:71.5},
+    D2:{position:[-1.212,1.665,-3.08],targetHeight:0.91,fovVerticalDeg:71.8},
+    D3:{position:[-1.135,1.7,-2.675],targetHeight:1.141,fovVerticalDeg:71},
+    D4:{position:[-1.214,1.694,-2.307],targetHeight:1.024,fovVerticalDeg:68},
+    X1:{position:[-0.647,1.498,-1.448],targetHeight:0.978,fovVerticalDeg:69.2},
+    X2:{position:[-0.4,1.454,-1.2],targetHeight:0.879,fovVerticalDeg:71.6},
+    O:{position:[-0.353,1.394,-0.923],targetHeight:1.065,fovVerticalDeg:71.9},
+    I1:{position:[0.174,1.15,0.115],targetHeight:1.064,fovVerticalDeg:55},
+    T2:{position:[0.226,1.152,-0.256],targetHeight:0.806,fovVerticalDeg:60.2},
+    OR:{position:[-0.287,1.537,-1.584],targetHeight:1,fovVerticalDeg:70.1},
+    C1:{position:[-0.053,1.549,-1.353],targetHeight:0.966,fovVerticalDeg:67.8},
+    C2:{position:[0.154,1.884,-1.411],targetHeight:0.945,fovVerticalDeg:67.3},
+    C3:{position:[0.842,1.696,-1.721],targetHeight:1.007,fovVerticalDeg:68.8},
+    IR:{position:[1.338,1.532,-1.515],targetHeight:0.933,fovVerticalDeg:72},
+    S1:{position:[1.89,1.562,-1.926],targetHeight:1.044,fovVerticalDeg:70.5},
+    S2:{position:[1.864,1.588,-2.044],targetHeight:0.98,fovVerticalDeg:69.3},
+    S3:{position:[1.902,1.563,-2.459],targetHeight:0.979,fovVerticalDeg:67.2},
+    S4:{position:[1.76,1.611,-2.17],targetHeight:0.968,fovVerticalDeg:71.5},
+    S5:{position:[0.953,1.604,-1.57],targetHeight:1.032,fovVerticalDeg:72},
+    S6:{position:[0.016,1.549,-1.699],targetHeight:1.038,fovVerticalDeg:71.7}
+  } as Record<string, { position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>,
+  /** Ease windows are fractions of the move's duration (C2 remap, see CameraPose.remapProgress). */
+  tracks: {
+    homeToDoor: { interpolation: 'pchip', easeIn: .3, easeOut: .3 },
+    standTurn: { interpolation: 'pchip', easeIn: .35, easeOut: .12 },
+    toDoor: { interpolation: 'pchip', easeIn: .15, easeOut: .15 },
+    outbound: { interpolation: 'pchip', easeIn: .08, easeOut: .2 },
+    inbound: { interpolation: 'pchip', easeIn: .35, easeOut: .08 },
+    toSeat: { interpolation: 'pchip', easeIn: .2, easeOut: .2 },
+  },
+  /** T5 room-light weight w over walk progress (linear rig blend, 2462ce4): ~0 well before restore() on the island,
+   *  back to 1 before the door closes. Driven by WorldFlowCore.roomLightRamp from the camera segment's walk. */
+  lighting: { toIsland: { from: 1, to: 0, start: 0, end: .5 }, toThreshold: { from: 0, to: 1, start: .45, end: 1 } },
+  /** R3 (GGbot, Mac r3 "回家时女孩全黑"): exterior key k over toThreshold walk progress (RoomLightingRig "R3 exterior key").
+   *  The authored sun lights +Z faces; walking home she faces -Z, towards the lens, and was lit by ambient only until the w
+   *  ramp. k mirrors the sun's yaw across the house axis (same elevation/illuminance) while the crane looks DOWN on her
+   *  (walk progress .02-.22 = pitch about -40 to -78 deg; she faces the lens from ~.26), so the swing never plays on a
+   *  frontal view. Rollback: delete this entry (authored sun until the w ramp, the r3 look). */
+  exteriorKey: { toThreshold: { from: 0, to: 1, start: .02, end: .22 } },
+  /** T2+ stand-up + turn: ONE move cameraHome -> (dolly back to medium, at fraction `mid` of stand+turn) -> D0. */
+  standTurn: { mid: .5, key: 'ST1' },
+  /** T2+ exterior rail: lens beside the walk at `distance` m on `side` of the walk tangent (+1 right / -1 left; outbound
+   *  seaward = -1), `lead` m ahead along the tangent, `height` m above the root; target `look` m ahead at targetHeight
+   *  (look > 0 keeps her on the trailing third line). Keys are generated by FirstsliceRoutes.railPose at each progress. */
+  /** T2+ crossing-out end key (rail form on outCrossing at progress 1): behind her in the doorway. */
+  crossOutEnd: { progress: 1, side: -1, distance: 0.158, height: 1.519, lead: -1.902, look: 0.466, targetHeight: 0.943, fovVerticalDeg: 69.541 } as RailKey,
+  /** T2+ frontal swing (lead + Funning, replaces the side-rail-only railOut, kept below as railOutSide for rollback): after
+   *  the doorway the lens swings from behind her, past her seaward side, to IN FRONT of her (`frontal: true` key; wind
+   *  strength = 1 exactly there), holds a frontal medium shot while she keeps walking (lens backs away ahead of her), then
+   *  the crane starts at crane.startProgress (= hold end) and rises to cameraIsland. She never stops. */
+  railOut: [{ progress: 0.05, side: -1, distance: 0.51, height: 1.863, lead: -1.628, look: 0.272, targetHeight: 0.955, fovVerticalDeg: 66.938 },
+    { progress: 0.123, side: -1, distance: 1.19, height: 2.473, lead: -1.081, look: -0.021, targetHeight: 0.962, fovVerticalDeg: 64.664 },
+    { progress: 0.238, side: -1, distance: 2.834, height: 2.841, lead: 0.496, look: -0.018, targetHeight: 1.233, fovVerticalDeg: 55.845 },
+    { progress: 0.43, side: -1, distance: 0.91, height: 2.95, lead: 3.404, look: -0.204, targetHeight: 1.227, fovVerticalDeg: 49.868, frontal: true },
+    { progress: 0.553, side: -1, distance: 2.022, height: 2.152, lead: 4.805, look: -0.315, targetHeight: 1.186, fovVerticalDeg: 50.929 }] as RailKey[],
+  /** Lens-clearance reroute (Mac round 2 / lens_rays.cjs): the frontal + hold-end keys were raised so the lens no longer passes
+   *  0.47 m from the ~2 m shrub in env_island_props_merged (x -4.4..-3.25, z 2.4..3.9) during the hold. Previous values:
+   *  frontal { progress 0.408, distance 0.828, height 1.984, lead 3.142, look 0.093, targetHeight 1.191, fov 52.77 },
+   *  hold end { progress 0.538, distance 2.022, height 1.884, lead 4.782, look -0.104, targetHeight 1.146, fov 48.738 }, crane.startProgress 0.538. */
+  /** Pre-swing side rail (rollback: copy into railOut, crane.startProgress 0.354933, settleSeconds 3.48131, crossOutEnd
+   *  { distance 0.649, height 1.6, lead -2.25, look 0.399, targetHeight 1, fov 72 }). */
+  railOutSide: [{ progress: 0.15, side: -1, distance: 0.994, height: 2.173, lead: -1.319, look: 0.063, targetHeight: 1.001, fovVerticalDeg: 61.591 }, { progress: 0.3, side: -1, distance: 3.765, height: 2.634, lead: -0.641, look: 0.031, targetHeight: 1, fovVerticalDeg: 58 }, { progress: 0.354933, side: -1, distance: 4.246, height: 3.19, lead: -0.103, look: 0.079, targetHeight: 1, fovVerticalDeg: 49.636 }] as RailKey[],
+  /** T2+ return rail (palm-avoidance, mirrors the outbound frontal language): after the crane-down the lens is AHEAD of
+   *  her on the landward side (between her and the door) - the old 3.5 m landward key put the lens inside
+   *  env_prop_palm_tall_01's canopy. Old: { progress 0.42, side 1, distance 3.5, height 2.78, lead 1.723, look 0.1,
+   *  targetHeight 1, fov 58 }, craneDown.endProgress 0.42, leadSeconds 1.2. */
+  railIn: [{ progress: 0.42, side: 1, distance: 1.478, height: 2.2, lead: 3, look: 0, targetHeight: 1.1, fovVerticalDeg: 58.298 }] as RailKey[],
+  /** T2+ return door approach: absolute keys (TRANSITION_CAMERA.keys) at toThreshold progress, after railIn. */
+  railInDoor: [{ key: 'R1', progress: .6 }, { key: 'R2', progress: .72 }, { key: 'R3', progress: .86 }] as ReadonlyArray<{ key: string; progress: number }>,
+  /** T2+ crane: leaves the rail at toIsland progress startProgress and reaches cameraIsland `settleSeconds` after she
+   *  stops (spherical about her root: direction slerp, log-distance; target eases from her chest to the island target). */
+  crane: { startProgress: 0.553, settleSeconds: 2.992, steps: 5 },
+  /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
+   *  door sill (outCrossing progress doorProgress) -> held -> rises from toIsland progress swingStart to exactly 1 at the
+   *  frontal railOut key -> held to crane.startProgress -> eases to exactly 0 when the camera settles on cameraIsland.
+   *  Smoothstep between these keys on the camera track's eased progress (distance-driven via walkDuration). */
+  windOut: { doorProgress: 0.12, base: 0.15, swingStart: 0 },
+  /** T2+ doorway-clean (lead B): seen from the island the open doorway showed the whole cluttered interior. Props stay put;
+   *  the door drifts (wind) to islandDeg after she has walked clear and reopens before she walks back in, so the island and
+   *  frontal/crane/return frames show a warm half-opening (a chair + the rug) instead of the whole room. islandDeg picked from
+   *  offline renders of 86.4/45/30/20 (30 = floor sliver only, 20 reads closed). Rollback: delete this entry (door stays at openDeg). */
+  doorDrift: { islandDeg: 45, closeAfter: 1.2, closeSeconds: 2.6, openBefore: 4.1, openSeconds: 2.4 },
+  /** T2+ return entry (Funning, Mac round 3: "进门/关门那一下像切机位"). Old: the crossing-in move swung the lens 1.6 m to the
+   *  right of the doorway (C1..IR, up to 2.1 m/s / 57 deg/s), STOPPED dead for the 1 s door close, then a new track hovered
+   *  at the right wall (S1..S3) and whipped 3.2 m back behind her to cameraHome (S4..S6, up to 1.73 m/s / 68 deg/s): three
+   *  separate set-ups. New: ONE move from the doorway key OR through crossing-in, the door close, the walk to the seat and the
+   *  sit, continuing the return span (no stop at the threshold or the door): the lens backs into the room ahead of her on the
+   *  right, lets her pass at the right wall while panning with her, then arcs once behind her (left, never back) and lands
+   *  on cameraHome while she sits. Keys: seg = cross (inCrossing walk progress) | door (door-close time fraction, she stands
+   *  at entrance_point) | seat (toSeat walk progress) | sit (turn + sit_down time fraction); target = her root at that
+   *  moment + targetHeight (sit: seated root). The last key is always cameraHome (appended by the route builder). Keys are
+   *  placed on the span clock so the lens is where she is (route remapProgress). doorCloseFraction: the leaf closes
+   *  (smoothstep) from 0.1 to this fraction of the door segment. Rollback: enabled=false (old C1..IR / stop / S1..S6 moves). */
+  entry: {
+    enabled: true,
+    doorSeconds: 1.0,
+    doorCloseFraction: 0.9,
+    keys: [
+      { seg: 'cross', progress: 0.5, position: [0.15, 1.56, -2.05], targetHeight: 1.0, fovVerticalDeg: 70 },
+      { seg: 'cross', progress: 1.0, position: [0.75, 1.58, -2.35], targetHeight: 0.98, fovVerticalDeg: 70 },
+      { seg: 'door', progress: 1.0, position: [1.22, 1.58, -2.55], targetHeight: 0.98, fovVerticalDeg: 72 },
+      { seg: 'seat', progress: 0.25, position: [1.66, 1.58, -2.55], targetHeight: 0.97, fovVerticalDeg: 73 },
+      { seg: 'seat', progress: 0.5, position: [1.86, 1.6, -2.3], targetHeight: 0.97, fovVerticalDeg: 73 },
+      { seg: 'seat', progress: 0.75, position: [1.3, 1.6, -1.75], targetHeight: 1.0, fovVerticalDeg: 71 },
+      { seg: 'seat', progress: 1.0, position: [0.3, 1.55, -1.65], targetHeight: 1.0, fovVerticalDeg: 72 },
+      { seg: 'sit', progress: 0.5, position: [-0.7, 1.45, -1.85], targetHeight: 0.95, fovVerticalDeg: 74 },
+    ] as EntryKey[],
+  },
+  /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn.
+   *  positions (optional, steps-1 entries): authored lens positions for the intermediate crane keys (target/fov still from
+   *  the spherical crane). Gull keep-out (Mac round 3 night, video 41.7 s = sim ~26.0-26.3 s: a dark wing swept a corner):
+   *  the generated keys descended through y 9..6.6 at 4.3-5.9 m from the orbit centre (0, -2.65) of the GLB idle_loop gull
+   *  env_anim_seagull_fly_01_v22 (6 m radius, y 6.6-8.1 incl. wings; _02: 8 m, y 7.8-9.0) and passed 0.54 m from its swept
+   *  envelope. The gull's clip phase is not tied to the flow clock, so the lens must clear the WHOLE orbit: these keys reach
+   *  the column above her path before dropping, inside the ring (min 2.48 m from either swept orbit, no frustum ray meets it within 2.5 m; key 1 stays
+   *  high/out so the descent's peak acceleration is <= 14.4 m/s^2 also with the accel/chained walk profiles).
+   *  Generated (rollback: delete positions): [-3.38,11.04,3.89], [-2.56,7.34,1.33], [-1.96,4.36,0.24]. */
+  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861, positions: [[-3.1, 11.6, 2.6], [-1.7, 7.8, -0.3], [-1.75, 4.4, 0]] as Array<[number, number, number]> },
+  /** Mac r4 return FOLLOW (Funning 2026-10-11: "从外面回到灯塔的时候，镜头就一直跟随着人就好了，等他坐下的时候再把机位回归到最初
+   *  进入游戏的那个机位" + "人从外面回到房间的时候画面不能一亮一暗"). Replaces railIn/railInDoor/entry.keys (the lens no longer backs
+   *  into the room ahead of her, overtakes her at the right wall and swings back): when enabled the route builder generates
+   *  - crane-down: cameraIsland -> the follow rig at toThreshold progress craneEnd (spherical about her root, craneSteps keys);
+   *  - follow rig: the lens trails her OWN path `distance` m behind her (so it goes through the doorway where she did, never
+   *    beside or ahead of her), `height` m up; target = her root + targetHeight, `look` m ahead along her path. Path smoothed
+   *    over `smoothing` m (no kinks at path vertices); keys every keySpacing m of her walk. out/in values blend (smoothstep)
+   *    over her arclength [blend[0], blend[1]] m around the point where SHE crosses the door plane;
+   *  - she does not stop at the entrance any more (entry.doorSeconds 0): the leaf closes behind the lens (smoothstep over
+   *    doorClose.seconds, starting when the LENS is doorClose.lensInside m inside the door plane: door-drift >= 1.0 m rule),
+   *    layers go HOME when it is shut;
+   *  - room light: the unchanged T5 walk ramps (interiorLighting.toThreshold / crossIn, linear in her walk) take w 0 -> 1
+   *    from roomLight.before m short of the door plane to the end of her crossing, and the R3 exterior key is not run
+   *    (cameraEntry.noExteriorKey: the lens sees her back, lit by the authored sun). Measured (Blender, same rig state):
+   *    the old k swing gave -0.15 then +0.09 mean brightness on the walk home; now the doorway passage stays within 0.03;
+   *  - sit: one move from the last follow key to cameraHome over turn + the runtime sit_down settle (actionSettleSeconds).
+   *  Rollback: enabled=false (entry.keys one-move entry of 17eaaf5 comes back unchanged). */
+  returnFollow: {
+    enabled: true,
+    craneEnd: 0.4,
+    craneSteps: 4,
+    out: { distance: 2.3, height: 1.95, targetHeight: 0.86, look: 0, fovVerticalDeg: 60 },
+    in: { distance: 1.9, height: 1.85, targetHeight: 0.87, look: 0, fovVerticalDeg: 66 },
+    blend: [-1.2, 1.4] as [number, number],
+    keySpacing: 0.25,
+    smoothing: 0.6,
+    /** room light w ramps (T5 walk ramps, linear in her walk) from `before` m short of the door plane to the end of her
+     *  crossing; the exterior key is not run (cameraEntry.noExteriorKey). */
+    roomLight: { before: 2.5 },
+    doorClose: { lensInside: 1.05, seconds: 2.4 },
+    /** the lens eases to rest over her last `settle` m (C1 soft stop, it stops settle/2 m short of pure trailing). */
+    settle: 1.2,
+    /** time-domain ease of the whole return move (s): crane start from rest / landing on cameraHome. */
+    easeInSeconds: 4.0,
+    easeOutSeconds: 1.2,
+  },
+});
+export type EntryKey = Readonly<{ seg: 'cross' | 'door' | 'seat' | 'sit'; progress: number; position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>;
+export type RailKey = Readonly<{ progress: number; side: 1 | -1; distance: number; height: number; lead: number; look: number; targetHeight: number; fovVerticalDeg: number; frontal?: boolean }>;

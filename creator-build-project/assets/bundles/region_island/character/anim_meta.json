@@ -1,0 +1,167 @@
+{
+ "schema": "anim_meta/v1",
+ "glb": "chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "status": "walk_loop v2 committed (角色动画bot); other clips unchanged",
+ "clip_names_planned": [
+  "walk_loop",
+  "walk_start",
+  "walk_stop_bodyL",
+  "walk_stop_bodyR",
+  "walk_turn_90_bodyL",
+  "walk_turn_90_bodyR",
+  "walk_turn_180",
+  "idle_breathing_loop",
+  "sit_hold",
+  "sit_down",
+  "stand_up",
+  "wind_flutter_loop",
+  "apron_lift"
+ ],
+ "side_convention": "bodyL/bodyR and event.body = the girl's actual body side. Bone suffix is mirrored: bone .L = her RIGHT, bone .R = her LEFT.",
+ "clips": {
+  "walk_loop": {
+   "version": "v2",
+   "loop": true,
+   "in_place": true,
+   "root_motion": "none (root bone static); driver translates the character forward",
+   "forward_axis": {
+    "blender": "-Y",
+    "gltf_cocos_local": "+Z"
+   },
+   "cycle_duration_s": 1.133333,
+   "frames": 34,
+   "fps": 30,
+   "keys": 35,
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.133333,
+    "note": "split must be 0 .. clip length (1.133333 s), NOT duration 1"
+   },
+   "distance_per_cycle_m": 0.793333,
+   "step_length_m": 0.396667,
+   "native_speed_mps": 0.7,
+   "playback_rate_formula": "rate = actual_speed / 0.7",
+   "events": [
+    {
+     "name": "foot:R",
+     "time_s": 0.0,
+     "frame": 0,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:L",
+     "time_s": 0.566667,
+     "frame": 17,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    }
+   ],
+   "phases_fraction_of_cycle": {
+    "foot.R": {
+     "body": "L",
+     "heel_strike": 0.0,
+     "foot_flat": 0.1,
+     "heel_off": 0.37,
+     "toe_off": 0.6
+    },
+    "foot.L": {
+     "body": "R",
+     "heel_strike": 0.5,
+     "foot_flat": 0.6,
+     "heel_off": 0.87,
+     "toe_off": 0.1
+    },
+    "double_support": [
+     [
+      0.0,
+      0.1
+     ],
+     [
+      0.5,
+      0.6
+     ]
+    ]
+   },
+   "cloth": {
+    "skirt_bones_animated": [
+     "skirt.front",
+     "skirt.front.low",
+     "skirt.left",
+     "skirt.left.low",
+     "skirt.right",
+     "skirt.right.low",
+     "skirt.back",
+     "skirt.back.low"
+    ],
+    "method": "collision-solved per-panel pitch curves (legs vs posed dress/apron), smooth periodic envelope, baked to keys; skin weights unchanged",
+    "wind_layer_note": "future wind_flutter_loop / apron_lift are ADDITIVE offsets relative to rest pose, layered on top of this walk skirt pose",
+    "min_clearance_mm": {
+     "clear_leg_dress_mm": 8.4,
+     "clear_leg_apron_mm": 16.4,
+     "clear_arm_cloth_mm": 6.8,
+     "clear_arm_torso_mm": 2.5,
+     "clear_legfoot_back_mm": 39.9
+    }
+   },
+   "measured": {
+    "double_support_pct": 23.5,
+    "stance_slide_mm_max": 5.82,
+    "stance_slide_planted_mm_max": 3.27,
+    "stance_knee_min_deg": 19.49,
+    "knee_flex_deg_heelstrike_to_heeloff": [
+     19.5,
+     27.0
+    ],
+    "pelvis_yaw_amp_deg": 5.0,
+    "pelvis_chest_counter_rotation_deg_amp": 6.47,
+    "pelvis_bob_mm": 17.0,
+    "pelvis_lateral_mm": 32.0,
+    "clip_vertex_hits_total": 0,
+    "clip_triangle_overlaps_total": 0,
+    "upper_arm_outward_deg": [
+     4.6,
+     12.1
+    ],
+    "forearm_outward_deg": [
+     7.5,
+     17.5
+    ]
+   }
+  }
+ },
+ "wind": {
+  "windToFlutter": [
+   [
+    0,
+    0
+   ],
+   [
+    0.04,
+    0.18
+   ],
+   [
+    0.15,
+    0.38
+   ],
+   [
+    0.5,
+    0.7
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "windToFlutter_note": "recommended strength->wind_flutter_loop weight (piecewise linear; ~38% already at 0.15 so hem/apron edge/bangs visibly flutter at the door exit). Same as the driver default; wind clips not authored yet.",
+  "apronLiftThreshold": 0.95,
+  "mask": [
+   "skirt*",
+   "apron*",
+   "hair*"
+  ]
+ },
+ "driver_contract": "GGbot work/GGbot-walk afb5d7b docs/walk-driver.md; deploy path bundles/region_island/character/anim_meta.json"
+}

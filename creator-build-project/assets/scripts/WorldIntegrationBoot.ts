@@ -1,111 +1,254 @@
+import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
 import {applyJourneyNavigationSkin} from './ui/JourneyNavigationSkin';
 import {ISLAND_NAV_IDS,worldNavigationLayout} from './world-r2/WorldNavigationLayout';
 import { RoomExploreOverlay } from './RoomExploreOverlay';
 import { resultLayout } from './ResultLayout';
 import { warmButton, WarmButton } from './WarmButton';
-import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite} from 'cc';
+import {_decorator,Component,Prefab,assetManager,isValid,EffectAsset,JsonAsset,Camera,Node,Canvas,UITransform,Layers,Label,Graphics,Color,Vec3,view,ResolutionPolicy,director,instantiate,game,Game,MeshRenderer,Material,utils,primitives,profiler,SkeletalAnimation,AnimationClip,resources,ImageAsset,Texture2D,SpriteFrame,Sprite,UIOpacity} from 'cc';
 import {WorldNativeComposition} from './world-r2/WorldNativeComposition';
+import {IslandProps} from './world-r2/IslandProps';
+import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopRole,turnRole,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights} from './CharacterMotion';
+import type {MotionConfig,FootEvent,Joint,Plan} from './CharacterMotion';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
 import {StartupReadyGate,StartupAttempt,StartupCancelled} from './world-r2/StartupReadyGate';
 import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
+import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
+import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {validateSkycity} from './region/RegionValidation';
 const {ccclass,property}=_decorator;
+/** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
+const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
 /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
 
 /** Explicit flow-reference stand-in. The calibrated flag certifies only these reference coordinates,
- * never B body/clothing/contact. No animation clips/root motion/collision acceptance. */
+ * never B body/clothing/contact. No root motion/collision acceptance.
+ * Walk driver (GGbot, docs/walk-driver.md): the controller moves the root along the path; the in-place walk clip's time
+ * advances by distance (Δs / native_speed), keeps its phase across back-to-back walks, yaw follows the path tangent
+ * rate-limited (WALK_YAW_MAX_DEG_S); onFoot from phase crossings; crossfades + masked wind layers (CHARACTER_POSE_BLEND);
+ * apron morph targets (MorphDriver: anim_meta curves, written with setWeight after the pose, baked and blend paths alike). */
 class FlowReferenceStandin implements CharacterAdapter {
  readonly calibrated=true;
  readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot,seatedRoot:REF.seatedRoot,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
- private job:any=null;private anim:SkeletalAnimation|null=null;private visualState:any=null;private visualName='';private visualElapsed=0;private visualLoop=false;private disposed=false;
+ private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
+ private motionConfig:MotionConfig=defaultMotionConfig();private pendingIdle=false;private pendingFor=0;private yaw=new YawFollower();private yawRad=0;
+ private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
+ private morph:MorphDriver|null=null;private morphW:{[target:string]:number}={};private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
  constructor(private node:Node){}
- private motionEvents:{utc:string;clip:string;duration:number}[]=[];
- diagnostics(){const p=this.node.worldPosition;return {clip:this.visualName,time:this.visualState?.time??null,duration:this.visualState?.clip?.duration??null,loop:this.visualLoop,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(c=>({name:c.name,duration:c.duration})),events:this.motionEvents.slice(-32)};}
- bindVisual(visual:Node){if(this.disposed)throw Error('Character disposed');this.anim=visual.getComponent(SkeletalAnimation)||visual.getComponentInChildren(SkeletalAnimation);if(!this.anim)throw Error('Character SkeletalAnimation missing');this.anim.useBakedAnimation=true;this.playNamed('sit_hold',true);}
- /** Creator 3.8.8 AnimationState.pause unregisters the manager tick; public setTime/sample
-  * still evaluates SkeletalAnimationState baked frames. The controller is the sole clock. */
- private playNamed(name:string,loop:boolean){if(this.disposed)return;const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);
-  for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
-  clip.wrapMode=loop?AnimationClip.WrapMode.Loop:AnimationClip.WrapMode.Normal;
-  const state=anim.getState(name)||anim.createState(clip,name);state.wrapMode=clip.wrapMode;state.repeatCount=loop?Infinity:1;anim.play(name);state.pause();state.setTime(0);state.sample();
-  this.visualState=state;this.visualName=name;this.visualElapsed=0;this.visualLoop=loop;this.motionEvents.push({utc:new Date().toISOString(),clip:name,duration:clip.duration});if(this.motionEvents.length>32)this.motionEvents.shift();return clip.duration;
- }
- private stopVisual(){this.visualState?.stop();this.visualState=null;this.visualName='';this.visualElapsed=0;}
- playDoorReach(){if(this.disposed||this.job||!this.node.active)return false;this.playNamed('door_reach',false);return true;}
- advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0)return;const step=Math.min(dt,.1);const j=this.job;
-  if(j){j.elapsed=Math.min(j.duration,j.elapsed+step);const p=j.elapsed/j.duration;
+ private motionEvents:any[]=[];
+ private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
+ diagnostics(){const p=this.node.worldPosition,c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
+  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
+   motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
+    yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
+    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics()}};}
+ /** Apron morph binding + last written weights (docs/walk-driver.md §8). status: unbound|ok|not-found|morph-disabled|no-morph|too-few-targets|error. */
+ morphDiagnostics(){return this.morph?this.morph.diagnostics():{status:'unbound',reason:'no visual bound',mesh:this.motionConfig.morphMesh,targets:this.motionConfig.morphTargets,setWeightCalls:0};}
+ /** anim_meta.json (character/anim_meta in region_island) parsed before bindVisual; null/invalid = built-in defaults. */
+ setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);}
+ /** Per-frame wind strength 0..1 (运镜bot WorldFlowComponent.getWindStrength); absent/null = 0. */
+ setWindSource(fn:(()=>number|null)|null){this.windSource=fn;}
+ bindVisual(visual:Node){if(this.disposed)throw Error('Character disposed');this.anim=visual.getComponent(SkeletalAnimation)||visual.getComponentInChildren(SkeletalAnimation);if(!this.anim)throw Error('Character SkeletalAnimation missing');
+  this.rig=new AnimRig(this.anim,CHARACTER_POSE_BLEND);this.clock=new MotionClock(this.motionConfig,this.rig);
+  // Apron morph: renderer found by node / mesh name under the visual (SkinnedMeshRenderer is a MeshRenderer). Missing / no morph = status only.
+  this.morph=new MorphDriver(this.motionConfig.morphMesh,this.motionConfig.morphTargets);let rs:any[]=[];try{rs=typeof (visual as any).getComponentsInChildren==='function'?(visual as any).getComponentsInChildren(MeshRenderer)||[]:[];}catch{rs=[];}this.morph.bind(rs);
+  this.playNamed('sit_hold',true,0);}
+ private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
+ /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
+ private playNamed(name:string,loop:boolean,fade=-1,keep=false,time=0){if(this.disposed||!this.clock)return;const d=this.requireClip(name);
+  if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
+ private render(){if(!this.rig||!this.clock)return;const plan=this.clock.plan();this.rig.apply(plan);this.applyMorph(plan);}
+ /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
+ private applyMorph(plan:Plan){const m=this.morph,c=this.clock;if(!m||m.status!=='ok'||!c)return;try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);m.apply(this.morphW);}catch(e){m.status='error';m.reason=String(e);}}
+ private setYaw(rad:number){this.yawRad=rad;this.node.setRotationFromEuler(0,rad*180/Math.PI,0);}
+ playDoorReach(){if(this.disposed||this.job||!this.node.active||!this.rig?.has(CLIP_ROLES.doorReach))return false;this.pendingIdle=false;this.playNamed('door_reach',false);return true;}
+ private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
+ private emitFoot(f:any){const p=this.node.worldPosition;const e:FootEvent={event:f.def.name,bone:f.def.bone,body:f.def.body,clip:f.clip,phase:f.def.time/f.duration,time:f.def.time,cycle:f.cycle,pos:[p.x,p.y,p.z]};
+  this.logEvent({kind:'foot',event:e.event,bone:e.bone,body:e.body,clip:e.clip,phase:e.phase,cycle:e.cycle,pos:[p.x,p.z]});const list=this.footListeners.slice();for(let i=0;i<list.length;i++){try{list[i](e);}catch(err){console.warn('onFoot listener failed',String(err));}}}
+ /** Delivered to onApronLift subscribers (Voice bot WindAudio subscribes to this adapter by itself). Fallback: direct
+  *  globalThis.__voiceWind.notifyApronLift only while WindAudio reports no hooked subscriber (never both). */
+ private emitApron(strength:'full'|'soft',durationSec:number){this.logEvent({kind:'apron-lift',strength,durationSec,wind:this.wind});const list=this.apronListeners.slice();
+  for(let i=0;i<list.length;i++){try{list[i](strength,durationSec);}catch(err){console.warn('onApronLift listener failed',String(err));}}
+  const vw=(globalThis as any).__voiceWind;if(vw&&typeof vw.notifyApronLift==='function'){let hooks=0;try{hooks=Number(vw.snapshot?.().hooks)||0;}catch{hooks=0;}if(!hooks){try{vw.notifyApronLift(strength,durationSec);}catch(err){console.warn('notifyApronLift failed',String(err));}}}}
+ onFoot(cb:(e:FootEvent)=>void):()=>void {this.footListeners.push(cb);return ()=>{const i=this.footListeners.indexOf(cb);if(i>=0)this.footListeners.splice(i,1);};}
+ onApronLift(cb:(strength:'full'|'soft',durationSec:number)=>void):()=>void {this.apronListeners.push(cb);return ()=>{const i=this.apronListeners.indexOf(cb);if(i>=0)this.apronListeners.splice(i,1);};}
+ /** Soft idle gust (角色动画bot idle logic / anim_meta wind.idleGust): flutter envelope + onApronLift('soft', durationSec). Not while walking. */
+ apronGust(durationSec=4):boolean {if(this.disposed||!this.clock||this.job&&this.job.action.kind==='walk')return false;const d=durationSec>0&&Number.isFinite(durationSec)?durationSec:4;this.clock.startGust(d);this.emitApron('soft',d);return true;}
+ /** Walk-duration contract: distance fraction 0..1 of the CURRENT walk action (each segment from 0), null when not walking. */
+ walkProgress():number|null {const j=this.job;if(!j||j.action.kind!=='walk'||!(j.duration>0))return null;const f=j.elapsed/j.duration;return f>0?(f<1?f:1):0;}
+ private isWalkClip(name:string|undefined){return name===CLIP_ROLES.walk||name===CLIP_ROLES.walkStart||name===CLIP_ROLES.stopL||name===CLIP_ROLES.stopR;}
+ /** Walk ended and no new walk followed within one frame: stop clip for the planted body foot, else idle. */
+ private settleFromWalk(){const c=this.clock!;const stop=stopRole(this.rig!,c.planted());if(stop)this.playNamed(stop,false);else this.playNamed(CLIP_ROLES.idle,true,-1,true);}
+ private beginWalk():boolean {const c=this.clock!,cur=c.base?.clip;const continuing=this.pendingIdle||this.isWalkClip(cur);this.pendingIdle=false;
+  if(cur===CLIP_ROLES.walk||cur===CLIP_ROLES.walkStart)return !continuing; // phase continuity across back-to-back walks
+  this.yaw.reset(this.yawRad);
+  if(cur!==CLIP_ROLES.stopL&&cur!==CLIP_ROLES.stopR&&this.rig!.has(CLIP_ROLES.walkStart))this.playNamed(CLIP_ROLES.walkStart,false);else this.playNamed(CLIP_ROLES.walk,true);return !continuing;}
+ advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
+  if(this.pendingIdle&&!(j&&j.action.kind==='walk')){this.pendingFor+=step;if(j||this.pendingFor>=WALK_JOIN_GRACE_S){this.pendingIdle=false;if(!j)this.settleFromWalk();}}
+  let ds:number|null=null;
+  if(j){const before=j.elapsed;j.elapsed=Math.min(j.duration,j.elapsed+step);const p=j.elapsed/j.duration;
    if(j.action.kind==='walk'){
-    this.node.setWorldPosition(...pointOnPath(j.action.path,p));
-    // +Z is character forward. Follow the authored path on both outward and return walks.
-    const a=pointOnPath(j.action.path,Math.max(0,p-.0001)),b=pointOnPath(j.action.path,Math.min(1,p+.0001));
-    const dx=b[0]-a[0],dz=b[2]-a[2];
-    if(Math.hypot(dx,dz)>1e-8)this.node.setRotationFromEuler(0,Math.atan2(dx,dz)*180/Math.PI,0);
+    this.node.setWorldPosition(...pointOnPath(j.action.path,p));ds=(j.elapsed-before)/j.duration*j.length;
+    // +Z is character forward. Damped, rate-limited follow of the direction to a look-ahead point (corners no longer snap);
+    // the root itself stays exactly on the path.
+    const here=this.node.worldPosition,ahead=pointOnPath(j.action.path,j.length>0?Math.min(1,p+WALK_YAW_LOOKAHEAD_M/j.length):1);
+    const dx=ahead[0]-here.x,dz=ahead[2]-here.z;
+    if(Math.hypot(dx,dz)>.01){const target=Math.atan2(dx,dz);
+     if(j.fromRest&&before===0&&Math.abs(wrapAngle(target-this.yawRad))>WALK_YAW_SNAP_DEG*Math.PI/180){this.logEvent({kind:'yaw-snap',deg:wrapAngle(target-this.yawRad)*180/Math.PI});this.yaw.reset(target);this.setYaw(target);}
+     else this.setYaw(this.yaw.step(target,j.elapsed-before));}
    }
-   else if(j.action.kind==='turn')this.node.setRotationFromEuler(0,(j.action.fromYawRad+Math.atan2(Math.sin(j.action.toYawRad-j.action.fromYawRad),Math.cos(j.action.toYawRad-j.action.fromYawRad))*p)*180/Math.PI,0);
+   else if(j.action.kind==='turn'){this.setYaw(j.fromYaw+j.deltaYaw*p);this.yaw.reset(this.yawRad);}
    else{const target=j.action.kind==='stand'?j.action.seat.standingControllerRoot:j.action.seat.seatedControllerRoot;this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));}
   }
-  if(this.visualState){this.visualElapsed+=step;const duration=this.visualState.clip.duration;this.visualState.setTime(this.visualLoop?this.visualElapsed%duration:Math.min(duration,this.visualElapsed));this.visualState.sample();}
-  if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;this.playNamed(kind==='sit'?'sit_hold':'idle_breathing_loop',true);j.resolve();}
-  else if(!j&&this.visualName==='door_reach'&&this.visualElapsed>=this.visualState.clip.duration)this.playNamed('idle_breathing_loop',true);
+  this.wind=this.readWind();const r=c.tick(step,ds,this.wind);
+  for(let i=0;i<r.foot.length;i++)if(r.foot[i].def.name.indexOf('foot:')===0)this.emitFoot(r.foot[i]);
+  if(r.apronLift)this.emitApron('full',r.apronLift.durationSec);
+  const ph=c.phase();
+  if(ph&&ph.clip===CLIP_ROLES.walkStart){const m=c.meta(CLIP_ROLES.walkStart),d=c.base!.duration,at=m?.handoff?.at??Math.max(0,d-CROSSFADE_S);if(ph.time>=at-1e-9)this.playNamed(m?.handoff?.next||CLIP_ROLES.walk,true,-1,false,m?.handoff?.nextTime??0);}
+  else if(r.ended&&!this.job&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp)this.playNamed(CLIP_ROLES.idle,true,-1,true);
+  this.idleGustTick(step);
+  this.render();
+  if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;
+   if(kind==='walk'){this.pendingIdle=true;this.pendingFor=0;} // keep the walk pose/phase; resolved next frame unless another walk starts
+   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else this.playNamed(CLIP_ROLES.idle,true,-1,true);
+   j.resolve();}
  }
+ private idleGustTick(step:number){const g=this.motionConfig.idleGust,c=this.clock!;if(!g||this.job||c.base?.clip!==CLIP_ROLES.idle||this.wind>0||c.gust){this.idleFor=0;return;}
+  if(this.nextGust<0)this.nextGust=g.minS+Math.random()*Math.max(0,g.maxS-g.minS);this.idleFor+=step;if(this.idleFor>=this.nextGust){this.idleFor=0;this.nextGust=-1;this.apronGust(g.durationS);}}
+ /** T2+: stand/sit = the loaded clip's AnimationClip.duration (stand_up / sit_down, the same value perform() plays for);
+  *  turn = the fixed 1.5 s used by perform(). undefined only when the clip is missing (perform() would throw). */
+ actionSeconds(kind:'stand'|'sit'|'turn'){if(kind==='turn')return 1.5;const clip=this.anim?.clips.find(c=>c?.name===(kind==='stand'?CLIP_ROLES.standUp:CLIP_ROLES.sitDown));const d=clip?.duration;return Number.isFinite(d)&&d!>0?d:undefined;}
+ /** T2+: seconds into sit_down where she is settled, when anim_meta exposes it (clips.sit_down settle_time_s | settleTime |
+  *  settle_frame / fps), rescaled like the events when anim_meta's duration disagrees with the clip; clamped to the clip. */
+ actionSettleSeconds(kind:'sit'){const d=this.actionSeconds(kind),m=this.motionConfig.clips[CLIP_ROLES.sitDown];let s=m?m.settleTime:undefined;
+  if(d===undefined||s===undefined||!(s>0))return undefined;if(m!.duration&&Math.abs(m!.duration-d)>1e-3)s*=d/m!.duration;return Math.min(s,d);}
  perform(action:Action,token:Cancellation):Promise<void>{token.check();if(this.disposed)return Promise.reject(Error('Character disposed'));if(this.job)return Promise.reject(Error('Character action busy'));
   if(action.kind==='sit'){
-   const q=this.node.worldRotation,from=Math.atan2(2*(q.x*q.z+q.w*q.y),1-2*(q.x*q.x+q.y*q.y));
-   const delta=Math.atan2(Math.sin(action.seat.yawRad-from),Math.cos(action.seat.yawRad-from));
+   const from=this.yawRad,delta=wrapAngle(action.seat.yawRad-from);
    // Return routes end facing the chair. Turn in place before the original sit animation.
    if(Math.abs(delta)>.001)return this.perform({kind:'turn',controllerRoot:action.seat.standingControllerRoot,fromYawRad:from,toYawRad:from+delta,direction:'left'},token).then(()=>{token.check();return this.perform(action,token);});
   }
-  let duration:number;try{duration=action.kind==='stand'?this.playNamed('stand_up',false)!:action.kind==='sit'?this.playNamed('sit_down',false)!:action.kind==='walk'?(this.playNamed('walk_loop',true),action.duration):(this.playNamed('idle_breathing_loop',true),1.5);if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
-  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,resolve,reject,off:()=>{}};this.job=j;j.off=token.onCancel(()=>{if(this.job===j){this.job=null;this.stopVisual();}reject(new Cancelled());});});
+  let duration:number;const extra:any={};
+  try{
+   if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
+   else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
+   else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);extra.fromRest=this.beginWalk();duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;}
+   else{// Start from where she actually faces (the walk's damped yaw may still trail the path end by a few degrees).
+    const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);this.pendingIdle=false;
+    const role=turnRole(this.rig!,extra.deltaYaw);if(role)this.playNamed(role,false);else this.playNamed(CLIP_ROLES.idle,true,-1,true);duration=1.5;}
+   if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
+  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
+   j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});
  }
- cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.stopVisual();this.node.setWorldPosition(...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot));this.node.setRotationFromEuler(0,(pose.kind==='seated'?pose.seat.yawRad:pose.yawRad)*180/Math.PI,0);this.playNamed(pose.kind==='seated'?'sit_hold':'idle_breathing_loop',true);}
+ cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
+  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.node.worldPosition;
+  // Stable arrival right after a walk (same spot): keep the pose and settle through stop/idle with a crossfade, no pop.
+  const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
+  this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
+  if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
+  else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
+  else{this.pendingIdle=false;this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
  setVisible(v:boolean){if(!this.disposed)this.node.active=v;}
- dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.stopVisual();this.anim=null;this.node.destroy();}
+ dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morph=null;this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
+}
+/** Cocos side of the pose pipeline. Blend mode (useBakedAnimation=false): the evaluator writes joint nodes synchronously
+ * (AnimationClip.enableTrsBlending=false, states never played), so the driver samples, captures and mixes itself:
+ * crossfade = slerp between two sampled poses; wind layers = additive/override on the masked joints only. Baked mode:
+ * one clip, play+pause+setTime+sample (the original path), hard cuts, layers ignored. */
+class AnimRig {
+ readonly joints:Joint[]=[];private A:Float64Array;private B:Float64Array;private P:Float64Array;private L:Float64Array;private refs:{[clip:string]:Float64Array}={};private masks:{[clip:string]:number[]}={};private bakedName='';
+ /** States rebuilt because they had no clip evaluator (created while baked; see repairStates). */
+ readonly repaired:string[]=[];
+ constructor(private anim:SkeletalAnimation,readonly blend:boolean){
+  for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
+  if(blend){anim.useBakedAnimation=false;this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);}
+  else anim.useBakedAnimation=true;
+  const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);}
+ /** Creator 3.8.8: a SkeletalAnimationState initialized while useBakedAnimation was true keeps _doNotCreateEval=true
+  *  (skeletal-animation-state.ts:75-76); a later setUseBaked(false) re-runs AnimationState.initialize (:108-111) but the
+  *  evaluator is only built when !_doNotCreateEval (animation-state.ts:370-379), so sample() writes no joints
+  *  (_sampleCurves :546-552 needs _clipEval). Boot sets the flag before the girl enters the scene (mountWorld); this is the
+  *  defensive net: any state still without an evaluator is removed and created again (createState -> _doCreateState ->
+  *  initialize with the flag now false, animation-component.ts:284-288/:438-446). */
+ private repairStates(){const anim:any=this.anim;if(typeof anim.removeState!=='function'||typeof anim.createState!=='function')return;
+  for(const c of this.anim.clips){if(!c)continue;const st:any=anim.getState(c.name);if(!st||st._clipEval)continue;try{st.stop();anim.removeState(c.name);anim.createState(c,c.name);this.repaired.push(c.name);}catch(e){console.warn('[walk-driver] state repair failed',c.name,String(e));}}
+  if(this.repaired.length)console.warn('[walk-driver] rebuilt states without clip evaluator: '+this.repaired.join(','));}
+ /** T0 anim:pose-live: does the state that drives the pose have a clip evaluator (non-baked) / is it the baked state. */
+ evalStatus(name:string):{state:boolean;clipEval:boolean|null;baked:boolean} {const st:any=this.clip(name)?this.anim.getState(name):null;return {state:!!st,clipEval:st?!!st._clipEval:null,baked:!!this.anim.useBakedAnimation};}
+ private clip(name:string){return this.anim.clips.find(c=>c?.name===name)||null;}
+ has(name:string){const c=this.clip(name);return !!c&&Number.isFinite(c.duration)&&c.duration>0;}
+ duration(name:string){const c=this.clip(name);return c&&c.duration>0?c.duration:0;}
+ private state(name:string){const c=this.clip(name)!;return this.anim.getState(name)||this.anim.createState(c,name);}
+ private sample(name:string,time:number){const s=this.state(name);s.setTime(time);s.sample();}
+ private mask(clip:string,patterns:ReadonlyArray<string>){let m=this.masks[clip];if(!m){m=[];for(let i=0;i<this.joints.length;i++)if(globMatch(patterns,this.joints[i].name))m.push(i);this.masks[clip]=m;}return m;}
+ apply(plan:Plan){const b=plan.base;if(!b)return;
+  if(!this.blend){const anim=this.anim,clip=this.clip(b.clip)!;
+   if(this.bakedName!==b.clip){for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}clip.wrapMode=b.loop?AnimationClip.WrapMode.Loop:AnimationClip.WrapMode.Normal;
+    const st=this.state(b.clip);st.wrapMode=clip.wrapMode;st.repeatCount=b.loop?Infinity:1;anim.play(b.clip);st.pause();this.bakedName=b.clip;}
+   this.sample(b.clip,b.time);return;}
+  const n=this.joints.length;if(!plan.out&&!plan.layers.length){this.sample(b.clip,b.time);return;}
+  if(plan.out){this.sample(plan.out.clip,plan.out.time);capture(this.joints,this.A);this.sample(b.clip,b.time);capture(this.joints,this.B);blendPose(this.A,this.B,1-plan.out.weight,this.P,n);}
+  else{this.sample(b.clip,b.time);capture(this.joints,this.P);}
+  for(let k=0;k<plan.layers.length;k++){const l=plan.layers[k],mask=this.mask(l.clip,l.mask);if(!mask.length)continue;let ref:Float64Array|null=null;
+   if(l.mode==='additive'){ref=this.refs[l.clip]||null;if(!ref){ref=new Float64Array(this.P.length);this.sample(l.clip,l.referenceTime);capture(this.joints,ref,mask);this.refs[l.clip]=ref;}}
+   this.sample(l.clip,l.time);capture(this.joints,this.L,mask);applyLayer(this.P,this.L,ref,mask,l.weight,l.mode,this.P);}
+  writePose(this.joints,this.P);}
+ dispose(){for(const c of this.anim.clips){if(c)this.anim.getState(c.name)?.stop();}this.joints.length=0;}
 }
 @ccclass('WorldIntegrationBoot')
 export class WorldIntegrationBoot extends Component {
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
- private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
- private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private error='';private doorReached=false;
+ private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private islandProps:IslandProps|null=null;private propSign=false;
+ private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private doorReached=false;
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
- for(const n of this.controls.values())n.active=false;this.notice.node.parent!.active=false;this.status.string='咦，起风了';this.resize();
- (globalThis as any).__worldLoading={snapshot:()=>({phase:this.loadPhase,progress:this.loadProgress,error:this.error,approvedArt:true,backgroundSha256:'308f78b5f037bd33668ff8ad899649ee6094b8e55cf695cf7df62a195b7e8e8d',gate:this.startup.snapshot(),initialClip:this.selectedSeatedClip,characterRoot:REF.seatedRoot,childOffset:[0,0,0]}),layout:()=>this.navLayout(),motion:()=>((this as any)._referenceAdapter)?.diagnostics()||null};
+ Array.from(this.controls.values()).forEach(n=>{n.active=false;});this.notice.node.parent!.active=false;this.status.string='咦，起风了';if(this.loadingLayer)this.status.node.parent!.active=false;this.resize();
+ (globalThis as any).__worldLoading={snapshot:()=>({phase:this.loadPhase,progress:this.loadProgress,error:this.error,approvedArt:true,backgroundSha256:STARTUP_ART.compositeSha256,art:this.loadingLayer?this.loadingLayer.diagnostics():null,gate:this.startup.snapshot(),initialClip:this.selectedSeatedClip,characterRoot:REF.seatedRoot,childOffset:[0,0,0]}),layout:()=>this.navLayout(),motion:()=>((this as any)._referenceAdapter)?.diagnostics()||null};
  void this.loadWorld();
  }
  /** The loading picture is startup only; actual dependencies and initial seated pose unlock the room. */
  private loadWorld():Promise<void>{
   const pending=this.startup.run(async attempt=>{
-   this.loading=true;this.loadPhase='loading';this.loadProgress=0;this.error='';this.setStatus('正在准备海岛',false);
+   this.loading=true;this.loadPhase='loading';this.loadProgress=0;this.error='';this.loadingLayer?.restart();this.setStatus('正在准备海岛',false);
    if(this.loadingBackdrop)this.loadingBackdrop.active=true;if(this.loadingMask)this.loadingMask.active=true;
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
-    this.setStatus('正在准备角色与动画',false);const character=await this.loadCharacter();attempt.check();
-    this.model=prefab;this.characterPrefab=character;this.setStatus('正在准备房间',false);
+    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta()]);attempt.check();const character=loaded[0];
+    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
-    if(this.loadingBackdrop)this.loadingBackdrop.active=false;if(this.loadingMask)this.loadingMask.active=false;this.paintNavigation();this.resize();
+    this.revealRoom();this.paintNavigation();this.resize();
    }catch(error){this.releaseStartupMount();throw error;}
   });
   return pending.catch(error=>{if(error instanceof StartupCancelled||!isValid(this.node,true))return;
    this.loading=false;this.loadPhase='error';this.loadProgress=0;this.error='世界加载失败，点这里重试';
-   console.error('World startup failed',error);this.setStatus(this.error,true);
+   console.error('World startup failed',error);this.setStatus(this.error,true);this.loadingLayer?.showError(this.error);
   });
  }
- private releaseStartupMount(){this.startupOwner?.destroy();this.startupOwner=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
- private setStatus(text:string,retry:boolean){if(!this.status)return;this.status.string=text;const plate=this.status.node.parent!;plate.active=true;plate.off(Node.EventType.TOUCH_END,this.retryLoad,this);if(retry)plate.on(Node.EventType.TOUCH_END,this.retryLoad,this);}
+ private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
+ /** Ready: fade the startup layer out (OUTRO_FADE_S, ease-out) above everything; room hints wait (roomExplore allowed()).
+  * Without the layer (unit-test stubs) it is the old immediate hide. update() finishes the fade and deactivates the nodes. */
+ private revealRoom(){const l=this.loadingLayer;
+  if(l&&this.loadingBackdrop&&this.loadingBackdrop.active){const n=this.canvas.children.length;this.loadingMask?.setSiblingIndex(n-1);this.loadingBackdrop.setSiblingIndex(n-1);l.startOutro();return;}
+  if(this.loadingBackdrop)this.loadingBackdrop.active=false;if(this.loadingMask)this.loadingMask.active=false;}
+ private tickLoading(dt:number){const l=this.loadingLayer,b=this.loadingBackdrop;if(!l||!b||!b.active)return;
+  if(l.tick(dt)&&this.loadPhase==='ready'){b.active=false;if(this.loadingMask)this.loadingMask.active=false;l.releaseHandoff();}}
+ private setStatus(text:string,retry:boolean){if(!this.status)return;this.status.string=text;const plate=this.status.node.parent!;plate.active=!this.loadingLayer;plate.off(Node.EventType.TOUCH_END,this.retryLoad,this);if(retry)plate.on(Node.EventType.TOUCH_END,this.retryLoad,this);}
  private retryLoad(){if(this.startup.snapshot().phase==='ready')return;this.status.node.parent!.off(Node.EventType.TOUCH_END,this.retryLoad,this);this.loadWorld();}
  /** E2 fix: the start scene no longer depends on the island GLB, so 'builtin-standard' may not be loaded yet at start().
   * Material creation by effect name is therefore deferred until the island prefab (and its effects) has loaded,
   * checks the effect is registered, falls back to builtin-unlit, and never blocks startup. */
+ /** Optional walk-driver data (docs/walk-driver.md): region_island character/anim_meta.json. Never blocks or fails startup. */
+ private loadAnimMeta(){return new Promise<any>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('character/anim_meta',JsonAsset,(e:any,a:any)=>ok(e||!a?null:a.json));}catch{ok(null);}});}
  private loadCharacter(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Character bundle missing'));b.loadDir('character',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one interim character prefab'));ok(list[0]);});});}
  private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
   try{const pick=(n:string)=>EffectAsset.get(n)?n:null;const effect=pick('builtin-standard')||pick('builtin-unlit');
@@ -116,24 +259,33 @@ export class WorldIntegrationBoot extends Component {
  }
  private async mountWorld(attempt:StartupAttempt){attempt.check();const scene=director.getScene()!;const reference=new Node('FLOW_REFERENCE_PLACEHOLDER_NOT_B');this.startupReference=reference;scene.addChild(reference);(this as any)._referenceAdapter=new FlowReferenceStandin(reference);
  if(!this.characterPrefab)throw Error('Required character prefab missing');
- const girl=instantiate(this.characterPrefab);this.startupGirl=girl;girl.name='B_PASS2G_CURSOR';reference.addChild(girl);girl.setScale(1,1,1);
+ const girl=instantiate(this.characterPrefab);this.startupGirl=girl;girl.name='B_PASS2G_CURSOR';
+ // Pose-blend mode needs every SkeletalAnimationState built NON-baked: states are created in SkeletalAnimation.onLoad
+ // (animation-component.ts:162-163 clips setter -> createState -> initialize), which runs when the girl enters the active
+ // scene below. Set the flag first (setter :144-146; no states yet), else the states never get an evaluator (AnimRig.repairStates).
+ {const pre=girl.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<pre.length;i++)pre[i].useBakedAnimation=!CHARACTER_POSE_BLEND;}
+ reference.addChild(girl);girl.setScale(1,1,1);
  // The parent owns seatedRoot/seatYaw. The old standing-minus-seated child offset kept B standing.
  girl.setPosition(0,0,0);girl.setRotationFromEuler(0,0,0);
  const animations=girl.getComponentsInChildren(SkeletalAnimation);const seated=animations.filter(a=>a.clips.some(clip=>clip?.name===this.initialSeatedClip));
  if(!seated.length)throw Error('Required initial seated clip missing: '+this.initialSeatedClip);
  this.selectedSeatedClip=this.initialSeatedClip;this.characterAnimations=seated;
  for(const a of animations){a.playOnLoad=false;a.stop();}
- for(const a of seated){a.useBakedAnimation=true;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
- (this as any)._referenceAdapter.bindVisual(girl);
+ for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
+ (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
+ // Walk driver wind input: 运镜bot WorldFlowComponent.getWindStrength() (0..1); missing = 0.
+ (this as any)._referenceAdapter.setWindSource(()=>{const w=(composition as any).world;return w&&typeof w.getWindStrength==='function'?w.getWindStrength():null;});
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
  this.ready=true;girl.active=true;this.error='';
+ // T9: optional 3D UI props (signpost / bag / journal / compass / beach palms). Never blocks startup; on failure the flat buttons stay.
+ try{const props=new IslandProps(scene,camera);this.islandProps=props;void props.load().then(ok=>{if(this.islandProps!==props||!ok)return;this.islandJourney?.setPropMode(true);});}catch(e){this.islandProps=null;console.warn('[T9_PROPS] host unavailable, flat buttons stay',String(e));}
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
+ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  }
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
@@ -143,12 +295,19 @@ export class WorldIntegrationBoot extends Component {
  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
- this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});}
- private createLoadingBackdrop(){const mask=new Node('LoadingOpaqueUntilWorldReady');mask.layer=Layers.Enum.UI_2D;this.canvas.addChild(mask);mask.addComponent(UITransform);mask.addComponent(Graphics);this.loadingMask=mask;const n=new Node('ApprovedLoadingReference_INTERNAL_TEST_ONLY');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform);this.loadingBackdrop=n;const sprite=n.addComponent(Sprite);sprite.sizeMode=Sprite.SizeMode.CUSTOM;
-  assetManager.loadBundle('resources',(bundleError)=>{if(bundleError){console.error('Loading backdrop bundle failed',bundleError);return;}resources.load('ui/loading-reference',ImageAsset,(error,image)=>{if(!isValid(n,true))return;if(error){console.error('Loading backdrop image failed',error);return;}const texture=new Texture2D();texture.image=image;const frame=new SpriteFrame();frame.texture=texture;sprite.spriteFrame=frame;this.loadingImageSize={width:image.width,height:image.height};n.active=this.loadPhase!=='ready';this.resize();});});}
+ this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome())});}
+ /** Startup loading layer (ui/StartupLoadingLayer.ts): same picture + cover transform as build-templates/wechatgame/first-screen.js,
+  * taken over synchronously from its decoded image (no resources bundle wait, no dark mask flash). */
+ private createLoadingBackdrop(){const layer=new StartupLoadingLayer(this.canvas,()=>this.retryLoad());this.loadingLayer=layer;this.loadingMask=layer.mask;this.loadingBackdrop=layer.root;}
  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
- private button(id:string,text:string,fn:()=>any,interrupt=false){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const surface=warmButton(n,240,46);const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();plate.getComponent(Graphics)!.clear();n.addChild(plate);surface.addContent(plate);surface.bind(()=>{if(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy&&!interrupt)return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
- private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);if(this.loadingMask){this.loadingMask.getComponent(UITransform)!.setContentSize(f.width,f.height);const g=this.loadingMask.getComponent(Graphics)!;g.clear();g.fillColor=new Color('#123233');g.rect(-f.width/2,-f.height/2,f.width,f.height);g.fill();}if(this.loadingBackdrop){const a=this.loadingImageSize,k=Math.max(f.width/a.width,f.height/a.height);this.loadingBackdrop.getComponent(UITransform)!.setContentSize(a.width*k,a.height*k);}let i=0;for(const [k,n]of this.controls){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);};
+ private button(id:string,text:string,fn:()=>any,interrupt=false){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const surface=warmButton(n,240,46);const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();plate.getComponent(Graphics)!.clear();n.addChild(plate);surface.addContent(plate);const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy&&!interrupt);
+ if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
+ surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
+ private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
+ // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
+ // button, the WarmButtonSkin cache starts a new offscreen bake and the Graphics fallback surface shows until it lands.
+ const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)this.placeNavigationControl(n,islandNav.buttons[id]);}
+ };
  private navLayout(){const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();return {width:f.width,height:f.height,room:this.roomExplore?.diagnostics()??null,targets:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>[k,{x:n.worldPosition.x+f.width/2,y:f.height/2-n.worldPosition.y}])),targetRects:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>{const t=n.getComponent(UITransform)!;return [k,{x:n.worldPosition.x+f.width/2-t.width/2,y:f.height/2-n.worldPosition.y-t.height/2,width:t.width,height:t.height}]})),managedBoards:director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).filter(x=>x.node.isValid).length||0};}
  /** Use the same safe-area result geometry as the board; never scale labels to fit. */
  private placeResultButtons(d:any,candidates=['mainNext','chest','regionReward']){const keys=candidates.filter(k=>this.controls.get(k)!.active);if(!keys.length)return;
@@ -158,13 +317,69 @@ export class WorldIntegrationBoot extends Component {
   if(n.name==='mainline')applyJourneyNavigationSkin(n,'primary',r.width,r.height);}
   n.setScale(1,1,1);n.setPosition(r.x,r.y,0);
  }
- private paintNavigation(){let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;return;}this.ready=true;}
+ /** Funning 2026-10-11: the top status plate is HIDDEN during outbound/return transitions and slides back in (position
+  * animation, no opacity fade) once the character is still and operable.
+  * SUPERSEDED (Funning final, 2026-10-11): the top status bar is REMOVED. It never appears in the ready world (home,
+  * cutscenes, island, errors, skycity); see docs/HUD-status-api.md. No hide/slideIn calls remain; this only starts the
+  * T2 island button entrance. */
+ private trackTransitionHud(state:string){const prev=this.hudState;if(state===prev)return;this.hudState=state;
+  if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
+ }
+ /** Status bar removed: its text is console-only. Logs once per change, errors and the skycity hint only. */
+ private logSuppressedStatus(kind:string,text:string){const key=kind+'|'+text;if(key===this.suppressedStatus)return;this.suppressedStatus=key;
+  if(text)console.info('[OI_HUD] suppressed '+JSON.stringify({kind,text}));}
+ /** T2: island buttons enter with a 0.25 s slide (24 px) + scale (0.94->1). Position/scale only: no opacity, so the
+  * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame.
+  * T9 signpost mode: the transparent mainline hit area tracks the signpost projection, so it is NOT moved/scaled here;
+  * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
+  * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
+ private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
+  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
+  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
+  if(this.islandEntrance>=1){this.islandEntrance=-1;if(this.propSign)this.signEntrance=0;}
+ }
+ /** T9 + R3 (Mac r3: the board floated near the shore on the walk home, seen from behind, text mirrored): the signpost
+  * (board, lamp + its light/glows, label, water shadow/ripples; IslandProps.setSignEntrance) exists ONLY in island-idle.
+  * - Away states (the whole outbound/return path: crossing-out, walking-home incl. the crane, crossing-in, door, seat,
+  *   home...): hidden. Leaving island-idle with the sign on screen (return walk start) fades it out with the mirror of
+  *   the entrance (same 0.25 s, cubic, sinking the same 24 px); anything else snaps to 0 (the sign is not on screen).
+  * - island: hidden while the buttons enter, then the existing entrance step (applyIslandEntrance). It also (re)starts on
+  *   ANY arrival in island with the sign not fully shown (cancelled return, resume), so it never pops in.
+  * - level/skycity (+ their loading) and paused: unchanged (the island behind the board keeps its sign; no flicker on
+  *   a level round trip). */
+ private signShown=1;private signOut=-1;private signPrev='';
+ private setSign(e:number,risePx:number){this.signShown=e;this.islandProps?.setSignEntrance(e,risePx);}
+ private gateSignEntrance(state:string,dt=0){const p=this.islandProps,prev=this.signPrev;this.signPrev=state;if(!p?.ready)return;
+  if(SIGN_AWAY_STATES.indexOf(state)>=0){this.signEntrance=-1;
+   if(this.signShown<=0){this.signOut=-1;this.setSign(0,0);return;}
+   if(this.signOut<0){if(prev!=='island'){this.setSign(0,0);return;}this.signOut=1-Math.pow(1-this.signShown,1/3);}
+   this.signOut=Math.max(0,this.signOut-Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signOut,3);this.setSign(e,24*(1-e));if(this.signOut<=0)this.signOut=-1;return;}
+  this.signOut=-1;if(state!=='island')return;
+  if(this.islandEntrance>=0&&this.propSign){this.setSign(0,0);return;}
+  if(this.signEntrance<0&&this.signShown<1)this.signEntrance=1-Math.pow(1-this.signShown,1/3);
+ }
+ /** T9: drive the 3D props and, while the signpost is on screen, make the (invisible) mainline control its hit area. */
+ private syncIslandProps(s:any,f:{width:number;height:number}){
+  const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
+  if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
+   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
+   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
+   if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
+  const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
+  if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
+  if(sign){const op=m.getComponent(UIOpacity)||m.addComponent(UIOpacity);op.opacity=0;const t=m.getComponent(UITransform)!;if(t.width!==sign.width||t.height!==sign.height)t.setContentSize(sign.width,sign.height);m.setScale(1,1,1);m.setPosition(sign.x,sign.y,0);}
+  else if(was){const op=m.getComponent(UIOpacity);if(op)op.opacity=255;}
+ }
+ private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
+ let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
  // 0007 v1.3 (GGbot): home camera is pose DATA now (world-r1/RegionCameraData.ts homePoseSource='oi-interim-standing', same -1.1,1.5,-2.4 -> .1,.86,-4.35, fov 55); only CameraPose.applyCameraPose writes the camera.
- const transitionText=({'standing':'正在起身…','turning-out':'正在转身…','walking-out':'正在走向门口…','opening-door':'正在开门…','crossing-out':'正在走向海岛…','walking-home':'正在回屋…','crossing-in':'正在进屋…','closing-door':'正在关门…','walking-to-seat':'正在走向椅子…','sitting':'正在坐下…','skycity-loading':'正在前往天空城…'} as any)[s.state];
- this.notice.node.parent!.active=false;this.status.node.parent!.active=!!this.error||!!transitionText;this.status.string=this.error||transitionText||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':'');if(s.state==='skycity')this.status.node.parent!.active=true;
+ this.notice.node.parent!.active=false;this.status.string='';
+ this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
- for(const [k,n]of this.controls)n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);
+ for(const [k,n]of Array.from(this.controls))n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
  if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
  if(registered&&board){this.placeResultButtons(board.hostLayout(),['next','claim']);const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}
@@ -176,6 +391,6 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  const adapter=(this as any)._referenceAdapter;if(s.state==='opening-door'){if(!this.doorReached){this.doorReached=true;adapter?.playDoorReach?.();}}else this.doorReached=false;
 
  }
- update(){if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation();}
- onDestroy(){this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ update(dt:number){this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
+ onDestroy(){this.loadingLayer?.dispose();this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }

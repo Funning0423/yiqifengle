@@ -2,7 +2,12 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const H=require('./harness.cjs')(),{Node,UITransform,Label,Graphics,cc,warm}=H;
 const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:warm.warmButtonGraphics});
-const {IslandJourneyOverlay:Overlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:warm.warmButton,...skin});
+// T9: overlay now imports the prop layout + IslandPropTaps (engine-free); evaluate the real sources and inject them.
+const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
+const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout','propNightWeight','tagColorsAt','setPropNightWeight'],camPose);
+const propTaps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap']);
+class UIOpacity{constructor(){this.opacity=255;}}
+const {IslandJourneyOverlay:Overlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:warm.warmButton,...skin,...propLayout,emitPropTap:propTaps.emitPropTap,UIOpacity});
 const checks=[];let cases=0;
 function setup(w=390,h=844){H.setup('mainline-v33',0,w,h);const parent=new Node('Canvas'),calls=[],data={journey:{inventory:{tools:{windBell:2,tideBottle:0,tideNet:1,sunSeed:3,starShears:1}}}},gates={r5:['tide','meadow','sky'].map(region=>({region,ok:region==='tide'})),r4:[{unlocked:true}]};const opts={invoke:fn=>{calls.push('invoke');return fn()},mainlineStatus:()=>data,gates:()=>gates,enterRegion:id=>calls.push('region:'+id),enterR4:()=>calls.push('r4'),enterSkycity:()=>calls.push('skycity'),returnHome:()=>calls.push('home'),toggleDayNight:()=>calls.push('dayNight'),dayNight:()=>({mode:'day'})};const o=new Overlay(parent,opts);o.sync(w,h,true);return{o,parent,calls,data,gates};}
 {const parent=new Node('disabled-parent'),o=new Overlay(parent,{});o.sync(390,844,false);o.sync(390,844,true);assert.equal(o.buttons[0].position.x,-100);o.sync(320,568,false);o.sync(320,568,true);assert(o.buttons[0].position.x<0);o.dispose();checks.push('initial disabled and resized-while-disabled overlays lay out correctly on enabling');}
@@ -22,7 +27,7 @@ checks.push(cases+' modal layouts plus 5 compact docks fit supported portrait/la
  const {o,calls,gates}=setup();tap(o.buttons[1]);tap(button(o,'Chapter-tide'));assert.equal(o.page,'tide');tap(button(o,'Continue-tide'));assert.deepEqual(calls,['invoke','region:tide']);assert(!o.isOpen());
  tap(o.buttons[1]);tap(button(o,'Chapter-meadow'));tap(button(o,'Continue-meadow'));assert(o.isOpen());assert.equal(calls.length,2);gates.r5.find(g=>g.region==='meadow').ok=true;tap(button(o,'Continue-meadow'));assert.deepEqual(calls.slice(-2),['invoke','region:meadow']);
  o.open('sky');tap(button(o,'VisitSkycity'));assert.deepEqual(calls.slice(-2),['invoke','skycity']);o.open('tide');tap(button(o,'LegacyTide'));assert.deepEqual(calls.slice(-2),['invoke','r4']);
- o.open('settings');tap(button(o,'DayNight'));assert.deepEqual(calls.slice(-2),['invoke','dayNight']);o.open('settings');tap(button(o,'ReturnHome'));assert.deepEqual(calls.slice(-2),['invoke','home']);o.dispose();
+ o.open('settings');tap(button(o,'DayNight'));assert.deepEqual(calls.slice(-2),['invoke','dayNight']);assert(!button(o,'ReturnHome'),'T1 l123: settings no longer offers a return-home button (tap the lighthouse)');o.dispose();
  checks.push('chapter detail, regional gate recheck, skycity, legacy tide, day/night and home route only via supplied invoke; each command closes modal first');
 }
 {

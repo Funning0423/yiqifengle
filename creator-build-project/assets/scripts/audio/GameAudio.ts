@@ -33,18 +33,53 @@
 // 公共 API（ensure / instance / play / setMuted / isMuted / onBoardFrame / onRender / resetRenderBaseline /
 // onChestResult / onClaimResult / onButton / onToolTap）与 R6、0005 完全一致，AudioBridge.ts 不用改。
 // 资源位置：assets/resources/audio_sfx/sfx_*.mp3（resources 是启动时加载的分包，合计约 88 KB）。
-import { _decorator, Component, Node, AudioSource, AudioClip, resources, director, game, Game, sys, isValid, input, Input } from 'cc';
+// v0.4（Voice bot，场景 BGM）：
+//   a) setMusic(path, bundle?)：bundle 为空 = resources（原行为，调用方式不变）；否则 assetManager.loadBundle(bundle) 后 bundle.load。
+//   b) 无缝循环：MP3 编码延迟 + 尾部填充约 41–46 ms，平台 loop 每圈会空一下。改为两个声源交叉循环：播到
+//      (时长 - MP3_PADDING_S - LOOP_XFADE_S) 时第二个声源从头起播，确认在播后做 LOOP_XFADE_S 的等功率交叉，然后它接任 loopSource。
+//      旧声源 loop 仍为 true：第二个声源起不来时平台循环兜底（退回原来的“空一下”，不会断音）。
+//   c) 切场景（setMusic 换曲且当前正在播）：旧声源先继续播，新曲确认在播后 SCENE_XFADE_S 等功率交叉；加载失败/超时则旧曲淡出。
+//   d) 静音 / 挂起 / 音量 0 / setMusic(null) / 销毁：交叉用的额外声源立即停掉销毁，只保留 loopSource（原有的解锁、重试、冷却规则不变）。
+//   loopSource 始终是“当前主声源”，T0 的 bgmInfo / pollBgm 照旧读它；musicDiagnostics() 增加 bundle / crossfade 字段。
+// v0.5（Voice bot，包体）：
+//   a) 小岛 BGM 挪出 resources，放进独立小分包 audio_bgm_island（DEFAULT_BGM_BUNDLE，设置与 region_skycity 相同）。
+//      GameAudio.onLoad 不再自己加载默认 BGM（启动 / 加载页不碰音乐）；由 SceneMusic 在房间可操作后 setMusic(..., { fadeIn: true })。
+//   b) setMusic 第三个参数 opts.fadeIn：这一曲第一次真正起播时从 0 等功率淡入 ROOM_FADE_IN_S（1.5 s）。
+//   c) 解锁与加载谁先谁后都行：手势状态（gestureSeen）一直记着，分包晚到时 loaded 回调里直接起播，不需要再摸一次。
+//   d) “音乐真正开始”的时刻：GameAudio.onMusicStart(cb) / globalThis.__gameAudioMusic.onMusicStart(cb)，
+//      loopSource 第一次确认 playing 时发一次（每次 setMusic 一次；切后台回来的恢复记 first=false）。
+import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
-  | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear';
+  | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
+  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
+  | 'sfx_amb_gull_1' | 'sfx_amb_gull_2' | 'sfx_amb_gull_3'
+  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
+
+/** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
+const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
+
+/** A5（Voice bot）：岛上 3D 道具点击音。press 播各自的音，confirm 统一播确认音；设置没有专用音，播通用点击 sfx_ui_click。
+ *  ui-soft 柔和版（Funning 选定）：行囊 / 旅程册 / 路牌 / 通用点击是 Kenney CC0 录音，确认 / 返回是自制毛毡槌两音，
+ *  见 docs/audio-credits.md。响度已做在文件里（约 -21 ~ -22 LUFS，峰值 -5 ~ -13 dBFS），所以 UI_TAP_VOLUME = 1，
+ *  游戏里和 Funning 试听的电平一致；鼓励音文件约 -10 LUFS、音量 1，UI 音仍比鼓励音低约 11 dB。 */
+export type UiTapTarget = 'signpost' | 'bag' | 'book' | 'settings';
+const UI_PRESS: Record<UiTapTarget, SfxName> = {
+  bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
+};
+const UI_TAP_VOLUME = 1;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
 export type SuspendReason = 'hidden' | 'interrupted';
 
 const SFX_DIR = 'audio_sfx';
-// One explicit default; callers can select another resources-relative track with setMusic().
-export const DEFAULT_BGM_PATH = 'audio_bgm/bgm_main';
+// One explicit default (island BGM), in its own small subpackage bundle; loaded by SceneMusic once the room is interactive.
+export const DEFAULT_BGM_PATH = 'audio/bgm_main';
+export const DEFAULT_BGM_BUNDLE = 'audio_bgm_island';
+/** v0.5：进房第一次起播的淡入时长 */
+export const ROOM_FADE_IN_S = 1.5;
+export type MusicStartInfo = { path: string | null; bundle: string | null; at: number; first: boolean; fadeIn: boolean; requestedAt: number; loadedAt: number | null };
 const MUSIC_VOLUME_KEY = 'qfl.audio.musicVolume';
 const MUTE_KEY = 'qfl.audio.muted';   // 正式 key。R6 实测用的是隔离 key 'dot-audio-r1-test-20261009:muted'，那份测试存档不迁移。
 const MIN_GAP_MS = 60;        // 同一个音效 60 ms 内只播一次，防止同帧多次触发叠成爆音
@@ -55,6 +90,22 @@ const MAX_LOOP_RECOVERIES = 1; // Consecutive failure retries; confirmed playbac
 const LOOP_REBUILD_GAP_MS = 10000; // Bound repeated gate cancellations before playback is confirmed.
 const MAX_VOICES = 6;         // 同时最多 6 个音效；微信小游戏同时存在的音频实例数量有限，宁少勿多
 const SFX_START_TIMEOUT_MS = 10000; // Only unconfirmed starts; never a playing clip's duration limit.
+/** v0.4：LAME 编码延迟 + 尾部填充（44.1 kHz 下 1811–2016 个采样）。不裁 gapless 头的解码器把这段算进时长。 */
+export const MP3_PADDING_S = 0.045;
+/** v0.4：循环接缝的等功率交叉时长 */
+export const LOOP_XFADE_S = 0.15;
+/** v0.4：切场景 BGM 的等功率交叉时长 */
+export const SCENE_XFADE_S = 1.5;
+/** 交叉要在真正的尾巴之前做完：再留两帧余量（update 按帧检查） */
+const LOOP_SAFETY_S = 0.03;
+// 出门大风时 BGM 让一点（WindAudio 每帧调 setWindDuck(平滑后的风力 s)）：-4 dB x smoothstep(0.2, 1.0, s)，再按 0.5 s 时间常数平滑。
+// 峰值余量见 docs/audio-events.md（风 + 海浪 + 拍打 + 近处海鸥 + BGM 循环交叉）。
+const WIND_DUCK_DB = -4;
+const WIND_DUCK_TAU_S = 0.5;
+const WIND_DUCK_FROM = 0.2;
+const WIND_DUCK_TO = 1.0;
+/** currentTime 在小游戏里可能按 ~250 ms 更新；外推最多超前这么多 */
+const POS_EXTRAPOLATE_MAX_S = 0.35;
 
 type SfxVoice = { source: AudioSource; name: SfxName; requestedAt: number; started: boolean };
 
@@ -87,6 +138,33 @@ export class GameAudio extends Component {
   private loopSource!: AudioSource;
   private musicClip: AudioClip | null = null;
   private musicPath: string | null = null;
+  private musicBundle: string | null = null;
+  /** v0.4 循环交叉：接任的第二个声源；xfadeAt = 它确认在播的时刻（null = 还没确认） */
+  private loopPartner: AudioSource | null = null;
+  private loopXfadeAt: number | null = null;
+  private loopXfades = 0;
+  /** v0.4 切场景交叉：正在淡出的旧曲声源；sceneFadeAt = 交叉开始时刻；sceneFadeIn = 新 loopSource 需要从 0 淡入 */
+  private fadeOutSource: AudioSource | null = null;
+  private fadeOutFrom = 1;
+  private sceneSwitchAt = 0;
+  private sceneFadeAt: number | null = null;
+  private sceneFadeIn = false;
+  /** v0.5：淡入 / 交叉的时长（切场景 SCENE_XFADE_S；进房淡入 ROOM_FADE_IN_S） */
+  private sceneFadeS = SCENE_XFADE_S;
+  /** v0.5：“真正开始”事件。startEmittedGen = 已为哪一次 setMusic 发过 first 事件 */
+  private startEmittedGen = 0;
+  private musicRequestedAt = 0;
+  private musicLoadedAt: number | null = null;
+  private musicFadeInRequested = false;
+  private lastStart: MusicStartInfo | null = null;
+  /** v0.5：loopSource.play() 已发出、还没报过“真正开始” */
+  private startPending = false;
+  /** currentTime 外推基准 */
+  private posCt = NaN;
+  private posAt = 0;
+  private windDuckTarget = 0;   // 0..1（smoothstep 后）
+  private windDuck = 0;         // 平滑后的 0..1
+  private windDuckAt = -1;      // 上次平滑的 GameAudio.now()（ms）
   private musicGeneration = 0;
   private musicVolume = 0.4;
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
@@ -140,6 +218,7 @@ export class GameAudio extends Component {
     this.destroying = true;
     // Stop immediately: Cocos destruction is deferred until the end of the frame.
     this.loopRequested = false;
+    this.retireMusicExtras();
     this.detachLoopSource();
     this.stopAllSfx();
     // Creator 3.8.8 validates the direct parent destroy.call form in editor builds.
@@ -186,6 +265,7 @@ export class GameAudio extends Component {
       this.staleGen = cur.staleGen; this.staleSince = cur.staleSince;
       cur.alive = false;
       cur.loopRequested = false;
+      cur.retireMusicExtras();
       cur.detachLoopSource();
       cur.stopAllSfx();
       this.gestureSeen = cur.gestureSeen;
@@ -206,16 +286,18 @@ export class GameAudio extends Component {
     if (cur && cur !== this) {
       this.muted = cur.muted; this.musicVolume = cur.musicVolume;
     }
-    this.loopSource.volume = this.musicVolume;
+    this.applyMusicGains();
     input.on(Input.EventType.TOUCH_END, this.onGesture, this);
     input.on(Input.EventType.MOUSE_UP, this.onGesture, this);
     input.on(Input.EventType.KEY_DOWN, this.onGesture, this);
-    this.setMusic(cur && cur !== this ? cur.musicPath : DEFAULT_BGM_PATH);
+    // v0.5：不再自动加载默认 BGM。交接时沿用旧实例的曲目；否则等 SceneMusic 在房间可操作后 setMusic。
+    if (cur && cur !== this && cur.musicPath) this.setMusic(cur.musicPath, cur.musicBundle);
     // 资源加载失败不影响游戏：没加载到的音效 play() 时直接跳过
     const loadedSfx = (err: any, list: AudioClip[]) => {
       if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
       if (err || !Array.isArray(list)) { console.warn('[GameAudio] sfx load failed', err || 'empty clip list'); return; }
-      for (const c of list) {
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
         const previous = this.clips.get(c.name);
         if (previous === c) continue;
         c.addRef(); this.clips.set(c.name, c); previous?.decRef();
@@ -240,9 +322,9 @@ export class GameAudio extends Component {
     input.off(Input.EventType.KEY_DOWN, this.onGesture, this);
     game.off(Game.EVENT_HIDE, this.onHide, this);
     game.off(Game.EVENT_SHOW, this.onShow, this);
-    for (const [offName, cb] of this.wxRegistered) {
-      const off = wxFn(offName);
-      try { off?.(cb); } catch (e) { /* 忽略：残留回调由 alive 标志挡住 */ }
+    for (let i = 0; i < this.wxRegistered.length; i++) {
+      const off = wxFn(this.wxRegistered[i][0]);
+      try { off?.(this.wxRegistered[i][1]); } catch (e) { /* 忽略：残留回调由 alive 标志挡住 */ }
     }
     this.wxRegistered = [];
     this.reasons.clear();
@@ -250,9 +332,12 @@ export class GameAudio extends Component {
     this.node.off(AudioSource.EventType.STARTED, this.onSfxStarted, this);
     this.node.off(AudioSource.EventType.ENDED, this.onSfxEnded, this);
     this.stopAllSfx();
+    this.retireMusicExtras();
     this.detachLoopSource();
     this.musicClip?.decRef(); this.musicClip = null;
-    for (const c of this.clips.values()) c.decRef();
+    // loose ES5：Map 不能 for-of，先转数组
+    const owned = Array.from(this.clips.values());
+    for (let i = 0; i < owned.length; i++) owned[i].decRef();
     this.clips.clear(); this.lastPlay.clear();
     if (GameAudio.instance === this) GameAudio.instance = null;
   }
@@ -263,7 +348,8 @@ export class GameAudio extends Component {
     this.observeSfxVoices();
     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
-    } else this.observeLoopRequest();
+      if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
+    } else { this.observeLoopRequest(); this.tickMusic(); }
   }
 
   // ---------- 通用 ----------
@@ -314,10 +400,13 @@ export class GameAudio extends Component {
     try { source.destroy(); } catch (e) { console.warn('[GameAudio] sfx source destroy failed', e); }
   }
   private stopAllSfx() {
-    for (const source of Array.from(this.sfxVoices.keys())) this.retireSfx(source);
+    const sources = Array.from(this.sfxVoices.keys());
+    for (let i = 0; i < sources.length; i++) this.retireSfx(sources[i]);
   }
   private observeSfxVoices() {
-    for (const voice of Array.from(this.sfxVoices.values())) {
+    const all = Array.from(this.sfxVoices.values());
+    for (let i = 0; i < all.length; i++) {
+      const voice = all[i];
       try {
         if (voice.source.playing) { voice.started = true; continue; }
         if (voice.started) {
@@ -383,6 +472,7 @@ export class GameAudio extends Component {
   }
   /** Never reuse a retired source: Cocos guards late loads by clip identity, not generation. */
   private replaceLoopSource() {
+    this.retireLoopPartner();
     this.loopSource.destroy();
     this.loopSource = this.createLoopSource();
     this.loopNeedsReplacement = false;
@@ -400,7 +490,9 @@ export class GameAudio extends Component {
     if (!this.loopRequested) return;
     if (this.loopSource.playing) {
       this.loopPendingSince = null; this.musicError = null;
-      this.loopRecoveries = 0; this.loopNextReplacementAt = 0; return;
+      this.loopRecoveries = 0; this.loopNextReplacementAt = 0;
+      if (this.startPending) { this.startPending = false; this.emitMusicStart(); }
+      return;
     }
     if (this.loopPendingSince === null) this.loopPendingSince = GameAudio.now();
     if (GameAudio.now() - this.loopPendingSince >= LOOP_START_TIMEOUT_MS) {
@@ -409,6 +501,7 @@ export class GameAudio extends Component {
     }
   }
   private pauseLoop() {
+    this.retireMusicExtras();
     // A start can complete between frames immediately before Hide/Muted arrives.
     if (this.loopSource?.playing) this.observeLoopRequest();
     if (this.loopRequested && !this.loopSource.playing) {
@@ -419,6 +512,7 @@ export class GameAudio extends Component {
     }
     this.loopRequested = false; this.loopPendingSince = null;
     this.loopSource?.pause();
+    this.posCt = NaN;
   }
   private resumeLoopIfAllowed(fromGesture = false) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this || !this.loopSource) return;
@@ -436,6 +530,9 @@ export class GameAudio extends Component {
     if (!this.loopSource.clip) return;
     try {
       this.loopRequested = true; this.loopPendingSince = GameAudio.now();
+      this.posCt = NaN;
+      this.applyMusicGains();
+      this.startPending = true;
       this.loopSource.play();
       this.musicError = null;
       this.observeLoopRequest();
@@ -446,47 +543,202 @@ export class GameAudio extends Component {
     }
   }
 
-  /** Explicit resources-relative path, without extension. null intentionally stops music.
-   * A missing asset is an observable error, never a successful silent fallback. */
-  setMusic(path: string | null) {
+  /** Explicit path without extension, relative to `bundle` (null/omitted = resources, the original behaviour).
+   * null path intentionally stops music. A missing asset is an observable error, never a successful silent fallback.
+   * v0.4: while the current track is audibly playing, a different track crossfades in (SCENE_XFADE_S) once it is confirmed playing. */
+  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean } | null) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
-    if (path === this.musicPath && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
+    const bundleName = bundle ? String(bundle) : null;
+    if (path === this.musicPath && bundleName === this.musicBundle && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
       this.resumeLoopIfAllowed(); return;
     }
     const generation = ++this.musicGeneration;
+    // v0.4: keep the audible track playing as the fade-out voice instead of cutting it.
+    const crossfade = !!path && this.musicPath !== null && !this.loopNeedsReplacement && this.canHearMusic() && !!this.loopSource?.playing;
     this.loopRequested = false; this.loopPendingSince = null; this.loopRecoveries = 0;
     this.loopNextReplacementAt = 0; this.loopRetryIsFailure = false;
-    this.detachLoopSource();
-    // A -> B/null -> A can reuse the same cached clip. A fresh source keeps an old
-    // native A load from matching the new A by identity and replacing its player.
-    if (this.musicPath !== null || this.loopNeedsReplacement) this.replaceLoopSource();
+    if (crossfade) {
+      this.retireLoopPartner();
+      this.retireFadeOut();
+      this.fadeOutSource = this.loopSource; this.fadeOutFrom = this.fadeOutSource.volume;
+      this.loopSource = this.createLoopSource();
+      this.loopNeedsReplacement = false;
+      this.sceneSwitchAt = GameAudio.now(); this.sceneFadeAt = null; this.sceneFadeIn = true;
+    } else {
+      this.retireMusicExtras();
+      this.detachLoopSource();
+      // A -> B/null -> A can reuse the same cached clip. A fresh source keeps an old
+      // native A load from matching the new A by identity and replacing its player.
+      if (this.musicPath !== null || this.loopNeedsReplacement) this.replaceLoopSource();
+    }
     this.musicClip?.decRef(); this.musicClip = null;
-    this.musicPath = path; this.musicError = null;
+    this.musicPath = path; this.musicBundle = path ? bundleName : null; this.musicError = null;
     this.musicStatus = path ? 'loading' : 'idle';
+    this.posCt = NaN;
+    this.startPending = false;
+    this.musicRequestedAt = GameAudio.now(); this.musicLoadedAt = null;
+    // v0.5 进房淡入：只在没有旧曲在播（不是切场景交叉）时生效；第一次确认在播后开始 ROOM_FADE_IN_S 的等功率淡入。
+    this.musicFadeInRequested = !!(path && opts && opts.fadeIn && !crossfade);
+    if (this.musicFadeInRequested) { this.sceneFadeIn = true; this.sceneFadeAt = null; this.sceneFadeS = ROOM_FADE_IN_S; }
+    else if (crossfade) this.sceneFadeS = SCENE_XFADE_S;
+    else { this.sceneFadeIn = false; this.sceneFadeAt = null; this.sceneFadeS = SCENE_XFADE_S; }
+    this.applyMusicGains();
     if (!path) return;
+    const where = bundleName || 'resources';
     const loaded = (err: any, clip: AudioClip) => {
       if (!GameAudio.usable(this) || GameAudio.instance !== this || generation !== this.musicGeneration) return;
       if (err || !clip) {
         this.musicStatus = 'error';
-        this.musicError = `Missing/unloadable BGM resources/${path}: ${String(err || 'empty clip')}`;
+        this.musicError = `Missing/unloadable BGM ${where}/${path}: ${String(err || 'empty clip')}`;
         console.warn('[GameAudio]', this.musicError); return;
       }
-      clip.addRef(); this.musicClip = clip;
-      this.loopSource.clip = clip; this.loopSource.loop = true; this.loopSource.volume = this.musicVolume;
+      clip.addRef(); this.musicClip = clip; this.musicLoadedAt = GameAudio.now();
+      this.loopSource.clip = clip; this.loopSource.loop = true; this.applyMusicGains();
       this.musicStatus = 'ready'; this.resumeLoopIfAllowed();
     };
-    try { resources.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+    try {
+      if (!bundleName) { resources.load(path, AudioClip, loaded); return; }
+      const ready = assetManager.getBundle(bundleName);
+      if (ready) { ready.load(path, AudioClip, loaded); return; }
+      assetManager.loadBundle(bundleName, (err: any, b: any) => {
+        if (!GameAudio.usable(this) || GameAudio.instance !== this || generation !== this.musicGeneration) return;
+        if (err || !b) { loaded(err || new Error('bundle ' + bundleName + ' unavailable'), null as any); return; }
+        try { b.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+      });
+    } catch (e) { loaded(e, null as any); }
   }
   setMusicVolume(value: number) {
     if (!GameAudio.usable(this) || !Number.isFinite(value)) return;
     this.musicVolume = Math.max(0, Math.min(1, value));
-    this.loopSource.volume = this.musicVolume;
+    this.applyMusicGains();
     try { sys.localStorage.setItem(MUSIC_VOLUME_KEY, String(this.musicVolume)); } catch { /* optional preference */ }
     if (this.musicVolume === 0) this.pauseLoop(); else this.resumeLoopIfAllowed();
   }
+
+  // ---------- v0.4 crossfade looping / scene switch ----------
+  private canHearMusic() {
+    return this.reasons.size === 0 && !this.muted && this.gestureSeen && this.musicVolume > 0;
+  }
+  private static eqIn(t: number) { return Math.sin(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
+  private static eqOut(t: number) { return Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
+  private sceneT() { return this.sceneFadeAt === null ? 0 : (GameAudio.now() - this.sceneFadeAt) / (this.sceneFadeS * 1000); }
+  private loopT() { return this.loopXfadeAt === null ? 0 : (GameAudio.now() - this.loopXfadeAt) / (LOOP_XFADE_S * 1000); }
+  /** WindAudio, every frame: smoothed wind strength s (0..1; 0 when wind is silent / not allowed). Ducks the BGM up to WIND_DUCK_DB. */
+  setWindDuck(s: number) {
+    const x = Number.isFinite(s) ? Math.max(0, Math.min(1, s)) : 0;
+    const u = Math.max(0, Math.min(1, (x - WIND_DUCK_FROM) / (WIND_DUCK_TO - WIND_DUCK_FROM)));
+    this.windDuckTarget = u * u * (3 - 2 * u);
+  }
+  /** Current BGM gain from the wind duck (1 = none). */
+  windDuckGain() { return Math.pow(10, WIND_DUCK_DB * this.windDuck / 20); }
+  private tickWindDuck() {
+    const now = GameAudio.now(), dt = this.windDuckAt < 0 ? 0 : Math.max(0, Math.min(0.25, (now - this.windDuckAt) / 1000));
+    this.windDuckAt = now;
+    this.windDuck += (this.windDuckTarget - this.windDuck) * (1 - Math.exp(-dt / WIND_DUCK_TAU_S));
+    if (Math.abs(this.windDuck - this.windDuckTarget) < 1e-4) this.windDuck = this.windDuckTarget;
+  }
+  /** All music gains in one place: musicVolume x wind duck x scene fade-in x loop crossfade. */
+  private applyMusicGains() {
+    const v = this.musicVolume * this.windDuckGain();
+    const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
+    const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
+    const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
+    try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
+    try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
+    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+  }
+  private retireMusicSource(source: AudioSource | null) {
+    if (!source) return;
+    try { source.volume = 0; } catch (e) { /* ignore */ }
+    try { source.stop(); } catch (e) { /* ignore */ }
+    try { source.clip = null; } catch (e) { /* ignore */ }
+    try { source.destroy(); } catch (e) { console.warn('[GameAudio] music source destroy failed', e); }
+  }
+  private retireLoopPartner() {
+    const p = this.loopPartner; this.loopPartner = null; this.loopXfadeAt = null;
+    this.retireMusicSource(p);
+  }
+  private retireFadeOut() {
+    const f = this.fadeOutSource; this.fadeOutSource = null; this.sceneFadeAt = null;
+    this.retireMusicSource(f);
+  }
+  /** Gate / stop / destroy: only loopSource survives, at its plain volume. */
+  private retireMusicExtras() {
+    this.retireLoopPartner();
+    this.retireFadeOut();
+    // v0.5：进房淡入还没开始过（首次起播前被静音 / 切后台挡住）就保留，起播时照样淡入；其他情况恢复原行为。
+    const keepRoomFade = this.musicFadeInRequested && this.startEmittedGen !== this.musicGeneration;
+    this.sceneFadeIn = keepRoomFade; this.sceneFadeS = keepRoomFade ? ROOM_FADE_IN_S : SCENE_XFADE_S;
+    this.applyMusicGains();
+  }
+  private clipDuration(source: AudioSource): number {
+    let d = NaN;
+    try { d = Number(source.duration); } catch (e) { d = NaN; }
+    if (!(d > 0)) { try { d = Number((this.musicClip as any)?.getDuration?.()); } catch (e) { d = NaN; } }
+    return d > 0 ? d : NaN;
+  }
+  /** currentTime, extrapolated by wall clock between coarse platform updates (never more than POS_EXTRAPOLATE_MAX_S ahead). */
+  private position(source: AudioSource): number {
+    let ct = NaN;
+    try { ct = Number(source.currentTime); } catch (e) { ct = NaN; }
+    if (!Number.isFinite(ct)) return NaN;
+    const now = GameAudio.now();
+    if (ct !== this.posCt) { this.posCt = ct; this.posAt = now; return ct; }
+    return ct + Math.min(POS_EXTRAPOLATE_MAX_S, Math.max(0, (now - this.posAt) / 1000));
+  }
+  /** Seconds into the clip at which the next loop pass must start (exported for tests). */
+  static loopStartAt(duration: number) { return duration - MP3_PADDING_S - LOOP_XFADE_S - LOOP_SAFETY_S; }
+  /** Called every unblocked frame. */
+  private tickMusic() {
+    if (!this.alive || !this.loopSource) return;
+    // Scene switch: start the crossfade when the new track is confirmed playing; failure/timeout just fades the old one out.
+    if (this.fadeOutSource && this.sceneFadeAt === null) {
+      const failed = this.musicStatus === 'error' || this.loopNeedsReplacement || this.musicPath === null
+        || GameAudio.now() - this.sceneSwitchAt >= LOOP_START_TIMEOUT_MS;
+      if (this.loopSource.playing || failed) this.sceneFadeAt = GameAudio.now();
+    }
+    if (this.sceneFadeAt !== null && this.sceneT() >= 1) { this.retireFadeOut(); this.sceneFadeIn = false; }
+    else if (this.sceneFadeIn && !this.fadeOutSource && this.sceneFadeAt === null && this.loopSource.playing) this.sceneFadeAt = GameAudio.now();
+    this.tickLoopCrossfade();
+    this.tickWindDuck();
+    this.applyMusicGains();
+  }
+  private tickLoopCrossfade() {
+    const src = this.loopSource, clip = this.musicClip;
+    if (!clip || !src.playing || src.clip !== clip) { if (this.loopPartner && !src.playing) this.retireLoopPartner(); return; }
+    const dur = this.clipDuration(src);
+    if (!(dur > LOOP_XFADE_S * 4)) return;
+    const pos = this.position(src), startAt = GameAudio.loopStartAt(dur);
+    if (!Number.isFinite(pos)) return;
+    if (!this.loopPartner) {
+      if (pos < startAt) return;
+      let p: AudioSource | null = null;
+      try {
+        p = this.createLoopSource(); p.volume = 0; p.clip = clip; p.loop = true;
+        this.loopPartner = p; this.loopXfadeAt = null;
+        p.play();
+        if (p.playing) this.loopXfadeAt = GameAudio.now();   // platforms that report playing synchronously fade from this frame
+      } catch (e) { this.retireLoopPartner(); console.warn('[GameAudio] loop partner failed; platform loop remains', e); }
+      return;
+    }
+    const partner = this.loopPartner;
+    if (this.loopXfadeAt === null) {
+      // Platform loop already wrapped the old voice (partner never started in time): drop the partner, keep one voice.
+      if (pos < startAt - 1) { this.retireLoopPartner(); return; }
+      let started = false;
+      try { started = !!partner.playing; } catch (e) { started = false; }
+      if (started) this.loopXfadeAt = GameAudio.now();
+      return;
+    }
+    if (this.loopT() >= 1) {
+      // Swap roles: the partner is now the music source; the old voice is retired before it can wrap.
+      this.loopPartner = null; this.loopXfadeAt = null; this.loopSource = partner; this.posCt = NaN; this.loopXfades++;
+      this.retireMusicSource(src);
+    }
+  }
   /** Reports loading and player state only. It cannot establish audible device output. */
   musicDiagnostics() {
-    return { path: this.musicPath, status: this.musicStatus, error: this.musicError,
+    return { path: this.musicPath, bundle: this.musicBundle, status: this.musicStatus, error: this.musicError,
       gestureSeen: this.gestureSeen, muted: this.muted, volume: this.musicVolume,
       suspended: this.suspendReasons(), playRequested: this.loopRequested,
       playing: !!this.loopSource?.playing,
@@ -496,7 +748,34 @@ export class GameAudio extends Component {
       playbackRecoveries: this.loopRecoveries, playbackRecoveryLimit: MAX_LOOP_RECOVERIES,
       playbackRetryReason: this.loopNeedsReplacement ? (this.loopRetryIsFailure ? 'unconfirmed' : 'gate-canceled') : null,
       playbackRetryAfterMs: this.loopNeedsReplacement ? Math.max(0, this.loopNextReplacementAt - GameAudio.now()) : 0,
+      loopCrossfade: { partner: !!this.loopPartner, fading: this.loopXfadeAt !== null, completed: this.loopXfades,
+        paddingS: MP3_PADDING_S, xfadeS: LOOP_XFADE_S },
+      windDuck: { target: +this.windDuckTarget.toFixed(3), value: +this.windDuck.toFixed(3), gain: +this.windDuckGain().toFixed(3), maxDb: WIND_DUCK_DB },
+      sceneCrossfade: { fadingOut: !!this.fadeOutSource, started: this.sceneFadeAt !== null, fadeIn: this.sceneFadeIn, xfadeS: this.sceneFadeS },
+      lastStart: this.lastStart ? { path: this.lastStart.path, bundle: this.lastStart.bundle, at: this.lastStart.at, first: this.lastStart.first,
+        fadeIn: this.lastStart.fadeIn, requestedAt: this.lastStart.requestedAt, loadedAt: this.lastStart.loadedAt } : null,
       audibleVerified: false };
+  }
+
+  // ---------- v0.5 “音乐真正开始” ----------
+  private static musicStartListeners: Array<(info: MusicStartInfo) => void> = [];
+  /** 订阅“BGM 真正开始”：loopSource 第一次确认 playing 的那一帧（每次 setMusic 一次 first=true；挂起 / 静音后恢复 first=false）。
+   *  只说明播放器在播，不代表设备上真的听得到。返回取消订阅函数。 */
+  static onMusicStart(listener: (info: MusicStartInfo) => void): () => void {
+    if (typeof listener !== 'function') return () => {};
+    GameAudio.musicStartListeners.push(listener);
+    return () => { GameAudio.musicStartListeners = GameAudio.musicStartListeners.filter(l => l !== listener); };
+  }
+  private emitMusicStart() {
+    const first = this.startEmittedGen !== this.musicGeneration;
+    this.startEmittedGen = this.musicGeneration;
+    const info: MusicStartInfo = { path: this.musicPath, bundle: this.musicBundle, at: GameAudio.now(), first,
+      fadeIn: first && this.musicFadeInRequested, requestedAt: this.musicRequestedAt, loadedAt: this.musicLoadedAt };
+    this.lastStart = info;
+    try { console.info('[GameAudio] music started', JSON.stringify({ path: info.path, bundle: info.bundle, first: info.first, fadeIn: info.fadeIn,
+      loadMs: info.loadedAt === null ? null : info.loadedAt - info.requestedAt })); } catch (e) { /* ignore */ }
+    const list = GameAudio.musicStartListeners.slice();
+    for (let i = 0; i < list.length; i++) { try { list[i](info); } catch (e) { console.warn('[GameAudio] music start listener failed', e); } }
   }
   /** 打断开始：已有生效的打断时是重复 Begin，忽略；否则开新的一代 */
   private staleExpired() { return this.staleGen !== 0 && GameAudio.now() - this.staleSince > GameAudio.staleEndWindowMs; }
@@ -571,6 +850,11 @@ export class GameAudio extends Component {
         : this.cascade === 2 ? 'sfx_combo_1'
         : this.cascade === 3 ? 'sfx_combo_2' : 'sfx_combo_3';
       this.play(name);
+      if (this.cascade >= 2) {
+        const level = Math.min(this.cascade - 2, CHEERS.length - 1);
+        GameAudio.emitCheer(level, visual);  // 飘字跟这里走，静音时也照样出字
+        this.playCheer(level);
+      }
       return;
     }
     // 'drop'（下落）、'shuffle'（洗牌）、'tool'（地区道具）暂时没有音效，见对照表
@@ -593,9 +877,55 @@ export class GameAudio extends Component {
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
 
-  onButton() { this.play('sfx_ui_click', 0.8); }
+  /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable；visual 是触发这一档的那一帧 kind==='clear'
+   *  原始 visual 对象（和 onBoardFrame 收到的同一个），消除格子的位置从里面取。返回取消订阅函数。
+   *  在连击判定的同一处触发，与鼓励音档位一致；静音、切后台时声音不播，但事件照发。 */
+  private static cheerListeners: Array<(level: number, visual?: any) => void> = [];
+  static onCheer(listener: (level: number, visual?: any) => void): () => void {
+    GameAudio.cheerListeners.push(listener);
+    return () => { GameAudio.cheerListeners = GameAudio.cheerListeners.filter(l => l !== listener); };
+  }
+  private static emitCheer(level: number, visual?: any) {
+    for (const l of GameAudio.cheerListeners.slice()) {
+      try { l(level, visual); } catch (e) { console.warn('[GameAudio] cheer listener failed (gameplay unaffected)', e); }
+    }
+  }
+
+  /** 鼓励音：已有更高或同档在播就不重复；低档在播时先停掉再播高档，避免几条念词叠在一起听不清 */
+  private playCheer(level: number) {
+    if (!GameAudio.usable(this) || this.muted || this.reasons.size > 0) return;
+    let playingLevel = -1;
+    const voices = Array.from(this.sfxVoices.values());   // loose ES5：Map 不能 for-of
+    for (let i = 0; i < voices.length; i++) playingLevel = Math.max(playingLevel, CHEERS.indexOf(voices[i].name));
+    if (playingLevel >= level) return;
+    for (let i = 0; i < voices.length; i++) if (CHEERS.indexOf(voices[i].name) >= 0) this.retireSfx(voices[i].source);
+    this.play(CHEERS[level]);
+  }
+
+  /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */
+  canPlayAmbience(): boolean {
+    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
+  }
+
+  onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
+  /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。 */
+  onPropTap(target: UiTapTarget, phase: 'press' | 'confirm', info?: { blocked?: boolean } | null) {
+    if (info?.blocked) return;
+    if (phase === 'press') { const name = UI_PRESS[target]; if (name) this.play(name, UI_TAP_VOLUME); }
+    else if (phase === 'confirm') this.play('sfx_ui_confirm', UI_TAP_VOLUME);
+  }
+  /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
+  onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
-  onToolTap() { this.play('sfx_ui_click', 0.8); }
+  onToolTap() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
 }
 
 declare const wx: any;
+
+// v0.5：T0 / 日志用的只读出口（audio:unlock 之后记录 BGM 真正开始的时刻）
+try {
+  (globalThis as any).__gameAudioMusic = {
+    onMusicStart: (cb: (info: MusicStartInfo) => void) => GameAudio.onMusicStart(cb),
+    lastStart: () => { const a: any = GameAudio.instance; try { return a ? a.musicDiagnostics().lastStart : null; } catch (e) { return null; } },
+  };
+} catch (e) { /* globalThis unavailable: listeners still work via GameAudio.onMusicStart */ }

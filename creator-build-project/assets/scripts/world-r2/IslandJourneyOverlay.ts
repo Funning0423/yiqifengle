@@ -1,6 +1,9 @@
-import { Node, UITransform, Graphics, Color, Label, Layers, BlockInputEvents, EventTouch, isValid } from 'cc';
+import { Node, UITransform, Graphics, Color, Label, Layers, BlockInputEvents, EventTouch, UIOpacity, isValid } from 'cc';
 import { warmButton } from '../WarmButton';
 import { applyJourneyNavigationSkin, type JourneyNavigationRole } from '../ui/JourneyNavigationSkin';
+import { emitPropTap, type PropTapTarget } from './IslandPropTaps';
+import { ISLAND_PROPS, propButtonLayout, propNightWeight, tagColorsAt, type PropButtonSlot } from './IslandPropsLayout';
+const TAP_TARGET:Record<string,PropTapTarget>={bag:'bag',journal:'book',settings:'settings'};
 
 type Options={invoke:(fn:()=>any)=>void;mainlineStatus:()=>any;gates:()=>any;enterRegion:(id:string)=>any;enterR4:()=>any;enterSkycity:()=>any;returnHome:()=>any;toggleDayNight:()=>any;dayNight:()=>any};
 type Page='bag'|'journal'|'settings'|'tide'|'meadow'|'sky';
@@ -10,13 +13,16 @@ const CHAPTERS=[{id:'tide',name:'潮汐小径',description:'听潮声，寻找�
 export class IslandJourneyOverlay {
  private root:Node;private dock:Node;private modal:Node;private shade:Node;private panel:Node;
  private buttons:Node[]=[];private width=0;private height=0;private enabled=false;private dead=false;private page:Page|null=null;private serial=0;
+ private propMode=false;private tags:Node[]=[];private tagSlots:PropButtonSlot[]=[];private tagNight=-1;
  private pointer:number|null=null;private start={x:0,y:0};private moved=false;
  constructor(parent:Node,private options:Options){
   this.root=this.box('IslandJourneyOverlay',parent,0,0,1,1);this.root.active=false;
   this.dock=this.box('IslandUtilityDock',this.root,0,0,1,1);
   for(const [role,name] of [['bag','行囊'],['journal','旅程册'],['settings','设置']] as [JourneyNavigationRole,string][]){
    const n=this.box('Island-'+role,this.dock,0,0,64,64),surface=warmButton(n,64,64,true),l=this.text(n,name,0,-20,12,60);surface.addContent(l.node);applyJourneyNavigationSkin(n,role,64,64);
-   surface.bind(()=>{if(!this.enabled||this.dead||this.page)return false;this.open(role as Page);});this.buttons.push(n);
+   // T9: press/confirm for IslandPropTaps (click sounds, T0 marks); the action itself is unchanged.
+   const target=TAP_TARGET[role],blocked=()=>!this.enabled||this.dead||!!this.page;n.on(Node.EventType.TOUCH_START,()=>emitPropTap(target,'press',blocked()));
+   surface.bind(()=>{const b=blocked();emitPropTap(target,'confirm',b);if(b)return false;this.open(role as Page);});this.buttons.push(n);
   }
   this.modal=this.box('IslandJournalModal',this.root,0,0,1,1);this.modal.addComponent(BlockInputEvents);this.modal.active=false;
   this.shade=this.box('IslandModalShade',this.modal,0,0,1,1);this.shade.addComponent(Graphics);this.shade.addComponent(BlockInputEvents);
@@ -26,12 +32,40 @@ export class IslandJourneyOverlay {
  sync(width:number,height:number,enabled:boolean){
   if(this.dead||!isValid(this.root,true))return;const resized=width!==this.width||height!==this.height;this.enabled=enabled;this.root.active=enabled;
   if(!enabled){this.close();return;}
+  // T9n: tags follow the props' night weight (repaint only on a visible step; ends exact)
+  if(this.propMode&&this.tags.length){const nw=propNightWeight();if(Math.abs(nw-this.tagNight)>=.02||nw!==this.tagNight&&(nw===0||nw===1)){this.tagNight=nw;if(!resized)this.paintTags();}}
   this.width=width;this.height=height;if(!resized)return;this.root.getComponent(UITransform)!.setContentSize(width,height);const portrait=width<height,bottom=portrait?34:20,gap=Math.min(100,(width-48)/3);
-  this.buttons.forEach((n,i)=>n.setPosition(portrait||width<568?(i-1)*gap:width/2-56+(i-2)*84,-height/2+bottom+38,0));
+  if(this.propMode)this.layoutProps();else this.buttons.forEach((n,i)=>n.setPosition(portrait||width<568?(i-1)*gap:width/2-56+(i-2)*84,-height/2+bottom+38,0));
   this.modal.getComponent(UITransform)!.setContentSize(width,height);this.shade.getComponent(UITransform)!.setContentSize(width,height);
   const g=this.shade.getComponent(Graphics)!;g.clear();g.fillColor=new Color('#173f3aaa');g.rect(-width/2,-height/2,width,height);g.fill();if(this.page)this.paint();
  }
  isOpen(){return !this.dead&&this.page!==null;}
+ /** T9: true while the three utilities are on screen (the 3D props follow this). */
+ dockVisible(){return !this.dead&&this.enabled&&this.page===null&&isValid(this.dock,true)&&this.dock.active&&this.root.active;}
+ /** T9: 3D prop look. The WarmButton nodes stay as the (invisible) hit areas with the same handlers; a cream tag
+  * with dark-brown system-font text sits under each prop. off = original flat buttons (props failed to load). */
+ setPropMode(on:boolean){
+  if(this.dead||on===this.propMode)return;this.propMode=on;
+  this.buttons.forEach(n=>{const o=n.getComponent(UIOpacity)||n.addComponent(UIOpacity);o.opacity=on?0:255;if(!on)n.getComponent(UITransform)!.setContentSize(64,64);});
+  if(on&&!this.tags.length)for(const role of ['bag','journal','settings'] as const){const t=this.box('IslandPropTag-'+role,this.dock,0,0,40,24);t.addComponent(Graphics);const l=this.text(t,ISLAND_PROPS.buttons[role].label,0,0,13,40,ISLAND_PROPS.tag.text);l.isBold=true;l.overflow=Label.Overflow.NONE;this.tags.push(t);}
+  for(const t of this.tags)t.active=on;const w=this.width,h=this.height;this.width=0;this.height=0;if(this.enabled&&w>0&&h>0)this.sync(w,h,true);
+ }
+ private layoutProps(){
+  const L=propButtonLayout(this.width,this.height);
+  L.slots.forEach((s,i)=>{const n=this.buttons[i],t=n.getComponent(UITransform)!;if(t.width!==s.hit.width||t.height!==s.hit.height)t.setContentSize(s.hit.width,s.hit.height);n.setPosition(s.hit.x,s.hit.y,0);
+   const tag=this.tags[i];if(!tag)return;tag.setPosition(s.tag.x,s.tag.y,0);tag.getComponent(UITransform)!.setContentSize(s.tag.width,s.tag.height);
+   this.tagSlots[i]=s;});
+  this.paintTags();
+ }
+ /** Tag card + label colours at the current night weight (T9n; day colours at weight 0 are the T9 ones). */
+ private paintTags(){
+  const c=tagColorsAt(Math.max(0,this.tagNight));
+  this.tagSlots.forEach((s,i)=>{const tag=this.tags[i];if(!tag||!s)return;
+   const g=tag.getComponent(Graphics)!,w=s.tag.width,h=s.tag.height,r=h/2,lw=Math.max(1.5,s.tag.fontSize/10);g.clear();
+   g.fillColor=new Color(c.shadow);g.roundRect(-w/2,-h/2-2,w,h,r);g.fill();
+   g.fillColor=new Color(c.fill);g.roundRect(-w/2,-h/2,w,h,r);g.fill();g.strokeColor=new Color(c.edge);g.lineWidth=lw;g.roundRect(-w/2+lw/2,-h/2+lw/2,w-lw,h-lw,r-lw/2);g.stroke();
+   const l=tag.getComponentInChildren(Label)!;l.color=new Color(c.text);l.fontSize=s.tag.fontSize;l.lineHeight=s.tag.fontSize+4;l.node.getComponent(UITransform)!.setContentSize(w,h);});
+ }
  close(){this.cancel();this.page=null;this.serial++;if(isValid(this.modal,true))this.modal.active=false;if(isValid(this.dock,true))this.dock.active=true;}
  private open(page:Page){if(this.dead||!this.enabled)return;this.cancel();this.page=page;this.serial++;this.dock.active=false;this.modal.active=true;this.root.setSiblingIndex(this.root.parent!.children.length-1);this.paint();}
  private dispatch(fn:()=>any){if(!this.enabled||this.dead||!this.page)return;this.close();this.options.invoke(fn);}
@@ -56,7 +90,7 @@ export class IslandJourneyOverlay {
    this.text(this.panel,'在关卡中使用道具',0,-h/2+29,12,w-40,'#788466');
   }else if(this.page==='settings'){
    const night=this.safeRead(this.options.dayNight)?.mode==='night';this.text(this.panel,'让旅程慢一点',0,h/2-68,13,w-40,'#788466');
-   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.button('ReturnHome','回屋小憩',0,-46,w-60,48,()=>this.dispatch(this.options.returnHome),true);
+   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.text(this.panel,'轻点灯塔，回屋小憩',0,-46,13,w-60,'#697b59');
   }else{
    const region=this.page,chapter=CHAPTERS.find(c=>c.id===region)!,gate=this.gate(region),extra=region==='tide'||region==='sky';
    const blocked=gate?.reason==='stage-locked'?'主线解锁后开启':gate?.reason==='completion-unsaved'?'先保存当前成绩':['finish-or-discard-current-attempt','pending-stage-start'].includes(gate?.reason)?'请先继续当前挑战':'暂不可进入';

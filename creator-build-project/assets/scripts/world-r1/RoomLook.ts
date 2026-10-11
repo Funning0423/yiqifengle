@@ -1,7 +1,13 @@
 import {fromLookAt,projectPoint,yawPitch} from './CameraPose';
 import type {CameraPose,LookAtPose,V3} from './CameraPose';
-/** Fixed-origin room inspection. No camera travel, zoom, route, character or persistence writes. */
-export const ROOM_LOOK=Object.freeze({minYaw:-150,maxYaw:32,minPitch:-12,maxPitch:12,degreesPerScreen:110,doorInset:.10});
+/** Fixed-origin room inspection. No camera travel, zoom, route, character or persistence writes.
+ * T2+ (Funning 2026-10-11): look-around only; ~50 deg per screen width measured on device (was ~86 deg at 110).
+ * Yaw range (Mac round 3 r1-s3/r1-s5): the lens never moves (home clearance 7.9 cm), but at the old ends (-150 / +32) the
+ * frustum looked straight into the stair post / doorway wall: geometry at 0.20-0.25 m filled up to 20% of the frame.
+ * Pulled in so every frustum ray (16x32, pitch -12..12) meets geometry no nearer than 0.50 m at -140 and 0.60 m at +14
+ * (test_camera_frames room-look-clearance: >= 0.45 m over the whole range). The door is still found by dragging: the
+ * handle enters the frame at yaw ~-112 and stays visible to the new end (x 0.16 there). Old: minYaw -150, maxYaw 32. */
+export const ROOM_LOOK=Object.freeze({minYaw:-140,maxYaw:14,minPitch:-12,maxPitch:12,degreesPerScreen:64,doorInset:.10});
 export class RoomLook {
  private yaw=0;private pitch=0;
  constructor(readonly home:LookAtPose){}
