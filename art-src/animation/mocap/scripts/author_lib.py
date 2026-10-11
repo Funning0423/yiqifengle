@@ -5,6 +5,7 @@ import rig as RG
 import retarget as RT
 
 LEGS = {'L': ('thigh.L', 'shin.L', 'foot.L'), 'R': ('thigh.R', 'shin.R', 'foot.R')}
+SWING_CLEAR = 0.004          # minimum sole height off the floor while a foot is in the air
 NONLEG = ['hips', 'spine', 'chest', 'neck', 'head', 'upper_arm.L', 'forearm.L', 'hand.L', 'upper_arm.R', 'forearm.R', 'hand.R']
 
 
@@ -96,6 +97,12 @@ def gauss(x, sigma, periodic=False):
     return out
 
 
+def maxfilt(x, r, periodic=False):
+    n = len(x)
+    pad = np.concatenate([x[-r:], x, x[:r]]) if periodic else np.concatenate([np.full(r, x[0]), x, np.full(r, x[-1])])
+    return np.max(np.stack([pad[k:k + n] for k in range(2 * r + 1)]), 0)
+
+
 def rot_smooth(R, sigma, periodic=False):
     q = RG.m2q(R)
     for i in range(1, len(q)):
@@ -173,9 +180,15 @@ def apply_leg_ik(ctx, Wr, hips, s, A_target, foot_rot):
     H = W[:, rig.idx[th], :3, 3]
     K0 = W[:, rig.idx[sh], :3, 3]
     A0 = W[:, rig.idx[ft], :3, 3]
-    # pole: FK knee pushed forward a little so a straight FK leg still has a defined bend plane
-    fwd = Wr['hips'][:, :, 2]
-    pole = K0 + 0.05 * fwd
+    # pole: FK knee pushed well forward (hips + toe direction) so a straight FK leg (CMU knees clamp at 0 deg) still bends
+    # the right way
+    ff = foot_rot[:, :, 1].copy()
+    ff[:, 1] = 0
+    ff /= np.maximum(np.linalg.norm(ff, axis=1, keepdims=True), 1e-9)
+    fwd = Wr['hips'][:, :, 2] + ff
+    fwd[:, 1] = 0
+    fwd /= np.maximum(np.linalg.norm(fwd, axis=1, keepdims=True), 1e-9)
+    pole = K0 + 0.25 * fwd
     K, A2, clamped = two_bone(H, A_target, pole, ctx.L1, ctx.L2)
     R1 = RG.align(K0 - H, K - H)
     Rt = R1 @ Wr[th]
@@ -199,11 +212,13 @@ def knee_angle(ctx, Wr, hips, s):
 
 
 # ---------- foot planting ----------
-def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_lock=True, iters=2, floor_y=0.0):
+def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_lock=True, iters=2, floor_y=0.0, arcs=None):
     """No-slip foot planting on the actual sole vertices.
     contacts: s -> bool[n].  targets: s -> (mask bool[n], M [n,4,4]) world foot-bone transforms the foot must follow on the
     masked frames (idle stance at clip ends, walk_loop footprints at hand-offs); a contact interval that touches masked
-    frames is anchored to them (rolling shape still from the no-slip integration).  Returns new (Wr, hips, info)."""
+    frames is anchored to them (rolling shape still from the no-slip integration).  arcs: s -> [(a, b, height_m)] extra
+    ankle lift (half sine) for swings that the source does not contain (synthetic settle step).
+    Returns new (Wr, hips, info)."""
     rig = ctx.rig
     n = len(hips)
     info = {}
@@ -275,12 +290,50 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
             corr = fill_gaps(corr, have, periodic)
             Anew = A0 + corr
             Vn = V2 + corr[:, None]
-            lift = np.maximum(0, floor_y - Vn[..., 1].min(1))
+            lift = np.maximum(0, floor_y + SWING_CLEAR - Vn[..., 1].min(1))
             lift[have] = 0
-            Anew[:, 1] += gauss(lift, 1.0)
+            # peak-preserving smoothing: max filter (+-2 frames) then a light gauss, never below the raw need
+            mx = maxfilt(lift, 2, periodic)
+            mx[have] = 0
+            Anew[:, 1] += np.maximum(gauss(mx, 1.0, periodic), lift)
+            for a, b, hgt in (arcs or {}).get(s, []):
+                k = np.arange(a + 1, b)
+                Anew[k, 1] += hgt * np.sin(np.pi * (k - a) / (b - a))
             Wr, clamped = apply_leg_ik(ctx, Wr, hips, s, Anew, Rf)
-            info[s] = dict(clamped=int(clamped.sum()), corr_max_mm=float(np.abs(corr).max() * 1000))
+            info[s] = dict(clamped=int(clamped.sum()), corr_max_mm=float(np.abs(corr).max() * 1000), clamp_mask=clamped)
     return Wr, hips, info
+
+
+def trim_contacts(ctx, Wr, hips, contacts, knee_ref, periodic=False, drop=12.0, floor_deg=14.0, tail=0.45, keep=None,
+                  clamp=None):
+    """release a planted foot early where holding it would straighten the knee (toe-off pop): in the last `tail` part of a
+    contact interval, the first frame whose knee is below min(mocap knee - drop, floor_deg), or whose leg IK could not reach
+    the pinned foot (clamp: s -> bool[n]), ends the contact."""
+    out = {}
+    changed = 0
+    for s in 'LR':
+        C = contacts[s].copy()
+        k = knee_angle(ctx, Wr, hips, s)
+        n = len(C)
+        segs = intervals(C)
+        if periodic and C[0] and C[-1] and len(segs) > 1:
+            a1, b1 = segs[-1]
+            segs = segs[1:-1] + [(a1, b1 + segs[0][1] + 1)]
+        for a, b in segs:
+            L = b - a + 1
+            if keep is not None and keep.get(s) is not None and keep[s][np.arange(a, b + 1) % n].any() and \
+                    keep[s][b % n]:
+                continue
+            for j in range(a + int(L * (1 - tail)), b + 1):
+                f = j % n
+                cl = clamp is not None and clamp.get(s) is not None and clamp[s][f]
+                if cl or (k[f] < min(knee_ref[s][f] - drop, floor_deg) and knee_ref[s][f] > k[f] + 3):
+                    for q in range(j, b + 1):
+                        C[q % n] = False
+                    changed += b - j + 1
+                    break
+        out[s] = C
+    return out, changed
 
 
 def limit_swing_knee(ctx, Wr, hips, contacts, k0=35.0, f=0.6, sigma=1.5):
@@ -362,8 +415,6 @@ def fill_gaps(corr, have, periodic):
         return out
     if not have.any():
         return out
-    idx = np.where(have)[0]
-    vel = np.gradient(corr, axis=0)
     gaps = intervals(~have)
     for a, b in gaps:
         pa, pb = a - 1, b + 1
@@ -377,10 +428,17 @@ def fill_gaps(corr, have, periodic):
         pb %= n
         L = (b - a + 2)
         c0, c1 = corr[pa], corr[pb]
-        m0 = vel[pa] if have[(pa - 1) % n] else np.zeros(3)
-        m1 = vel[pb] if have[(pb + 1) % n] else np.zeros(3)
+        # horizontal: Hermite with one-sided slopes from inside the contacts (the gap itself is still unfilled).
+        # vertical: the planted-height correction is released over a few frames after lift-off and re-applied just before
+        # the next contact, so the swing keeps the performer's own foot clearance.
+        m0 = corr[pa] - corr[(pa - 1) % n] if (pa - 1 >= 0 or periodic) and have[(pa - 1) % n] else np.zeros(3)
+        m1 = corr[(pb + 1) % n] - corr[pb] if (pb + 1 < n or periodic) and have[(pb + 1) % n] else np.zeros(3)
+        ka = max(1, min(4, (L - 1) // 2))
         for k in range(a, b + 1):
-            u = (k - a + 1) / L
+            j = k - a + 1
+            u = j / L
             h00, h10, h01, h11 = 2 * u ** 3 - 3 * u ** 2 + 1, u ** 3 - 2 * u ** 2 + u, -2 * u ** 3 + 3 * u ** 2, u ** 3 - u ** 2
-            out[k % n] = h00 * c0 + h10 * m0 * L + h01 * c1 + h11 * m1 * L
+            v = h00 * c0 + h10 * m0 * L + h01 * c1 + h11 * m1 * L
+            v[1] = c0[1] * (1 - smoothstep(j / ka)) + c1[1] * smoothstep((j - (L - ka)) / ka)
+            out[k % n] = v
     return out

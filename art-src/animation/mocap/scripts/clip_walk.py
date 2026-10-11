@@ -9,6 +9,7 @@ WINDOW = (4.3, 8.0)        # steady straight walking (s, source)
 TIME_STRETCH = 1.15        # same for every 91_29 locomotion clip -> cadence ~79 steps/min
 SPEED = 0.7
 CONTACT = dict(h_tol=0.03, v_tol=0.45, ref=(0.3, 2.4))     # standing heights of the performer at the start of 91_29
+MIN_KNEE = 9.0             # stance knee floor for the hips-height fit (CMU knees clamp at 0 deg in late stance)
 
 
 def strikes(tk, t0, t1, side):
@@ -71,15 +72,25 @@ def build(n_cycles_plant=3, verbose=True):
     cx = CB.ctx()
     knee_ref = {s: AL.knee_angle(cx, big[0], big[1], s) for s in 'LR'}
     h2 = big[1]
+    released = 0
     for it in range(4):
         Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2)
+        C2, ch = AL.trim_contacts(cx, Wp, hp, Cb, knee_ref)
+        if ch and it < 3:
+            # same release in every cycle: take the middle cycle's trimmed mask
+            m = K // 2
+            for s in 'LR':
+                c = C2[s][m * n:(m + 1) * n]
+                Cb[s] = np.tile(c, K)
+            released += ch
+            Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2)
         if verbose:
-            print('  fit', it, {s: pinfo[s]['clamped'] for s in 'LR'})
+            print('  fit', it, {s: pinfo[s]['clamped'] for s in 'LR'}, 'released', ch)
         if it == 3:
             break
         Wf = CB.fk(Wp, hp)
         A = {s: Wf[:, CB.rig().idx['foot.' + s], :3, 3] for s in 'LR'}
-        h2 = AL.fit_hips_height(cx, big[0], h2, A, Cb, knee_ref)
+        h2 = AL.fit_hips_height(cx, big[0], h2, A, Cb, knee_ref, min_knee=MIN_KNEE)
     info['hips_height_change_mm'] = [round(float((h2[:, 1] - big[1][:, 1]).min() * 1000), 1), round(float((h2[:, 1] - big[1][:, 1]).max() * 1000), 1)]
     hp = hp.copy()
     hp[:, 2] -= SPEED * tt
@@ -88,9 +99,10 @@ def build(n_cycles_plant=3, verbose=True):
     nxt = CB.tr_frame((Wp, hp), (m + 1) * n)
     resid = CB.pose_err(CB.tr_slice(mid, 0, 1), (({k: v[None] for k, v in nxt[0].items()}), nxt[1][None]))[0]
     mid = CB.close_loop(mid, nxt)
-    info['plant'] = {s: {k: v for k, v in pinfo[s].items() if k != 'contacts'} for s in 'LR'}
+    info['plant'] = {s: {k: v for k, v in pinfo[s].items() if k not in ('contacts', 'clamp_mask')} for s in 'LR'}
     info['loop_residual_after_plant_deg'] = round(float(resid), 3)
-    contacts = {s: C[s] for s in 'LR'}
+    info['released_contact_frames'] = int(released)
+    contacts = {s: Cb[s][m * n:(m + 1) * n].copy() for s in 'LR'}
     if verbose:
         print('walk_loop', info)
     return mid, contacts, info

@@ -240,9 +240,11 @@ def envelope(r, sigma, periodic, iters=40):
     return x
 
 
-def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, arms=True, log=print, low_lag=1.5, low_k=0.0):
+def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, arms=True, log=print, low_lag=1.5, low_k=0.0,
+               lock=None):
     """Q [n,J,4], T [n,J,3] (frames at 30 fps). end_lock: (n_start, n_end) frames over which curves are faded to 0 at the clip
-    ends (to match idle), or None. returns (Q_out, report)."""
+    ends (to match idle), or None. lock: (w [n], {var: [n] radians}) -> curves = (1-w) * solved + w * given (hand-offs to a
+    clip whose curves are already fixed, e.g. walk_loop). returns (Q_out, report)."""
     import author_lib as AL
     n = len(Q)
     need = {v: np.zeros(n) for v in VARS}
@@ -279,6 +281,9 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
                 if b:
                     w[n - b:] = np.minimum(w[n - b:], AL.smootherstep((n - 1 - np.arange(n - b, n)) / b))
                 c = c * w
+            if lock is not None:
+                lw, lv = lock
+                c = (1 - lw) * c + lw * lv.get(v, np.zeros(n))
             cur[v] = np.clip(c, -CAP[v] * 1.1, CAP[v] * 1.1)
         # lower segments: add follow-through (lagged copy of the upper segment's motion)
         for p in PANELS:
