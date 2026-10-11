@@ -14,3 +14,6 @@ export class Label extends Component{constructor(){super();this.shadowOffset=new
 Label.HorizontalAlign={CENTER:1};Label.VerticalAlign={CENTER:1};Label.Overflow={NONE:0};
 export function isValid(o){return !!o&&(o._valid!==false)&&(!o.node||o.node._valid!==false);}
 let scene=null;export const director={getScene:()=>scene,once(){},__setScene(s){scene=s;}};export const Director={EVENT_AFTER_SCENE_LAUNCH:'l'};
+// T6b: bitmap font loading stub. Tests resolve resources.loads[i].cb themselves.
+export class BitmapFont{constructor(cfg){this.fntConfig=cfg||null;this.refs=0;}addRef(){this.refs++;return this;}decRef(){this.refs--;return this;}}
+export const resources={loads:[],load(path,type,cb){this.loads.push({path,type,cb});}};

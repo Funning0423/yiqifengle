@@ -9,6 +9,21 @@ export const CHEER_STYLES:readonly CheerStyle[]=[
  {word:'Unbelievable!',fill:'#FFD0E6',outline:'#E0659E',shadow:'#A8467688',size:38}, // sakura / rose
 ];
 export const CHEER_TOTAL_S=0.8;
+/** Bitmap-font look (T6b): resources/ui/cheer-font/cheer-fredoka.fnt (Fredoka SemiBold 38 px, OFL, white fill-only atlas of exactly
+ * CHEER_FONT_GLYPHS). Colours are Label.color tints; outline = 8 copies of the fill label offset on a radius-4 ring (same width as
+ * the system Label outlineWidth 4), shadow = 3 copies of the lower ring moved down 3 px, opaque (stacked copies would double a
+ * translucent alpha). If the font fails to load, CheerText keeps the system-font Label look above. */
+export const CHEER_FONT_PATH='ui/cheer-font/cheer-fredoka';
+export const CHEER_FONT_GLYPHS='!AEGUabcegilmnrtvxz';
+export const CHEER_OUTLINE_R=4;
+const ring=(n:number,r:number,from=0,to=n)=>{const o:[number,number][]=[];for(let i=from;i<to;i++){const a=2*Math.PI*i/n;o.push([Math.round(r*Math.cos(a)*100)/100,Math.round(r*Math.sin(a)*100)/100]);}return o;};
+/** [dx,dy] of the outline copies (8 directions) and the shadow copies (225/270/315 deg of the ring, then dy-3; drawn first). */
+export const CHEER_OUTLINE_OFFSETS:readonly (readonly [number,number])[]=ring(8,CHEER_OUTLINE_R);
+export const CHEER_SHADOW_OFFSETS:readonly (readonly [number,number])[]=ring(8,CHEER_OUTLINE_R,5,8).map(([x,y])=>[x,Math.round((y-3)*100)/100] as [number,number]);
+/** Opaque shadow tint for the bitmap look: the style's shadow RGB without its alpha. */
+export const opaque=(hex:string)=>hex.length>7?hex.slice(0,7):hex;
+/** Every char of the four words must be in the atlas, else CheerText stays on the system font. */
+export const missingGlyphs=(has:(code:number)=>boolean):string=>{let m='';for(const st of CHEER_STYLES)for(const ch of st.word)if(!has(ch.charCodeAt(0))&&m.indexOf(ch)<0)m+=ch;return m;};
 export const tierOf=(level:number):number=>Number.isInteger(level)&&level>=0&&level<CHEER_STYLES.length?level:-1;
 /** One on screen at a time: same or higher tier still showing -> skip (mirrors GameAudio.playCheer); lower -> replaced. */
 export function decide(active:number,activeAge:number,level:number):'show'|'replace'|'skip'{
