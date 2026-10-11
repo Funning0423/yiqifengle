@@ -3,6 +3,7 @@ import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid
 import { RoomLook } from './RoomLook';
 import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
 import { RoomLightingRig } from '../render/RoomLightingRig';
+import { DoorSpillHint } from '../render/DoorSpillHint';
 import { REGIONS } from '../region/RegionLoader';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled } from './WorldFlowCore';
@@ -157,7 +158,7 @@ export class WorldFlowComponent extends Component {
   private dayNightMode:DayNightMode='day';
   /** null follows the clock. true/false is the player's switch and blocks the clock. */
   private nightOverride:boolean|null=null;
-  private exteriorVisible=false;private interiorVisible=false;private backdropVisible=false;
+  private exteriorVisible=false;private interiorVisible=false;private backdropVisible=false;private doorSpill:DoorSpillHint|null=null;
   private roomLighting:RoomLightingRig|null=null;private worldAmbient:RegionAmbientAnimation|null=null;
   private nightRenderers:MeshRenderer[]=[];
   private skyDomes:MeshRenderer[]=[];
@@ -272,6 +273,7 @@ export class WorldFlowComponent extends Component {
       console.info('[OI_REAR_PALM_BIND]',JSON.stringify({node:palm?.node.name,skeletonHash:palm?.skeleton?.hash,joints:palm?.skeleton?.joints?.length,expectedSourceSkeletonHash:4226273243,scope:'Skeleton binding only; native window visibility still requires visual check'}));
       // Runtime lighting is installed after source-renderer classification, never into imported GLB data.
       this.roomLighting=new RoomLightingRig(director.getScene()!,model,director.getScene()?.getChildByName('FLOW_REFERENCE_PLACEHOLDER_NOT_B')??null);
+      this.doorSpill=new DoorSpillHint(director.getScene()!); // T2+ room home camera option 1: door light-spill hint
       const camera=this.worldCamera!;
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
@@ -299,9 +301,9 @@ export class WorldFlowComponent extends Component {
         // writes the end pose (see createCameraTrack); never continues silently.
         animateCamera:(path,seconds,t,options)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);return this.run(seconds,t,track.tick);},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
-        dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
+        dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
-    } catch(e) {this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;model.destroy();this.ownedModel=null;throw e;}
+    } catch(e) {this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;model.destroy();this.ownedModel=null;throw e;}
   }
   private run(seconds:number,token:Cancellation,tick:(p:number)=>void):Promise<void> {
     token.check();if(!Number.isFinite(seconds)||seconds<=0){tick(1);return Promise.resolve();}
@@ -357,7 +359,7 @@ export class WorldFlowComponent extends Component {
   /** T5 read-only: true when the island/home world is on screen (last setLayers had interior or exterior). False under
    * levels/skycity/hidden/needs-resume, where the world stays loaded with layers NONE and w reads 0. */
   isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
-  lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure)this.roomLighting?.advance(dt);}
+  lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);}}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.clock.showEvents++;if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);this.flow?.show();this.reportRuntime('show');}
   /** Does not read or write WorldFlow state. Night meshes stay off until mode is night and the exterior layer is on. */
@@ -371,6 +373,7 @@ export class WorldFlowComponent extends Component {
     for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
     for(const [r,b]of this.unlitBackdrops)if(isValid(r,true))b.setNight(this.dayNightMode==='night');
     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
+    this.doorSpill?.setView(this.interiorVisible,this.exteriorVisible,this.dayNightMode==='night');
   }
   private dayNightSnapshot(){const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);return {mode:this.dayNightMode,override:this.nightOverride,exteriorVisible:this.exteriorVisible,nightRenderersEnabled:view.nightRenderersEnabled,nightSkyBackdropsEnabled:this.dayNightMode==='night'&&this.backdropVisible,nightRendererCount:this.nightRenderers.length,skyNightBlend:this.appliedBlend,lightScale:view.lightScale};}
   private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';this.applyDayNight();return this.dayNightSnapshot();}
@@ -380,7 +383,7 @@ export class WorldFlowComponent extends Component {
   onDestroy():void {
     this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();
     if(this.disposed)return;this.disposed=true;this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
-    this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
+    this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome;if(this.lightHomeColor)this.mainLight.color=this.lightHomeColor;}
     this.mainLight=null;this.lightHomeColor=null;
