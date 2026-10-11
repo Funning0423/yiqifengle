@@ -1,0 +1,9 @@
+'use strict';
+const fs=require('fs'),path=require('path'),assert=require('assert/strict'),{stripTypeScriptTypes}=require('node:module');
+const root=path.resolve(__dirname,'..'),scripts=root+'/creator-build-project/assets/scripts/';
+function prototype(source){const s=stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'').replace(/^@ccclass.*\n/gm,''),{mode:'transform'}).replace(/export /g,'');return new Function('Component','_decorator','Port',s+';return ManagedMobileBoardUI.prototype')(class{},{ccclass:()=>x=>x},{createSynchronousStorage(){},bindChallengeController(){}})}
+const before=prototype(fs.readFileSync(root+'/evidence/board-teardown/ManagedMobileBoardUI.ts.before','utf8')),after=prototype(fs.readFileSync(scripts+'ManagedMobileBoardUI.ts','utf8'));
+const allowed=['loadPieceArt','releasePieceArt','cancelToolInput','endToolDrag','paintToolTray','bind','cancelAnimations','render','paint','onDestroy'];const changed=[],unchanged=[];
+for(const k of Object.getOwnPropertyNames(before)){if(k==='constructor')continue;assert(after[k],k);if(String(before[k])===String(after[k]))unchanged.push(k);else{assert(allowed.includes(k),'unapproved method change '+k);changed.push(k)}}
+assert.deepEqual(changed.sort(),allowed.sort());for(const k of ['command','useToolAt','tapTool','tap','swap','paintBag','askRestart','toggleBag','paintResult','drawChest','iconButton','toolSlot'])assert(unchanged.includes(k));
+const report={status:'PASS',changedMethods:changed,unchangedMethods:unchanged,scope:'Full method-body equality after TypeScript erasure; only declared lifecycle/presentation guards/cancellation paths differ. Constructor changes are separately visible in source patch (disposing field and resize guard).'};fs.writeFileSync(root+'/evidence/board-teardown/method-scope.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));

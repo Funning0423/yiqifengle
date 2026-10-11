@@ -1,0 +1,61 @@
+{
+  "__version__": "1.3.9",
+  "bundleConfig": {
+    "custom": {
+      "wx_subpackage": {
+        "displayName": "wx_subpackage",
+        "configs": {
+          "miniGame": {
+            "preferredOptions": {
+              "isRemote": false,
+              "compressionType": "subpackage"
+            },
+            "fallbackOptions": {
+              "compressionType": "merge_dep",
+              "isRemote": false
+            },
+            "configMode": "overwrite",
+            "overwriteSettings": {
+              "wechatgame": {
+                "isRemote": false,
+                "compressionType": "subpackage"
+              }
+            }
+          },
+          "native": {
+            "preferredOptions": {
+              "isRemote": false,
+              "compressionType": "merge_dep"
+            }
+          },
+          "web": {
+            "preferredOptions": {
+              "isRemote": false,
+              "compressionType": "merge_dep"
+            }
+          }
+        }
+      }
+    }
+  },
+  "splash-setting": {
+    "displayRatio": 1,
+    "totalTime": 500,
+    "watermarkLocation": "default",
+    "autoFit": true,
+    "logo": {
+      "type": "custom",
+      "image": "/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-r5-fb338ef-integrated-20261010/tools/branding/game-title-temporary.png"
+    },
+    "background": {
+      "type": "color",
+      "color": {
+        "x": 0.06,
+        "y": 0.15,
+        "z": 0.16,
+        "w": 1
+      }
+    }
+  },
+  "hasSetSplash": true
+}

@@ -1,0 +1,17 @@
+'use strict';
+// Optional pure host seam. No Cocos component ownership or afterPaint handling.
+var API=require('./index'),Provider=require('./board-session-provider'),Journal=require('./progress-journal'),Store=require('./durable-store');
+function createStorage(localStorage){if(!localStorage||typeof localStorage.getItem!=='function'||typeof localStorage.setItem!=='function')throw Error('Synchronous localStorage-like object required');return {load:function(k){return localStorage.getItem(k);},save:function(k,v){localStorage.setItem(k,JSON.stringify(v));return true;}};}
+function createPersistence(localStorage,journey){if(!journey||typeof journey.readOnly!=='boolean'||!Array.isArray(journey.records))throw Error('Inject the existing R4/legacy journey read-only view; do not synthesize unlocked stars');var platform=createStorage(localStorage);return {platform:platform,journey:journey,inspect:function(){return [Provider.KEY,Provider.PROGRESS_KEY,Provider.BACKUP_KEY].map(function(k){return [k,platform.load(k)];});}};}
+function inspectSelection(persistence,selection){try{var stage=API.getStage(selection.stageId);if(!stage||!stage.seedBank.includes(selection.seed))return {ok:false,reason:'unverified-r5-stage-or-seed'};var journal=new Journal(persistence.platform,persistence.journey);if(journal.store.readOnly)return {ok:false,reason:'preserved-journal-error'};var raw=persistence.platform.load(Provider.KEY),r=raw===null||raw===undefined||raw===''?null:typeof raw==='string'?JSON.parse(raw):raw;
+ if(r){if(![1,2].includes(r.version)||r.packId!=='regional-r05')return {ok:false,reason:'preserved-active-error'};var run=API.restore(r.checkpoint),same=run.stage.id===selection.stageId&&run.seed===selection.seed;
+  if(same&&!r.discarded)return {ok:true,resume:true};
+  if(r.version===1||r.pendingAction!==null)return {ok:false,reason:'finish-or-discard-current-attempt'};
+  if(!r.discarded&&run.engine.status==='playing')return {ok:false,reason:'finish-or-discard-current-attempt'};
+  if(!r.discarded&&run.engine.status==='won'){var receipt=journal.data.attempts[r.attemptId];if(!receipt||!r.completionReceipt||receipt.proof!==JSON.stringify(r.checkpoint)||r.completionReceipt.proof!==receipt.proof)return {ok:false,reason:'completion-unsaved'};}
+ }
+ if(journal.data.openAttempt&&(!r||journal.data.openAttempt.id!==r.attemptId)){var reserved=journal.data.openAttempt;if(reserved.stageId!==selection.stageId||reserved.seed!==selection.seed)return {ok:false,reason:'pending-stage-start'};return {ok:true,resume:true};}
+ return journal.isUnlocked(selection.stageId)?{ok:true,resume:false}:{ok:false,reason:'stage-locked'};
+ }catch(e){return {ok:false,reason:'preserved-storage-error',detail:String(e.message||e)};}}
+function resultPresentation(s){if(s.state==='result.unsaved'||s.state==='run.unsaved')return {uiResultTitle:'保存待重试',uiResultCaption:'保留当前关局，保存完成后才能继续',uiStatus:'尚未完成持久化 · 不发奖励'};if(s.state==='result.saved'&&s.result&&s.result.completionRecorded)return {uiResultTitle:'挑战完成',uiResultCaption:String(s.active.score)+' 分 · '+s.result.stars+' 星 · 成绩已登记',uiStatus:s.progress&&s.progress.claimedRegions.includes(s.active.region)?'地区印记已领取 · 成绩已保存':s.nextStageId?'下一关已解锁':'成绩已保存；地区印记需全部关卡完成后领取'};if(s.state==='result.saved'&&s.result&&s.result.outcome==='lost')return {uiResultTitle:'再试一阵风',uiResultCaption:'本局已保存，可以重新挑战',uiStatus:'未通关 · 不发奖励'};return {};}
+module.exports={createStorage:createStorage,createPersistence:createPersistence,inspectSelection:inspectSelection,resultPresentation:resultPresentation};

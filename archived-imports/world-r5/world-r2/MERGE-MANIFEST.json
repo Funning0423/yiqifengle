@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "createdUTC": "2026-10-09T08:28:28.558744+00:00",
+  "baselineCocosCommit": "2a320f93b86625e7d59ebbd32a52e2868f993ce6",
+  "nativeUICommit": "1d2d0d1e29845a0f42df6eb405d1c2a43afc9c9a",
+  "nativeUIPatch": {
+    "baseCommit": "1d2d0d1e29845a0f42df6eb405d1c2a43afc9c9a",
+    "baseNativeUISHA256": "3355dffc9b25a54eaad646d38c1b80b4a36ffb0935e7ebbe4e629309a467af44",
+    "candidateNativeUISHA256": "54907f610c783ff9658811dbf942299e2b1f139154bda591348c3ae1c843a52b",
+    "patchSHA256": "ab55dc9578d0dc587e962edd049ebac7df682b402a45abece2bed38de668f0bf",
+    "originalChanged": false,
+    "portraitBranch": "Not received; rebase this seam, do not replace newer UI with the old full file."
+  },
+  "mergeScope": "4 new components + one explicit NativeBoardUI managed-mode patch. Keep world-r1 unchanged; import R5 runtime as separate dependency. No Boot/GLB/meta changes.",
+  "verified": {
+    "testLog": "evidence/node-tests.txt",
+    "R5PublishedReplays": 36,
+    "R5PublishedActions": 301,
+    "realProviderFrameKinds": [
+      "action",
+      "clear",
+      "drop",
+      "scene",
+      "tool"
+    ],
+    "shuffle": "Synthetic schema-bound presentation test only",
+    "frozenSources": {
+      "status": "PASS",
+      "filesChecked": 61,
+      "changed": [],
+      "scope": "world-r1, native-board-r1 entire recovered delta, R5 v1.1 import-only; no baseline writes"
+    }
+  },
+  "unrun": [
+    "Cocos editor import and semantic typecheck",
+    "Cocos Web build/runtime",
+    "real touch hit-testing and portrait visual review",
+    "WeChat/device",
+    "production completion ledger/rewards"
+  ],
+  "files": [
+    {
+      "path": "MERGE-CHECKLIST.md",
+      "bytes": 1159,
+      "sha256": "1cc77b7a2115d4caa79f989a42b722c0774e0e7a345beda8658e83ef143fabc6",
+      "mergeDestination": null
+    },
+    {
+      "path": "README.md",
+      "bytes": 7012,
+      "sha256": "d39659d2d4992f9f609811ac105632980624fdb854b4666751f0b4122507f8cf",
+      "mergeDestination": null
+    },
+    {
+      "path": "components/ManagedBoardSession.ts",
+      "bytes": 7035,
+      "sha256": "5c1639e55e200775be91a7e64405da2c20de459aae7b804655242e48a3f93e42",
+      "mergeDestination": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts"
+    },
+    {
+      "path": "components/NativeWorldLevelAdapter.ts",
+      "bytes": 2359,
+      "sha256": "f03d3e065bfedfe144c916f9a868c16d4a563a0cd8d988a6899e69eed4e35fcd",
+      "mergeDestination": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts"
+    },
+    {
+      "path": "components/RegionalOverlay.ts",
+      "bytes": 1361,
+      "sha256": "5eaf516503f4551279653f6cf8090251055dd427326b239d11b69c3b0f9b2883",
+      "mergeDestination": "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts"
+    },
+    {
+      "path": "components/WorldNativeComposition.ts",
+      "bytes": 3742,
+      "sha256": "124a486717aeb20404eabd55cfc4673b5857f9cac5fe906bd3f24689f2731855",
+      "mergeDestination": "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts"
+    },
+    {
+      "path": "evidence/frozen-source-integrity.json",
+      "bytes": 166,
+      "sha256": "54cc8ca5cf51e97a0a01448c6a1951dec2bcd8f3a7f22798783402dc99dbae20",
+      "mergeDestination": null
+    },
+    {
+      "path": "evidence/frozen-sources-before.json",
+      "bytes": 11025,
+      "sha256": "015da63e2a104cee8eee1369e0216b995855cca55dc291313c24bb2a3fc91d33",
+      "mergeDestination": null
+    },
+    {
+      "path": "evidence/native-integration-report.json",
+      "bytes": 3958,
+      "sha256": "c4d13576ef8ff0cfacde8f4845a058c0b51756637c1b44c1a87221f227716cad",
+      "mergeDestination": null
+    },
+    {
+      "path": "evidence/native-patch-provenance.json",
+      "bytes": 468,
+      "sha256": "3122502cc0a044ac2726011cb489f5d8a794deefad67957c5a8a049bbc38d469",
+      "mergeDestination": null
+    },
+    {
+      "path": "evidence/node-tests.txt",
+      "bytes": 1781,
+      "sha256": "d16e2f02255e47dc3489bc0c8074f2a5aef02bbf8a17bfe64fd483f42888d55a",
+      "mergeDestination": null
+    },
+    {
+      "path": "evidence/syntax.json",
+      "bytes": 293,
+      "sha256": "6dc1a4accf556d75c5ff3a6dddd39afc289787605d036e2c510431a510c0ab37",
+      "mergeDestination": null
+    },
+    {
+      "path": "patches/NativeBoardUI-managed-mode.patch",
+      "bytes": 12663,
+      "sha256": "ab55dc9578d0dc587e962edd049ebac7df682b402a45abece2bed38de668f0bf",
+      "mergeDestination": "apply to creator-build-project/assets/scripts/NativeBoardUI.ts"
+    },
+    {
+      "path": "run_checks.sh",
+      "bytes": 237,
+      "sha256": "7fc5196c071872988e4ffeb6400d6a61db223cecd3fdfbe32da4bde308c7094f",
+      "mergeDestination": null
+    },
+    {
+      "path": "tests/cc-double.cjs",
+      "bytes": 2928,
+      "sha256": "ad738d0a65f80270438c54f066fa02a77c54ef2d8368e43f14e258caeef96824",
+      "mergeDestination": null
+    },
+    {
+      "path": "tests/load-actual-ui.cjs",
+      "bytes": 2061,
+      "sha256": "94a354e919da45f915b29b2cdd339945c368ee25b97a82be20082cc12c5f1b64",
+      "mergeDestination": null
+    },
+    {
+      "path": "tests/native-integration.test.cjs",
+      "bytes": 13330,
+      "sha256": "b9559b621ea4a263440fde07bc613bcd689b11e1cdf709966b5f0fa0c1696ca6",
+      "mergeDestination": null
+    },
+    {
+      "path": "tools/check_syntax.cjs",
+      "bytes": 910,
+      "sha256": "875093d047bf9db2f1fd3170ab912d235d5844ee1555d1bd90f0d03c8a379a02",
+      "mergeDestination": null
+    },
+    {
+      "path": "tools/generate_patch.py",
+      "bytes": 1475,
+      "sha256": "acd28e454349e3ddbf63d68da56f130311697b7e4834614d8573398411ffa7ac",
+      "mergeDestination": null
+    },
+    {
+      "path": "tools/patch_native_ui.cjs",
+      "bytes": 5014,
+      "sha256": "1afb3254cd20580cec9e61405571cbc41d5bdb9a6362c6da3a4c1bcbfb71fcc6",
+      "mergeDestination": null
+    },
+    {
+      "path": "tools/verify_and_manifest.py",
+      "bytes": 2313,
+      "sha256": "5fa6184a0535a483b4b258fa2168464e99fed5e345770c3fc5bf0af0a819b9dd",
+      "mergeDestination": null
+    }
+  ]
+}

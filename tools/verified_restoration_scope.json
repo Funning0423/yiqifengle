@@ -1,0 +1,462 @@
+{
+  "description": "Exact reviewed Stage3 + reliability + original dynamic background + original tool patch composition. UI reverse-hunks only normalize approved tool changes so original protection assertions still execute. Any additional byte change needs review.",
+  "uiBeforeSha256": "97c64909a0c11940b27bb342417cd1f824cc1341d32fc8269e3d30e22bc67f04",
+  "uiAfterSha256": "cf1892f0f3487ca723f24e2e2869f5369af1c167cc8a9d8aa6524298f6b25288",
+  "uiReverseHunks": [
+    {
+      "afterStart": 0,
+      "afterLines": [
+        "import { ManagedToolArt } from './ManagedToolArt';\n",
+        "import { managedTools, type ManagedTool } from './world-r2/ManagedTools';\n"
+      ],
+      "beforeLines": []
+    },
+    {
+      "afterStart": 44,
+      "afterLines": [
+        "      n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{const d=this.dragStart;if(!d||d.consumed||d.index!==i)return;const p=e.getLocation(),dx=p.x-d.point.x,dy=p.y-d.point.y;if(Math.max(Math.abs(dx),Math.abs(dy))<Math.min(18,this.cell*.35))return;d.consumed=true;if(this.armedTool)return;const j=i+(Math.abs(dx)>Math.abs(dy)?(dx>0?1:-1):(dy>0?-7:7));if(j>=0&&j<49&&Math.abs(i%7-j%7)+Math.abs(Math.floor(i/7)-Math.floor(j/7))===1)this.swap(i,j);},this);\n"
+      ],
+      "beforeLines": [
+        "      n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{const d=this.dragStart;if(!d||d.consumed||d.index!==i)return;const p=e.getLocation(),dx=p.x-d.point.x,dy=p.y-d.point.y;if(Math.max(Math.abs(dx),Math.abs(dy))<Math.min(18,this.cell*.35))return;d.consumed=true;const j=i+(Math.abs(dx)>Math.abs(dy)?(dx>0?1:-1):(dy>0?-7:7));if(j>=0&&j<49&&Math.abs(i%7-j%7)+Math.abs(Math.floor(i/7)-Math.floor(j/7))===1)this.swap(i,j);},this);\n"
+      ]
+    },
+    {
+      "afterStart": 46,
+      "afterLines": [
+        "      n.on(Node.EventType.TOUCH_CANCEL,()=>{this.dragStart=null;this.cancelToolInput();this.paintToolTray();this.paint();},this);this.cells.push(n);\n"
+      ],
+      "beforeLines": [
+        "      n.on(Node.EventType.TOUCH_CANCEL,()=>{this.dragStart=null;this.selected=-1;this.paint();},this);this.cells.push(n);\n"
+      ]
+    },
+    {
+      "afterStart": 56,
+      "afterLines": [
+        "    for(let i=0;i<5;i++)this.tools.push(this.toolSlot(i));\n",
+        "    this.toolArt=this.tray.addComponent(ManagedToolArt);this.toolArt.initialize(()=>this.paintToolTray());\n"
+      ],
+      "beforeLines": [
+        "    for(let i=0;i<3;i++)this.tools.push(this.toolSlot());\n"
+      ]
+    },
+    {
+      "afterStart": 79,
+      "afterLines": [
+        "  private toolArt!:ManagedToolArt;private armedTool:string|null=null;private toolTapAccepted=false;\n",
+        "  private toolDrag:{kind:string,slot:number,pointer:number,start:{x:number,y:number},moved:boolean,version:string}|null=null;private toolGhost:Node|null=null;\n",
+        "  private toolCatalog():ManagedTool[]{return this.managed?.tools?.()||managedTools(this.snapshot);}\n",
+        "  private toolVersion(){const a=this.snapshot?.active;return `${a?.attemptId||a?.stageId}:${a?.actions?.length??a?.turn??0}:${a?.version??0}`;}\n",
+        "  private canUseTools(){return !this.modalOpen()&&this.snapshot?.state==='run.ready'&&!this.snapshot?.readOnly;}\n",
+        "  private cancelToolInput(){this.toolDrag=null;this.armedTool=null;this.toolTapAccepted=false;if(this.toolGhost)this.toolGhost.active=false;this.selected=-1;}\n",
+        "  private useToolAt(kind:string,index:number){\n",
+        "    if(!this.canUseTools()||!this.managed)return false;\n",
+        "    const tool=this.toolCatalog().find(t=>t.kind===kind);\n",
+        "    if(!tool?.available){this.status.string=tool?.reason||'本关没有可用道具';return false;}\n",
+        "    if(tool.targeted&&(!Number.isInteger(index)||index<0||index>48)){this.status.string='先点道具再选格子，或把道具拖到格子上';return false;}\n",
+        "    const r=this.managed.useTool(kind,index);\n",
+        "    if(!r.ok)this.status.string=r.reason==='illegal-or-unsupported-action'?'换一个有作用的落点，道具还在':'暂不可操作 · '+r.reason;\n",
+        "    else {this.armedTool=null;this.selected=-1;}\n",
+        "    this.paintToolTray();this.paint();return !!r.ok;\n",
+        "  }\n",
+        "  private tapTool(slot:number){\n",
+        "    if(!this.canUseTools())return false;\n",
+        "    const tool=this.toolCatalog()[slot];\n",
+        "    if(!tool?.available){this.cancelToolInput();this.status.string=tool?.reason||'本关没有可用道具';this.paintToolTray();this.paint();return false;}\n",
+        "    if(!tool.targeted)return this.useToolAt(tool.kind,-1);\n",
+        "    this.armedTool=this.armedTool===tool.kind?null:tool.kind;this.selected=-1;\n",
+        "    this.status.string=this.armedTool?`${tool.name} · 点选目标，或再次点道具取消`:'已收回，道具没有消耗';this.paintToolTray();this.paint();return true;\n",
+        "  }\n"
+      ],
+      "beforeLines": [
+        "  /** GGbot fix-2: tool slots support both tap (tap a cell first, then the tool) and drag-from-tray onto a board cell. */\n",
+        "  private toolDrag:{start:{x:number,y:number},moved:boolean}|null=null;private toolGhost:Node|null=null;\n",
+        "  private useToolAt(index:number){if(!this.managed){this.status.string='道具尚未开放';return;}const r=this.managed.useTool(index);\n",
+        "    if(!r.ok)this.status.string=r.reason==='no-stage-tool'?'本关没有可用道具':(index<0?'先选一个格子，或把道具拖到格子上':'暂不可操作 · '+r.reason);}\n"
+      ]
+    },
+    {
+      "afterStart": 104,
+      "afterLines": [
+        "    const col=Math.round(lx/this.cell)+3,row=3-Math.round(ly/this.cell);if(Math.abs(lx)>=this.cell*3.5||Math.abs(ly)>=this.cell*3.5||col<0||col>6||row<0||row>6)return -1;return row*7+col;}\n",
+        "  private moveGhost(x:number,y:number){const d=this.layoutInfo;if(!this.toolGhost){this.toolGhost=this.box('ToolDragGhost',this.root,0,0,48,48);this.toolGhost.addComponent(Sprite);}\n",
+        "    const sprite=this.toolGhost.getComponent(Sprite)!;sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=this.toolArt.frame(this.toolDrag!.kind);\n",
+        "    this.toolGhost.active=true;this.toolGhost.setWorldPosition(x-d.width/2,y-d.height/2+28,0);}\n",
+        "  private endToolDrag(e:EventTouch,slot?:number){const d=this.toolDrag;if(!d||d.pointer!==e.getID()||(slot!==undefined&&slot!==d.slot))return;this.toolDrag=null;this.toolTapAccepted=false;if(this.toolGhost)this.toolGhost.active=false;\n",
+        "    if(!this.canUseTools()||d.version!==this.toolVersion()){this.cancelToolInput();this.paintToolTray();this.paint();return;}\n",
+        "    const p=e.getUILocation(),moved=d.moved||Math.hypot(p.x-d.start.x,p.y-d.start.y)>=12;\n",
+        "    if(!moved){if(this.tools[d.slot].getComponent(UITransform)!.hitTest(e.getLocation(),e.windowId))this.toolTapAccepted=this.tapTool(d.slot);return;}\n",
+        "    const i=this.cellAt(p.x,p.y);this.armedTool=null;this.selected=-1;this.paintToolTray();this.paint();\n",
+        "    if(i<0){this.status.string='已收回，道具没有消耗';return;}this.useToolAt(d.kind,i);\n",
+        "  }\n",
+        "  private toolSlot(slot:number){const n=this.box('slot-'+slot,this.tray,0,0,46,46),surface=warmButton(n,46,46);\n",
+        "    const art=this.box('OriginalToolArt',n,0,1,40,40);art.addComponent(Sprite);surface.addContent(art);\n",
+        "    const label=this.text(n,'',0,-28,11,54,'#6a5432');label.node.name='ToolLabel';\n",
+        "    const selected=this.box('ToolSelection',n,0,0,46,46);selected.addComponent(Graphics);\n",
+        "    n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{if(this.toolDrag||!this.canUseTools())return;const tool=this.toolCatalog()[slot];if(!tool?.available){this.cancelToolInput();this.paintToolTray();this.paint();this.status.string=tool?.reason||'本关没有可用道具';return;}this.toolTapAccepted=false;const p=e.getUILocation();this.toolDrag={kind:tool.kind,slot,pointer:e.getID(),start:{x:p.x,y:p.y},moved:false,version:this.toolVersion()};},this);\n",
+        "    n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{const d=this.toolDrag;if(!d||d.pointer!==e.getID())return;if(!this.canUseTools()||d.version!==this.toolVersion()){this.cancelToolInput();this.paintToolTray();return;}const p=e.getUILocation();if(!d.moved&&Math.hypot(p.x-d.start.x,p.y-d.start.y)<12)return;d.moved=true;this.armedTool=null;this.moveGhost(p.x,p.y);const i=this.cellAt(p.x,p.y);if(i!==this.selected){this.selected=i;this.paint();}this.paintToolTray();},this);\n",
+        "    // Registered before WarmButton: its activation event observes the accepted tap result.\n",
+        "    n.on(Node.EventType.TOUCH_END,(e:EventTouch)=>this.endToolDrag(e,slot),this);\n",
+        "    n.on(Node.EventType.TOUCH_CANCEL,(e:EventTouch)=>{if(this.toolDrag?.pointer!==e.getID())return;if(e.getEventCode()===Node.EventType.TOUCH_END){this.endToolDrag(e,slot);return;}this.cancelToolInput();this.paintToolTray();this.paint();},this);\n",
+        "    surface.bind(()=>{const accepted=this.toolTapAccepted;this.toolTapAccepted=false;return accepted;});return n;\n",
+        "  }\n",
+        "  private paintToolTray(){\n",
+        "    if(!this.snapshot||!this.layoutInfo)return;const catalog=this.toolCatalog(),d=this.layoutInfo;\n",
+        "    for(const key of Object.keys(this.targets))if(key==='bomb'||key.startsWith('tool-'))delete this.targets[key];\n",
+        "    this.tools.forEach((n,i)=>{const tool=catalog[i];n.active=!!tool;if(!tool)return;\n",
+        "      if(d.safe.portrait)n.setPosition((i-(catalog.length-1)/2)*58,-d.height/2+d.safe.bottom+42);\n",
+        "      else n.setPosition(d.width/2-d.safe.right-81+(i%2)*54,d.height/2-d.safe.top-70-Math.floor(i/2)*64);\n",
+        "      const sprite=n.getChildByName('OriginalToolArt')!.getComponent(Sprite)!;sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=tool.art?this.toolArt?.frame(tool.art):null;sprite.color=new Color(tool.available?'#ffffffff':'#ffffff66');\n",
+        "      const label=n.getChildByName('ToolLabel')!.getComponent(Label)!;label.string=`${tool.name} ${tool.count}`;label.color=new Color(tool.available?'#6a5432':'#7f817b');\n",
+        "      const g=n.getChildByName('ToolSelection')!.getComponent(Graphics)!;g.clear();if(this.armedTool===tool.kind||this.toolDrag?.kind===tool.kind){g.strokeColor=new Color('#e9bc51');g.lineWidth=3;g.roundRect(-22,-22,44,44,13);g.stroke();}\n",
+        "      this.targets['tool-'+tool.kind]=n;if(tool.kind==='bomb')this.targets.bomb=n;\n",
+        "    });\n",
+        "  }\n"
+      ],
+      "beforeLines": [
+        "    const col=Math.round(lx/this.cell)+3,row=3-Math.round(ly/this.cell);if(Math.abs(lx)>this.cell*3.5||Math.abs(ly)>this.cell*3.5||col<0||col>6||row<0||row>6)return -1;return row*7+col;}\n",
+        "  private moveGhost(x:number,y:number){const d=this.layoutInfo;if(!this.toolGhost){this.toolGhost=this.box('ToolDragGhost',this.root,0,0,40,40);const g=this.toolGhost.addComponent(Graphics);g.fillColor=new Color('#fff2cfcc');g.circle(0,0,16);g.fill();}\n",
+        "    this.toolGhost.active=true;this.toolGhost.setWorldPosition(x-d.width/2,y-d.height/2,0);}\n",
+        "  private endToolDrag(e:EventTouch){const d=this.toolDrag;this.toolDrag=null;if(this.toolGhost)this.toolGhost.active=false;if(!d)return;\n",
+        "    if(this.modalOpen()||this.snapshot?.state!=='run.ready'||this.snapshot?.readOnly){this.selected=-1;this.paint();return;}\n",
+        "    if(!d.moved){this.useToolAt(this.selected);return;}\n",
+        "    const p=e.getUILocation(),i=this.cellAt(p.x,p.y);this.selected=-1;this.paint();\n",
+        "    if(i<0){this.status.string='把道具拖到棋盘格子上再松手';return;}this.useToolAt(i);}\n",
+        "  private toolSlot(){const n=this.box('slot',this.tray,0,0,46,46);this.drawIcon(n,'slot',true);n.getComponent(WarmButton)!.bind(null);\n",
+        "    n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{if(this.modalOpen()||this.snapshot?.state!=='run.ready'||this.snapshot?.readOnly)return;const p=e.getUILocation();this.toolDrag={start:{x:p.x,y:p.y},moved:false};},this);\n",
+        "    n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{const d=this.toolDrag;if(!d)return;const p=e.getUILocation();if(!d.moved&&Math.hypot(p.x-d.start.x,p.y-d.start.y)<12)return;d.moved=true;this.moveGhost(p.x,p.y);const i=this.cellAt(p.x,p.y);if(i!==this.selected){this.selected=i;this.paint();}},this);\n",
+        "    n.on(Node.EventType.TOUCH_END,(e:EventTouch)=>this.endToolDrag(e),this);n.on(Node.EventType.TOUCH_CANCEL,(e:EventTouch)=>{if(e.getEventCode()===Node.EventType.TOUCH_END){this.endToolDrag(e);return;}this.toolDrag=null;this.selected=-1;if(this.toolGhost)this.toolGhost.active=false;this.paint();},this);return n;}\n"
+      ]
+    },
+    {
+      "afterStart": 145,
+      "afterLines": [
+        "    const safe=this.safeInsets(w,h);const board=safe.portrait?Math.min(460,w-safe.left-safe.right-24,h-safe.top-safe.bottom-230):Math.min(460,h-safe.top-safe.bottom-104,w-safe.left-safe.right-220);\n",
+        "    this.cell=board/7;const y=safe.portrait?Math.max(-h*.08,-h/2+safe.bottom+132+board/2):0;this.boardCenter.set(0,y,0);this.grid.setPosition(this.boardCenter);this.grid.getComponent(UITransform)!.setContentSize(board,board);\n"
+      ],
+      "beforeLines": [
+        "    const safe=this.safeInsets(w,h);const board=safe.portrait?Math.min(460,w-safe.left-safe.right-24,h-safe.top-safe.bottom-190):Math.min(460,h-safe.top-safe.bottom-40,w-safe.left-safe.right-220);\n",
+        "    this.cell=board/7;const y=safe.portrait?Math.max(-h*.08,-h/2+safe.bottom+94+board/2):0;this.boardCenter.set(0,y,0);this.grid.setPosition(this.boardCenter);this.grid.getComponent(UITransform)!.setContentSize(board,board);\n"
+      ]
+    },
+    {
+      "afterStart": 149,
+      "afterLines": [
+        "    if(safe.portrait){this.titleLabel.node.parent!.setPosition(0,hudY);this.goalNodes.forEach((n,i)=>n.setPosition(-w/2+safe.left+90+i*61,hudY-42));this.targets.moves.setPosition(w/2-safe.right-31,hudY-42);this.back.setPosition(-w/2+safe.left+28,hudY);this.bagBtn.setPosition(w/2-safe.right-28,hudY);this.pause.setPosition(100,-h/2+safe.bottom+91);this.tools.forEach((n,i)=>n.setPosition((i-1)*58,-h/2+safe.bottom+34));this.retryBtn.setPosition(-100,-h/2+safe.bottom+91);this.hintBtn.setPosition(0,-h/2+safe.bottom+91);}\n",
+        "    else{this.titleLabel.node.parent!.setPosition(-w/2+safe.left+58,140);this.goalNodes.forEach((n,i)=>n.setPosition(-w/2+safe.left+58,90-i*66));this.targets.moves.setPosition(w/2-safe.right-51,h/2-safe.top-21);this.back.setPosition(-w/2+safe.left+58,-h/2+safe.bottom+30);this.bagBtn.setPosition(-w/2+safe.left+58,-h/2+safe.bottom+80);this.pause.setPosition(w/2-safe.right-24,-h/2+safe.bottom+23);this.tools.forEach((n,i)=>n.setPosition(w/2-safe.right-54,47-i*55));this.retryBtn.setPosition(-32,-h/2+safe.bottom+23);this.hintBtn.setPosition(32,-h/2+safe.bottom+23);}\n"
+      ],
+      "beforeLines": [
+        "    if(safe.portrait){this.titleLabel.node.parent!.setPosition(0,hudY);this.goalNodes.forEach((n,i)=>n.setPosition(-w/2+safe.left+90+i*61,hudY-42));this.targets.moves.setPosition(w/2-safe.right-31,hudY-42);this.back.setPosition(-w/2+safe.left+28,hudY);this.bagBtn.setPosition(w/2-safe.right-28,hudY);this.pause.setPosition(w/2-safe.right-32,-h/2+safe.bottom+78);this.tools.forEach((n,i)=>n.setPosition((i-1)*58,-h/2+safe.bottom+34));this.retryBtn.setPosition(-116,-h/2+safe.bottom+34);this.hintBtn.setPosition(116,-h/2+safe.bottom+34);}\n",
+        "    else{this.titleLabel.node.parent!.setPosition(-w/2+safe.left+58,140);this.goalNodes.forEach((n,i)=>n.setPosition(-w/2+safe.left+58,90-i*66));this.targets.moves.setPosition(w/2-safe.right-54,115);this.back.setPosition(-w/2+safe.left+58,-h/2+safe.bottom+30);this.bagBtn.setPosition(-w/2+safe.left+58,-h/2+safe.bottom+80);this.pause.setPosition(w/2-safe.right-54,-h/2+safe.bottom+30);this.tools.forEach((n,i)=>n.setPosition(w/2-safe.right-54,47-i*55));this.retryBtn.setPosition(w/2-safe.right-110,47);this.hintBtn.setPosition(w/2-safe.right-110,-8);}\n"
+      ]
+    },
+    {
+      "afterStart": 165,
+      "afterLines": [
+        "  private cancelAnimations(){this.cancelToolInput();this.paintToolTray();this.selected=-1;this.dragStart=null;this.epoch++;if(this.timer!==null)clearTimeout(this.timer);this.timer=null;for(const c of this.cells){if(!isValid(c,true))continue;Tween.stopAllByTarget(c);c.setScale(1,1,1);}}\n"
+      ],
+      "beforeLines": [
+        "  private cancelAnimations(){this.selected=-1;this.dragStart=null;this.epoch++;if(this.timer!==null)clearTimeout(this.timer);this.timer=null;for(const c of this.cells){if(!isValid(c,true))continue;Tween.stopAllByTarget(c);c.setScale(1,1,1);}}\n"
+      ]
+    },
+    {
+      "afterStart": 167,
+      "afterLines": [
+        "  private command(name:string,...args:any[]){this.cancelToolInput();this.paintToolTray();this.selected=-1;this.dragStart=null;const r=this.managed?.intercept?.(name,...args)??this.host.command(name,...args);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;return r;}\n"
+      ],
+      "beforeLines": [
+        "  private command(name:string,...args:any[]){this.selected=-1;this.dragStart=null;const r=this.managed?.intercept?.(name,...args)??this.host.command(name,...args);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;return r;}\n"
+      ]
+    },
+    {
+      "afterStart": 174,
+      "afterLines": [
+        "  private tap(i:number){if(this.modalOpen()||this.snapshot.state!=='run.ready'||this.snapshot.readOnly)return;if(this.armedTool){this.useToolAt(this.armedTool,i);return;}if(this.selected<0){this.selected=i;this.paint();return;}\n"
+      ],
+      "beforeLines": [
+        "  private tap(i:number){if(this.modalOpen()||this.snapshot.state!=='run.ready'||this.snapshot.readOnly)return;if(this.selected<0){this.selected=i;this.paint();return;}\n"
+      ]
+    },
+    {
+      "afterStart": 183,
+      "afterLines": [
+        "    this.moves.string=s.active?String(s.active.moves):'';const goalKeys=s.provider==='mainline-v33'?(s.active?.goalOrder||[]):s.provider==='regional-r05'?Object.keys(s.active?.goals||{}):['beacons','moss','type5'];this.goalKeys=goalKeys;this.goalNodes.forEach((n,i)=>{n.active=i<goalKeys.length;if(goalKeys.length===4){const d=this.layoutInfo;if(d.safe.portrait){const step=Math.min(61,(d.width-134)/4);n.setPosition(-d.width/2+d.safe.left+72+step/2+i*step,d.height/2-d.safe.top-65);n.setScale(Math.min(1,step/60),1,1);}else{n.setScale(1,1,1);n.setPosition(-d.width/2+d.safe.left+58,99-i*53);}}else n.setScale(1,1,1);});if(s.state!=='run.ready'||s.readOnly)this.cancelToolInput();this.paintToolTray();const mainline=s.provider==='mainline-v33';const playing=!book&&!result&&(s.state==='run.ready'||s.state==='run.paused');this.titleLabel.string=s.active?.name?`${String((s.active.level??0)+1).padStart(2,'0')}  ${s.active.name}`:'';this.titleLabel.node.parent!.active=!!s.active&&!book&&!result;this.bagBtn.active=mainline&&!!s.journey?.inventory&&!book;this.retryBtn.active=playing&&typeof this.managed?.restart==='function';this.hintBtn.active=playing&&s.state==='run.ready'&&typeof this.managed?.hint==='function';if(!playing)this.hintCells=[];this.goalLabels.forEach((l,i)=>l.string=String(s.active?.goals[goalKeys[i]]??0));this.status.string=s.uiStatus||'';this.status.node.active=!result;this.drawIcon(this.pause,s.state==='run.paused'?'play':'pause',true);this.paint();\n"
+      ],
+      "beforeLines": [
+        "    this.moves.string=s.active?String(s.active.moves):'';const goalKeys=s.provider==='mainline-v33'?(s.active?.goalOrder||[]):s.provider==='regional-r05'?Object.keys(s.active?.goals||{}):['beacons','moss','type5'];this.goalKeys=goalKeys;this.goalNodes.forEach((n,i)=>{n.active=i<goalKeys.length;if(goalKeys.length===4){const d=this.layoutInfo;if(d.safe.portrait){const step=Math.min(61,(d.width-134)/4);n.setPosition(-d.width/2+d.safe.left+72+step/2+i*step,d.height/2-d.safe.top-65);n.setScale(Math.min(1,step/60),1,1);}else{n.setScale(1,1,1);n.setPosition(-d.width/2+d.safe.left+58,99-i*53);}}else n.setScale(1,1,1);});this.tools.forEach((n,i)=>{n.active=s.provider!=='mainline-v33'||i===0;if(s.provider==='mainline-v33'&&i===0){this.drawIcon(n,'starlight',true);let l=n.getComponentInChildren(Label);if(!l)l=this.text(n,'',0,-28,12,110,'#6a5432');l.string='星光 '+(s.active?.bombs??0);l.color=new Color('#6a5432');this.targets.bomb=n;}});const mainline=s.provider==='mainline-v33';const playing=!book&&!result&&(s.state==='run.ready'||s.state==='run.paused');this.titleLabel.string=s.active?.name?`${String((s.active.level??0)+1).padStart(2,'0')}  ${s.active.name}`:'';this.titleLabel.node.parent!.active=!!s.active&&!book&&!result;this.bagBtn.active=mainline&&!!s.journey?.inventory&&!book;this.retryBtn.active=playing&&typeof this.managed?.restart==='function';this.hintBtn.active=playing&&s.state==='run.ready'&&typeof this.managed?.hint==='function';if(!playing)this.hintCells=[];this.goalLabels.forEach((l,i)=>l.string=String(s.active?.goals[goalKeys[i]]??0));this.status.string=s.uiStatus||'';this.status.node.active=!result;this.drawIcon(this.pause,s.state==='run.paused'?'play':'pause',true);this.paint();\n"
+      ]
+    },
+    {
+      "afterStart": 221,
+      "afterLines": [
+        "  private askRestart(){if(this.modalOpen()||typeof this.managed?.restart!=='function')return;this.retryPanel.active=true;this.retryPanel.setSiblingIndex(this.root.children.length-1);this.selected=-1;this.dragStart=null;this.cancelToolInput();this.paintToolTray();this.clearChildren(this.retryPanel);const d=this.layoutInfo,w=Math.min(280,d.width-40);const plate=this.box('plate',this.retryPanel,0,0,w,150);const g=plate.addComponent(Graphics);g.fillColor=new Color('#f6edd4');g.roundRect(-w/2,-75,w,150,16);g.fill();g.strokeColor=new Color('#c4a15a');g.lineWidth=2;g.roundRect(-w/2,-75,w,150,16);g.stroke();this.text(plate,'要重开这一关吗？当前这局会丢掉。',0,36,16,w-24,'#426750');this.button(plate,'重来',-70,-28,120,44,()=>{if(!this.retryPanel.active)return;this.retryPanel.active=false;const r=this.managed.restart();if(!r?.ok)this.status.string=r?.reason||'暂时不能重来';});this.button(plate,'留下',70,-28,120,44,()=>{if(!this.retryPanel.active)return;this.retryPanel.active=false;});}\n"
+      ],
+      "beforeLines": [
+        "  private askRestart(){if(this.modalOpen()||typeof this.managed?.restart!=='function')return;this.retryPanel.active=true;this.retryPanel.setSiblingIndex(this.root.children.length-1);this.selected=-1;this.dragStart=null;this.toolDrag=null;this.clearChildren(this.retryPanel);const d=this.layoutInfo,w=Math.min(280,d.width-40);const plate=this.box('plate',this.retryPanel,0,0,w,150);const g=plate.addComponent(Graphics);g.fillColor=new Color('#f6edd4');g.roundRect(-w/2,-75,w,150,16);g.fill();g.strokeColor=new Color('#c4a15a');g.lineWidth=2;g.roundRect(-w/2,-75,w,150,16);g.stroke();this.text(plate,'要重开这一关吗？当前这局会丢掉。',0,36,16,w-24,'#426750');this.button(plate,'重来',-70,-28,120,44,()=>{if(!this.retryPanel.active)return;this.retryPanel.active=false;const r=this.managed.restart();if(!r?.ok)this.status.string=r?.reason||'暂时不能重来';});this.button(plate,'留下',70,-28,120,44,()=>{if(!this.retryPanel.active)return;this.retryPanel.active=false;});}\n"
+      ]
+    },
+    {
+      "afterStart": 225,
+      "afterLines": [
+        "    this.bagPanel.setSiblingIndex(this.root.children.length-1);this.bagPage=0;this.selected=-1;this.dragStart=null;this.cancelToolInput();this.paintToolTray();this.paintBag();\n"
+      ],
+      "beforeLines": [
+        "    this.bagPanel.setSiblingIndex(this.root.children.length-1);this.bagPage=0;this.selected=-1;this.dragStart=null;this.toolDrag=null;this.paintBag();\n"
+      ]
+    }
+  ],
+  "approvedOriginalToolRuntime": {
+    "creator-build-project/assets/scripts/mainline-r1/runtime/journey-bridge.js": {
+      "beforeSha256": "cd1ddfff0e780790895e049768bcaeb9b0902b430e596fd43f13d8116548b211",
+      "afterSha256": "6179c7f930bcf19b4898a6bdc9a3b6a58ca434cc80522f06720dc7f2f6dbdda6"
+    },
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.d.ts": {
+      "beforeSha256": "e9c883953816a4e9e7b799719d39527e1eba4cec0506f0d9255b0c0682849aa3",
+      "afterSha256": "0f57d1848edc2012e1e5c17335bb6adc975fceb107c914d7f87a8999ffb6e0ce"
+    },
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js": {
+      "beforeSha256": "3ae49174f0b5aec105bb680cd5c2c79fa92c47c3361fcdd01891b71e64fd6f21",
+      "afterSha256": "1d9c017a7581fbf9bd71c3f3efd3feadf1fa48cecb4678f663d11e4269647bdc"
+    },
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js": {
+      "beforeSha256": "8c47e15bf3c490960930291b6860016afee4b49d0b4fcade6409b088ac75e8a2",
+      "afterSha256": "db8c814252719f03a02b172de9673bf547e262ba0f5ed4fcef9689c6fc33abf3"
+    },
+    "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts": {
+      "beforeSha256": "b052f6d3e6917087c7a54d4217320067145cd4defc2b32bc137b67b0f4c4cc1c",
+      "afterSha256": "bf83eab4c610d269ca95d7612df029d7ad5670d5237641b33d0528053e469049"
+    },
+    "creator-build-project/assets/scripts/world-r2/ManagedMainlineBinding.ts": {
+      "beforeSha256": "86b75532a0489fbc106a54d562fc23cfd6771c4e435458595b3460b0ddcd4184",
+      "afterSha256": "7cebd92e2c9d1bfb626803759a7becb08534838f15d83944a8735e1d70540123"
+    }
+  },
+  "productionTree": {
+    "creator-build-project/assets/bundles/background_foliage/botanical-props.png": "8b80c88bd682613591ef93eb619f32ba5c2cce49a2a9672f029bc0296066dc89",
+    "creator-build-project/assets/bundles/background_foliage/botanical-props.png.meta": "72528e48bfbd4fce4d9b5afea2f6ffdc3a07a4204fc3bd321476bb2dbdc4f226",
+    "creator-build-project/assets/bundles/background_foliage/painted-cloud.png": "eeca70e033d1f1eb65b5e8f4c182d8be1c58e42816976533352c44a11cb323f2",
+    "creator-build-project/assets/bundles/background_foliage/painted-cloud.png.meta": "99cb65c46b00fa77236b180cacc3347e4f7261994e71761b5e9d4f50a5b478b6",
+    "creator-build-project/assets/bundles/background_foliage.meta": "5555e2920a633f216ca99e004ce39fe933a0b6648693da34911a65c7d1a7b6c2",
+    "creator-build-project/assets/bundles/background_ground/painted-grass.png": "4b6f4d1638cd6ce333f10075b70d0b83f4f8e63e73710feefa0ddd3f0ca8fb9d",
+    "creator-build-project/assets/bundles/background_ground/painted-grass.png.meta": "a2ee30c0f7a17e4e982b7355cdfe4578701e658dd0849080d3d387b01914ce30",
+    "creator-build-project/assets/bundles/background_ground.meta": "449bdbeb36b107f688c1c35e931c111c3ce382078b5bd44fe3a98b9c019a2144",
+    "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb": "05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0",
+    "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta": "23509280a07883a6d54c6b091d7778a34c09fc04d7202833bac18618841a5f01",
+    "creator-build-project/assets/bundles/region_island/character.meta": "055aefc2aca3f7b7c69230b46d4e56c85f72e61c97868494beea4a575a3ae297",
+    "creator-build-project/assets/bundles/region_island/combined_anchors_m.json": "e3b2684e6e7009ced805d2925b5cedef52cbd4213d3c46e7a41fa788467275cb",
+    "creator-build-project/assets/bundles/region_island/combined_anchors_m.json.meta": "81f34378e8c4c42dcd94a1d3d497124beb29145266bc029418ed55d4f483d0f1",
+    "creator-build-project/assets/bundles/region_island/combined_collision_proxies.json": "c5e2b578e4bd0bf5408178f7613f864c54cab103be9e04c9667944ff8ceceff2",
+    "creator-build-project/assets/bundles/region_island/combined_collision_proxies.json.meta": "7c9dbe1d2038c1b7c80e518f0078ddbebbcf97a8f4c9b73f01c9d3733313e804",
+    "creator-build-project/assets/bundles/region_island/combined_visual_m.glb": "7777f80c62aaad7a590a7d3f12b65496d5c987f28acf9f5431a4f99d0b684aab",
+    "creator-build-project/assets/bundles/region_island/combined_visual_m.glb.meta": "85dcbb227ae202e8d7a2daa63c1f5adef9882eb5ffc00e05cf3ffefa8c891a3b",
+    "creator-build-project/assets/bundles/region_island.meta": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab",
+    "creator-build-project/assets/bundles/region_skycity/env_skycity.glb": "0e8152e836f309868a9e6a485c9e2925e39dd99707d5f93d682e4a631a66b288",
+    "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta": "23476ec410fdaafa8d4cb26d98224256703d4764ac20d5e36969ed88394caf7c",
+    "creator-build-project/assets/bundles/region_skycity.meta": "9f7151b9fbece3a4f96c081cc168f8b5952333c291987159684628b481031501",
+    "creator-build-project/assets/bundles.meta": "82a4af48958510a4eafd73fb0ac7d6c5f334e1da07c1ee5e10594be7f89be107",
+    "creator-build-project/assets/resources/audio_bgm/bgm_main.mp3": "9b21792c580f5d55c518da0ecd09574c2e8c1e797bf7b7b35fdf7a73002832cd",
+    "creator-build-project/assets/resources/audio_bgm/bgm_main.mp3.meta": "2a1d2519c89d66d877591ed0daefa6fbeb2d1753e1446f8d055c1d1b6c457dcb",
+    "creator-build-project/assets/resources/audio_bgm.meta": "4ebb175045d6c433b4683775ed29c9d8a9f072e54fdc198ed6913c6fef7338ba",
+    "creator-build-project/assets/resources/audio_sfx/sfx_chest_open.mp3": "4133d16a0319a9d39a6863ad0145bea7b5441eb8c1cb0510b03395d427339233",
+    "creator-build-project/assets/resources/audio_sfx/sfx_chest_open.mp3.meta": "22d3f59b0180c7e2f13652e6b3054f40f8ed1de0a0adb34989859d39f855f4a8",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_1.mp3": "facda9edc4169f42158e1ff9aeccf337d9ca8864c7c526fabdb5b19106481568",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_1.mp3.meta": "b397f95700a6fab17c28b7f387344eab74700a677d7b3cb794211ca6cb12cc29",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_2.mp3": "9af4891a971de97e886b50d8830d4e296566674687e1bb37c348a874bf7052bf",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_2.mp3.meta": "cd1d85ac1bf90a3a26fcebf9b53d185b7380119bd8a88303b42c3b31534b95f2",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_3.mp3": "fa67628227195d833dea182cf2cf8fbd5b5100dd4847dca8001f43394d6a8a59",
+    "creator-build-project/assets/resources/audio_sfx/sfx_combo_3.mp3.meta": "1b101e06e83fd5c69b5b222f71476a927a55497a358da0263c3ffb080c8dba78",
+    "creator-build-project/assets/resources/audio_sfx/sfx_level_clear.mp3": "6ec7037dce45103036b3f6ee643bf3ed54334ce609580a2f5c6c6e4ab545ddfd",
+    "creator-build-project/assets/resources/audio_sfx/sfx_level_clear.mp3.meta": "827aa020ce3f1d9d38100246ac49f61aa72e77784def385ffcb288e1264fb7d4",
+    "creator-build-project/assets/resources/audio_sfx/sfx_match_normal.mp3": "fcad04e03b7504a1acdbdc1b97d83d621a3d5a9f76aaee54886d681eef1eb5e9",
+    "creator-build-project/assets/resources/audio_sfx/sfx_match_normal.mp3.meta": "b7b8d321051aca39373fdab4692e293ffc4fcc30cd3f9a0e5eefb9d2ec2bc409",
+    "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3": "443769d588f408a03b96f75cc726e3425417529e10831ed23105c21f217d27ac",
+    "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3.meta": "5f07479bb2d635fb25d392029852765df796f156711ee6460b143ebebb1d30be",
+    "creator-build-project/assets/resources/audio_sfx.meta": "2566072651df4c570eb3b1c79f9570f9cb263377b40d75a94e7b8b5a79acc2a1",
+    "creator-build-project/assets/resources/firstslice/r4-smoke-fixture.json": "c599ce03743fffb8b9b0c47cda4f853f7daff7788b7e5d1e6fc0208e87e96123",
+    "creator-build-project/assets/resources/firstslice/r4-smoke-fixture.json.meta": "67f96a16ef6f8770af087e2b7149688a94174982457821c7bedf19705d07a1c3",
+    "creator-build-project/assets/resources/firstslice.meta": "159d61f7235de28eb73d496640cbac3b26453a39ce48f411af58ab16d488fd46",
+    "creator-build-project/assets/resources/ui/loading-reference.jpg": "308f78b5f037bd33668ff8ad899649ee6094b8e55cf695cf7df62a195b7e8e8d",
+    "creator-build-project/assets/resources/ui/loading-reference.jpg.meta": "f9e59d9143760fe54c4fd87bbdb911b565e350a1b3545598d6b7db79285763e8",
+    "creator-build-project/assets/resources/ui/pieces.png": "0d9d66b936ed15d5d4c993686e51922e7e768dfcf28e5dd9b1795cd9f45d982e",
+    "creator-build-project/assets/resources/ui/pieces.png.meta": "66c115ab389fbd70069615a90e83d1856f19c3d736d96eab74259ca30e52799c",
+    "creator-build-project/assets/resources/ui/tools-original.png": "b9a28d5fe213153366e13a6dfb68966883871901c52bcf8b88c05c2ad7cd94b8",
+    "creator-build-project/assets/resources/ui/tools-original.png.meta": "a8a8b8afa26087b938c44d361c4cc3709fac57cfabe797b76afea8aefc853a67",
+    "creator-build-project/assets/resources/ui.meta": "ae49239f34dbcf95be59dbc923efbb35d3d09af680c12d755da4743d19126ea6",
+    "creator-build-project/assets/resources.meta": "b975420e601b77869eea1c4955294cb11684ab4813c118d40de645e4817f61ca",
+    "creator-build-project/assets/scenes/FirstsliceImport.scene": "076933d00d52eec9bff26aa81c6f06c7b9736c22e36c04aa00c4ad9e21781978",
+    "creator-build-project/assets/scenes/FirstsliceImport.scene.meta": "33f6b072eedd485927a262cd2049f579c61385435cab97abca918614baef2e5c",
+    "creator-build-project/assets/scenes/WorldR5Integration.scene": "76002d6089390a458ba270a1e4e078cc9500c19f398ccac23ba65532de5f75dc",
+    "creator-build-project/assets/scenes/WorldR5Integration.scene.meta": "455f0d732cba793b5d0c174345a00a4dafd423bd9875d3539b6fe987b7155f71",
+    "creator-build-project/assets/scenes/WorldR5Validation.scene": "9531d831420d21e2905df2bad204fc940ce79777a7b5e643b7914c23021c45a8",
+    "creator-build-project/assets/scenes/WorldR5Validation.scene.meta": "5c1ffabf18e9f84a9c2f9417d89e05356ae91bbd750e262171fb0b14f021e597",
+    "creator-build-project/assets/scenes.meta": "726c24f3a97f696508f95e9ada32e151181f4071cc379dc81fcb0544e1a67ee1",
+    "creator-build-project/assets/scripts/AssetVisibility.ts": "4ffd16ba8813716dcdc27d118bec56c6b60ba3df9603392792242b8239b89933",
+    "creator-build-project/assets/scripts/AssetVisibility.ts.meta": "8496bb27f35ac5c076bb63bf963c5ab78ae4c8900979a5ecaa747925ed6cdc57",
+    "creator-build-project/assets/scripts/FirstsliceBoot.ts": "3f9237135e63ebfd4907078ddc2f3a08d61f4154574a0140d83eba108ab6fdc1",
+    "creator-build-project/assets/scripts/FirstsliceBoot.ts.meta": "006e2b2542e410250773014715ccd9de54ad8fcecc4de2143735c57ccf4dce36",
+    "creator-build-project/assets/scripts/FrameWindow.ts": "d5efb0faf42ed3109b77b11cdb01c5d1ca14a2664c346e3fa9d9671a7113053d",
+    "creator-build-project/assets/scripts/FrameWindow.ts.meta": "06f0870d88e17d6a87bbc76352d2d250a706cd32ac0250c5e383f01d4b6526bf",
+    "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts": "cf1892f0f3487ca723f24e2e2869f5369af1c167cc8a9d8aa6524298f6b25288",
+    "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta": "f6b034ca2863f6d776e4fb426da3436250d4388085b61ff7095e274e1ac3bbd5",
+    "creator-build-project/assets/scripts/ManagedToolArt.ts": "dbd93d35f07b726435a64c762668f931e52308fbfa250e2c162688628ceb7cff",
+    "creator-build-project/assets/scripts/ManagedToolArt.ts.meta": "1c44a10bf91978c3202f92ea196ebe2584486d1371226a7c15e80a68be880463",
+    "creator-build-project/assets/scripts/NativeBoardUI.ts": "0544ace6b7b2f127cb2bfd8c7ad3d9d85373414d8b7d381489af1554d33ee544",
+    "creator-build-project/assets/scripts/NativeBoardUI.ts.meta": "340f592a62ccf4741866b5052b822d307d1fa353cb66e4ef51f143d2f0c654d4",
+    "creator-build-project/assets/scripts/ResultLayout.ts": "bd590c913322e5ef31b420a42e34406b34a9412e2286f56b5a5921c1a6582465",
+    "creator-build-project/assets/scripts/ResultLayout.ts.meta": "8a7a0e36d5f32b2b7fdcb63802617b0885dd69f7f28f6de0b3753deb389170a1",
+    "creator-build-project/assets/scripts/RuntimeProbe.ts": "f09bbfddc58cc87102abb679eff11ad22909b293df8f6423e6100c7d131e5a47",
+    "creator-build-project/assets/scripts/RuntimeProbe.ts.meta": "eb1a3e9e8b26f2ced65ede26e57eae7458ea79044c2aeb4d9e3c90ffd039ee3b",
+    "creator-build-project/assets/scripts/SpecularCandidate.ts": "d0dd4be6cd6289aea112ccd05418e746966370f2966421fca4f47e9c71e23fe7",
+    "creator-build-project/assets/scripts/SpecularCandidate.ts.meta": "7a2c2038d104930e3714ddb9b72de7581ca5c75f846c22a9c19b66eb0943f924",
+    "creator-build-project/assets/scripts/WarmButton.ts": "8cdb3ae8651dceee13c8a7f0caf7b4cbbb330dd775fb1200bd08464056468ae3",
+    "creator-build-project/assets/scripts/WarmButton.ts.meta": "a9085d3a40ec42cc2e2105ef8b443f00966a82ddce32057be820c0b619ebd782",
+    "creator-build-project/assets/scripts/WorldIntegrationBoot.ts": "c051bf877882b44b63a69037cd46992764a8aa200f4e3de713ef2fa3776aa482",
+    "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta": "96b45de1c827ee9ecbf0145abe34cee46d669e92927cb0189c6ca6a38a08e599",
+    "creator-build-project/assets/scripts/audio/AudioBridge.ts": "217de92be0624eac15e196b0688c6b83bba1240380b0d1104543b4d835e232ea",
+    "creator-build-project/assets/scripts/audio/AudioBridge.ts.meta": "ba54f9b38e583a78d2dc43f62d18a00d85d9b1f96980884211b9753dab30bea7",
+    "creator-build-project/assets/scripts/audio/GameAudio.ts": "6de69183c0c184a9b30c07f8db6f3c1567ff8d3ccd78c5479d1699350e8e4ecf",
+    "creator-build-project/assets/scripts/audio/GameAudio.ts.meta": "a30610463fcfa2f9727ee76b640a20b595c08898f7c9496c0d7414257e5c717c",
+    "creator-build-project/assets/scripts/audio.meta": "2d06e43476fc4c1396c9b7d0eaa11232786b976f96d2004c6f53f9539b09d26f",
+    "creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.d.ts": "46ec64528b1263693cd8497a8449d5309efd631728f941a2a0ec7638b5b6ee63",
+    "creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.d.ts.meta": "2bad3681179e0b6f3e4803df0c03ff46ab89baf68f9f694b94a2271f9e901426",
+    "creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js": "457ef0907b5be5a7917655a34382b8c1778dd463689ae5a73d9b8e625716acb8",
+    "creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js.meta": "261311e470a1fbf2dd4ea0eaedd5b9439e30533105e6c6d24e79d2e031189e49",
+    "creator-build-project/assets/scripts/mainline-r1/adapter.meta": "75a27f3c4d9b5e2ad8b236dfe359dded4c17598040739119aa85feb71de9a4d5",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/durable-store.js": "b72a3fbd4ad3561924bc09dd95662b49b10a942bf9b294f70bbe329ef052908b",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/durable-store.js.meta": "bb6d81125e388901f4cd4f66c24bdf243e4d695e5fd075f052019c8b34b09180",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/index.js": "8e98c679f0ad440dee30afcd02f45acf60bf17a29a03b08c99e5b44ace2d8030",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/index.js.meta": "3fa3382112fd279c94c6af4680cb4843b795b2964636718fc9b6bb942a7f22bc",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/journey-bridge.js": "6179c7f930bcf19b4898a6bdc9a3b6a58ca434cc80522f06720dc7f2f6dbdda6",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/journey-bridge.js.meta": "71806592dca0e4e5b82ff206fdf27fed6376e6184bce157714b1b294a8f2eec0",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.d.ts": "0f57d1848edc2012e1e5c17335bb6adc975fceb107c914d7f87a8999ffb6e0ce",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.d.ts.meta": "8d10ef480fedf19a8417c199d6e71f174cd3edadce7d1e60dc7d60ce0132b737",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js": "1d9c017a7581fbf9bd71c3f3efd3feadf1fa48cecb4678f663d11e4269647bdc",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js.meta": "9d7167ae01b2ac0508f78d678ecba7f52d261b356c18ef7d38fb8fc8f41e126a",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js": "db8c814252719f03a02b172de9673bf547e262ba0f5ed4fcef9689c6fc33abf3",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-session.js.meta": "f4eb56c36722e7d191506971bff10e1de6785f783f095f9175bc69e029ef5714",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/engine.js": "2c229b3fac7e775da4928ac6fb5e365db27b9b196a82c9a6603949c94502afe9",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/engine.js.meta": "e969574882037ec709cf36ea54dd690c5eb6b9ad8103784ef3e01f3ecaf0adee",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js": "a05de888f017cfd81c9a1649946cba94aef06f3040215e29bf87f1ee5abb868f",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor/progression.js.meta": "6579f24c926ccb4cd1d609ed3da89db0d7d0b2cddf3dd5b6e17321ac5b16e135",
+    "creator-build-project/assets/scripts/mainline-r1/runtime/vendor.meta": "fb17b8a5c86e37065ec8e685ca16e4f48a17e6b284040c83b395feca180f17e7",
+    "creator-build-project/assets/scripts/mainline-r1/runtime.meta": "5f700577f38f0bdc462fe5b6e62b9411535f7d5adfe01ae009892fd22dac0c02",
+    "creator-build-project/assets/scripts/mainline-r1.meta": "8c950072dbb56adb8e7bb7d9beff5b4abb3f2f62606a2d6a7f28e1e3aeef63bf",
+    "creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js": "ab77cacb5df709d56ce5541ae10178e9784baae749f462865ab4cb1a3eb0a42b",
+    "creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js.meta": "5ff0f97530eb0727d27a3dd7da1dcf86af0624602b045ed79208f0d8e9dc7bd9",
+    "creator-build-project/assets/scripts/r4-cloud-compat/adapter.meta": "226a4dbdb67499629c4d6b3661a4222e03e5570158414c3d6053dc5534faa4b4",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js": "622bec8ca92ec215ec12a247c7ae8848fee3b526086306b8b41a35bea44cefd4",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-catalog.js.meta": "afdaf52838486fac4266f9ff2a3a31aec748b764d4d4c0c8c23d1b781cf3df34",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.d.ts": "1d3d7f9560dc06cceb6ab5f0be11c35534f12458943955ab6462854318c4712b",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.d.ts.meta": "19ba091829ffe4a55ac3176b01681115da5bbbe07dc9cd492c52adf324168944",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js": "db49e3de4d7693574e48ea766e591997c5a3565ddd765f3c9c88ac725535e5b3",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-controller.js.meta": "efa399b89005042b9ce125ac8a77d448ef9fb6a1f829d8e6bb4c666b70e7c6b3",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-progress.js": "bb0c49f94655a8e66ea6e9492853761970e287e7fe7e8b6e56b71411c23b59ed",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-progress.js.meta": "6a18a200803c6f0331a762a4fa62d2708969dbbe1259c30f02cdc64f561359ba",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-session.js": "532909019b340f5658df828359e0efaa3f01ce726d9aaeb1bc3ea4baf18cba55",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-session.js.meta": "3970ee3cc68f0a4644c7ea8f760dbbb91a158ec0f193872a0e51333a3b457dcb",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-validation.js": "ac75ea9e2260db91c50836bc3a1c22acbb5839e4ad2ca35d9b9ac6a3bf7b972d",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/challenge-validation.js.meta": "4ac32bdfbf530ebfdad6653de8fcfeaedb227331dbc8c3c7da3557b414fe579e",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/engine.js": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime/engine.js.meta": "6b52d89dc5a5985946768ccf2236c86b063324179d07fa782c00073570901fa9",
+    "creator-build-project/assets/scripts/r4-cloud-compat/runtime.meta": "d5d805055cc906d5f817e90681e15e6347b4f20adb37156978bb9b014f6f49cd",
+    "creator-build-project/assets/scripts/r4-cloud-compat.meta": "aa186691413fdc0fe3697cc02364fd0aef158e816c45ec51743432cca09862c9",
+    "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts": "4e9409eb72da01d5460ca61639b60545b5cc6879ff1972aabbeaddf967175913",
+    "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts.meta": "3aa1a7ebef9902aab29f0f2e290432cf52419b210d308fde6cdd36e3633734ba",
+    "creator-build-project/assets/scripts/region/RegionLoader.ts": "ad1e97c5de821931099e4a3bc22c55d9211c45998d9156b6b70124880d5c6b03",
+    "creator-build-project/assets/scripts/region/RegionLoader.ts.meta": "b246ec2a8e09c71d7e44e9811712bd66e03231b684674844ca029c46de7413c7",
+    "creator-build-project/assets/scripts/region/RegionValidation.ts": "904f2a14ae02ff0e9cff1590c1d368b370c563bd230a646f90d4133678e6d2b4",
+    "creator-build-project/assets/scripts/region/RegionValidation.ts.meta": "ff06e3f4e0099db148b4437c1db401904a2390b078daf0936d7cc3ad369b0c88",
+    "creator-build-project/assets/scripts/region/RobotClips.ts": "725ce974de5f0b12e2fda452b540ab99e37edf028a718129e4f85274938ae858",
+    "creator-build-project/assets/scripts/region/RobotClips.ts.meta": "b054449e93a3d7cf7110ac0ffeed4d46d396282a85d36321c5b9a5a5e282c6ab",
+    "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts": "5e3a82d38b97b32377fc725697445e0c6f6af833796b9ca487ea1954c2b5d951",
+    "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts.meta": "21c636c4a009bea17dd29bc65f898b8001489ce58570b3a5488d07c5b64a6614",
+    "creator-build-project/assets/scripts/region.meta": "ceb12afb038635164f2d5cc9726e7b474c2e0dbd781405f5be01fb15efc3e547",
+    "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.d.ts": "e0293583df55eb7d9bcc88e7aa0d892bdbadda1174bb45569bc3644f76acb503",
+    "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.d.ts.meta": "389a2c15538dc4dd7fca89e571b29c524f8a9bc987992ab0e70162bf39320fc8",
+    "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js": "18759770e6d11c71b478a21880b6bbaa112bd040a6f45c05f14d3a385ea51f41",
+    "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js.meta": "6b76b7401cdf410afba3a0e7841baef597bf00399f60d727a391f098b590e541",
+    "creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.d.ts": "92538f14794a1572f256057696f0b6aa14e5cabfd095a0b27921498909659147",
+    "creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.d.ts.meta": "003a64883d201cc2aeb14d71979fbf71747310c2a917e04229f091490d90e0c5",
+    "creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js": "392a010ca772416683bc56020924499d98b918c438b95bedf7ca998700ef978c",
+    "creator-build-project/assets/scripts/regional-r05/runtime/campaign-host.js.meta": "4a758b210c875b36f4528bda8100b14f01ef515b9b3cff52ce0387a653b74f1c",
+    "creator-build-project/assets/scripts/regional-r05/runtime/catalog-data.js": "c3936a749a05a89b77a03b8924d1543f9b1919af08e3702b98f441ec4f5a2167",
+    "creator-build-project/assets/scripts/regional-r05/runtime/catalog-data.js.meta": "8dfe0fb701189a6d904f93d9521747cd4aba10bc4d2372b4e8de00e3fbdd206f",
+    "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js": "47d98c8ae3e36f1e85d04c244b29ac708bf549855035e134a560310263afe490",
+    "creator-build-project/assets/scripts/regional-r05/runtime/durable-store.js.meta": "4f7cc953272f42012e1f56888731d03068858c197d8d40c5a8a6d98ff656d30a",
+    "creator-build-project/assets/scripts/regional-r05/runtime/index.d.ts": "9995c10fd832e19c6caa098354c15a18f543a97a52e273cc0ba0ba8358e61810",
+    "creator-build-project/assets/scripts/regional-r05/runtime/index.d.ts.meta": "2f593f9f287a75a71137a9eca2db21a4dced121fc76e3ca507698218d2979b9f",
+    "creator-build-project/assets/scripts/regional-r05/runtime/index.js": "b1f044d9efbbbc1e62e4a8f135dda74bc626c526be93cd5725d928e28d1967b0",
+    "creator-build-project/assets/scripts/regional-r05/runtime/index.js.meta": "80bc3340240c7023ad6397c813ed6ac75ebc79cafa0cbb884268bf8116d7f740",
+    "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js": "77a6228d96557a93112cfb6aa9a2611c4efe28093849a63bb3cccbf212e4cc09",
+    "creator-build-project/assets/scripts/regional-r05/runtime/progress-journal.js.meta": "a607238c34f22bb088b56de2b0302c295be03a935ecaea241b1f918bcb0d2e3d",
+    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js": "75c73b386f6842e06836be2f4b97b66b653819112884abf44023449800bbf2e5",
+    "creator-build-project/assets/scripts/regional-r05/runtime/regional-session.js.meta": "9e5991611ed519279d583624266e3985db487911d266747f13dbcb6ab5b9d5a8",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor/engine.js.meta": "29236f6e532271ffe275f1421c406a724922f91e655cd2321609d9bce3982c85",
+    "creator-build-project/assets/scripts/regional-r05/runtime/vendor.meta": "9d839a1dc646f5092aa5028e6eb595db368fb9c6d68e64d7198dbfa478c18c8d",
+    "creator-build-project/assets/scripts/regional-r05/runtime.meta": "7b91d58971d3dccf88f61729a389f73e96d99b05cda652b54f5a8ba5ce1caccd",
+    "creator-build-project/assets/scripts/regional-r05.meta": "1d289c0e20d1167b2a633322881a7a7c0b7bd3c298ebbb5261722f3b4d1d766f",
+    "creator-build-project/assets/scripts/render/BakedGroundTexture.ts": "50410524edeebc9d4145236da4f63e19058b4327e6c8ada119a1c30ffe546165",
+    "creator-build-project/assets/scripts/render/BakedGroundTexture.ts.meta": "c40a924edb03e28ee2a72d594c7fdbb3184e82ed3d8484c54168783e99974ee9",
+    "creator-build-project/assets/scripts/render/SkyNightTexture.ts": "5f15271b93f99955907db3b90d6b91feb71a2f2a698b25c6ceab430034511ec5",
+    "creator-build-project/assets/scripts/render/SkyNightTexture.ts.meta": "d8116f9b57480fe36f5a714370bb121a1a0bfb355e55c8a1f67a27a11875d8a4",
+    "creator-build-project/assets/scripts/render.meta": "ff5fa20691b5af4971b194c3f644e67d5b4edaefb9a3d76bbab3b583ff0a3564",
+    "creator-build-project/assets/scripts/world-r1/CameraPose.ts": "13da387a435468b878cb005750e2d70d6f10ac90a6c60c4d07c755c767ad7cf1",
+    "creator-build-project/assets/scripts/world-r1/CameraPose.ts.meta": "6d1edbb5d54977938a1c5f40f2afc9383139bcbbcc6c4042371287361551894f",
+    "creator-build-project/assets/scripts/world-r1/CharacterReference.ts": "838e216468e59f029ea33383500a1423dcb40381a5bd53a9d7edbe223d6e4246",
+    "creator-build-project/assets/scripts/world-r1/CharacterReference.ts.meta": "4b77c94c355e3296e47fa12ec50e42c1032da2642370ad46029c3ab2629ec940",
+    "creator-build-project/assets/scripts/world-r1/DayNightContract.ts": "9d36bc100ce17a2a66d2ea56b04c8bf73886daf5eef12da1d350fd95412d5ac8",
+    "creator-build-project/assets/scripts/world-r1/DayNightContract.ts.meta": "58e8b8f29ae77cec2cbac875ec87654716983ee3972ba1a5bdd28bacc808197e",
+    "creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts": "f5c486b3955d1a5152553698f53444ce8c4d4ef6356a5adca2006d5f9448c154",
+    "creator-build-project/assets/scripts/world-r1/FirstsliceFacts.ts.meta": "c6cbbed02516b990153f48b234078d2a2072102fabaf32b5d74b19537c671ede",
+    "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts": "1d61ff1368392112e2502811436f6e2779c6e5bfbedf20476aa8af69b43b20e2",
+    "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta": "ad2e52c531d7fe7ae9d2932df3c2a898feebe6e31b80dba1af22372fc729a724",
+    "creator-build-project/assets/scripts/world-r1/R4LevelBridge.ts": "eb2ea1e26a6b7e4a08d44772fbd4954dd7295a90a3063f4fcaea3130b3206adb",
+    "creator-build-project/assets/scripts/world-r1/R4LevelBridge.ts.meta": "583b39390c014db1a392e0ae7a78c284f3fa03d91f78607693a0c2355064184c",
+    "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts": "e674541a1786544ee3824e6d7e6701acb441576376b6a54d233985dbff0ba665",
+    "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta": "ec34111a3b8b10f4c0cdc471ed3931eeb6121429ae43d58914ab9ab8d65cf1c5",
+    "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts": "a0b1453b6778aa45e1f861ffb6d48148083e90c17eca8a444b15782f895090ea",
+    "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta": "f1ccab5495ac4e9bbea294a137824140a02b682bab2b87e405c600e7ed3241b9",
+    "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts": "964c189a0f078edbec205f3d0bad4401a11bff79608bf5871eeb1b33a5a1b3ec",
+    "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta": "e9cae649b0b38cadc460611a358d0b7f54dba25cb151f4390ad9f0b04e3bf121",
+    "creator-build-project/assets/scripts/world-r1/WorldGeometry.ts": "684ff11e397af5bc95b579964abac797f7bcd20e9cde80c31557daa8c89782b0",
+    "creator-build-project/assets/scripts/world-r1/WorldGeometry.ts.meta": "33647642cc804676c916db9262e7432547b7135e0f5ce58963e87d6cc9cfd05d",
+    "creator-build-project/assets/scripts/world-r1.meta": "0bede5c1aaeb25b2d86271d91321381bf701d49a19843d8f53785345bc021df8",
+    "creator-build-project/assets/scripts/world-r2/LegacyJourneyReader.ts": "1b258ee0f3a674b7bd075e28be86f8665ca3f8bcb7e3e9adad5c1ac9b7931e47",
+    "creator-build-project/assets/scripts/world-r2/LegacyJourneyReader.ts.meta": "0adf80eb4358cdfd08e987b86fc0a087622179c805ff9bb5d1335b0203d3610e",
+    "creator-build-project/assets/scripts/world-r2/LegacyProgressionV3.js": "d9ddc26f62cfd1552b67b400b90ecb58b43cb5ffe48d30fb2aa130a71bfe041b",
+    "creator-build-project/assets/scripts/world-r2/LegacyProgressionV3.js.meta": "b1767c4b9922a2285eac5c07ad3fe9dd7654aaef0a8e6c6a284266ff236a820a",
+    "creator-build-project/assets/scripts/world-r2/LevelBackground.ts": "0414a8ce08482ef3782b81244206e953397a457fb34834d70a79f7d67d68aa20",
+    "creator-build-project/assets/scripts/world-r2/LevelBackground.ts.meta": "f4752381c14ca24db2c5ee4fcc076ea0ff27e8ea5dcce3a1f7fcacbc02cc9868",
+    "creator-build-project/assets/scripts/world-r2/MainlineHost.ts": "83856f643bb40a6a4932e73f139f12cd555a96dde53df3d3caeee09547eb591e",
+    "creator-build-project/assets/scripts/world-r2/MainlineHost.ts.meta": "6d8939200e3351f90798e7107da0cfbb98dccfb6778e589aba992af56112d61a",
+    "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts": "bf83eab4c610d269ca95d7612df029d7ad5670d5237641b33d0528053e469049",
+    "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts.meta": "c2f6a382e5709a2d8224234f3fdcd55b402dc264d6a316869e8ec433eca421b7",
+    "creator-build-project/assets/scripts/world-r2/ManagedMainlineBinding.ts": "7cebd92e2c9d1bfb626803759a7becb08534838f15d83944a8735e1d70540123",
+    "creator-build-project/assets/scripts/world-r2/ManagedMainlineBinding.ts.meta": "537d97bf6313c341def5b1a7694fd20062d5ec5563d516699f444c0e70dc2aa8",
+    "creator-build-project/assets/scripts/world-r2/ManagedTools.ts": "895ca05641382bb85c7a8ea0a4504e90422bc6c56d8836b6ea69b2c11fe1a2ec",
+    "creator-build-project/assets/scripts/world-r2/ManagedTools.ts.meta": "8824c28261142a959f701002f202bc77bedb4ea59fb96c760ab119aff6392931",
+    "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts": "cc36948f46ff8b545955c971d2daa98c646ea7bad83c040b46b45a2ba16dcd6b",
+    "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta": "cbc26c3604ed56c530f1297ce3e379f7645a92622abe4cd3a17e0dba0f5363b0",
+    "creator-build-project/assets/scripts/world-r2/OriginalLevelBackground.ts": "e79b139cb55d637bba90b3ba88825ae129ad6f185dfce57c37a750a01dac6da6",
+    "creator-build-project/assets/scripts/world-r2/OriginalLevelBackground.ts.meta": "2e175c0c6399c74c864e847b50de33b00794b19501c2b5076940f5275e1fd02d",
+    "creator-build-project/assets/scripts/world-r2/OriginalLevelEnvironment.ts": "7f0271da72168b1842d40226691afd8458af3c07146be5aefd1892c26473fc4c",
+    "creator-build-project/assets/scripts/world-r2/OriginalLevelEnvironment.ts.meta": "afdb2b85990f2a61a2ad49319673899669c5e20963b05cc9b80c71daef87c974",
+    "creator-build-project/assets/scripts/world-r2/PersistentMainlinePort.ts": "083d8f9f442dc81db55136e510b88233d3934f0ddce1d4aebc94b0abd4278313",
+    "creator-build-project/assets/scripts/world-r2/PersistentMainlinePort.ts.meta": "eb50ff8fc8d2b2619fec67088290028ebd69474b92f0ba8e71a903d65163d6fa",
+    "creator-build-project/assets/scripts/world-r2/PersistentR5Port.ts": "02ff661ed5052018a26824435fece891c7093a4d26eb0120b40c7232628c1b8b",
+    "creator-build-project/assets/scripts/world-r2/PersistentR5Port.ts.meta": "5cc799dd611764a21e859b29aaf72a40b7a19eb5cd98e408b8fd4b8a25b228cf",
+    "creator-build-project/assets/scripts/world-r2/R5PersistenceProbe.ts": "028aed61e4a51cbef59ada1ecc290831b7ef4bc770c9353c2ce180a6716512ae",
+    "creator-build-project/assets/scripts/world-r2/R5PersistenceProbe.ts.meta": "a950bf1ca94f30e274beb2905385691ea922f76f2bc1abef3dfb66a4a3874159",
+    "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts": "906ef65b9475d3095bacae46775145c1ae41150437e7547757b66bc56afbfa73",
+    "creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts.meta": "5e169f368ad9f5cdcdd75bef1385a210399e1542d6073423c45da51ff2e7443f",
+    "creator-build-project/assets/scripts/world-r2/StartupReadyGate.ts": "bc5aa3275ee54e8e88e8631ea7f9d49723e7eb705915d845755480a74f342210",
+    "creator-build-project/assets/scripts/world-r2/StartupReadyGate.ts.meta": "52c5ed603e2f53d46e82813d425f9ea8bf8de8ee3bf3a6dc49b9170c58b303cf",
+    "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts": "5212ee3f1514552bd4780e6e32e38acbdaa8556895ec71f6be8bbe9065e48768",
+    "creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts.meta": "cb652b67ee59ec5027d6f44cc862a4f480ab21d1647f6cd4440885a0bad7a032",
+    "creator-build-project/assets/scripts/world-r2.meta": "469792b77b6d1079d688e63146eb84659a74bf7a86b39c2ce4716a043211a213",
+    "creator-build-project/assets/scripts.meta": "7979c15c9515ecc251b766671d3f56bc88f67356643e292e60c38226269117e6",
+    "creator-build-project/package.json": "335361054996c3edaf808fdd494ed91feb38f01e56d17c874749546d7b47f942",
+    "creator-build-project/settings/v2/packages/project.json": "86e60258fc615fe023aef88ff8d66f6e8cf0c784fcef5c02d75b08a42b204241",
+    "creator-build-project/tsconfig.json": "f2c358b7c504ef2cce25927869fad06e4cbb7cd884747b944d9d244c74561fb6"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "status": "static_preflight_only",
+  "manifest_files_verified": 198,
+  "source_glb_sha256": "7ebd23ad17e2f40f391b3b69e75a2798fe0241703974af1eebfb5c89859fd3bb",
+  "candidate_glb_sha256": "697369e636035b7cea8c6676e017b61550d2bd60a77b9ebf06fd27bc34ea05a8",
+  "unit_variant": "metres; root transforms unchanged; no B scale applied",
+  "suppressed_mesh_bindings": [
+    {
+      "node_index": 2,
+      "name": "col_lighthouse_door_leaf",
+      "source_mesh_index": 2,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 50,
+      "name": "col_int_ceiling",
+      "source_mesh_index": 11,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 51,
+      "name": "col_int_chair_armrest_l",
+      "source_mesh_index": 12,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 52,
+      "name": "col_int_chair_armrest_r",
+      "source_mesh_index": 13,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 53,
+      "name": "col_int_chair_back",
+      "source_mesh_index": 14,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 54,
+      "name": "col_int_chair_seat",
+      "source_mesh_index": 15,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 55,
+      "name": "col_int_desk",
+      "source_mesh_index": 16,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 56,
+      "name": "col_int_door_frame",
+      "source_mesh_index": 17,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 57,
+      "name": "col_int_props_misc",
+      "source_mesh_index": 18,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 58,
+      "name": "col_int_side_table",
+      "source_mesh_index": 19,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 59,
+      "name": "col_int_stairs",
+      "source_mesh_index": 20,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 60,
+      "name": "col_int_stool",
+      "source_mesh_index": 21,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 61,
+      "name": "col_int_walls",
+      "source_mesh_index": 22,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 107,
+      "name": "col_int_floor_walkable",
+      "source_mesh_index": 23,
+      "source_skin_index": null
+    },
+    {
+      "node_index": 110,
+      "name": "env_interior_floor_skirt_preview",
+      "source_mesh_index": 24,
+      "source_skin_index": null
+    }
+  ],
+  "extensions_required": [],
+  "extensions_used": [
+    "KHR_materials_specular",
+    "KHR_materials_unlit"
+  ],
+  "instancing_requires_compatibility_validation": false,
+  "skins": 5,
+  "clips": [
+    "idle_loop"
+  ],
+  "missing_semantic_nodes": [
+    "scene_root",
+    "seat_back"
+  ],
+  "physics_colliders": "not_created; map source_mesh_index to explicit proxies after editor approval",
+  "cocos_import": "not_run",
+  "device_performance": "not_run",
+  "B_actions": "not_delivered",
+  "remaining": [
+    "door_handle radius conflict",
+    "B height calibration",
+    "camera and door swept volume runtime check",
+    "sitting capsule filtering without disabling hand/garment contacts"
+  ]
+}

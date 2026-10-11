@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const source=process.env.REVIEW_SOURCE||path.resolve(__dirname,'../source');
+assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(source,'tools/wechat_first_open_audit.cjs'))).digest('hex'),'d6b2eda2802369f92fdf67f1391bd6a583fab156a7a76844577e00b5ee048579','Wrong v4 source revision');
+const out=process.argv[2]?path.resolve(process.argv[2]):fs.mkdtempSync(path.join(os.tmpdir(),'0008-v4-runtime-'));
+fs.mkdirSync(out,{recursive:true});if(fs.readdirSync(out).length)throw Error('Require empty output directory');
+const fixtures=path.join(out,'fixtures'),build=path.join(fixtures,'build');fs.mkdirSync(build,{recursive:true});
+fs.writeFileSync(path.join(build,'project.config.json'),JSON.stringify({appid:'wx3bdd911c5c06f591',compileType:'game',projectname:'review',setting:{enhance:true}}));fs.writeFileSync(path.join(build,'game.json'),'{}');
+fs.writeFileSync(path.join(build,'game.js'),'console.log("LoadScene db://assets/scenes/WorldR5Integration.scene: 1 ms");');
+const expectations={"healthy": "PASS", "prefix-error-before-log": "FAIL", "prefix-error-before-canary": "FAIL", "prefix-error-before-notice-allowlisted": "FAIL", "prefix-unowned-error-before-log": "BLOCKED", "prefix-benign-before-error": "FAIL", "cli-error-tag": "FAIL", "cli-error-prefix": "FAIL", "cli-warning-tag": "PASS", "utf8-truncated-eof": "BLOCKED", "utf8-invalid-control": "BLOCKED", "unattributed-exact-notice-allowlisted": "PASS_WITH_ALLOWLISTED_IDE_NOTICE"};const cases=Object.keys(expectations);
+const rows=[];for(const [i,sc] of cases.entries()){
+ const caseRoot=path.join(fixtures,sc),logs=path.join(caseRoot,'logs'),vout=path.join(out,sc);fs.mkdirSync(caseRoot,{recursive:true});
+ if(sc==='truncate-error'){fs.mkdirSync(path.join(logs,'WeappLog'),{recursive:true});fs.writeFileSync(path.join(logs,'WeappLog/review.log'),'old padding\n'.repeat(500));}
+ const env={...process.env,QF_FIRST_OPEN_DRY_RUN:'1',QF_WECHAT_CLI:path.join(__dirname,'fake-cli.cjs'),QF_MINIPROGRAM_AUTOMATOR_MODULE:path.join(__dirname,'fake-automator.cjs'),QF_FINALIZER:path.join(source,'reference/finalize_wechat_local.12ef697+0008v2.cjs'),QF_WECHAT_BUILD_DIR:build,QF_FIRST_OPEN_WORK_ROOT:path.join(caseRoot,'copies'),QF_FIRST_OPEN_OUT:vout,QF_FIRST_OPEN_CASES:'default',QF_FIRST_OPEN_ALLOW_APPJSON_NOTICE:sc.includes('allowlisted')?'1':'0',QF_FIRST_OPEN_IGNORE_ERROR_REGEX:'',QF_FIRST_OPEN_MODE:'auto',QF_AUTO_PORT:String(42000+i),QF_FIRST_OPEN_SETTLE_MS:'0',QF_FIRST_OPEN_LAUNCH_TIMEOUT_MS:'1500',QF_CLI_DRAIN_MS:'100',QF_WEAPPLOG_POLL_MS:'20',QF_WEAPPLOG_SETTLE_MS:'50',QF_WEAPPLOG_MAX_BYTES:'1000000',QF_FIRST_OPEN_INJECT_SHIM:'1',QF_DEVTOOLS_QUIT_FIRST:'0',QF_FIRST_OPEN_SCREENCAPTURE:'0',QF_FIRST_OPEN_KEEP_COPIES:'1',QF_DEVTOOLS_LOG_DIR:logs,QF_REVIEW_STATE:path.join(caseRoot,'state.json'),QF_REVIEW_SCENARIO:sc};
+ const r=cp.spawnSync(process.execPath,[path.join(source,'tools/wechat_first_open_audit.cjs')],{env,encoding:'utf8',timeout:12000});fs.mkdirSync(vout,{recursive:true});
+ // Runner outputs are stored beside, not inside, the tool's frozen manifest directory.
+ fs.writeFileSync(path.join(out,sc+'.stdout.txt'),r.stdout||'');fs.writeFileSync(path.join(out,sc+'.stderr.txt'),r.stderr||'');
+ const v=JSON.parse(fs.readFileSync(path.join(vout,'verdict.json'),'utf8')),detail=v.variants[0]||{},manifest=require(path.join(source,'tools/wechat_first_open_audit.cjs')).verifyManifest(vout);
+ const actions=fs.existsSync(path.join(caseRoot,'state.json.actions'))?fs.readFileSync(path.join(caseRoot,'state.json.actions'),'utf8').trim().split('\n').map(JSON.parse):[];
+ assert.deepEqual(actions.slice(0,2).map(x=>x.cmd),['islogin','auto']);assert.ok(actions.length>=3&&actions.slice(2).every(x=>x.cmd==='close'));assert.ok(actions.every(x=>['islogin','auto','close'].includes(x.cmd)));assert.ok(actions.filter(x=>x.cmd==='close').every(x=>x.project===detail.projectDir));
+ const expected=expectations[sc];const expectedExit=({PASS:0,FAIL:1,BLOCKED:2,PASS_WITH_ALLOWLISTED_IDE_NOTICE:3})[expected];const ok=v.status===expected&&r.status===expectedExit&&manifest.ok;
+ rows.push({scenario:sc,expected,expectedExit,ok,status:v.status,exit:r.status,reason:v.reason,errors:detail.errors,missing:detail.missing,canaries:detail.channels,manifest,ownOnlyClose:true});console.log(sc,v.status,r.status,'expected',expected,expectedExit,ok?'OK':'DEFECT');
+}
+fs.writeFileSync(path.join(out,'summary.json'),JSON.stringify({scope:'Cloud fake CLI, vm console, local files only; no network/browser/DevTools/Mac.',sourceSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(source,'tools/wechat_first_open_audit.cjs'))).digest('hex'),rows},null,2));console.log('Evidence directory:',out);
+
+// Nonzero means at least one safety expectation failed; this is expected on supplied v4.
+process.exitCode=rows.some(x=>!x.ok)?1:0;

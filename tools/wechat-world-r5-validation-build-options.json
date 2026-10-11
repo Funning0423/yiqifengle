@@ -1,0 +1,20 @@
+{
+  "platform": "wechatgame",
+  "debug": false,
+  "outputName": "wechat-world-r5-validation",
+  "name": "ForestWorldR5Validation",
+  "startScene": "26f215c8-284f-490c-94b4-b5304d2c700e",
+  "scenes": [
+    {
+      "url": "db://assets/scenes/WorldR5Validation.scene",
+      "uuid": "26f215c8-284f-490c-94b4-b5304d2c700e"
+    }
+  ],
+  "mainBundleCompressionType": "subpackage",
+  "packages": {
+    "wechatgame": {
+      "appid": "wx3bdd911c5c06f591",
+      "separateEngine": false
+    }
+  }
+}

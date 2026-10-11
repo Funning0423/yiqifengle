@@ -1,0 +1,101 @@
+{
+  "sourceR4ZipSHA256": "50db30cece5284ce504e354678e5ee8d36c388698e0588906fcb2bb5c99dc189",
+  "qaFullArchiveSHA256": "c05da2c779813e15a2022565622b0855af84a83f30c289ec9b0713da81139308",
+  "originalR4Changed": false,
+  "sourcePatches": [
+    {
+      "file": "runtime/challenge-session.js",
+      "from": "[...e.moss]",
+      "to": "Array.from(e.moss)",
+      "count": 1
+    },
+    {
+      "file": "runtime/challenge-session.js",
+      "from": "[...e.roots]",
+      "to": "Array.from(e.roots)",
+      "count": 1
+    },
+    {
+      "file": "runtime/challenge-controller.js",
+      "from": "[...x]",
+      "to": "Array.from(x)",
+      "count": 2
+    },
+    {
+      "file": "runtime/challenge-controller.js",
+      "from": "[...e.moss]",
+      "to": "Array.from(e.moss)",
+      "count": 1
+    },
+    {
+      "file": "runtime/challenge-controller.js",
+      "from": "[...e.roots]",
+      "to": "Array.from(e.roots)",
+      "count": 1
+    }
+  ],
+  "compiler": {
+    "core": "7.28.5",
+    "presetEnv": "7.28.5",
+    "transformSpread": "7.27.1"
+  },
+  "strictConfiguration": {
+    "targets": {
+      "ie": "11"
+    },
+    "modules": false,
+    "loose": false,
+    "bugfixes": true,
+    "useBuiltIns": false,
+    "assumptions": {
+      "iterableIsArray": false,
+      "arrayLikeIsIterable": false
+    }
+  },
+  "inlineBabelHelpers": {
+    "version": "7.29.10",
+    "license": "MIT",
+    "notice": "BABEL-HELPERS-LICENSE.txt"
+  },
+  "staticDependencyEdges": [
+    {
+      "from": "compat-runtime/runtime/challenge-controller.js",
+      "require": "./engine",
+      "resolved": "compat-runtime/runtime/engine.js",
+      "sha256": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119"
+    },
+    {
+      "from": "compat-runtime/runtime/challenge-controller.js",
+      "require": "./challenge-session",
+      "resolved": "compat-runtime/runtime/challenge-session.js",
+      "sha256": "532909019b340f5658df828359e0efaa3f01ce726d9aaeb1bc3ea4baf18cba55"
+    },
+    {
+      "from": "compat-runtime/runtime/challenge-controller.js",
+      "require": "./challenge-progress",
+      "resolved": "compat-runtime/runtime/challenge-progress.js",
+      "sha256": "bb0c49f94655a8e66ea6e9492853761970e287e7fe7e8b6e56b71411c23b59ed"
+    },
+    {
+      "from": "compat-runtime/runtime/challenge-controller.js",
+      "require": "./challenge-catalog",
+      "resolved": "compat-runtime/runtime/challenge-catalog.js",
+      "sha256": "622bec8ca92ec215ec12a247c7ae8848fee3b526086306b8b41a35bea44cefd4"
+    },
+    {
+      "from": "compat-runtime/runtime/challenge-session.js",
+      "require": "./engine",
+      "resolved": "compat-runtime/runtime/engine.js",
+      "sha256": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119"
+    }
+  ],
+  "allStaticRequiresRelativeAndPresent": true,
+  "runtimeExternalPackages": [],
+  "CocosVerified": false,
+  "MacScriptModified": false,
+  "includedAdapter": "Original R4 API example compiled only; excludes unverified offline Mac adapter edits",
+  "officialReferences": [
+    "https://babeljs.io/docs/babel-plugin-transform-spread",
+    "https://babeljs.io/docs/assumptions#iterableisarray"
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "task": "world-r1 independent scene-flow integration",
+  "createdUTC": "2026-10-09T07:53:47.676394+00:00",
+  "baselineCommit": "2a320f93b86625e7d59ebbd32a52e2868f993ce6",
+  "operation": "add only; no baseline edits",
+  "sourceIntegrity": {
+    "sourceFilesChecked": 76,
+    "changed": [],
+    "status": "PASS",
+    "scope": "Entire recovered creator-build-project file tree and portable-firstslice-v0.1 asset tree as snapshotted before work."
+  },
+  "checks": {
+    "nodeTests": "see evidence/node-tests.txt",
+    "grammar": "see evidence/syntax.json",
+    "doorAndCameraGeometry": "see evidence/geometry.json",
+    "staticTriangleGeometry": "see evidence/static-proxy-geometry.json",
+    "officialCocosImport": "NOT RUN",
+    "officialCocosTypecheckBuild": "NOT RUN",
+    "browserRuntime": "NOT RUN",
+    "WeChatBuild": "NOT RUN",
+    "deviceRuntime": "NOT RUN",
+    "finalCharacterAnimation": "NOT DELIVERED"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 9060,
+      "sha256": "de1b6352c27d9703f17c1a3bbf25aba836a7413ad77502d085a2bf18f41b9818",
+      "cocosDestination": null
+    },
+    {
+      "path": "components/CharacterReference.ts",
+      "bytes": 981,
+      "sha256": "838e216468e59f029ea33383500a1423dcb40381a5bd53a9d7edbe223d6e4246",
+      "cocosDestination": "assets/scripts/world-r1/CharacterReference.ts"
+    },
+    {
+      "path": "components/FirstsliceFacts.ts",
+      "bytes": 42945,
+      "sha256": "f5c486b3955d1a5152553698f53444ce8c4d4ef6356a5adca2006d5f9448c154",
+      "cocosDestination": "assets/scripts/world-r1/FirstsliceFacts.ts"
+    },
+    {
+      "path": "components/FirstsliceRoutes.ts",
+      "bytes": 2793,
+      "sha256": "7e4cd1017dd7df9b7ed2658d9a23951e47389dfc81759762bce20453629a059c",
+      "cocosDestination": "assets/scripts/world-r1/FirstsliceRoutes.ts"
+    },
+    {
+      "path": "components/R4LevelBridge.ts",
+      "bytes": 1561,
+      "sha256": "eb2ea1e26a6b7e4a08d44772fbd4954dd7295a90a3063f4fcaea3130b3206adb",
+      "cocosDestination": "assets/scripts/world-r1/R4LevelBridge.ts"
+    },
+    {
+      "path": "components/WorldFlowComponent.ts",
+      "bytes": 9415,
+      "sha256": "238201d3fdd3b3219824d4624bbee9fe7ce1ae044e05a4d61473447d45fed60f",
+      "cocosDestination": "assets/scripts/world-r1/WorldFlowComponent.ts"
+    },
+    {
+      "path": "components/WorldFlowCore.ts",
+      "bytes": 15098,
+      "sha256": "4c974f7b7d68f1eee604c60b6199f94c5e81a5743ea6b467b178e7a45ae9ee9b",
+      "cocosDestination": "assets/scripts/world-r1/WorldFlowCore.ts"
+    },
+    {
+      "path": "components/WorldGeometry.ts",
+      "bytes": 1857,
+      "sha256": "684ff11e397af5bc95b579964abac797f7bcd20e9cde80c31557daa8c89782b0",
+      "cocosDestination": "assets/scripts/world-r1/WorldGeometry.ts"
+    },
+    {
+      "path": "evidence/asset-facts.json",
+      "bytes": 42833,
+      "sha256": "1b20ad0e19cdd93d80cdc87ee563ecf9354db11bd8bfb4d7d07fcd32bbc8fbf2",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/character-reference.json",
+      "bytes": 864,
+      "sha256": "3f08bf346b75ee0fee59aa29d43cb524379d34bf1b2208dc5cbe6217fb2e3b41",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/door-audit.txt",
+      "bytes": 299,
+      "sha256": "8ebbf65138892ba941060ff899e04153130593db335342cb0dd80bec8d8acfdd",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/geometry.json",
+      "bytes": 12663,
+      "sha256": "6de55ab6cc64ecdbd37634683e7d751982933d49986d189b49a70431bfaa469f",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/node-tests.txt",
+      "bytes": 3619,
+      "sha256": "50c69edfd682cce617c5fa9dbb14b7a46f66db8ba992fb79374adc4f966cbe54",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/source-before.json",
+      "bytes": 15949,
+      "sha256": "539eeadb90047db837441af84d37e7b8a6f0b70f9a6872cce02937846dad96f0",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/source-integrity.json",
+      "bytes": 199,
+      "sha256": "c15d8161bc085ae1fc0b6c4d17fe405d147f813ef58fabac5e34355fa82bc405",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/static-proxy-audit.txt",
+      "bytes": 1102,
+      "sha256": "921bb05f00b9106e70ce7726a8d7417e8b210a7b152d1d8f0d8c04c54c07b2b3",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/static-proxy-geometry.json",
+      "bytes": 1744,
+      "sha256": "5ac92618ab9785a82851d792e93161331e467ccadb32a636ff5d5fe0011260b4",
+      "cocosDestination": null
+    },
+    {
+      "path": "evidence/syntax.json",
+      "bytes": 419,
+      "sha256": "b1d311d85fbd4ea71956dc76f23aa8a63cdcfdba7297a33e8ee091bc2cc55f18",
+      "cocosDestination": null
+    },
+    {
+      "path": "integration/ACCEPTANCE.md",
+      "bytes": 1736,
+      "sha256": "a221a9274c51054a123cc57383893916b5f8ae86e11d68b87b17237e64f3b35d",
+      "cocosDestination": null
+    },
+    {
+      "path": "integration/install_into_cocos.py",
+      "bytes": 1383,
+      "sha256": "17e8865f161a5e77e55a4129802128d8c071af0e774b72462bcd0577823517d4",
+      "cocosDestination": null
+    },
+    {
+      "path": "run_checks.sh",
+      "bytes": 369,
+      "sha256": "492d87dc99ad566e0f97fc570ac04065fe2bea6ab4c4c16237d0e6d2f027c762",
+      "cocosDestination": null
+    },
+    {
+      "path": "tests/component-boundary.test.cjs",
+      "bytes": 7921,
+      "sha256": "0651ff38c6e8ab1ab8adcad0324f7cff6f53a203a5554ef5e58f35526af67cef",
+      "cocosDestination": null
+    },
+    {
+      "path": "tests/r4-level-bridge.test.cjs",
+      "bytes": 4115,
+      "sha256": "e42a847f564a4301d118e3b395a63a3dd522503a164f080cb96b0c566439df6d",
+      "cocosDestination": null
+    },
+    {
+      "path": "tests/world-flow.test.cjs",
+      "bytes": 11650,
+      "sha256": "ab288fda8f7c230078f388e95406b73fdf54a9592419281467fa61532768ea74",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/audit_geometry.cjs",
+      "bytes": 3232,
+      "sha256": "cdcaa067b2469c4dd913f17960110a06b14fe4bec50992d2a929673c454f4c90",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/audit_static_proxies.py",
+      "bytes": 3215,
+      "sha256": "dc2b62020efd49f62813ecf9c7695c5beb1ef5886de5ce26f7e71ce9a8bab524",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/build_manifest.py",
+      "bytes": 1294,
+      "sha256": "0afa451e20a8b4f8a5c868504ff02f149388a6057935cf4c7d78f22d78854561",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/check_syntax.cjs",
+      "bytes": 927,
+      "sha256": "af37a7279b9b81f95e5d823ff7e2723c6cb4239a9d73c6dedc80c44a51cadbaa",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/extract_asset_facts.py",
+      "bytes": 2736,
+      "sha256": "d9f47e0ad09ddff472752f1cdcf67b74f0dbf032e9c4cc16fbabdb2693ec1b45",
+      "cocosDestination": null
+    },
+    {
+      "path": "tools/verify_sources.py",
+      "bytes": 686,
+      "sha256": "7c280e2b92430810712bd7fe985153294b6bbaa72c54cb11d7f0d3088448bb59",
+      "cocosDestination": null
+    }
+  ]
+}

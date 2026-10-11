@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "contract_version": "cocos-asset-v1-proposed",
+  "status": "proposed_requires_export_import_validation",
+  "project": "咦，起风了",
+  "engine": {
+    "series": "Cocos Creator 3.8 LTS",
+    "exact_patch": null,
+    "verified_installed": false
+  },
+  "tools": {
+    "dot_blender": "4.5.14 LTS",
+    "grokbot_blender_exact": null,
+    "grokbot_render_engine": null,
+    "grokbot_color_management": null
+  },
+  "coordinate_contract": {
+    "unit": "1 Cocos unit = 1 metre proposed",
+    "up_axis": "Y at Cocos import",
+    "source_up_axis": "report from Blender export",
+    "forward_axis": null,
+    "root_transform": null,
+    "B_reference_height_m": null,
+    "preserve_B_proportions": true,
+    "apply_transform_only_on_copy_and_verify_skin": true
+  },
+  "ownership": {
+    "editable_art_source": "Grokbot",
+    "frozen_export": "Grokbot",
+    "cocos_art_import_and_meta": "dot designated single integrator",
+    "scene_prefab_meta": "dot designated single integrator",
+    "core_adapters_tests": "dot",
+    "overwrite_other_owner": false
+  },
+  "asset_record_required": [
+    "asset_id",
+    "version",
+    "source_files",
+    "source_sha256",
+    "export_files",
+    "export_sha256",
+    "source_license",
+    "exporter_exact_version",
+    "export_settings",
+    "import_settings",
+    "unit_axes_root",
+    "triangles",
+    "vertices",
+    "deform_bones",
+    "max_weights",
+    "materials",
+    "texture_dimensions_format_color_space",
+    "texture_memory_estimate",
+    "lods",
+    "animation_clips",
+    "collider_proxies",
+    "anchor_bindings",
+    "unverified_items"
+  ],
+  "formats": {
+    "preferred": "glTF 2.0 / GLB",
+    "alternate": "FBX with separate roundtrip validation",
+    "blender_source_required": true,
+    "cloth_cache_assumed_supported": false
+  },
+  "proposed_character_budget": {
+    "triangles_lod0_max": 25000,
+    "deform_bones_max": 60,
+    "weights_per_vertex_max": 4,
+    "texture_typical": [
+      512,
+      1024
+    ],
+    "key_texture_max_initial": 2048,
+    "target_not_measured": true
+  },
+  "garments": {
+    "independent_objects": [
+      "yellow_dress",
+      "white_apron"
+    ],
+    "required_semantics": [
+      "waist_pin_region",
+      "apron_left_corner",
+      "apron_right_corner"
+    ],
+    "yellow_heavier_than_apron": true,
+    "runtime_full_triangle_cloth_default": false
+  },
+  "suggested_clips": [
+    {
+      "semantic_id": "sit_idle",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "stand_up",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "turn_left",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "walk",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "stop",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "door_open",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "enter_close",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    },
+    {
+      "semantic_id": "sit_down",
+      "source_action": null,
+      "export_clip": null,
+      "fps": null,
+      "duration_s": null,
+      "root_motion_owner": null,
+      "contact_events": []
+    }
+  ],
+  "proposed_anchors": [
+    {
+      "anchor_id": "scene_root",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "spawn_outside",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "seat_anchor",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "seat_back",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "door_hinge",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "door_handle",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "doorway_exit",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "return_path",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "interaction_shells",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "interaction_bells",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "interaction_stars",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "robot_root",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    },
+    {
+      "anchor_id": "board_safe_zone",
+      "status": "proposed_not_bound",
+      "node_path": null,
+      "local_transform": null,
+      "region_id": null
+    }
+  ],
+  "regions": [
+    {
+      "key": "tide",
+      "id": 0,
+      "art_scope": "海岛灯塔"
+    },
+    {
+      "key": "meadow",
+      "id": 1,
+      "art_scope": "草原与风车草甸"
+    },
+    {
+      "key": "sky",
+      "id": 2,
+      "art_scope": "天空之城",
+      "art_acceptance_priority": "highest"
+    }
+  ],
+  "validation_required": [
+    "real Cocos import",
+    "scale axes B proportions",
+    "mesh UV normals skin weights",
+    "materials and textures under runtime lighting",
+    "complete original speed motion and contacts",
+    "fixed/motion day/night near/far",
+    "WeChat devices and budgets"
+  ],
+  "receipt_required": [
+    "task_id",
+    "contract_version",
+    "read_document_versions",
+    "baseline_hashes",
+    "actual_tool_versions",
+    "accepted_write_paths",
+    "missing_assets_or_anchors",
+    "first_deliverable_scope"
+  ]
+}

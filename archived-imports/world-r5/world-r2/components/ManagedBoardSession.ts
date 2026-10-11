@@ -1,0 +1,98 @@
+/** No cc imports. NativeBoardUI managed seam + unchanged R4 binder + selected real provider. */
+export type Selection={provider:'r4'|'r5';stageId:string;seed:number};
+export type Reply={ok:boolean;reason?:string;token?:string};
+export type DisposableStores={r4:Map<string,string>;r5:Map<string,string>};
+export type Dependencies={R4:new(options:any)=>any;R5:new(options:any)=>any;port:any};
+const copy=(value:any)=>value==null?value:JSON.parse(JSON.stringify(value));
+const BOARD_COMMANDS=new Set(['previewAction','cancelPreview','commitAction','pause','resume','requestExit','retrySave']);
+/** Presentation only: retain intermediate frame state rather than leaking R5's final turn board. */
+export class FramePresenter {
+  private display:any=null;
+  present(snapshot:any,edge:'before'|'after'='before'):any {
+    if(snapshot.provider!=='regional-r05')return snapshot;
+    const s=copy(snapshot),v=s.visual;
+    if(!v||s.state!=='run.resolving')this.display=copy(s.active);
+    else {
+      if(!this.display)throw Error('R5 presenter requires the pre-commit stable snapshot');
+      if(edge==='before'&&Array.isArray(v.before))this.display.board=copy(v.before);
+      if(edge==='after'){
+        if(Array.isArray(v.after))this.display.board=copy(v.after);
+        else if(Array.isArray(v.board))this.display.board=copy(v.board);
+        if(v.goalsAfter)this.display.goals=copy(v.goalsAfter);
+        if(v.piecesAfter)this.display.regionPieces=copy(v.piecesAfter);
+        for(const hit of v.wave?.obstacleHits||[]){
+          if(hit.kind==='moss'&&hit.removed)this.display.moss=this.display.moss.filter((i:number)=>i!==hit.index);
+          if(hit.kind==='roots')this.display.roots=this.display.roots.filter((r:any)=>r[0]!==hit.index).concat(hit.after>0?[[hit.index,hit.after]]:[]);
+        }
+        if(v.kind==='tool'){
+          if(v.tool==='sunSeed'&&v.tile)this.display.board[v.index]=copy(v.tile);
+          if(v.tool==='prismShift')this.display.regionPieces=this.display.regionPieces.map((p:any)=>p.index===v.from?{...p,index:v.to,shifted:true}:p);
+          if(v.tool==='tideAnchor')this.display.scene={...this.display.scene,phase:v.phase,heldTurns:v.heldTurns};
+        }
+        if(v.kind==='scene')this.display.scene={...this.display.scene,phase:v.after,heldTurns:v.heldTurns,clock:s.active.scene.clock};
+      }
+      // A commit has consumed a move; do not show final score/goals/pieces until their visual frame.
+      this.display.moves=s.active.moves;this.display.tool=copy(s.active.tool);
+      s.active=copy(this.display);
+    }
+    s.stages=[];s.regions=[];s.readOnly=s.state==='error.readonly';
+    const region=s.active?.region,names:any={tide:'潮汐小径',meadow:'花粉草甸',sky:'天空回声'};
+    s.uiTitle=names[region]||'地区旅程';
+    if(s.state==='result.session-saved'){
+      s.uiResultTitle=s.active?.status==='won'?'本局完成':'再试一阵风';
+      s.uiResultCaption=`${s.active?.score||0} 分 · 本局已保存，成绩未登记`;
+      s.uiStatus='未接通关账本，不解锁、不发奖励';
+    }else if(s.state==='run.unsaved'||s.state==='error.readonly'){
+      s.uiResultTitle=s.state==='run.unsaved'?'保存待重试':'只读保护';
+      s.uiResultCaption='保留当前记录，不开启新局';s.uiStatus=String(s.error?.message||s.error||s.state);
+    }else if(s.active){s.uiStatus=s.state==='run.paused'?'已暂停 · 请显式继续':`${names[region]} · ${String(s.active.scene?.phase)} · ${v?.kind||'ready'}`;}
+    return s;
+  }
+}
+export function createManagedBoardSession(selection:Selection,deps:Dependencies,stores:DisposableStores,navigation:{exit:()=>Reply;resume:()=>Reply|undefined},afterPaint:(s:any,cells:any[])=>void) {
+  // These maps are explicitly disposable candidate storage. No platform/localStorage/inventory access.
+  const values=stores[selection.provider];
+  const platform=deps.port.createSynchronousStorage({getItem:(k:string)=>values.get(k)??null,setItem:(k:string,v:string)=>values.set(k,v)});
+  const controller=selection.provider==='r4'?new deps.R4({platform,journey:{readOnly:false,records:Array.from({length:12},()=>({bestStars:3}))}}):new deps.R5({platform,stageId:selection.stageId,seed:selection.seed});
+  if(selection.provider==='r4'){
+    const s=controller.snapshot();let result:Reply;
+    if(s.active){if(s.active.stageId!==selection.stageId)throw Error('Existing R4 attempt belongs to a different stage');result=controller.resumeActive();}
+    else result=controller.startStage(selection.stageId,{seed:selection.seed});
+    if(!result.ok)throw Error('R4 open failed: '+result.reason);
+  }
+  const initial=controller.snapshot();if(!initial.active||initial.active.stageId!==selection.stageId||initial.state==='error.readonly')throw Error('Provider refused selected stage; existing data retained');
+  const presenter=new FramePresenter();presenter.present(initial);
+  let host:any=null,view:any=null,disposed=false,epoch=0;
+  const safeCommand=(name:string,...args:any[]):Reply=>{
+    if(disposed)return {ok:false,reason:'disposed'};
+    if(!BOARD_COMMANDS.has(name))return {ok:false,reason:'host-navigation-only'};
+    return host.command(name,...args);
+  };
+  const submit=(action:any):Reply=>{const preview=safeCommand('previewAction',action);return preview.ok?safeCommand('commitAction',preview.token):preview;};
+  const binding={controller,
+    bind:(_controller:any,nativeView:any)=>{
+      if(host)throw Error('Only one NativeBoardUI binding per session');view=nativeView;
+      host=deps.port.bindChallengeController(controller,{
+        render:(s:any)=>view.render(presenter.present(s)),
+        animate:(v:any,s:any,done:()=>void)=>{const ownEpoch=epoch;let used=false;
+          view.animate(v,presenter.present(s),()=>{if(used||disposed||ownEpoch!==epoch)return;used=true;view.render(presenter.present(s,'after'));done();});},
+        cancelAnimations:()=>{epoch++;view.cancelAnimations();},
+      });
+      return {command:safeCommand,hide:()=>{epoch++;return host.hide();},show:()=>host.show(),dispose:()=>dispose()};
+    },
+    intercept:(name:string)=>name==='requestExit'?navigation.exit():name==='resume'?navigation.resume():undefined,
+    submit,
+    useTool:(index:number):Reply=>{
+      const s=controller.snapshot(),tool=s.active?.tool;
+      if(selection.provider!=='r5'||!tool?.charges)return {ok:false,reason:'no-stage-tool'};
+      if(tool.kind==='sunSeed'&&(!Number.isInteger(index)||index<0||index>48))return {ok:false,reason:'先选择播种格'};
+      return submit(tool.kind==='sunSeed'?['tool',tool.kind,index]:['tool',tool.kind]);
+    },afterPaint,
+  };
+  function dispose(){if(disposed)return {ok:true,duplicate:true};disposed=true;epoch++;return host?.dispose()||{ok:true};}
+  return {binding,controller,selection,submit,command:safeCommand,snapshot:()=>controller.snapshot(),
+    hide:()=>{epoch++;return host.hide();},show:()=>host.show(),dispose,
+    resume:()=>controller.snapshot().state==='run.paused'?safeCommand('resume'):{ok:true},
+    requestExit:()=>safeCommand('requestExit'),
+  };
+}

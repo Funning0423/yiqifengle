@@ -1,0 +1,63 @@
+{
+  "artifactId": "r4-compat-import-only-c01",
+  "status": "NODE_VERIFIED_COCOS_CANDIDATE",
+  "exactImportRoot": "compat-runtime/",
+  "entryPoint": "compat-runtime/runtime/challenge-controller.js",
+  "adapterEntry": "compat-runtime/adapter/cocos-port.js",
+  "onlyRuntimeAndHandoffDocumentation": true,
+  "unsafeNegativeExamplesIncluded": false,
+  "compilerOrNodeModulesIncluded": false,
+  "allStaticRequiresRelativeAndPresent": true,
+  "dependencyEdgeCount": 5,
+  "generatedJavaScriptModules": 7,
+  "files": {
+    "ADAPTER-CONTRACT.md": {
+      "bytes": 5590,
+      "sha256": "91ab9b38d910c5bca29d66a72a36899409de8e4d159dbbceb57a2a24d9bb19b6"
+    },
+    "BABEL-HELPERS-LICENSE.txt": {
+      "bytes": 1189,
+      "sha256": "4be9d87b56a306293223b490c0d0b245e9e94f39884147bf051a6c7b825aeb30"
+    },
+    "IMPORT-README.md": {
+      "bytes": 2003,
+      "sha256": "46267331b4e86a2c133f7cba5a3209e83ab547980d94bfd44b2fe68e52367940"
+    },
+    "SOURCE-PROVENANCE.json": {
+      "bytes": 3128,
+      "sha256": "fa502df72665add1b555c0d032cd7b9b253b3d1308894a35d17f139f396bbfaa"
+    },
+    "compat-runtime/adapter/cocos-port.js": {
+      "bytes": 4963,
+      "sha256": "ab77cacb5df709d56ce5541ae10178e9784baae749f462865ab4cb1a3eb0a42b"
+    },
+    "compat-runtime/runtime/challenge-catalog.js": {
+      "bytes": 80079,
+      "sha256": "622bec8ca92ec215ec12a247c7ae8848fee3b526086306b8b41a35bea44cefd4"
+    },
+    "compat-runtime/runtime/challenge-controller.d.ts": {
+      "bytes": 3477,
+      "sha256": "1d3d7f9560dc06cceb6ab5f0be11c35534f12458943955ab6462854318c4712b"
+    },
+    "compat-runtime/runtime/challenge-controller.js": {
+      "bytes": 28762,
+      "sha256": "db49e3de4d7693574e48ea766e591997c5a3565ddd765f3c9c88ac725535e5b3"
+    },
+    "compat-runtime/runtime/challenge-progress.js": {
+      "bytes": 14954,
+      "sha256": "bb0c49f94655a8e66ea6e9492853761970e287e7fe7e8b6e56b71411c23b59ed"
+    },
+    "compat-runtime/runtime/challenge-session.js": {
+      "bytes": 7871,
+      "sha256": "532909019b340f5658df828359e0efaa3f01ce726d9aaeb1bc3ea4baf18cba55"
+    },
+    "compat-runtime/runtime/challenge-validation.js": {
+      "bytes": 16006,
+      "sha256": "ac75ea9e2260db91c50836bc3a1c22acbb5839e4ad2ca35d9b9ac6a3bf7b972d"
+    },
+    "compat-runtime/runtime/engine.js": {
+      "bytes": 45173,
+      "sha256": "54865e990921b6fac7a03cc8092bac7e91c7745af3c996d7b85a29543d2a1119"
+    }
+  }
+}

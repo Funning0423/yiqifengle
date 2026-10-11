@@ -1,0 +1,128 @@
+--- a/creator-build-project/assets/scripts/NativeBoardUI.ts
++++ b/creator-build-project/assets/scripts/NativeBoardUI.ts
+@@ -7,6 +7,12 @@
+ 
+ @ccclass('NativeBoardUI')
+ export class NativeBoardUI extends Component {
++  private managed: any = null;
++  initializeManaged(fixture: any, binding: any) {
++    if (this.managed || this.root) throw Error('NativeBoardUI already initialized');
++    this.managed = binding; this.initialize(fixture);
++  }
++  managedViewVersion() { return 'native-board-managed-v1'; }
+   private root!: Node; private grid!: Node; private stagePanel!: Node; private resultPanel!: Node;
+   private headline!: Label; private goals!: Label; private status!: Label; private moves!: Label;
+   private controller: any; private host: any; private cells: Node[] = []; private selected = -1;
+@@ -16,8 +22,8 @@
+   private hide = () => { this.selected = -1; this.host?.hide(); };
+   private show = () => this.host?.show();
+   initialize(fixture: any) {
+-    this.fixture = fixture; profiler.hideStats();
+-    view.setDesignResolutionSize(1280,800,ResolutionPolicy.SHOW_ALL);
++    this.fixture = fixture; if(!this.managed)profiler.hideStats();
++    if(!this.managed)view.setDesignResolutionSize(1280,800,ResolutionPolicy.SHOW_ALL);
+     this.root = this.box('NativeBoardCanvas',this.node,0,0,1280,800);
+     const canvas = this.root.addComponent(Canvas); canvas.alignCanvasWithScreen = false;
+     const cameraNode = new Node('NativeUICamera'); cameraNode.layer=Layers.Enum.UI_2D; this.node.addChild(cameraNode); cameraNode.setPosition(0,0,1000);
+@@ -30,7 +36,7 @@
+     this.grid=this.box('NativeGrid',panel,0,-8,420,420);
+     for(let i=0;i<49;i++){
+       const n=this.box('Tile-'+i,this.grid,(i%7-3)*56,(3-Math.floor(i/7))*56,52,52);n.addComponent(Graphics);
+-      n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{this.dragStart={index:i,point:e.getLocation()};},this);
++      n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{if(this.snapshot?.state!=='run.ready'||this.snapshot?.readOnly)return;this.dragStart={index:i,point:e.getLocation()};},this);
+       n.on(Node.EventType.TOUCH_MOVE,(e:EventTouch)=>{
+         const d=this.dragStart;if(!d||d.consumed||d.index!==i)return;
+         const p=e.getLocation(),dx=p.x-d.point.x,dy=p.y-d.point.y;
+@@ -39,7 +45,7 @@
+         if(j>=0&&j<49&&Math.abs(i%7-j%7)+Math.abs(Math.floor(i/7)-Math.floor(j/7))===1)this.swap(i,j);
+       },this);
+       n.on(Node.EventType.TOUCH_END,(e:EventTouch)=>{
+-        const p=e.getLocation(),d=this.dragStart;this.dragStart=null;if(d?.consumed)return;
++        const p=e.getLocation(),d=this.dragStart;this.dragStart=null;if(!d||d.index!==i||d.consumed)return;
+         if(d&&d.index===i&&(Math.abs(p.x-d.point.x)>18||Math.abs(p.y-d.point.y)>18)){
+           const dx=p.x-d.point.x,dy=p.y-d.point.y;const j=i+(Math.abs(dx)>Math.abs(dy)?(dx>0?1:-1):(dy>0?-7:7));
+           if(j>=0&&j<49&&Math.abs(i%7-j%7)+Math.abs(Math.floor(i/7)-Math.floor(j/7))===1)this.swap(i,j);
+@@ -51,24 +57,24 @@
+     this.button(panel,'暂停 / 继续',30,-294,134,34,()=>this.command(this.snapshot.state==='run.paused'?'resume':'pause'));
+     // Reserved view-only drop target. No invented inventory, power-up effect or save mutation.
+     const slot=this.box('ReservedToolDropSlot',panel,156,-294,86,34);this.round(slot,86,34,'#e9e4d7',10);this.text(slot,'道具',0,0,11,'#8e968b');
+-    slot.on(Node.EventType.TOUCH_END,()=>{this.status.string='道具尚未开放';},this);
++    slot.on(Node.EventType.TOUCH_END,()=>{if(this.managed){const r=this.managed.useTool(this.selected);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;}else this.status.string='道具尚未开放';},this);
+     this.stagePanel=this.box('NativeStageSelection',panel,0,-15,428,460);this.round(this.stagePanel,428,460,'#f7f3e9',18);
+     this.resultPanel=this.box('NativeResult',panel,0,-15,428,460);this.round(this.resultPanel,428,460,'#f7f3e9',18);
+-    this.bind();game.on(Game.EVENT_HIDE,this.hide);game.on(Game.EVENT_SHOW,this.show);
++    this.bind();if (!this.managed) { game.on(Game.EVENT_HIDE,this.hide);game.on(Game.EVENT_SHOW,this.show); }
+     // Read-only instrumentation: input verification uses browser clicks/touches, not controller calls.
+-    (globalThis as any).__nativeBoard={snapshot:()=>this.controller.snapshot(),storage:()=>Array.from(this.values),coldReload:()=>this.coldReload(),hide:()=>this.hide(),show:()=>this.show(),fixture:()=>this.fixture,scope:'Cocos UI nodes; disposable memory storage; no legacy keys'};
++    if (!this.managed) (globalThis as any).__nativeBoard={snapshot:()=>this.controller.snapshot(),storage:()=>Array.from(this.values),coldReload:()=>this.coldReload(),hide:()=>this.hide(),show:()=>this.show(),fixture:()=>this.fixture,scope:'Cocos UI nodes; disposable memory storage; no legacy keys'};
+   }
+   private bind(){
+     const storage=createSynchronousStorage({getItem:(k:string)=>this.values.get(k)??null,setItem:(k:string,v:string)=>this.values.set(k,v)});
+-    this.controller=new Controller({platform:storage,journey:this.journey});
+-    this.host=bindChallengeController(this.controller,{render:(s:any)=>this.render(s),animate:(_:any,s:any,done:()=>void)=>{
++    this.controller=this.managed ? this.managed.controller : new Controller({platform:storage,journey:this.journey});
++    this.host=(this.managed ? this.managed.bind : bindChallengeController)(this.controller,{render:(s:any)=>this.render(s),animate:(_:any,s:any,done:()=>void)=>{
+       const epoch=this.epoch;for(const c of this.cells)tween(c).to(0.08,{scale:new Vec3(.94,.94,1)}).to(.08,{scale:Vec3.ONE}).start();
+       this.timer=setTimeout(()=>{this.timer=null;if(epoch===this.epoch)done();},180);
+     },cancelAnimations:()=>this.cancelAnimations()});
+   }
+-  private cancelAnimations(){this.epoch++;if(this.timer!==null)clearTimeout(this.timer);this.timer=null;for(const c of this.cells){Tween.stopAllByTarget(c);c.setScale(1,1,1);}}
++  private cancelAnimations(){this.selected=-1;this.dragStart=null;this.epoch++;if(this.timer!==null)clearTimeout(this.timer);this.timer=null;for(const c of this.cells){Tween.stopAllByTarget(c);c.setScale(1,1,1);}}
+   private coldReload(){const before=this.controller.snapshot();this.host.dispose();this.bind();return {before:before.state,after:this.controller.snapshot().state};}
+-  private command(name:string,...args:any[]){this.selected=-1;const r=this.host.command(name,...args);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;return r;}
++  private command(name:string,...args:any[]){this.selected=-1;this.dragStart=null;const r=this.managed?.intercept?.(name,...args) ?? this.host.command(name,...args);if(!r.ok)this.status.string='暂不可操作 · '+r.reason;return r;}
+   private swap(a:number,b:number){
+     if(this.snapshot.state!=='run.ready'||this.snapshot.readOnly)return;
+     this.selected=-1;const p=this.host.command('previewAction',['swap',a,b]);
+@@ -76,16 +82,16 @@
+     const c=this.host.command('commitAction',p.token);if(!c.ok)this.status.string='行动未提交 · '+c.reason;
+   }
+   private tap(i:number){if(this.snapshot.state!=='run.ready')return;if(this.selected<0){this.selected=i;this.paint();return;}
+-    const a=this.selected;if(a===i){this.selected=-1;this.paint();return;}
++    const a=this.selected;if(a===i){if(this.managed&&this.snapshot.active?.board[i]?.special)this.managed.submit(['activate',i]);this.selected=-1;this.paint();return;}
+     if(Math.abs(a%7-i%7)+Math.abs(Math.floor(a/7)-Math.floor(i/7))===1)this.swap(a,i);else{this.selected=i;this.paint();}}
+   private render(s:any){
+-    this.snapshot=s;(globalThis as any).__forestLiveSnapshot=s;
+-    const book=s.state==='book.ready'||s.state==='stage.detail';const result=s.state.startsWith('result.');
++    this.snapshot=s;if(!this.managed)(globalThis as any).__forestLiveSnapshot=s;if(s.uiTitle)this.headline.string=s.uiTitle;
++    const book=s.state==='book.ready'||s.state==='stage.detail';const result=s.state.startsWith('result.')||s.state==='run.unsaved'||s.state==='error.readonly';
+     this.grid.active=!book&&!result;this.stagePanel.active=book;this.resultPanel.active=result;
+     this.moves.string=s.active?'余 '+s.active.moves+' 步  ·  '+s.active.score+' 分':'选一段海岛旅程';
+     this.goals.string=s.active?Object.entries(s.active.goals).map(([k,v])=>({beacons:'灯火',moss:'苔藓',type5:'叶子'}[k]||k)+' '+v).join('   '):'短目标，慢慢走';
+-    this.status.string=s.state==='run.paused'?'已暂停 · 点继续回到棋盘':s.state==='run.resolving'?'风正在整理棋盘…':'相邻两格点按交换，也可轻扫';
+-    this.paint();
++    this.status.string=s.uiStatus ?? (s.state==='run.paused'?'已暂停 · 点继续回到棋盘':s.state==='run.resolving'?'风正在整理棋盘…':'相邻两格点按交换，也可轻扫');
++    this.paint();if(this.managed)this.managed.afterPaint(s,this.cells);
+     if(book){this.clearChildren(this.stagePanel);this.text(this.stagePanel,'潮汐小径',0,158,23,'#294b55');
+       const stages=s.stages.filter((x:any)=>x.region==='tide').slice(0,3);
+       stages.forEach((x:any,i:number)=>this.button(this.stagePanel,`${x.ordinal}. ${x.name}${x.record?'  ✓':!x.unlocked?'  · 未解锁':''}` ,0,85-i*67,350,51,()=>{
+@@ -95,10 +101,10 @@
+       }));
+       if(s.active)this.button(this.stagePanel,'继续上次旅程',0,-148,250,44,()=>this.command('resumeActive'));
+     }
+-    if(result){this.clearChildren(this.resultPanel);this.text(this.resultPanel,s.active?.status==='won'?'潮汐已点亮':'再试一阵风',0,100,29,'#294b55');
+-      this.text(this.resultPanel,`${s.active?.score||0} 分 · 旅程${s.result?.saved?'已保存':'待保存'}`,0,42,17,'#7b8780');
++    if(result){this.clearChildren(this.resultPanel);this.text(this.resultPanel,s.uiResultTitle ?? (s.active?.status==='won'?'潮汐已点亮':'再试一阵风'),0,100,29,'#294b55');
++      this.text(this.resultPanel,s.uiResultCaption ?? `${s.active?.score||0} 分 · 旅程${s.result?.saved?'已保存':'待保存'}`,0,42,17,'#7b8780');
+       this.button(this.resultPanel,'回到选关',0,-48,240,48,()=>this.command('requestExit'));
+-      if(s.state==='result.unsaved')this.button(this.resultPanel,'重试保存',0,-110,240,42,()=>this.command('retrySave'));
++      if(s.state==='result.unsaved'||s.state==='run.unsaved')this.button(this.resultPanel,'重试保存',0,-110,240,42,()=>this.command('retrySave'));
+     }
+   }
+   private clearChildren(n:Node){for(const child of [...n.children]){child.removeFromParent();child.destroy();}}
+@@ -109,7 +115,7 @@
+       else if(type===3){g.moveTo(-10,0);g.lineTo(10,0);g.moveTo(0,-10);g.lineTo(0,10);g.stroke();}
+       else if(type===4){g.rect(-8,-8,16,16);g.stroke();}else{g.moveTo(0,-12);g.bezierCurveTo(-12,1,-8,12,0,12);g.bezierCurveTo(12,6,7,-6,0,-12);g.stroke();g.moveTo(0,-8);g.lineTo(0,8);g.stroke();}
+       if(this.snapshot.active.moss.includes(i)){g.fillColor=new Color('#528d69');g.circle(17,-17,4);g.fill();}
+-      if(this.snapshot.active.roots.includes(i)){g.strokeColor=new Color('#846f51');g.lineWidth=3;g.roundRect(-22,-22,44,44,8);g.stroke();}
++      if(this.snapshot.active.roots.some((r:any)=>Array.isArray(r)?r[0]===i:r===i)){g.strokeColor=new Color('#846f51');g.lineWidth=3;g.roundRect(-22,-22,44,44,8);g.stroke();}
+       if(this.snapshot.active.beaconTarget?.index===i){g.strokeColor=new Color('#d4a63f');g.lineWidth=3;g.roundRect(-22,-22,44,44,8);g.stroke();}
+       if(t.special){g.strokeColor=new Color('#294b55');g.lineWidth=2;g.circle(0,0,15);g.stroke();}
+     });}
+@@ -117,5 +123,5 @@
+   private round(n:Node,w:number,h:number,color:string,r:number){const g=n.addComponent(Graphics);g.fillColor=new Color(color);g.roundRect(-w/2,-h/2,w,h,r);g.fill();}
+   private text(parent:Node,value:string,x:number,y:number,size:number,color:string){const n=this.box('Text',parent,x,y,430,55);const l=n.addComponent(Label);l.string=value;l.fontSize=size;l.lineHeight=size+6;l.color=new Color(color);l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
+   private button(parent:Node,value:string,x:number,y:number,w:number,h:number,fn:()=>void){const n=this.box(value,parent,x,y,w,h);this.round(n,w,h,'#dfebe5',12);this.text(n,value,0,0,15,'#355c59');n.on(Node.EventType.TOUCH_END,fn,this);return n;}
+-  onDestroy(){game.off(Game.EVENT_HIDE,this.hide);game.off(Game.EVENT_SHOW,this.show);this.host?.dispose();this.cancelAnimations();delete (globalThis as any).__nativeBoard;}
++  onDestroy(){game.off(Game.EVENT_HIDE,this.hide);game.off(Game.EVENT_SHOW,this.show);this.host?.dispose();this.cancelAnimations();if(!this.managed)delete (globalThis as any).__nativeBoard;}
+ }

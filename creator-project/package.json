@@ -1,0 +1,8 @@
+{
+  "name": "forest-cocos-local-preflight",
+  "version": "0.0.1",
+  "private": true,
+  "uuid": "fbfe3d82-7d72-4d6a-bb79-d49e7f66a4ac",
+  "creator": { "version": "3.8.8" },
+  "description": "Staged source only; editor activation, import and scene bootstrap pending approval."
+}

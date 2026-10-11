@@ -1,0 +1,67 @@
+[
+  {
+    "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+    "bytes": 1991784,
+    "sha256": "e60bedf9e47664cae2aa9e6732b310e2cdd4ff59be282c0bc0bae3b1a4616b89"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb",
+    "bytes": 5020780,
+    "sha256": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
+    "bytes": 1114728,
+    "sha256": "0e8152e836f309868a9e6a485c9e2925e39dd99707d5f93d682e4a631a66b288"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_chest_open.mp3",
+    "bytes": 18015,
+    "sha256": "4133d16a0319a9d39a6863ad0145bea7b5441eb8c1cb0510b03395d427339233"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_1.mp3",
+    "bytes": 10283,
+    "sha256": "facda9edc4169f42158e1ff9aeccf337d9ca8864c7c526fabdb5b19106481568"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_2.mp3",
+    "bytes": 11327,
+    "sha256": "9af4891a971de97e886b50d8830d4e296566674687e1bb37c348a874bf7052bf"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_combo_3.mp3",
+    "bytes": 11745,
+    "sha256": "fa67628227195d833dea182cf2cf8fbd5b5100dd4847dca8001f43394d6a8a59"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_level_clear.mp3",
+    "bytes": 28255,
+    "sha256": "6ec7037dce45103036b3f6ee643bf3ed54334ce609580a2f5c6c6e4ab545ddfd"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_match_normal.mp3",
+    "bytes": 8611,
+    "sha256": "fcad04e03b7504a1acdbdc1b97d83d621a3d5a9f76aaee54886d681eef1eb5e9"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3",
+    "bytes": 1714,
+    "sha256": "443769d588f408a03b96f75cc726e3425417529e10831ed23105c21f217d27ac"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ui/loading-reference.jpg",
+    "bytes": 129312,
+    "sha256": "308f78b5f037bd33668ff8ad899649ee6094b8e55cf695cf7df62a195b7e8e8d"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ui/pieces.png",
+    "bytes": 776072,
+    "sha256": "0d9d66b936ed15d5d4c993686e51922e7e768dfcf28e5dd9b1795cd9f45d982e"
+  },
+  {
+    "path": "tools/branding/game-title-temporary.png",
+    "bytes": 13167,
+    "sha256": "8944404779df82dc8a8dbf8bd1b30855caf3c0be8516be0926443a1882176a7d"
+  }
+]

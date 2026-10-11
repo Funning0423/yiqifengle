@@ -1,0 +1,77 @@
+CCEffect %{
+  techniques:
+  - name: solid
+    passes:
+    - vert: chest-vs:vert
+      frag: chest-fs:frag
+      depthStencilState: { depthTest: true, depthWrite: true }
+      rasterizerState: { cullMode: back }
+      properties: &props
+        baseColor: { value: [0.6, 0.35, 0.16, 1] }
+        surfaceParams: { value: [1, 0, 0, 0] }
+  - name: shadow
+    passes:
+    - vert: chest-vs:vert
+      frag: chest-fs:frag
+      depthStencilState: { depthTest: true, depthWrite: false }
+      rasterizerState: { cullMode: none }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+CCProgram chest-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec3 a_normal;
+  out vec3 v_normal;
+  out vec3 v_local;
+  out vec3 v_world;
+  #if USE_SHADOW
+    in vec4 a_color;
+    out vec4 v_color;
+    out vec2 v_screen;
+  #endif
+  vec4 vert () {
+    vec4 world=cc_matWorld*vec4(a_position,1.0);
+    v_normal=normalize(mat3(cc_matWorld)*a_normal);
+    v_local=a_position;v_world=world.xyz;
+    #if USE_SHADOW
+      v_color=a_color;vec4 clip=cc_matViewProj*world;v_screen=clip.xy/clip.w;
+    #endif
+    return cc_matViewProj*world;
+  }
+}%
+CCProgram chest-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  in vec3 v_normal;
+  in vec3 v_local;
+  in vec3 v_world;
+  uniform ChestSurface { vec4 baseColor; vec4 surfaceParams; };
+  #if USE_SHADOW
+    in vec4 v_color;
+    in vec2 v_screen;
+  #endif
+  vec4 frag () {
+    #if USE_SHADOW
+      return vec4(0.16,0.12,0.07,v_color.a*0.13*(1.0-smoothstep(0.72,0.99,max(abs(v_screen.x),abs(v_screen.y)))));
+    #else
+      vec3 n=normalize(v_normal),key=normalize(vec3(-0.55,0.82,0.50));
+      vec3 fill=normalize(vec3(0.65,0.35,-0.50));
+      float light=0.43+0.51*max(dot(n,key),0.0)+0.14*max(dot(n,fill),0.0);
+      float grain=sin(v_local.y*85.0+v_local.z*11.0+sin(v_local.x*4.0)*2.2);
+      grain+=0.35*sin(v_local.y*181.0+sin(v_local.x*6.0)*3.0);
+      vec3 albedo=baseColor.rgb*(1.0+surfaceParams.x*grain*0.025);
+      vec3 viewDir=normalize(cc_cameraPos.xyz-v_world),halfDir=normalize(key+viewDir);
+      float spec=pow(max(dot(n,halfDir),0.0),38.0)*(0.045+surfaceParams.y*0.16);
+      return vec4(albedo*light+vec3(1.0,0.86,0.59)*spec,1.0);
+    #endif
+  }
+}%
