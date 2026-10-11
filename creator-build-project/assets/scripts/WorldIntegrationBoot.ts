@@ -11,6 +11,8 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopRole,turnRole,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE} from './CharacterMotion';
+import type {MotionConfig,FootEvent,Joint,Plan} from './CharacterMotion';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
 import {StartupReadyGate,StartupAttempt,StartupCancelled} from './world-r2/StartupReadyGate';
 import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
@@ -20,63 +22,159 @@ const {ccclass,property}=_decorator;
 /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
 
 /** Explicit flow-reference stand-in. The calibrated flag certifies only these reference coordinates,
- * never B body/clothing/contact. No animation clips/root motion/collision acceptance. */
+ * never B body/clothing/contact. No root motion/collision acceptance.
+ * Walk driver (GGbot, docs/walk-driver.md): the controller moves the root along the path; the in-place walk clip's time
+ * advances by distance (Δs / native_speed), keeps its phase across back-to-back walks, yaw follows the path tangent
+ * rate-limited (WALK_YAW_MAX_DEG_S); onFoot from phase crossings; crossfades + masked wind layers (CHARACTER_POSE_BLEND). */
 class FlowReferenceStandin implements CharacterAdapter {
  readonly calibrated=true;
  readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot,seatedRoot:REF.seatedRoot,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
- private job:any=null;private anim:SkeletalAnimation|null=null;private visualState:any=null;private visualName='';private visualElapsed=0;private visualLoop=false;private disposed=false;
+ private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
+ private motionConfig:MotionConfig=defaultMotionConfig();private pendingIdle=false;private pendingFor=0;private yaw=new YawFollower();private yawRad=0;
+ private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
+ private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
  constructor(private node:Node){}
- private motionEvents:{utc:string;clip:string;duration:number}[]=[];
- diagnostics(){const p=this.node.worldPosition;return {clip:this.visualName,time:this.visualState?.time??null,duration:this.visualState?.clip?.duration??null,loop:this.visualLoop,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(c=>({name:c.name,duration:c.duration})),events:this.motionEvents.slice(-32)};}
- bindVisual(visual:Node){if(this.disposed)throw Error('Character disposed');this.anim=visual.getComponent(SkeletalAnimation)||visual.getComponentInChildren(SkeletalAnimation);if(!this.anim)throw Error('Character SkeletalAnimation missing');this.anim.useBakedAnimation=true;this.playNamed('sit_hold',true);}
- /** Creator 3.8.8 AnimationState.pause unregisters the manager tick; public setTime/sample
-  * still evaluates SkeletalAnimationState baked frames. The controller is the sole clock. */
- private playNamed(name:string,loop:boolean){if(this.disposed)return;const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);
-  for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
-  clip.wrapMode=loop?AnimationClip.WrapMode.Loop:AnimationClip.WrapMode.Normal;
-  const state=anim.getState(name)||anim.createState(clip,name);state.wrapMode=clip.wrapMode;state.repeatCount=loop?Infinity:1;anim.play(name);state.pause();state.setTime(0);state.sample();
-  this.visualState=state;this.visualName=name;this.visualElapsed=0;this.visualLoop=loop;this.motionEvents.push({utc:new Date().toISOString(),clip:name,duration:clip.duration});if(this.motionEvents.length>32)this.motionEvents.shift();return clip.duration;
- }
- private stopVisual(){this.visualState?.stop();this.visualState=null;this.visualName='';this.visualElapsed=0;}
- playDoorReach(){if(this.disposed||this.job||!this.node.active)return false;this.playNamed('door_reach',false);return true;}
- advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0)return;const step=Math.min(dt,.1);const j=this.job;
-  if(j){j.elapsed=Math.min(j.duration,j.elapsed+step);const p=j.elapsed/j.duration;
+ private motionEvents:any[]=[];
+ private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
+ diagnostics(){const p=this.node.worldPosition,c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
+  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
+   motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
+    yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
+    apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0}};}
+ /** anim_meta.json (character/anim_meta in region_island) parsed before bindVisual; null/invalid = built-in defaults. */
+ setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);}
+ /** Per-frame wind strength 0..1 (运镜bot WorldFlowComponent.getWindStrength); absent/null = 0. */
+ setWindSource(fn:(()=>number|null)|null){this.windSource=fn;}
+ bindVisual(visual:Node){if(this.disposed)throw Error('Character disposed');this.anim=visual.getComponent(SkeletalAnimation)||visual.getComponentInChildren(SkeletalAnimation);if(!this.anim)throw Error('Character SkeletalAnimation missing');
+  this.rig=new AnimRig(this.anim,CHARACTER_POSE_BLEND);this.clock=new MotionClock(this.motionConfig,this.rig);this.playNamed('sit_hold',true,0);}
+ private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
+ /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
+ private playNamed(name:string,loop:boolean,fade=-1,keep=false,time=0){if(this.disposed||!this.clock)return;const d=this.requireClip(name);
+  if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
+ private render(){if(this.rig&&this.clock)this.rig.apply(this.clock.plan());}
+ private setYaw(rad:number){this.yawRad=rad;this.node.setRotationFromEuler(0,rad*180/Math.PI,0);}
+ playDoorReach(){if(this.disposed||this.job||!this.node.active||!this.rig?.has(CLIP_ROLES.doorReach))return false;this.pendingIdle=false;this.playNamed('door_reach',false);return true;}
+ private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
+ private emitFoot(f:any){const p=this.node.worldPosition;const e:FootEvent={event:f.def.name,bone:f.def.bone,body:f.def.body,clip:f.clip,phase:f.def.time/f.duration,time:f.def.time,cycle:f.cycle,pos:[p.x,p.y,p.z]};
+  this.logEvent({kind:'foot',event:e.event,bone:e.bone,body:e.body,clip:e.clip,phase:e.phase,cycle:e.cycle,pos:[p.x,p.z]});const list=this.footListeners.slice();for(let i=0;i<list.length;i++){try{list[i](e);}catch(err){console.warn('onFoot listener failed',String(err));}}}
+ /** Delivered to onApronLift subscribers (Voice bot WindAudio subscribes to this adapter by itself). Fallback: direct
+  *  globalThis.__voiceWind.notifyApronLift only while WindAudio reports no hooked subscriber (never both). */
+ private emitApron(strength:'full'|'soft',durationSec:number){this.logEvent({kind:'apron-lift',strength,durationSec,wind:this.wind});const list=this.apronListeners.slice();
+  for(let i=0;i<list.length;i++){try{list[i](strength,durationSec);}catch(err){console.warn('onApronLift listener failed',String(err));}}
+  const vw=(globalThis as any).__voiceWind;if(vw&&typeof vw.notifyApronLift==='function'){let hooks=0;try{hooks=Number(vw.snapshot?.().hooks)||0;}catch{hooks=0;}if(!hooks){try{vw.notifyApronLift(strength,durationSec);}catch(err){console.warn('notifyApronLift failed',String(err));}}}}
+ onFoot(cb:(e:FootEvent)=>void):()=>void {this.footListeners.push(cb);return ()=>{const i=this.footListeners.indexOf(cb);if(i>=0)this.footListeners.splice(i,1);};}
+ onApronLift(cb:(strength:'full'|'soft',durationSec:number)=>void):()=>void {this.apronListeners.push(cb);return ()=>{const i=this.apronListeners.indexOf(cb);if(i>=0)this.apronListeners.splice(i,1);};}
+ /** Soft idle gust (角色动画bot idle logic / anim_meta wind.idleGust): flutter envelope + onApronLift('soft', durationSec). Not while walking. */
+ apronGust(durationSec=4):boolean {if(this.disposed||!this.clock||this.job&&this.job.action.kind==='walk')return false;const d=durationSec>0&&Number.isFinite(durationSec)?durationSec:4;this.clock.startGust(d);this.emitApron('soft',d);return true;}
+ /** Walk-duration contract: distance fraction 0..1 of the CURRENT walk action (each segment from 0), null when not walking. */
+ walkProgress():number|null {const j=this.job;if(!j||j.action.kind!=='walk'||!(j.duration>0))return null;const f=j.elapsed/j.duration;return f>0?(f<1?f:1):0;}
+ private isWalkClip(name:string|undefined){return name===CLIP_ROLES.walk||name===CLIP_ROLES.walkStart||name===CLIP_ROLES.stopL||name===CLIP_ROLES.stopR;}
+ /** Walk ended and no new walk followed within one frame: stop clip for the planted body foot, else idle. */
+ private settleFromWalk(){const c=this.clock!;const stop=stopRole(this.rig!,c.planted());if(stop)this.playNamed(stop,false);else this.playNamed(CLIP_ROLES.idle,true,-1,true);}
+ private beginWalk():boolean {const c=this.clock!,cur=c.base?.clip;const continuing=this.pendingIdle||this.isWalkClip(cur);this.pendingIdle=false;
+  if(cur===CLIP_ROLES.walk||cur===CLIP_ROLES.walkStart)return !continuing; // phase continuity across back-to-back walks
+  this.yaw.reset(this.yawRad);
+  if(cur!==CLIP_ROLES.stopL&&cur!==CLIP_ROLES.stopR&&this.rig!.has(CLIP_ROLES.walkStart))this.playNamed(CLIP_ROLES.walkStart,false);else this.playNamed(CLIP_ROLES.walk,true);return !continuing;}
+ advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
+  if(this.pendingIdle&&!(j&&j.action.kind==='walk')){this.pendingFor+=step;if(j||this.pendingFor>=WALK_JOIN_GRACE_S){this.pendingIdle=false;if(!j)this.settleFromWalk();}}
+  let ds:number|null=null;
+  if(j){const before=j.elapsed;j.elapsed=Math.min(j.duration,j.elapsed+step);const p=j.elapsed/j.duration;
    if(j.action.kind==='walk'){
-    this.node.setWorldPosition(...pointOnPath(j.action.path,p));
-    // +Z is character forward. Follow the authored path on both outward and return walks.
-    const a=pointOnPath(j.action.path,Math.max(0,p-.0001)),b=pointOnPath(j.action.path,Math.min(1,p+.0001));
-    const dx=b[0]-a[0],dz=b[2]-a[2];
-    if(Math.hypot(dx,dz)>1e-8)this.node.setRotationFromEuler(0,Math.atan2(dx,dz)*180/Math.PI,0);
+    this.node.setWorldPosition(...pointOnPath(j.action.path,p));ds=(j.elapsed-before)/j.duration*j.length;
+    // +Z is character forward. Damped, rate-limited follow of the direction to a look-ahead point (corners no longer snap);
+    // the root itself stays exactly on the path.
+    const here=this.node.worldPosition,ahead=pointOnPath(j.action.path,j.length>0?Math.min(1,p+WALK_YAW_LOOKAHEAD_M/j.length):1);
+    const dx=ahead[0]-here.x,dz=ahead[2]-here.z;
+    if(Math.hypot(dx,dz)>.01){const target=Math.atan2(dx,dz);
+     if(j.fromRest&&before===0&&Math.abs(wrapAngle(target-this.yawRad))>WALK_YAW_SNAP_DEG*Math.PI/180){this.logEvent({kind:'yaw-snap',deg:wrapAngle(target-this.yawRad)*180/Math.PI});this.yaw.reset(target);this.setYaw(target);}
+     else this.setYaw(this.yaw.step(target,j.elapsed-before));}
    }
-   else if(j.action.kind==='turn')this.node.setRotationFromEuler(0,(j.action.fromYawRad+Math.atan2(Math.sin(j.action.toYawRad-j.action.fromYawRad),Math.cos(j.action.toYawRad-j.action.fromYawRad))*p)*180/Math.PI,0);
+   else if(j.action.kind==='turn'){this.setYaw(j.fromYaw+j.deltaYaw*p);this.yaw.reset(this.yawRad);}
    else{const target=j.action.kind==='stand'?j.action.seat.standingControllerRoot:j.action.seat.seatedControllerRoot;this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));}
   }
-  if(this.visualState){this.visualElapsed+=step;const duration=this.visualState.clip.duration;this.visualState.setTime(this.visualLoop?this.visualElapsed%duration:Math.min(duration,this.visualElapsed));this.visualState.sample();}
-  if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;this.playNamed(kind==='sit'?'sit_hold':'idle_breathing_loop',true);j.resolve();}
-  else if(!j&&this.visualName==='door_reach'&&this.visualElapsed>=this.visualState.clip.duration)this.playNamed('idle_breathing_loop',true);
+  this.wind=this.readWind();const r=c.tick(step,ds,this.wind);
+  for(let i=0;i<r.foot.length;i++)if(r.foot[i].def.name.indexOf('foot:')===0)this.emitFoot(r.foot[i]);
+  if(r.apronLift)this.emitApron('full',r.apronLift.durationSec);
+  const ph=c.phase();
+  if(ph&&ph.clip===CLIP_ROLES.walkStart){const m=c.meta(CLIP_ROLES.walkStart),d=c.base!.duration,at=m?.handoff?.at??Math.max(0,d-CROSSFADE_S);if(ph.time>=at-1e-9)this.playNamed(m?.handoff?.next||CLIP_ROLES.walk,true,-1,false,m?.handoff?.nextTime??0);}
+  else if(r.ended&&!this.job&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp)this.playNamed(CLIP_ROLES.idle,true,-1,true);
+  this.idleGustTick(step);
+  this.render();
+  if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;
+   if(kind==='walk'){this.pendingIdle=true;this.pendingFor=0;} // keep the walk pose/phase; resolved next frame unless another walk starts
+   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else this.playNamed(CLIP_ROLES.idle,true,-1,true);
+   j.resolve();}
  }
+ private idleGustTick(step:number){const g=this.motionConfig.idleGust,c=this.clock!;if(!g||this.job||c.base?.clip!==CLIP_ROLES.idle||this.wind>0||c.gust){this.idleFor=0;return;}
+  if(this.nextGust<0)this.nextGust=g.minS+Math.random()*Math.max(0,g.maxS-g.minS);this.idleFor+=step;if(this.idleFor>=this.nextGust){this.idleFor=0;this.nextGust=-1;this.apronGust(g.durationS);}}
  /** T2+: stand/sit = authored clip length; turn = the fixed 1.5 s used by perform(). */
  actionSeconds(kind:'stand'|'sit'|'turn'){if(kind==='turn')return 1.5;const clip=this.anim?.clips.find(c=>c?.name===(kind==='stand'?'stand_up':'sit_down'));const d=clip?.duration;return Number.isFinite(d)&&d!>0?d:undefined;}
  perform(action:Action,token:Cancellation):Promise<void>{token.check();if(this.disposed)return Promise.reject(Error('Character disposed'));if(this.job)return Promise.reject(Error('Character action busy'));
   if(action.kind==='sit'){
-   const q=this.node.worldRotation,from=Math.atan2(2*(q.x*q.z+q.w*q.y),1-2*(q.x*q.x+q.y*q.y));
-   const delta=Math.atan2(Math.sin(action.seat.yawRad-from),Math.cos(action.seat.yawRad-from));
+   const from=this.yawRad,delta=wrapAngle(action.seat.yawRad-from);
    // Return routes end facing the chair. Turn in place before the original sit animation.
    if(Math.abs(delta)>.001)return this.perform({kind:'turn',controllerRoot:action.seat.standingControllerRoot,fromYawRad:from,toYawRad:from+delta,direction:'left'},token).then(()=>{token.check();return this.perform(action,token);});
   }
-  let duration:number;try{duration=action.kind==='stand'?this.playNamed('stand_up',false)!:action.kind==='sit'?this.playNamed('sit_down',false)!:action.kind==='walk'?(this.playNamed('walk_loop',true),action.duration):(this.playNamed('idle_breathing_loop',true),1.5);if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
-  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,resolve,reject,off:()=>{}};this.job=j;j.off=token.onCancel(()=>{if(this.job===j){this.job=null;this.stopVisual();}reject(new Cancelled());});});
+  let duration:number;const extra:any={};
+  try{
+   if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
+   else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
+   else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);extra.fromRest=this.beginWalk();duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;}
+   else{// Start from where she actually faces (the walk's damped yaw may still trail the path end by a few degrees).
+    const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);this.pendingIdle=false;
+    const role=turnRole(this.rig!,extra.deltaYaw);if(role)this.playNamed(role,false);else this.playNamed(CLIP_ROLES.idle,true,-1,true);duration=1.5;}
+   if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
+  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
+   j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});
  }
- cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.stopVisual();this.node.setWorldPosition(...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot));this.node.setRotationFromEuler(0,(pose.kind==='seated'?pose.seat.yawRad:pose.yawRad)*180/Math.PI,0);this.playNamed(pose.kind==='seated'?'sit_hold':'idle_breathing_loop',true);}
+ cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
+  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.node.worldPosition;
+  // Stable arrival right after a walk (same spot): keep the pose and settle through stop/idle with a crossfade, no pop.
+  const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
+  this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
+  if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
+  else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
+  else{this.pendingIdle=false;this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
  setVisible(v:boolean){if(!this.disposed)this.node.active=v;}
- dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.stopVisual();this.anim=null;this.node.destroy();}
+ dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
+}
+/** Cocos side of the pose pipeline. Blend mode (useBakedAnimation=false): the evaluator writes joint nodes synchronously
+ * (AnimationClip.enableTrsBlending=false, states never played), so the driver samples, captures and mixes itself:
+ * crossfade = slerp between two sampled poses; wind layers = additive/override on the masked joints only. Baked mode:
+ * one clip, play+pause+setTime+sample (the original path), hard cuts, layers ignored. */
+class AnimRig {
+ readonly joints:Joint[]=[];private A:Float64Array;private B:Float64Array;private P:Float64Array;private L:Float64Array;private refs:{[clip:string]:Float64Array}={};private masks:{[clip:string]:number[]}={};private bakedName='';
+ constructor(private anim:SkeletalAnimation,readonly blend:boolean){
+  for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
+  if(blend){anim.useBakedAnimation=false;const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);}
+  else anim.useBakedAnimation=true;
+  const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);}
+ private clip(name:string){return this.anim.clips.find(c=>c?.name===name)||null;}
+ has(name:string){const c=this.clip(name);return !!c&&Number.isFinite(c.duration)&&c.duration>0;}
+ duration(name:string){const c=this.clip(name);return c&&c.duration>0?c.duration:0;}
+ private state(name:string){const c=this.clip(name)!;return this.anim.getState(name)||this.anim.createState(c,name);}
+ private sample(name:string,time:number){const s=this.state(name);s.setTime(time);s.sample();}
+ private mask(clip:string,patterns:ReadonlyArray<string>){let m=this.masks[clip];if(!m){m=[];for(let i=0;i<this.joints.length;i++)if(globMatch(patterns,this.joints[i].name))m.push(i);this.masks[clip]=m;}return m;}
+ apply(plan:Plan){const b=plan.base;if(!b)return;
+  if(!this.blend){const anim=this.anim,clip=this.clip(b.clip)!;
+   if(this.bakedName!==b.clip){for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}clip.wrapMode=b.loop?AnimationClip.WrapMode.Loop:AnimationClip.WrapMode.Normal;
+    const st=this.state(b.clip);st.wrapMode=clip.wrapMode;st.repeatCount=b.loop?Infinity:1;anim.play(b.clip);st.pause();this.bakedName=b.clip;}
+   this.sample(b.clip,b.time);return;}
+  const n=this.joints.length;if(!plan.out&&!plan.layers.length){this.sample(b.clip,b.time);return;}
+  if(plan.out){this.sample(plan.out.clip,plan.out.time);capture(this.joints,this.A);this.sample(b.clip,b.time);capture(this.joints,this.B);blendPose(this.A,this.B,1-plan.out.weight,this.P,n);}
+  else{this.sample(b.clip,b.time);capture(this.joints,this.P);}
+  for(let k=0;k<plan.layers.length;k++){const l=plan.layers[k],mask=this.mask(l.clip,l.mask);if(!mask.length)continue;let ref:Float64Array|null=null;
+   if(l.mode==='additive'){ref=this.refs[l.clip]||null;if(!ref){ref=new Float64Array(this.P.length);this.sample(l.clip,l.referenceTime);capture(this.joints,ref,mask);this.refs[l.clip]=ref;}}
+   this.sample(l.clip,l.time);capture(this.joints,this.L,mask);applyLayer(this.P,this.L,ref,mask,l.weight,l.mode,this.P);}
+  writePose(this.joints,this.P);}
+ dispose(){for(const c of this.anim.clips){if(c)this.anim.getState(c.name)?.stop();}this.joints.length=0;}
 }
 @ccclass('WorldIntegrationBoot')
 export class WorldIntegrationBoot extends Component {
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
- private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private doorReached=false;
@@ -94,8 +192,8 @@ export class WorldIntegrationBoot extends Component {
    if(this.loadingBackdrop)this.loadingBackdrop.active=true;if(this.loadingMask)this.loadingMask.active=true;
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
-    this.setStatus('正在准备角色与动画',false);const character=await this.loadCharacter();attempt.check();
-    this.model=prefab;this.characterPrefab=character;this.setStatus('正在准备房间',false);
+    this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta()]);attempt.check();const character=loaded[0];
+    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
     if(this.loadingBackdrop)this.loadingBackdrop.active=false;if(this.loadingMask)this.loadingMask.active=false;this.paintNavigation();this.resize();
@@ -112,6 +210,8 @@ export class WorldIntegrationBoot extends Component {
  /** E2 fix: the start scene no longer depends on the island GLB, so 'builtin-standard' may not be loaded yet at start().
   * Material creation by effect name is therefore deferred until the island prefab (and its effects) has loaded,
   * checks the effect is registered, falls back to builtin-unlit, and never blocks startup. */
+ /** Optional walk-driver data (docs/walk-driver.md): region_island character/anim_meta.json. Never blocks or fails startup. */
+ private loadAnimMeta(){return new Promise<any>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('character/anim_meta',JsonAsset,(e:any,a:any)=>ok(e||!a?null:a.json));}catch{ok(null);}});}
  private loadCharacter(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Character bundle missing'));b.loadDir('character',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one interim character prefab'));ok(list[0]);});});}
  private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
   try{const pick=(n:string)=>EffectAsset.get(n)?n:null;const effect=pick('builtin-standard')||pick('builtin-unlit');
@@ -129,19 +229,21 @@ export class WorldIntegrationBoot extends Component {
  if(!seated.length)throw Error('Required initial seated clip missing: '+this.initialSeatedClip);
  this.selectedSeatedClip=this.initialSeatedClip;this.characterAnimations=seated;
  for(const a of animations){a.playOnLoad=false;a.stop();}
- for(const a of seated){a.useBakedAnimation=true;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
- (this as any)._referenceAdapter.bindVisual(girl);
+ for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
+ (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
+ // Walk driver wind input: 运镜bot WorldFlowComponent.getWindStrength() (0..1); missing = 0.
+ (this as any)._referenceAdapter.setWindSource(()=>{const w=(composition as any).world;return w&&typeof w.getWindStrength==='function'?w.getWindStrength():null;});
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
  this.ready=true;girl.active=true;this.error='';
  // T9: optional 3D UI props (signpost / bag / journal / compass / beach palms). Never blocks startup; on failure the flat buttons stay.
  try{const props=new IslandProps(scene,camera);this.islandProps=props;void props.load().then(ok=>{if(this.islandProps!==props||!ok)return;this.islandJourney?.setPropMode(true);});}catch(e){this.islandProps=null;console.warn('[T9_PROPS] host unavailable, flat buttons stay',String(e));}
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
+ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  }
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
