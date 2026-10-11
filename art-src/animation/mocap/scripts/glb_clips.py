@@ -59,6 +59,8 @@ def tol_for(name, base_tol):
         return base_tol['leg']
     if b.startswith('skirt'):
         return base_tol['skirt']
+    if b in ('head', 'upper_arm', 'forearm', 'hand'):
+        return base_tol.get('distal', base_tol['other'])
     return base_tol['other']
 
 

@@ -14,6 +14,7 @@ CMU = os.environ.get('CMU_DIR', '/tmp/cmu/raw')
 FPS = 30
 MAPPED = list(RT.TMAP.keys())
 STANCE_WIDEN = 0.04         # m per ankle, see widen_stance
+SOURCE_SMOOTH = float(os.environ.get('MOCAP_SMOOTH', '4.0'))   # gauss sigma in 120 fps source frames (marker jitter -> keys)
 
 _rig = None
 _ctx = None
@@ -37,7 +38,8 @@ def ctx():
 class Take:
     """one CMU trial retargeted onto our rig (uniform scale = leg-length ratio)."""
 
-    def __init__(self, trial, smooth=1.5):
+    def __init__(self, trial, smooth=None):
+        smooth = SOURCE_SMOOTH if smooth is None else smooth
         sid = trial.split('_')[0]
         key = (trial, smooth)
         if key not in _src:

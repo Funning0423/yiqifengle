@@ -13,10 +13,12 @@ import glb_clips as GC
 from export_clips import ORDER
 
 ANIM_BUDGET = 150 * 1000
-TOLS = [dict(leg=0.03, other=0.2, skirt=0.3, trans_m=0.0001),       # = 角色动画bot compression (legs+hips 0.03 deg)
-        dict(leg=0.05, other=0.25, skirt=0.4, trans_m=0.0001),
-        dict(leg=0.08, other=0.3, skirt=0.5, trans_m=0.0002),
-        dict(leg=0.12, other=0.4, skirt=0.6, trans_m=0.0003)]
+TOLS = [dict(leg=0.03, other=0.2, distal=0.2, skirt=0.3, trans_m=0.0001),     # = 角色动画bot compression (legs+hips 0.03 deg)
+        dict(leg=0.05, other=0.25, distal=0.4, skirt=0.4, trans_m=0.0002),
+        dict(leg=0.08, other=0.3, distal=0.6, skirt=0.6, trans_m=0.0003),
+        dict(leg=0.1, other=0.35, distal=0.8, skirt=0.8, trans_m=0.0004),
+        dict(leg=0.12, other=0.4, distal=1.0, skirt=1.0, trans_m=0.0005),
+        dict(leg=0.15, other=0.5, distal=1.2, skirt=1.2, trans_m=0.0006)]
 META = CB.GLB + '.meta'
 ANIM_META = os.path.join(os.path.dirname(CB.GLB), 'anim_meta.json')
 LICENSE = ('CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, '
@@ -150,9 +152,10 @@ def update_anim_meta(metas, rep, tol, ab):
                     'walk_stop_bodyL/R, walk_turn_90_bodyL/R, walk_turn_180(_bodyR), idle_breathing_loop, sit_hold, sit_down, '
                     'stand_up, door_reach); wind_sway_loop unchanged')
     am['compression'] = dict(
-        clips=('keys reduced per channel (greedy; slerp / lerp error <= %.2f deg hips+legs, %.2f deg others, %.2f deg skirt, '
-               'root/hips translation %.1f mm), rest translations / scales omitted, float32, LINEAR'
-               % (tol['leg'], tol['other'], tol['skirt'], tol['trans_m'] * 1000)),
+        clips=('keys reduced per channel (greedy; slerp / lerp error <= %.2f deg hips+legs, %.2f deg spine/chest/neck, %.2f deg '
+               'head/arms/hands, %.2f deg skirt, root/hips translation %.1f mm), rest translations / scales omitted, float32, '
+               'LINEAR; source mocap low-passed (gauss sigma %.0f frames at 120 fps) before retargeting'
+               % (tol['leg'], tol['other'], tol['distal'], tol['skirt'], tol['trans_m'] * 1000, CB.SOURCE_SMOOTH)),
         anim_bytes_total=ab['total'], anim_bytes_per_clip=ab['clips'], budget_bytes=ANIM_BUDGET)
     am['mocap'] = dict(sources='art-src/animation/mocap/SOURCES.md', license=LICENSE,
                        pipeline='art-src/animation/mocap/scripts (export_clips.py -> solve_skirts.py in Blender -> write_glb.py)')
