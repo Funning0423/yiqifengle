@@ -22,6 +22,8 @@ export class AmbienceAudio extends Component {
   private vol = 0;
   private gullIn = GULL_MIN_S;
   private alive = true;
+  private craneHooked: any = null;   // 已订阅 onCraneStart 的 flow
+  private craneGullIn = -1;          // >0 时倒计时，到点放一声海鸥
 
   static ensure() {
     try {
@@ -58,6 +60,10 @@ export class AmbienceAudio extends Component {
       this.refindIn = REFIND_S;
       try { this.flow = director.getScene()?.getComponentInChildren('WorldFlowComponent') ?? null; } catch { this.flow = null; }
       if (!this.flow) return 0;
+      // T2+ 升降镜头起升后约 1.5 秒放一声海鸥，配合画面拉高成海岛全景（接口不存在就跳过）
+      if (this.craneHooked !== this.flow && typeof this.flow.onCraneStart === 'function') {
+        try { this.flow.onCraneStart(() => { if (this.alive) this.craneGullIn = 1.5; }); this.craneHooked = this.flow; } catch { /* optional */ }
+      }
     }
     const get = this.flow.getRoomLightWeight;
     if (typeof get !== 'function') return 0;
@@ -86,6 +92,13 @@ export class AmbienceAudio extends Component {
     } else {
       src.volume = this.vol;
       if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+    }
+    if (this.craneGullIn > 0) {
+      this.craneGullIn -= dt;
+      if (this.craneGullIn <= 0) {
+        this.craneGullIn = -1;
+        if (allowed) { audio!.play('sfx_amb_gull_1', GULL_VOL); this.gullIn = this.nextGull(); }
+      }
     }
     // 海鸥：只在基本处于室外时计时
     if (allowed && target > WAVES_MAX_VOL * 0.8) {
