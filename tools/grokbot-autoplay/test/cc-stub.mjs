@@ -23,15 +23,15 @@ export class Color{constructor(...a){this.a=a;}}
 export const Layers={Enum:{UI_2D:1}};
 export const isValid=(n)=>!!n&&n.isValid!==false;
 class Emitter{constructor(){this._h={};} on(t,f,target){(this._h[t]||(this._h[t]=[])).push([f,target]);} off(t,f,target){this._h[t]=(this._h[t]||[]).filter(([g,tg])=>!(g===f&&(target===undefined||tg===target)));} emit(t,...a){for(const [f,tg] of [...(this._h[t]||[])])f.apply(tg,a);}}
-export class Game{static EVENT_HIDE='game_on_hide';static EVENT_SHOW='game_on_show';}
+export class Game{static EVENT_HIDE='game_on_hide';static EVENT_SHOW='game_on_show';static EVENT_GAME_INITED='game_inited';}
 export const game=Object.assign(new Emitter(),{canvas:null});
 export class Input{static EventType={TOUCH_START:'touch-start',TOUCH_MOVE:'touch-move',TOUCH_END:'touch-end',TOUCH_CANCEL:'touch-cancel',MOUSE_UP:'mouse-up',KEY_DOWN:'key-down'};}
 export const input=Object.assign(new Emitter(),{_count:0,getTouchCount(){return this._count;}});
 export const screen={devicePixelRatio:3,windowSize:{width:390*3,height:844*3}};
 const classes={};export const js={getClassByName:(n)=>classes[n]||null,_register:(n,c)=>{classes[n]=c;}};
-export class Director{static EVENT_AFTER_UPDATE='director_after_update';static EVENT_AFTER_SCENE_LAUNCH='director_after_scene_launch';constructor(){this._h=[];this.scene=null;this.frames=0;}
- on(t,f){if(t===Director.EVENT_AFTER_UPDATE)this._h.push(f);} once(t,f){(this._once||(this._once=[])).push([t,f]);} _launch(){const l=this._once||[];this._once=[];for(const [t,f] of l)if(t===Director.EVENT_AFTER_SCENE_LAUNCH)f();} addPersistRootNode(){} off(t,f){this._h=this._h.filter(g=>g!==f);} getScene(){return this.scene;} getTotalFrames(){return this.frames;}
- _frame(){this.frames++;for(const f of [...this._h])f();}}
+export class Director{static EVENT_AFTER_UPDATE='director_after_update';static EVENT_AFTER_SCENE_LAUNCH='director_after_scene_launch';static EVENT_BEFORE_SCENE_LOADING='director_before_scene_loading';static EVENT_BEFORE_SCENE_LAUNCH='director_before_scene_launch';static EVENT_AFTER_DRAW='director_after_draw';constructor(){this._h=[];this._ev={};this.scene=null;this.frames=0;}
+ on(t,f){if(t===Director.EVENT_AFTER_UPDATE)this._h.push(f);else (this._ev[t]||(this._ev[t]=[])).push(f);} _emit(t,...a){for(const f of [...(this._ev[t]||[])])f(...a);} once(t,f){(this._once||(this._once=[])).push([t,f]);} _launch(){const l=this._once||[];this._once=[];for(const [t,f] of l)if(t===Director.EVENT_AFTER_SCENE_LAUNCH)f();} addPersistRootNode(){} off(t,f){this._h=this._h.filter(g=>g!==f);} getScene(){return this.scene;} getTotalFrames(){return this.frames;}
+ _frame(){this.frames++;for(const f of [...this._h])f();this._emit(Director.EVENT_AFTER_DRAW);}}
 export const director=new Director();
 // ---- combo-mode additions: enough engine for the REAL GameAudio.ts and REAL ui/CheerText.ts (int/v1) ----
 export const _decorator={ccclass:(name)=>(cls)=>{classes[name]=cls;return cls;},property:()=>()=>{}};

@@ -38,7 +38,7 @@ const mkCombo=(entry,file,intScripts)=>({entryPoints:[path.join(here,entry)],out
   b.onResolve({filter:/^#proptaps$/},()=>({path:path.join(here,'empty.mjs')}));
   b.onResolve({filter:/^#gameaudio$/},()=>({path:path.join(intScripts,'audio/GameAudio.ts')}));b.onResolve({filter:/^#cheertext$/},()=>({path:path.join(intScripts,'ui/CheerText.ts')}));}}]});
 const base=[path.join(scripts,'world-r2/IslandJourneyOverlay.ts'),path.join(here,'empty.mjs')];
-const jobs=[esbuild.build(mk('combo.test.ts','combounit.mjs',...base)),esbuild.build(mk('sequencer.test.ts','sequencer.mjs',...base)),esbuild.build(mk('touch.test.ts','touchunit.mjs',...base)),esbuild.build(mk('integration.ts','int-base.mjs',...base)),esbuild.build(mk('integration-touch.ts','touch-base.mjs',...base))];
+const jobs=[esbuild.build(mk('boot.test.ts','bootunit.mjs',...base)),esbuild.build(mk('integration-boot.ts','int-boot.mjs',...base)),esbuild.build(mk('combo.test.ts','combounit.mjs',...base)),esbuild.build(mk('sequencer.test.ts','sequencer.mjs',...base)),esbuild.build(mk('touch.test.ts','touchunit.mjs',...base)),esbuild.build(mk('integration.ts','int-base.mjs',...base)),esbuild.build(mk('integration-touch.ts','touch-base.mjs',...base))];
 if(t1)for(const v of ['l123','l12']){const a=path.join(t1,'variants/baseline-'+v+'/after/creator-build-project/assets/scripts');const o=path.join(a,'world-r2/IslandJourneyOverlay.ts'),h=path.join(a,'world-r2/IslandHomeInteraction.ts');
  jobs.push(esbuild.build(mk('integration.ts','int-'+v+'.mjs',o,h)),esbuild.build(mk('integration-touch.ts','touch-'+v+'.mjs',o,h)));}
 /** T9 job: REAL work/GGbot-t9 overlay + IslandPropTaps + IslandHomeInteraction. */
@@ -53,7 +53,7 @@ if(unlockDir){jobs.push(esbuild.build(mkUnlock('integration.ts','int-unlock.mjs'
 if(intDir)jobs.push(esbuild.build(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
 /** bgm job (GameAudio v0.4+): same REAL int sources; skipped by the shell part when the int GameAudio has no assetManager/bundle arg. */
 if(intDir)jobs.push(esbuild.build(mkCombo('integration-bgm.ts','int-bgm.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
-if(LOOSE){jobs.push(esbuild.build(loose(mk('sequencer.test.ts','sequencer.mjs',...base))),esbuild.build(loose(mk('touch.test.ts','touchunit.mjs',...base))),esbuild.build(loose(mk('combo.test.ts','combounit.mjs',...base))),
+if(LOOSE){jobs.push(esbuild.build(loose(mk('boot.test.ts','bootunit.mjs',...base))),esbuild.build(loose(mk('integration-boot.ts','int-boot.mjs',...base))),esbuild.build(loose(mk('sequencer.test.ts','sequencer.mjs',...base))),esbuild.build(loose(mk('touch.test.ts','touchunit.mjs',...base))),esbuild.build(loose(mk('combo.test.ts','combounit.mjs',...base))),
   esbuild.build(loose(mk('integration.ts','int-base.mjs',...base))),esbuild.build(loose(mk('integration-touch.ts','touch-base.mjs',...base))));
  if(intDir)jobs.push(esbuild.build(loose(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts')))),esbuild.build(loose(mkCombo('integration-bgm.ts','int-bgm.mjs',path.join(intDir,'creator-build-project/assets/scripts')))));}
 Promise.all(jobs).catch(e=>{console.error(e);process.exit(1);});
@@ -62,6 +62,9 @@ r(){ local name="$1"; shift; if env "$@" > "$out/$name.log" 2>&1; then tail -1 "
 r unit-seq node "$out/sequencer.mjs"
 r unit-touch node "$out/touchunit.mjs"
 r unit-combo node "$out/combounit.mjs"
+r unit-boot node "$out/bootunit.mjs"
+r boot-oab GB_BOOT=1 GB_CAMERA_HOOK=1 node "$out/int-boot.mjs"
+r boot-oab-fallback GB_BOOT=1 node "$out/int-boot.mjs"
 r oab-visible GB_DOOR_VISIBLE=visible node "$out/int-base.mjs"
 r oab-hidden GB_DOOR_VISIBLE=hidden node "$out/int-base.mjs"
 r oab-drag GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-base.mjs"
@@ -115,6 +118,8 @@ if [ "${GB_LOOSE:-1}" != 0 ]; then
   r loose-unit-seq node "$out/sequencer-loose.mjs"
   r loose-unit-touch node "$out/touchunit-loose.mjs"
   r loose-unit-combo node "$out/combounit-loose.mjs"
+  r loose-unit-boot node "$out/bootunit-loose.mjs"
+  r loose-boot-oab GB_BOOT=1 GB_CAMERA_HOOK=1 node "$out/int-boot-loose.mjs"
   r loose-oab-visible GB_DOOR_VISIBLE=visible node "$out/int-base-loose.mjs"
   r loose-oab-drag GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-base-loose.mjs"
   r loose-oab-boot-child GB_BOOT_ON=child node "$out/int-base-loose.mjs"

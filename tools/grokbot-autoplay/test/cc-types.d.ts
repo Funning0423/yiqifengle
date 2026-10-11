@@ -2,6 +2,8 @@
 declare module 'cc' {
  export class Director { static readonly EVENT_AFTER_UPDATE:string; on(t:string,f:(...a:any[])=>void,target?:any):void; off(t:string,f:(...a:any[])=>void,target?:any):void; getScene():any; getTotalFrames():number; }
  export const director:Director;
+ export const assetManager:any; // real: cc.AssetManager (loadBundle/getBundle); typed loosely, T0 only wraps it
+ export const resources:any;    // real: cc.AssetManager.Bundle (load/loadDir)
  export const game:{on(t:string,f:(...a:any[])=>void,target?:any):void;off(t:string,f:(...a:any[])=>void,target?:any):void;canvas:any};
  export class Game{static readonly EVENT_HIDE:string;static readonly EVENT_SHOW:string;}
  export const js:{getClassByName(n:string):any};

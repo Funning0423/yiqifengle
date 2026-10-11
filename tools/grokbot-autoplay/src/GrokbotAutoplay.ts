@@ -8,13 +8,14 @@
  *  - combo mode: door -> island -> real '继续旅程' mainline button (injected touch; else the same action via boot.invoke) -> level,
  *    then synthetic clear frames into GameAudio.instance.onBoardFrame (real cascade/tier/onCheer/cheer clip/CheerText); see GrokbotCombo.ts
  * Observers (all modes, read-only wrappers): app hide/show, GameAudio calls, WorldFlow walk segments, camera settle. */
-import {director,Director,game,Game,js,screen,input,Input} from 'cc';
+import {director,Director,game,Game,js,screen,input,Input,assetManager,resources} from 'cc';
 import {EDITOR} from 'cc/env';
 import {AutoplaySequencer,parseAutoplayQuery} from './GrokbotAutoplaySequencer';
 import type {AutoplayDriver,StepResult,AutoplayConfig} from './GrokbotAutoplaySequencer';
 import {TouchScenarioRunner,selectScenarios,validateScenario,PROP_TARGET_NODE,isPropTarget} from './GrokbotTouchScenarios';
 import {markDef} from './GrokbotMarks';
 import {ComboRunner} from './GrokbotCombo';
+import {BootTimeline,pickOrigin,tok} from './GrokbotBoot';
 import type {ComboDriver,BoardStatus} from './GrokbotCombo';
 import type {TouchDriver,TouchStep,Point,TouchScenario} from './GrokbotTouchScenarios';
 const G:any=globalThis;
@@ -284,10 +285,93 @@ function createComboDriver(ctx:Ctx,touch:TouchBackend,door:AutoplayDriver):Combo
 }
 function customScenarios(ctx:Ctx):TouchScenario[]{const raw=G.GROKBOT_TOUCH_SCENARIOS;if(!raw)return [];let list:any;try{list=typeof raw==='string'?JSON.parse(raw):raw;}catch{ctx.mark('touch:custom-invalid','reason=json');return [];}
  if(!Array.isArray(list))return [];return list.filter((s:any)=>{const bad=validateScenario(s);if(bad)ctx.mark('touch:custom-invalid',`name=${s?.name} reason=${bad}`);return !bad;});}
+
+/** ---------- boot timing (GrokbotBoot.ts): startup-phase boot:* marks. Read-only wrappers/polls; shipped startup code is not edited. ----------
+ * Hooks: game.totalTime, director scene events + EVENT_AFTER_DRAW, assetManager.loadBundle and each loaded bundle's load/loadDir
+ * (callback wrapped, args/return/this unchanged), the Boot's own fields (loadPhase, status label, loadingMask/loadingBackdrop),
+ * cc SplashScreen (if exposed), the prelude's game.js time + wx.loadSubpackage record, camera-settled / audio:unlock marks. */
+const BOOT_CAP_MS=120000,BOOT_ASSET_MAX=40;
+class BootProbe {
+ readonly tl:BootTimeline;private assets=0;private lastPhase:string|null=null;private lastStatus:string|null=null;private shown=false;private fade=false;
+ private subEmitted=0;private splashState:'unknown'|'none'|'running'|'done'='unknown';private walkHomeAt:number|null=null;private returns=0;private lastState:string|null=null;
+ private wrapped:any[]=[];private hasDraw=false;
+ constructor(private ctx:Ctx){
+  const nowE=()=>Date.now(),o=pickOrigin(G,nowE());this.tl=new BootTimeline(o,nowE,(n,e)=>ctx.mark(n,e));const tl=this.tl,pre=G.__gbBoot;
+  if(pre&&typeof pre.epoch==='number'&&o.via==='prelude-game.js')tl.point('game-js','via=prelude perf='+(pre.perf===null||pre.perf===undefined?'-':Math.round(pre.perf)),pre.epoch);
+  try{const tt=Number((game as any).totalTime);if(isFinite(tt)&&tt>=0)tl.point('engine-init','via=game.totalTime totalTimeMs='+Math.round(tt),nowE()-tt);}catch(e){/* ignore */}
+  let perfOrigin='-';try{const to=G.performance&&G.performance.timeOrigin;if(typeof to==='number'&&isFinite(to))perfOrigin=String(Math.round(to));}catch(e){/* ignore */}
+  let scene0=0;try{scene0=director.getScene()?1:0;}catch(e){/* ignore */}
+  tl.point('t0-eval',`origin=${o.via} originEpoch=${Math.round(o.epoch)} perfTimeOrigin=${perfOrigin} sceneAtEval=${scene0} frameAtEval=${frameNo()} prelude=${pre?1:0} subWrapped=${pre&&pre.subWrapped?1:0}`);
+  try{const gi=(Game as any).EVENT_GAME_INITED;if((game as any).inited)tl.point('game-inited','via=already-at-eval');else if(gi&&typeof (game as any).once==='function')(game as any).once(gi,()=>tl.point('game-inited','via=event'));}catch(e){/* ignore */}
+  const D:any=Director,ev:[string,string][]=[[D.EVENT_BEFORE_SCENE_LOADING,'scene-loading'],[D.EVENT_BEFORE_SCENE_LAUNCH,'scene-launch-begin'],[D.EVENT_AFTER_SCENE_LAUNCH,'scene-launch-end']];
+  for(let i=0;i<ev.length;i++){const e=ev[i];if(typeof e[0]!=='string')continue;try{director.on(e[0],(sc:any)=>{tl.point(e[1],'scene='+tok(sc&&sc.name!==undefined?sc.name:(typeof sc==='string'?sc:'-')));});}catch(x){/* ignore */}}
+  if(scene0)tl.point('scene-launch-end','missed=1 reason=scene-existed-at-t0-eval');
+  if(typeof D.EVENT_AFTER_DRAW==='string'){try{director.on(D.EVENT_AFTER_DRAW,()=>this.frame('after-draw'));this.hasDraw=true;}catch(e){/* ignore */}}
+  this.wrapLoadBundle();try{if(resources)this.wrapBundle(resources,'resources');}catch(e){/* ignore */}
+  this.launchInfo();this.splash();
+  ctx.taps.push((n,e)=>this.onMark(n,e));
+ }
+ private live(){return !this.tl.summarized;}
+ private wrapLoadBundle(){const am:any=assetManager;if(!am||typeof am.loadBundle!=='function'||BootProbe.amWrapped===am)return;BootProbe.amWrapped=am;const orig=am.loadBundle,self=this;
+  am.loadBundle=function(this:any){const args=Array.prototype.slice.call(arguments),name=typeof args[0]==='string'?args[0]:'?',b=Date.now();
+   try{let cached=0;try{cached=am.getBundle&&am.getBundle(name)?1:0;}catch(x){/* ignore */}self.tl.point('bundle-begin:'+name,'cached='+cached);}catch(x){/* ignore */}
+   let i=args.length-1;while(i>=0&&typeof args[i]!=='function')i--;
+   if(i>=0){const cb=args[i];args[i]=function(this:any,err:any,bundle:any){try{self.tl.point('bundle-end:'+name,`durMs=${Date.now()-b} ok=${err?0:1}`+(err?' err='+tok(err&&err.message||err):''));if(!err&&bundle)self.wrapBundle(bundle,name);}catch(x){/* ignore */}
+    return cb.apply(this,arguments);};}
+   return orig.apply(this,args);};}
+ static amWrapped:any=null;
+ private wrapBundle(bundle:any,name:string){if(!bundle||this.wrapped.indexOf(bundle)>=0)return;this.wrapped.push(bundle);const self=this,fns=['load','loadDir'];
+  for(let k=0;k<fns.length;k++){const fn=fns[k],orig=bundle[fn];if(typeof orig!=='function')continue;
+   bundle[fn]=function(this:any){const args=Array.prototype.slice.call(arguments),b=Date.now();if(!self.live())return orig.apply(this,args);
+    const p=args[0],path=typeof p==='string'?p:(Array.isArray(p)?p.slice(0,2).join(',')+(p.length>2?',+'+(p.length-2):''):'?');
+    let i=args.length-1;while(i>=0&&typeof args[i]!=='function')i--;
+    if(i>=0){const cb=args[i];args[i]=function(this:any,err:any,res:any){try{if(self.live()&&self.assets<BOOT_ASSET_MAX){self.assets++;
+      self.tl.note('asset',`bundle=${tok(name)} fn=${fn} path=${tok(path)} beginT=${self.tl.rel(b)} durMs=${Date.now()-b} ok=${err?0:1} n=${Array.isArray(res)?res.length:(res?1:0)}`);}}catch(x){/* ignore */}
+     return cb.apply(this,arguments);};}
+    return orig.apply(this,args);};}}
+ private launchInfo(){const wx=G.wx;if(!wx)return;
+  try{const o=wx.getLaunchOptionsSync&&wx.getLaunchOptionsSync();if(o){const q=o.query||{};this.tl.note('launch',`scene=${tok(o.scene)} queryKeys=${tok(Object.keys(q).join(','))} referrer=${tok(o.referrerInfo&&o.referrerInfo.appId)}`);}}catch(e){this.tl.note('launch','error='+tok(e));}
+  try{const p=wx.getPerformance&&wx.getPerformance();if(p){let ents:any[]=[];try{ents=typeof p.getEntries==='function'?(p.getEntries()||[]):[];}catch(x){ents=[];}
+    const sh:string[]=[];for(let i=0;i<ents.length&&i<6;i++){const e=ents[i];sh.push(tok(e&&(e.name||e.entryType))+'@'+Math.round(Number(e&&e.startTime))+'+'+Math.round(Number(e&&e.duration)));}
+    // unit of wx Performance.now() differs by base library (ms or us); logged raw next to performance.now() so the round can compare
+    this.tl.note('wx-perf',`now=${typeof p.now==='function'?Math.round(p.now()):'-'} perfNow=${Math.round(now())} entries=${ents.length} first=${tok(sh.join(','))}`);}}catch(e){this.tl.note('wx-perf','error='+tok(e));}}
+ private splash(){if(this.splashState==='done'||this.splashState==='none')return;let S:any=null;
+  try{const cc=G.cc;S=cc&&((cc.internal&&cc.internal.SplashScreen)||cc.SplashScreen);}catch(e){S=null;}
+  let inst:any=null;try{inst=S&&(S.instance||(typeof S.getInstance==='function'?S.getInstance():null));}catch(e){inst=null;}
+  if(!inst||typeof inst.isFinished!=='boolean'){if(this.splashState==='unknown'){this.splashState='none';this.tl.note('splash-unavailable','reason=no-cc.SplashScreen.instance.isFinished');}return;}
+  if(!inst.isFinished){if(this.splashState!=='running'){this.splashState='running';this.tl.point('splash-shown','via=SplashScreen.isFinished=false');}return;}
+  this.tl.point('splash-end','via=SplashScreen.isFinished'+(this.splashState==='unknown'?' finished-before-t0-eval=1':''));this.splashState='done';}
+ private frame(via:string){if(this.tl.has('room-first-frame'))return;const b=this.ctx.findBoot();if(!b||b.loadPhase!=='ready')return;
+  const m=b.loadingMask,bd=b.loadingBackdrop,hasLayer=!!(m||bd);if(hasLayer&&!this.tl.has('loading-hidden'))return;if(this.ctx.state()!=='home')return;
+  this.tl.point('room-first-frame',`via=${via} frame=${frameNo()}${hasLayer?'':' loadingLayer=absent'}`);this.tl.summary('room-first-frame');}
+ private onMark(n:string,e:string){if(n.indexOf('boot:')===0)return;
+  if(n.indexOf('camera-settled:')===0){const place=n.slice(15);this.tl.point('camera-first-settled','place='+tok(place)+' '+tok((/source=\S+/.exec(e)||['-'])[0]));
+   if(place==='home'&&this.walkHomeAt!==null){this.returns++;this.tl.note('camera-return-settled',`n=${this.returns} sinceWalkingHomeMs=${Date.now()-this.walkHomeAt} ${tok((/source=\S+/.exec(e)||['-'])[0])}`);this.walkHomeAt=null;}}
+  else if(n==='audio:unlock')this.tl.point('audio-unlock',tok((/source=\S+/.exec(e)||['-'])[0]));}
+ tick(){const tl=this.tl;if(tl.rel()>BOOT_CAP_MS&&!tl.summarized)tl.summary('cap-'+BOOT_CAP_MS);
+  const s=this.ctx.state();if(s!==this.lastState){this.lastState=s;if(s==='walking-home')this.walkHomeAt=Date.now();}
+  if(tl.has('room-first-frame')&&tl.summarized)return;
+  this.splash();this.subpackages();
+  const b=this.ctx.findBoot();if(!b)return;tl.point('boot-found','loadPhase='+tok(b.loadPhase));
+  const ph=String(b.loadPhase);if(ph!==this.lastPhase){const from=this.lastPhase;this.lastPhase=ph;tl.note('phase',`from=${tok(from)} to=${tok(ph)} progress=${tok(b.loadProgress)}`);
+   if(ph==='loading')tl.point('world-loading');else if(ph==='ready')tl.point('world-ready');else if(ph==='error')tl.note('world-error','error='+tok(b.error));}
+  let st:string|null=null;try{st=b.status&&typeof b.status.string==='string'?b.status.string:null;}catch(e){st=null;}
+  if(st!==null&&st!==this.lastStatus){this.lastStatus=st;tl.note('status','text='+tok(st));}
+  const on=(n:any)=>{try{return !!n&&n.isValid!==false&&n.active!==false;}catch(e){return false;}};const m=b.loadingMask,bd=b.loadingBackdrop,vis=on(m)||on(bd);
+  if(vis&&!this.shown){this.shown=true;tl.point('loading-shown',`mask=${on(m)?1:0} backdrop=${on(bd)?1:0}`);}
+  if(on(bd)){let sf:any=null;try{const sp=bd.getComponent&&bd.getComponent('cc.Sprite');sf=sp&&sp.spriteFrame;}catch(e){sf=null;}if(sf)tl.point('loading-image','via=backdrop.spriteFrame');
+   let op:any=null;try{const u=bd.getComponent&&bd.getComponent('cc.UIOpacity');op=u?Number(u.opacity):null;}catch(e){op=null;}if(op!==null&&op<255&&!this.fade){this.fade=true;tl.point('loading-fade-start','opacity='+Math.round(op));}}
+  if(this.shown&&!vis)tl.point('loading-hidden','fade='+(this.fade?'opacity':'none(hard-cut)'));
+  if(!this.hasDraw)this.frame('after-update');}
+ private subpackages(){const pre=G.__gbBoot,list=pre&&pre.sub;if(!list||!list.length)return;
+  while(this.subEmitted<list.length){const e=list[this.subEmitted];if(!e||e.end===null||e.end===undefined)return;this.subEmitted++;
+   this.tl.point('subpackage:'+tok(e.name),`via=wx.loadSubpackage beginT=${this.tl.rel(e.begin)} durMs=${e.end-e.begin} ok=${e.ok?1:0}`,e.end);}}
+}
 function install(){
  if(G.__GB_AUTOPLAY)return;const cfg:AutoplayConfig|null=parseAutoplayQuery(readQuery(),INSTALLED_DEFAULT_ON);
  if(!cfg){console.log('GB_MARK autoplay-disabled 0');return;}
- const ctx=new Ctx(),touch=new TouchBackend(ctx),obs=new Observers(ctx);
+ const ctx=new Ctx();let bootProbe:BootProbe|null=null;if(readQuery().gbBoot!=='0'){try{bootProbe=new BootProbe(ctx);}catch(e){console.error('GB_MARK boot-probe-exception',e);}}
+ const touch=new TouchBackend(ctx),obs=new Observers(ctx);
  ctx.mark('autoplay-installed',`mode=${cfg.mode} touchBackend=${touch.kind} logFile=${ctx.logFile??'-'}`);
  let runner:{tick():void;finished():boolean;current?:string}|null=null;let touchRunner:TouchScenarioRunner|null=null;
  const driver=createDriver(ctx,touch);
@@ -301,7 +385,7 @@ function install(){
   // Proof that injected touches reached Cocos input (location as the engine sees it).
   input.on(Input.EventType.TOUCH_START,(e:any)=>{const id=e.getID?.();if(id>=1000&&id<1100){const l=e.getLocation();ctx.mark('touch:cocos-seen',`f=${id-1000} loc=${Math.round(l.x)},${Math.round(l.y)} touches=${e.getAllTouches?.().length??'?'}`);}});}
  let waitStarted=false;
- const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}
+ const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}try{bootProbe?.tick();}catch(e){console.error('GB_MARK boot-probe-exception',e);}
   if(runner&&!runner.finished()){if(cfg.mode==='touch'&&!waitStarted){if(ctx.state()!=='home'||!ctx.idle())return;waitStarted=true;ctx.mark('world-ready');}
    try{runner.tick();}catch(e){console.error('GB_MARK autoplay-exception',e);ctx.mark('autoplay-failed','reason=exception');runner=null;}}};
  director.on(Director.EVENT_AFTER_UPDATE,tick); // stays on: observers keep logging audio/app/camera for manual play too

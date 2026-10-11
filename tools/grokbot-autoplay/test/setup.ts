@@ -12,6 +12,11 @@ const SW=390,SH=844,G:any=globalThis;
 export const raw:Record<string,Function[]>={};
 G.wx={getWindowInfo:()=>({windowWidth:SW,windowHeight:SH,safeArea:{left:0,right:SW,top:47,bottom:SH-34}}),getSystemInfoSync:()=>({windowWidth:SW,windowHeight:SH,platform:'devtools',model:'iPhone 15',system:'iOS 17.0',SDKVersion:'3.5.8',brand:'devtools',pixelRatio:3}),getMenuButtonBoundingClientRect:()=>({left:281,right:368,top:51,bottom:83}),
  onHide:(f:any)=>{G.__wxHide=f;},onShow:(f:any)=>{G.__wxShow=f;}};
+/* GB_BOOT job: fake epoch clock (Date.now follows the fake clock) + wx.loadSubpackage / getLaunchOptionsSync / getPerformance, all BEFORE the
+ * real prelude evaluates (it records __gbBoot.epoch and wraps loadSubpackage). Subpackage loads complete when the test calls them. */
+export const subLoads:any[]=[];
+if(process.env.GB_BOOT){const E0=1791700000000;Date.now=()=>E0+Math.round(clock.ms);G.wx.loadSubpackage=(o:any)=>{const task={o,onProgressUpdate(){}};subLoads.push(task);return task;};
+ G.wx.getLaunchOptionsSync=()=>({scene:1001,query:{gbHold:'3000'},referrerInfo:{}});G.wx.getPerformance=()=>({now:()=>clock.ms*1000});}
 for(const k of ['TouchStart','TouchMove','TouchEnd','TouchCancel']){raw[k]=[];G.wx['on'+k]=(f:Function)=>{raw[k].push(f);};G.wx['off'+k]=(f?:Function)=>{raw[k]=f?raw[k].filter(x=>x!==f):[];};}
 if(process.env.GB_PRELUDE!=='0')(0,eval)(readFileSync(process.env.GB_PRELUDE_FILE!,'utf8'));
 /* ---- fake gfx device for GB_MARK device:caps. GB_CAPS=webgl2 (default) | webgl1 (no device.gl -> canvas context, no float ext,

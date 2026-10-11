@@ -47,7 +47,7 @@ export class AutoplaySequencer {
    case 'hold':if(this.since()>=this.o.holdMs){this.mark('hold-end');if(this.o.ret==='panel'){const r=this.d.openReturnPanel();if(!r.ok){this.fail('open-panel-'+r.reason);return;}this.mark('open-return-panel','via='+(r.via||'?'));this.go('panel');}else this.go('tap-return');}return;
    case 'panel':if(this.since()>=this.o.panelDelayMs)this.go('tap-return');return;
    case 'tap-return':{const r=this.d.tapReturn();if(!r.ok){this.fail('tap-return-'+r.reason);return;}this.mark('tap-return','via='+(r.via||'?'));this.go('inbound');return;}
-   case 'inbound':if(s==='home'&&this.d.idle()&&this.since()>100){this.mark('home-seated');this.mark('autoplay-done','totalMs='+Math.round(this.d.now()-this.t0));this.go('done');}else if(s==='island'&&this.since()>1500&&this.d.idle()){this.fail('return-rejected');}return;
+   case 'inbound':if(s==='home'&&this.d.idle()&&this.since()>100){this.mark('home-seated',`inboundMs=${Math.round(this.since())} capMs=${this.o.phaseTimeoutMs}`);this.mark('autoplay-done','totalMs='+Math.round(this.d.now()-this.t0));this.go('done');}else if(s==='island'&&this.since()>1500&&this.d.idle()){this.fail('return-rejected');}return;
   }
  }
 }

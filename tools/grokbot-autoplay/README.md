@@ -18,8 +18,9 @@
 | | `ui:tap`（T9 岛屿道具）：`target=signpost|bag|book|settings phase=press|confirm blocked=0|1 props=0|1`。来自 T9 的 `__worldIntegration.onPropTap`（真点和注入点都会有）；没合 T9 时不出现。`ui:tap-hooked` = 订阅成功。 |
 | | `anim:foot` / `anim:apron-lift`（走路驱动，新的 `anim` 组）：`anim:foot ... event=foot:R bone=foot.R body=L clip=walk_loop phase=0.000 cycle=n pos=x,z`（每次脚跟着地，来自按距离推进的走路相位；bone 和 body 左右相反，body 是身体左右），`anim:apron-lift ... strength=full|soft dur=秒`。来自 `__worldIntegration.onFoot / onApronLift`；没合走路驱动时不出现。`anim:hooked` = 订阅成功。 |
 | | `device:caps`（新的 `device` 组，**只打一次**）：世界加载好时（女主角和围裙已经绑定），最迟装上后 20 s 打。字段：`gfxAPI=<数字>(<cc gfx.API 名>) webgl=1\|2 glSource=device\|canvas OES_texture_float OES_texture_half_float rgba32fSampled maxVertexTextureUnits maxTextureSize maxVertexUniformVectors platform model system SDKVersion brand benchmarkLevel pixelRatio apronRenderer=found\|missing apronMorphEnabled=1\|0 apronMorphTargets=<每个子网格的目标数>\|null apronDriver=<__worldIntegration.morph().status> glVersion renderer vendor unmaskedRenderer unmaskedVendor`。值里的空白换成 `_`，取不到写 `-`；`apronMorphTargets=null` = 网格没有形变数据（现在 int/v1 的 glb 就是 null）。`apronDriver` 要合了 work/GGbot-morph 才有，之前是 `-`。每一项都包了 try/catch，拿不到只会是 `-`，不会抛异常。WebGL2 的浮点纹理是核心功能，扩展列表里通常没有 `OES_texture_float`，看 `rgba32fSampled`。测试：`GB_CAPS=webgl1\|throw\|nodevice`、`GB_CAPS_APRON=scene\|driver`。 |
+| `src/GrokbotBoot.ts` | 启动计时 `boot:*`（纯逻辑：原点选择、只打一次的时间点、`boot:summary`）。钩子在 `GrokbotAutoplay.ts` 的 `BootProbe` 里，**不改任何启动代码**。每行带 `t=<距原点毫秒>`。原点按优先级：`prelude-game.js`（prelude 在 game.js 第一行记的 Date.now，自动演示构建都有）→ `performance.timeOrigin` → `t0-eval`（T0 脚本执行时刻，之前的阶段看不到）。时间点（各一次）：`game-js`、`engine-init`（now − `game.totalTime`）、`t0-eval`、`game-inited`、`splash-shown/splash-end`（cc SplashScreen 有 `isFinished` 才有，否则 `splash-unavailable`）、`scene-loading/scene-launch-begin/scene-launch-end`（director 事件）、`boot-found`、`world-loading`、`loading-shown/loading-image/loading-fade-start/loading-hidden`（读 Boot 的 loadingMask/loadingBackdrop；`fade=none(hard-cut)` = 现在的硬切）、`bundle-begin:<名>/bundle-end:<名>`（包住 assetManager.loadBundle）、`subpackage:<名>`（prelude 包住 wx.loadSubpackage，= 微信下载分包的时间）、`world-ready`、`room-first-frame`（EVENT_AFTER_DRAW，加载层已隐藏且 state=home）、`camera-first-settled`、`audio-unlock`。可重复：`status`（提示文字）、`phase`、`asset`（加载期间每个 bundle.load/loadDir 结束，最多 40 条）、`camera-return-settled`（每次回家 `n=` `sinceWalkingHomeMs=`）、`launch`（wx.getLaunchOptionsSync）、`wx-perf`（wx.getPerformance().now 原值 + getEntries 前 6 条；单位因基础库而异，只记原值）。`boot:summary` 一行：原点、各时间点、`d.*` 段时长、`total`；到 120 s 还没出房间首帧就带 `incomplete=1` 打出。`gbBoot=0` 关掉。测试：`GB_BOOT=1`（假时钟）。 |
 | `src/*.meta` | 固定 uuid（92fca7bf / 59ace17b / 24830118 / 16cf1f79 / c0b1e7a5（Combo），目录 d370c13f） |
-| `prelude/gb-touch-prelude.js` | 只用于自动演示构建：`inject_prelude.sh` 把它加到 game.js 最前面，记下所有 wx.onTouch* 监听，回放合成的原始触摸 |
+| `prelude/gb-touch-prelude.js` | 只用于自动演示构建：`inject_prelude.sh` 把它加到 game.js 最前面，记下所有 wx.onTouch* 监听，回放合成的原始触摸；另外记 `__gbBoot.epoch`（game.js 第一行的时刻）并包住 `wx.loadSubpackage`（参数字段、原回调、返回的 task 都不变）记录每个分包的下载起止 |
 | `install.sh` / `uninstall.sh` | 前置 SHA 校验（`prereq-allowlist.txt`）。不跟随符号链接，失败就整体撤回；卸载前核对 manifest |
 | `inject_prelude.sh` | 在构建产物里加 prelude，用 `--mode` 当构建宏；`--remove` 恢复原样 |
 | `check_release_strip.sh` | 检查正式包是否干净；`--expect-present` 反过来确认自动演示包里确实有 |
@@ -28,7 +29,8 @@
 ## 开关（构建宏或启动 query；query 优先）
 - `autoplay=out-and-back`（装上后的默认值）| `observe`（只打点，供人手动玩）| `touch` | `combo`（验证连击鼓励音和飘字，见下节）| `off`
 - 宏写法：`inject_prelude.sh <out> --mode touch:t1` 等于 `autoplay=touch&gbScenario=t1`；`--mode combo` 等于 `autoplay=combo`；`--mode combo:here` 等于 `autoplay=combo&gbComboEnter=none`
-- 其他参数：`gbHold=3000`、`gbStart=2000`、`gbDoor=direct|drag`、`gbReturn=panel|direct`、`gbScenario=t1|t1-multi|t9|名字,名字`、`gbVariant=l123|l12`、`gbExport=wx|only`
+- `home-seated` 带 `inboundMs=`（点回家到坐下的实际毫秒）和 `capMs=`（每段超时上限，默认 90000；回家现在约 21 s，坐下后才 settled）
+- 其他参数：`gbBoot=0`（关掉 boot:* 计时）、`gbHold=3000`、`gbStart=2000`、`gbDoor=direct|drag`、`gbReturn=panel|direct`、`gbScenario=t1|t1-multi|t9|名字,名字`、`gbVariant=l123|l12`、`gbExport=wx|only`
 - 自定义场景：`inject_prelude.sh <out> --scenarios my.json`，会写入全局 `GROKBOT_TOUCH_SCENARIOS`
 
 ## 真实路径
