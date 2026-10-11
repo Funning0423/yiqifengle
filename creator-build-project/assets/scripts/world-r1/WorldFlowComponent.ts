@@ -138,12 +138,21 @@ export class WorldFlowComponent extends Component {
   private readonly settledListeners=new Set<(place:'island'|'home')=>void>();
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
   private flowEventsOff:(()=>void)|null=null;
+  private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();
   /** T2+ hook (contract with GGbot T0): fires once per completed journey when the camera has reached cameraIsland /
    *  cameraHome with zero speed and the girl is still. Returns unsubscribe. No logging here. */
   onCameraSettled(listener:(place:'island'|'home')=>void):()=>void {this.settledListeners.add(listener);return ()=>{this.settledListeners.delete(listener);};}
   /** T2+ hook: the outbound camera leaves the rail and starts the crane up to the island wide shot (ends at
    *  onCameraSettled('island')). info.seconds = time from the start of crossing-out. Returns unsubscribe. */
   onCraneStart(listener:(info:{segment:'toIsland';progress:number;seconds:number})=>void):()=>void {this.craneListeners.add(listener);return ()=>{this.craneListeners.delete(listener);};}
+  /** T2+ wind strength 0..1 for the current frame (primary API; Voice bot + 角色动画bot poll it every frame). Clamped,
+   *  0 when disposed / before the world exists / whenever the camera is settled (island idle = exactly 0).
+   *  INTERIM (work/运镜bot-wind-api): interface only, always 0; the outbound frontal swing drives it later with this
+   *  exact signature. */
+  getWindStrength():number {if(this.disposed)return 0;const v=this.windStrength;return v>0?(v<1?v:1):0;}
+  /** T2+: subscribe to wind-strength changes (fired only when the value changes; same style as onCraneStart).
+   *  Returns an unsubscribe fn (idempotent). INTERIM: no emitter yet, so listeners are never called. */
+  onWindStrength(listener:(strength:number)=>void):()=>void {this.windListeners.add(listener);return ()=>{this.windListeners.delete(listener);};}
   private forwardCameraEvent(e:CameraEvent){
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
     for(const fn of list){try{e.kind==='settled'?fn(e.place):fn({segment:e.segment,progress:e.progress,seconds:e.seconds});}catch(error){console.warn('camera hook listener failed',String(error));}}
@@ -341,11 +350,12 @@ export class WorldFlowComponent extends Component {
         const live=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:undefined;
         return (aspect!==undefined?[aspect]:[live??.46,.46,.75]).map(a=>frameCheck(pose,a,box,REGION_CAMERA.frameLimits));
       },
+      windStrength:()=>self.getWindStrength(),onWindStrength:(listener:(strength:number)=>void)=>self.onWindStrength(listener),
       liveFrameCheck:()=>{const last=cameraWriteLog.last;if(!last||!self.worldCamera)return null;const c=REGION_CAMERA.islandCharacter;
         const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
         return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
     };
-    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
+    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),windStrength:()=>self.getWindStrength(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
   }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
@@ -397,7 +407,7 @@ export class WorldFlowComponent extends Component {
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
   onDestroy():void {
-    this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();
+    this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
