@@ -217,7 +217,7 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
     contacts: s -> bool[n].  targets: s -> (mask bool[n], M [n,4,4]) world foot-bone transforms the foot must follow on the
     masked frames (idle stance at clip ends, walk_loop footprints at hand-offs); a contact interval that touches masked
     frames is anchored to them (rolling shape still from the no-slip integration).  arcs: s -> [(a, b, height_m)] extra
-    ankle lift (half sine) for swings that the source does not contain (synthetic settle step).
+    ankle lift (sin^2 bump, zero slope at lift-off and landing) for swings that the source does not contain (synthetic settle step).
     Returns new (Wr, hips, info)."""
     rig = ctx.rig
     n = len(hips)
@@ -298,7 +298,7 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
             Anew[:, 1] += np.maximum(gauss(mx, 1.0, periodic), lift)
             for a, b, hgt in (arcs or {}).get(s, []):
                 k = np.arange(a + 1, b)
-                Anew[k, 1] += hgt * np.sin(np.pi * (k - a) / (b - a))
+                Anew[k, 1] += hgt * np.sin(np.pi * (k - a) / (b - a)) ** 2
             Wr, clamped = apply_leg_ik(ctx, Wr, hips, s, Anew, Rf)
             info[s] = dict(clamped=int(clamped.sum()), corr_max_mm=float(np.abs(corr).max() * 1000), clamp_mask=clamped)
     return Wr, hips, info
@@ -418,11 +418,23 @@ def fill_gaps(corr, have, periodic):
     gaps = intervals(~have)
     for a, b in gaps:
         pa, pb = a - 1, b + 1
+        # open-ended gap (clip start / end in swing): the correction eases in from zero, so those frames keep the
+        # hand-off reference pose; the vertical part only acts over the last few frames before the contact
         if pa < 0 and not periodic:
-            out[a:b + 1] = corr[pb]
+            L = b - a + 2
+            ka = max(1, min(4, L - 1))
+            for k in range(a, b + 1):
+                j = k - a + 1
+                out[k, [0, 2]] = corr[pb, [0, 2]] * smootherstep(j / L)
+                out[k, 1] = corr[pb, 1] * smoothstep((j - (L - ka)) / ka)
             continue
         if pb >= n and not periodic:
-            out[a:b + 1] = corr[pa]
+            L = b - a + 2
+            ka = max(1, min(4, L - 1))
+            for k in range(a, b + 1):
+                j = k - a + 1
+                out[k, [0, 2]] = corr[pa, [0, 2]] * (1 - smootherstep(j / L))
+                out[k, 1] = corr[pa, 1] * (1 - smoothstep(j / ka))
             continue
         pa %= n
         pb %= n

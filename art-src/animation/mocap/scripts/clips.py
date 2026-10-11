@@ -17,10 +17,12 @@ CACHE = os.environ.get('MOCAP_CACHE', '/tmp/mc/cache')
 STRETCH = CW.TIME_STRETCH
 SEATED_BACK = 0.494          # seated controller root is 0.494 m behind the standing one (CharacterReference.ts, seat frame)
 SEAT_TOP = 0.38              # seat_anchor seat_top_y_m
+SEAT_CLOTH = 0.008
 SEAT_HIPS_Z = -0.02          # hips bone over the seat centre (seat top centre is +0.014 m in the seated root frame)
 HANDLE = np.array([-0.115, 1.13, 0.34])     # door handle (palm centre) in the door_reach root frame; her right = -X
 PALM = 0.075                                 # wrist -> palm centre along the hand bone
 IDLE_KNEE = 7.0
+STOP_LATERAL_KEEP = 0.25
 
 
 def cached(name, fn, refresh=False):
@@ -74,16 +76,18 @@ def targets_from(ref_tr, mask):
 
 
 def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arcs=None, fit=True):
-    """plant feet / refit hips height a few times. hips_lock: (w [n], ref hips [n,3]) re-imposed after every fit."""
+    """plant feet / refit hips height a few times. hips_lock: (w [n], ref hips [n,3]) re-imposed after every fit.
+    Contacts that end inside the clip may be trimmed (toe-off release); clips with both feet planted throughout never are."""
     cx = CB.ctx()
     r = CB.rig()
     Wr0, h = tr
     knee_ref = {s: AL.knee_angle(cx, Wr0, h, s) for s in 'LR'}
     keep = {s: targets[s][0] if targets and s in targets else None for s in 'LR'}
+    trim = not all(np.all(C[s]) for s in 'LR')
     info = {}
     trimmed = 0
     for it in range(rounds):
-        for _ in range(3):
+        for _ in range(3 if trim else 0):
             Wp, hp, info = AL.plant_feet(cx, Wr0, h, FPS, C, periodic=periodic, targets=targets, iters=2, arcs=arcs)
             C2, ch = AL.trim_contacts(cx, Wp, hp, C, knee_ref, periodic=periodic, keep=keep,
                                       clamp={s: info[s]['clamp_mask'] for s in info})
@@ -138,12 +142,12 @@ def smooth_root(raw, sigma, pre=None, post=None):
     return y[len(pre):len(pre) + len(raw)]
 
 
-def skin_min_y(tr, region):
-    """lowest skinned BODY/DRESS vertex height inside an xz box (seat contact) per frame."""
+def skin_min_y(tr, region, meshes=('LOD0_G2_BODY',)):
+    """lowest skinned vertex height inside an xz box (seat contact) per frame."""
     r = CB.rig()
     W = CB.fk(*tr)
     out = np.full(len(W), np.inf)
-    for mesh in ('LOD0_G2_BODY', 'LOD0_G2_DRESS'):
+    for mesh in meshes:
         md = r.mesh_data(mesh)
         for i in range(len(W)):
             P = r.skin(md, W[i])
@@ -402,7 +406,7 @@ def build_stop(body):
     w_walk = fade_out(N, 8)
     # other foot: source swing -> strike; it stays planted to the end
     o_hs = next(k for k in range(5, N) if Cs[O][k] and not Cs[O][k - 1])
-    f_to, f_land = o_hs + 3, o_hs + 13               # settle step of the entry foot
+    f_to, f_land = o_hs + 2, min(o_hs + 14, N - 4)   # settle step of the entry foot
     k_out = N - 1 - f_to
     w_idle = fade_in_end(N, k_out)
     trb = CB.tr_blend(src, ref_w, w_walk)
@@ -413,7 +417,11 @@ def build_stop(body):
     pre, _ = plant_fit(trb, C, targets_from(ref_w, {E: (w_walk >= 0.98) & Cw[E], O: (w_walk >= 0.98) & Cw[O]}), rounds=1)
     AO = ankles(pre)[O][o_hs:].mean(0)
     idO = ankles(idle_pose(1))[O][0]
-    xe, ze = AO[0] - idO[0], AO[2] - idO[2]
+    xe_raw, ze = AO[0] - idO[0], AO[2] - idO[2]
+    # the pelvis de-rotation swings the other leg sideways (performer turning): keep a quarter of that sideways drift
+    xe = STOP_LATERAL_KEEP * xe_raw
+    ws = AL.smootherstep((i - 6) / float(max(1, o_hs - 6)))
+    trb = CB.tr_translate(trb, np.stack([(xe - xe_raw) * ws, np.zeros(N), np.zeros(N)], 1))
     ref_i = idle_pose(N, xe, ze)
     tr = CB.tr_blend(trb, ref_i, w_idle)
     ref_t = CB.tr_blend(ref_w, ref_i, (i > N // 2).astype(float))
@@ -455,6 +463,7 @@ def build_stop(body):
                              'root_motion.' % (ze, xe))
     info = dict(trial='91_29', mirrored=(body == 'L'), src_window_s=[round(t_e, 4), t_src_end], time_stretch=STRETCH,
                 other_strike_frame=int(o_hs), settle=[int(f_to), int(f_land)], root_end=[round(float(xe), 4), round(float(ze), 4)],
+                src_lateral_drift_m=round(float(xe_raw), 4),
                 plant=pinfo)
     lock = [(w_walk, 'walk_loop', phase % W.T), (w_idle, 'idle_breathing_loop', np.zeros(N))]
     return dict(name=name, track=track, world=tr, contacts=C, events=ev, loop=False, lock=lock, root=root, extra=extra,
@@ -502,9 +511,28 @@ def build_turn(name):
     C = {s: np.where((w_in >= 0.5) | (w_out >= 0.5), True, Cs[s]) for s in 'LR'}
     ref_t = CB.tr_blend(ref_a, ref_b, (i > N // 2).astype(float))
     mask = {s: (w_in >= 0.98) | (w_out >= 0.98) for s in 'LR'}
+    # a foot the performer pivots on the ball (one contact from start to end) has to step to its turned footprint: lift it
+    # while the other foot is planted, before (or after) the other foot's swing
+    arcs = {}
+    Aa, Ab = ankles(ref_a), ankles(ref_b)
+    for s in 'LR':
+        o = 'R' if s == 'L' else 'L'
+        seg = next(((a, b) for a, b in AL.intervals(C[s]) if mask[s][a:b + 1][0] and mask[s][a:b + 1][-1]), None)
+        if seg is None:
+            continue
+        gaps = AL.intervals(~C[o])
+        if gaps and gaps[0][0] >= 10:
+            a, b = 2, gaps[0][0] - 1
+        elif gaps and gaps[-1][1] <= N - 12:
+            a, b = gaps[-1][1] + 1, N - 3
+        else:
+            a, b = 2, 12
+        C[s][a + 1:b] = False
+        dist = float(np.linalg.norm((Ab[s][0] - Aa[s][0])[[0, 2]]))
+        arcs[s] = [(a, b, float(np.clip(0.25 * dist, 0.012, 0.035)))]
     lockw = np.maximum(w_in, w_out)
     ref_h = np.where((i > N // 2)[:, None], ref_b[1], ref_a[1])
-    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h))
+    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), arcs=arcs)
     ryaw = th * u
     track = to_root(tr, np.zeros(N), np.zeros(N), ryaw)
     ev = heel_strike_events(C, N)
@@ -540,10 +568,11 @@ def _sit_frames(tk, ts, which):
 
 
 def _seat_height_shift(tr_seat):
-    """vertical shift so the buttocks / thighs rest on the seat top (dress included)."""
+    """vertical shift so the buttocks / thighs rest on the seat top.  Body mesh only: the skirt bones are still at rest
+    here (hanging to the hem); the dress + apron layers under the buttocks are SEAT_CLOTH thick."""
     region = (-0.25, 0.25, -0.18, 0.20)
     y = skin_min_y(CB.tr_slice(tr_seat, 0, 1), region)[0]
-    return SEAT_TOP + 0.004 - y
+    return SEAT_TOP + SEAT_CLOTH - y
 
 
 def _lap_targets(tr):
@@ -721,17 +750,23 @@ def build_door_reach():
     E = tk.src.E['rhand'][np.clip(np.round(ts * 120).astype(int), 0, tk.src.n - 1)]
     d = np.linalg.norm(E - E[:1], axis=1)
     prog = AL.gauss(np.clip(d / d.max(), 0, 1), 1.0)
-    Wf = CB.fk(*src)
     hand_len = PALM
-    palm = Wf[:, r.idx['hand.L'], :3, 1] * hand_len
-    target = HANDLE[None] - palm
-    w_reach = AL.smootherstep(prog / 0.85)
-    src = arm_ik(src, 'L', target, w_reach)
     w_in, w_out = fade_out(N, 8), fade_in_end(N, 10)
     tr = CB.tr_blend(CB.tr_blend(src, idp, w_in), idp, w_out)
     C = {s: np.ones(N, bool) for s in 'LR'}
     lockw = np.maximum(w_in, w_out)
     tr, pinfo = plant_fit(tr, C, targets_from(idp, {s: np.ones(N, bool) for s in 'LR'}), hips_lock=(lockw, idp[1]))
+    # the arm last (the hips fit moves the shoulder); the palm offset follows the solved hand: correct the wrist target by
+    # the remaining palm error a few times
+    w_reach = AL.smootherstep(prog / 0.85) * (1 - w_in) * (1 - w_out)
+    base = tr
+    Wf = CB.fk(*tr)
+    target = HANDLE[None] - Wf[:, r.idx['hand.L'], :3, 1] * hand_len
+    for _ in range(12):
+        tr = arm_ik(base, 'L', target, w_reach)
+        Wf = CB.fk(*tr)
+        palm_c = Wf[:, r.idx['hand.L'], :3, 3] + Wf[:, r.idx['hand.L'], :3, 1] * hand_len
+        target = target + 0.5 * (HANDLE[None] - palm_c)
     Wt = CB.fk(*tr)
     pk = int(np.argmax(w_reach))
     reach_err = float(np.linalg.norm(Wt[pk, r.idx['hand.L'], :3, 3] + Wt[pk, r.idx['hand.L'], :3, 1] * hand_len - HANDLE))
@@ -770,7 +805,12 @@ def walk_clip():
     t = np.arange(n) / FPS
     ev = heel_strike_events(W.C, n, skip_first=False)
     ev = [dict(name='foot:R', time_s=0.0, bone='foot.R', body='L', type='heel_strike')] + ev
-    return dict(name='walk_loop', track=W.tr, world=None, contacts=W.C, events=ev, loop=True, lock=[], root=None,
+    # QA track: three cycles with the root moving at the native speed (the in-place track cannot show foot slide)
+    reps = 3
+    Wr = {k: np.concatenate([v] * reps) for k, v in W.tr[0].items()}
+    h = np.concatenate([W.tr[1]] * reps).copy()
+    h[:, 2] += CW.SPEED * np.arange(n * reps) / FPS
+    return dict(name='walk_loop', track=W.tr, world=(Wr, h), contacts=W.C, events=ev, loop=True, lock=[], root=None,
                 extra=dict(in_place=True, native_speed_mps=CW.SPEED, cycle_duration_s=round(n / FPS, 6), frames=n),
                 info=W.info)
 

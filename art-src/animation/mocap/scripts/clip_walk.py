@@ -36,6 +36,26 @@ def pick_cycle(tk):
     return best
 
 
+def even_steps(Wp, hp, Cb, n, K, stride):
+    """the stride fit shortens one step more than the other (0.67/0.73 m in the source -> 0.44/0.56 m): footprint targets
+    with both steps = stride / 2, each foot moved half of the difference."""
+    Wf = CB.fk(Wp, hp)
+    r = CB.rig()
+    F = {s: Wf[:, r.idx['foot.' + s]].copy() for s in 'LR'}
+    m = K // 2
+    zr = [F['R'][a:b + 1, 2, 3].mean() for a, b in AL.intervals(Cb['R']) if m * n <= a < (m + 1) * n]
+    zl = [(a, F['L'][a:b + 1, 2, 3].mean()) for a, b in AL.intervals(Cb['L'])]
+    z0 = zr[0]
+    z1 = next(z for a, z in zl if z > z0)
+    shift = stride / 2 - (z1 - z0)
+    tg = {}
+    for s, sg in (('L', 0.5), ('R', -0.5)):
+        M = F[s]
+        M[:, 2, 3] += sg * shift
+        tg[s] = (Cb[s].copy(), M)
+    return tg, shift
+
+
 def build(n_cycles_plant=3, verbose=True):
     tk = CB.Take(TRIAL)
     err, ta, tb = pick_cycle(tk)
@@ -55,6 +75,7 @@ def build(n_cycles_plant=3, verbose=True):
     rel[:, 0] = hips[:, 0] - D[0] * u
     rel[:, 2] = c * (hips[:, 2] - D[2] * u)
     rel[:, 1] = hips[:, 1] - D[1] * u
+    rel[:, 0] -= rel[:n, 0].mean()                    # root line = mean hips path (the frame-0 hips sit off it)
     tr = CB.close_loop(CB.tr_slice((Wr, rel), 0, n), CB.tr_frame((Wr, rel), n))
     dy = CB.floor_offset(*tr)
     tr = CB.tr_translate(tr, [0, dy, 0])
@@ -73,8 +94,13 @@ def build(n_cycles_plant=3, verbose=True):
     knee_ref = {s: AL.knee_angle(cx, big[0], big[1], s) for s in 'LR'}
     h2 = big[1]
     released = 0
+    tg = None
+
+    def targets():
+        return None if tg is None else {s: (Cb[s] & tg[s][0], tg[s][1]) for s in 'LR'}
+
     for it in range(4):
-        Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2)
+        Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2, targets=targets())
         C2, ch = AL.trim_contacts(cx, Wp, hp, Cb, knee_ref)
         if ch and it < 3:
             # same release in every cycle: take the middle cycle's trimmed mask
@@ -83,7 +109,13 @@ def build(n_cycles_plant=3, verbose=True):
                 c = C2[s][m * n:(m + 1) * n]
                 Cb[s] = np.tile(c, K)
             released += ch
-            Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2)
+            Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2,
+                                          targets=targets())
+        if tg is None:
+            tg, shift = even_steps(Wp, hp, Cb, n, K, dist)
+            info['step_even_shift_m'] = round(float(shift), 4)
+            Wp, hp, pinfo = AL.plant_feet(cx, big[0], h2, CB.FPS, contacts=dict(Cb), flat_lock=True, iters=2,
+                                          targets=targets())
         if verbose:
             print('  fit', it, {s: pinfo[s]['clamped'] for s in 'LR'}, 'released', ch)
         if it == 3:

@@ -13,6 +13,7 @@ GLB = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/cha
 CMU = os.environ.get('CMU_DIR', '/tmp/cmu/raw')
 FPS = 30
 MAPPED = list(RT.TMAP.keys())
+STANCE_WIDEN = 0.04         # m per ankle, see widen_stance
 
 _rig = None
 _ctx = None
@@ -69,7 +70,7 @@ class Take:
         p = p @ Ry.T * self.scale
         p[:, [0, 2]] *= hscale
         p[:, 1] += dy
-        return Wr, p
+        return widen_stance(Wr, p)
 
 
     def contacts(self, t, h_tol=0.018, v_tol=0.35, ref=None):
@@ -95,6 +96,25 @@ class Take:
                 c[a:b + 1] = True
             out[side] = c
         return out
+
+
+def widen_stance(Wr, hips, d=STANCE_WIDEN):
+    """move each ankle d outward along the pelvis' lateral axis (leg IK, foot orientation kept).  Rotation retargeting
+    copies the performer's leg adduction, but the CMU hip joints sit ~2x wider (scaled) than ours, so without this the
+    feet land on one line and the legs cross in the walk."""
+    if d <= 0:
+        return Wr, hips
+    c = ctx()
+    r = rig()
+    W = c.fk(Wr, hips)
+    lat = W[:, r.idx['thigh.R'], :3, 3] - W[:, r.idx['thigh.L'], :3, 3]          # thigh.R = her left = +X
+    lat[:, 1] = 0
+    lat /= np.maximum(np.linalg.norm(lat, axis=1, keepdims=True), 1e-9)
+    out = dict(Wr)
+    for s, sg in (('L', -1.0), ('R', 1.0)):
+        F = c.fk(out, hips)[:, r.idx['foot.' + s]]
+        out, _ = AL.apply_leg_ik(c, out, hips, s, F[:, :3, 3] + sg * d * lat, F[:, :3, :3].copy())
+    return out, hips
 
 
 def fk(Wr, hips):
