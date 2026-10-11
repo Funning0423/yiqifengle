@@ -7,9 +7,15 @@ import { _decorator, Component, Node, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
 import { WarmButton } from '../WarmButton';
 import { ManagedMobileBoardUI } from '../ManagedMobileBoardUI';
+import { onPropTap } from '../world-r2/IslandPropTaps';
 const { ccclass } = _decorator;
 const TAGGED = '__qflAudioTagged';
 const SCAN_INTERVAL = 0.25;
+// A5: hit areas that report through T9 onPropTap (press + confirm sounds). The generic click would double the confirm.
+const PROP_TAP_NODES = new Set(['Island-bag', 'Island-journal', 'Island-settings', 'mainline']);
+// A5: island journal modal close (×) and back-to-chapters buttons play sfx_ui_back instead of the generic click.
+const BACK_NODES = new Set(['Close', 'BackToChapters']);
+const BACK_PARENT = 'IslandParchment';
 
 @ccclass('AudioBridge')
 export class AudioBridge extends Component {
@@ -26,8 +32,18 @@ export class AudioBridge extends Component {
       if (!audio.node.getComponent(AudioBridge)) audio.node.addComponent(AudioBridge);
     } catch (e) { console.warn('[AudioBridge] mount failed (silent, gameplay unaffected)', e); }
   }
-  onLoad() { AudioBridge.instance = this; }
+  private offPropTap: (() => void) | null = null;
+  onLoad() {
+    AudioBridge.instance = this;
+    try {
+      this.offPropTap = onPropTap((target, phase, info) => {
+        try { GameAudio.instance?.onPropTap(target, phase, info); } catch (err) { /* observation cannot affect gameplay */ }
+      });
+    } catch (e) { console.warn('[AudioBridge] onPropTap subscribe failed (silent, gameplay unaffected)', e); }
+  }
   onDestroy() {
+    try { this.offPropTap?.(); } catch (e) { /* ignore */ }
+    this.offPropTap = null;
     for (const n of this.taggedNodes) if (isValid(n, true)) { n.targetOff(this); if ((n as any)[TAGGED] === this) delete (n as any)[TAGGED]; }
     this.taggedNodes.clear(); this.board = null; this.rewardBaseline = null;
     if (AudioBridge.instance === this) AudioBridge.instance = null;
@@ -88,8 +104,11 @@ export class AudioBridge extends Component {
   }
   private tag(n: Node, tapOnly: boolean) {
     if ((n as any)[TAGGED]) return; (n as any)[TAGGED] = this; this.taggedNodes.add(n);
+    const propTap = PROP_TAP_NODES.has(n.name), back = BACK_NODES.has(n.name) && n.parent?.name === BACK_PARENT;
     n.on(WarmButton.ACTIVATED, () => {
       try {
+        if (propTap) return;                       // A5: sounded by onPropTap
+        if (back) { GameAudio.instance?.onUiBack(); return; }
         if (tapOnly) {
           const s=this.board?.hostPresentation() as any;
           if(s?.state!=='run.ready'||s.readOnly||this.board?.hostModalOpen())return;
