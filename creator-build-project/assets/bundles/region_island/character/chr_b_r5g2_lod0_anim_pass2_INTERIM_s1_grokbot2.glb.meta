@@ -166,7 +166,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1
+          "to": 1.1333333253860474
         },
         "events": []
       },
@@ -592,6 +592,7 @@
     }
   },
   "userData": {
+    "tangents": 1,
     "imageMetas": [
       {
         "name": "T_G2_APRON_512",
@@ -645,13 +646,13 @@
       },
       {
         "name": "walk_loop",
-        "duration": 1,
+        "duration": 1.1333333253860474,
         "fps": 30,
         "splits": [
           {
             "name": "walk_loop",
             "from": 0,
-            "to": 1,
+            "to": 1.1333333253860474,
             "wrapMode": 2,
             "previousId": "1adec"
           }
