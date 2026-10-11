@@ -182,4 +182,18 @@ ok('T9n lamp light wiring (source): night-only SphereLight on the sign layer onl
   assert(!/import[^\n]*RoomLightingRig|setRoomLightWeight|mainLight|\.sharedMaterial\.setProperty|palette!?\.setProperty/.test(src),'no global light/material writes');
   const lay=P.signpost.lampLight;assert(lay.layerBit>=0&&lay.layerBit<20,'user layer');assert(((1820327937>>>lay.layerBit)&1)===1,'world camera (scene _visibility 1820327937) renders the sign layer');
 });
+ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light gentle (scale <= 0.6, range <= 2 sign-m), subtle warm water; night sea tint: exact authored colour at w=0, authored x tint at w=1, only the renderer instance (never shared M_env_sea), restored on dispose',()=>{
+  const S=P.signpost,G=S.lampGlass,ch=L.mixHex(G.nightColor,G.nightColor,0).slice(1).match(/../g).map(h=>parseInt(h,16));
+  assert(Math.min(...ch)<0.45*Math.max(...ch)&&ch[0]===255,'amber, not white: '+G.nightColor);
+  assert(L.contrastRatio(G.nightColor,'#000000')>L.contrastRatio(S.lampLight.color,'#000000')*0.9,'glass at least as bright as the light colour');
+  assert(S.lampLight.luminanceScale<=0.6&&S.lampLight.range<=2,'gentle board light');assert(S.lampLight.reflection.alpha<=0.15&&G.glow.alpha<=0.5);
+  const lin=L.srgbToLinear(P.seaNight.tint);assert.deepEqual(lin.map(v=>+v.toFixed(3)),[0.212,0.347,0.451]);
+  assert.deepEqual(L.seaColorAt([255,255,255,255],0),[255,255,255,255]);assert.deepEqual(L.seaColorAt([255,255,255,255],1),[127,159,179,255]);
+  assert.deepEqual(L.seaColorAt([200,220,240,255],0.5),[150,179,204,255]);
+  const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/mat === shared\) \{ this\.stats\.sea = 'skipped:no-instance'/.test(src),'never the shared sea material');
+  assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(w\)/.test(src));
+  assert(/effectName: 'builtin-unlit', technique: 0 \}\); m\.setProperty\('mainColor', new Color\(S\.lampGlass\.nightColor\)\)/.test(src)&&/SignLampGlow/.test(src));
+  assert(!/moon/i.test(src),'no moon (owned by 场景特效bot)');
+});
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');

@@ -42,8 +42,11 @@ export const ISLAND_PROPS = Object.freeze({
      * Light.visibility to the sign's own layer so only the sign (2 renderers) gets the forward-add pass; range/size are
      * sign-local and scale with the sign. luminanceScale multiplies the engine default luminance (HDR/LDR-safe, same
      * rule as RoomLightingRig's lamp) and the night weight. reflection = faint additive warm pool on the sea under it. */
-    lampLight: { local: [-0.78, 1.12, 0.42] as V3, color: '#ffc47a', range: 2.6, size: 0.06, luminanceScale: 1.6, layerBit: 0,
-      reflection: { x: -0.75, rx: 0.5, rz: 0.22, color: '#ffb766', alpha: 0.2, lift: 0.02 } },
+    lampLight: { local: [-0.78, 1.12, 0.42] as V3, color: '#ffb45c', range: 1.8, size: 0.05, luminanceScale: 0.5, layerBit: 0,
+      reflection: { x: -0.85, rx: 0.4, rz: 0.17, color: '#ff9f4f', alpha: 0.12, lift: 0.02 } },
+    /** T9n-2 lamp glass at night: unlit warm amber (never lit, never clipped to white; brightest thing on the sign) +
+     * a small soft additive glow disc in front of the glass (sign-local metres; lamp_glass bbox centre -1.005, 1.13, 0). */
+    lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
   },
   palms: [
     { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
@@ -58,6 +61,10 @@ export const ISLAND_PROPS = Object.freeze({
   tag: { fill: '#f8f2e2', edge: '#956737', text: '#633f21', shadow: '#14323c5a',
     /** T9n night end (same weight as the 3D props): darker warm grey card, deeper brown text/edge; >= 4.5:1 along the blend. */
     nightFill: '#9a8f7f', nightEdge: '#5e4128', nightText: '#2b1b0c', nightShadow: '#0a1a205a' },
+  /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
+   * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
+   * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
+  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3' },
   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
   nightFadeS: 0.5,
   notAdded: {
@@ -215,3 +222,13 @@ export function lampLightAt(w: number): { enabled: boolean; scale: number } {
 let propNight = 0;
 export function setPropNightWeight(w: number) { propNight = Number.isFinite(w) ? Math.max(0, Math.min(1, w)) : 0; }
 export function propNightWeight(): number { return propNight; }
+
+/** sRGB hex -> linear multiplier (for the sea tint; Cocos colour uniforms are converted the same way when gamma is on). */
+export function srgbToLinear(h: string): [number, number, number] {
+  const x = h.replace('#', ''); return [0, 2, 4].map(i => { const v = parseInt(x.slice(i, i + 2), 16) / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }) as [number, number, number];
+}
+/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it). */
+export function seaColorAt(authored: readonly number[], w: number): number[] {
+  const k = Math.max(0, Math.min(1, w)), t = hexRgba(ISLAND_PROPS.seaNight.tint);
+  return [0, 1, 2].map(i => Math.round(authored[i] + (authored[i] * t[i] / 255 - authored[i]) * k)).concat([authored[3] ?? 255]);
+}

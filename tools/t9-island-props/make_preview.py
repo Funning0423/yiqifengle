@@ -20,7 +20,9 @@ prev={'ui_signpost':'glb-preview/ui_signpost.glb','ui_satchel':'glb-preview/ui_s
       'beach_palm_tall':'beach-props/glb-preview/beach_palm_tall.glb','beach_palm_short':'beach-props/glb-preview/beach_palm_short.glb'}
 R=os.path.join(ROOT,'creator-build-project/assets/bundles/region_island/')
 S=L['signpost']
-props=[dict(name='signpost',glb=art(prev[S['prefab']]),pos=S['position'],yaw=S['yawDeg'],scale=S['scale'],lampNight=night)]
+def hexrgb0(h): h=h.lstrip('#'); return [((int(h[i:i+2],16)/255)**2.2) for i in (0,2,4)]
+amber=hexrgb0(S['lampGlass']['nightColor']) if night and S.get('lampGlass') else None
+props=[dict(name='signpost',glb=art(prev[S['prefab']]),pos=S['position'],yaw=S['yawDeg'],scale=S['scale'],lampNight=night,lampAmber=amber)]
 props+=[dict(name=p['prefab'],glb=art(prev[p['prefab']]),pos=p['position'],yaw=p['yawDeg'],scale=p['scale']) for p in L['palms']]
 props+=[dict(name=b['prefab'],glb=art(prev[b['prefab']]),pos=b['position'],yaw=b['yawDeg'],scale=b['scale']) for b in L['buttons']]
 pose=L['pose']; tag='night' if night else 'day'
@@ -40,10 +42,20 @@ pointLights=[]
 if night and not before:
     LL=S['lampLight']; pointLights.append(dict(pos=L['lampLightWorld'],rgb=hexrgb(LL['color']),energy=60*LL['luminanceScale'],range=LL['range']*S['scale'],radius=LL['size']*S['scale'],only='signpost'))
     RF=LL['reflection']; flats.append(flat(L['lampReflection']['mesh'],S['scale'],RF['lift'],hexrgb(RF['color']),RF['alpha'],1.2,RF['x']*S['scale']))
-scene=dict(island=R+'combined_visual_m.glb',pointLights=pointLights,hide=['_night_v22','env_interior','character_height','floor_skirt'] if not night else ['env_interior','character_height','floor_skirt','sky_dome'],
+    if S.get('lampGlass'):  # glow disc in the sign's XY plane at the glass (sign-local -> world)
+        G=S['lampGlass']['glow']; a=_m.radians(S['yawDeg']); c,s_=_m.cos(a),_m.sin(a); M=L['lampReflection']['glowMesh']; P=M['positions']; pos=[]
+        for i in range(0,len(P),3):
+            lx=G['center'][0]+P[i]; ly=G['center'][1]+P[i+2]; lz=G['center'][2]
+            pos+=[S['position'][0]+S['scale']*(lx*c+lz*s_), S['position'][1]+S['scale']*ly, S['position'][2]+S['scale']*(-lx*s_+lz*c)]
+        flats.append(dict(positions=pos,colors=M['colors'],indices=M['indices'],rgb=hexrgb(G['color']),alpha=G['alpha'],strength=1.4))
+tints={}
+if night:
+    tints={'M_env_sky':[.18,.24,.46],'M_env_cloud':[.22,.28,.43],'M_env_sea_foam':[.35,.48,.64]}
+    if L.get('seaNightLinear') and not before: tints['M_env_sea']=L['seaNightLinear']
+scene=dict(island=R+'combined_visual_m.glb',pointLights=pointLights,tints=tints,hide=['_night_v22','env_interior','character_height','floor_skirt'] if not night else ['env_interior','character_height','floor_skirt'],
   props=props,flats=flats,chars=[dict(glb=R+'character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',pos=[-2.1135,0,5.2814],yaw=0)],
   camera=dict(pos=pose['position'],target=pose['target'],fov=pose['fovVerticalDeg']),res=[RW,RH],out=os.path.join(tmp,'raw.png'),samples=samples,
-  sun=0.9 if night else 3.2,world=(0.05,0.08,0.18,1) if night else (0.55,0.7,0.8,1),worldStrength=0.5 if night else 0.9)
+  sun=0.9 if night else 3.2,sunColor=(0.62,0.72,1.0) if night else (1,.97,.92),world=(0.05,0.08,0.18,1) if night else (0.55,0.7,0.8,1),worldStrength=0.18 if night else 0.9)
 sj=os.path.join(tmp,'scene.json'); json.dump(scene,open(sj,'w'))
 subprocess.check_call(['blender','-b','--factory-startup','-P',os.path.join(H,'blender_render.py'),'--',sj],stdout=subprocess.DEVNULL)
 im=Image.open(scene['out']).convert('RGBA'); d=ImageDraw.Draw(im)
