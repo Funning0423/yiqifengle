@@ -118,14 +118,6 @@ observe 45e2c94c42c83ad85a00acaf1d38f4031828637b8a1e7a671cf3ea822932611c world-r
 #  flow/walk/config paths, onCameraSettled/onCraneStart, lighthouseTargets, button()/paintNavigation unchanged.
 #  WorldFlowCore f3fe3064 + Boot a4f2254d unchanged at 87071c8 (listed). Observe-only, append only.
 observe d122c71da82d9fcd1aae5654410499040b70c72a741bd3b0615876fb50847d59 world-r1/WorldFlowComponent.ts   场景特效bot Scene FX 87071c8 on int/v1 d637356
-# Voice bot scene BGM (work/Voice-bot-bgm 4c0ad2e + fbee3d5 on int/v1 d637356). GameAudio v0.4: setMusic(path, bundle?) (bundle optional,
-#  null/omitted = resources, old calls unchanged) + two-source crossfade loop + 1.5 s scene crossfade. Verified
-#  `git show fbee3d5:.../audio/GameAudio.ts | sha256sum` = 824ba6ab..1999 (== 4c0ad2e; fbee3d5 does not touch it). Glue reviewed:
-#  instance/play/onBoardFrame/onCheer/cascade/sfxVoices/reasons/muted/musicVolume/musicPath/setMusic/setMusicVolume/setMuted/
-#  musicDiagnostics/onGesture unchanged in name and meaning; loopSource is always the current main voice (swapped at the end of each
-#  loop crossfade, so audio:bgm-loop-seam still fires once per pass). Only T0-checked file changed vs d637356 (Boot a4f2254d,
-#  WorldFlowCore f3fe3064, WorldFlowComponent 4e9022bd, AudioBridge 45fc0889 ... unchanged, listed). Observe-only, append only.
-observe 824ba6abd170d06b04efaf7905ebe00e39c8815c6cc755d8f76ebf72fc6f1999 audio/GameAudio.ts              Voice bot scene BGM (work/Voice-bot-bgm 4c0ad2e/fbee3d5 on int/v1 d637356)
 # 运镜bot return entry (work/运镜bot-wind e3863fb = 4be7adf + 1, on int/v1 38b005f): WorldFlowCore.entrySpan runs crossing-in, door close,
 #  toSeat and sit as ONE camera span ending on cameraHome. Verified `git show e3863fb:.../world-r1/WorldFlowCore.ts | sha256sum`
 #  = a27457a4..7dab (== trial merge 38b005f+e3863fb+Voice-bot-bgm). Glue reviewed: walk(path,cameras|null,token)/config paths
@@ -133,3 +125,13 @@ observe 824ba6abd170d06b04efaf7905ebe00e39c8815c6cc755d8f76ebf72fc6f1999 audio/G
 #  walking-to-seat/sitting/home emitted in the same order; ONE cameraEvent settled:home after the sit (flow_sim: home 42.767 s, same as
 #  4be7adf). 45e2c94c (4be7adf) kept. Observe-only, append only.
 observe a27457a434e0878cd83f226b13dab1e26f66be3d82afba14c384acc88e3a7dab world-r1/WorldFlowCore.ts         运镜bot return entry e3863fb on int/v1 38b005f
+# Voice bot scene BGM rebased (work/Voice-bot-bgm aa48f1f+df34cf5+4a8c474 on int/v1 38b005f). GameAudio v0.4 + setWindDuck:
+#  setMusic(path, bundle?) (bundle optional) + two-source crossfade loop + 1.5 s scene crossfade + BGM wind duck
+#  (-4 dB x smoothstep(0.2,1,s), tau 0.5 s; WindAudio feeds setWindDuck; musicDiagnostics.windDuck). Verified
+#  `git show 4a8c474:.../audio/GameAudio.ts | sha256sum` = a8755ab9..7058f. Glue reviewed: instance/play/onBoardFrame/
+#  onCheer/cascade/sfxVoices/reasons/muted/musicVolume/musicPath/setMusic/setMusicVolume/setMuted/musicDiagnostics/onGesture
+#  unchanged in name and meaning; loopSource still the current main voice (audio:bgm-loop-seam once per pass); setWindDuck/
+#  windDuckGain additive only. Only T0-checked file changed vs 38b005f (Boot a4f2254d, WorldFlowCore a27457a4/45e2c94c,
+#  WorldFlowComponent d122c71d, AudioBridge 45fc0889 ... unchanged, listed). 824ba6ab (pre-rebase 4c0ad2e/fbee3d5 on d637356)
+#  removed: never merged anywhere, only lived on the discarded tip. Observe-only.
+observe a8755ab98b9d5a05ec1f129bb7eab3471b523a8596c2f15c0d8049bc2867058f audio/GameAudio.ts              Voice bot scene BGM (work/Voice-bot-bgm aa48f1f/df34cf5/4a8c474 on int/v1 38b005f)
