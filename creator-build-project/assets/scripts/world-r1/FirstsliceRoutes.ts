@@ -2,7 +2,7 @@ import type { RouteConfig, Vec, Pose } from './WorldFlowCore';
 import { pointOnPath } from './WorldFlowCore';
 import { islandPoseEntry, homePoseEntry, characterPoseEntry, REGION_CAMERA, INTERIOR_CAMERA_CLEARANCE, TRANSITION_CAMERA } from './RegionCameraData';
 import type { RailKey } from './RegionCameraData';
-import { assertAuthoredPose, invertProgress } from './CameraPose';
+import { assertAuthoredPose, invertProgress, remapProgress } from './CameraPose';
 /** v1.3: authored poses must carry position+target+fovVerticalDeg; validated (finite, roll 0, fov range) at route creation. */
 const dataPose=(e:any,name:string):Pose=>{const a=assertAuthoredPose(e,name);return {position:[a.position[0],a.position[1],a.position[2]],target:[a.target[0],a.target[1],a.target[2]],fovVerticalDeg:a.fovVerticalDeg};};
 /** T2+ pure: unit XZ walk tangent at progress (central difference along arclength). */
@@ -90,6 +90,7 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
 
   // T2/T3a: data-driven transition keys (RegionCameraData.TRANSITION_CAMERA). Junction keys are shared between moves so
   // every hand-off is C0; walkSpan makes crossOut+toIsland and toThreshold+crossIn single C1 tracks.
+  const c0seat=()=>({standingControllerRoot:reference.standingRoot,seatedControllerRoot:reference.seatedRoot});
   const t2=TRANSITION_CAMERA?.enabled&&REGION_CAMERA.homePoseSource==='sitting-room'?(()=>{
     const K=TRANSITION_CAMERA.keys;
     const key=(name:string,route:readonly Vec[],progress:number):Pose=>{const k=K[name];if(!k)throw Error('Missing transition camera key '+name);
@@ -128,6 +129,14 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
         // crane-start mark: outbound span = crossing-out walk + toIsland walk + settle (all known here); eased track time of the key.
         startSeconds:(()=>{const a=walkS(outCrossing),b=walkS(toIsland),total=a+b+T.crane.settleSeconds;return total*invertProgress((a+T.crane.startProgress*b)/total,T.tracks.outbound as any);})()}}:{}),
       cameraCrossIn:[{...outsideReturn,progress:0},key('C1',inCrossing,.3),key('C2',inCrossing,.55),key('C3',inCrossing,.8),{...insideReturn,progress:1}],
+      // T2+ return entry: ONE move OR -> crossing-in -> door close -> toSeat -> sit -> cameraHome (TRANSITION_CAMERA.entry).
+      ...(railOn&&T.entry?.enabled?{remapProgress,cameraEntry:(()=>{const E=T.entry,seat=c0seat(),list=(g:string)=>E.keys.filter(k=>k.seg===g);
+        const mk=(k:any,root:Vec):Pose=>({position:[k.position[0],k.position[1],k.position[2]],target:[root[0],root[1]+k.targetHeight,root[2]],fovVerticalDeg:k.fovVerticalDeg,progress:k.progress});
+        const sitRoot=(p:number):Vec=>[seat.standingControllerRoot[0]+(seat.seatedControllerRoot[0]-seat.standingControllerRoot[0])*p,0,seat.standingControllerRoot[2]+(seat.seatedControllerRoot[2]-seat.standingControllerRoot[2])*p];
+        const cross=list('cross').map(k=>mk(k,pointOnPath(inCrossing,k.progress))),door=list('door').map(k=>mk(k,inCrossing[inCrossing.length-1]));
+        const seatK=list('seat').map(k=>mk(k,pointOnPath(toSeat,k.progress))),sit=[...list('sit').map(k=>mk(k,sitRoot(k.progress))),{...cameraHome,progress:1}];
+        if(cross.some(k=>!(k.progress!>0)))throw Error('entry cross keys must be after the doorway key (progress > 0)');
+        return {cross,door,seat:seatK,sit,doorSeconds:E.doorSeconds,doorCloseFraction:E.doorCloseFraction};})()}:{}),
       cameraToSeat:[{...insideReturn,progress:0},key('S1',toSeat,.14),key('S2',toSeat,.28),key('S3',toSeat,.42),key('S4',toSeat,.57),key('S5',toSeat,.71),key('S6',toSeat,.86),{...cameraHome,progress:1}],
       cameraTracks:TRANSITION_CAMERA.tracks as RouteConfig['cameraTracks'],
       interiorLighting:TRANSITION_CAMERA.lighting,

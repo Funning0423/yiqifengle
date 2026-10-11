@@ -186,7 +186,34 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  frontal/crane/return frames show a warm half-opening (a chair + the rug) instead of the whole room. islandDeg picked from
    *  offline renders of 86.4/45/30/20 (30 = floor sliver only, 20 reads closed). Rollback: delete this entry (door stays at openDeg). */
   doorDrift: { islandDeg: 45, closeAfter: 1.2, closeSeconds: 2.6, openBefore: 4.1, openSeconds: 2.4 },
+  /** T2+ return entry (Funning, Mac round 3: "进门/关门那一下像切机位"). Old: the crossing-in move swung the lens 1.6 m to the
+   *  right of the doorway (C1..IR, up to 2.1 m/s / 57 deg/s), STOPPED dead for the 1 s door close, then a new track hovered
+   *  at the right wall (S1..S3) and whipped 3.2 m back behind her to cameraHome (S4..S6, up to 1.73 m/s / 68 deg/s): three
+   *  separate set-ups. New: ONE move from the doorway key OR through crossing-in, the door close, the walk to the seat and the
+   *  sit, continuing the return span (no stop at the threshold or the door): the lens backs into the room ahead of her on the
+   *  right, lets her pass at the right wall while panning with her, then arcs once behind her (left, never back) and lands
+   *  on cameraHome while she sits. Keys: seg = cross (inCrossing walk progress) | door (door-close time fraction, she stands
+   *  at entrance_point) | seat (toSeat walk progress) | sit (turn + sit_down time fraction); target = her root at that
+   *  moment + targetHeight (sit: seated root). The last key is always cameraHome (appended by the route builder). Keys are
+   *  placed on the span clock so the lens is where she is (route remapProgress). doorCloseFraction: the leaf closes
+   *  (smoothstep) from 0.1 to this fraction of the door segment. Rollback: enabled=false (old C1..IR / stop / S1..S6 moves). */
+  entry: {
+    enabled: true,
+    doorSeconds: 1.0,
+    doorCloseFraction: 0.9,
+    keys: [
+      { seg: 'cross', progress: 0.5, position: [0.15, 1.56, -2.05], targetHeight: 1.0, fovVerticalDeg: 70 },
+      { seg: 'cross', progress: 1.0, position: [0.75, 1.58, -2.35], targetHeight: 0.98, fovVerticalDeg: 70 },
+      { seg: 'door', progress: 1.0, position: [1.22, 1.58, -2.55], targetHeight: 0.98, fovVerticalDeg: 72 },
+      { seg: 'seat', progress: 0.25, position: [1.66, 1.58, -2.55], targetHeight: 0.97, fovVerticalDeg: 73 },
+      { seg: 'seat', progress: 0.5, position: [1.86, 1.6, -2.3], targetHeight: 0.97, fovVerticalDeg: 73 },
+      { seg: 'seat', progress: 0.75, position: [1.3, 1.6, -1.75], targetHeight: 1.0, fovVerticalDeg: 71 },
+      { seg: 'seat', progress: 1.0, position: [0.3, 1.55, -1.65], targetHeight: 1.0, fovVerticalDeg: 72 },
+      { seg: 'sit', progress: 0.5, position: [-0.7, 1.45, -1.85], targetHeight: 0.95, fovVerticalDeg: 74 },
+    ] as EntryKey[],
+  },
   /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn. */
   craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861 },
 });
+export type EntryKey = Readonly<{ seg: 'cross' | 'door' | 'seat' | 'sit'; progress: number; position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>;
 export type RailKey = Readonly<{ progress: number; side: 1 | -1; distance: number; height: number; lead: number; look: number; targetHeight: number; fovVerticalDeg: number; frontal?: boolean }>;

@@ -30,7 +30,9 @@ const profile=(q,T,path)=>{const [ri,ro]=ramps(path),r=Math.min(RAMP,T/2),ri_=ri
 const envOpts=wp==='accel'||wp==='chained'?{walkDuration:p=>{const [ri,ro]=ramps(p);return pathLen(p)/V+RAMP*((ri?1:0)+(ro?1:0))/2;},walkProfile:profile,reportWalkProgress:!args.includes('--no-walk-progress')}:{};
 if(args.includes('--real-walk'))envOpts.realWalk=true;
 if(envOpts.walkDuration)console.log('walk profile: synthetic',wp,'(0.3 s linear accel/decel ramps, walkDuration = L/0.7 + ramp/2 per ramp), walkProgress reported:',envOpts.reportWalkProgress);
-const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5};
+const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5,
+  // return-entry span: 0.75 deg/frame = 45 deg/s, 0.025 m/frame = 1.5 m/s, fov 0.15 deg/frame = 9 deg/s; standstill = v < 0.02 m/s and w < 0.5 deg/s
+  entry:{turnDegPerFrame:.75,moveMPerFrame:.025,fovDegPerFrame:.15,angAccel:120,linAccel:3,stillV:.02,stillW:.5,maxStillS:.1,settleS:.05}};
 (async()=>{
   if(envOpts.walkDuration){const c0=S.create().cfg;for(const k of ['toDoor','outCrossing','toIsland','toThreshold','inCrossing','toSeat'])if(c0[k])named.push([k,c0[k]]);}
   const env=S.create(envOpts),{C,cfg}=env,run=await S.run(env),F=run.frames,dt=run.dt;
@@ -114,6 +116,21 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
     const xoNear=F.filter(f=>f.state==='crossing-out'&&Math.hypot(f.root[0],f.root[2])<1.2).map(f=>f.door);
     const ok=!dd||(isl.length>0&&isl.every(v=>Math.abs(v-dd.islandDeg)<1e-6)&&ci.every(v=>v===open)&&xoNear.every(v=>v===open)&&maxStep<=1.0&&maxAcc<=0.05&&minLens.d>=LR.NEAR_M&&minHer>=0.35);
     check('door-drift',ok,dd?{islandDeg:dd.islandDeg,openDeg:open,islandDoor:Array.from(new Set(isl)),crossingInAllOpen:ci.every(v=>v===open),openWhileNearDoorOut:xoNear.every(v=>v===open),maxDegPerFrame:+maxStep.toFixed(3),maxDegPerFrame2:+maxAcc.toFixed(4),minLensToLeafWhileNotOpen:minLens,minHerToLeafM:+minHer.toFixed(3)}:{disabled:true});}
+  // --- T2+ return entry (Funning, Mac round 3: "进门/关门那一下像切机位"): from 1 s before crossing-in to the home settle the
+  // camera is ONE move: per-frame turn / move / fov bounded (no whip pans), bounded angular / linear acceleration (no
+  // kinks at keys or track joins), and it never stops then restarts (old: dead stop for the 1 s door close, then a new
+  // track) - the only standstill allowed is the final settle on cameraHome. Old behaviour (4be7adf): 57-68 deg/s,
+  // 2.1 m/s, 202 deg/s^2, 9.8 m/s^2, 1.0 s standstill -> FAIL.
+  {const E=LIMITS.entry,ci=F.findIndex(f=>f.state==='crossing-in'),hm=F.findIndex((f,k)=>k>ci&&f.state==='home');
+    const a=Math.max(1,ci-Math.round(1/dt)),win=ci>0&&hm>ci?kin.filter(k=>k.i>=a&&k.i<=hm):[];
+    let mt={v:0},mm={v:0},mf={v:0},aw={v:0},av={v:0},still=0,stillMax=0,stillAt=null;
+    const at=(k,v)=>({v:+v.toFixed(3),t:+F[k.i].t.toFixed(3),state:F[k.i].state});
+    for(const k of win){const turn=k.w*dt,move=k.v*dt,fv=Math.abs(k.fv)*dt;if(turn>mt.v)mt=at(k,turn);if(move>mm.v)mm=at(k,move);if(fv>mf.v)mf=at(k,fv);
+      if(k.i>a+1){if(Math.abs(k.dw)>aw.v)aw=at(k,Math.abs(k.dw));if(Math.abs(k.dv)>av.v)av=at(k,Math.abs(k.dv));}
+      const st=k.v<E.stillV&&k.w<E.stillW&&k.i<hm-Math.round(E.settleS/dt);if(st){still++;if(still>stillMax){stillMax=still;stillAt=+F[k.i].t.toFixed(3);}}else still=0;}
+    const ok=win.length>0&&mt.v<=E.turnDegPerFrame&&mm.v<=E.moveMPerFrame&&mf.v<=E.fovDegPerFrame&&aw.v<=E.angAccel&&av.v<=E.linAccel&&stillMax*dt<=E.maxStillS;
+    check('return-entry-continuous',ok,{window:win.length?{from:+F[a].t.toFixed(3),to:+F[hm].t.toFixed(3)}:null,maxTurnPerFrameDeg:mt,maxMovePerFrameM:mm,maxFovPerFrameDeg:mf,
+      maxAngAccelDegS2:aw,maxLinAccelMS2:av,longestStandstillS:+(stillMax*dt).toFixed(3),standstillEndsAt:stillAt,limits:E});}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
     for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}

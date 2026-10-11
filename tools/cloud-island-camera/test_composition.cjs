@@ -5,12 +5,15 @@ function api(baseline){const cache={};function load(name){if(cache[name])return 
 const old=api(true),now=api(false),plain=x=>JSON.parse(JSON.stringify(x));
 // T2+ (运镜bot) owns these route keys; they are frozen against the committed T2+ snapshot instead of the pre-T2 baseline.
 // Every other key is still frozen against the baseline. Regenerate deliberately with --update-t2plus-snapshot.
-const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','crane','cameraToSeat','cameraTracks','interiorLighting','wind','doorDrift'];
+const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','crane','cameraToSeat','cameraTracks','interiorLighting','wind','doorDrift','cameraEntry'];
+// T2+ function-valued route keys (not JSON-snapshotable): checked for presence only.
+const T2PLUS_FN=['remapProgress'];
 const t2Snap=path.join(__dirname,'routes.t2plus.snapshot.json');
 if(process.argv.includes('--update-t2plus-snapshot'))fs.writeFileSync(t2Snap,JSON.stringify(Object.fromEntries(T2PLUS_KEYS.map(k=>[k,plain(now.cfg[k])])),null,1)+'\n');
 const t2=JSON.parse(fs.readFileSync(t2Snap,'utf8'));assert.deepEqual(Object.keys(t2).filter(k=>k!=='flow').sort(),[...T2PLUS_KEYS].sort(),'T2+ snapshot key set');
 for(const key of T2PLUS_KEYS)assert.deepEqual(plain(now.cfg[key]),t2[key],key+' must match the T2+ snapshot');
-assert.deepEqual(Object.keys(now.cfg).filter(k=>!(k in old.cfg)).sort(),T2PLUS_KEYS.filter(k=>!(k in old.cfg)).sort(),'only T2+ adds route keys');
+assert.deepEqual(Object.keys(now.cfg).filter(k=>!(k in old.cfg)).sort(),T2PLUS_KEYS.concat(T2PLUS_FN).filter(k=>!(k in old.cfg)).sort(),'only T2+ adds route keys');
+for(const k of T2PLUS_FN)assert.equal(typeof now.cfg[k],'function',k+' must be a function');
 // walkDuration (shared walk-duration contract) is a function, not route data: it must default to constant speed on every
 // route path (behaviour unchanged) - checked here instead of being diffed as JSON.
 for(const c of [now.cfg,old.cfg])if(c.walkDuration)for(const k of ['toDoor','outCrossing','toIsland','toThreshold','inCrossing','toSeat'])if(c[k]){let L=0;for(let i=1;i<c[k].length;i++)L+=Math.hypot(c[k][i][0]-c[k][i-1][0],c[k][i][1]-c[k][i-1][1],c[k][i][2]-c[k][i-1][2]);assert.ok(Math.abs(c.walkDuration(c[k])-L/c.speed)<1e-9,'walkDuration('+k+') must default to length/speed');}
