@@ -24,8 +24,20 @@ props=[dict(name='signpost',glb=art(prev[S['prefab']]),pos=S['position'],yaw=S['
 props+=[dict(name=p['prefab'],glb=art(prev[p['prefab']]),pos=p['position'],yaw=p['yawDeg'],scale=p['scale']) for p in L['palms']]
 props+=[dict(name=b['prefab'],glb=art(prev[b['prefab']]),pos=b['position'],yaw=b['yawDeg'],scale=b['scale']) for b in L['buttons']]
 pose=L['pose']; tag='night' if night else 'day'
+import math as _m
+def hexrgb(h): h=h.lstrip('#'); return [((int(h[i:i+2],16)/255)**2.2) for i in (0,2,4)]
+def flat(mesh,scale,lift,rgb,alpha,strength=1.0,cxshift=0.0):
+    a=_m.radians(S['yawDeg']); c,s_=_m.cos(a),_m.sin(a); P=mesh['positions']; out=[]
+    for i in range(0,len(P),3):
+        x=(P[i]*scale+cxshift); z=P[i+2]*scale
+        out+= [S['position'][0]+x*c+z*s_, L_SEA+lift, S['position'][2]-x*s_+z*c]
+    return dict(positions=out,colors=mesh['colors'],indices=mesh['indices'],rgb=rgb,alpha=alpha,strength=strength)
+
+W_=S['water']; L_SEA=-0.92; flats=[flat(L['water']['shadow'],S['scale'],W_['ripple']['lift']*0.5,hexrgb(W_['shadow']['color']),W_['shadow']['nightAlpha' if night else 'alpha'],0.6)]
+for k,r in enumerate(L['water']['ripples']):
+    sc_=S['scale']*r['scale']; flats.append(flat(L['water']['ring'],sc_,W_['ripple']['lift'],hexrgb(W_['ripple']['nightColor' if night else 'color']),(W_['ripple']['nightAlpha' if night else 'alpha'])*r['alpha'],1.0,W_['centerX']*S['scale']*(1-r['scale'])))
 scene=dict(island=R+'combined_visual_m.glb',hide=['_night_v22','env_interior','character_height','floor_skirt'] if not night else ['env_interior','character_height','floor_skirt','sky_dome'],
-  props=props,chars=[dict(glb=R+'character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',pos=[-2.1135,0,5.2814],yaw=0)],
+  props=props,flats=flats,chars=[dict(glb=R+'character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',pos=[-2.1135,0,5.2814],yaw=0)],
   camera=dict(pos=pose['position'],target=pose['target'],fov=pose['fovVerticalDeg']),res=[RW,RH],out=os.path.join(tmp,'raw.png'),samples=samples,
   sun=0.9 if night else 3.2,world=(0.05,0.08,0.18,1) if night else (0.55,0.7,0.8,1),worldStrength=0.5 if night else 0.9)
 sj=os.path.join(tmp,'scene.json'); json.dump(scene,open(sj,'w'))
