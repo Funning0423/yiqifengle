@@ -29,7 +29,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [1.9, -1.15, 13.1] as V3, yawDeg: -20, scale: 1.2,
+    prefab: 'ui_signpost', position: [-1.2, -1.15, 18.8] as V3, yawDeg: -21, scale: 2.3,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
@@ -154,8 +154,21 @@ export function rippleAt(t: number, k: number): { scale: number; alpha: number }
   return { scale: 1 + W.grow * f, alpha: Math.sin(Math.PI * f) };
 }
 
-/** Signpost hit rect in UI units for the current camera (null = not in front of the camera). */
+/** Signpost visual rect (projected AABB) in UI units for the current camera (null = not in front of the camera). */
 export function signpostRectUi(pose: CameraPose, width: number, height: number): Rect | null {
   const S = ISLAND_PROPS.signpost;
-  return projectRectUi(pose, width, height, propCorners(S, S.boxMin, S.boxMax), 64, 48);
+  return projectRectUi(pose, width, height, propCorners(S, S.boxMin, S.boxMax));
+}
+/** Minimum mainline (signpost) touch target, logical px. */
+export const SIGN_HIT_MIN = 88;
+/** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth is placed (centred first, then
+ * shifted while still covering the whole sign) so it stays inside an 8 px safe inset and off the bottom-row prop hits. */
+export function signpostHitUi(pose: CameraPose, width: number, height: number): Rect | null {
+  const r = signpostRectUi(pose, width, height); if (!r) return null;
+  const w = Math.max(SIGN_HIT_MIN, r.width), h = Math.max(SIGN_HIT_MIN, r.height), ex = (w - r.width) / 2, ey = (h - r.height) / 2;
+  const slots = propButtonLayout(width, height).slots.map(s => s.hit), inset = 8;
+  const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - inset && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
+    && slots.every(b => !(Math.abs(c.x - b.x) < (c.width + b.width) / 2 && Math.abs(c.y - b.y) < (c.height + b.height) / 2));
+  for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
+  return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
 }

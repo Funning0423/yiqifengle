@@ -27,20 +27,34 @@ ok('screen props stand on the sea under their anchor at the runtime island camer
     const top=C.projectPoint(pose,w/h,[a.point[0],a.point[1]+P.buttons[s.role].heightM*a.scale,a.point[2]]);assert(Math.abs((top.y-q.y)/2*h-s.prop.height)<s.prop.height*.05,'pixel height');
     assert(a.scale>.3&&a.scale<6,'scale '+a.scale);}
 });
-ok('signpost: hugs the front-right shore (posts in front of the waterline, panel overlaps sand <= 55 %), inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
-  const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3);
+ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the portrait width), hugs the front-right shore (posts in shallow water just below the waterline, panel overlaps sand <= 30 %), inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
+  const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3),S=P.signpost;
+  assert(S.scale>=1.2*1.8,'scale '+S.scale+' vs 1653f02 1.2');
   for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,8),'sign inside safe inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'sign vs '+s.role+' '+w+'x'+h);
     const g=L.projectRectUi(pose,w,h,girl);assert(!overlap(r,g),'sign covers girl '+w+'x'+h);}
-  // hugs the shore: posts stand in front of (below on screen) the waterline of the front-right beach, within 3 m of it; the
-  // panel may overlap the sand behind it by at most ~55 % of its height (lamp + panel top, like mockup-portrait.png)
+  // hugs the shore: the posts stand in front of (below on screen) the waterline of the front-right beach and the base is at
+  // most 0.9 sign-heights below it on screen (world: <= 2.2 sign-heights off the waterline, i.e. the shallow band, not open
+  // sea); the panel may overlap the sand behind it by at most 30 % of its height (1653f02: 55 %, tightened since the sign
+  // doubled: only the lamp hook may reach the sand line, the beach stays readable)
   const SHORE_Z=10.7; // measured: island ground crosses sea level (-0.92) at z ~ 10.6-10.7 for x = 1..3 (front-right beach)
-  const S=P.signpost;assert(S.position[2]>SHORE_Z+0.5&&S.position[2]<SHORE_Z+3,'sign within 0.5-3 m off the waterline: z='+S.position[2]);
+  const hM=(S.boxMax[1]-S.boxMin[1])*S.scale;
+  assert(S.position[2]>SHORE_Z+0.5&&S.position[2]<SHORE_Z+2.2*hM,'sign within the shallow band off the waterline: z='+S.position[2]);
   for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h),shore=C.projectPoint(pose,w/h,[S.position[0],P.seaY,SHORE_Z]),shoreUi=shore.y*h/2;
     const bottom=r.y-r.height/2,top=r.y+r.height/2;assert(bottom<shoreUi,'posts below the waterline on screen '+w+'x'+h);
-    assert((top-shoreUi)/r.height<=.55,'panel overlaps the beach by '+((top-shoreUi)/r.height).toFixed(2)+' '+w+'x'+h);}
-  const r=L.signpostRectUi(pose,390,844);assert(.5+r.x/390>.55,'sign on the right half');assert(r.width>=64&&r.height>=48,'tap target');
+    assert((shoreUi-bottom)/r.height<=.9,'posts too far from the shore '+((shoreUi-bottom)/r.height).toFixed(2)+' '+w+'x'+h);
+    assert((top-shoreUi)/r.height<=.30,'panel overlaps the beach by '+((top-shoreUi)/r.height).toFixed(2)+' '+w+'x'+h);}
+  const r=L.signpostRectUi(pose,390,844);assert(.5+r.x/390>.55,'sign on the right half');assert(r.width/390>=.40,'portrait width fraction '+(r.width/390).toFixed(2));
   const base=C.projectPoint(pose,390/844,S.position);assert(base.depth>20);
+});
+ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
+  const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3);assert.equal(L.SIGN_HIT_MIN,88);
+  for(const [w,h] of FRAMES){const v=L.signpostRectUi(pose,w,h),r=L.signpostHitUi(pose,w,h);
+    assert(r.width>=88&&r.height>=88,'hit '+r.width+'x'+r.height+' '+w+'x'+h);
+    assert(r.x-r.width/2<=v.x-v.width/2+1e-6&&r.x+r.width/2>=v.x+v.width/2-1e-6&&r.y-r.height/2<=v.y-v.height/2+1e-6&&r.y+r.height/2>=v.y+v.height/2-1e-6,'hit covers sign '+w+'x'+h);
+    assert(inside(r,w,h,8),'hit inside inset '+w+'x'+h);
+    for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'hit vs '+s.role+' '+w+'x'+h);
+    assert(!overlap(r,L.projectRectUi(pose,w,h,girl)),'hit covers girl '+w+'x'+h);}
 });
 ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present',()=>{
   const W=P.signpost.water,sh=L.softEllipse(W.centerX,W.shadow.rx,W.shadow.rz),rg=L.softRing(W.centerX,W.ripple.rx,W.ripple.rz,W.ripple.band);
