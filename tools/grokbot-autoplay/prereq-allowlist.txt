@@ -98,3 +98,10 @@ strict 893ce0c9f357c99fc7cffcc999b7eb4dc02677bb568b14665f7cc334caa523ed world-r2
 #  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged. WorldFlowComponent ==
 #  4e9022bd (listed from 138bca5). Boot unchanged (a4f2254d). Observe-only, append only.
 observe f3fe306486a272b6d60007f4a03497607825edd1fc5f919266296f6328dac6c4 world-r1/WorldFlowCore.ts         运镜bot wind 50c0227 on int/v1 dcfda87 (lens occlusion + turn-target)
+# GGbot apron morph driver (work/GGbot-morph 779b49a on int/v1 d637356; trial merge --no-ff identical). FlowReferenceStandin: MorphDriver
+#  bound in bindVisual (visual.getComponentsInChildren(MeshRenderer), node/mesh LOD0_G2_APRON), render() = rig.apply(plan) then setWeight
+#  on change; diagnostics().motion.morph + new __worldIntegration.morph() (read by T0 device:caps, optional). Verified
+#  `git show 779b49a:.../WorldIntegrationBoot.ts | sha256sum` = fcce49fc..6e5d. Glue reviewed: composition/worldCommands, loadPhase/ready/
+#  busy/invoke/board/islandJourney/roomExplore/canvas/navLayout, button(), paintNavigation, __worldIntegration.onPropTap/onFoot/
+#  onApronLift unchanged. WorldFlowCore/WorldFlowComponent unchanged (f3fe3064 / 4e9022bd, listed). Append only.
+strict fcce49fc336da86f5ebce641243aa45dd2838e94013548c121a5c7ac26b86e5d WorldIntegrationBoot.ts            int/v1 d637356 + GGbot apron morph (work/GGbot-morph 779b49a)
