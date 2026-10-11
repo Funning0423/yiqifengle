@@ -75,7 +75,8 @@ def targets_from(ref_tr, mask):
     return {s: (np.asarray(mask[s], bool), F[s]) for s in 'LR' if np.any(mask[s])}
 
 
-def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arcs=None, fit=True):
+def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arcs=None, fit=True, anchored=False,
+              ease_yaw=False):
     """plant feet / refit hips height a few times. hips_lock: (w [n], ref hips [n,3]) re-imposed after every fit.
     Contacts that end inside the clip may be trimmed (toe-off release); clips with both feet planted throughout never are."""
     cx = CB.ctx()
@@ -88,7 +89,8 @@ def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arc
     trimmed = 0
     for it in range(rounds):
         for _ in range(3 if trim else 0):
-            Wp, hp, info = AL.plant_feet(cx, Wr0, h, FPS, C, periodic=periodic, targets=targets, iters=2, arcs=arcs)
+            Wp, hp, info = AL.plant_feet(cx, Wr0, h, FPS, C, periodic=periodic, targets=targets, iters=2, arcs=arcs,
+                                         anchored=anchored, ease_yaw=ease_yaw)
             C2, ch = AL.trim_contacts(cx, Wp, hp, C, knee_ref, periodic=periodic, keep=keep,
                                       clamp={s: info[s]['clamp_mask'] for s in info})
             if not ch:
@@ -96,7 +98,8 @@ def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arc
             trimmed += ch
             C.update(C2)
         else:
-            Wp, hp, info = AL.plant_feet(cx, Wr0, h, FPS, C, periodic=periodic, targets=targets, iters=2, arcs=arcs)
+            Wp, hp, info = AL.plant_feet(cx, Wr0, h, FPS, C, periodic=periodic, targets=targets, iters=2, arcs=arcs,
+                                         anchored=anchored, ease_yaw=ease_yaw)
         if it == rounds - 1 or not fit:
             break
         Wf = CB.fk(Wp, hp)
@@ -338,7 +341,7 @@ def build_walk_start():
     mask = {s: ((w_idle >= 0.98) | ((w_walk >= 0.98) & Cw[s])) for s in 'LR'}
     lockw = np.maximum(w_idle, w_walk)
     ref_h = ref_w[1] * (w_walk >= w_idle)[:, None] + idle_pose(N)[1] * (w_walk < w_idle)[:, None]
-    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h))
+    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), ease_yaw=True)
     # root: smoothed hips minus the hub poses' hips offset, exact walk root once the clip is walk_loop
     off = w_walk * W.rel_hips(phase)[:, 2] + (1 - w_walk) * idle_pose(1)[1][0, 2]
     raw = tr[1][:, 2] - off
@@ -430,7 +433,7 @@ def build_stop(body):
     ref_h = np.where((i > N // 2)[:, None], ref_i[1], ref_w[1])
     dist = np.linalg.norm(ankles(ref_i)[E][-1][[0, 2]] - ankles(pre)[E][f_to][[0, 2]])
     arcs = {E: [(f_to, f_land, float(np.clip(0.25 * dist, 0.012, 0.035)))]}
-    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), arcs=arcs)
+    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), arcs=arcs, ease_yaw=True)
     # root
     hz_i = idle_pose(1)[1][0]
     rel = W.rel_hips(phase)
@@ -477,6 +480,8 @@ TURNS = {
     'walk_turn_90_bodyL': dict(trial='69_16', t=(1.70, 3.20), deg=90.0, ref=(3.3, 3.9)),
     'walk_turn_90_bodyR': dict(trial='69_18', t=(1.10, 2.70), deg=-90.0, ref=(0.4, 1.0)),
 }
+TURN_STEP_MIN = 7
+TURN_STEP_ARC = 0.02
 
 
 def build_turn(name):
@@ -530,9 +535,23 @@ def build_turn(name):
         C[s][a + 1:b] = False
         dist = float(np.linalg.norm((Ab[s][0] - Aa[s][0])[[0, 2]]))
         arcs[s] = [(a, b, float(np.clip(0.25 * dist, 0.012, 0.035)))]
+    # a 1-2 frame lift in the source contacts (pivot shuffle) would be a one-frame hop: widen it to a real step taken
+    # while the other foot is planted, with an arc so the whole sole clears the floor
+    for s in 'LR':
+        o = 'R' if s == 'L' else 'L'
+        for a, b in AL.intervals(~C[s]):
+            if a == 0 or b == N - 1 or b - a + 1 >= TURN_STEP_MIN:
+                continue
+            a2 = max(2, (a + b) // 2 - TURN_STEP_MIN // 2)
+            b2 = min(N - 3, a2 + TURN_STEP_MIN - 1)
+            if not C[o][a2:b2 + 1].all():
+                continue
+            C[s][a2:b2 + 1] = False
+            arcs.setdefault(s, []).append((a2 - 1, b2 + 1, TURN_STEP_ARC))
     lockw = np.maximum(w_in, w_out)
     ref_h = np.where((i > N // 2)[:, None], ref_b[1], ref_a[1])
-    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), arcs=arcs)
+    tr, pinfo = plant_fit(tr, C, targets_from(ref_t, mask), hips_lock=(lockw, ref_h), arcs=arcs, anchored=True,
+                          ease_yaw=True)
     ryaw = th * u
     track = to_root(tr, np.zeros(N), np.zeros(N), ryaw)
     ev = heel_strike_events(C, N)

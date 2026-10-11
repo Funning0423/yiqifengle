@@ -212,8 +212,12 @@ def knee_angle(ctx, Wr, hips, s):
 
 
 # ---------- foot planting ----------
-def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_lock=True, iters=2, floor_y=0.0, arcs=None):
+def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_lock=True, iters=2, floor_y=0.0, arcs=None,
+               anchored=False, ease_yaw=False):
     """No-slip foot planting on the actual sole vertices.
+    anchored: inside a stance every sole vertex returns to where it first touched (not only frame-to-frame rolling), so a
+    pivoting foot whose heel / toe lifts and lands again within the stance does not drift (loco_qa planted measure).
+    ease_yaw: the stance heading lock is blended through the swing frames instead of snapping at touch-down.
     contacts: s -> bool[n].  targets: s -> (mask bool[n], M [n,4,4]) world foot-bone transforms the foot must follow on the
     masked frames (idle stance at clip ends, walk_loop footprints at hand-offs); a contact interval that touches masked
     frames is anchored to them (rolling shape still from the no-slip integration).  arcs: s -> [(a, b, height_m)] extra
@@ -240,6 +244,7 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
             corr = np.zeros((n, 3))
             have = np.zeros(n, bool)
             A0 = Ff[:, :3, 3]
+            dyaw = np.zeros(n)
             for (a, b) in segs:
                 idx = np.arange(a, b + 1) % n
                 lk = tm[idx]
@@ -253,24 +258,49 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
                     else:
                         target = np.mean(hd_u)
                     dy = target - hd_u
+                    dyaw[idx] = dy
                     for k, fr in enumerate(idx):
                         Rf[fr] = RT.roty(dy[k]) @ Rf[fr]
                 if lk.any():
                     Rf[idx[lk]] = TM[idx[lk]][:, :3, :3]
+                    f0, f1 = Ff[idx[lk]][:, :3, 1], TM[idx[lk]][:, :3, 1]
+                    dyaw[idx[lk]] = np.arctan2(f1[:, 0], f1[:, 2]) - np.arctan2(f0[:, 0], f0[:, 2])
+            # the swing between two stances turns the foot gradually to the next stance heading (otherwise the whole
+            # heading correction lands in the one frame at touch-down)
+            inseg = np.zeros(n, bool)
+            for (a, b) in segs:
+                inseg[np.arange(a, b + 1) % n] = True
+            if ease_yaw and flat_lock and inseg.any() and not inseg.all():
+                dw = np.zeros((n, 3))
+                dw[:, 0] = (dyaw + np.pi) % (2 * np.pi) - np.pi
+                dfill = fill_gaps(dw, inseg, periodic)[:, 0]
+                for fr in np.nonzero(~inseg)[0]:
+                    Rf[fr] = RT.roty(dfill[fr]) @ Rf[fr]
             Vloc = np.einsum('nji,nvj->nvi', Ff[:, :3, :3], V - A0[:, None])
             V2 = np.einsum('nij,nvj->nvi', Rf, Vloc) + A0[:, None]
             for (a, b) in segs:
                 idx = np.arange(a, b + 1) % n
                 lk = tm[idx]
                 c = np.zeros((len(idx), 3))
-                for k in range(1, len(idx)):
-                    f0, f1 = idx[k - 1], idx[k]
-                    vv = V2[f0]
-                    low = vv[:, 1].min()
-                    w = np.exp(-np.maximum(vv[:, 1] - low, 0) / 0.002)
-                    w /= w.sum()
-                    dp = (w[:, None] * (V2[f1] - V2[f0])).sum(0)
-                    c[k, [0, 2]] = c[k - 1, [0, 2]] - dp[[0, 2]]
+                anc = np.full((V2.shape[1], 2), np.nan) if anchored else None
+                for k in range(len(idx)):
+                    if k > 0:
+                        f0, f1 = idx[k - 1], idx[k]
+                        vv = V2[f0]
+                        low = vv[:, 1].min()
+                        w = np.exp(-np.maximum(vv[:, 1] - low, 0) / 0.002)
+                        w /= w.sum()
+                        dp = (w[:, None] * (V2[f1] - V2[f0])).sum(0)
+                        c[k, [0, 2]] = c[k - 1, [0, 2]] - dp[[0, 2]]
+                    if anchored:
+                        vk = V2[idx[k]]
+                        hk = vk[:, 1] - vk[:, 1].min()
+                        m = ~np.isnan(anc[:, 0]) & (hk < 0.002)
+                        if k > 0 and m.any():
+                            wa = np.exp(-hk[m] / 0.0005)
+                            c[k, [0, 2]] = (wa[:, None] * (anc[m] - vk[m][:, [0, 2]])).sum(0) / wa.sum()
+                        new = np.isnan(anc[:, 0]) & (hk < 0.001)
+                        anc[new] = vk[new][:, [0, 2]] + c[k, [0, 2]]
                 if lk.any():
                     tgt = TM[idx[lk]][:, :3, 3]
                     c[:, [0, 2]] += (tgt[:, [0, 2]] - (A0[idx[lk]][:, [0, 2]] + c[lk][:, [0, 2]])).mean(0)
