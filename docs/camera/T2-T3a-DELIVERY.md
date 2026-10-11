@@ -102,3 +102,49 @@ hint on the floor/wall in frame (hook only, art needed); (b) allow fov ~90 (wide
   `QF_TS_TARGET=ES5 node test_camera_frames.cjs` runs the whole CPU frame test on ES5 output (ALL PASS).
 - Not in scope of the guard (library, not syntax): `.flat` / `Object.fromEntries` in pre-existing WorldFlowComponent /
   WorldIntegrationBoot debug paths (ES2019 runtime APIs).
+
+## Outbound frontal swing + wind strength + palm avoidance (lead + Funning; replaces the apron:lift island nudge, dropped)
+Timeline (seconds from the start of leaveHome, sim at constant speed; distance-driven via walkDuration/walkProgress):
+| event | t (s) |
+|---|---|
+| crossing-out starts (door already open) | 9.52 |
+| she steps over the sill (wind 0.11, reaches the 0.15 base right after) | 10.00 |
+| toIsland walk starts (swing key start; wind leaves 0.15) | 12.36 |
+| camera visibly turns toward her front (lens behind her ~163 deg -> sweeping) | ~12.5 |
+| FRONTAL: wind == 1.0 exactly, lens 3.4 m in front, 14 deg off her heading | 14.73 |
+| hold (frontal medium shot, <= 20 deg, she keeps walking; lens backs away ahead of her) | 0.73 s, to 15.47 |
+| crane-start mark (onCraneStart) | 15.48 |
+| she stops at the walk end | 18.62 |
+| wind back to exactly 0 | 21.62 |
+| camera settles on cameraIsland (onCameraSettled('island')); wind 0 through island idle | 21.65 |
+
+Wind strength (`WorldFlowComponent.getWindStrength(): number`, `onWindStrength(cb) -> unsubscribe`; signatures identical to
+work/运镜bot-wind-api ff5a2e8; also `__worldCamera.windStrength()/onWindStrength()`, `__worldDayNight.windStrength()`):
+0 indoors -> smoothstep to 0.15 at the door sill (`windOut.doorProgress`) -> held -> smoothstep rise from toIsland start to
+EXACTLY 1 at the `frontal: true` railOut key -> held to crane.startProgress -> smoothstep decay to EXACTLY 0 at the island
+settle (end of the outbound camera track). Evaluated per written camera sample on the track's eased progress (so it
+follows the camera and, with walkProgress, her travelled distance). restore() forces 0 (island idle, home, levels, pause,
+cancel); dispose() forces 0. Listener fires only on change. Max per-frame step 0.0092 (test epsilon 0.02). Return trip: 0.
+Decay choice: to exactly 0 (Voice bot assumes 0 during island idle).
+
+Palm occlusion - IMPORTANT decoder fix: env_prop_palm_* (and all 13 skinned meshes: animals, interior cloth/props) are
+skinned; glTF places them by jointWorld * inverseBind (identity here), NOT by the mesh node chain. glb_geometry v1 applied
+the node chain, which put a phantom env_prop_palm_tall_01 trunk inside the doorway and moved env_prop_palm_lean_01 onto the
+island-camera sightline. v2 (cache key 'v2') skins in bind pose. Every earlier palm number was phantom, including the
+counts GGbot's T9 tool printed (it loads this decoder via --camtest).
+Head+chest occlusion samples (every 2nd frame, island GLB + T9 0ec1701 props):
+| path | before (17844e5 paths, v2 decoder) | after |
+|---|---|---|
+| crossing-out / outbound span | palm_tall_01 4 head + 4 chest | 0 |
+| walking-home (crane-down) | palm_tall_01 6 head + 5 chest; lens 0.013 m from its fronds | 0 (lens >= 0.2 m) |
+| T9 props (signpost 0ec1701, beach palms) | 0 | 0 |
+The island pose (cameraIsland, v24-readable) is unchanged; no palm node needs to move.
+Return rail: railIn moved from 3.5 m landward (inside palm_tall_01's canopy) to 1.5 m landward, 3 m AHEAD of her (lens
+between her and the door: mirrors the outbound frontal language); craneDown.leadSeconds 1.2 -> 0.86.
+Outbound keys (RegionCameraData TRANSITION_CAMERA.railOut, crossOutEnd, crane): doorway-exit key 0.05 (lens leaves through
+the door opening), near-behind 0.123, side 0.238, frontal 0.408, hold end 0.538 = crane start; settle 2.99 s. Rollback:
+railOutSide + the values in the comments (crossOutEnd, crane, railIn, craneDown).
+Tests: test_camera_frames.cjs adds `wind-strength`, `wind-frontal`, `occlusion:palms`; `collision:line-of-sight` now fails
+on head OR chest; T9 props are merged from git 0ec1701 (`t9_props.cjs`, override T9_ROOT). rail-distance-band now covers
+the swing: from the first side key (>= 2 m) to crane-start, 2.0-5.5 m (was 3.5-5 m side rail).
+Offline previews (Blender Workbench, labelled, door open 86.4 deg): /workspace/yiqifengle/previews/运镜bot/frontal-swing/.

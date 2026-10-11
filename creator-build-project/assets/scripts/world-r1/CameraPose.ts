@@ -259,16 +259,18 @@ export function createCameraTrack(camera: CameraLike, path: readonly LookAtPose[
     console.error('[0007] camera track failed', source, 'progress', p, reason, '-> keeping last valid camera pose');
     throw new CameraTrackFailure(p, reason);
   };
-  const tick = (p: number) => {
-    if (status.aborted) return;
+  /** Returns the eased key progress of the written sample (T2+ wind channel), or -1 when nothing was written. */
+  const tick = (p: number): number => {
+    if (status.aborted) return -1;
     if (fallbackFov === undefined) fallbackFov = camera.fov; // legacy waypoints without fov inherit the start fov
     status.samples++;
     let pose: CameraPose;
     try { pose = sample(p, fallbackFov); }
-    catch (e) { abort(p, 'sample: ' + String(e)); return; }
-    if (!write(pose, source)) { abort(p, 'applyCameraPose rejected: ' + (validateCameraPose(pose) ?? 'unknown')); return; }
+    catch (e) { abort(p, 'sample: ' + String(e)); return -1; }
+    if (!write(pose, source)) { abort(p, 'applyCameraPose rejected: ' + (validateCameraPose(pose) ?? 'unknown')); return -1; }
     status.accepted++;
     if (p >= 1) status.ended = 'end-pose';
+    return options ? remapProgress(p, options) : Math.max(0, Math.min(1, p));
   };
   return { tick, status };
 }
