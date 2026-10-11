@@ -1,0 +1,9 @@
+[
+{"name":"front","az":0,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"side_herLeft","az":90,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"q34","az":-35,"el":8,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"back","az":180,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"arm_side_herLeft","az":90,"target":[0.15,-0.05,1.05],"scale":0.8,"res":[560,800]},
+{"name":"arm_front","az":-15,"target":[0.0,-0.05,1.1],"scale":0.8,"res":[800,800]},
+{"name":"shoulder_q34","az":50,"el":12,"target":[0.17,0,1.28],"scale":0.45,"res":[600,600]}
+]

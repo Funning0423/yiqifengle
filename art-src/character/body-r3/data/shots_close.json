@@ -1,0 +1,6 @@
+[{"name":"c_shoulder_front","az":0,"target":[-0.12,0,1.30],"scale":0.24,"res":[500,500],"hide":["APRON"]},
+ {"name":"c_shoulder_q34","az":-40,"el":10,"target":[-0.13,0,1.30],"scale":0.24,"res":[500,500],"hide":["APRON"]},
+ {"name":"c_hand_out","az":-90,"target":[-0.22,-0.15,0.90],"scale":0.20,"res":[500,500],"hide":["APRON"]},
+ {"name":"c_hand_front","az":0,"target":[-0.22,-0.15,0.90],"scale":0.20,"res":[500,500],"hide":["APRON"]},
+ {"name":"c_hand_in","az":90,"target":[-0.22,-0.15,0.90],"scale":0.20,"res":[500,500],"hide":["APRON","DRESS","BOW"]},
+ {"name":"c_armpit","az":-90,"el":-10,"target":[-0.15,0,1.22],"scale":0.24,"res":[500,500],"hide":["APRON"]}]

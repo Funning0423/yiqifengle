@@ -1,0 +1,11 @@
+raw/
+previews/
+__pycache__/
+*.blend1
+*_iter*.blend
+*_work.blend
+# 中间产物（脚本重建会生成）
+*_TEST.glb
+!body-r2/chr_b_r5g2_body-r2_TEST.glb
+!body-r2/chr_b_r5g2_body-r2_walk-v2_TEST.glb
+!_deps/walk-v2/chr_b_r5g2_walk-v2_TEST.glb

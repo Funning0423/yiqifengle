@@ -1,0 +1,20 @@
+{
+ "hair": 485210,
+ "skin": 71801,
+ "hat_straw": 450505,
+ "pink": 35257,
+ "shirt_yellow": 258447,
+ "white": 94482,
+ "other": 104090,
+ "tris_above_chin": 1092463,
+ "tris_below_chin_bust": 407329,
+ "head_region_by_class": {
+  "hair": 484177,
+  "skin": 50954,
+  "hat_straw": 432602,
+  "pink": 35257,
+  "shirt_yellow": 25,
+  "white": 13956,
+  "other": 75492
+ }
+}

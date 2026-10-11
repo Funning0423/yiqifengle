@@ -1,0 +1,4 @@
+[
+{"name":"11_gamecam_like_island_render","az":-25,"el":30,"target":[0,0,0.85],"persp":50,"dist":4.2,"res":[700,1000]},
+{"name":"11_gamecam_face_close","az":-25,"el":30,"target":[0,0,1.5],"persp":50,"dist":1.1,"res":[800,800]}
+]

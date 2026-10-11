@@ -1,0 +1,6 @@
+[{"name":"b_front","az":0,"target":[0,0,1.18],"scale":0.62,"res":[600,600]},
+ {"name":"b_q34","az":35,"target":[0,0,1.18],"scale":0.62,"res":[600,600]},
+ {"name":"b_side","az":90,"target":[0,0,1.18],"scale":0.62,"res":[600,600]},
+ {"name":"b_back","az":180,"target":[0,0,1.18],"scale":0.62,"res":[600,600]},
+ {"name":"b_front_noapron","az":0,"target":[0,0,1.18],"scale":0.62,"res":[600,600],"hide":["APRON"]},
+ {"name":"b_side_wire","az":90,"target":[0,0,1.18],"scale":0.62,"res":[600,600],"wire":true,"hide":["APRON"]}]
