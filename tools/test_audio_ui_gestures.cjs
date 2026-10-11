@@ -3,9 +3,8 @@
 // source with small host/device doubles. This is engine-method evidence, not a Creator
 // build, trusted-browser input test, or recorded-audio/device listening result.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),assert=require('node:assert/strict');
-const {stripTypeScriptTypes}=require('node:module');
-const ROOT=path.resolve(__dirname,'..'),UP=path.join(ROOT,'evidence/audio-ui-capture/upstream-v3.8.8');
-const TS=s=>stripTypeScriptTypes(s.replace(/^import[\s\S]*?;\s*$/gm,'').replace(/^@ccclass\([^\n]+\)\n/gm,'').replace(/^const \{ ccclass \} = _decorator;\n/gm,'').replace(/export /g,''),{mode:'transform'});
+const env=require('./audio-test-env.cjs'),ROOT=env.ROOT,EV=env.audioUiEvidence(['upstream-v3.8.8/input.ts','upstream-v3.8.8/node-event-processor.ts','upstream-v3.8.8/pointer-event-dispatcher.ts']),UP=path.join(EV,'upstream-v3.8.8');
+const TS=s=>env.transpile(s.replace(/^import[\s\S]*?;\s*$/gm,'').replace(/^@ccclass\([^\n]+\)\n/gm,'').replace(/^const \{ ccclass \} = _decorator;\n/gm,'').replace(/export /g,''));
 class Events {
  constructor(){this.events=new Map();} on(n,f,t,once=false){const a=this.events.get(n)||[];if(!a.some(x=>x[0]===f&&x[1]===t))a.push([f,t,once]);this.events.set(n,a);}
  once(n,f,t){this.on(n,f,t,true);} off(n,f,t){this.events.set(n,(this.events.get(n)||[]).filter(x=>f?(x[0]!==f||x[1]!==t):false));this.offCallback?.();}
@@ -32,7 +31,8 @@ function harness({baseline=false,saved={},missingValue='',pendingAudio=false}={}
   destroy(){this.eventProcessor.setEnabled(false);this.eventProcessor.destroy();this.valid=this.isValid=false;this._objFlags=2;this.removeFromParent();}
  }
  class UITransform {constructor(){this.width=46;this.height=46;this.cameraPriority=0;}setContentSize(w,h){this.width=w;this.height=h;}hitTest(p,windowId=0){return windowId===0&&Math.abs(p.x-this.node.position.x)<=this.width/2&&Math.abs(p.y-this.node.position.y)<=this.height/2;}}
- class AudioSource{constructor(){this.clip=null;this.playing=false;this.starts=0;this.stops=0;this.pauses=0;}play(){this.starts++;trace.push('play');this.playing=!pendingAudio;}pause(){this.pauses++;this.playing=false;}stop(){this.stops++;this.playing=false;}playOneShot(){}}
+ class AudioSource{constructor(){this.clip=null;this.playing=false;this.loop=false;this.volume=1;this.state=0;this.starts=0;this.stops=0;this.pauses=0;}play(){this.starts++;trace.push('play');this.playing=!pendingAudio;}pause(){this.pauses++;this.playing=false;}stop(){this.stops++;this.playing=false;}playOneShot(){}destroy(){this.playing=false;if(this.node)this.node.components=this.node.components.filter(c=>c!==this);return true;}}
+ AudioSource.EventType={STARTED:'audio-started',ENDED:'audio-ended'};AudioSource.AudioState={INIT:0,PLAYING:1,PAUSED:2,STOPPED:3};AudioSource.maxAudioChannel=10; // current GameAudio (v0.3.3+) members
  class EventTouch {constructor(touches=[],bubbles=false,type=types.TOUCH_START){this.type=type;this.code=type;this.touch=touches[0];this.touches=touches;this.bubbles=bubbles;this.windowId=0;this.preventSwallow=false;this.propagationStopped=false;this.propagationImmediateStopped=false;}getTouches(){return this.touches;}getID(){return this.touch.getID();}getLocation(out){const p=this.touch.p;return out?Object.assign(out,p):{...p};}getUILocation(){return this.getLocation();}getEventCode(){return this.code;}}
  const touch=(id,x=0,y=0)=>({getID:()=>id,p:{x,y}}),touches=new Map();
  const touchManager={getOrCreateTouch(id,x,y){const t=touches.get(id)||touch(id,x,y);t.p={x,y};touches.set(id,t);return t;},releaseTouch(id){touches.delete(id);}};
@@ -86,4 +86,4 @@ test('multiple valid taps and simulated touch plus mouse release coalesce delaye
 test('blank/3D input remains globally delivered after narrow hook',()=>{const h=harness();h.load();h.button();let global=0;h.ctx.input.on(h.types.TOUCH_END,()=>global++);h.send(h.types.TOUCH_START,1,200,200);h.send(h.types.TOUCH_END,1,200,200);assert.equal(global,1);});
 test('destroyed/replaced audio cannot accept stale instance callback; next button reaches replacement',()=>{const h=harness();h.load();h.button();h.a.destroy();h.tap();assert.equal(h.a.gestureSeen,false);const b=h.ctx.A.ensure();h.loads[1].cb(null,{...h.clip,refs:0});h.tap();assert.equal(b.gestureSeen,true);assert.equal(b.loopSource.starts,1);assert.equal(h.a.loopSource.starts,0);});
 const result={status:'PASS_UPSTREAM_INPUT_METHODS',cases:cases.length,checks:cases,engineVersion:'v3.8.8',methodSources:['input.ts','node-event-processor.ts','pointer-event-dispatcher.ts'],hostDoubles:['Node shell/transform hitTest','event data','audio source/device','storage','component lifecycle'],creatorBuild:'NOT_RUN',trustedBrowserInput:'NOT_RUN',deviceRecording:'NOT_RUN',hearing:'NOT_RUN'};
-fs.writeFileSync(path.join(ROOT,'evidence/audio-ui-capture/input-results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+fs.writeFileSync(path.join(EV,'input-results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
