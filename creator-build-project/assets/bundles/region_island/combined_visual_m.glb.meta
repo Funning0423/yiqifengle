@@ -1686,6 +1686,7 @@
     }
   },
   "userData": {
+    "tangents": 1,
     "imageMetas": [
       {
         "name": "env_palette_emissive_256",
