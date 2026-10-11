@@ -1,4 +1,5 @@
 import { CameraTrackFailure } from './CameraPose';
+import type { TrackOptions, WeightRamp } from './CameraPose';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
@@ -6,7 +7,9 @@ export type Place = 'home' | 'island' | 'level' | 'skycity';
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
   'closing-door' | 'walking-to-seat' | 'sitting' | 'paused' | 'error' | 'disposed';
-export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean}>;
+/** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
+ * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
+export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
 /** Authoring/look-at form. Converted to CameraPose (CameraPose.ts) and written ONLY by applyCameraPose. fovVerticalDeg omitted = keep current fov. */
 export type Pose = Readonly<{position:Vec; target:Vec; progress?:number; fovVerticalDeg?:number}>;
 export type Seat = Readonly<{position:Vec; back:Vec; yawRad:number; seatedFoot:Vec; standingFoot:Vec; seatedControllerRoot:Vec; standingControllerRoot:Vec}>;
@@ -48,7 +51,12 @@ export interface WorldLease {
   setDoor(angleDeg:number):void;
   setCamera(pose:Pose):void;
   animateDoor(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
-  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation):Promise<void>;
+  /** options omitted = original linear keyed track. */
+  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions):Promise<void>;
+  /** T2 optional: 1 = room lighting, 0 = exterior lighting, only meaningful while layers.interior is on. */
+  setInteriorWeight?(weight:number):void;
+  /** T2 optional: drive the weight with the SAME job clock as the walk/camera of identical duration. */
+  animateInteriorWeight?(ramp:WeightRamp,seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
   assertStaticWorld():void;
   dispose():void;
@@ -65,6 +73,14 @@ export interface RouteConfig {
   /** Exterior follow rails keep the moving actor framed without changing stable endpoint poses. */
   cameraToIsland?:readonly Pose[];
   cameraToThreshold?:readonly Pose[];
+  /** T2/T3a: per-leg camera track shape/timing (see CameraPose.TrackOptions). Omitted = linear, no easing. */
+  /** T2/T3a easing/interpolation per camera move. outbound spans crossOut+toIsland and inbound spans toThreshold+crossIn
+   *  as ONE camera track (C1 across the walk junction); when absent, each walk keeps its own linear track (pre-T2). */
+  cameraTracks?:Readonly<{homeToDoor?:TrackOptions;toDoor?:TrackOptions;outbound?:TrackOptions;inbound?:TrackOptions;toIsland?:TrackOptions;toThreshold?:TrackOptions;crossIn?:TrackOptions;toSeat?:TrackOptions}>;
+  /** T3a: authored seat approach. Omitted = original [cameraInside,cameraHome]. Must end exactly on cameraHome. */
+  cameraToSeat?:readonly Pose[];
+  /** T2: interior-light weight ramps on the exterior walks (walk progress). Omitted = old on/off switching. */
+  interiorLighting?:Readonly<{toIsland:WeightRamp;toThreshold:WeightRamp}>;
   openDeg:number; speed:number;
   /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
   islandYawRad?:number;
@@ -72,7 +88,7 @@ export interface RouteConfig {
 export type Result={ok:true}|{ok:false;reason:string};
 export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null}>;
 const HOME:Layers={interior:true,exterior:false,door:true,backdrop:true};
-const ISLAND:Layers={interior:false,exterior:true,door:true,backdrop:true};
+const ISLAND:Layers={interior:false,exterior:true,door:true,backdrop:true,doorwayInterior:true};
 const BOTH:Layers={interior:true,exterior:true,door:true,backdrop:true};
 const NONE:Layers={interior:false,exterior:false,door:false,backdrop:false};
 export const layerStates={HOME,ISLAND,BOTH,NONE};
@@ -109,6 +125,8 @@ export class WorldFlow {
   private restore():void {
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.config.openDeg);
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
+    // T2: stable endpoints carry their own exact lighting weight (home=room 1, everything else=exterior 0).
+    this.world.setInteriorWeight?.(this.stable==='home'?1:0);
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     if(this.characterReady())this.character!.cancelAndReset(this.pose());this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
     if(this.visit){if(this.stable==='skycity'&&!this.hidden&&!this.needsResume)this.visit.show();else this.visit.hide();}
@@ -151,27 +169,45 @@ export class WorldFlow {
     this.mode=mode;this.restore();this.emit(this.snapshot());return {ok:true};
   }
   private async action(action:Action,token:Cancellation):Promise<void> {token.check();await token.wait(this.character!.perform(action,token));token.check();}
-  private async walk(path:readonly Vec[],cameras:readonly Pose[],token:Cancellation):Promise<void> {
+  private async walk(path:readonly Vec[],cameras:readonly Pose[],token:Cancellation,track?:TrackOptions,light?:WeightRamp):Promise<void> {
     const duration=pathDuration(path,this.config.speed);
     // Both tracks use the same duration. Character adapter owns world displacement.
     // fixed mode used to leave the camera on cameraHome, so the girl walked out of the doorway frame.
     const camera=this.mode==='motion'
-      ? this.world!.animateCamera(cameras,duration,token)
+      ? (track?this.world!.animateCamera(cameras,duration,token,track):this.world!.animateCamera(cameras,duration,token))
       : Promise.resolve(this.world!.setCamera(cameras[cameras.length-1]));
-    await token.wait(Promise.all([this.action({kind:'walk',path,duration},token), camera]).then(()=>{}));token.check();
+    // T2: lighting rides the same job clock and duration as the walk; the camera may ease, lighting follows walk progress.
+    const lighting=light&&this.world!.animateInteriorWeight?this.world!.animateInteriorWeight(light,duration,token):Promise.resolve();
+    await token.wait(Promise.all([this.action({kind:'walk',path,duration},token), camera, lighting]).then(()=>{}));token.check();
+  }
+  /** T2/T3a: one camera track over consecutive walks. Keys keep their per-walk progress and are re-timed onto the
+   *  combined clock (the shared junction key appears once), so the camera never stops or kinks between the walks. */
+  private async walkSpan(segments:readonly {path:readonly Vec[];cameras:readonly Pose[];light?:WeightRamp;state?:State}[],token:Cancellation,track:TrackOptions):Promise<void> {
+    const durations=segments.map(x=>pathDuration(x.path,this.config.speed)),total=durations.reduce((a,b)=>a+b,0);
+    const keys:Pose[]=[];let offset=0;
+    segments.forEach((seg,i)=>{const n=seg.cameras.length;seg.cameras.forEach((k,j)=>{if(i>0&&j===0)return;
+      const own=(k as any).progress as number|undefined,p=own??(n>1?j/(n-1):1);keys.push({...k,progress:(offset+p*durations[i])/total} as Pose);});offset+=durations[i];});
+    (keys[0] as any).progress=0;(keys[keys.length-1] as any).progress=1;
+    const camera=this.mode==='motion'?this.world!.animateCamera(keys,total,token,track):Promise.resolve(this.world!.setCamera(keys[keys.length-1]));
+    const characters=(async()=>{for(let i=0;i<segments.length;i++){const seg=segments[i];if(seg.state)this.change(seg.state);
+      const lighting=seg.light&&this.world!.animateInteriorWeight?this.world!.animateInteriorWeight(seg.light,durations[i],token):Promise.resolve();
+      await token.wait(Promise.all([this.action({kind:'walk',path:seg.path,duration:durations[i]},token),lighting]).then(()=>{}));token.check();}})();
+    await token.wait(Promise.all([characters,camera]).then(()=>{}));token.check();
   }
   async leaveHome():Promise<Result> {
     const fail=this.blocked('home',true);if(fail)return fail;
     return this.operate('standing',async t=>{
       const c=this.config;await this.action({kind:'stand',seat:c.seat},t);
-      if(this.mode==='motion')await t.wait(this.world!.animateCamera(c.cameraHomeToDoor??[c.cameraHome,c.cameraToDoor[0]],1,t));
+      if(this.mode==='motion'){const k=c.cameraHomeToDoor??[c.cameraHome,c.cameraToDoor[0]],o=c.cameraTracks?.homeToDoor;await t.wait(o?this.world!.animateCamera(k,1,t,o):this.world!.animateCamera(k,1,t));}
       t.check();this.change('turning-out');
       await this.action({kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:Math.atan2(c.toDoor[1][0]-c.toDoor[0][0],c.toDoor[1][2]-c.toDoor[0][2]),direction:'left'},t);
-      this.change('walking-out');await this.walk(c.toDoor,c.cameraToDoor,t);
+      this.change('walking-out');await this.walk(c.toDoor,c.cameraToDoor,t,c.cameraTracks?.toDoor);
       this.change('opening-door');await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
-      this.world!.setLayers(BOTH);this.change('crossing-out');
-      await this.walk(c.outCrossing,c.cameraCrossOut??[c.cameraInside,c.cameraOutside],t);
-      await this.walk(c.toIsland,c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]),t);
+      this.world!.setInteriorWeight?.(1);this.world!.setLayers(BOTH);this.change('crossing-out');
+      const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
+      if(c.cameraTracks?.outbound)await this.walkSpan([{path:c.outCrossing,cameras:crossOut},{path:c.toIsland,cameras:toIsland,light:c.interiorLighting?.toIsland}],t,c.cameraTracks.outbound);
+      else{await this.walk(c.outCrossing,crossOut,t);await this.walk(c.toIsland,toIsland,t,c.cameraTracks?.toIsland,c.interiorLighting?.toIsland);}
+      // Weight is already 0 here and the camera is exactly cameraIsland with zero speed: restore() changes nothing visible.
       this.stable='island';this.restore();this.change('island');
     });
   }
@@ -205,12 +241,15 @@ export class WorldFlow {
   async returnHome():Promise<Result> {
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
-      const c=this.config;this.world!.setLayers(BOTH);
-      await this.walk(c.toThreshold,c.cameraToThreshold??[c.cameraIsland,c.cameraOutside],t);
-      this.change('crossing-in');await this.walk(c.inCrossing,c.cameraCrossIn??[c.cameraOutside,c.cameraInside],t);
+      // T2 (mirror): enter BOTH with exterior lighting (weight 0) so the first return frame matches the island frame.
+      const c=this.config;if(c.interiorLighting)this.world!.setInteriorWeight?.(0);this.world!.setLayers(BOTH);
+      const toThreshold=c.cameraToThreshold??[c.cameraIsland,c.cameraOutside],crossIn=c.cameraCrossIn??[c.cameraOutside,c.cameraInside];
+      if(c.cameraTracks?.inbound)await this.walkSpan([{path:c.toThreshold,cameras:toThreshold,light:c.interiorLighting?.toThreshold},{path:c.inCrossing,cameras:crossIn,state:'crossing-in'}],t,c.cameraTracks.inbound);
+      else{await this.walk(c.toThreshold,toThreshold,t,c.cameraTracks?.toThreshold,c.interiorLighting?.toThreshold);
+        this.change('crossing-in');await this.walk(c.inCrossing,crossIn,t,c.cameraTracks?.crossIn);}
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();
-      this.world!.setLayers(HOME);this.change('walking-to-seat');await this.walk(c.toSeat,[c.cameraInside,c.cameraHome],t);
+      this.world!.setInteriorWeight?.(1);this.world!.setLayers(HOME);this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t,c.cameraTracks?.toSeat);
       this.change('sitting');await this.action({kind:'sit',seat:c.seat},t);
       this.stable='home';this.restore();this.change('home');
     });

@@ -10,7 +10,14 @@ export const ROOM_LIGHTING = Object.freeze({
   shadowSaturationDay: .72, shadowSaturationNight: .62,
   lampRange: 3.6, lampAngle: 106, lampEdgeSoftness: .55, lampDayScale: 0, lampNightScale: .82,
   updateHz: 30, steamTextureWidth: 32, steamTextureHeight: 64,
+  /** T2: below this interior weight the room shadow map is off. Its contribution is already faded to 0 there. */
+  shadowSwitchWeight: .5,
 });
+/** T2 room sun (was inline in setView). */
+const ROOM_SUN_POSITION = Object.freeze([.8, 6.6, -7] as const);
+const ROOM_SUN_TARGET = Object.freeze([-.4, .6, -2] as const);
+const ROOM_SUN_POS_V = new Vec3(ROOM_SUN_POSITION[0], ROOM_SUN_POSITION[1], ROOM_SUN_POSITION[2]);
+const ROOM_SUN_TARGET_V = new Vec3(ROOM_SUN_TARGET[0], ROOM_SUN_TARGET[1], ROOM_SUN_TARGET[2]);
 
 type RendererState = { renderer: MeshRenderer; cast: number; receive: number };
 type LampEmissionState = {
@@ -108,6 +115,17 @@ export class RoomLightingRig {
   private groundDayColor = new Color('#9c856d');
   private skyNightColor = new Color('#8898ba');
   private groundNightColor = new Color('#79634f');
+  /** T2: 1 = full room lighting (old interior mode), 0 = exact exterior lighting. Only used while interior is on. */
+  private weight = 1;
+  private roomShadowOn = false;
+  private outsideIllum = 0;
+  private outsideColor = new Color(255, 255, 255, 255);
+  private roomRotation = new Quat();
+  private blendPosition = new Vec3();
+  private blendRotation = new Quat();
+  private blendColor = new Color();
+  private blendSky = new Vec4();
+  private blendGround = new Vec4();
 
   constructor(private scene: Scene, private model: Node, character: Node | null) {
     try {
@@ -233,9 +251,11 @@ export class RoomLightingRig {
   }
 
   private applyLampState(night: boolean): void {
-    if (live(this.lampNode)) this.lampNode.active = this.interior && night;
+    // T2: the night lamp fades with the interior weight instead of switching at the restore() frame.
+    const lampOn = this.interior && night && this.weight > 0;
+    if (live(this.lampNode)) this.lampNode.active = lampOn;
     if (this.lamp && isValid(this.lamp, true)) this.lamp.luminance = this.lampBase *
-      (this.interior && night ? ROOM_LIGHTING.lampNightScale : ROOM_LIGHTING.lampDayScale);
+      (lampOn ? ROOM_LIGHTING.lampNightScale * this.weight : ROOM_LIGHTING.lampDayScale);
     if (night === this.lampEmissionNight) return;
     this.lampEmissionNight = night;
     for (const s of this.lampEmissions) if (isValid(s.instance, true) &&
@@ -310,27 +330,56 @@ export class RoomLightingRig {
     }
   }
 
-  /** Called after the world's own layer/day-night writer, so exterior lighting remains authored. */
+  /** Called after the world's own layer/day-night writer, so exterior lighting remains authored.
+   * T2: the writer has JUST written the exterior photometry to the sun; it is captured as the weight-0 endpoint. */
   setView(interior: boolean, backdrop: boolean, night: boolean): void {
     if (this.disposed) return;
     const changed = interior !== this.interior;
     this.interior = interior; this.backdrop = backdrop; this.night = night;
     if (live(this.root)) this.root.active = interior;
-    this.applyLampState(night);
     for (let i = 0; i < this.steam.length; i++) if (live(this.steam[i].node)) this.steam[i].node.active = interior;
+    const s = this.sun;
+    if (s && isValid(s, true)) { this.outsideIllum = s.illuminance; const c = s.color; this.outsideColor.set(c.r, c.g, c.b, c.a); }
+    this.applyLighting(changed);
+  }
+
+  /** T2: continuous room<->exterior lighting weight (clamped 0..1). Same frame application, no own clock or easing. */
+  setInteriorWeight(weight: number): void {
+    if (this.disposed || !Number.isFinite(weight)) return;
+    const w = Math.max(0, Math.min(1, weight));
+    if (w === this.weight) return;
+    this.weight = w;
+    if (this.interior) this.applyLighting(false);
+  }
+
+  private applyLighting(changed: boolean): void {
+    const night = this.night;
+    this.applyLampState(night);
     const s = this.sun, saved = this.sunState;
     if (!s || !saved || !isValid(s, true) || !live(s.node) || !isValid(this.scene, true)) return;
-    if (interior) {
-      const g = this.scene.globals;
-      if (changed) {
+    if (!this.interior) { if (changed) { this.restoreSun(false); this.roomShadowOn = false; } return; }
+    const g = this.scene.globals, w = this.weight;
+    // Shadows: room map only while its contribution is non-zero. Saturation 0 = shadow invisible
+    // (official shader mixes occlusion toward 1 by 1 - saturation), so the discrete switch is invisible.
+    const roomSat = night ? ROOM_LIGHTING.shadowSaturationNight : ROOM_LIGHTING.shadowSaturationDay;
+    if (w >= ROOM_LIGHTING.shadowSwitchWeight) {
+      if (changed || !this.roomShadowOn) {
         g.shadows.type = renderer.scene.ShadowType.ShadowMap;
         g.shadows.shadowMapSize = ROOM_LIGHTING.shadowMapSize; g.shadows.enabled = true;
-        // Window-normal sunlight reaches the visible floor beyond the tea table.
-        s.node.setWorldPosition(.8, 6.6, -7); s.node.lookAt(new Vec3(-.4, .6, -2));
         s.shadowEnabled = true; s.enableCSM = false; s.shadowFixedArea = true;
         s.shadowNear = .1; s.shadowFar = ROOM_LIGHTING.shadowFar; s.shadowOrthoSize = ROOM_LIGHTING.shadowOrthoSize;
         s.shadowPcf = renderer.scene.PCFType.SOFT_2X; s.shadowBias = .0001; s.shadowNormalBias = .015;
+        this.roomShadowOn = true;
       }
+      const k = w >= 1 ? 1 : (w - ROOM_LIGHTING.shadowSwitchWeight) / (1 - ROOM_LIGHTING.shadowSwitchWeight);
+      s.shadowSaturation = roomSat * (k * k * (3 - 2 * k));
+    } else if (changed || this.roomShadowOn) {
+      this.restoreSun(false); this.roomShadowOn = false; // exact exterior shadow/sun config; photometry written below
+    }
+    if (w >= 1) {
+      // Exactly the pre-T2 interior mode (HOME stays bit-identical).
+      s.node.setWorldPosition(ROOM_SUN_POSITION[0], ROOM_SUN_POSITION[1], ROOM_SUN_POSITION[2]);
+      s.node.lookAt(ROOM_SUN_TARGET_V);
       s.illuminance = saved.illuminance * (night ? ROOM_LIGHTING.moonlightScale : ROOM_LIGHTING.daylightScale);
       s.color = night ? this.sunNightColor : this.sunDayColor;
       // Main-light and ambient intensity enter the same camera UBO units in both HDR and LDR.
@@ -339,10 +388,24 @@ export class RoomLightingRig {
       g.ambient.skyIllum = saved.illuminance * (night ? ROOM_LIGHTING.ambientToMainNight : ROOM_LIGHTING.ambientToMainDay);
       g.ambient.skyLightingColor = night ? this.skyNightColor : this.skyDayColor;
       g.ambient.groundLightingColor = night ? this.groundNightColor : this.groundDayColor;
-      // Official shadow shader mixes occlusion toward 1 by (1 - saturation). Keep real
-      // shadows, but leave a nonzero direct-light floor in the deepest indoor occlusion.
-      s.shadowSaturation = night ? ROOM_LIGHTING.shadowSaturationNight : ROOM_LIGHTING.shadowSaturationDay;
-    } else if (changed) this.restoreSun(false);
+      return;
+    }
+    // 0 <= w < 1: blend every continuous parameter between the exact exterior (w=0) and room (w=1) values.
+    Vec3.subtract(this.blendPosition, ROOM_SUN_POS_V, ROOM_SUN_TARGET_V);
+    this.blendPosition.normalize(); Quat.fromViewUp(this.roomRotation, this.blendPosition, Vec3.UP); // == Node.lookAt
+    Vec3.lerp(this.blendPosition, saved.position, ROOM_SUN_POS_V, w);
+    Quat.slerp(this.blendRotation, saved.rotation, this.roomRotation, w);
+    s.node.setPosition(this.blendPosition); s.node.setRotation(this.blendRotation);
+    const roomIllum = saved.illuminance * (night ? ROOM_LIGHTING.moonlightScale : ROOM_LIGHTING.daylightScale);
+    s.illuminance = this.outsideIllum + (roomIllum - this.outsideIllum) * w;
+    const rc = night ? this.sunNightColor : this.sunDayColor, oc = this.outsideColor, mix = (a: number, b: number) => Math.round(a + (b - a) * w);
+    this.blendColor.set(mix(oc.r, rc.r), mix(oc.g, rc.g), mix(oc.b, rc.b), mix(oc.a, rc.a)); s.color = this.blendColor;
+    const roomFill = saved.illuminance * (night ? ROOM_LIGHTING.ambientToMainNight : ROOM_LIGHTING.ambientToMainDay);
+    g.ambient.skyIllum = this.ambientIllum + (roomFill - this.ambientIllum) * w;
+    // skyLightingColor(Color) stores (r,g,b,a)/255 into the same HDR/LDR Vec4 that skyColor(Vec4) writes.
+    const sky = night ? this.skyNightColor : this.skyDayColor, ground = night ? this.groundNightColor : this.groundDayColor;
+    if (this.ambientSkyColor) { const a = this.ambientSkyColor; this.blendSky.set(a.x + (sky.r / 255 - a.x) * w, a.y + (sky.g / 255 - a.y) * w, a.z + (sky.b / 255 - a.z) * w, a.w + (sky.a / 255 - a.w) * w); g.ambient.skyColor = this.blendSky; }
+    if (this.ambientGroundColor) { const a = this.ambientGroundColor; this.blendGround.set(a.x + (ground.r / 255 - a.x) * w, a.y + (ground.g / 255 - a.y) * w, a.z + (ground.b / 255 - a.z) * w, a.w + (ground.a / 255 - a.w) * w); g.ambient.groundAlbedo = this.blendGround; }
   }
 
   setPaused(paused: boolean): void { if (!this.disposed) { this.paused = paused; if (paused) this.accumulator = 0; } }
@@ -370,7 +433,7 @@ export class RoomLightingRig {
         s.color.a = 105 + Math.sin(q * .83) * 17; s.material.setProperty('mainColor', s.color);
       }
       if (this.night && this.lamp && isValid(this.lamp, true)) this.lamp.luminance = this.lampBase *
-        ROOM_LIGHTING.lampNightScale * (1 + Math.sin(t * .79) * .012);
+        ROOM_LIGHTING.lampNightScale * this.weight * (1 + Math.sin(t * .79) * .012);
     }
     if (this.backdrop) {
       const detail = this.seaDetail;
@@ -410,6 +473,7 @@ export class RoomLightingRig {
 
   diagnostics() {
     return { disposed: this.disposed, interior: this.interior, backdrop: this.backdrop, paused: this.paused,
+      interiorWeight: this.weight, roomShadowOn: this.roomShadowOn,
       night: this.night, time: this.time, updates: this.updates, shadowSize: this.interior ? ROOM_LIGHTING.shadowMapSize : this.sceneShadow?.size,
       roomSunShadow: !!(this.interior && this.sun?.shadowEnabled), lampBinding: this.lampBinding,
       photometry: { sunIlluminance: this.sun?.illuminance ?? null, shadowSaturation: this.sun?.shadowSaturation ?? null,

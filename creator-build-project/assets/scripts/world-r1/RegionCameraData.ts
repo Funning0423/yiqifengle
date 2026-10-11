@@ -88,3 +88,48 @@ export const INTERIOR_CAMERA_CLEARANCE = {
   ],
   outsidePosition: [-1.28, 1.65, 1.6],
 } as const;
+
+/** T2/T3a (运镜bot, 2026-10-11): transition camera keys. DATA only; FirstsliceRoutes turns each key into a look-at pose
+ * whose target is the girl's controller root at the key's walk progress + targetHeight (m). Designed by
+ * tools/camera-frame-test against the Blender room/door/exterior meshes: every sampled frame keeps hat, feet and a
+ * 0.6 m body box inside the NO-HUD safe area of a 586x1266 portrait screen (top = capsule bottom + 4% H, bottom/side
+ * 4%) with >= 2.5% spare, lens >= 0.15 m from any surface except at the approved cameraHome (0.079 m), and clear line
+ * of sight to head/chest/feet. Rollback: set enabled=false (pre-T2 linear tracks, keys and timings come back unchanged). */
+export const TRANSITION_CAMERA = Object.freeze({
+  enabled: true,
+  version: 'T2-T3a-2026-10-11',
+  keys: {
+    G:{position:[-1.137,1.795,-3.121],targetHeight:1.08,fovVerticalDeg:71.9},
+    D0:{position:[-1.954,1.823,-3.567],targetHeight:0.8,fovVerticalDeg:67.2},
+    D1:{position:[-1.786,1.799,-3.503],targetHeight:1.137,fovVerticalDeg:71.5},
+    D2:{position:[-1.212,1.635,-3.08],targetHeight:0.91,fovVerticalDeg:71.8},
+    D3:{position:[-1.135,1.7,-2.675],targetHeight:1.141,fovVerticalDeg:71},
+    D4:{position:[-1.214,1.694,-2.307],targetHeight:1.024,fovVerticalDeg:68},
+    X1:{position:[-0.647,1.498,-1.448],targetHeight:0.978,fovVerticalDeg:69.2},
+    X2:{position:[-0.4,1.454,-1.2],targetHeight:0.879,fovVerticalDeg:71.6},
+    O:{position:[-0.353,1.394,-0.923],targetHeight:1.065,fovVerticalDeg:71.9},
+    I1:{position:[0.174,1.15,0.115],targetHeight:1.064,fovVerticalDeg:55},
+    T2:{position:[0.226,1.152,-0.256],targetHeight:0.806,fovVerticalDeg:60.2},
+    OR:{position:[-0.287,1.537,-1.584],targetHeight:1,fovVerticalDeg:70.1},
+    C1:{position:[0.1,1.549,-1.251],targetHeight:0.966,fovVerticalDeg:67.8},
+    C2:{position:[0.628,1.61,-1.409],targetHeight:0.983,fovVerticalDeg:63.5},
+    C3:{position:[1.13,1.557,-1.621],targetHeight:0.977,fovVerticalDeg:62.6},
+    IR:{position:[1.338,1.532,-1.515],targetHeight:0.933,fovVerticalDeg:72},
+    S1:{position:[1.89,1.562,-1.926],targetHeight:1.044,fovVerticalDeg:70.5},
+    S2:{position:[1.864,1.588,-2.044],targetHeight:0.98,fovVerticalDeg:69.3},
+    S3:{position:[1.902,1.563,-2.459],targetHeight:0.979,fovVerticalDeg:67.2},
+    S4:{position:[1.76,1.611,-2.17],targetHeight:0.968,fovVerticalDeg:71.5},
+    S5:{position:[0.953,1.604,-1.57],targetHeight:1.032,fovVerticalDeg:72},
+    S6:{position:[0.016,1.549,-1.699],targetHeight:1.038,fovVerticalDeg:71.7}
+  } as Record<string, { position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>,
+  /** Ease windows are fractions of the move's duration (C2 remap, see CameraPose.remapProgress). */
+  tracks: {
+    homeToDoor: { interpolation: 'pchip', easeIn: .3, easeOut: .3 },
+    toDoor: { interpolation: 'pchip', easeIn: .15, easeOut: .15 },
+    outbound: { interpolation: 'pchip', easeIn: .08, easeOut: .15 },
+    inbound: { interpolation: 'pchip', easeIn: .1, easeOut: .08 },
+    toSeat: { interpolation: 'pchip', easeIn: .2, easeOut: .2 },
+  },
+  /** Interior lighting weight (1 = room rig, 0 = exterior) over walk progress, smoothstep. */
+  lighting: { toIsland: { from: 1, to: 0, start: 0, end: .5 }, toThreshold: { from: 0, to: 1, start: .45, end: 1 } },
+});

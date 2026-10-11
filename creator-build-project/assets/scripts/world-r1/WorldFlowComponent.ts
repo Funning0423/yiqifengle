@@ -10,11 +10,17 @@ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Sn
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
 import { createFirstsliceRoutes } from './FirstsliceRoutes';
-import { applyCameraPose, fromLookAt, createCameraTrack, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon } from './CameraPose';
+import { applyCameraPose, fromLookAt, createCameraTrack, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rampWeight } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
 const {ccclass,property}=_decorator;
+/** T2: interior renderers that the island camera can see through the open door / tower windows.
+ * Blender ray audit of combined_visual_m.glb (door open 86.4°, 60k rays from cameraIsland and two late toIsland poses):
+ * only env_interior_shell, env_interior_props_merged and env_int_anim_window_breeze are hit; env_interior_glass is
+ * transparent (not ray-hit) and kept because it sits above the doorway. Others (cat, lamp props, mobile, plants,
+ * blind cards) were never hit and are disabled on the island as before. Native visual check still required. */
+const DOORWAY_INTERIOR=new Set(['env_interior_shell','env_interior_props_merged','env_int_anim_window_breeze','env_interior_glass']);
 type Job={elapsed:number;seconds:number;tick:(t:number)=>void;resolve:()=>void;reject:(e:Error)=>void;off:()=>void};
 function resolvePath(root:Node,path:string):Node {
   let node:Node|null=root;for(const part of path.split('/'))node=node?.getChildByName(part)??null;
@@ -259,12 +265,15 @@ export class WorldFlowComponent extends Component {
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
-        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer];for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();},
+        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();},
         setDoor,setCamera,assertStaticWorld,
         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
-        animateCamera:(path,seconds,t)=>{const track=createCameraTrack(camera,path,'world.animateCamera');return this.run(seconds,t,track.tick);},
+        animateCamera:(path,seconds,t,options)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);return this.run(seconds,t,track.tick);},
+        // T2: same job list/clock as the camera and character, so lighting and lens never drift apart.
+        setInteriorWeight:(w:number)=>{this.roomLighting?.setInteriorWeight(w);},
+        animateInteriorWeight:(ramp,seconds,t)=>this.run(seconds,t,p=>{this.roomLighting?.setInteriorWeight(rampWeight(ramp,p));}),
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
