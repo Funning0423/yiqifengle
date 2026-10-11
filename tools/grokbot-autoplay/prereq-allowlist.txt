@@ -111,3 +111,10 @@ strict fcce49fc336da86f5ebce641243aa45dd2838e94013548c121a5c7ac26b86e5d WorldInt
 #  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged (doorDrift rides the
 #  existing onSample wind channel). WorldFlowComponent 4e9022bd + Boot a4f2254d unchanged (listed). Observe-only, append only.
 observe 45e2c94c42c83ad85a00acaf1d38f4031828637b8a1e7a671cf3ea822932611c world-r1/WorldFlowCore.ts         运镜bot doorway-clean 4be7adf on int/v1 d637356
+# 场景特效bot Scene FX (work/场景特效bot 87071c8 on int/v1 d637356): WorldFlowComponent wires IslandAtmosphereFx
+#  (fx_chimney_smoke + fx_lighthouse_beam/glow/seaglint); authored beam bar + 5 chimney balls stay classified but
+#  r.enabled=false; lateUpdate/setView/dispose advance/dispose the FX. Verified
+#  `git show 87071c8:.../world-r1/WorldFlowComponent.ts | sha256sum` = d122c71d..7d59. Glue reviewed:
+#  flow/walk/config paths, onCameraSettled/onCraneStart, lighthouseTargets, button()/paintNavigation unchanged.
+#  WorldFlowCore f3fe3064 + Boot a4f2254d unchanged at 87071c8 (listed). Observe-only, append only.
+observe d122c71da82d9fcd1aae5654410499040b70c72a741bd3b0615876fb50847d59 world-r1/WorldFlowComponent.ts   场景特效bot Scene FX 87071c8 on int/v1 d637356
