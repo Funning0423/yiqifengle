@@ -25,3 +25,11 @@ observe 943154241ca8d6d1eecae7470d2c6c5a44436b79c4def68cb637eed19902b682 audio/G
 observe 91f45984efb11c23435a01793d42f57fee01955561a626208d04d6860b13dccf ManagedMobileBoardUI.ts          baseline/near/int-v1 d72cd75..5d66c30
 observe 7e0d97fee395a5e098f04e7d0be4e33b489560c7670d900a09a7e149101f9651 ui/CheerText.ts                  int/v1 d72cd75..5ae4452 (T6 system font)
 observe 4ff08b190ef526e16dd44fce1f6b016815b6671683b9c5524efd4b34f95d8cc7 ui/CheerText.ts                  int/v1 152a6aa..5d66c30 (T6b bitmap font)
+# T2+ (work/运镜bot 7f2b623) on int/v1 5d66c30: trial merge 932570a, + GGbot HUD work/GGbot-post-t2 4a26789. Glue reviewed:
+#  Boot fields read by T0 (composition/busy/ready/loadPhase/invoke/board/islandJourney/islandHome/roomExplore/canvas/navLayout) unchanged;
+#  WorldFlowComponent.flow + onCameraSettled/onCraneStart (T2+ hooks, now source=hook); WorldFlowCore.walk(path,cameras|null,token)/config
+#  paths unchanged (span segments call this.walk -> T0 seg:* wrapper still sees every walk). Exact SHAs only; nothing widened.
+strict c94266111399bbf53da5f0e70d407470d1df3f78c6779616d2abbbf4af2ed6c9 WorldIntegrationBoot.ts            int/v1 5d66c30 + T2+ 7f2b623 (trial merge 932570a)
+strict 95eeae2e6a281d31d4d80bafe9cc13716269e395e2ef6e88d193f67607f36db3 WorldIntegrationBoot.ts            + GGbot HUD (work/GGbot-post-t2 4a26789)
+observe f7c881cf541a9d28dd1c7460719c0d727ba4b28de1f8cb700fa9742288c70540 world-r1/WorldFlowComponent.ts   int/v1 5d66c30 + T2+ 7f2b623 (932570a/4a26789)
+observe 97983791763946746baae4f807de3c9596dde7f298dbe7d810e8c8224ca4cc47 world-r1/WorldFlowCore.ts         T2+ 7f2b623 (== 932570a/4a26789)
