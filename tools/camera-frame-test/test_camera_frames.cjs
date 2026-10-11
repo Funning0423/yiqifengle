@@ -12,9 +12,27 @@
  * Exit 0 = all checks pass. Engine-free: says nothing about shaders/materials/frame time (native capture needed). */
 const S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),fs=require('fs');
 const args=process.argv.slice(2),jsonOut=args.includes('--json')?args[args.indexOf('--json')+1]:null;
+// --walk-profile accel: synthetic walk-duration contract (what 角色动画bot will plug in): walkDuration = L/0.7 + 0.3 s and a
+// trapezoidal speed profile (0.3 s linear accel and decel); the sim character reports walkProgress() = distance fraction.
+// --no-walk-progress: same profile but the character reports nothing (camera falls back to time) - shows why it matters.
+const RAMP=.3,V=.7,pathLen=p=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return L;};
+const wp=args.includes('--walk-profile')?args[args.indexOf('--walk-profile')+1]:null;
+// 'accel': 0.3 s ramp from rest and into a stop on EVERY walk action (worst case). 'chained': ramps only where she really starts
+// from / comes to rest - no ramp where one walk action continues straight into the next (outCrossing->toIsland, toThreshold->
+// inCrossing->toSeat), which is what a continuous walk animation does.
+// Rests in the real flow (WorldFlowCore): she stops at the door (open) and before closing it; outCrossing->toIsland and
+// toThreshold->inCrossing are continuous walks split only for camera/state bookkeeping.
+const NO_RAMP_IN=['toIsland','inCrossing'],NO_RAMP_OUT=['outCrossing','toThreshold'];let named=[];const same=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2])<1e-4;
+const nameOf=path=>{const n=named.find(([,q])=>q.length===path.length&&same(q[0],path[0])&&same(q[q.length-1],path[path.length-1]));return n?n[0]:null;};
+const ramps=path=>{if(wp!=='chained')return [true,true];const n=nameOf(path);return [!NO_RAMP_IN.includes(n),!NO_RAMP_OUT.includes(n)];};
+const profile=(q,T,path)=>{const [ri,ro]=ramps(path),r=Math.min(RAMP,T/2),ri_=ri?r:0,ro_=ro?r:0,vm=1/(T-(ri_+ro_)/2),t=q*T;
+  if(t<ri_)return vm*t*t/(2*ri_);if(t>T-ro_){const u=T-t;return 1-vm*u*u/(2*ro_);}return vm*(t-ri_/2);};
+const envOpts=wp==='accel'||wp==='chained'?{walkDuration:p=>{const [ri,ro]=ramps(p);return pathLen(p)/V+RAMP*((ri?1:0)+(ro?1:0))/2;},walkProfile:profile,reportWalkProgress:!args.includes('--no-walk-progress')}:{};
+if(envOpts.walkDuration)console.log('walk profile: synthetic',wp,'(0.3 s linear accel/decel ramps, walkDuration = L/0.7 + ramp/2 per ramp), walkProgress reported:',envOpts.reportWalkProgress);
 const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5};
 (async()=>{
-  const env=S.create(),{C,cfg}=env,run=await S.run(env),F=run.frames,dt=run.dt;
+  if(envOpts.walkDuration){const c0=S.create().cfg;for(const k of ['toDoor','outCrossing','toIsland','toThreshold','inCrossing','toSeat'])if(c0[k])named.push([k,c0[k]]);}
+  const env=S.create(envOpts),{C,cfg}=env,run=await S.run(env),F=run.frames,dt=run.dt;
   const checks=[];const check=(name,ok,detail)=>{checks.push({name,ok:!!ok,detail});};
   // --- settle / stable poses
   const same=(a,b)=>Math.max(...a.position.map((v,i)=>Math.abs(v-b.position[i])),...a.rotation.map((v,i)=>Math.abs(v-b.rotation[i])),Math.abs(a.fovVerticalDeg-b.fovVerticalDeg));
@@ -83,7 +101,7 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
     check('rail-distance-band',ds.length>0&&Math.min(...ds)>=3.4&&Math.max(...ds)<=5.1,{railSeconds:+(ds.length*dt).toFixed(2),outbound:ds.length?{min:+Math.min(...ds).toFixed(2),max:+Math.max(...ds).toFixed(2)}:null,band:[3.5,5]});}
   const timeline=run.states.map(s=>({t:+(s.frame*dt).toFixed(3),state:s.state}));
   // --- T2+ leave from a dragged room view (door-facing, RoomLook extreme): ONE continuous move, no cut, in frame after rejoin
-  if(!args.includes('--no-drag')){const env2=S.create(),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
+  if(!args.includes('--no-drag')){const env2=S.create(envOpts),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
     const from={position:[...h.position],target:[h.position[0]+Math.sin(yaw)*2.5,h.position[1],h.position[2]+Math.cos(yaw)*2.5],fovVerticalDeg:h.fovVerticalDeg};
     const r2=await S.run(env2,{script:[['leaveHome',{from}]]}),F2=r2.frames,k2=K.kinematics(C,F2,r2.dt);let cut2=null,maxW=0,maxDw2=0;
     for(const k of k2){const turn=k.w*r2.dt,move=k.v*r2.dt;maxW=Math.max(maxW,turn);maxDw2=Math.max(maxDw2,Math.abs(k.dw||0));if((turn>LIMITS.cutTurnDeg||move>LIMITS.cutMoveM)&&!cut2)cut2={frame:k.i,turnDeg:+turn.toFixed(2)};}

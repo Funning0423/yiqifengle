@@ -42,6 +42,9 @@ export interface CharacterAdapter {
   /** T2+ optional: seconds the next stand/sit/turn will take (e.g. the stand_up clip length), so ONE camera move can be
    *  timed over stand + turn. Omitted/undefined = flow defaults (stand 1.0 s, turn 1.5 s). */
   actionSeconds?(kind:'stand'|'sit'|'turn'):number|undefined;
+  /** Walk-duration contract (optional): distance-travelled fraction 0..1 of the CURRENT walk action, null/undefined when
+   *  not walking. When present, camera track progress follows distance instead of elapsed time. */
+  walkProgress?():number|null;
 }
 /** T2+: camera events for audio/debug/HUD sequencing (no logging here). crane-start: the outbound crane leaves the rail;
  *  settled: the camera is at the stable pose with zero speed and the character is still (fired right after restore()). */
@@ -58,7 +61,9 @@ export interface WorldLease {
   setCamera(pose:Pose):void;
   animateDoor(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   /** options omitted = original linear keyed track. */
-  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions):Promise<void>;
+  /** progress (T2+, optional): track-timeline fraction 0..1 from a distance-travelled signal; null = use time. The lease
+   *  keeps it monotone and ends on 1 with the job. */
+  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions,progress?:()=>number|null):Promise<void>;
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
   wait?(seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
@@ -102,6 +107,8 @@ export interface RouteConfig {
   /** T2: interior-light weight ramps on the exterior walks (walk progress). Omitted = old on/off switching. */
   interiorLighting?:Readonly<{crossOut?:WeightRamp;toIsland?:WeightRamp;toThreshold?:WeightRamp;crossIn?:WeightRamp}>;
   openDeg:number; speed:number;
+  /** Shared walk-duration contract (FirstsliceRoutes.walkDuration); absent = pathDuration(path,speed). */
+  walkDuration?:(path:readonly Vec[])=>number;
   /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
   islandYawRad?:number;
 }
@@ -124,7 +131,7 @@ export function pointOnPath(path:readonly Vec[],t:number):Vec {
 }
 /** T2+ span segment: `seconds` of the span clock, optional camera keys (0..1 progress within the segment, omitted =
  *  evenly spaced), and the character/lighting work that runs for that segment. */
-export type SpanSegment={seconds:number;cameras:readonly Pose[];run:(token:Cancellation)=>Promise<void>;state?:State};
+export type SpanSegment={seconds:number;walk?:boolean;cameras:readonly Pose[];run:(token:Cancellation)=>Promise<void>;state?:State};
 /** Pure: re-time per-segment keys onto one 0..1 span track; a key at the same instant as the previous one is dropped. */
 export function spanCameraKeys(segments:readonly {seconds:number;cameras:readonly Pose[]}[]):Pose[] {
   const total=segments.reduce((a,x)=>a+x.seconds,0);if(!(total>0))throw Error('Empty camera span');
@@ -221,11 +228,11 @@ export class WorldFlow {
     return path===c.outCrossing?l.crossOut:path===c.toIsland?l.toIsland:path===c.toThreshold?l.toThreshold:path===c.inCrossing?l.crossIn:undefined;}
   /** cameras=null: character + lighting only (the camera is owned by an enclosing span track). */
   private async walk(path:readonly Vec[],cameras:readonly Pose[]|null,token:Cancellation):Promise<void> {
-    const duration=pathDuration(path,this.config.speed),track=this.walkTrack(path),light=this.walkLight(path);
+    const duration=this.walkSeconds(path),track=this.walkTrack(path),light=this.walkLight(path),byDistance=()=>this.walkFraction();
     // Both tracks use the same duration. Character adapter owns world displacement.
     // fixed mode used to leave the camera on cameraHome, so the girl walked out of the doorway frame.
     const camera=!cameras?Promise.resolve():this.mode==='motion'
-      ? (track?this.world!.animateCamera(cameras,duration,token,track):this.world!.animateCamera(cameras,duration,token))
+      ? this.world!.animateCamera(cameras,duration,token,track,byDistance)
       : Promise.resolve(this.world!.setCamera(cameras[cameras.length-1]));
     // T2: lighting rides the same job clock and duration as the walk; the camera may ease, lighting follows walk progress.
     const lighting=light&&this.world!.blendRoomLight?this.roomLightRamp(light,duration,token):Promise.resolve();
@@ -244,11 +251,15 @@ export class WorldFlow {
   private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number}):Promise<void> {
     const keys=spanCameraKeys(segments),total=segments.reduce((a,x)=>a+x.seconds,0);
     let camera:Promise<void>=Promise.resolve();
-    if(this.mode==='motion'){camera=this.world!.animateCamera(keys,total,token,track);
+    // Camera progress follows the character's travelled distance inside walk segments (keys are placed by path progress),
+    // time elsewhere (stand/turn/hold) and whenever the adapter reports nothing.
+    const cur={start:0,seconds:0,walk:false};
+    const byDistance=()=>{if(!cur.walk||!(total>0))return null;const f=this.walkFraction();return f===null?null:(cur.start+f*cur.seconds)/total;};
+    if(this.mode==='motion'){camera=this.world!.animateCamera(keys,total,token,track,byDistance);
       if(mark&&mark.seconds>=0&&mark.seconds<=total&&this.world!.wait){const seconds=mark.seconds;
         this.world!.wait(seconds,token).then(()=>{if(!token.cancelled)this.cameraEvent({kind:'crane-start',segment:'toIsland',progress:mark.progress,seconds});},()=>{});}}
     else this.world!.setCamera(keys[keys.length-1]);
-    const characters=(async()=>{for(const seg of segments){if(seg.state)this.change(seg.state);await seg.run(token);token.check();}})();
+    const characters=(async()=>{let start=0;for(const seg of segments){cur.start=start;cur.seconds=seg.seconds;cur.walk=!!seg.walk;if(seg.state)this.change(seg.state);await seg.run(token);token.check();start+=seg.seconds;cur.walk=false;}})();
     await token.wait(Promise.all([characters,camera]).then(()=>{}));token.check();
   }
   private waitSeconds(seconds:number,token:Cancellation):Promise<void> {
@@ -256,7 +267,11 @@ export class WorldFlow {
     if(!this.world!.wait){console.warn('WorldLease.wait missing; camera span timing degrades');return Promise.resolve();}
     return token.wait(this.world!.wait(seconds,token));
   }
-  private walkSegment(path:readonly Vec[],cameras:readonly Pose[],state?:State):SpanSegment {return {seconds:pathDuration(path,this.config.speed),cameras,state,run:t=>this.walk(path,null,t)};}
+  private walkSegment(path:readonly Vec[],cameras:readonly Pose[],state?:State):SpanSegment {return {seconds:this.walkSeconds(path),cameras,state,walk:true,run:t=>this.walk(path,null,t)};}
+  /** Shared walk-duration contract: RouteConfig.walkDuration (FirstsliceRoutes.walkDuration) or constant speed. */
+  private walkSeconds(path:readonly Vec[]):number {const d=this.config.walkDuration?.(path);return typeof d==='number'&&Number.isFinite(d)&&d>0?d:pathDuration(path,this.config.speed);}
+  /** Distance-travelled fraction of the current walk from the character adapter, or null (fall back to time). */
+  private walkFraction():number|null {const f=this.character?.walkProgress?.();return typeof f==='number'&&Number.isFinite(f)?Math.max(0,Math.min(1,f)):null;}
   private turnSeconds():number {const s=this.character?.actionSeconds?.('turn');return s&&s>0&&Number.isFinite(s)?s:1.5;}
   /** from (T2+): the camera pose the user dragged to in the room; the stand-up move then starts by panning from it
    *  back to the girl (no rejoin cut). Omitted = start on cameraHome. */

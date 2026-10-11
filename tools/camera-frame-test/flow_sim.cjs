@@ -5,10 +5,12 @@
  * Character: mirrors FlowReferenceStandin (pointOnPath(path, elapsed/duration), yaw from path tangent).
  * Engine-free; no rendering. Native visual acceptance remains separate. */
 const {load}=require('./load_ts.cjs');
-function create(){
+/** opts.walkDuration: override the shared walk-duration contract; opts.walkProfile(p)->distance fraction for the sim
+ *  character (default linear = constant speed). The character reports walkProgress() = that distance fraction. */
+function create(opts={}){
   const M=load();const C=M.CameraPose,W=M.WorldFlowCore,R=M.FirstsliceRoutes,F=M.FirstsliceFacts,REF=M.CharacterReference;
-  const cfg=R.createFirstsliceRoutes(F.FIRSTSLICE,REF.CHARACTER_REFERENCE);
-  return {M,C,W,cfg,REF};
+  const cfg=R.createFirstsliceRoutes(F.FIRSTSLICE,REF.CHARACTER_REFERENCE,opts.walkDuration?{walkDuration:opts.walkDuration}:undefined);
+  return {M,C,W,cfg,REF,walkProfile:opts.walkProfile||null,reportWalkProgress:opts.reportWalkProgress!==false};
 }
 async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.0,sitSeconds=1.0}={}){
   const {C,W,cfg}=env;const dt=1/fps;
@@ -24,7 +26,9 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     setDoor(a){world.door=a;},
     setCamera(p){C.applyCameraPose(cam,C.fromLookAt(p,cam.fov),'sim.setCamera');log('setCamera',null);},
     animateDoor:(from,to,seconds,t)=>runJob(seconds,t,p=>{world.door=from+(to-from)*p;}),
-    animateCamera:(path,seconds,t,options)=>{const tr=C.createCameraTrack(cam,path,'sim.animateCamera',options);log('track',{keys:path.length,seconds,options:options||null});return runJob(seconds,t,tr.tick);},
+    animateCamera:(path,seconds,t,options,progress)=>{const tr=C.createCameraTrack(cam,path,'sim.animateCamera',options);log('track',{keys:path.length,seconds,options:options||null,byDistance:!!progress});
+      // mirrors WorldFlowComponent: CameraPose.createProgressFollower (smoothed distance correction, monotone, ends on 1)
+      if(!progress)return runJob(seconds,t,tr.tick);const follow=C.createProgressFollower(seconds);return runJob(seconds,t,p=>tr.tick(follow(p,progress())));},
     // T5 133018c contract: clamp 0..1, effective only with the interior view on (else false / get 0); linear cancellable blend.
     setRoomLightWeight(w){if(!world.layers?.interior||!Number.isFinite(w))return false;world.weight=Math.max(0,Math.min(1,w));log('weight',w);return true;},
     getRoomLightWeight:()=>world.layers?.interior?world.weight:0,
@@ -36,7 +40,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   const ch={root:[...cfg.seat.seatedControllerRoot],yaw:cfg.seat.yawRad,job:null,
     calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:cfg.seat.standingControllerRoot,seatedRoot:cfg.seat.seatedControllerRoot,seatYawRad:cfg.seat.yawRad,clearanceRadiusM:.15},
     advance(s){const j=ch.job;if(!j)return;j.elapsed=Math.min(j.duration,j.elapsed+Math.min(s,.1));const p=j.elapsed/j.duration,a=j.action;
-      if(a.kind==='walk'){ch.root=[...W.pointOnPath(a.path,p)];const u=W.pointOnPath(a.path,Math.max(0,p-.0001)),v=W.pointOnPath(a.path,Math.min(1,p+.0001));if(Math.hypot(v[0]-u[0],v[2]-u[2])>1e-8)ch.yaw=Math.atan2(v[0]-u[0],v[2]-u[2]);}
+      if(a.kind==='walk'){const s=env.walkProfile?env.walkProfile(p,j.duration,a.path):p;j.distance=s;ch.root=[...W.pointOnPath(a.path,s)];const u=W.pointOnPath(a.path,Math.max(0,p-.0001)),v=W.pointOnPath(a.path,Math.min(1,p+.0001));if(Math.hypot(v[0]-u[0],v[2]-u[2])>1e-8)ch.yaw=Math.atan2(v[0]-u[0],v[2]-u[2]);}
       else if(a.kind==='turn')ch.yaw=a.fromYawRad+Math.atan2(Math.sin(a.toYawRad-a.fromYawRad),Math.cos(a.toYawRad-a.fromYawRad))*p;
       else{const target=a.kind==='stand'?a.seat.standingControllerRoot:a.seat.seatedControllerRoot;ch.root=j.from.map((x,i)=>x+(target[i]-x)*p);}
       if(j.elapsed>=j.duration){ch.job=null;j.off();j.resolve();}},
@@ -44,7 +48,8 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
       const duration=action.kind==='stand'?standSeconds:action.kind==='sit'?sitSeconds:action.kind==='walk'?action.duration:1.5;
       return new Promise((resolve,reject)=>{const j={action,duration,from:[...ch.root],elapsed:0,resolve,reject,off:()=>{}};ch.job=j;j.off=token.onCancel(()=>{if(ch.job===j)ch.job=null;reject(new W.Cancelled());});});},
     cancelAndReset(pose){ch.job=null;ch.root=[...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot)];ch.yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad;},
-    setVisible(){},dispose(){}};
+    setVisible(){},dispose(){},
+    walkProgress:env.reportWalkProgress?()=>{const j=ch.job;return j&&j.action.kind==='walk'?(j.distance??0):null;}:undefined};
   const states=[];let frame=0,state='';
   const flow=new W.WorldFlow({config:cfg,mode:'motion',character:ch,levels:{enter:async()=>{throw Error('unused')}},loadWorld:async()=>lease,onChange:s=>{state=s.state;states.push({frame,state:s.state});log('state',s.state);}});
   const frames=[];

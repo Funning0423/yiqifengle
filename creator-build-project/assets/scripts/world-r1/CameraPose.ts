@@ -108,6 +108,24 @@ export function remapProgress(p: number, o?: TrackOptions): number {
   if (b > 0 && x > 1 - b) { const u = (x - (1 - b)) / b; return Math.min(1, s * (2 * a / 3 + (1 - a - b)) + s * b * (u - u * u * u / 3)); }
   return s * (2 * a / 3 + (x - a));
 }
+/** Walk-duration contract: camera track progress = time progress + a smoothed correction toward the reported
+ * distance-travelled progress. The correction ignores a dead band (deadbandSeconds; one-frame job scheduling lag is not a
+ * walk-profile deviation, so a constant-speed walk is exactly time-driven) and follows the rest with a critically damped
+ * second-order filter (omega = 1/tauSeconds): no velocity step, bounded acceleration. Null distance -> correction decays.
+ * Monotone; exactly 1 when the job ends. */
+export function createProgressFollower(seconds: number, tauSeconds = 0.25, deadbandSeconds = 0.05): (p: number, distance: number | null) => number {
+  let last = 0, lastP = 0, e = 0, ev = 0; const w = tauSeconds > 0 ? 1 / tauSeconds : 0, S = seconds > 0 ? seconds : 1;
+  return (p: number, distance: number | null) => {
+    const dt = Math.max(0, (p - lastP) * S); lastP = p;
+    let target = 0;
+    if (typeof distance === 'number' && Number.isFinite(distance)) {
+      const d = (Math.max(0, Math.min(1, distance)) - p) * S, m = Math.max(0, Math.abs(d) - deadbandSeconds);
+      target = (d < 0 ? -m : m) / S;
+    }
+    if (dt > 0) { if (w > 0) { ev += (w * w * (target - e) - 2 * w * ev) * dt; e += ev * dt; } else e = target; }
+    const v = p >= 1 ? 1 : Math.max(last, Math.max(0, Math.min(1, p + e))); last = v; return v;
+  };
+}
 /** Time fraction at which the eased track reaches key progress k (remapProgress is monotone; bisection). */
 export function invertProgress(k: number, o?: TrackOptions): number { let lo = 0, hi = 1; for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (remapProgress(m, o) < k) lo = m; else hi = m; } return (lo + hi) / 2; }
 /** Fritsch-Carlson monotone cubic tangents for knots t (strictly increasing) and values y. */

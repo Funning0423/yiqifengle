@@ -76,3 +76,29 @@ hint on the floor/wall in frame (hook only, art needed); (b) allow fov ~90 (wide
   remain unchanged") and T5 `test_room_light_blend.cjs` case "WorldFlowCore source == near 41fabe7 …" (15/16 pass).
   Owners should update those guards when T2+ is accepted.
 - Native WeChat/Mac capture not run here (Cocos cannot run on this box).
+
+## Walk-duration contract (for 角色动画bot; lead-approved)
+- `FirstsliceRoutes.walkDuration(path)` is the ONE source of walk time. Default = constant speed (`length / WALK_SPEED`,
+  WALK_SPEED 0.7 m/s) = old `pathDuration`, so behaviour is unchanged (test_composition asserts it on every route path).
+  `createFirstsliceRoutes(facts, ref, {walkDuration})` takes an override; `RouteConfig.walkDuration` carries it to
+  WorldFlowCore, which uses it for the character walk, the camera span, room-light ramps, the crane-start mark and the
+  settle timing (all derive from span seconds).
+- Optional `CharacterAdapter.walkProgress(): number|null` = distance-travelled fraction 0..1 of the CURRENT walk (null when
+  not walking). When present, camera track progress follows distance: `CameraPose.createProgressFollower` adds a correction
+  toward the reported progress (0.05 s dead band so one-frame scheduling lag is ignored; critically damped, tau 0.25 s, so no
+  velocity step), monotone, exactly 1 at job end. Absent/null = time (old behaviour).
+- Test: `node test_camera_frames.cjs --walk-profile chained` (0.3 s accel/decel wherever she starts/stops, continuous
+  through outCrossing->toIsland and toThreshold->inCrossing; walkDuration = L/0.7 + 0.15 s per ramp): ALL PASS, settles on
+  island/home with zero speed. `--walk-profile accel` (worst case: a stop-start ramp at EVERY walk action, including the
+  mid-walk joins) settles cleanly and stays continuous, but in-frame fails in the doorway swing (47 frames, worst -2.6% hat
+  margin). Recommendation to 角色动画bot: do not ramp speed at the outCrossing->toIsland / toThreshold->inCrossing joins.
+
+## ES5 safety (Cocos loose-ES5 build)
+- Fixed: for-of over `Map`/`Map.values()` in WorldFlowComponent (unlit backdrops x2) and WorldIntegrationBoot (controls x3)
+  -> `Array.from(...)`. No iterable spread or generators in T2+ code.
+- Guard: `node tools/camera-frame-test/test_es5_safety.cjs` - TS program target ES5, downlevelIteration off, Cocos 3.8.8
+  cc.d.ts types: any iterable spread / for-of over a non-array is a diagnostic -> FAIL; plus a source scan (generators,
+  Symbol.iterator, for-of/spread over .entries/.values/.keys, getComponentInChildren without getComponent(self) first).
+  `QF_TS_TARGET=ES5 node test_camera_frames.cjs` runs the whole CPU frame test on ES5 output (ALL PASS).
+- Not in scope of the guard (library, not syntax): `.flat` / `Object.fromEntries` in pre-existing WorldFlowComponent /
+  WorldIntegrationBoot debug paths (ES2019 runtime APIs).

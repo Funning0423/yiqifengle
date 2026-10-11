@@ -11,7 +11,7 @@ import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Sn
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
 import { createFirstsliceRoutes } from './FirstsliceRoutes';
-import { applyCameraPose, fromLookAt, createCameraTrack, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate } from './CameraPose';
+import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
@@ -172,7 +172,7 @@ export class WorldFlowComponent extends Component {
   private unlitBackdrops=new Map<MeshRenderer,UnlitBackdropBinding>();
   private islandAlphaReleases:(()=>void)[]=[];
   private releaseIslandAlpha():void {for(const release of this.islandAlphaReleases)release();this.islandAlphaReleases.length=0;}
-  private releaseUnlitBackdrops():void {for(const b of this.unlitBackdrops.values())b.release();this.unlitBackdrops.clear();}
+  private releaseUnlitBackdrops():void {Array.from(this.unlitBackdrops.values()).forEach(b=>b.release());this.unlitBackdrops.clear();}
   /** Separate diagnostic key only: never writes journey, attempt or reward data. */
   private reportRuntime(event:string):void {
     if(!this.flow)return;
@@ -299,7 +299,9 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
-        animateCamera:(path,seconds,t,options)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);return this.run(seconds,t,track.tick);},
+        animateCamera:(path,seconds,t,options,progress)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
+          // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
+          if(!progress)return this.run(seconds,t,track.tick);const follow=createProgressFollower(seconds);return this.run(seconds,t,p=>track.tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
@@ -371,7 +373,7 @@ export class WorldFlowComponent extends Component {
     const scene=director.getScene();
     if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture))sky.setNightBlend(view.skyNightBlend);
     for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
-    for(const [r,b]of this.unlitBackdrops)if(isValid(r,true))b.setNight(this.dayNightMode==='night');
+    Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setNight(this.dayNightMode==='night');});
     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
     this.doorSpill?.setView(this.interiorVisible,this.exteriorVisible,this.dayNightMode==='night');
   }

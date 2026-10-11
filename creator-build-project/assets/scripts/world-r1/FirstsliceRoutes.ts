@@ -29,7 +29,14 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
 }
 /** Source samples are preserved. Only explicit, documented joins are authored here. */
-export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;standingRoot:Vec;walkEndRoot:Vec;seatYawRad:number}):RouteConfig {
+/** WALK-DURATION CONTRACT (lead-approved; final profile owner: 角色动画bot). walkDuration(path) is the ONE source of walk
+ * time for character, camera, room light, crane mark and settle timing. Default = constant speed (pathDuration at
+ * WALK_SPEED), i.e. behaviour unchanged. The animation bot replaces the body (e.g. + ~0.3 s accel/decel) and reports the
+ * distance-travelled fraction via CharacterAdapter.walkProgress(); camera progress then follows distance, not time. */
+export const WALK_SPEED = .7;
+export function walkDuration(path: readonly Vec[]): number { let L = 0; for (let i = 1; i < path.length; i++) L += Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1], path[i][2] - path[i - 1][2]); return L / WALK_SPEED; }
+export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;standingRoot:Vec;walkEndRoot:Vec;seatYawRad:number},options?:{walkDuration?:(path:readonly Vec[])=>number}):RouteConfig {
+  const walkDurationFn=options?.walkDuration??walkDuration;
   if(facts.units!=='m'||facts.up!=='+Y'||facts.outdoorForward!=='+Z')throw Error('Unsupported asset axes/units');
   const a=(name:string):Vec=>{const p=facts.anchors[name]?.position;if(!p||p.length!==3||!p.every(Number.isFinite))throw Error('Missing anchor '+name);return [...p] as unknown as Vec;};
   const range=(prefix:string,first:number,last:number):Vec[]=>Array.from({length:last-first+1},(_,i)=>a(prefix+'_'+String(i+first).padStart(2,'0')));
@@ -94,7 +101,7 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     const T=TRANSITION_CAMERA,railOn=T.railOut.length>0&&T.railIn.length>0;
     // T2+: crossing-out ends on a lens just behind her in the doorway (generated, not the old in-room 'O' key).
     const inside=D[4],outside=railOn?railPose(outCrossing,{...T.crossOutEnd,progress:1}):key('O',outCrossing,1),insideReturn=key('IR',inCrossing,1),outsideReturn=key('OR',toThreshold,1);
-    const speed=.7,walkS=(r:readonly Vec[])=>r.slice(1).reduce((x,q,i)=>x+Math.hypot(q[0]-r[i][0],q[2]-r[i][2]),0)/speed;
+    const walkS=walkDurationFn; // shared walk-duration contract (see walkDuration)
     const outboundRail=():Pose[]=>{const cs=T.crane.startProgress,rail=T.railOut.filter(k=>k.progress<=cs).map(k=>railPose(toIsland,k));
       const start=rail[rail.length-1];if(!start||Math.abs(start.progress!-cs)>1e-9)throw Error('railOut must end on crane.startProgress');
       const w=walkS(toIsland),total=(1-cs)*w+T.crane.settleSeconds,ra=pointOnPath(toIsland,cs),rb=toIsland[toIsland.length-1],keys:Pose[]=[];
@@ -137,7 +144,7 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     toThreshold,
     inCrossing,
     toSeat,
-    cameraHome,cameraHomeToDoor,cameraToDoor,cameraInside,cameraOutside,cameraCrossOut,cameraCrossIn,cameraIsland,cameraCharacter,cameraToIsland,cameraToThreshold,openDeg:facts.door.openDeg,speed:.7,
+    walkDuration:walkDurationFn,cameraHome,cameraHomeToDoor,cameraToDoor,cameraInside,cameraOutside,cameraCrossOut,cameraCrossIn,cameraIsland,cameraCharacter,cameraToIsland,cameraToThreshold,openDeg:facts.door.openDeg,speed:WALK_SPEED,
     islandYawRad:(island.characterYawDeg??0)*Math.PI/180,
     ...(t2??{}),
   };
