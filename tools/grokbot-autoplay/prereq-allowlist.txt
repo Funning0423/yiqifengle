@@ -176,3 +176,8 @@ strict  0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f WorldIn
 #  `git show 11a1bac:.../WorldIntegrationBoot.ts | sha256sum` = 49987a3d..b401. Core 728b630b unchanged. Glue reviewed: boot
 #  fields T0 reads, __worldIntegration/__worldLoading shapes (additive only) and flow state order unchanged. Append only.
 strict  49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401 WorldIntegrationBoot.ts          GGbot animfix 11a1bac
+# Voice bot A5 ui-soft (work/Voice-bot-uisoft 52ed6ff, child of int/v1 11a1bac): all island UI taps -> warm soft sounds, UI_TAP_VOLUME
+#  0.65 -> 1, sfx_ui_settings removed (settings plays sfx_ui_click). Verified `git show 52ed6ff:.../audio/GameAudio.ts | sha256sum` =
+#  b3cfd1a7..d670. No other allowlisted file changed (11a1bac..52ed6ff: GameAudio.ts + audio_sfx assets/docs/tests only). No T0
+#  scenario/test references sfx_ui_settings (only sfx_ui_click). Observe-only; append only.
+observe b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670 audio/GameAudio.ts              Voice bot ui-soft 52ed6ff (on int/v1 11a1bac)
