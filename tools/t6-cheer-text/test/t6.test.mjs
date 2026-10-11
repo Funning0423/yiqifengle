@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {Node,UITransform,director,UIOpacity} from 'cc';
+import {GameAudio} from './gameaudio-stub.mjs';
+import {ManagedMobileBoardUI} from './board-stub.mjs';
+const M=await import('./out/ui/CheerTextModel.js');const {CheerTextHost}=await import('./out/ui/CheerText.js');
+let pass=0;const t=(n,f)=>{f();pass++;console.log('ok',n);};
+// ---- model
+t('styles: 4 tiers, words match Voice bot CHEERS order',()=>assert.deepEqual(M.CHEER_STYLES.map(s=>s.word),['Great!','Excellent!','Amazing!','Unbelievable!']));
+t('decide: show/replace/skip',()=>{assert.equal(M.decide(-1,0,0),'show');assert.equal(M.decide(0,0.2,1),'replace');assert.equal(M.decide(2,0.2,1),'skip');assert.equal(M.decide(2,0.2,2),'skip');assert.equal(M.decide(2,0.8,0),'show');assert.equal(M.decide(-1,0,4),'skip');assert.equal(M.decide(-1,0,-1),'skip');});
+t('pose: pop overshoot, float, gone at 0.8s',()=>{const p={};M.poseAt(0,p);assert.ok(Math.abs(p.scale-0.35)<1e-9&&p.alpha===1&&p.dy===0);let mx=0;for(let s=0;s<0.18;s+=0.005){M.poseAt(s,p);mx=Math.max(mx,p.scale);}assert.ok(mx>1.05,'overshoot '+mx);
+ M.poseAt(0.3,p);assert.equal(p.scale,1);M.poseAt(0.79,p);assert.ok(!p.done&&p.alpha<0.1&&p.dy>55);M.poseAt(0.8,p);assert.ok(p.done&&p.alpha===0);});
+t('removedIndexes',()=>{assert.deepEqual(M.removedIndexes({kind:'clear',wave:{removed:[{index:3},{index:4},4,99,'x']}}),[3,4]);assert.deepEqual(M.removedIndexes({kind:'drop',wave:{removed:[1]}}),[]);assert.deepEqual(M.removedIndexes(null),[]);});
+t('clampToSafe',()=>{const s={top:47,bottom:34,left:0,right:0};const r=M.clampToSafe(190,500,100,20,390,844,s);assert.equal(r.x,390/2-8-100);assert.equal(r.y,844/2-47-8-20-56);const c=M.clampToSafe(0,0,300,20,390,844,s);assert.equal(c.x,0);});
+// ---- host
+const scene=new Node('scene');director.__setScene(scene);const bn=new Node('board');scene.addChild(bn);const board=bn.addComponent(ManagedMobileBoardUI);
+const root=new Node('NativeBoardCanvas');bn.addChild(root);root.addComponent(UITransform);root.addChild(new Node('Grid'));
+board.root=root;board.layoutInfo={width:390,height:844,safe:{top:47,bottom:34,left:0,right:0,portrait:true},boardCenter:{x:0,y:-60}};
+board.cells=Array.from({length:49},(_,i)=>{const n=new Node('c'+i);n.worldPosition.set(((i%7)-3)*48,-60+(3-Math.floor(i/7))*48,0);return n;});
+CheerTextHost.ensure();const host=CheerTextHost.instance;
+t('subscribes once to GameAudio.onCheer',()=>{assert.ok(host);assert.equal(GameAudio.listeners.length,1);});
+let r;
+t('position from onCheer visual (cleared cells centroid), not board state',()=>{board.visual={kind:'idle'};
+ const orig=host.show.bind(host);host.show=(l,v)=>(r=orig(l,v));GameAudio.emitCheer(0,{kind:'clear',wave:{removed:[{index:0},{index:1},{index:2}]}});
+ assert.equal(r.decision,'show');assert.equal(r.source,'clear');assert.equal(r.x,-96);assert.equal(r.y,84);const layer=root.children.at(-1);assert.equal(layer.name,'CheerTextLayer');assert.equal(layer.children.length,4);
+ assert.equal(layer.children[0].active,true);assert.equal(layer.children.filter(n=>n.active).length,1);});
+t('lower tier during higher is skipped; higher replaces lower',()=>{host.update(0.1);GameAudio.emitCheer(0);assert.equal(r.decision,'skip');GameAudio.emitCheer(2);assert.equal(r.decision,'replace');assert.equal(r.replaced,0);
+ const layer=root.children.at(-1);assert.deepEqual(layer.children.map(n=>n.active),[false,false,true,false]);GameAudio.emitCheer(1);assert.equal(r.decision,'skip');});
+t('animation finishes at 0.8s and hides; pool reused (no new nodes)',()=>{for(let i=0;i<60;i++)host.update(1/60);const layer=root.children.at(-1);assert.ok(layer.children.every(n=>!n.active));assert.equal(host.diagnostics().active,-1);
+ GameAudio.emitCheer(3,{kind:'clear',wave:{removed:[]}});assert.equal(r.source,'center');assert.equal(r.x,0);assert.equal(r.y,-60);assert.equal(root.children.filter(n=>n.name==='CheerTextLayer').length,1);assert.equal(layer.children.length,4);});
+t('edge clear clamped inside safe area',()=>{for(let i=0;i<60;i++)host.update(1/60);board.cells[6].worldPosition.set(180,380,0);board.cells[13].worldPosition.set(180,380,0);
+ GameAudio.emitCheer(3,{kind:'clear',wave:{removed:[{index:6},{index:13}]}});const s=host['slots'][3];assert.ok(r.x<=390/2-8-s.hw&&r.y<=844/2-47-8-s.hh-56,JSON.stringify(r));});
+t('per-frame update writes only existing objects',()=>{const s=host['slots'][3];const pos=s.node.pos,sc=s.node.scale;host.update(1/60);assert.equal(s.node.pos,pos);assert.equal(s.node.scale,sc);assert.ok(s.opacity instanceof UIOpacity);});
+t('rebuilds pool when board canvas is replaced',()=>{for(let i=0;i<60;i++)host.update(1/60);const root2=new Node('NativeBoardCanvas');bn.addChild(root2);root2.addComponent(UITransform);board.root=root2;GameAudio.emitCheer(1);assert.equal(r.decision,'show');assert.equal(root2.children.at(-1).name,'CheerTextLayer');});
+t('visual missing/undefined -> board centre',()=>{for(let i=0;i<60;i++)host.update(1/60);GameAudio.emitCheer(0,undefined);assert.equal(r.source,'center');});
+t('no board -> no crash, decision no-board',()=>{for(let i=0;i<60;i++)host.update(1/60);bn._valid=false;host['board']=null;director.__setScene(new Node('empty'));GameAudio.emitCheer(0);assert.equal(r.decision,'no-board');director.__setScene(scene);bn._valid=true;});
+t('unsubscribes on destroy',()=>{host.onDestroy();assert.equal(GameAudio.listeners.length,0);assert.equal(CheerTextHost.instance,null);GameAudio.emitCheer(3);});
+console.log(`T6 tests: ${pass} passed`);
