@@ -126,3 +126,10 @@ observe d122c71da82d9fcd1aae5654410499040b70c72a741bd3b0615876fb50847d59 world-r
 #  loop crossfade, so audio:bgm-loop-seam still fires once per pass). Only T0-checked file changed vs d637356 (Boot a4f2254d,
 #  WorldFlowCore f3fe3064, WorldFlowComponent 4e9022bd, AudioBridge 45fc0889 ... unchanged, listed). Observe-only, append only.
 observe 824ba6abd170d06b04efaf7905ebe00e39c8815c6cc755d8f76ebf72fc6f1999 audio/GameAudio.ts              Voice bot scene BGM (work/Voice-bot-bgm 4c0ad2e/fbee3d5 on int/v1 d637356)
+# 运镜bot return entry (work/运镜bot-wind e3863fb = 4be7adf + 1, on int/v1 38b005f): WorldFlowCore.entrySpan runs crossing-in, door close,
+#  toSeat and sit as ONE camera span ending on cameraHome. Verified `git show e3863fb:.../world-r1/WorldFlowCore.ts | sha256sum`
+#  = a27457a4..7dab (== trial merge 38b005f+e3863fb+Voice-bot-bgm). Glue reviewed: walk(path,cameras|null,token)/config paths
+#  unchanged; entry walks still go through this.walk (seg:inCrossing/toSeat wrapper sees them); states crossing-in/closing-door/
+#  walking-to-seat/sitting/home emitted in the same order; ONE cameraEvent settled:home after the sit (flow_sim: home 42.767 s, same as
+#  4be7adf). 45e2c94c (4be7adf) kept. Observe-only, append only.
+observe a27457a434e0878cd83f226b13dab1e26f66be3d82afba14c384acc88e3a7dab world-r1/WorldFlowCore.ts         运镜bot return entry e3863fb on int/v1 38b005f
