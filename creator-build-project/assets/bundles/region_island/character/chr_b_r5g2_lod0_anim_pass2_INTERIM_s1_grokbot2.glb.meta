@@ -10,7 +10,14 @@
     "__original-animation-3.bin",
     "__original-animation-4.bin",
     "__original-animation-5.bin",
-    "__original-animation-6.bin"
+    "__original-animation-6.bin",
+    "__original-animation-7.bin",
+    "__original-animation-8.bin",
+    "__original-animation-9.bin",
+    "__original-animation-10.bin",
+    "__original-animation-11.bin",
+    "__original-animation-12.bin",
+    "__original-animation-13.bin"
   ],
   "subMetas": {
     "37781": {
@@ -589,6 +596,167 @@
         ".json"
       ],
       "subMetas": {}
+    },
+    "e784c": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@e784c",
+      "displayName": "",
+      "id": "e784c",
+      "name": "walk_start.animation",
+      "userData": {
+        "gltfIndex": 7,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.7000000476837158
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f0225": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@f0225",
+      "displayName": "",
+      "id": "f0225",
+      "name": "walk_stop_bodyL.animation",
+      "userData": {
+        "gltfIndex": 8,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "d2c9e": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@d2c9e",
+      "displayName": "",
+      "id": "d2c9e",
+      "name": "walk_stop_bodyR.animation",
+      "userData": {
+        "gltfIndex": 9,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f3596": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@f3596",
+      "displayName": "",
+      "id": "f3596",
+      "name": "walk_turn_90_bodyL.animation",
+      "userData": {
+        "gltfIndex": 10,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "3e86b": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@3e86b",
+      "displayName": "",
+      "id": "3e86b",
+      "name": "walk_turn_90_bodyR.animation",
+      "userData": {
+        "gltfIndex": 11,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "9c8f5": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@9c8f5",
+      "displayName": "",
+      "id": "9c8f5",
+      "name": "walk_turn_180.animation",
+      "userData": {
+        "gltfIndex": 12,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "b2ace": {
+      "importer": "gltf-animation",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@b2ace",
+      "displayName": "",
+      "id": "b2ace",
+      "name": "walk_turn_180_bodyR.animation",
+      "userData": {
+        "gltfIndex": 13,
+        "wrapMode": 1,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 1.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
     }
   },
   "userData": {
@@ -711,6 +879,104 @@
             "to": 1,
             "wrapMode": 2,
             "previousId": "b043a"
+          }
+        ]
+      },
+      {
+        "name": "walk_start",
+        "duration": 1.7000000476837158,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_start",
+            "from": 0,
+            "to": 1.7000000476837158,
+            "wrapMode": 1,
+            "previousId": "e784c"
+          }
+        ]
+      },
+      {
+        "name": "walk_stop_bodyL",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_stop_bodyL",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "f0225"
+          }
+        ]
+      },
+      {
+        "name": "walk_stop_bodyR",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_stop_bodyR",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "d2c9e"
+          }
+        ]
+      },
+      {
+        "name": "walk_turn_90_bodyL",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_turn_90_bodyL",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "f3596"
+          }
+        ]
+      },
+      {
+        "name": "walk_turn_90_bodyR",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_turn_90_bodyR",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "3e86b"
+          }
+        ]
+      },
+      {
+        "name": "walk_turn_180",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_turn_180",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "9c8f5"
+          }
+        ]
+      },
+      {
+        "name": "walk_turn_180_bodyR",
+        "duration": 1.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "walk_turn_180_bodyR",
+            "from": 0,
+            "to": 1.5,
+            "wrapMode": 1,
+            "previousId": "b2ace"
           }
         ]
       }
