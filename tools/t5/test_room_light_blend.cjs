@@ -15,7 +15,7 @@ const results=[];const test=async(name,fn)=>{if(process.env.T5_TRACE)console.err
 const coreSrc=fs.readFileSync(path.join(root,'world-r1/WorldFlowCore.ts'),'utf8');
 const coreJs=stripTypeScriptTypes(coreSrc,{mode:'strip'}).replace(/import \{ CameraTrackFailure \} from '\.\/CameraPose';/,'class CameraTrackFailure extends Error {}').replace(/\bexport\s+/g,'');
 const ctx={};vm.runInNewContext(coreJs+'\nthis.api={WorldFlow,Cancellation,layerStates,pathDuration};',ctx);const {WorldFlow,layerStates,pathDuration}=ctx.api;
-function fixture({withBlend=true,blendImpl}={}){
+function fixture({withBlend=true,blendImpl,levelLease,skycityLease}={}){
   const zero=[0,0,0],one=[0,0,1],far=[0,0,4],pose={position:[0,2,3],target:zero};
   const seat={position:zero,back:zero,yawRad:0,seatedFoot:zero,standingFoot:zero,seatedControllerRoot:zero,standingControllerRoot:zero};
   const log=[];
@@ -24,7 +24,7 @@ function fixture({withBlend=true,blendImpl}={}){
   const world={setLayers:x=>log.push('layers:'+name(x)),setDoor(){},setCamera(){},animateDoor:async()=>{},animateCamera:async()=>{log.push('camera');},cancelTransient(){},assertStaticWorld(){},dispose(){}};
   if(withBlend)world.blendRoomLight=blendImpl||(async(from,to,seconds)=>{log.push(`blend:${from}->${to}@${seconds}`);});
   const character={calibrated:true,coordinates:{units:'m',up:'+Y',forward:'+Z',rootMotion:'controller-only',standingRoot:zero,seatedRoot:zero,seatYawRad:0,clearanceRadiusM:.15},advance(){},perform:async a=>{log.push('act:'+a.kind);},cancelAndReset(){},setVisible(){},dispose(){}};
-  const f=new WorldFlow({config,character,levels:{enter:async()=>{throw Error('no');}},loadWorld:async()=>world});
+  const f=new WorldFlow({config,character,skycity:skycityLease?{enter:async()=>skycityLease}:undefined,levels:{enter:async()=>{if(levelLease)return levelLease;throw Error('no');}},loadWorld:async()=>world});
   return {f,log,config};
 }
 const run=async()=>{
@@ -37,10 +37,18 @@ await test('WorldFlowCore never drives w (leaveHome/returnHome make no light cal
 await test('adapter without the optional light API still completes both flows',async()=>{
   const x=fixture({withBlend:false});await x.f.load();assert.equal((await x.f.leaveHome()).ok,true);assert.equal((await x.f.returnHome()).ok,true);assert.equal(x.f.snapshot().state,'home');
 });
+await test('A4 levels/skycity/hide keep the world loaded but setLayers(NONE) -> isWorldVisible must gate w=0',async()=>{
+  const lease=()=>({show(){},hide(){},showPaused(){},resume(){return {ok:true};},requestExit(){return {ok:true};},dispose(){}});
+  const x=fixture({levelLease:lease(),skycityLease:lease()});await x.f.load();await x.f.leaveHome();
+  const last=()=>x.log.filter(v=>v.startsWith('layers:')).at(-1);assert.equal(last(),'layers:ISLAND');
+  assert.equal((await x.f.enterLevel('s1')).ok,true);assert.equal(last(),'layers:NONE');assert.equal(x.f.exitLevel().ok,true);assert.equal(last(),'layers:ISLAND');
+  assert.equal((await x.f.enterSkycity()).ok,true);assert.equal(last(),'layers:NONE');assert.equal(x.f.exitSkycity().ok,true);assert.equal(last(),'layers:ISLAND');
+  x.f.hide();assert.equal(last(),'layers:NONE');x.f.show();assert.equal(last(),'layers:NONE');assert.equal(x.f.resume().ok,true);assert.equal(last(),'layers:ISLAND');
+});
 await test('WorldFlowCore source == near 41fabe7 except the optional WorldLease API members',async()=>{
   const near=require('node:child_process').execFileSync('git',['show','41fabe7:creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts'],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'});
   const extra=coreSrc.split('\n').filter(l=>!near.split('\n').includes(l));
-  assert.ok(extra.length<=6&&extra.every(l=>/RoomLight|T5 room-light|WorldFlowCore itself never drives/.test(l)),JSON.stringify(extra));
+  assert.ok(extra.length<=8&&extra.every(l=>/RoomLight|isWorldVisible|T5 room-light|WorldFlowCore itself never drives/.test(l)),JSON.stringify(extra));
   assert.equal(near.split('\n').filter(l=>!coreSrc.split('\n').includes(l)).length,0);
 });
 
@@ -136,8 +144,8 @@ const runSrc=grab(/  private run\(seconds:number[\s\S]*?\n  \}\n/,'run()');
 const cancelSrc=grab(/  private cancelJobs\(\):void \{[^\n]*\n/,'cancelJobs()');
 const loopSrc=grab(/    for\(const j of Array\.from\(this\.jobs\)\) \{\n[\s\S]*?\n    \}\n/,'job loop');
 const blendSrc=grab(/blendRoomLight:\(from,to,seconds,t\)=>[^\n]*\n/,'blendRoomLight').trim().replace(/,$/,'');
-const passSrc=grab(/  setRoomLightWeight\(weight:number\):boolean \{[^\n]*\n  [^\n]*\n  getRoomLightWeight\(\):number \{[^\n]*\n/,'passthroughs');
-const harnessTs=`class Harness { jobs=new Set(); roomLighting:any=null;\n${runSrc}${cancelSrc}${passSrc}  step(frameDt:number){\n${loopSrc}  }\n  lease(){return {${blendSrc}};}\n}`;
+const passSrc=grab(/  setRoomLightWeight\(weight:number\):boolean \{[^\n]*\n[\s\S]*?  isWorldVisible\(\):boolean \{[^\n]*\n/,'passthroughs');
+const harnessTs=`class Harness { jobs=new Set(); roomLighting:any=null; disposed=false; interiorVisible=false; exteriorVisible=false;\n${runSrc}${cancelSrc}${passSrc}  step(frameDt:number){\n${loopSrc}  }\n  lease(){return {${blendSrc}};}\n}`;
 const harnessJs=ts.transpileModule(harnessTs,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.None,useDefineForClassFields:false}}).outputText;
 const hctx={Cancelled:ctx.api.Cancelled||class Cancelled extends Error{},console};
 vm.runInNewContext(coreJs+'\nthis.Cancelled=Cancelled;this.Cancellation=Cancellation;',hctx);
@@ -156,6 +164,20 @@ await test('C3 cancel (token or cancelJobs) rejects Cancelled, keeps last w, no 
    const w=x.rig.getRoomLightWeight();assert.ok(Math.abs(w-.7)<1e-9);h.step(.5);assert.equal(x.rig.getRoomLightWeight(),w);}
   {const {x,h,lease,token}=mk();const p=lease.blendRoomLight(0,1,1,token);h.step(.4);h.cancelJobs();await assert.rejects(p,e=>e instanceof hctx.Cancelled);assert.ok(Math.abs(x.rig.getRoomLightWeight()-.4)<1e-9);}
   {const {lease,token}=mk();token.cancel();assert.throws(()=>lease.blendRoomLight(0,1,1,token));}
+});
+await test('B6 rig hasRoomLight(): true while alive (any view), false after dispose',async()=>{
+  const x=makeRig();assert.equal(x.rig.hasRoomLight(),true);x.rig.setView(false,true,false);assert.equal(x.rig.hasRoomLight(),true);assert.equal(x.rig.getRoomLightWeight(),0);
+  x.rig.dispose();assert.equal(x.rig.hasRoomLight(),false);
+});
+await test('C5 hasRoomLight/isWorldVisible passthroughs + consumer pattern',async()=>{
+  const outdoor=h=>(!h||!h.hasRoomLight()||!h.isWorldVisible())?null:1-h.getRoomLightWeight(); // null = indoor/silent
+  assert.equal(outdoor(null),null);
+  const none=new hctx.Harness();assert.equal(none.hasRoomLight(),false);assert.equal(none.isWorldVisible(),false);assert.equal(outdoor(none),null);
+  const {x,h}=mk();h.interiorVisible=true;h.exteriorVisible=false;assert.equal(outdoor(h),0);           // HOME, w=1
+  x.rig.setView(false,true,false);h.interiorVisible=false;h.exteriorVisible=true;assert.equal(outdoor(h),1); // ISLAND, w=0 -> waves full
+  h.exteriorVisible=false;assert.equal(h.hasRoomLight(),true);assert.equal(h.getRoomLightWeight(),0);assert.equal(outdoor(h),null); // level/skycity: NONE
+  h.exteriorVisible=true;h.disposed=true;assert.equal(h.hasRoomLight(),false);assert.equal(outdoor(h),null);
+  h.disposed=false;x.rig.dispose();assert.equal(h.hasRoomLight(),false);assert.equal(outdoor(h),null);
 });
 await test('C4 component passthroughs: get=0 / set=false without rig',async()=>{
   const h=new hctx.Harness();assert.equal(h.getRoomLightWeight(),0);assert.equal(h.setRoomLightWeight(.5),false);

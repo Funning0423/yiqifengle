@@ -74,10 +74,14 @@ baseline `1ef9f1d` 机制完全相同：`WorldFlowCore.ts:109/169/172/205`，`Wo
 - `world-r1/WorldFlowComponent.ts`（透传，其他模块从这里拿）
   - `setRoomLightWeight(weight:number):boolean`；没有 rig 时返回 false
   - `getRoomLightWeight():number`；没有 rig 时返回 0
-  - 调试：`__worldDayNight.roomLightWeight()`
-- `world-r1/WorldFlowCore.ts` 的 `WorldLease` 新增三个**可选**成员（Core 自己不调用；老 adapter 和测试桩不用改）：
+  - `hasRoomLight():boolean`：rig 存在且未销毁时为 true（此时 w 有意义）；没有 rig / 已 dispose 为 false
+  - `isWorldVisible():boolean`：海岛/屋子世界当前在屏幕上（最近一次 setLayers 含 interior 或 exterior）
+  - 调试：`__worldDayNight.roomLightWeight()` / `.hasRoomLight()` / `.isWorldVisible()`
+- `world-r1/WorldFlowCore.ts` 的 `WorldLease` 新增五个**可选**成员（Core 自己不调用；老 adapter 和测试桩不用改）：
   - `setRoomLightWeight?(weight)`
   - `getRoomLightWeight?()`
+  - `hasRoomLight?()`
+  - `isWorldVisible?()`
   - `blendRoomLight?(from,to,seconds,token):Promise<void>`
 
 契约：
@@ -101,10 +105,18 @@ baseline `1ef9f1d` 机制完全相同：`WorldFlowCore.ts:109/169/172/205`，`Wo
    - 中途被取消（token.cancel / cancelTransient / dispose）：reject Cancelled，**w 停在最后写入的值，不回弹**；之后再调 setLayers/restore 会按第 4 条落到确定状态。
 6. **幂等**：同一个 w 总是产生相同的写入，和之前经过哪些值无关（0.3 经过 0.9 再回 0.3 = 直接设 0.3），不会累积误差。
 7. **读取**：`getRoomLightWeight()` 只读，供每帧轮询，**没有事件**。声音bot 直接轮询即可。
+8. **`hasRoomLight()` 与 `isWorldVisible()`**：`getRoomLightWeight()` 返回 0 有三种情况：在岛上（户外）、没有 rig / 已销毁、世界被隐藏。必须用这两个方法区分。
+   - 已核实：进入关卡（level）、天空城（skycity）、切后台（hide）、或处于 needs-resume 时，**海岛世界不会卸载**（不切场景，WorldFlowComponent 和 rig 都还在），只是 `restore()` 走 `setLayers(NONE)`。这时 `hasRoomLight()=true`、`w=0`，**如果只看 w，海浪会满音量**。所以必须同时看 `isWorldVisible()`（NONE 时为 false）。`exitLevel` / `exitSkycity` / `resume` 之后回到 ISLAND，又变回 true。
+   - 关卡或天空城**加载中**（`level-loading` / `skycity-loading`）层仍是 ISLAND，`isWorldVisible()=true`。这时画面确实还是海岛，用海浪声是对的。
+   - 推荐的使用方式：
+     ```
+     if (!wf || !wf.hasRoomLight() || !wf.isWorldVisible()) { /* 当作室内/静音 */ }
+     else { const outdoorness = 1 - wf.getRoomLightWeight(); }
+     ```
 
 ## 5. 包体影响
 - 不改任何资产（glb/材质/贴图/场景/meta 都没动），`assets/` 下没有新增文件（新文件只在 `tools/t5/`、`docs/`）。
-- JS（terser 压缩后，对比 near）：RoomLightingRig +1584 B，WorldFlowComponent +547 B，WorldFlowCore +0 B（只加了类型声明），**合计 +2131 B**。
+- JS（terser 压缩后，对比 near）：RoomLightingRig +1620 B，WorldFlowComponent +878 B，WorldFlowCore +0 B（只加了类型声明），**合计 +2498 B**（比 133018c 多 367 B）。
 
 ## 6. 风险
 1. 盒子上没跑 Cocos/微信。插值用的都是 3.8.8 公开 API（`Quat.slerp`、`Color.lerp`、`Vec4.lerp`、`ambient.skyColor/groundAlbedo`、`shadowSaturation`），但真实画面要在 Mac/真机上看。
@@ -117,7 +129,7 @@ baseline `1ef9f1d` 机制完全相同：`WorldFlowCore.ts:109/169/172/205`，`Wo
 **已测（盒子，用 work/GGbot 里的 tools/vendor-node：Node 23.11.0 + typescript 5.8.3 + @cocos/creator-types 3.8.8）**
 - 视频逐帧亮度：出门 +34.4%/1 帧、回屋 −35.5%/1 帧，突变前镜头静止 ✓；walk3 夜间同样现象 ✓
 - 资产核对：baseline 和 near 的灯塔/小屋只有一套 ✓
-- `tools/t5/test_room_light_blend.cjs` 13/13 ✓：
+- `tools/t5/test_room_light_blend.cjs` 16/16 ✓（新增 A4：level/skycity/hide 时 setLayers(NONE)，exit/resume 后回到 ISLAND；B6：rig 的 hasRoomLight 生命周期；C5：透传方法和推荐的使用方式在无 rig、HOME、ISLAND、NONE、dispose 各情况下的结果）：
   - A：Core 不驱动 w；老 adapter 没有光照 API 也能完成流程；Core 和 near 的差异只有可选 API 成员
   - B：w=1 与旧室内值逐条一致；w=0 与场景海岛值一致，之后 restore 不再改亮度；截断与拒绝；幂等/与路径无关；不在室内或 dispose 后 set=false、get=0；昼夜切换保留 w
   - C：从 WorldFlowComponent 原样抽取 `run`/job 循环/`blendRoomLight`/透传方法来驱动真实 rig：端点、逐帧线性、seconds≤0、token 取消和 cancelJobs 取消都停在最后的 w、已取消的 token 同步抛错、没有 rig 时透传返回 0/false

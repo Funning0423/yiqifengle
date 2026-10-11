@@ -23,6 +23,11 @@ import { Node, Scene, DirectionalLight, SpotLight, MeshRenderer, SkeletalAnimati
  *   light, call setLayers(BOTH) then setRoomLightWeight(0) in the same synchronous step (no frame between).
  * - Idempotent: the same w always produces the same writes; nothing accumulates.
  * - Without a driver, BOTH keeps w=1 until restore(ISLAND) sets 0: the original one-frame jump remains.
+ * - hasRoomLight(): true while the rig is alive (not disposed). w=0 is "outdoors" ONLY when hasRoomLight() is true
+ *   AND the world is visible: WorldFlowComponent.isWorldVisible() is false under levels/skycity/hidden/needs-resume
+ *   (restore() -> setLayers(NONE); the island world stays loaded, rig alive, w=0). Consumer pattern:
+ *     if (!wf || !wf.hasRoomLight() || !wf.isWorldVisible()) -> treat as indoor/silent
+ *     else outdoorness = 1 - wf.getRoomLightWeight()
  * ------------------------------------------------------------------------------------------- */
 export const ROOM_LIGHTING = Object.freeze({
   shadowMapSize: 1024, shadowOrthoSize: 4.1, shadowFar: 12,
@@ -380,6 +385,9 @@ export class RoomLightingRig {
 
   /** T5 API (read-only, poll per frame; no events): current w in [0,1]. 0 outside an interior view and after dispose. */
   getRoomLightWeight(): number { return this.disposed || !this.interior ? 0 : this.roomWeight; }
+
+  /** T5 API (read-only): true while this rig is alive (not disposed), i.e. getRoomLightWeight() is meaningful. */
+  hasRoomLight(): boolean { return !this.disposed; }
 
   private applyRoomWeight(): boolean {
     const s = this.sun, saved = this.sunState;
