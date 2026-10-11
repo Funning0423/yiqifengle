@@ -1,5 +1,5 @@
 import { basisQuat, clamp01, cross, dot, len, norm, smoothstep, sub } from './IslandAtmosphereFxCore';
-import type { Q4, V3 } from './IslandAtmosphereFxCore';
+import type { FxGeometry, Q4, V3 } from './IslandAtmosphereFxCore';
 /** Island gulls (fx_gull_N), engine-free: flight planning, call sync, poses. cc wrapper = GullFlock.ts, tests = tools/scene-fx.
  * Mesh: the island's own env_anim_seagull_fly_01_v22 body + wing_L/R (local +Z = beak, wings hinge at x = -/+0.04, y 0.03).
  * Each gull lives in one of three modes: off (hidden, waiting off-screen), fly (a chain of cubic Hermite legs), perch.
@@ -33,14 +33,48 @@ export const GULL_FX = {
   chance: { perchDay: .3, perchNight: .65, glide: .2, nearDay: .12 },
   flap: { hz: 2.7, ampDeg: 34, fastHz: 3.6, fastAmpDeg: 44, glideDeg: 7, foldYDeg: 80, foldScale: .58 },
   nightTint: [.74, .8, .94] as V3,
+  /** Far gulls read as ~5 px on a phone (Mac r4): drawn up to farBoost x larger from farM[0] to farM[1] metres off the lens
+   * (cosmetic only: paths, clearances and the >= 1 m lens rule are unchanged; near gulls keep their size). */
+  farBoost: 1.6, farM: [16, 42] as [number, number],
+  /** fx wings (Mac r4: the GLB wing planes put the dark palette texel on top and the white one underneath, unlit by the sun
+   * from below = black slivers). Own low-poly cambered wing, both sides built explicitly (no cull override), builtin-unlit
+   * vertex colour: top light grey with darker tips, underside white-grey; day/night via wingTint(). Span/chord as the GLB wing. */
+  wing: { top: [176, 184, 194] as V3, tip: [92, 96, 104] as V3, under: [240, 242, 244] as V3, underTip: [204, 208, 214] as V3,
+    camberM: .045, night: .5 },
+  /** Edge-on guard: a flying gull whose wing plane is within faceDeg of the lens line is tilted (about the axis across the view)
+   * so the lens sees it at >= min(faceDeg, 6 x elevation); max faceDeg, eased over ~0.1 s. Pose only (path unchanged). */
+  faceDeg: 14,
 };
+/** One wing (side -1 = left, +1 = right) in the wing node's local space (span along X from the root at 0, chord along Z with
+ * the leading edge +Z, up +Y). Two shells: top (visible from above) and underside (from below), each wound to face out. */
+export function wingGeometry(side: number): FxGeometry {
+  const W = GULL_FX.wing, s = side < 0 ? -1 : 1, c = W.camberM;
+  // root leading/ridge/trailing, mid leading/ridge/trailing, tip (cambered: ridge and leading edge raised)
+  const P: V3[] = [[0, c * .6, .065], [0, c, -.01], [0, 0, -.09], [.3 * s, c * .8, .045], [.31 * s, c * 1.1, -.012], [.32 * s, 0, -.065], [.56 * s, c * .2, .01]];
+  const T = [[0, 3, 4], [0, 4, 1], [1, 4, 5], [1, 5, 2], [3, 6, 4], [4, 6, 5]], positions: number[] = [], colors: number[] = [], indices: number[] = [];
+  for (let shell = 0; shell < 2; shell++) {
+    const base = positions.length / 3, top = shell === 0, lift = top ? .002 : -.002;
+    for (let i = 0; i < P.length; i++) { const k = Math.min(1, Math.abs(P[i][0]) / .56), a = top ? W.top : W.under, b = top ? W.tip : W.underTip, m = k * k;
+      positions.push(P[i][0], P[i][1] + lift, P[i][2]); colors.push((a[0] + (b[0] - a[0]) * m) / 255, (a[1] + (b[1] - a[1]) * m) / 255, (a[2] + (b[2] - a[2]) * m) / 255, 1); }
+    for (let t = 0; t < T.length; t++) { const tri = T[t], A = P[tri[0]], B = P[tri[1]], C = P[tri[2]], n = cross(sub(B, A), sub(C, A)), up = n[1] > 0;
+      if (up === top) indices.push(base + tri[0], base + tri[1], base + tri[2]); else indices.push(base + tri[0], base + tri[2], base + tri[1]); }
+  }
+  let mn: V3 = [1e9, 1e9, 1e9], mx: V3 = [-1e9, -1e9, -1e9]; for (let i = 0; i < positions.length; i += 3) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], positions[i + k]); mx[k] = Math.max(mx[k], positions[i + k]); }
+  return { positions, colors, indices, min: mn, max: mx };
+}
+/** Unlit wing colour multiplier: 1 by day; at night the gull night tint x wing.night (the wings get no night lighting). */
+export function wingTint(night: number): V3 { const w = clamp01(night), T = GULL_FX.nightTint, k = 1 + (GULL_FX.wing.night - 1) * w;
+  return [(1 + (T[0] - 1) * w) * k, (1 + (T[1] - 1) * w) * k, (1 + (T[2] - 1) * w) * k]; }
 export type GullCam = { pos: V3; fwd: V3; up: V3; right: V3; tanY: number; aspect: number; vel?: V3; turn?: V3 };
 export type GullCallEvent = { id: number; phase: 'scheduled' | 'start' | 'cancelled' | string; at?: number; dist: 'near' | 'far' | string;
   yawWorldDeg: number; distM?: number; durS?: number; leadS?: number; kind?: string };
 export type GullPose = { visible: boolean; pos: V3; rot: Q4; size: number; wingL: Q4; wingR: Q4; wingScaleX: number; mode: string; perch: string | null };
 type Leg = { a: V3; b: V3; c: V3; d: V3; dur: number; kind: string };
 type Gull = { i: number; mode: string; pos: V3; vel: V3; legs: Leg[]; lt: number; until: number; perch: number; yaw: number; size: number;
-  up: V3; fold: number; flapT: number; flapOn: boolean; flapUntil: number; ext: number; call: number | null; callStart: number; reqDone: boolean; prevVel: V3 };
+  up: V3; tilt: number; fold: number; flapT: number; flapOn: boolean; flapUntil: number; ext: number; call: number | null; callStart: number; reqDone: boolean; prevVel: V3 };
+/** Rodrigues rotation of v about unit axis k by angle t (rad). */
+function rotv(v: V3, k: V3, t: number): V3 { const c = Math.cos(t), sn = Math.sin(t), kv = cross(k, v), d = dot(k, v) * (1 - c);
+  return [v[0] * c + kv[0] * sn + k[0] * d, v[1] * c + kv[1] * sn + k[1] * d, v[2] * c + kv[2] * sn + k[2] * d]; }
 const add = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const mul = (a: V3, k: number): V3 => [a[0] * k, a[1] * k, a[2] * k];
 const mad = (a: V3, b: V3, k: number): V3 => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
@@ -103,7 +137,7 @@ export class GullFlock {
   private cam: GullCam | null = null; private hero: V3 | null = null; private reqYaw: { yaw: number; gull: number; until: number } | null = null; lastReject = '';
   constructor(seed: number) { this.rand = rng(seed); const G = GULL_FX;
     for (let i = 0; i < G.count; i++) this.gulls.push({ i, mode: 'off', pos: [0, 30, 0], vel: [0, 0, 1], legs: [], lt: 0, until: this.R(.5, 4) + i * 1.5, perch: -1, yaw: 0,
-      size: this.R(G.size[0], G.size[1]), up: [0, 1, 0], fold: 0, flapT: this.R(0, 1), flapOn: true, flapUntil: 0, ext: 0, call: null, callStart: 0, reqDone: false, prevVel: [0, 0, 1] }); }
+      size: this.R(G.size[0], G.size[1]), up: [0, 1, 0], tilt: 0, fold: 0, flapT: this.R(0, 1), flapOn: true, flapUntil: 0, ext: 0, call: null, callStart: 0, reqDone: false, prevVel: [0, 0, 1] }); }
   private R(a: number, b: number) { return a + (b - a) * this.rand(); }
   get now() { return this.time; }
   /** exterior false = indoors: every gull goes off (no pop on return, all re-enter from outside the frame). */
@@ -293,7 +327,14 @@ export class GullFlock {
       const acc = step > 0 ? mul(sub(g.vel, g.prevVel), 1 / step) : [0, 0, 0] as V3, lat = sub(acc, mul(z, dot(acc, z))), ll = len(lat), lim = ll > 6 ? 6 / ll : 1;
       upT = norm(add([0, 9.8, 0], mul(lat, lim))); g.fold = Math.max(0, g.fold - step / .3); }
     g.prevVel = g.vel; const k = Math.min(1, step * 6); g.up = norm(add(mul(g.up, 1 - k), mul(upT, k)));
-    let x = cross(g.up, z); if (len(x) < 1e-4) x = [1, 0, 0]; x = norm(x); const y = cross(z, x), rot = basisQuat(x, y, z);
+    let x = cross(g.up, z); if (len(x) < 1e-4) x = [1, 0, 0]; x = norm(x); let y = cross(z, x);
+    // edge-on guard: tilt the wing plane toward the lens (continuous in the camera elevation e, 0 when |e| >= faceDeg)
+    const dc = sub(cam.pos, p), dl = len(dc); let want = 0, axis: V3 = [0, 0, 0];
+    if (g.mode !== 'perch' && dl > 1e-3) { const d = mul(dc, 1 / dl), sn = Math.max(-1, Math.min(1, dot(d, y))), e = Math.asin(sn) * 180 / Math.PI, E = G.faceDeg;
+      const h = sub(d, mul(y, sn)); if (len(h) > 1e-3) { axis = norm(cross(y, h)); want = Math.abs(e) < E ? Math.max(-E, Math.min(E, 6 * e)) - e : 0; } }
+    g.tilt += (want - g.tilt) * Math.min(1, step * 16);
+    if (Math.abs(g.tilt) > 1e-3 && len(axis) > .5) { const t = g.tilt * Math.PI / 180; x = rotv(x, axis, t); y = rotv(y, axis, t); z = rotv(z, axis, t); }
+    const rot = basisQuat(x, y, z);
     // wings: flap/glide bouts while cruising, fast flap on take-off / landing / climb, held on sea glides, folded on a perch
     const kind = g.legs.length ? g.legs[0].kind : g.mode, climbing = g.vel[1] > 1.2, endLand = kind === 'land' && g.legs.length && g.legs[0].dur - g.lt < 1;
     if (this.time >= g.flapUntil) { g.flapOn = !g.flapOn; g.flapUntil = this.time + (g.flapOn ? this.R(1.1, 2.6) : this.R(.9, 2.4)); }
@@ -301,7 +342,8 @@ export class GullFlock {
     g.flapT += step * (fast ? F.fastHz : F.hz); const amp = fast ? F.fastAmpDeg : F.ampDeg;
     const a = flapping ? F.glideDeg + amp * Math.sin(g.flapT * Math.PI * 2) : F.glideDeg + (kind === 'glide' ? 2 : 1.5) * Math.sin(this.time * 9 + g.i), f = smoothstep(0, 1, g.fold);
     const az = a * (1 - f) - 12 * f, ay = F.foldYDeg * f;
-    return { visible: vis, pos: p, rot, size: g.size, wingL: qmul(qaxis(1, -ay), qaxis(2, -az)), wingR: qmul(qaxis(1, ay), qaxis(2, az)), wingScaleX: 1 - (1 - F.foldScale) * f,
+    const boost = 1 + (G.farBoost - 1) * smoothstep(G.farM[0], G.farM[1], dist(p, cam.pos));
+    return { visible: vis, pos: p, rot, size: g.size * boost, wingL: qmul(qaxis(1, -ay), qaxis(2, -az)), wingR: qmul(qaxis(1, ay), qaxis(2, az)), wingScaleX: 1 - (1 - F.foldScale) * f,
       mode: g.mode === 'fly' ? kind : g.mode, perch: g.mode === 'perch' && g.perch >= 0 ? G.perches[g.perch].id : null };
   }
   /** Night tint multiplier on the gulls' palette colour (they also get the island's night lighting like every prop). */
