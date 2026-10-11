@@ -89,6 +89,10 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
     for(const k of k2){const turn=k.w*r2.dt,move=k.v*r2.dt;maxW=Math.max(maxW,turn);maxDw2=Math.max(maxDw2,Math.abs(k.dw||0));if((turn>LIMITS.cutTurnDeg||move>LIMITS.cutMoveM)&&!cut2)cut2={frame:k.i,turnDeg:+turn.toFixed(2)};}
     const first=F2.find(f=>f.state==='standing');const rel=F2.filter(f=>f.state==='turning-out'||f.state==='walking-out').map(f=>K.framing(C,f)).map(m=>Math.min(m.topMargin,m.bottomMargin,m.sideMargin));
     check('drag-rejoin-continuous',!cut2&&maxDw2<=LIMITS.maxAngAccel&&rel.every(m=>m>=0)&&r2.results[0].result.ok,{from:'door-facing view at cameraHome',cut:cut2,maxTurnPerFrameDeg:+maxW.toFixed(3),maxAngAccelDegS2:+maxDw2.toFixed(1),minMarginAfterStand:+Math.min(...rel).toFixed(4),firstStandingFrame:first?.frame});}
+  // --- the sim models GGbot's T5 rule "setLayers(HOME|BOTH) forces w=1"; make sure the real component still does it
+  {const src=require('fs').readFileSync(require('path').join(__dirname,'../../creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts'),'utf8');
+    const line=(src.match(/^\s*setLayers:\(layers:Layers\)=>\{[^\n]*$/m)||[''])[0];
+    check('t5-setLayers-contract',/if\(layers\.interior\)this\.roomLighting\?\.setRoomLightWeight\(1\)/.test(line),{found:!!line});}
   const report={ok:checks.every(c=>c.ok),frames:F.length,fps:1/dt,timeline,checks,limits:LIMITS,safeArea:K.SAFE,screen:K.SCREEN,
     scope:'CPU simulation of real flow/routes/tracks; native rendering (materials, shaders, frame pacing) is out of scope.'};
   if(jsonOut)fs.writeFileSync(jsonOut,JSON.stringify(report,null,1));
