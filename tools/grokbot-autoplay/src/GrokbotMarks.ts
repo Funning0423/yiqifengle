@@ -33,6 +33,8 @@ export const MARKS:MarkDef[]=[
  {pattern:'audio:combo-reset',group:'audio',desc:'player action resets cascade'},
  {pattern:'audio:level-complete',group:'audio',desc:'sfx_level_clear requested'},
  {pattern:'audio:chest',group:'audio',desc:'sfx_chest_open; source=chest|claim|other'},
+ {pattern:'ui:tap',group:'ui',desc:'T9 island prop hit area (IslandPropTaps): target=signpost|bag|book|settings phase=press|confirm blocked=0|1 props=0|1 (props=0: flat fallback buttons)'},
+ {pattern:'ui:tap-hooked',group:'ui',desc:'T9 IslandPropTaps subscription installed (absent before T9)'},
  {pattern:'ui:cheer-text',group:'ui',desc:'T6 floating cheer text (only if CheerTextHost exists): tier word decision=show|replace|skip|no-board source=clear|center x y replaced'},
  {pattern:'audio:bgm-set',group:'audio',desc:'GameAudio.setMusic(path)'},
  {pattern:'audio:bgm-playing',group:'audio',desc:'BGM loop source became playing; clip, vol, musicVolume, effVol, loop, pos, dur'},

@@ -12,7 +12,7 @@ import {director,Director,game,Game,js,screen,input,Input} from 'cc';
 import {EDITOR} from 'cc/env';
 import {AutoplaySequencer,parseAutoplayQuery} from './GrokbotAutoplaySequencer';
 import type {AutoplayDriver,StepResult,AutoplayConfig} from './GrokbotAutoplaySequencer';
-import {TouchScenarioRunner,selectScenarios,validateScenario} from './GrokbotTouchScenarios';
+import {TouchScenarioRunner,selectScenarios,validateScenario,PROP_TARGET_NODE,isPropTarget} from './GrokbotTouchScenarios';
 import {markDef} from './GrokbotMarks';
 import {ComboRunner} from './GrokbotCombo';
 import type {ComboDriver,BoardStatus} from './GrokbotCombo';
@@ -99,7 +99,11 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();}
+ /** T9: IslandPropTaps via the boot's QA object (__worldIntegration.onPropTap); real and injected taps alike. Absent = T9 not merged = no mark. */
+ private propTapsFor:any=null;private propTapsOff:(()=>void)|null=null;
+ private hookPropTaps(){const w=G.__worldIntegration;if(!w||w===this.propTapsFor||typeof w.onPropTap!=='function')return;this.propTapsOff?.();this.propTapsFor=w;const ctx=this.ctx;
+  try{const off=w.onPropTap((target:string,phase:string,info:any)=>ctx.mark('ui:tap',`target=${target} phase=${phase} blocked=${info?.blocked?1:0} props=${info?.props?1:0}`));this.propTapsOff=typeof off==='function'?off:null;ctx.mark('ui:tap-hooked','source=__worldIntegration.onPropTap');}catch(e){ctx.mark('ui:tap-hooked','failed='+String(e));}}
  /** Wrap GameAudio prototype methods: call the original unchanged, then log. No gameplay path is altered. */
  private hookAudio(){if(this.audioHooked)return;const C:any=js.getClassByName('GameAudio');if(!C?.prototype?.play)return;this.audioHooked=true;const P=C.prototype,ctx=this.ctx;let source='';
   const wrap=(name:string,after:(self:any,args:any[],before:any)=>void,before?:(self:any,args:any[])=>any)=>{const orig=P[name];if(typeof orig!=='function')return;P[name]=function(this:any,...args:any[]){const b=before?.(this,args);const r=orig.apply(this,args);try{after(this,args,b);}catch{}return r;};};
@@ -184,6 +188,7 @@ function createTouchDriver(ctx:Ctx,touch:TouchBackend,door:AutoplayDriver):Touch
    if(st.n)return {x:st.n[0]*w,y:st.n[1]*h};
    if(st.target==='lighthouse'){const p=ctx.lighthousePoint();return p?{...p}:{error:ctx.hasLighthouse()?'no-lighthouse-pixel':'no-hitLighthouse'};}
    if(st.target==='hud'){const p=ctx.uiPoint(st.name||'');return p?p:{error:'hud-not-found:'+st.name};}
+   if(isPropTarget(st.target)){const p=ctx.uiPoint(PROP_TARGET_NODE[st.target]);return p?p:{error:'prop-target-not-found:'+st.target+'('+PROP_TARGET_NODE[st.target]+')'};}
    if(st.target==='sea'){for(const [x,y] of SEA){const p={x:x*w,y:y*h};if(!ctx.hitLighthouse(p))return p;}return {error:'no-sea-point'};}
    return {error:'no-target'};},
   inject:(phase,finger,p)=>touch.inject(phase,finger,p),

@@ -35,3 +35,9 @@ observe f7c881cf541a9d28dd1c7460719c0d727ba4b28de1f8cb700fa9742288c70540 world-r
 observe 97983791763946746baae4f807de3c9596dde7f298dbe7d810e8c8224ca4cc47 world-r1/WorldFlowCore.ts         T2+ 7f2b623 (== 932570a/4a26789)
 # GGbot HUD content policy (work/GGbot-post-t2 5ef0e53): Boot adds statusText + content-gated plate only; T0 glue fields unchanged. StatusHud.ts is not read by T0 (no entry).
 strict 35ae7272540e48fddc168168eaf17b967ef957f3e757fe8a44ccc0cf50726424 WorldIntegrationBoot.ts            + GGbot HUD content policy (work/GGbot-post-t2 5ef0e53)
+# T9 island props (work/GGbot-t9 380891d on int/v1 5d66c30; trial merge onto int/v1 HEAD 5d66c30 = fast-forward). Glue reviewed:
+#  Boot fields read by T0 unchanged; mainline/Island-bag/Island-journal/Island-settings stay the same WarmButton nodes (now invisible
+#  hit areas in prop mode); IslandJourneyOverlay isOpen/open/close unchanged. New: __worldIntegration.onPropTap (read via globalThis, no entry).
+#  T9 + GGbot HUD (post-t2) not merged yet: its Boot SHA will need its own exact entry. Exact SHAs only; nothing widened.
+strict 49f52fb01d650ff50d412dd0fee03f4050edae23db4d8b625133e8f4327dcbcc WorldIntegrationBoot.ts            int/v1 5d66c30 + T9 380891d
+strict f8d007678718f8af959ad2fe1bfc46a7b929539a46e6ad074a2aa6087b2f4ee0 world-r2/IslandJourneyOverlay.ts   int/v1 5d66c30 + T9 380891d

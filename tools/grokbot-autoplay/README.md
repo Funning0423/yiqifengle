@@ -14,6 +14,7 @@
 | `src/GrokbotCombo.ts` | `autoplay=combo`：合成帧、期望值、判定、执行状态机（不依赖 cc） |
 | `src/GrokbotMarks.ts` | **GB_MARK 名字的唯一登记表**。新增打点只往这里加一行；没登记的名字照样输出，但会带 `unregistered=1` |
 | | `ui:cheer-text`（T6 飘字）：只有工程里有 `CheerTextHost` 时才会出现，包住它的 `show()` 记下档位、结果（show/replace/skip/no-board）、位置来源（clear/center）、坐标。 |
+| | `ui:tap`（T9 岛屿道具）：`target=signpost|bag|book|settings phase=press|confirm blocked=0|1 props=0|1`。来自 T9 的 `__worldIntegration.onPropTap`（真点和注入点都会有）；没合 T9 时不出现。`ui:tap-hooked` = 订阅成功。 |
 | `src/*.meta` | 固定 uuid（92fca7bf / 59ace17b / 24830118 / 16cf1f79 / c0b1e7a5（Combo），目录 d370c13f） |
 | `prelude/gb-touch-prelude.js` | 只用于自动演示构建：`inject_prelude.sh` 把它加到 game.js 最前面，记下所有 wx.onTouch* 监听，回放合成的原始触摸 |
 | `install.sh` / `uninstall.sh` | 前置 SHA 校验（`prereq-allowlist.txt`）。不跟随符号链接，失败就整体撤回；卸载前核对 manifest |
@@ -24,7 +25,7 @@
 ## 开关（构建宏或启动 query；query 优先）
 - `autoplay=out-and-back`（装上后的默认值）| `observe`（只打点，供人手动玩）| `touch` | `combo`（验证连击鼓励音和飘字，见下节）| `off`
 - 宏写法：`inject_prelude.sh <out> --mode touch:t1` 等于 `autoplay=touch&gbScenario=t1`；`--mode combo` 等于 `autoplay=combo`；`--mode combo:here` 等于 `autoplay=combo&gbComboEnter=none`
-- 其他参数：`gbHold=3000`、`gbStart=2000`、`gbDoor=direct|drag`、`gbReturn=panel|direct`、`gbScenario=t1|t1-multi|名字,名字`、`gbVariant=l123|l12`、`gbExport=wx|only`
+- 其他参数：`gbHold=3000`、`gbStart=2000`、`gbDoor=direct|drag`、`gbReturn=panel|direct`、`gbScenario=t1|t1-multi|t9|名字,名字`、`gbVariant=l123|l12`、`gbExport=wx|only`
 - 自定义场景：`inject_prelude.sh <out> --scenarios my.json`，会写入全局 `GROKBOT_TOUCH_SCENARIOS`
 
 ## 真实路径
@@ -121,3 +122,9 @@ grep -rIlE 'GB_MARK|GROKBOT_AUTOPLAY|__gbTouch|GrokbotAutoplay|GrokbotMarks|grok
 - 工程：`uninstall.sh "$ISO"`，按 manifest 逐个核对后删除，源码树恢复成装之前的样子。
 - 构建产物：`inject_prelude.sh "$OUT" --remove`，或者直接删掉自动演示构建目录。
 - 仓库：分支 `work/GGbot-t0` 只新增了 `tools/grokbot-autoplay/`，删掉这个分支或目录就行。
+
+## T9 道具命名目标（touch 模式）
+- 目标名：`signpost`（路牌 = mainline 命中区）、`bag`（Island-bag）、`book`（Island-journal）、`settings`（Island-settings）。自定义场景可直接写 `{"finger":1,"phase":"start","target":"bag"}`。
+- 预设组 `t9`（`autoplay=touch&gbScenario=t9` / 宏 `--mode touch:t9`）：t9-tap-bag、t9-tap-book、t9-tap-settings（各开弹层、不回屋，清理时关掉）、t9-press-signpost（按下再 cancel：只有 press，不进关卡）。
+- 期望 GB_MARK：每个按钮 `touch:start ... target=bag` → `ui:tap target=bag phase=press blocked=0` → `ui:tap target=bag phase=confirm blocked=0`；路牌只有 `phase=press`。
+- 盒内测试：`GB_T9_DIR=<work/GGbot-t9> build_and_run.sh <T1_DIR>` 跑真实 T9 IslandJourneyOverlay + IslandPropTaps。

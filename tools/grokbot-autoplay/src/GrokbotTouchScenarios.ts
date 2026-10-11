@@ -11,7 +11,11 @@
  *  target: 'lighthouse' (real hitLighthouse ray test, needs T1) | 'sea' (scene point that is NOT lighthouse) | 'hud' (+name: UI node name) | omitted with n:[x,y]
  *  n: screen-normalised [0..1] from TOP-LEFT. dx/dy: extra CSS px offset. Steps with equal time fire in the SAME frame, in list order.
  *  expect: 'return' = WorldFlow entered 'walking-home' exactly once during the scenario window; 'stay' = never entered it. */
-export type TargetName='lighthouse'|'sea'|'hud';
+export type TargetName='lighthouse'|'sea'|'hud'|PropTarget;
+/** T9 island prop hit areas (IslandPropTaps target names) -> the WarmButton node that is the (invisible) hit area. */
+export type PropTarget='signpost'|'bag'|'book'|'settings';
+export const PROP_TARGET_NODE:Readonly<Record<PropTarget,string>>={signpost:'mainline',bag:'Island-bag',book:'Island-journal',settings:'Island-settings'};
+export function isPropTarget(t:any):t is PropTarget{return typeof t==='string'&&Object.prototype.hasOwnProperty.call(PROP_TARGET_NODE,t);}
 export type TouchStep={at?:number;frame?:number;finger:number;phase:'start'|'move'|'end'|'cancel';target?:TargetName;name?:string;n?:[number,number];dx?:number;dy?:number};
 export type TouchScenario={name:string;desc?:string;needs?:('lighthouse')[];expect:'stay'|'return';expectAlt?:{variant:string;expect:'stay'|'return'};observeMs?:number;settleMs?:number;steps:TouchStep[]};
 export type Point={x:number;y:number};
@@ -37,7 +41,15 @@ export const T1_PRESETS:TouchScenario[]=[
  {name:'t1-single-tap-lighthouse',desc:'双指测试之后单指点灯塔：回屋一次',needs:LH,expect:'return',steps:[{at:0,finger:1,phase:'start',target:'lighthouse'},{at:120,finger:1,phase:'end'}]},
  {name:'t1-double-tap-lighthouse',desc:'连点灯塔两次：只回屋一次',needs:LH,expect:'return',observeMs:2500,steps:[{at:0,finger:1,phase:'start',target:'lighthouse'},{at:100,finger:1,phase:'end'},{at:220,finger:1,phase:'start',target:'lighthouse'},{at:320,finger:1,phase:'end'}]},
 ];
-export const PRESET_GROUPS:Record<string,string[]>={t1:T1_PRESETS.map(s=>s.name),'t1-multi':['t1-hold-hud','t1-quick-tap-hud','t1-same-frame-tap-hud','t1-hold-sea','t1-single-tap-lighthouse']};
+/** T9 island props (named hit areas; GB_MARK ui:tap from IslandPropTaps). Not part of the t1 group. Cleanup closes the journal between scenarios.
+ *  Signpost only gets a press+cancel (a real confirm would start the mainline level); tap it with a custom scenario if wanted. */
+export const T9_PRESETS:TouchScenario[]=[
+ {name:'t9-tap-bag',desc:'点行囊道具：打开行囊，不回屋（ui:tap target=bag press+confirm）',expect:'stay',steps:[{at:0,finger:1,phase:'start',target:'bag'},{at:120,finger:1,phase:'end'}]},
+ {name:'t9-tap-book',desc:'点旅程册道具：打开旅程册，不回屋（ui:tap target=book press+confirm）',expect:'stay',steps:[{at:0,finger:1,phase:'start',target:'book'},{at:120,finger:1,phase:'end'}]},
+ {name:'t9-tap-settings',desc:'点罗盘（设置）道具：打开设置，不回屋（ui:tap target=settings press+confirm）',expect:'stay',steps:[{at:0,finger:1,phase:'start',target:'settings'},{at:120,finger:1,phase:'end'}]},
+ {name:'t9-press-signpost',desc:'按下路牌再取消：只有 press，不进关卡（ui:tap target=signpost phase=press）',expect:'stay',steps:[{at:0,finger:1,phase:'start',target:'signpost'},{at:150,finger:1,phase:'cancel'}]},
+];
+export const PRESET_GROUPS:Record<string,string[]>={t1:T1_PRESETS.map(s=>s.name),t9:T9_PRESETS.map(s=>s.name),'t1-multi':['t1-hold-hud','t1-quick-tap-hud','t1-same-frame-tap-hud','t1-hold-sea','t1-single-tap-lighthouse']};
 export function validateScenario(s:any):string|null{
  if(!s||typeof s.name!=='string'||!/^[\w.-]{1,64}$/.test(s.name))return 'bad-name';if(s.expect!=='stay'&&s.expect!=='return')return 'bad-expect';
  if(!Array.isArray(s.steps)||!s.steps.length||s.steps.length>64)return 'bad-steps';
@@ -46,13 +58,13 @@ export function validateScenario(s:any):string|null{
   if((st.at===undefined)===(st.frame===undefined))return 'need-exactly-one-of-at-frame';const t=st.at??st.frame;if(!Number.isFinite(t)||t<0||t>60000)return 'bad-time';
   if(st.phase==='start'){if(down.has(st.finger))return 'finger-already-down';if(!st.target&&!st.n)return 'start-needs-target-or-n';down.add(st.finger);}
   else{if(!down.has(st.finger))return 'finger-not-down';if(st.phase!=='move')down.delete(st.finger);}
-  if(st.target&&!['lighthouse','sea','hud'].includes(st.target))return 'bad-target';if(st.target==='hud'&&!st.name)return 'hud-needs-name';
+  if(st.target&&!['lighthouse','sea','hud'].includes(st.target)&&!isPropTarget(st.target))return 'bad-target';if(st.target==='hud'&&!st.name)return 'hud-needs-name';
   if(st.n&&!(Array.isArray(st.n)&&st.n.length===2&&st.n.every((v:number)=>Number.isFinite(v)&&v>=0&&v<=1)))return 'bad-n';}
  return null;
 }
 /** 'a,b' names, group names (t1, t1-multi), plus optional custom JSON list. Unknown names -> error entries. */
 export function selectScenarios(spec:string,custom:TouchScenario[]=[]):{list:TouchScenario[];errors:string[]}{
- const all=new Map<string,TouchScenario>();for(const s of T1_PRESETS.concat(custom))all.set(s.name,s);const list:TouchScenario[]=[],errors:string[]=[];
+ const all=new Map<string,TouchScenario>();for(const s of T1_PRESETS.concat(T9_PRESETS,custom))all.set(s.name,s);const list:TouchScenario[]=[],errors:string[]=[];
  for(const raw of spec.split(',').map(x=>x.trim()).filter(Boolean)){const names=PRESET_GROUPS[raw]??[raw];for(const n of names){const s=all.get(n);if(!s){errors.push('unknown:'+n);continue;}const bad=validateScenario(s);if(bad){errors.push(n+':'+bad);continue;}list.push(s);}}
  return {list,errors};
 }

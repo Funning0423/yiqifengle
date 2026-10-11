@@ -12,9 +12,10 @@ import {RoomExploreOverlay} from '../../../creator-build-project/assets/scripts/
 import {IslandJourneyOverlay} from '#overlay';
 import * as T1 from '#home';
 import {ManagedMobileBoardUI} from '#board';
+import * as T9 from '#proptaps';
 import {readFileSync} from 'fs';
 export const W=390,H=844,DPR=3;
-export const env={door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead'};
+export const env={t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead'};
 /* ---- fake WeChat platform + REAL prelude + fake Cocos touch source registered AFTER the prelude (as the engine is) ---- */
 const raw:Record<string,Function[]>={};const G:any=globalThis;
 G.wx={getWindowInfo:()=>({windowWidth:W,windowHeight:H,safeArea:{left:0,right:W,top:47,bottom:H-34}}),getSystemInfoSync:()=>({windowWidth:W,windowHeight:H}),getMenuButtonBoundingClientRect:()=>({left:281,right:368,top:51,bottom:83}),
@@ -33,7 +34,7 @@ function claimant(p:{x:number;y:number}){const nodes=walk(engine.uiRoot,[]).reve
 function source(kind:string){return (e:any)=>{for(const c of e.changedTouches){const id=c.identifier,p={x:c.clientX,y:c.clientY};
   if(kind==='start'||kind==='move')engine.touches.set(id,p);else engine.touches.delete(id);(input as any)._count=engine.touches.size;
   const ev=evt(id,p);let n=kind==='start'?claimant(p):engine.claims.get(id);if(kind==='start'&&n)engine.claims.set(id,n);if(kind==='end'||kind==='cancel')engine.claims.delete(id);
-  if(n){if(n.__press){if(kind==='end'){const wp=n.worldPosition,t=n.getComponent({name:'UITransform'});if(Math.abs(p.x-(wp.x+W/2))<=t.width/2&&Math.abs(p.y-(H/2-wp.y))<=t.height/2){engine.buttonPresses.push(n.name);n.__press();}}}
+  if(n){if(n.__press){if(kind==='start'||kind==='cancel')n.emit('touch-'+kind,ev);/* Cocos also delivers TOUCH_START/CANCEL to the claiming button node (T9 press listeners) */if(kind==='end'){const wp=n.worldPosition,t=n.getComponent({name:'UITransform'});if(Math.abs(p.x-(wp.x+W/2))<=t.width/2&&Math.abs(p.y-(H/2-wp.y))<=t.height/2){engine.buttonPresses.push(n.name);n.__press();}}}
    else n.emit('touch-'+kind,ev);}
   else (input as any).emit('touch-'+kind,ev);}};}
 G.wx.onTouchStart(source('start'));G.wx.onTouchMove(source('move'));G.wx.onTouchEnd(source('end'));G.wx.onTouchCancel(source('cancel'));
@@ -77,6 +78,10 @@ class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=tr
  constructor(){engine.uiRoot=this.canvas;
   this.islandJourney=new IslandJourneyOverlay(this.canvas as any,{invoke:(fn:any)=>{void this.invoke(fn);},mainlineStatus:()=>null,gates:()=>null,enterRegion:()=>null,enterR4:()=>null,enterSkycity:()=>null,returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()} as any);
   this.roomExplore=new RoomExploreOverlay(this.canvas as any,()=>this.composition?.worldCommands()??null as any,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});
+  // T9 stand-in for WorldIntegrationBoot.button('mainline') wiring (same press/confirm/blocked rules) + __worldIntegration.onPropTap
+  if(env.t9&&typeof (T9 as any).onPropTap==='function'){const P:any=T9;(globalThis as any).__worldIntegration={onPropTap:P.onPropTap};const n:any=new Node('mainline');this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(140,100);n.setPosition(100,-160);n.active=false;
+   const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy);n.on(Node.EventType.TOUCH_START,()=>P.emitPropTap('signpost','press',blocked()));
+   n.__press=()=>{P.emitPropTap('signpost','confirm',blocked());if(blocked())return;void this.invoke(()=>this.composition.enterMainline());};this.mainline=n;}
   if(env.combo){const n:any=new Node('mainline');this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);n.setPosition(0,-300);n.active=false;n.__press=env.deadButton?()=>{}:()=>{void this.invoke(()=>this.composition.enterMainline());};this.mainline=n;}
   if(env.t1&&(T1 as any).IslandHomeInteraction)this.islandHome=new (T1 as any).IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.error&&!this.islandJourney?.isOpen(),hit:(x:number,y:number)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome())});}
  board():any{return board&&board.node.isValid?board:null;} navLayout(){return {width:W,height:H};}
