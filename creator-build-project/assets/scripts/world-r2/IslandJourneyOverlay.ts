@@ -56,7 +56,7 @@ export class IslandJourneyOverlay {
    this.text(this.panel,'在关卡中使用道具',0,-h/2+29,12,w-40,'#788466');
   }else if(this.page==='settings'){
    const night=this.safeRead(this.options.dayNight)?.mode==='night';this.text(this.panel,'让旅程慢一点',0,h/2-68,13,w-40,'#788466');
-   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.button('ReturnHome','回屋小憩',0,-46,w-60,48,()=>this.dispatch(this.options.returnHome),true);
+   this.button('DayNight',night?'迎接晴昼':'看看夜色',0,18,w-60,48,()=>this.dispatch(this.options.toggleDayNight));this.text(this.panel,'轻点灯塔，回屋小憩',0,-46,13,w-60,'#697b59');
   }else{
    const region=this.page,chapter=CHAPTERS.find(c=>c.id===region)!,gate=this.gate(region),extra=region==='tide'||region==='sky';
    const blocked=gate?.reason==='stage-locked'?'主线解锁后开启':gate?.reason==='completion-unsaved'?'先保存当前成绩':['finish-or-discard-current-attempt','pending-stage-start'].includes(gate?.reason)?'请先继续当前挑战':'暂不可进入';

@@ -1,5 +1,5 @@
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
-import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry } from 'cc';
 import { RoomLook } from './RoomLook';
 import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
 import { RoomLightingRig } from '../render/RoomLightingRig';
@@ -130,6 +130,7 @@ export class WorldFlowComponent extends Component {
   private roomLook=new RoomLook(homePoseEntry());
   private roomLookToken:Cancellation|null=null;
   private jobs=new Set<Job>();
+  private lighthouseTargets:MeshRenderer[]=[];private readonly lighthouseRay=new geometry.Ray();private readonly lighthouseRayOptions={mode:geometry.ERaycastMode.ANY,distance:500,doubleSided:true};
   private ownedModel:Node|null=null;
   private disposed=false;
   private safetyFailure:string|null=null;
@@ -178,11 +179,18 @@ export class WorldFlowComponent extends Component {
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
-    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),
+    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
       dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true)});
+  }
+  private hitLighthouse(x:number,y:number):boolean {
+    const s=this.flow?.snapshot();if(!s||s.state!=='island'||s.hidden||s.needsResume||!s.characterReady||this.disposed||this.safetyFailure||!this.worldCamera||!Number.isFinite(x)||!Number.isFinite(y))return false;
+    const ray=this.lighthouseRay;ray.o.set(NaN,NaN,NaN);ray.d.set(NaN,NaN,NaN);this.worldCamera.screenPointToRay(x,y,ray);
+    if(!Number.isFinite(ray.o.x)||!Number.isFinite(ray.o.y)||!Number.isFinite(ray.o.z)||!Number.isFinite(ray.d.x)||!Number.isFinite(ray.d.y)||!Number.isFinite(ray.d.z))return false;
+    // The hidden interior shell is an exact-geometry fallback for open doorway/window holes, never a bounding-box hotzone.
+    for(const r of this.lighthouseTargets){if(!isValid(r,true)||!isValid(r.node,true)||!r.node.activeInHierarchy||!r.model)continue;if(geometry.intersect.rayModel(ray,r.model,this.lighthouseRayOptions)>0)return true;}return false;
   }
   private roomView(aspect:number){const s=this.flow?.snapshot();return {enabled:!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0,settling:!!this.roomLookToken,door:this.roomLook.door(FIRSTSLICE.anchors.door_handle.position,aspect),angles:this.roomLook.angles()};}
   private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera||!this.roomLook.drag(dx,dy))return false;return applyCameraPose(this.worldCamera,this.roomLook.pose(),'room.look');}
@@ -232,6 +240,7 @@ export class WorldFlowComponent extends Component {
       const lightNode=director.getScene()?.getChildByName('Main Light');this.mainLight=lightNode?.getComponent(DirectionalLight)??null;
       if(this.mainLight){this.lightHome=this.mainLight.illuminance;this.lightHomeColor=this.mainLight.color.clone();}
       for(const r of model.getComponentsInChildren(MeshRenderer))if(!known.has(r)){if(['env_interior_floor_skirt_preview','character_height_reference_1p626'].includes(r.node.name))r.enabled=false;else throw Error('Unclassified renderer: '+r.node.name);}
+      this.lighthouseTargets=[];for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']){const entry=FIRSTSLICE.renderers.find(e=>e.name===name);const list=entry?renderers.get(entry.path):null;if(!list||list.length!==1)throw Error('Exact lighthouse tap mesh missing: '+name);this.lighthouseTargets.push(list[0]);}
       const rearGlass=renderers.get('scene_root/env_rear_window_glass');
       if(!rearGlass||rearGlass.length!==1)throw Error('Expected one exact rear-window glass renderer');
       this.releaseRearGlass=bindRearWindowAlpha(rearGlass[0]);
@@ -357,7 +366,7 @@ export class WorldFlowComponent extends Component {
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
   onDestroy():void {
-    if(this.disposed)return;this.disposed=true;this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
+    if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome;if(this.lightHomeColor)this.mainLight.color=this.lightHomeColor;}
