@@ -87,6 +87,43 @@ async function drive(env,webgl2='false'){ // = generated game.js (Cocos 3.8.8 te
 
 // ---------- C/D. layout + layer glue (cc stub) ----------
 const mods=loadTs(['ui/StartupLoadingLayout','ui/StartupLoadingLayer'],ccStub());const L=require(mods.StartupLoadingLayout),Layer=require(mods.StartupLoadingLayer).StartupLoadingLayer;
+const handoffImages=()=>{const img=n=>({src:n,width:1,height:1});return {version:1,ready:true,ended:true,images:{composite:img('c'),fill:img('f'),pinwheel:img('p')},t:{start:1,image:2,firstArtFrame:3,end:4,released:5},frames:9};};
+const fillSprite=layer=>layer.root.children[0].children[0].getComponent(CC.Sprite);
+// ---------- G. engine order of the FILLED ribbon (r5 blocker: TypeError in new StartupLoadingLayer -> stuck on the first screen) ----------
+{const probe=new CC.Sprite();probe.type=CC.Sprite.Type.FILLED;
+ assert.throws(()=>{probe.fillStart=0;},e=>e instanceof TypeError&&/reading 'width'/.test(e.message),'stub reproduces the engine updateUVs TypeError (FILLED + no spriteFrame)');
+ CC.G.__firstScreen=handoffImages();CC.remote.length=0;
+ const l1=new Layer(new CC.Node('Canvas'),()=>{});const f1=fillSprite(l1);
+ assert(f1.spriteFrame,'handoff: ribbon frame adopted in the constructor');assert.equal(f1.type,CC.Sprite.Type.FILLED);assert.equal(f1.fillType,CC.Sprite.FillType.HORIZONTAL);
+ assert.equal(f1.fillStart,0);near(f1.fillRange,L.ribbonHead(0).fillRange,1e-12,'handoff: ribbon starts at the empty-track head');assert(f1.uvUpdates>0,'UVs computed with a frame present');
+ l1.layout(390,844);l1.setStage(2);for(let i=0;i<60;i++)l1.tick(1/60);near(f1.fillRange,L.ribbonHead(l1.timeline.shown).fillRange,1e-12,'handoff: ribbon follows progress');
+ delete CC.G.__firstScreen;CC.remote.length=0;
+ const l2=new Layer(new CC.Node('Canvas'),()=>{});const f2=fillSprite(l2);l2.layout(390,844);l2.setStage(1);for(let i=0;i<60;i++)l2.tick(1/60);
+ assert.equal(f2.spriteFrame,null);assert.equal(f2.type,CC.Sprite.Type.SIMPLE,'no frame yet: ribbon not FILLED (draws nothing, no updateUVs)');
+ CC.remote.find(r=>/bar_fill/.test(r.url)).cb(null,new CC.ImageAsset({}));
+ assert(f2.spriteFrame);assert.equal(f2.type,CC.Sprite.Type.FILLED,'ribbon turns FILLED when its frame lands');near(f2.fillRange,L.ribbonHead(l2.timeline.shown).fillRange,1e-12,'late frame: range = current progress head');
+ l2.setStage(2);l2.startOutro();for(let i=0;i<60;i++)l2.tick(1/60);near(f2.fillRange,L.ribbonHead(1).fillRange,1e-12,'late frame: ribbon completes in the outro');
+ CC.remote.length=0;const l3=new Layer(new CC.Node('Canvas'),()=>{});const f3=fillSprite(l3);l3.layout(390,844);
+ CC.remote.find(r=>/bar_fill/.test(r.url)).cb(new Error('404'),null);l3.setStage(3);l3.startOutro();for(let i=0;i<60;i++)l3.tick(1/60);
+ assert.equal(f3.type,CC.Sprite.Type.SIMPLE);assert.equal(l3.diagnostics().sources.fill,'failed');
+ ok('G ribbon FILLED/fillStart/fillRange only after its spriteFrame (engine bar-filled.updateUVs reads spriteFrame.width unguarded): handoff sync, late loadRemote frame, failed load; stub reproduces the r5 TypeError');}
+// ---------- H. outro: the Graphics cream mask fades with the picture (r5: UIOpacity never reached it -> flat cream + hard cut) ----------
+{CC.G.__firstScreen=handoffImages();const l=new Layer(new CC.Node('Canvas'),()=>{});l.layout(390,844);const g=l.mask.getComponent(CC.Graphics),rootOp=l.root.getComponent(CC.UIOpacity);
+ const alpha=()=>g.fills[g.fills.length-1][3];
+ assert.equal(l.mask.getComponent(CC.UIOpacity),null,'mask alpha lives in the Graphics fill colour, not in a UIOpacity Graphics ignores');
+ assert.deepEqual(g.rects[g.rects.length-1],[-195,-422,390,844],'mask covers the screen');
+ l.setStage(2);for(let i=0;i<30;i++)l.tick(1/60);assert.equal(alpha(),255,'opaque while loading');
+ l.startOutro();assert.equal(l.tick(0.1),false);assert.equal(alpha(),255,'first outro frame (room first draw, hitch dt) stays opaque');assert.equal(rootOp.opacity,255);assert(l.fading);
+ const mask=[],root=[];let done=false,n=0;while(!done&&n<200){done=l.tick(1/60);n++;mask.push(alpha());root.push(rootOp.opacity);
+  const fc=g.fills[g.fills.length-1];assert.deepEqual(fc.slice(0,3),L.BACKDROP_RGB,'cream colour kept');}
+ assert(done,'outro finishes');for(let i=1;i<mask.length;i++)assert(mask[i]<=mask[i-1],'mask alpha monotonic down at frame '+i+': '+mask[i-1]+' -> '+mask[i]);
+ assert.equal(mask[mask.length-1],0,'mask alpha reaches 0');assert.deepEqual(mask,root,'mask and picture fade on the same curve');
+ assert.equal(l.diagnostics().maskAlpha,0,'diagnostics expose the drawn mask alpha');assert.equal(l.diagnostics().fillType,CC.Sprite.Type.FILLED);
+ assert(mask[0]<255,'fade starts right after the held frame');near(n/60,L.OUTRO_FADE_S,1/60+1e-9,'fade length after the held frame');
+ const half=Math.floor(mask.length/2);for(let i=1;i<half;i++)assert(mask[i]<mask[i-1],'first half of the fade: mask alpha drops every frame ('+i+')');
+ const steps=mask.map((a,i)=>(i?mask[i-1]:255)-a);
+ ok('H outro: Graphics mask redrawn with alpha each frame (no UIOpacity), held opaque on the first outro frame, then monotonic 255 -> 0 together with the picture over '+L.OUTRO_FADE_S+' s',{maskAlpha60fps:mask,maxStep:Math.max.apply(null,steps)});
+ delete CC.G.__firstScreen;CC.remote.length=0;}
 const SCREENS=[['16:9 iPhone 8 (375x667 pt)',375,667,750,1334],['19.5:9 iPhone 14 (390x844 pt)',390,844,1170,2532],['20:9 Android (360x800 dp)',360,800,1080,2400],['18:9 Android (360x720 dp)',360,720,1080,2160],['4:3 iPad portrait (768x1024 pt)',768,1024,1536,2048]];
 const layoutReport=[];
 for(const [name,w,h,pw,ph] of SCREENS){
@@ -123,7 +160,7 @@ ok('C first-screen quad == StartupLoadingLayout cover == StartupLoadingLayer nod
  assert.equal(layer.timeline.shown,0,'no progress without a real stage');layer.setStage(1);for(let i=0;i<120;i++)layer.tick(1/60);near(layer.timeline.shown,1/3,1e-9,'stage 1 -> 1/3');
  layer.setStage(0);assert.equal(layer.timeline.target,1/3,'never backwards');assert.equal(layer.diagnostics().hint,L.HINTS[1]);
  layer.startOutro();const lo=[];let frames=0;while(!layer.tick(1/60)&&frames<200){frames++;lo.push(layer.root.getComponent(CC.UIOpacity).opacity);}
- near((frames+1)/60,L.OUTRO_FADE_S,1/60+1e-9,'outro length');assert.equal(layer.timeline.shown,1,'bar completes during the outro');
+ near(frames/60,L.OUTRO_FADE_S,1/60+1e-9,'outro length (frames counts the held first outro frame)');assert.equal(layer.timeline.shown,1,'bar completes during the outro');
  ok('D1 handoff: sprites set synchronously (no loadRemote), clamp/linear like first-screen, dynamic group 0 on takeover frame, intro 0->255 in '+L.INTRO_FADE_S+' s (max step '+maxStep+'/255 per 60 fps frame), real-stage progress only, outro '+L.OUTRO_FADE_S+' s');
  // D2 fallback
  delete CC.G.__firstScreen;CC.remote.length=0;const l2=new Layer(new CC.Node('Canvas'),()=>{});assert.deepEqual(CC.remote.map(r=>r.url).sort(),['startup-art/bar_fill.png','startup-art/first_screen_composite.jpg','startup-art/pinwheel.png']);
@@ -151,14 +188,27 @@ function ccStub(){
   setPosition(x,y,z){this.position={x,y,z};}setSiblingIndex(i){const p=this.parent;if(!p)return;p.children.splice(p.children.indexOf(this),1);p.children.splice(i,0,this);}on(e,f){this.handlers[e]=f;}off(){}destroy(){this.isValid=false;}}
  Node.EventType={TOUCH_END:'touch-end'};
  class UITransform{setContentSize(w,h){this.width=w;this.height=h;}}
- class Graphics{constructor(){this.fills=[];}clear(){}rect(){}fill(){this.fills.push([this.fillColor.r,this.fillColor.g,this.fillColor.b,this.fillColor.a]);}}
+ class Graphics{constructor(){this.fills=[];this.rects=[];}clear(){}rect(x,y,w,h){this.rects.push([x,y,w,h]);}fill(){this.fills.push([this.fillColor.r,this.fillColor.g,this.fillColor.b,this.fillColor.a]);}}
  class Color{constructor(r,g,b,a){if(typeof r==='string'){const h=r.replace('#','');this.r=parseInt(h.slice(0,2),16);this.g=parseInt(h.slice(2,4),16);this.b=parseInt(h.slice(4,6),16);this.a=255;}else{this.r=r;this.g=g;this.b=b;this.a=a===undefined?255:a;}}}
- class Sprite{constructor(){this.spriteFrame=null;}}Sprite.SizeMode={CUSTOM:0};Sprite.Type={SIMPLE:0,FILLED:3};Sprite.FillType={HORIZONTAL:0};
+ // Sprite mirrors Cocos 3.8.8 cocos/2d/components/sprite.ts + assembler/sprite/bar-filled.ts: renderData exists once the
+ // component is enabled (_flushAssembler); type/fillType setters re-flush (UVs only when a frame exists); fillStart/fillRange
+ // setters on a FILLED sprite with renderData call _updateUVs -> barFilled.updateUVs, which reads spriteFrame.width unguarded.
+ const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+ class Sprite{constructor(){this._spriteFrame=null;this._type=0;this._fillType=0;this._fillStart=0;this._fillRange=0;this._assembler=null;this.renderData=null;this.uvUpdates=0;this._flushAssembler();}
+  get spriteFrame(){return this._spriteFrame;}set spriteFrame(v){this._spriteFrame=v;}
+  get type(){return this._type;}set type(v){if(this._type!==v){this._type=v;this._flushAssembler();}}
+  get fillType(){return this._fillType;}set fillType(v){this._fillType=v;this._flushAssembler();}
+  get fillStart(){return this._fillStart;}set fillStart(v){this._fillStart=clamp(v,0,1);if(this._type===Sprite.Type.FILLED&&this.renderData)this._updateUVs();}
+  get fillRange(){return this._fillRange;}set fillRange(v){this._fillRange=clamp(v,-1,1);if(this._type===Sprite.Type.FILLED&&this.renderData)this._updateUVs();}
+  _flushAssembler(){const a=this._type===Sprite.Type.FILLED?'bar-filled':'simple';if(this._assembler!==a){this.renderData=null;this._assembler=a;}
+   if(!this.renderData){this.renderData={};if(this._spriteFrame)this._updateUVs();}}
+  _updateUVs(){const f=this._spriteFrame;const w=f.width,h=f.height;this.uvUpdates++;return w+h;}}
+ Sprite.SizeMode={CUSTOM:0};Sprite.Type={SIMPLE:0,FILLED:3};Sprite.FillType={HORIZONTAL:0};
  class Label{}Label.HorizontalAlign={CENTER:1};Label.VerticalAlign={CENTER:1};
  class UIOpacity{constructor(){this.opacity=255;}}class Vec2{constructor(x,y){this.x=x;this.y=y;}}
  class ImageAsset{constructor(src){this.src=src;}}
  class Texture2D{setWrapMode(a,b){this.wrap=[a,b];}setFilters(a,b){this.filters=[a,b];}setMipFilter(m){this.mip=m;}}Texture2D.WrapMode={CLAMP_TO_EDGE:'clamp'};Texture2D.Filter={LINEAR:'linear',NONE:'none'};
- class SpriteFrame{}
+ class SpriteFrame{get width(){return 1;}get height(){return 1;}}
  const remote=[];const G=globalThis;
  CC={Node,UITransform,Graphics,Color,Sprite,Label,UIOpacity,Vec2,ImageAsset,Texture2D,SpriteFrame,Layers:{Enum:{UI_2D:1}},isValid:n=>!!n&&n.isValid!==false,assetManager:{loadRemote:(url,opt,cb)=>remote.push({url,opt,cb})},remote,G};
  return CC;}
@@ -200,9 +250,12 @@ async function bootIntegration(){
  await turn();sc.region.resolve({});for(let i=0;i<5;i++)await turn();assert.equal(b.loadingLayer.timeline.target,2/3,'island + character stages reached');
  sc.comp.ready.resolve();for(let i=0;i<5;i++)await turn();assert.equal(b.loadPhase,'ready');
  assert.equal(b.loadingBackdrop.active,true,'layer still on screen at ready (fading)');assert(b.loadingLayer.fading);assert.equal(b.allowed(),false,'room hint/swipe wait for the fade');
+ const mg=b.loadingMask.getComponent(CC.Graphics),ma=()=>mg.fills[mg.fills.length-1][3];
+ assert.equal(b.ready,true,'room mounted (world composition ready, girl seated) before the fade starts');assert(b.startupGirl&&b.startupGirl.active!==false,'girl active under the layer');assert.equal(ma(),255);
  assert.equal(b.canvas.children[b.canvas.children.length-1],b.loadingBackdrop,'layer moved above buttons for the fade');
  const again=b.loadWorld();await again;assert.equal(b.loadingBackdrop.active,true,'loadWorld during fade does not reopen/restart');
- let t=0;while(b.loadingBackdrop.active&&t<2){b.update(1/60);t+=1/60;}near(t,Lay.OUTRO_FADE_S+1/60,2/60,'hidden after the outro');assert.equal(b.loadingMask.active,false);assert.equal(b.allowed(),true);
+ let t=0;const bootMask=[];while(b.loadingBackdrop.active&&t<2){b.update(1/60);t+=1/60;bootMask.push(ma());}near(t,Lay.OUTRO_FADE_S+2/60,2/60,'hidden after the held frame + outro');assert.equal(b.loadingMask.active,false);assert.equal(b.allowed(),true);
+ assert.equal(bootMask[0],255,'held first outro frame');for(let i=1;i<bootMask.length;i++)assert(bootMask[i]<=bootMask[i-1],'Boot: mask alpha monotonic');assert.equal(bootMask[bootMask.length-1],0,'Boot: mask alpha 0 when the nodes go inactive');
  const snap=CC.G.__worldLoading.snapshot();assert.equal(snap.backgroundSha256,Lay.ART.compositeSha256);assert.equal(snap.art.hidden,true);
  // error keeps the layer, retry from the hint
  b=fixture();await turn();sc.region.reject(Error('network'));for(let i=0;i<5;i++)await turn();assert.equal(b.loadPhase,'error');assert.equal(b.loadingBackdrop.active,true);

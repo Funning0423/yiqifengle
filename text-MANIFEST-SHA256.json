@@ -1256,8 +1256,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts",
-    "bytes": 8203,
-    "sha256": "11320b14ad3887f9ccc0ad486f4b3c692175e1a66f805dc2a2e3cff15c121c1e"
+    "bytes": 9049,
+    "sha256": "e4c730f318d08afb88d4485b2525b0def7d28d4bdcd0351a6f54699045d2ed9a"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts.meta",
@@ -1266,8 +1266,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts",
-    "bytes": 7112,
-    "sha256": "aa870b9c22a7bbd84b2171f80deba8e318a8f0d6bfae208c201d753ea716728d"
+    "bytes": 7486,
+    "sha256": "711edb91c240bf39d0eb960d00b427217d775045e2edf12a111e47679984fae2"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts.meta",

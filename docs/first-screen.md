@@ -29,8 +29,9 @@ Funning 已定：启动时**完全不出现 Cocos 标志**，只出我们的加�
 4. 引擎加载启动场景期间 director 还没 startAnimation，不渲染 → 屏幕一直是首屏最后一帧。
 5. 场景第一帧：`WorldIntegrationBoot.start()` → `StartupLoadingLayer` 直接用 `globalThis.__firstScreen.images` 里**已解码**的图建 SpriteFrame（同步，无异步加载缺口），按同一 `s = max(W/750, H/1624)` 居中铺满；填充/风车/提示字所在的 `LoadingDynamic` 透明度 0 → 第一帧与首屏相同。
 6. 之后 0.25 s 内 `LoadingDynamic` smoothstep 淡入（每帧最多 +25/255）。进度只跟真实阶段走：海岛预制体到 → 1/3，角色+动画元数据到 → 2/3，房间挂好 → 1；显示值指数跟随（τ 0.18 s），不会倒退。提示字：风从海上来…… / 她在窗前坐下…… / 灯塔小屋准备好了；失败时显示“世界加载失败，点这里重试”，点提示字重试。
-7. ready：加载层移到画布最上层，0.7 s ease-out 淡出（房间已在后面渲染）；淡出期间房间的“向左轻拖”提示和滑动、岛上点灯塔都不可用（`!loadingLayer.fading`）；淡完 `active=false`，释放首屏交接的图片引用。
+7. ready：加载层移到画布最上层；startOutro 后第一帧保持不透明（房间第一次绘制、着色器预热的长帧落在完整加载层下面，不吃掉淡出时间），之后 0.7 s ease-out 淡出（房间已在后面渲染）。插画用 UIOpacity，奶油色遮罩是 Graphics——Graphics 用顶点色、2D 合批不乘 UIOpacity（第 5 轮实测：遮罩一直不透明，先平涂奶油色约 0.4 s 再硬切），所以遮罩每帧用同一透明度的 fillColor 重画，与插画同曲线降到 0；遮罩节点上没有 UIOpacity。淡出期间房间的“向左轻拖”提示和滑动、岛上点灯塔都不可用（`!loadingLayer.fading`）；淡完 `active=false`，释放首屏交接的图片引用。
 8. 没有交接（web 预览 / 首屏失败）：加载层用 `assetManager.loadRemote` 读同一组 `startup-art/*`，读到之前显示奶油色（合成图平均色），不再是原来的深青 #123233。
+9. 进度飘带是 FILLED Sprite：引擎 `bar-filled.ts` 的 `updateUVs` 直接读 `spriteFrame.width` 不判空，而 FILLED 状态下设 `fillStart/fillRange` 就会调它（第 5 轮实测：构造函数里先设填充参数再赋图 → TypeError，`WorldIntegrationBoot.start()` 中断，卡在首屏）。所以飘带只有在拿到 spriteFrame 之后才切成 FILLED、才设填充参数（`StartupLoadingLayer.syncFill`）；图没到（loadRemote 中或失败）时保持 SIMPLE、不画。
 
 ## 4. 已知限制
 - 4:3（iPad 竖屏）按铺满规则会把设计图上下各裁 312 px：标志（295–385）、提示字（1341–1381）、风车下沿会被裁；标题和进度底轨在。16:9、18:9、19.5:9、20:9 全部在画面内。要不要给宽屏改规则，需要美术/PM 决定。
@@ -38,6 +39,6 @@ Funning 已定：启动时**完全不出现 Cocos 标志**，只出我们的加�
 - `resources/ui/loading-reference.jpg`（电影截图）不再被加载，但文件还在 resources 分包里，删除涉及多个 scope JSON，另开一项。
 
 ## 5. 测试
-- `node tools/first-screen/test_first_screen.cjs`：vm 里按 game.js 顺序跑真 first-screen.js（假 WebGL 记录），布局一致性（16:9/19.5:9/20:9/18:9/4:3），加载层交接/淡入/淡出（cc 桩），Boot 集成，ES5 语法，无 Cocos 标志引用。
+- `node tools/first-screen/test_first_screen.cjs`：vm 里按 game.js 顺序跑真 first-screen.js（假 WebGL 记录），布局一致性（16:9/19.5:9/20:9/18:9/4:3），加载层交接/淡入/淡出（cc 桩），Boot 集成，ES5 语法，无 Cocos 标志引用。桩里的 Sprite 按引擎 sprite.ts + bar-filled.ts 的调用顺序写（FILLED + 无图时设 fillStart 抛同样的 TypeError）：G 节验证交接/晚到/加载失败三种情况都不会在无图时设填充参数；H 节验证出场时遮罩 alpha 首帧保持 255、之后单调降到 0 并与插画同曲线。
 - `node tools/first-screen/render_first_screen.cjs <dir>` + `python3 tools/first-screen/compare_renders.py <dir>`：headless Chrome（SwiftShader WebGL）跑真 first-screen.js 截图，和按同一布局用 2D canvas 画的加载层接手帧比（不是 Cocos 渲染）。
 - 构建后：`python3 tools/verify_native_loading.py <微信构建目录>`：first-screen.js 必须与模板逐字节一致，startup-art 在主包。

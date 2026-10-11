@@ -28,7 +28,8 @@ export const HINTS = ['风从海上来……', '她在窗前坐下……', '灯�
 export const SAFE = { top: 0.089, bottom: 0.88 };
 /** Fill / pinwheel / hint fade in after the scene layer's first frame (spec 0.2-0.3 s). */
 export const INTRO_FADE_S = 0.25;
-/** Whole layer fades out once the room is ready (PM spec 0.6-0.8 s, ease-out); room hints wait for the end. */
+/** Whole layer (picture + cream mask) fades out once the room is ready (PM spec 0.6-0.8 s, ease-out) after one held opaque
+ * frame; room hints wait for the end. */
 export const OUTRO_FADE_S = 0.7;
 /** Displayed progress eases toward the REAL stage target (no timer-driven creep). */
 export const PROGRESS_TAU_S = 0.18;
@@ -79,20 +80,26 @@ export function elementRects(p: number) {
 /** Loading layer state machine (pure): intro fade of the dynamic group, progress follower, outro fade. */
 export class LoadingTimeline {
  shown = 0; target = 0; stage = 0; introT = -1; outroT = -1; spin = 0; hidden = false;
+ /** The first tick after startOutro keeps the layer opaque: the room's first draw (shader warm-up, long dt) happens under the
+  *  full layer and that frame's dt is not spent on the fade. */
+ outroHold = false;
  /** First frame the scene layer is on screen: start the intro (idempotent). */
  begin() { if (this.introT < 0) this.introT = 0; }
  /** Stages only move forward within one attempt (late/duplicate callbacks cannot rewind the bar or the hint). */
  setStage(stage: number) { if (stage > this.stage) this.stage = stage; const t = stageTarget(this.stage); if (t > this.target) this.target = t; }
  /** Retry after an error: the bar keeps what was really loaded only if the stage is reached again; restart from 0. */
- reset() { this.shown = 0; this.target = 0; this.stage = 0; this.outroT = -1; this.hidden = false; }
- startOutro() { if (this.outroT < 0) { this.outroT = 0; this.setStage(3); } }
+ reset() { this.shown = 0; this.target = 0; this.stage = 0; this.outroT = -1; this.outroHold = false; this.hidden = false; }
+ startOutro() { if (this.outroT < 0) { this.outroT = 0; this.outroHold = true; this.setStage(3); } }
  get fading() { return this.outroT >= 0 && !this.hidden; }
  tick(dt: number) {
   dt = Math.max(0, Math.min(dt, 0.1));
   if (this.introT >= 0 && this.introT < INTRO_FADE_S) this.introT = Math.min(INTRO_FADE_S, this.introT + dt);
   this.shown = followProgress(this.shown, this.target, this.outroT >= 0 ? dt * 3 : dt);
   this.spin = (this.spin + PINWHEEL.degPerSec * dt) % 360;
-  if (this.outroT >= 0 && !this.hidden) { this.outroT += dt; if (this.outroT >= OUTRO_FADE_S) this.hidden = true; }
+  if (this.outroT >= 0 && !this.hidden) {
+   if (this.outroHold) this.outroHold = false;
+   else { this.outroT += dt; if (this.outroT >= OUTRO_FADE_S) this.hidden = true; }
+  }
  }
  /** 0..255 opacity of the fill/pinwheel/hint group (multiplied by layerOpacity by UIOpacity cascading). */
  introOpacity() { return this.introT < 0 ? 0 : Math.round(255 * smoothstep01(this.introT / INTRO_FADE_S)); }
