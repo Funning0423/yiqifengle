@@ -4,6 +4,8 @@
 export type AutoplayOptions={mode:'out-and-back';startDelayMs:number;holdMs:number;panelDelayMs:number;phaseTimeoutMs:number;door:'direct'|'drag';ret:'panel'|'direct'};
 export const DEFAULT_OPTIONS:AutoplayOptions={mode:'out-and-back',startDelayMs:2000,holdMs:3000,panelDelayMs:800,phaseTimeoutMs:90000,door:'direct',ret:'panel'};
 export type StepResult={ok:boolean;via?:string;reason?:string};
+import {DEFAULT_COMBO} from './GrokbotCombo';
+import type {ComboOptions} from './GrokbotCombo';
 /** Everything the sequencer may touch. The glue implements these with the game's REAL handlers. */
 export interface AutoplayDriver {
  now():number;                 // monotonic ms
@@ -50,16 +52,19 @@ export class AutoplaySequencer {
  }
 }
 export const OUTBOUND_STATES=OUT_STATES,INBOUND_STATES=IN_STATES;
-export type AutoplayMode='out-and-back'|'touch'|'observe';
-export type AutoplayConfig={mode:AutoplayMode;options:AutoplayOptions;scenarios:string;variant:string;exportWx:'off'|'wx'|'only'};
-/** Launch query / macro keys: autoplay=out-and-back|touch|observe|off, gbScenario=t1|t1-multi|name,name, gbVariant=l123|l12,
+export type AutoplayMode='out-and-back'|'touch'|'observe'|'combo';
+export type AutoplayConfig={mode:AutoplayMode;options:AutoplayOptions;scenarios:string;variant:string;exportWx:'off'|'wx'|'only';combo:ComboOptions};
+/** Launch query / macro keys: autoplay=out-and-back|touch|observe|combo|off, gbScenario=t1|t1-multi|name,name, gbVariant=l123|l12,
  * gbHold=ms, gbStart=ms, gbExport=wx|only (touch mode: also log automation_game_action commands; only = log without injecting), gbDoor=direct|drag, gbReturn=panel|direct. Macro form 'touch:t1' == autoplay=touch&gbScenario=t1.
+ * combo: gbComboEnter=level|none, gbComboClears=2..5, gbComboGap=100..2000 ms, gbComboBoardMs=0..120000; macro 'combo:here' == autoplay=combo&gbComboEnter=none.
  * Unknown/invalid values keep defaults; unknown mode disables. */
 export function parseAutoplayQuery(q:Record<string,string|undefined>|null|undefined,installedDefaultOn:boolean):AutoplayConfig|null{
  let v=(q?.autoplay??'').trim(),scen=(q?.gbScenario??'').trim();
  const m=/^touch:(.+)$/.exec(v);if(m){v='touch';if(!scen)scen=m[1];}
- if(v==='off'||v==='0')return null;if(v&&v!=='out-and-back'&&v!=='touch'&&v!=='observe')return null;if(!v&&!installedDefaultOn)return null;
+ let comboEnter=(q?.gbComboEnter??'').trim();const cm=/^combo:(here|level)$/.exec(v);if(cm){v='combo';if(!comboEnter)comboEnter=cm[1]==='here'?'none':'level';}
+ if(v==='off'||v==='0')return null;if(v&&v!=='out-and-back'&&v!=='touch'&&v!=='observe'&&v!=='combo')return null;if(!v&&!installedDefaultOn)return null;
  const num=(k:string,d:number,min:number,max:number)=>{const n=Number(q?.[k]);return q?.[k]!==undefined&&q?.[k]!==''&&Number.isFinite(n)&&n>=min&&n<=max?n:d;};
  const options:AutoplayOptions={...DEFAULT_OPTIONS,holdMs:num('gbHold',DEFAULT_OPTIONS.holdMs,0,60000),startDelayMs:num('gbStart',DEFAULT_OPTIONS.startDelayMs,0,60000),door:q?.gbDoor==='drag'?'drag':'direct',ret:q?.gbReturn==='direct'?'direct':'panel'};
- return {mode:(v||'out-and-back') as AutoplayMode,options,scenarios:scen||'t1',variant:(q?.gbVariant??'').trim(),exportWx:q?.gbExport==='wx'?'wx':q?.gbExport==='only'?'only':'off'};
+ const combo:ComboOptions={...DEFAULT_COMBO,enter:comboEnter==='none'?'none':'level',clears:Math.round(num('gbComboClears',DEFAULT_COMBO.clears,2,5)),gapMs:num('gbComboGap',DEFAULT_COMBO.gapMs,100,2000),boardTimeoutMs:num('gbComboBoardMs',DEFAULT_COMBO.boardTimeoutMs,0,120000),startDelayMs:options.startDelayMs};
+ return {mode:(v||'out-and-back') as AutoplayMode,options,scenarios:scen||'t1',variant:(q?.gbVariant??'').trim(),exportWx:q?.gbExport==='wx'?'wx':q?.gbExport==='only'?'only':'off',combo};
 }

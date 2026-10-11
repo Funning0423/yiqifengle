@@ -11,9 +11,10 @@ import {CHARACTER_REFERENCE as REF} from '../../../creator-build-project/assets/
 import {RoomExploreOverlay} from '../../../creator-build-project/assets/scripts/RoomExploreOverlay';
 import {IslandJourneyOverlay} from '#overlay';
 import * as T1 from '#home';
+import {ManagedMobileBoardUI} from '#board';
 import {readFileSync} from 'fs';
 export const W=390,H=844,DPR=3;
-export const env={door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0'};
+export const env={door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead'};
 /* ---- fake WeChat platform + REAL prelude + fake Cocos touch source registered AFTER the prelude (as the engine is) ---- */
 const raw:Record<string,Function[]>={};const G:any=globalThis;
 G.wx={getWindowInfo:()=>({windowWidth:W,windowHeight:H,safeArea:{left:0,right:W,top:47,bottom:H-34}}),getSystemInfoSync:()=>({windowWidth:W,windowHeight:H}),getMenuButtonBoundingClientRect:()=>({left:281,right:368,top:51,bottom:83}),
@@ -49,9 +50,17 @@ class Char implements CharacterAdapter{readonly calibrated=true;readonly coordin
  cancelAndReset(_:StablePose){this.job=null;} setVisible(){} dispose(){}}
 export const char=new Char();export const states:string[]=[];
 export const config=createFirstsliceRoutes(FIRSTSLICE,REF as any);
-export const flow=new WorldFlow({config,mode:'motion',character:char,levels:{enter:()=>Promise.reject(Error('n/a'))},loadWorld:async()=>lease,onChange:s=>{states.push(s.state);if(s.state==='crossing-out')craneListeners.forEach(l=>queueMicrotask(()=>l({segment:'toIsland',progress:0.4})));settleListeners.forEach(l=>{if(s.state==='island'||s.state==='home')queueMicrotask(()=>l(s.state,{reason:'test-hook'}));});}});
+export const flow=new WorldFlow({config,mode:'motion',character:char,levels:{enter:()=>env.combo?Promise.resolve(openBoard()):Promise.reject(Error('n/a'))},loadWorld:async()=>lease,onChange:s=>{states.push(s.state);if(s.state==='crossing-out')craneListeners.forEach(l=>queueMicrotask(()=>l({segment:'toIsland',progress:0.4})));settleListeners.forEach(l=>{if(s.state==='island'||s.state==='home')queueMicrotask(()=>l(s.state,{reason:'test-hook'}));});}});
 const settleListeners:((p:string,i?:any)=>void)[]=[];
-export const calls={leave:0,ret:0,look:0};let lookYaw=0;
+export const calls={leave:0,ret:0,look:0,mainline:0};
+/** combo: a level = a ManagedMobileBoardUI stand-in in the scene (7x7 cells under a board frame at boardCenter), intro modal for 1.5 s. */
+export const scene:any=new Node('Scene');scene.getComponentInChildren=(n:string)=>n==='WorldIntegrationBoot'?boot:null;
+export let board:any=null;
+function openBoard(){const n=new Node('ManagedBoard');scene.addChild(n);const b:any=n.addComponent(ManagedMobileBoardUI as any);const root=new Node('NativeBoardCanvas');n.addChild(root);root.addComponent(UITransform).setContentSize(W,H);
+ const frame=new Node('IslandBoardCarving');root.addChild(frame);frame.setPosition(0,60);const cells:any[]=[];for(let i=0;i<49;i++){const c=new Node('cell'+i);frame.addChild(c);c.setPosition((i%7-3)*48,(3-Math.floor(i/7))*48);cells.push(c);}
+ b.root=root;b.cells=cells;b.layoutInfo={width:W,height:H,safe:{top:47,bottom:34,left:0,right:0},boardCenter:{x:0,y:60}};b.modal=true;b.snapshot={state:'run.intro'};board=b;
+ const at=clock.ms+1500;const ready=()=>{if(clock.ms<at){setImmediate(ready);return;}b.modal=false;b.snapshot={state:'run.ready',active:{board:cells.map((_:any,i:number)=>({id:'tile'+i,type:i%5,special:null}))}};};ready();
+ return {requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){n.destroy();board=null;}};}let lookYaw=0;
 const inBox=(x:number,y:number)=>{const cx=x/DPR,cy=H-y/DPR;return cx>=150&&cx<=240&&cy>=250&&cy<=420;};
 const commands:any={snapshot:()=>flow.snapshot(),leaveHome:()=>{calls.leave++;return flow.leaveHome();},returnHome:()=>{calls.ret++;return flow.returnHome();},
  roomView:(_:number)=>{const s=flow.snapshot();const vis=env.door==='visible'||(env.door==='reveal-by-drag'&&lookYaw<=-0.12);return {enabled:s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady,settling:false,door:{visible:vis,x:.62,y:.48,direction:1}};},
@@ -60,19 +69,20 @@ if(env.t1)commands.hitLighthouse=(x:number,y:number)=>flow.snapshot().state==='i
 const worldComp:any={flow};if(env.cameraHook){worldComp.onCameraSettled=(l:any)=>{settleListeners.push(l);return ()=>{};};worldComp.onCraneStart=(l:any)=>{craneListeners.push(l);return ()=>{};};}
 export const craneListeners:any[]=[];
 /** Copy of the WorldIntegrationBoot pieces autoplay touches (invoke + overlay wiring + paintNavigation sync), T1 wiring when bundled with T1. */
-class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=true;composition={worldCommands:()=>commands,world:worldComp,worldCamera:cam};roomExplore:any;islandJourney:any;islandHome:any=null;canvas:any=new Node('WorldNavigationCanvas');
+class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=true;composition={worldCommands:()=>commands,world:worldComp,worldCamera:cam,enterMainline:()=>{calls.mainline++;return flow.enterLevel('mainline-01');}};mainline:any=null;roomExplore:any;islandJourney:any;islandHome:any=null;canvas:any=new Node('WorldNavigationCanvas');
  constructor(){engine.uiRoot=this.canvas;
   this.islandJourney=new IslandJourneyOverlay(this.canvas as any,{invoke:(fn:any)=>{void this.invoke(fn);},mainlineStatus:()=>null,gates:()=>null,enterRegion:()=>null,enterR4:()=>null,enterSkycity:()=>null,returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()} as any);
   this.roomExplore=new RoomExploreOverlay(this.canvas as any,()=>this.composition?.worldCommands()??null as any,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});
+  if(env.combo){const n:any=new Node('mainline');this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);n.setPosition(0,-300);n.active=false;n.__press=env.deadButton?()=>{}:()=>{void this.invoke(()=>this.composition.enterMainline());};this.mainline=n;}
   if(env.t1&&(T1 as any).IslandHomeInteraction)this.islandHome=new (T1 as any).IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.error&&!this.islandJourney?.isOpen(),hit:(x:number,y:number)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome())});}
- board():any{return null;} navLayout(){return {width:W,height:H};}
+ board():any{return board&&board.node.isValid?board:null;} navLayout(){return {width:W,height:H};}
  async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;}}
- update(){if(this.loadPhase!=='ready')return;const s=flow.snapshot();this.islandJourney.sync(W,H,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(W,H,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());this.roomExplore.sync(W,H);}}
+ update(){if(this.loadPhase!=='ready')return;const s=flow.snapshot();this.islandJourney.sync(W,H,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(W,H,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());this.roomExplore.sync(W,H);if(this.mainline)this.mainline.active=s.state==='island'&&!s.needsResume&&!this.islandJourney.isOpen();}}
 export const boot=new BootStandIn();
 /** Test-only inert HUD button (claims the touch like a UI button, opens nothing) for the l123-vs-l12 negative control. */
 if(process.env.GB_INERT_BUTTON){const n:any=new Node('GB_TEST_INERT_BUTTON');boot.canvas.addChild(n);n.addComponent(UITransform).setContentSize(64,64);n.setPosition(120,-200);n.__press=()=>{};
  (globalThis as any).GROKBOT_TOUCH_SCENARIOS=JSON.stringify([{name:'neg-same-frame-inert',expect:'stay',expectAlt:{variant:'l12',expect:'return'},needs:['lighthouse'],steps:[{at:0,finger:1,phase:'start',target:'lighthouse'},{at:200,finger:2,phase:'start',target:'hud',name:'GB_TEST_INERT_BUTTON'},{at:200,finger:2,phase:'end'},{at:600,finger:1,phase:'end'}]}]);}
-(director as any).scene={getComponentInChildren:(n:string)=>n==='WorldIntegrationBoot'?boot:null};
+(director as any).scene=scene;
 /** Fake GameAudio with the real method names/semantics the observer wraps. */
 export class FakeGameAudio{static instance:FakeGameAudio|null=null;cascade=0;muted=false;reasons=new Set();musicVolume=0.4;sfxVoices=new Map<any,any>();
  loopSource:any={playing:false,currentTime:0,duration:48,volume:0.4,loop:true,clip:{name:'bgm_main',duration:48}};musicPath='audio_bgm/bgm_main';played:string[]=[];
@@ -81,8 +91,8 @@ export class FakeGameAudio{static instance:FakeGameAudio|null=null;cascade=0;mut
  onRender(state:string,won:boolean){if(state.startsWith('result.')&&won)this.play('sfx_level_clear');} onChestResult(r:any){if(r?.newlyGrantedRewards?.length>0)this.play('sfx_chest_open');} onClaimResult(r:any){if(r?.ok&&!r.duplicate)this.play('sfx_chest_open');} setMusic(p:string){this.musicPath=p;}}
 /** Stand-in for T6 CheerTextHost: show() returns the same result shape as the real one. */
 export class FakeCheerTextHost{active=-1;show(level:number,visual?:any){const d=level>this.active?(this.active<0?'show':'replace'):'skip';const rep=d==='replace'?this.active:-1;if(d!=='skip')this.active=level;const c=visual?.wave?.removed?.length?'clear':'center';return {tier:level,word:['Great!','Excellent!','Amazing!','Unbelievable!'][level],decision:d,source:c,x:c==='clear'?-96:0,y:c==='clear'?84:-60,replaced:rep};}}
-if(!process.env.GB_NO_T6)(js as any)._register('CheerTextHost',FakeCheerTextHost);
-(js as any)._register('GameAudio',FakeGameAudio);FakeGameAudio.instance=new FakeGameAudio();
+if(!env.combo){if(!process.env.GB_NO_T6)(js as any)._register('CheerTextHost',FakeCheerTextHost);
+(js as any)._register('GameAudio',FakeGameAudio);FakeGameAudio.instance=new FakeGameAudio();}
 const flush=async()=>{for(let i=0;i<6;i++)await new Promise(r=>setImmediate(r));};
 let started=false,frames=0;
 export async function run(maxS:number,stop:()=>boolean,onFrame?:(f:number)=>void){

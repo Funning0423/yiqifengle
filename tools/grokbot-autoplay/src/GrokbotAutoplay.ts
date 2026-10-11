@@ -5,6 +5,8 @@
  *  - return (no T1): IslandJourneyOverlay dock open('settings') -> dispatch(returnHome) -> invoke -> returnHome()
  *  - return (T1 installed): synthetic raw touch on the lighthouse through the platform touch source -> IslandHomeInteraction
  *  - touch mode: synthetic multi-touch through the platform touch source (wx listeners captured by the prelude, or DOM TouchEvent on web)
+ *  - combo mode: door -> island -> real '继续旅程' mainline button (injected touch; else the same action via boot.invoke) -> level,
+ *    then synthetic clear frames into GameAudio.instance.onBoardFrame (real cascade/tier/onCheer/cheer clip/CheerText); see GrokbotCombo.ts
  * Observers (all modes, read-only wrappers): app hide/show, GameAudio calls, WorldFlow walk segments, camera settle. */
 import {director,Director,game,Game,js,screen,input,Input} from 'cc';
 import {EDITOR} from 'cc/env';
@@ -12,6 +14,8 @@ import {AutoplaySequencer,parseAutoplayQuery} from './GrokbotAutoplaySequencer';
 import type {AutoplayDriver,StepResult,AutoplayConfig} from './GrokbotAutoplaySequencer';
 import {TouchScenarioRunner,selectScenarios,validateScenario} from './GrokbotTouchScenarios';
 import {markDef} from './GrokbotMarks';
+import {ComboRunner} from './GrokbotCombo';
+import type {ComboDriver,BoardStatus} from './GrokbotCombo';
 import type {TouchDriver,TouchStep,Point,TouchScenario} from './GrokbotTouchScenarios';
 const G:any=globalThis;
 /** Installed file == autoplay build, so it runs by default; `autoplay=off` in the launch query disables it. */
@@ -46,7 +50,9 @@ class Ctx {
  flow(){const b=this.findBoot();return b?.composition?.world?.flow??null;}
  idle(){const b=this.findBoot(),c=this.commands();if(!c||b.busy)return false;let s:any;try{s=c.snapshot();}catch{return false;}return !s.needsResume&&!s.hidden&&!b.board?.()?.hostModalOpen?.()&&!b.islandJourney?.isOpen?.();}
  emitLine(line:string){console.log(line);(G.__GB_MARKS||(G.__GB_MARKS=[])).push(line);this.sink?.append(line);}
- mark(name:string,extra=''){const ms=Math.round(now()-this.t0);if(!markDef(name))extra=(extra?extra+' ':'')+'unregistered=1';this.emitLine(`GB_MARK ${name} ${ms} wall=${wallText()} frame=${frameNo()} state=${this.state()??'-'}${extra?' '+extra:''}`);}
+ readonly taps:((name:string,extra:string)=>void)[]=[];
+ mark(name:string,extra=''){const ms=Math.round(now()-this.t0);if(!markDef(name))extra=(extra?extra+' ':'')+'unregistered=1';this.emitLine(`GB_MARK ${name} ${ms} wall=${wallText()} frame=${frameNo()} state=${this.state()??'-'}${extra?' '+extra:''}`);
+  for(const t of this.taps){try{t(name,extra);}catch{}}}
  get logFile(){return this.sink?.path??null;}
  /** CSS/client px of the window: same numbers WorldIntegrationBoot.navLayout uses for UI placement. */
  client(){const b=this.findBoot();try{const f=b?.navLayout?.();if(f&&f.width>0&&f.height>0)return {w:f.width,h:f.height};}catch{}
@@ -102,7 +108,7 @@ class Observers {
    ctx.mark('audio:sfx',`name=${n} accepted=${voice?1:0} clip=${src?.clip?.name??'-'} vol=${fmt(vol)} effVol=${fmt(voice?eff:0)} loop=${src?.loop?1:0} dur=${fmt(src?.duration??src?.clip?.duration)} muted=${muted} suspended=${sus}`);
    if(n==='sfx_level_clear')ctx.mark('audio:level-complete','accepted='+(voice?1:0));if(n==='sfx_chest_open')ctx.mark('audio:chest','source='+(source||'other')+' accepted='+(voice?1:0));},
    (self)=>{const set=new Set<any>();try{for(const x of (self.sfxVoices?.values?.()??[]))set.add(x.source);}catch{}return set;});
-  wrap('onBoardFrame',(self,[v])=>{if(v?.kind==='clear'){const c=self.cascade,tier=c<=1?'normal':c===2?'combo_1':c===3?'combo_2':'combo_3';ctx.mark('audio:clear',`wave=${c} tier=${tier}`);}else if(v?.kind==='action')ctx.mark('audio:combo-reset');});
+  wrap('onBoardFrame',(self,[v])=>{if(v?.kind==='clear'){const c=self.cascade,tier=c<=1?'normal':c===2?'combo_1':c===3?'combo_2':'combo_3';ctx.mark('audio:clear',`wave=${c} tier=${tier}${v.gbSynthetic?' synthetic=1 token='+v.token:''}`);}else if(v?.kind==='action')ctx.mark('audio:combo-reset');});
   wrap('onChestResult',()=>{source='';},()=>{source='chest';});wrap('onClaimResult',()=>{source='';},()=>{source='claim';});
   wrap('setMusic',(_s,[p])=>ctx.mark('audio:bgm-set','path='+p));
   wrap('setMusicVolume',(self)=>ctx.mark('audio:bgm-volume',bgmInfo(self)));
@@ -186,6 +192,27 @@ function createTouchDriver(ctx:Ctx,touch:TouchBackend,door:AutoplayDriver):Touch
   mark:(n,e)=>ctx.mark(n,e),
  };
 }
+/** combo mode: real level entry + GameAudio feed (frames built in GrokbotCombo.ts). */
+function createComboDriver(ctx:Ctx,touch:TouchBackend,door:AutoplayDriver):ComboDriver{
+ const GA=()=>js.getClassByName('GameAudio') as any;
+ const board=()=>{const b=ctx.findBoot();try{return b?.board?.()??null;}catch{return null;}};
+ const pres=()=>{try{return board()?.hostPresentation?.()??null;}catch{return null;}};
+ return {
+  now,state:()=>ctx.state(),idle:()=>ctx.idle(),tapDoor:()=>door.tapDoor(),
+  enterLevel:(how)=>{const b=ctx.findBoot();if(!b)return {ok:false,reason:'WorldIntegrationBoot-missing'};if(b.busy)return {ok:false,reason:'busy'};
+   if(how==='button'){const p=ctx.uiPoint('mainline');if(!p)return {ok:false,reason:'mainline-button-not-visible'};if(!touch.available())return {ok:false,reason:'no-touch-backend'};
+    const a=touch.inject('start',1,p),e=touch.inject('end',1,p);return a.ok&&e.ok?{ok:true,via:`mainline-button-touch(${touch.kind})@${Math.round(p.x)},${Math.round(p.y)}`}:{ok:false,reason:'inject-'+(a.reason||e.reason)};}
+   const c=b.composition;if(typeof c?.enterMainline!=='function')return {ok:false,reason:'no-composition.enterMainline'};if(typeof b.invoke!=='function')return {ok:false,reason:'no-boot.invoke'};
+   void b.invoke(()=>c.enterMainline());return b.busy?{ok:true,via:'WorldIntegrationBoot.invoke(composition.enterMainline)'}:{ok:false,reason:'invoke-refused'};},
+  board:():BoardStatus=>{const bd=board(),p=pres();let modal=false;try{modal=!!bd?.hostModalOpen?.();}catch{}return {present:!!bd,ready:p?.state==='run.ready',modal,state:String(p?.state??'-')};},
+  audio:()=>{const a=GA()?.instance;return {present:!!a&&typeof a.onBoardFrame==='function',muted:!!a?.isMuted?.(),suspended:!!a?.isSuspended?.()};},
+  textHost:()=>!!js.getClassByName('CheerTextHost'),
+  tile:(i)=>{const p:any=pres();const t=p?.active?.board?.[i]??p?.board?.[i]??null;return t&&typeof t==='object'?{id:t.id,type:t.type,special:t.special??null}:null;},
+  subscribeCheer:(f)=>{const C=GA();if(typeof C?.onCheer!=='function')return null;try{const off=C.onCheer(f);return typeof off==='function'?off:null;}catch{return null;}},
+  feed:(frame)=>{const a=GA()?.instance;if(!a||typeof a.onBoardFrame!=='function')return {ok:false,reason:'no-GameAudio.instance'};a.onBoardFrame(frame);return {ok:true};},
+  mark:(n,e)=>ctx.mark(n,e),
+ };
+}
 function customScenarios(ctx:Ctx):TouchScenario[]{const raw=G.GROKBOT_TOUCH_SCENARIOS;if(!raw)return [];let list:any;try{list=typeof raw==='string'?JSON.parse(raw):raw;}catch{ctx.mark('touch:custom-invalid','reason=json');return [];}
  if(!Array.isArray(list))return [];return list.filter((s:any)=>{const bad=validateScenario(s);if(bad)ctx.mark('touch:custom-invalid',`name=${s?.name} reason=${bad}`);return !bad;});}
 function install(){
@@ -196,6 +223,9 @@ function install(){
  let runner:{tick():void;finished():boolean;current?:string}|null=null;let touchRunner:TouchScenarioRunner|null=null;
  const driver=createDriver(ctx,touch);
  if(cfg.mode==='out-and-back')runner=new AutoplaySequencer(driver,cfg.options,ctx.t0);
+ else if(cfg.mode==='combo'){const cr=new ComboRunner(createComboDriver(ctx,touch,driver),cfg.combo,ctx.t0);runner=cr;
+  // count what the observers saw (same lines Voice bot reads): cheer clip starts and CheerText decisions
+  ctx.taps.push((n,e)=>{if(n==='audio:sfx'){const m=/name=(\S+) accepted=(\d)/.exec(e);if(m)cr.onSfx(m[1],m[2]==='1');}else if(n==='ui:cheer-text'){const m=/tier=(\S+) word=.* decision=(\S+) source=(\S+)/.exec(e);if(m)cr.onText(Number(m[1]),m[2],m[3]);}});}
  else if(cfg.mode==='touch'){const sel=selectScenarios(cfg.scenarios,customScenarios(ctx));for(const e of sel.errors)ctx.mark('touch:scenario-invalid','reason='+e);
   touchRunner=new TouchScenarioRunner(createTouchDriver(ctx,touch,driver),sel.list,cfg.variant,90000,cfg.exportWx,()=>ctx.client());runner=touchRunner;
   ctx.mark('touch:suite-start',`spec=${cfg.scenarios} count=${sel.list.length} variant=${cfg.variant||'-'}`);

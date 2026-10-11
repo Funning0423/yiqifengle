@@ -1,7 +1,7 @@
 /** T0 GB_MARK registry (GGbot): the ONE place mark names live. Engine-independent. Debug/test-build only.
  * Line format: GB_MARK <name> <ms since autoplay installed> wall=<local ISO+offset> epoch=<ms> frame=<n> state=<WorldFlow state|-> [k=v ...]
  * To add a mark: append an entry here (pattern may use one or more '*'), then call ctx.mark(name). Unregistered names still log, tagged unregistered=1. */
-export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui';
+export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui'|'combo';
 export type MarkDef={pattern:string;group:MarkGroup;desc:string};
 export const MARKS:MarkDef[]=[
  {pattern:'autoplay-installed',group:'autoplay',desc:'glue armed; mode, touch backend, log file'},
@@ -59,6 +59,16 @@ export const MARKS:MarkDef[]=[
  {pattern:'touch:suite-aborted',group:'touch',desc:'world error/disposed'},
  {pattern:'touch:scenario-invalid',group:'touch',desc:'unknown name / invalid definition'},
  {pattern:'touch:custom-invalid',group:'touch',desc:'GROKBOT_TOUCH_SCENARIOS entry rejected'},
+ {pattern:'combo:armed',group:'combo',desc:'autoplay=combo runner created; enter=level|none, clears, gapMs, path=feed'},
+ {pattern:'combo:skip-walk',group:'combo',desc:'combo:here (enter=none) or already in a level: no door/island/level walk'},
+ {pattern:'combo:enter-level',group:'combo',desc:"level entered through the real UI path; via=mainline-button-touch(<backend>)@x,y or WorldIntegrationBoot.invoke(composition.enterMainline) (same action the '继续旅程' WarmButton runs)"},
+ {pattern:'combo:board-ready',group:'combo',desc:'ManagedMobileBoardUI present, run.ready, no modal'},
+ {pattern:'combo:board-timeout',group:'combo',desc:'board not ready within gbComboBoardMs; feeds anyway (CheerText may log no-board / center)'},
+ {pattern:'combo:start',group:'combo',desc:'feeding starts: frames, gapMs, board state, muted/suspended, cheerText present, onCheer subscribed'},
+ {pattern:'combo:frame',group:'combo',desc:'one synthetic frame fed to GameAudio.onBoardFrame: i, token gb-combo:<i>, kind, cascade, cells, expectSfx, expectTier, expectClip'},
+ {pattern:'combo:cheer',group:'combo',desc:'GameAudio.onCheer fired (real decision point): level, word, expectClip, token, cells'},
+ {pattern:'combo:done',group:'combo',desc:'feed + tail finished (or aborted=1 reason); counts'},
+ {pattern:'combo:result',group:'combo',desc:'expected vs actual tiers / cheer clips / text tiers + sources; tiersOk sfxOk textOk; PASS|FAIL'},
 ];
 const compiled=MARKS.map(m=>({m,re:new RegExp('^'+m.pattern.split('*').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[^ ]+')+'$')}));
 export function markDef(name:string):MarkDef|null{for(const c of compiled)if(c.re.test(name))return c.m;return null;}

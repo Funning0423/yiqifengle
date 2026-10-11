@@ -18,3 +18,10 @@ observe dfb97e45cead6847315838830c8cc3ba6eb56aa7f5d9325d2783fb6c25b44439 world-r
 observe 072bd370f8edb904e1f259aee301db6d0fa7238164bf3151d389bd36fad77204 world-r1/WorldFlowComponent.ts   int/v1 d72cd75 (T5+df09ce8, before T1)
 observe 4715d357ac79113483da5b386e31b7f75b2c009273bbfaad43d51e5454d805fd world-r1/WorldFlowCore.ts         int/v1 d72cd75 (T5 optional room-light members), with or without T1
 observe 943154241ca8d6d1eecae7470d2c6c5a44436b79c4def68cb637eed19902b682 audio/GameAudio.ts              int/v1 d72cd75 (A2 cheers), with or without T1
+# int/v1 5d66c30 (T5 + A2 cheers b200456 + T6/T6b cc1f633 + T1 l123 + window fix + T8 step1), added for autoplay=combo. All existing
+# strict/observe files above already match 5d66c30 (WorldIntegrationBoot 99ee910d, RoomExploreOverlay a141d0b2, IslandJourneyOverlay c83ca5e1,
+# WorldNativeComposition ea951b0e, WorldFlowComponent dfb97e45, WorldFlowCore 4715d357, GameAudio 94315424). New observe-only files read by combo:
+#  ManagedMobileBoardUI: hostPresentation().state/active.board, hostModalOpen() (unchanged baseline..5d66c30);  CheerText: CheerTextHost.show() result shape.
+observe 91f45984efb11c23435a01793d42f57fee01955561a626208d04d6860b13dccf ManagedMobileBoardUI.ts          baseline/near/int-v1 d72cd75..5d66c30
+observe 7e0d97fee395a5e098f04e7d0be4e33b489560c7670d900a09a7e149101f9651 ui/CheerText.ts                  int/v1 d72cd75..5ae4452 (T6 system font)
+observe 4ff08b190ef526e16dd44fce1f6b016815b6671683b9c5524efd4b34f95d8cc7 ui/CheerText.ts                  int/v1 152a6aa..5d66c30 (T6b bitmap font)

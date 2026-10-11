@@ -2,7 +2,7 @@
 # T0 GROKBOT_AUTOPLAY installer (GGbot). Bash 3.2 compatible (macOS).
 #   install.sh <project-root> [--check] [--accept-unknown]
 #   <project-root> = directory that contains creator-build-project/ (an ISOLATED copy, never the original project).
-# Copies 3 .ts + fixed .meta into creator-build-project/assets/scripts/grokbot-autoplay/ (no existing file is modified).
+# Copies 5 .ts + fixed .meta into creator-build-project/assets/scripts/grokbot-autoplay/ (no existing file is modified).
 # Refuses on: symlinked path components, existing target, unknown strict prereq SHA. Any failure after writing -> full removal.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"; ROOT="${1:?project root}"; shift || true
@@ -25,12 +25,12 @@ if [ $bad = 1 ] && [ $ACCEPT = 0 ]; then echo "REFUSE: unknown strict prerequisi
 [ $CHECK = 1 ] && { echo "CHECK OK (zero writes)"; exit 0; }
 stage="$P/.grokbot-autoplay-staging.$$"; trap 'rm -rf "$stage"' EXIT
 mkdir "$stage"; mkdir "$stage/grokbot-autoplay"
-for f in GrokbotAutoplay.ts GrokbotAutoplaySequencer.ts GrokbotTouchScenarios.ts GrokbotMarks.ts; do cp "$here/src/$f" "$here/src/$f.meta" "$stage/grokbot-autoplay/"; done
+for f in GrokbotAutoplay.ts GrokbotAutoplaySequencer.ts GrokbotTouchScenarios.ts GrokbotMarks.ts GrokbotCombo.ts; do cp "$here/src/$f" "$here/src/$f.meta" "$stage/grokbot-autoplay/"; done
 cp "$here/src/grokbot-autoplay.dir.meta" "$stage/grokbot-autoplay.meta"
 rollback(){ rm -rf "$T"; rm -f "$S/grokbot-autoplay.meta" "$M"; echo "ROLLED BACK: nothing left in $S"; }
 { mv "$stage/grokbot-autoplay" "$T" && mv "$stage/grokbot-autoplay.meta" "$S/grokbot-autoplay.meta"; } || { rollback; exit 1; }
 : > "$M.tmp"; for f in "$T"/* "$S/grokbot-autoplay.meta"; do echo "$(sha "$f") ${f#$S/}" >> "$M.tmp"; done
-for f in GrokbotAutoplay.ts GrokbotAutoplaySequencer.ts GrokbotTouchScenarios.ts GrokbotMarks.ts GrokbotAutoplay.ts.meta GrokbotAutoplaySequencer.ts.meta GrokbotTouchScenarios.ts.meta GrokbotMarks.ts.meta; do
+for f in GrokbotAutoplay.ts GrokbotAutoplaySequencer.ts GrokbotTouchScenarios.ts GrokbotMarks.ts GrokbotCombo.ts GrokbotAutoplay.ts.meta GrokbotAutoplaySequencer.ts.meta GrokbotTouchScenarios.ts.meta GrokbotMarks.ts.meta GrokbotCombo.ts.meta; do
   [ "$(sha "$T/$f")" = "$(sha "$here/src/$f")" ] || { echo "VERIFY FAILED $f"; rm -f "$M.tmp"; rollback; exit 1; }; done
 mv "$M.tmp" "$M"; [ $ACCEPT = 1 ] && [ $bad = 1 ] && echo "accepted-unknown-strict-prereq $(date -u +%FT%TZ)" >> "$M"
 echo "INSTALLED -> $T"; cat "$M"
