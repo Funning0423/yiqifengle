@@ -55,3 +55,11 @@ observe 0190d013f9aa5c57c7ce4bf0cac016659e8af3ee21897a475f651f8e93ff0037 world-r
 observe c099b77ffdac78776188d96e1af582572d47c294945be49801d9e1a60f215ecb audio/GameAudio.ts              Voice bot A5 (work/Voice-bot-a5 6307433)
 observe 217de92be0624eac15e196b0688c6b83bba1240380b0d1104543b4d835e232ea audio/AudioBridge.ts            baseline 1ef9f1d .. int/v1 5d66c30, T9 380891d, 4bead5a, 0f54339
 observe 45fc088912d5374fafc61ca13c052a93bcd23571df0c72c180a79121eecde032 audio/AudioBridge.ts            Voice bot A5 (work/Voice-bot-a5 6307433)
+# T9 rebased onto int/v1 0f54339 (work/GGbot-t9 0ec1701: enlarged signpost a9398b4 + signpost entrance in the T2+ applyIslandEntrance
+#  sequence). Glue reviewed: Boot fields read by T0 unchanged (adds signEntrance/gateSignEntrance only); mainline stays the same WarmButton
+#  node; in signpost mode its hit area is 0x0 until the ~0.5 s button+signpost entrance ends (T0 combo enter-level already retries a tap
+#  with no effect). IslandJourneyOverlay == 380891d (f8d00767, listed). Exact SHA only; nothing widened.
+strict f8f5fdc381572929ee6f40e226e86fa90ac410a88c63d101269999ce97c00a30 WorldIntegrationBoot.ts            int/v1 0f54339 + T9 (work/GGbot-t9 0ec1701)
+# Voice bot A4 ambience (work/Voice-bot-a4v4 2fdc6cc on int/v1 0f54339; == work/Voice-bot-windseam f410a1d). GameAudio verified
+#  `git show 2fdc6cc:.../audio/GameAudio.ts | sha256sum` = 1a7b8027..8190. Observe-only, append only.
+observe 1a7b80278cc804db2573cf61b64fb6db7a75f1f6faf49b4c6016df18e18d8190 audio/GameAudio.ts              Voice bot A4 (work/Voice-bot-a4v4 2fdc6cc, == f410a1d)
