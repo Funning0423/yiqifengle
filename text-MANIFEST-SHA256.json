@@ -661,8 +661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 57185,
-    "sha256": "b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670"
+    "bytes": 58096,
+    "sha256": "712998f7f025e9a4123473717003f9d80ee253c19d64ab78074e5220a8f4484b"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
