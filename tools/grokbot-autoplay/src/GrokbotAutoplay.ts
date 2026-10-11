@@ -43,7 +43,7 @@ function fakeTouch(id:number,x:number,y:number,down:boolean):Fake{const t:any={g
 
 /** ---------- shared context ---------- */
 class Ctx {
- readonly t0=now();boot:any=null;private sink=fileSink();private lighthouseCache:{p:Point;at:number}|null=null;
+ readonly t0=now();boot:any=null;private sink=fileSink();
  findBoot(){if(this.boot&&this.boot.isValid!==false&&this.boot.node?.isValid!==false)return this.boot;const s:any=director.getScene();this.boot=s?(s.getComponent?.('WorldIntegrationBoot')||s.getComponentInChildren?.('WorldIntegrationBoot')||null):null;return this.boot;}
  /* ^ Cocos: getComponentInChildren does NOT check the node itself, and the boot lives ON the Scene node in real builds. */
  ready(b:any){return !!b&&b.loadPhase==='ready'&&b.ready&&!!b.composition;}
@@ -64,11 +64,49 @@ class Ctx {
  toLocation(p:Point){const c=this.client(),d=this.dpr();return {x:p.x*d,y:(c.h-p.y)*d};}
  hasLighthouse(){const c=this.commands();return !!c&&typeof c.hitLighthouse==='function';}
  hitLighthouse(p:Point){const c=this.commands();if(!c||typeof c.hitLighthouse!=='function')return false;const l=this.toLocation(p);try{return !!c.hitLighthouse(l.x,l.y);}catch{return false;}}
- /** Real ray test (worldCommands().hitLighthouse from T1) on a grid; the hit closest to the hit-centroid wins. */
- lighthousePoint():Point|null{if(this.lighthouseCache&&now()-this.lighthouseCache.at<1500)return this.lighthouseCache.p;if(!this.hasLighthouse())return null;const {w,h}=this.client(),hits:Point[]=[];
-  for(let gy=0.12;gy<=0.80;gy+=0.02)for(let gx=0.06;gx<=0.94;gx+=0.02){const p={x:gx*w,y:gy*h};if(this.hitLighthouse(p))hits.push(p);}
-  if(!hits.length)return null;const cx=hits.reduce((a,p)=>a+p.x,0)/hits.length,cy=hits.reduce((a,p)=>a+p.y,0)/hits.length;let best=hits[0],bd=Infinity;for(const p of hits){const d=Math.hypot(p.x-cx,p.y-cy);if(d<bd){bd=d;best=p;}}
-  this.lighthouseCache={p:best,at:now()};return best;}
+ /** Lighthouse tap point (T1 return / touch target 'lighthouse'). Mac r4: the old per-call 35x45 grid of real ray tests (1575 x
+  * worldCommands().hitLighthouse = geometry.intersect.rayModel over 3 meshes) froze the sim for 5.6-17 s during the island hold.
+  * Now: (1) cache per island arrival + client size, re-verified with ONE real ray test at use while in island (the island camera
+  * is static; a moved camera simply fails the check; off island the arrival's pick is reused unverified); (2) seed = env_lighthouse_ext world AABB projected with the live world camera
+  * (WorldFlowComponent.worldCamera/lighthouseTargets, read-only, defensive) -> centre, then 5x5 samples inside the projected rect
+  * nearest-first, first real hit wins (<= 26 ray tests, 1 on the real island camera); (3) the old grid only when no projection is
+  * available (stand-ins, renamed fields) and never from the warm-up. Every pick is a REAL hitLighthouse hit. */
+ private lhArrival=0;private lhStateWas:string|null=null;private lhWarmed=-1;readonly lhStats={rays:0,computes:0,cacheHits:0,grid:0,proj:0};
+ private lhKey(){const {w,h}=this.client();return this.lhArrival+':'+Math.round(w)+'x'+Math.round(h);}
+ private lhHit(p:Point){this.lhStats.rays++;return this.hitLighthouse(p);}
+ private lhPick(hits:Point[]):Point|null{if(!hits.length)return null;let cx=0,cy=0;for(let i=0;i<hits.length;i++){cx+=hits[i].x;cy+=hits[i].y;}cx/=hits.length;cy/=hits.length;
+  let best=hits[0],bd=Infinity;for(let i=0;i<hits.length;i++){const d=Math.hypot(hits[i].x-cx,hits[i].y-cy);if(d<bd){bd=d;best=hits[i];}}return best;}
+ /** Client-px rect of the first live lighthouse target's world AABB through the live world camera; null when unavailable. */
+ lighthouseRect():{x0:number;y0:number;x1:number;y1:number;cx:number;cy:number}|null{
+  try{const b=this.findBoot(),world=b?.composition?.world,cam=world?.worldCamera,targets=world?.lighthouseTargets;
+   if(!cam||typeof cam.worldToScreen!=='function'||!targets||typeof targets.length!=='number')return null;
+   let wb:any=null;for(let i=0;i<targets.length&&!wb;i++){const r=targets[i];if(r&&r.node&&r.node.activeInHierarchy!==false&&r.model&&r.model.worldBounds)wb=r.model.worldBounds;}
+   if(!wb||!wb.center||!wb.halfExtents)return null;const {w,h}=this.client(),d=this.dpr(),c=wb.center,e=wb.halfExtents;
+   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+   for(let i=0;i<8;i++){const q=cam.worldToScreen({x:c.x+(i&1?e.x:-e.x),y:c.y+(i&2?e.y:-e.y),z:c.z+(i&4?e.z:-e.z)});if(!q||!Number.isFinite(q.x)||!Number.isFinite(q.y))return null;
+    const px=q.x/d,py=h-q.y/d;if(px<x0)x0=px;if(px>x1)x1=px;if(py<y0)y0=py;if(py>y1)y1=py;}
+   const m=cam.worldToScreen({x:c.x,y:c.y,z:c.z});if(!m||!Number.isFinite(m.x)||!Number.isFinite(m.y))return null;
+   x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(w,x1);y1=Math.min(h,y1);if(!(x1>x0&&y1>y0))return null;
+   return {x0,y0,x1,y1,cx:Math.min(x1,Math.max(x0,m.x/d)),cy:Math.min(y1,Math.max(y0,h-m.y/d))};}catch{return null;}}
+ /** Projected AABB centre first, then the 5x5 samples nearest-first; the FIRST real hit wins (a miss costs a full triangle sweep of
+  * all 3 targets, ~15k triangles, so stop early: bench/bench_lighthouse_pick.cjs, 1 ray on the real island camera). */
+ private lhProjected():Point|null{const r=this.lighthouseRect();if(!r)return null;const c:Point[]=[{x:r.cx,y:r.cy}],rest:Point[]=[];
+  for(let j=0;j<5;j++)for(let i=0;i<5;i++)rest.push({x:r.x0+(r.x1-r.x0)*(.1+.2*i),y:r.y0+(r.y1-r.y0)*(.1+.2*j)});
+  rest.sort((a,b)=>Math.hypot(a.x-r.cx,a.y-r.cy)-Math.hypot(b.x-r.cx,b.y-r.cy));for(let i=0;i<rest.length;i++)c.push(rest[i]);
+  for(let i=0;i<c.length;i++)if(this.lhHit(c[i]))return c[i];return null;}
+ private lhGrid():Point|null{const {w,h}=this.client(),hits:Point[]=[];
+  for(let gy=0.12;gy<=0.80;gy+=0.02)for(let gx=0.06;gx<=0.94;gx+=0.02){const p={x:gx*w,y:gy*h};if(this.lhHit(p))hits.push(p);}
+  return this.lhPick(hits);}
+ private lighthouseCache:{p:Point;key:string}|null=null;
+ /** Call every frame (cheap): tracks island arrivals and, in island-idle, precomputes the point ONCE per arrival (projection only). */
+ warmLighthouse(enabled:boolean){const s=this.state();if(s!==this.lhStateWas){if(s==='island')this.lhArrival++;this.lhStateWas=s;}
+  if(!enabled||s!=='island'||this.lhWarmed===this.lhArrival||!this.hasLighthouse()||!this.idle())return;this.lhWarmed=this.lhArrival;this.lighthousePoint('warm');}
+ lighthousePoint(why='use'):Point|null{if(!this.hasLighthouse())return null;const key=this.lhKey(),c=this.lighthouseCache,r0=this.lhStats.rays,t=now();
+  if(c&&c.key===key){if(this.state()!=='island'||this.lhHit(c.p)){this.lhStats.cacheHits++;return c.p;}this.lighthouseCache=null;} // off island (e.g. the 2nd finger of a double tap after the return began) a ray test always misses: reuse the arrival's pick, like the old 1.5 s cache
+  let p=this.lhProjected(),src='proj';if(!p&&why!=='warm'){p=this.lhGrid();src='grid';}
+  this.lhStats.computes++;if(p){if(src==='grid')this.lhStats.grid++;else this.lhStats.proj++;this.lighthouseCache={p,key};}
+  this.mark('lighthouse:point',`why=${why} src=${p?src:'none'} rays=${this.lhStats.rays-r0} ms=${Math.round(now()-t)}${p?` at=${Math.round(p.x)},${Math.round(p.y)}`:''}`);
+  return p;}
  uiNode(name:string):any{const b=this.findBoot();const root=b?.canvas;if(!root)return null;const q=[root];while(q.length){const n=q.shift();if(n.name===name&&n.activeInHierarchy!==false&&n.active!==false)return n;for(const c of n.children||[])q.push(c);}return null;}
  uiPoint(name:string):Point|null{const n=this.uiNode(name);if(!n)return null;const {w,h}=this.client(),wp=n.worldPosition;return {x:wp.x+w/2,y:h/2-wp.y};}
 }
@@ -475,11 +513,12 @@ function install(){
   input.on(Input.EventType.TOUCH_START,(e:any)=>{const id=e.getID?.();if(id>=1000&&id<1100){const l=e.getLocation();ctx.mark('touch:cocos-seen',`f=${id-1000} loc=${Math.round(l.x)},${Math.round(l.y)} touches=${e.getAllTouches?.().length??'?'}`);}});}
  let waitStarted=false,peakLogged=false;
  const endPeak=(why:string)=>{if(peakLogged)return;peakLogged=true;try{obs.peakSummary(why);}catch(e){/* ignore */}};
- const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}try{bootProbe?.tick();}catch(e){console.error('GB_MARK boot-probe-exception',e);}
+ const warmLh=cfg.mode==='out-and-back'||cfg.mode==='touch';
+ const tick=()=>{try{obs.tick();}catch(e){console.error('GB_MARK observer-exception',e);}try{ctx.warmLighthouse(warmLh);}catch(e){console.error('GB_MARK lighthouse-warm-exception',e);}try{bootProbe?.tick();}catch(e){console.error('GB_MARK boot-probe-exception',e);}
   if(runner&&!runner.finished()){if(cfg.mode==='touch'&&!waitStarted){if(ctx.state()!=='home'||!ctx.idle())return;waitStarted=true;ctx.mark('world-ready');}
    try{runner.tick();}catch(e){console.error('GB_MARK autoplay-exception',e);ctx.mark('autoplay-failed','reason=exception');runner=null;endPeak('autoplay-end:exception');}
    if(runner&&runner.finished())endPeak('autoplay-end:'+String((runner as any).current??'done'));}};
  director.on(Director.EVENT_AFTER_UPDATE,tick); // stays on: observers keep logging audio/app/camera for manual play too
- G.__GB_AUTOPLAY={config:cfg,touchBackend:touch.kind,phase:()=>runner?((runner as any).current??(runner.finished()?'done':'running')):'observe',touchResults:()=>touchRunner?.results.slice()??[],logFile:ctx.logFile};
+ G.__GB_AUTOPLAY={config:cfg,touchBackend:touch.kind,phase:()=>runner?((runner as any).current??(runner.finished()?'done':'running')):'observe',touchResults:()=>touchRunner?.results.slice()??[],logFile:ctx.logFile,lighthouse:()=>({...ctx.lhStats})};
 }
 if(!EDITOR)install();

@@ -67,6 +67,17 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  const rv=L.find(l=>l.includes(' tap-return '))!;
  if(env.t1){if(!rv.includes('lighthouse-touch(wx-prelude)'))fail('T1 return via '+rv);if(N.includes('open-return-panel')&&!L.find(l=>l.includes(' open-return-panel '))!.includes('skipped(T1'))fail('panel');}
  else if(!rv.includes('IslandJourneyOverlay.dispatch(returnHome)'))fail('return via '+rv);
+ if(env.t1){ // Mac r4: lighthouse tap point = projection + cache (no per-call 1575-ray grid); every pick is a real hit
+  const LP=L.filter(l=>l.includes(' lighthouse:point ')),st=(globalThis as any).__GB_AUTOPLAY.lighthouse(),at=/@(\d+),(\d+)/.exec(rv)!,ax=Number(at[1]),ay=Number(at[2]);
+  const rays=(l:string)=>Number(/ rays=(\d+)/.exec(l)![1]);
+  console.error('lighthouse:point '+env.lhProj+' | '+LP.map(l=>l.slice(l.indexOf('why='))).join(' | ')+' | stats '+JSON.stringify(st)+' | game hitLighthouse calls '+calls.lh);
+  if(!LP.length||!/why=warm /.test(LP[0])||N.indexOf('lighthouse:point')>N.indexOf('hold-end'))fail('no island-idle warm-up before hold-end');
+  if(!(ax>=150+(env.lhProj==='moved'?100:0)&&ax<=240+(env.lhProj==='moved'?100:0)&&ay>=250&&ay<=420))fail('tap point outside the lighthouse '+rv);
+  if(env.lhProj==='1'){if(LP.length!==1||!/src=proj /.test(LP[0])||rays(LP[0])>26||st.cacheHits<1||st.grid!==0)fail('proj: one warm pick <=26 rays, then cache '+LP.join(' | '));
+   if(st.rays>27)fail('proj: total T0 ray tests '+st.rays+' > 27');}
+  else if(env.lhProj==='moved'){if(LP.length!==2||!/src=proj /.test(LP[1])||!/why=use /.test(LP[1])||st.grid!==0||st.rays>1+26+26)fail('moved: cache must be re-verified and re-projected '+LP.join(' | '));}
+  else{if(!/src=none rays=0 /.test(LP[0])||!LP.some(l=>/why=use src=grid /.test(l)))fail('no projection: warm-up must not grid; use falls back to the grid '+LP.join(' | '));}
+ }
  if(env.door==='reveal-by-drag'&&(calls.look<1||!N.includes('door-revealed')))fail('drag');
  if(U){const ul=L.filter(l=>l.includes(' audio:unlock '));if(ul.length!==1)fail('audio:unlock count '+ul.length);
   if(!new RegExp(' source='+U+' ').test(ul[0])||!/ via=__audioUnlock gestureSeen=1 status=ready playbackState=pending playing=0$/.test(ul[0]))fail('audio:unlock fields '+ul[0]);

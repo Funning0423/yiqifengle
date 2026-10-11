@@ -136,3 +136,8 @@ grep -rIlE 'GB_MARK|GROKBOT_AUTOPLAY|__gbTouch|GrokbotAutoplay|GrokbotMarks|grok
 - 预设组 `t9`（`autoplay=touch&gbScenario=t9` / 宏 `--mode touch:t9`）：t9-tap-bag、t9-tap-book、t9-tap-settings（各开弹层、不回屋，清理时关掉）、t9-press-signpost（按下再 cancel：只有 press，不进关卡）。
 - 期望 GB_MARK：每个按钮 `touch:start ... target=bag` → `ui:tap target=bag phase=press blocked=0` → `ui:tap target=bag phase=confirm blocked=0`；路牌只有 `phase=press`。
 - 盒内测试：`GB_T9_DIR=<work/GGbot-t9> build_and_run.sh <T1_DIR>` 跑真实 T9 IslandJourneyOverlay + IslandPropTaps。
+
+## 灯塔点击点（Mac 第 4 轮问题 3）
+- 旧做法：每次要点灯塔都在全屏 35×45 网格上做真实射线检测（1496 次 hitLighthouse，约 166 万个三角形测试），Mac 模拟器在岛上卡住 5.6–17 秒。
+- 新做法：到岛上空闲时只算一次（`lighthouse:point why=warm`）：用当前世界相机把 env_lighthouse_ext 的包围盒投影到屏幕，先试中心点，不中再按离中心由近到远试 5×5 个点，第一个真实命中就用（真实岛上相机 1 次射线）。点击时先用 1 次射线复核缓存，镜头动了就重新投影。只读 WorldFlowComponent 的 worldCamera / lighthouseTargets，读不到才退回旧网格（预热时从不跑网格）。
+- 计时：`node bench/bench_lighthouse_pick.cjs --root <游戏工作树>`（真实 GLB 三角形 + 真实岛上相机，按 Cocos rayModel 的方式算）。

@@ -15,7 +15,7 @@ import {ManagedMobileBoardUI} from '#board';
 import * as T9 from '#proptaps';
 import {readFileSync} from 'fs';
 export const W=390,H=844,DPR=3;
-export const env={t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead'};
+export const env={t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead',lhProj:process.env.GB_LH_PROJ||''};
 /* ---- fake WeChat platform + REAL prelude + fake Cocos touch source registered AFTER the prelude (as the engine is) ---- */
 const G:any=globalThis;/* fake wx + REAL prelude now live in setup.ts: they must exist BEFORE any game module evaluates
  * (real order: prelude -> adapter/engine -> game scripts; AudioUnlock registers wx.onTouch* at module load). */
@@ -52,7 +52,7 @@ export const char=new Char();export const states:string[]=[];
 export const config=createFirstsliceRoutes(FIRSTSLICE,REF as any);
 export const flow=new WorldFlow({config,mode:'motion',character:char,levels:{enter:()=>env.combo?Promise.resolve(openBoard()):Promise.reject(Error('n/a'))},loadWorld:async()=>lease,onChange:s=>{states.push(s.state);if(s.state==='crossing-out')craneListeners.forEach(l=>queueMicrotask(()=>l({segment:'toIsland',progress:0.4})));settleListeners.forEach(l=>{if(s.state==='island'||s.state==='home')queueMicrotask(()=>l(s.state,{reason:'test-hook'}));});}});
 const settleListeners:((p:string,i?:any)=>void)[]=[];
-export const calls={leave:0,ret:0,look:0,mainline:0};
+export const calls={leave:0,ret:0,look:0,mainline:0,lh:0};
 /** combo: a level = a ManagedMobileBoardUI stand-in in the scene (7x7 cells under a board frame at boardCenter), intro modal for 1.5 s. */
 /** Real Cocos layout: WorldIntegrationBoot is a component ON the Scene node; getComponentInChildren does NOT look at the node itself
  *  (Cocos semantics), so a children-only lookup finds nothing. GB_BOOT_ON=child puts it on a child instead (both must work). */
@@ -65,12 +65,18 @@ function openBoard(){const n=new Node('ManagedBoard');scene.addChild(n);const b:
  b.root=root;b.cells=cells;b.layoutInfo={width:W,height:H,safe:{top:47,bottom:34,left:0,right:0},boardCenter:{x:0,y:60}};b.modal=true;b.snapshot={state:'run.intro'};board=b;
  const at=clock.ms+1500;const ready=()=>{if(clock.ms<at){setImmediate(ready);return;}b.modal=false;b.snapshot={state:'run.ready',active:{board:cells.map((_:any,i:number)=>({id:'tile'+i,type:i%5,special:null}))}};};ready();
  return {requestExit:()=>({ok:true}),hide(){},showPaused(){},resume:()=>({ok:true}),dispose(){n.destroy();board=null;}};}let lookYaw=0;
-const inBox=(x:number,y:number)=>{const cx=x/DPR,cy=H-y/DPR;return cx>=150&&cx<=240&&cy>=250&&cy<=420;};
+/** Lighthouse box in client px (150..240 x 250..420). GB_LH_PROJ=1|moved adds a WorldFlowComponent-like worldCamera + lighthouseTargets
+ *  (identity 'world' = client px, worldToScreen -> engine px, bottom-left, x DPR). moved: the box (and its projection) shifts +100 px in x
+ *  on the first ray test after a pick was cached (camera moved between warm-up and use). */
+export const lhBox={dx:0,shifted:false};
+const inBox=(x:number,y:number)=>{const cx=x/DPR-lhBox.dx,cy=H-y/DPR;return cx>=150&&cx<=240&&cy>=250&&cy<=420;};
 const commands:any={snapshot:()=>flow.snapshot(),leaveHome:()=>{calls.leave++;return flow.leaveHome();},returnHome:()=>{calls.ret++;return flow.returnHome();},
  roomView:(_:number)=>{const s=flow.snapshot();const vis=env.door==='visible'||(env.door==='reveal-by-drag'&&lookYaw<=-0.12);return {enabled:s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady,settling:false,door:{visible:vis,x:.62,y:.48,direction:1}};},
  lookRoom:(dx:number,_dy:number)=>{calls.look++;lookYaw+=dx;return true;},dayNight:()=>({mode:'day'}),toggleDayNight:()=>({ok:true})};
-if(env.t1)commands.hitLighthouse=(x:number,y:number)=>flow.snapshot().state==='island'&&inBox(x,y);
-const worldComp:any={flow};if(env.cameraHook){worldComp.onCameraSettled=(l:any)=>{settleListeners.push(l);return ()=>{};};worldComp.onCraneStart=(l:any)=>{craneListeners.push(l);return ()=>{};};}
+if(env.t1)commands.hitLighthouse=(x:number,y:number)=>{calls.lh++;if(env.lhProj==='moved'&&!lhBox.shifted&&((globalThis as any).__GB_AUTOPLAY?.lighthouse?.().computes??0)>=1){lhBox.shifted=true;lhBox.dx=100;}return flow.snapshot().state==='island'&&inBox(x,y);};
+const worldComp:any={flow};
+if(env.lhProj){worldComp.worldCamera={worldToScreen:(p:any)=>({x:(p.x+lhBox.dx)*DPR,y:(H-p.y)*DPR,z:.5})};
+ worldComp.lighthouseTargets=[{node:{activeInHierarchy:true},model:{worldBounds:{center:{x:195,y:335,z:0},halfExtents:{x:45,y:85,z:10}}}}];}if(env.cameraHook){worldComp.onCameraSettled=(l:any)=>{settleListeners.push(l);return ()=>{};};worldComp.onCraneStart=(l:any)=>{craneListeners.push(l);return ()=>{};};}
 export const craneListeners:any[]=[];
 /** Copy of the WorldIntegrationBoot pieces autoplay touches (invoke + overlay wiring + paintNavigation sync), T1 wiring when bundled with T1. */
 class BootStandIn{loadPhase='loading';ready=false;busy=false;error='';isValid=true;composition={worldCommands:()=>commands,world:worldComp,worldCamera:cam,enterMainline:()=>{calls.mainline++;return flow.enterLevel('mainline-01');}};mainline:any=null;roomExplore:any;islandJourney:any;islandHome:any=null;canvas:any=new Node('WorldNavigationCanvas');

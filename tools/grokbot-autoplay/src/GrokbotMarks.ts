@@ -14,6 +14,7 @@ export const MARKS:MarkDef[]=[
  {pattern:'hold-start',group:'autoplay',desc:'island hold begins (gbHold, default 3000 ms)'},
  {pattern:'hold-end',group:'autoplay',desc:'island hold ends'},
  {pattern:'open-return-panel',group:'autoplay',desc:'settings panel opened (or skipped when T1 lighthouse return is installed)'},
+ {pattern:'lighthouse:point',group:'autoplay',desc:"T1 lighthouse tap point computed (not on cache hits): why=warm (island-idle, once per arrival, projection only)|use, src=proj (env_lighthouse_ext AABB through the live world camera, <=26 real ray tests)|grid (old 1575-ray grid, only without projection)|none, rays=<real hitLighthouse calls>, ms, at=x,y client px"},
  {pattern:'tap-return',group:'autoplay',desc:'return tap delivered; via=<real handler path>'},
  {pattern:'home-seated',group:'autoplay',desc:'back at home + idle'},
  {pattern:'autoplay-done',group:'autoplay',desc:'sequence complete; totalMs'},

@@ -79,6 +79,8 @@ if GB_QUERY='?autoplay=off' node "$out/int-base.mjs" >"$out/off.log" 2>&1; then 
 grep -q 'GB_MARK autoplay-disabled 0' "$out/off.log" && echo "PASS autoplay=off: nothing armed, no observers"
 if [ -n "$t1" ]; then
   r oab-t1-l123 GB_T1=l123 node "$out/int-l123.mjs"
+  r oab-t1-l123-lhproj GB_T1=l123 GB_LH_PROJ=1 node "$out/int-l123.mjs"
+  r oab-t1-l123-lhmoved GB_T1=l123 GB_LH_PROJ=moved node "$out/int-l123.mjs"
   r touch-t1-l123 GB_T1=l123 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-l123.mjs"
   r touch-t1-l12 GB_T1=l12 GB_QUERY='?autoplay=touch&gbScenario=t1&gbVariant=l12' node "$out/touch-l12.mjs"
   r export-l123 GB_T1=l123 GB_EXPORT=1 GB_QUERY='?autoplay=touch&gbScenario=t1&gbExport=only' node "$out/touch-l123.mjs"
