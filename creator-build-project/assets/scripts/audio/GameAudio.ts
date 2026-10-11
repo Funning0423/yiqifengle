@@ -577,7 +577,7 @@ export class GameAudio extends Component {
       this.play(name);
       if (this.cascade >= 2) {
         const level = Math.min(this.cascade - 2, CHEERS.length - 1);
-        GameAudio.emitCheer(level);          // 飘字跟这里走，静音时也照样出字
+        GameAudio.emitCheer(level, visual);  // 飘字跟这里走，静音时也照样出字
         this.playCheer(level);
       }
       return;
@@ -602,16 +602,17 @@ export class GameAudio extends Component {
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
 
-  /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable。返回取消订阅函数。
+  /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable；visual 是触发这一档的那一帧 kind==='clear'
+   *  原始 visual 对象（和 onBoardFrame 收到的同一个），消除格子的位置从里面取。返回取消订阅函数。
    *  在连击判定的同一处触发，与鼓励音档位一致；静音、切后台时声音不播，但事件照发。 */
-  private static cheerListeners: Array<(level: number) => void> = [];
-  static onCheer(listener: (level: number) => void): () => void {
+  private static cheerListeners: Array<(level: number, visual?: any) => void> = [];
+  static onCheer(listener: (level: number, visual?: any) => void): () => void {
     GameAudio.cheerListeners.push(listener);
     return () => { GameAudio.cheerListeners = GameAudio.cheerListeners.filter(l => l !== listener); };
   }
-  private static emitCheer(level: number) {
+  private static emitCheer(level: number, visual?: any) {
     for (const l of GameAudio.cheerListeners.slice()) {
-      try { l(level); } catch (e) { console.warn('[GameAudio] cheer listener failed (gameplay unaffected)', e); }
+      try { l(level, visual); } catch (e) { console.warn('[GameAudio] cheer listener failed (gameplay unaffected)', e); }
     }
   }
 
