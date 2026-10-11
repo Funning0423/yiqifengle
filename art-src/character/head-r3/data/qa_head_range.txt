@@ -1,0 +1,6 @@
+RANGE head pitch(X) + first clash at 26 deg
+RANGE head pitch(X) - first clash at 32 deg
+RANGE head yaw(Y) + first clash at None (none up to 60)
+RANGE head yaw(Y) - first clash at None (none up to 60)
+RANGE head roll(Z) + first clash at 14 deg
+RANGE head roll(Z) - first clash at 14 deg

@@ -1,0 +1,680 @@
+{
+ "armature": "R5G2_RIG_22P4",
+ "bones": [
+  {
+   "name": "root",
+   "parent": null,
+   "head": [
+    0.0,
+    0.0,
+    0.0002
+   ],
+   "tail": [
+    0.0,
+    0.0,
+    1.0582
+   ],
+   "deform": true
+  },
+  {
+   "name": "hips",
+   "parent": "root",
+   "head": [
+    0.0,
+    0.0,
+    1.0582
+   ],
+   "tail": [
+    0.0,
+    0.0,
+    1.1191
+   ],
+   "deform": true
+  },
+  {
+   "name": "spine",
+   "parent": "hips",
+   "head": [
+    0.0,
+    0.0,
+    1.1695
+   ],
+   "tail": [
+    0.0,
+    0.0,
+    1.2979
+   ],
+   "deform": true
+  },
+  {
+   "name": "chest",
+   "parent": "spine",
+   "head": [
+    -0.0,
+    0.0,
+    1.2979
+   ],
+   "tail": [
+    -0.0,
+    0.0,
+    1.4014
+   ],
+   "deform": true
+  },
+  {
+   "name": "neck",
+   "parent": "chest",
+   "head": [
+    -0.0,
+    0.0,
+    1.4014
+   ],
+   "tail": [
+    -0.0,
+    0.0,
+    1.4433
+   ],
+   "deform": true
+  },
+  {
+   "name": "head",
+   "parent": "neck",
+   "head": [
+    -0.0,
+    0.0,
+    1.4433
+   ],
+   "tail": [
+    -0.0,
+    0.0,
+    1.4851
+   ],
+   "deform": true
+  },
+  {
+   "name": "upper_arm.L",
+   "parent": "chest",
+   "head": [
+    -0.1542,
+    0.0,
+    1.334
+   ],
+   "tail": [
+    -0.1973,
+    -0.0213,
+    1.0905
+   ],
+   "deform": true
+  },
+  {
+   "name": "forearm.L",
+   "parent": "upper_arm.L",
+   "head": [
+    -0.1973,
+    -0.0213,
+    1.0905
+   ],
+   "tail": [
+    -0.2292,
+    -0.1321,
+    0.9393
+   ],
+   "deform": true
+  },
+  {
+   "name": "hand.L",
+   "parent": "forearm.L",
+   "head": [
+    -0.2292,
+    -0.1321,
+    0.9393
+   ],
+   "tail": [
+    -0.2154,
+    -0.224,
+    0.7735
+   ],
+   "deform": true
+  },
+  {
+   "name": "upper_arm.R",
+   "parent": "chest",
+   "head": [
+    0.1542,
+    0.0,
+    1.334
+   ],
+   "tail": [
+    0.1973,
+    -0.0213,
+    1.0905
+   ],
+   "deform": true
+  },
+  {
+   "name": "forearm.R",
+   "parent": "upper_arm.R",
+   "head": [
+    0.1973,
+    -0.0213,
+    1.0905
+   ],
+   "tail": [
+    0.2292,
+    -0.1321,
+    0.9393
+   ],
+   "deform": true
+  },
+  {
+   "name": "hand.R",
+   "parent": "forearm.R",
+   "head": [
+    0.2292,
+    -0.1321,
+    0.9393
+   ],
+   "tail": [
+    0.2154,
+    -0.224,
+    0.7735
+   ],
+   "deform": true
+  },
+  {
+   "name": "thigh.L",
+   "parent": "hips",
+   "head": [
+    -0.0609,
+    0.0,
+    1.0582
+   ],
+   "tail": [
+    -0.0666,
+    0.0162,
+    0.5027
+   ],
+   "deform": true
+  },
+  {
+   "name": "shin.L",
+   "parent": "thigh.L",
+   "head": [
+    -0.0666,
+    0.0162,
+    0.5027
+   ],
+   "tail": [
+    -0.0649,
+    0.0203,
+    0.0813
+   ],
+   "deform": true
+  },
+  {
+   "name": "foot.L",
+   "parent": "shin.L",
+   "head": [
+    -0.0649,
+    0.0203,
+    0.0813
+   ],
+   "tail": [
+    -0.0649,
+    -0.3566,
+    -0.1071
+   ],
+   "deform": true
+  },
+  {
+   "name": "thigh.R",
+   "parent": "hips",
+   "head": [
+    0.0609,
+    0.0,
+    1.0582
+   ],
+   "tail": [
+    0.0666,
+    0.0162,
+    0.5027
+   ],
+   "deform": true
+  },
+  {
+   "name": "shin.R",
+   "parent": "thigh.R",
+   "head": [
+    0.0666,
+    0.0162,
+    0.5027
+   ],
+   "tail": [
+    0.0649,
+    0.0203,
+    0.0813
+   ],
+   "deform": true
+  },
+  {
+   "name": "foot.R",
+   "parent": "shin.R",
+   "head": [
+    0.0649,
+    0.0203,
+    0.0813
+   ],
+   "tail": [
+    0.0649,
+    -0.3566,
+    -0.1071
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.front",
+   "parent": "hips",
+   "head": [
+    0.0,
+    0.0122,
+    1.1567
+   ],
+   "tail": [
+    0.0,
+    -0.0718,
+    0.8236
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.front.low",
+   "parent": "skirt.front",
+   "head": [
+    0.0,
+    -0.0718,
+    0.8236
+   ],
+   "tail": [
+    0.0,
+    -0.1558,
+    0.4906
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.front.low.mid",
+   "parent": "skirt.front.low",
+   "head": [
+    0.0,
+    -0.0718,
+    0.8236
+   ],
+   "tail": [
+    0.0,
+    -0.1558,
+    0.4906
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.front.mid",
+   "parent": "skirt.front",
+   "head": [
+    -0.0,
+    0.0122,
+    1.1567
+   ],
+   "tail": [
+    0.0,
+    -0.0718,
+    0.8236
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.left",
+   "parent": "hips",
+   "head": [
+    -0.0,
+    0.0122,
+    1.1567
+   ],
+   "tail": [
+    -0.084,
+    0.0122,
+    0.8236
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.left.low",
+   "parent": "skirt.left",
+   "head": [
+    -0.084,
+    0.0122,
+    0.8236
+   ],
+   "tail": [
+    -0.168,
+    0.0122,
+    0.4906
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.back",
+   "parent": "hips",
+   "head": [
+    0.0,
+    0.0122,
+    1.1567
+   ],
+   "tail": [
+    0.0,
+    0.0962,
+    0.8236
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.back.low",
+   "parent": "skirt.back",
+   "head": [
+    -0.0,
+    0.0962,
+    0.8236
+   ],
+   "tail": [
+    -0.0,
+    0.1802,
+    0.4906
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.right",
+   "parent": "hips",
+   "head": [
+    0.0,
+    0.0122,
+    1.1567
+   ],
+   "tail": [
+    0.084,
+    0.0122,
+    0.8236
+   ],
+   "deform": true
+  },
+  {
+   "name": "skirt.right.low",
+   "parent": "skirt.right",
+   "head": [
+    0.084,
+    0.0122,
+    0.8236
+   ],
+   "tail": [
+    0.168,
+    0.0122,
+    0.4906
+   ],
+   "deform": true
+  }
+ ],
+ "meshes": {
+  "Icosphere": {
+   "verts": 42,
+   "faces": 80,
+   "tris": 80,
+   "edges": 120,
+   "nonmanifold_edges": 0,
+   "boundary_edges": 0,
+   "islands": 1,
+   "coincident_verts": 0,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "color_attrs": [],
+   "shape_keys": [],
+   "materials": [],
+   "influence_hist": {
+    "0": 42
+   },
+   "unweighted": 42,
+   "bones_by_vertcount": {},
+   "smooth_faces": 0,
+   "bbox_min": [
+    -0.9511,
+    -1.0,
+    -1.0
+   ],
+   "bbox_max": [
+    0.9511,
+    1.0,
+    1.0
+   ]
+  },
+  "LOD0_G2_APRON": {
+   "verts": 656,
+   "faces": 1099,
+   "tris": 1099,
+   "edges": 1750,
+   "nonmanifold_edges": 203,
+   "boundary_edges": 203,
+   "islands": 8,
+   "coincident_verts": 106,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "color_attrs": [],
+   "shape_keys": [],
+   "materials": [
+    {
+     "name": "M_G2_APRON",
+     "faces": 1099,
+     "tris": 1099
+    }
+   ],
+   "influence_hist": {
+    "1": 30,
+    "2": 114,
+    "3": 185,
+    "4": 327
+   },
+   "unweighted": 0,
+   "bones_by_vertcount": {
+    "skirt.front.mid": 384,
+    "skirt.front": 277,
+    "hips": 269,
+    "skirt.right": 255,
+    "skirt.front.low": 218,
+    "skirt.left": 203,
+    "skirt.right.low": 184,
+    "skirt.front.low.mid": 181,
+    "skirt.left.low": 150
+   },
+   "smooth_faces": 1099,
+   "bbox_min": [
+    -0.2894,
+    -0.199,
+    0.5053
+   ],
+   "bbox_max": [
+    0.3004,
+    -0.0089,
+    1.1612
+   ]
+  },
+  "LOD0_G2_BODY": {
+   "verts": 13031,
+   "faces": 18674,
+   "tris": 18674,
+   "edges": 31309,
+   "nonmanifold_edges": 6596,
+   "boundary_edges": 6596,
+   "islands": 415,
+   "coincident_verts": 5676,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "color_attrs": [
+    "Color"
+   ],
+   "shape_keys": [],
+   "materials": [
+    {
+     "name": "M_G2_FACE",
+     "faces": 3493,
+     "tris": 3493
+    },
+    {
+     "name": "M_G2_HEAD",
+     "faces": 1666,
+     "tris": 1666
+    },
+    {
+     "name": "M_G2_BODY",
+     "faces": 9381,
+     "tris": 9381
+    },
+    {
+     "name": "M_G2_HAIR",
+     "faces": 4134,
+     "tris": 4134
+    }
+   ],
+   "influence_hist": {
+    "1": 10795,
+    "2": 2236
+   },
+   "unweighted": 0,
+   "bones_by_vertcount": {
+    "head": 5857,
+    "chest": 2968,
+    "neck": 1052,
+    "hand.R": 928,
+    "hand.L": 918,
+    "upper_arm.L": 512,
+    "upper_arm.R": 496,
+    "forearm.L": 481,
+    "forearm.R": 456,
+    "shin.L": 331,
+    "shin.R": 315,
+    "foot.R": 262,
+    "foot.L": 243,
+    "thigh.L": 224,
+    "thigh.R": 224
+   },
+   "smooth_faces": 18674,
+   "bbox_min": [
+    -0.3161,
+    -0.1871,
+    0.0
+   ],
+   "bbox_max": [
+    0.3162,
+    0.1859,
+    1.7253
+   ]
+  },
+  "LOD0_G2_BOW": {
+   "verts": 784,
+   "faces": 904,
+   "tris": 904,
+   "edges": 1639,
+   "nonmanifold_edges": 566,
+   "boundary_edges": 566,
+   "islands": 49,
+   "coincident_verts": 554,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "color_attrs": [
+    "Color"
+   ],
+   "shape_keys": [],
+   "materials": [
+    {
+     "name": "M_G2_BODY",
+     "faces": 904,
+     "tris": 904
+    }
+   ],
+   "influence_hist": {
+    "1": 403,
+    "2": 381
+   },
+   "unweighted": 0,
+   "bones_by_vertcount": {
+    "hips": 643,
+    "skirt.back": 427,
+    "skirt.back.low": 95
+   },
+   "smooth_faces": 904,
+   "bbox_min": [
+    -0.1263,
+    0.0677,
+    0.746
+   ],
+   "bbox_max": [
+    0.1068,
+    0.1817,
+    1.1814
+   ]
+  },
+  "LOD0_G2_DRESS": {
+   "verts": 5323,
+   "faces": 9774,
+   "tris": 9774,
+   "edges": 15086,
+   "nonmanifold_edges": 850,
+   "boundary_edges": 850,
+   "islands": 12,
+   "coincident_verts": 514,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "color_attrs": [],
+   "shape_keys": [],
+   "materials": [
+    {
+     "name": "M_G2_DRESS",
+     "faces": 9774,
+     "tris": 9774
+    }
+   ],
+   "influence_hist": {
+    "1": 124,
+    "2": 2998,
+    "3": 1146,
+    "4": 1055
+   },
+   "unweighted": 0,
+   "bones_by_vertcount": {
+    "skirt.left.low": 2136,
+    "skirt.back.low": 2060,
+    "skirt.right.low": 1988,
+    "skirt.front.low": 1797,
+    "hips": 1002,
+    "skirt.left": 912,
+    "skirt.right": 895,
+    "skirt.back": 812,
+    "skirt.front.low.mid": 793,
+    "skirt.front.mid": 726,
+    "skirt.front": 657
+   },
+   "smooth_faces": 9774,
+   "bbox_min": [
+    -0.2422,
+    -0.2048,
+    0.3761
+   ],
+   "bbox_max": [
+    0.2421,
+    0.1277,
+    1.1567
+   ]
+  }
+ }
+}

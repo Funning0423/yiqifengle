@@ -1,0 +1,62 @@
+{
+ "N_skull": {
+  "verts": 415,
+  "tris": 760
+ },
+ "N_neck": {
+  "verts": 60,
+  "tris": 96
+ },
+ "N_collar": {
+  "verts": 96,
+  "tris": 160
+ },
+ "N_hat": {
+  "verts": 609,
+  "tris": 1184
+ },
+ "N_eye_patch": {
+  "verts": 105,
+  "tris": 168
+ },
+ "N_hair_crown": {
+  "verts": 577,
+  "tris": 1104
+ },
+ "N_hair_inner": {
+  "verts": 126,
+  "tris": 200
+ },
+ "N_hair_side_L": {
+  "verts": 196,
+  "tris": 338
+ },
+ "N_hair_side_R": {
+  "verts": 196,
+  "tris": 338
+ },
+ "N_hair_temple_L": {
+  "verts": 36,
+  "tris": 48
+ },
+ "N_hair_temple_R": {
+  "verts": 36,
+  "tris": 48
+ },
+ "N_hair_back": {
+  "verts": 396,
+  "tris": 704
+ },
+ "N_hair_fringe": {
+  "verts": 252,
+  "tris": 336
+ },
+ "N_hair_cheek_L": {
+  "verts": 49,
+  "tris": 72
+ },
+ "N_hair_cheek_R": {
+  "verts": 49,
+  "tris": 72
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "N_skull": {
+  "verts": 418,
+  "tris": 768
+ },
+ "N_neck": {
+  "verts": 60,
+  "tris": 96
+ },
+ "N_collar": {
+  "verts": 96,
+  "tris": 160
+ },
+ "N_hat": {
+  "verts": 353,
+  "tris": 672
+ },
+ "N_hair_shell": {
+  "verts": 414,
+  "tris": 768
+ },
+ "N_hair_bangs": {
+  "verts": 114,
+  "tris": 180
+ },
+ "N_hair_tips_back": {
+  "verts": 100,
+  "tris": 144
+ }
+}

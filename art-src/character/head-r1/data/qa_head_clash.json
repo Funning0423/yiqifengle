@@ -1,0 +1,261 @@
+{
+ "door_reach": {
+  "frames": [
+   0,
+   24
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.57,
+    0
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "idle_breathing_loop": {
+  "frames": [
+   0,
+   96
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.49,
+    10
+   ],
+   "tips->collar": [
+    35.0,
+    60
+   ],
+   "tips->torso": [
+    34.91,
+    56
+   ],
+   "hair_shell->torso": [
+    59.34,
+    60
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "sit_down": {
+  "frames": [
+   0,
+   30
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.56,
+    0
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "sit_hold": {
+  "frames": [
+   1,
+   31
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.57,
+    1
+   ],
+   "tips->collar": [
+    35.04,
+    1
+   ],
+   "tips->torso": [
+    35.0,
+    1
+   ],
+   "hair_shell->torso": [
+    59.41,
+    1
+   ],
+   "bangs->skull": [
+    7.59,
+    1
+   ]
+  }
+ },
+ "stand_up": {
+  "frames": [
+   0,
+   30
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.56,
+    16
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "walk_loop": {
+  "frames": [
+   0,
+   24
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.57,
+    0
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "wind_sway_loop": {
+  "frames": [
+   0,
+   96
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.57,
+    0
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "walk_loop_v2": {
+  "frames": [
+   0,
+   27
+  ],
+  "overlap_max": {},
+  "min_gap_mm": {
+   "collar->skull": [
+    17.57,
+    0
+   ],
+   "tips->collar": [
+    35.04,
+    0
+   ],
+   "tips->torso": [
+    35.0,
+    0
+   ],
+   "hair_shell->torso": [
+    59.41,
+    0
+   ],
+   "bangs->skull": [
+    7.59,
+    0
+   ]
+  }
+ },
+ "rest": {
+  "overlap": {
+   "skull-hair_shell": 0,
+   "skull-bangs": 0,
+   "skull-tips": 0,
+   "skull-hat": 0,
+   "hair_shell-hat": 0,
+   "bangs-hat": 0,
+   "bangs-hair_shell": 0,
+   "skull-collar": 0,
+   "skull-torso": 0,
+   "hair_shell-torso": 0,
+   "tips-torso": 0,
+   "tips-collar": 0,
+   "hair_shell-collar": 0,
+   "neck-collar": 0,
+   "hat-torso": 0,
+   "neck-torso": 0
+  },
+  "min_gap_mm": {
+   "collar->skull": 17.57,
+   "tips->collar": 35.04,
+   "tips->torso": 35.0,
+   "hair_shell->torso": 59.41,
+   "bangs->skull": 7.59
+  }
+ }
+}

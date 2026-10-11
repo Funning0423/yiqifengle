@@ -1,0 +1,34 @@
+{
+ "N_torso": {
+  "verts": 448,
+  "tris": 840
+ },
+ "N_sleeve_L": {
+  "verts": 400,
+  "tris": 768
+ },
+ "N_sleeve_R": {
+  "verts": 400,
+  "tris": 768
+ },
+ "N_bib": {
+  "verts": 99,
+  "tris": 160
+ },
+ "N_strap_L": {
+  "verts": 50,
+  "tris": 48
+ },
+ "N_strap_R": {
+  "verts": 50,
+  "tris": 48
+ },
+ "N_hand_L": {
+  "verts": 192,
+  "tris": 360
+ },
+ "N_hand_R": {
+  "verts": 192,
+  "tris": 360
+ }
+}
