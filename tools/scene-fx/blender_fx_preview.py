@@ -48,6 +48,20 @@ NIGHT_CLOUD = bpy.data.materials.new('night_cloud'); NIGHT_CLOUD.use_nodes = Tru
 _e = NIGHT_CLOUD.node_tree.nodes.new('ShaderNodeEmission'); _e.inputs['Color'].default_value = (.04, .065, .155, 1)
 NIGHT_CLOUD.node_tree.links.new(_e.outputs[0], NIGHT_CLOUD.node_tree.nodes['Material Output'].inputs[0])
 DAY_CLOUD = {o.name: [m for m in o.data.materials] for o in clouds}
+# GGbot T9n night sea (8021427): env_sea_surface mainColor x #7f9fb3, following the same 0.5 s night weight. Preview only.
+SEA_TINT = [((c / 255 + .055) / 1.055) ** 2.4 for c in (0x7f, 0x9f, 0xb3)]; SEA_MIX = []
+for o in bpy.data.objects:
+    if not o.name.startswith('env_sea_surface') or o.type != 'MESH': continue
+    for m in o.data.materials:
+        if not m or not m.use_nodes: continue
+        b = next((n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if not b: continue
+        inp = b.inputs['Base Color']; mx = m.node_tree.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'
+        mx.inputs[7].default_value = tuple(SEA_TINT) + (1,)
+        if inp.is_linked: src = inp.links[0].from_socket; m.node_tree.links.new(src, mx.inputs[6])
+        else: mx.inputs[6].default_value = tuple(inp.default_value)
+        m.node_tree.links.new(mx.outputs[2], inp); SEA_MIX.append(mx)
+print('sea night tint nodes', len(SEA_MIX))
 G = cfg['geometry']; ADD = material('fx_add', True); BLEND = material('fx_blend', False)
 beam = mesh_obj('fx_lighthouse_beam', G['beam']); glow = mesh_obj('fx_lighthouse_glow', G['glow']); glint = mesh_obj('fx_lighthouse_seaglint', G['glint'])
 for o in (beam, glow, glint): o.data.materials.append(ADD)
@@ -82,6 +96,7 @@ for k, f in enumerate(cfg['frames']):
     sun.energy = 3.2 + (0.9 - 3.2) * n; sun.color = lerp((1, .97, .92), (180 / 255, 198 / 255, 232 / 255), n)
     bg.inputs[0].default_value = lerp((.55, .7, .8, 1), (.03, .05, .12, 1), n); bg.inputs[1].default_value = .9 + (.5 - .9) * n
     for o in sky: o.hide_render = n > .5
+    for mx in SEA_MIX: mx.inputs['Factor'].default_value = n
     for o in night_objs: o.hide_render = n < .5
     for o in clouds:
         for i in range(len(o.data.materials)): o.data.materials[i] = NIGHT_CLOUD if n >= .5 else DAY_CLOUD[o.name][i]
