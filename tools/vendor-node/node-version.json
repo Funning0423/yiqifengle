@@ -1,0 +1,12 @@
+{
+  "version": "23.11.0",
+  "why": "作者 wiring 测试依赖 module.stripTypeScriptTypes（Node >= 23.2）；其余测试同样在此版本下验证",
+  "source": "https://nodejs.org/dist/v23.11.0/",
+  "shasums": "https://nodejs.org/dist/v23.11.0/SHASUMS256.txt",
+  "artifacts": {
+    "linux-x64":    {"file": "node-v23.11.0-linux-x64.tar.xz",    "sha256": "fa9ae28d8796a6cfb7057397e1eea30ca1c61002b42b8897f354563a254e7cf5"},
+    "linux-arm64":  {"file": "node-v23.11.0-linux-arm64.tar.xz",  "sha256": "85915f885fe7eab2be4a6e3de840cb83db4fc53749274d31383a0e1721a883c6"},
+    "darwin-arm64": {"file": "node-v23.11.0-darwin-arm64.tar.gz", "sha256": "635990b46610238e3c008cd01480c296e0c2bfe7ec59ea9a8cd789d5ac621bb0"},
+    "darwin-x64":   {"file": "node-v23.11.0-darwin-x64.tar.gz",   "sha256": "a5782655748d4602c1ee1ee62732e0a16d29d3e4faac844db395b0fbb1c9dab8"}
+  }
+}

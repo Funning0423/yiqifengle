@@ -2,8 +2,13 @@
   "name": "yiqifengle-dev-vendor",
   "private": true,
   "version": "0.0.0",
-  "description": "开发/QA 专用依赖（T1 几何解码夹具）。位于 creator-build-project 之外，不进入 Cocos 工程、构建输出或微信包。",
+  "description": "开发/QA 专用依赖（T1 几何解码夹具、类型检查、离线测试）。位于 creator-build-project 之外，不进入 Cocos 工程、构建输出或微信包。",
+  "engines": { "node": "23.11.0" },
   "dependencies": {
-    "draco3d": "1.5.7"
+    "@cocos/creator-types": "3.8.8",
+    "@napi-rs/canvas": "0.1.65",
+    "draco3d": "1.5.7",
+    "terser": "5.36.0",
+    "typescript": "5.8.3"
   }
 }

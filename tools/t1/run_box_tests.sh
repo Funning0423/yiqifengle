@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 # T1 共享电脑（Linux CPU）全量复跑。只写 $SCRATCH；不触碰 mac-source / 任何工程。
-# 依赖（均为既有交接资料或一次性下载，非生产）：
-#   YQ=/workspace/yiqifengle（交接根）；cc-3.8.8 CPU 引擎与 typescript 来自 character-core；
-#   NODE23（wiring 测试需 module.stripTypeScriptTypes）、QF_CANVAS_MODULE（@napi-rs/canvas）、CCTYPES（@cocos/creator-types@3.8.8 cc.d.ts）可选。
+# 工具链：只用 tools/vendor-node 锁定版本（先运行 tools/vendor-node/setup.sh）。
+#   Node 23.11.0（fetch-node.sh 校验 sha256）、typescript 5.8.3、@cocos/creator-types 3.8.8、@napi-rs/canvas 0.1.65、draco3d 1.5.7、terser 5.36.0。
+# 测试输入（交接资料，非工具）：YQ=/workspace/yiqifengle 下的 cc-3.8.8 CPU 引擎 loader 与 QA 冻结夹具。
 set -euo pipefail
 G=$(cd "$(dirname "$0")/../.." && pwd); T=$G/tools/t1; C=$G/candidates/T1-lighthouse-return-baseline
 YQ=${YQ:-/workspace/yiqifengle}; SCRATCH=${SCRATCH:-/tmp/ggbot-t1-run}; R=$SCRATCH/results; S=creator-build-project/assets/scripts
 QA=$YQ/qa-supplement/oi-frozen-qa-supplement-20261011/lighthouse-return-audit
 export ROOM_COCOS_CPU=$YQ/character-core/character-r23-anatomy-rebuild/stop-blend-stage/tools/cocos_exotic_cpu.cjs
-export ROOM_TYPESCRIPT=$YQ/character-core/lighthouse-island-astra-ultra/tools/vendor-node/node_modules/typescript
+VN=$G/tools/vendor-node; NM=$VN/node_modules
+NODE=$(ls "$VN"/node-runtime/node-v*/bin/node 2>/dev/null | head -1 || true)
+[ -n "$NODE" ] && [ "$("$NODE" -v)" = "v$(python3 -c "import json;print(json.load(open('$VN/node-version.json'))['version'])")" ] || { echo "pinned Node missing: run tools/vendor-node/setup.sh" >&2; exit 2; }
+for m in typescript @cocos/creator-types @napi-rs/canvas draco3d terser; do [ -d "$NM/$m" ] || { echo "vendor module $m missing: run tools/vendor-node/setup.sh" >&2; exit 2; }; done
+export PATH="$(dirname "$NODE"):$PATH"   # 所有 node 调用均为锁定版本
+export ROOM_TYPESCRIPT=$NM/typescript QF_CANVAS_MODULE=$NM/@napi-rs/canvas CCTYPES=$NM/@cocos/creator-types/engine/cc.d.ts NODE23=$NODE DRACO3D=$NM/draco3d
+echo "node $(node -v) @ $(command -v node); tsc $(node "$ROOM_TYPESCRIPT/bin/tsc" -v)"
 rm -rf "$SCRATCH"; mkdir -p "$R"; cp -a "$QA" "$SCRATCH/qa"; export T1_FIXTURE=$SCRATCH/qa/extracted/island-lighthouse-return/tools/fixture.cjs
 step(){ echo "== $*"; }
 step "trees (git archive baseline 1ef9f1d / near)"
-mkdir -p "$SCRATCH/trees/base" "$SCRATCH/trees/near"; git -C "$G" archive 1ef9f1d | tar x -C "$SCRATCH/trees/base"; git -C "$G" archive near | tar x -C "$SCRATCH/trees/near"
+mkdir -p "$SCRATCH/trees/base" "$SCRATCH/trees/near"; git -C "$G" archive 1ef9f1d | tar x -C "$SCRATCH/trees/base"; git -C "$G" archive 41fabe7 | tar x -C "$SCRATCH/trees/near"
 for t in base near; do mkdir -p "$SCRATCH/trees/$t-min/creator-build-project/assets/bundles/region_island"; cp -a "$SCRATCH/trees/$t/$S" "$SCRATCH/trees/$t/$S.meta" "$SCRATCH/trees/$t-min/creator-build-project/assets/" 2>/dev/null || true; cp "$SCRATCH/trees/$t/creator-build-project/assets/bundles/region_island/combined_visual_m.glb" "$SCRATCH/trees/$t-min/creator-build-project/assets/bundles/region_island/"; done
 step "package integrity + candidate reproducible from baseline"
 python3 "$T/build_candidate.py" "$SCRATCH/trees/base" "$SCRATCH/rebuilt" >/dev/null; diff -r "$C" "$SCRATCH/rebuilt" && echo "candidate byte-identical rebuild OK"
@@ -32,8 +38,8 @@ if python3 "$T/check_fixture_identity.py" "$T/results/pick-geometry-baseline.ide
 GE=$SCRATCH/geo; mkdir -p "$GE/tools" "$GE/evidence" "$GE/source/$S/world-r1"; cp "$SCRATCH/qa/extracted/island-lighthouse-return/tools/test_geometry.cjs" "$GE/tools/"; cp "$SCRATCH/full-l123/$S/world-r1/"{CameraPose,RegionCameraData,WorldFlowComponent}.ts "$GE/source/$S/world-r1/"
 python3 "$T/to_author_pick_format.py" "$SCRATCH/dec.json" "$GE/evidence/pick-geometry.json"; node "$GE/tools/test_geometry.cjs" >/dev/null; cp "$GE/evidence/geometry-tests.json" "$R/final-geometry-l123.json"
 python3 -c "import json,sys;d=json.load(open(sys.argv[1]));r=d['rows'];print('geometry',d['pass'],sum(x['gridHits']+x['gridMisses'] for x in r),sum(x['actualAabbAirMisses'] for x in r))" "$R/final-geometry-l123.json"
-if [ -n "${NODE23:-}" ] && [ -n "${QF_CANVAS_MODULE:-}" ]; then step "author wiring (2 variants x 3 viewports)"; WI=$SCRATCH/wire; mkdir -p "$WI/tools" "$WI/evidence"; cp "$SCRATCH/qa/extracted/island-lighthouse-return/tools/test_wiring.cjs" "$WI/tools/"; ln -s "$SCRATCH/full-l123" "$WI/source"; ln -s "$SCRATCH/full-l12" "$WI/baseline-source"; (cd "$WI" && "$NODE23" tools/test_wiring.cjs 2>/dev/null | head -1); cp "$WI/evidence/wiring-tests.json" "$R/final-wiring-l123-l12.json"; else echo "== wiring SKIPPED (set NODE23 + QF_CANVAS_MODULE)"; fi
-if [ -n "${CCTYPES:-}" ]; then step "tsc vs official cc.d.ts 3.8.8 (non-strict, like project tsconfig)"
+if true; then step "author wiring (2 variants x 3 viewports)"; WI=$SCRATCH/wire; mkdir -p "$WI/tools" "$WI/evidence"; cp "$SCRATCH/qa/extracted/island-lighthouse-return/tools/test_wiring.cjs" "$WI/tools/"; ln -s "$SCRATCH/full-l123" "$WI/source"; ln -s "$SCRATCH/full-l12" "$WI/baseline-source"; (cd "$WI" && "$NODE23" tools/test_wiring.cjs 2>/dev/null | head -1); cp "$WI/evidence/wiring-tests.json" "$R/final-wiring-l123-l12.json"; else echo "== wiring SKIPPED (set NODE23 + QF_CANVAS_MODULE)"; fi
+if true; then step "tsc vs official cc.d.ts 3.8.8 (non-strict, like project tsconfig)"
  for t in trees/base full-l123 full-l12; do d=$SCRATCH/$t/creator-build-project; printf '{"compilerOptions":{"target":"ES2020","module":"ES2015","moduleResolution":"node","lib":["ES2020","DOM"],"experimentalDecorators":true,"strict":false,"noEmit":true,"skipLibCheck":true,"types":[],"allowSyntheticDefaultImports":true},"files":["%s"],"include":["assets/**/*.ts"]}' "$CCTYPES" > "$d/tsconfig.t1check.json"; (cd "$d" && node "$ROOM_TYPESCRIPT/bin/tsc" -p tsconfig.t1check.json > "$R/tsc-$(basename $t).txt" 2>&1 || true); rm "$d/tsconfig.t1check.json"; done
  norm(){ sed -E 's/\(([0-9]+),[0-9]+\)/(L)/' "$1" | grep 'error TS' | sort; }; for v in l123 l12; do if diff <(norm "$R/tsc-base.txt") <(norm "$R/tsc-full-$v.txt") >/dev/null; then echo "$v: 0 new TS errors (baseline has $(grep -c 'error TS' "$R/tsc-base.txt") pre-existing)"; else echo "$v: NEW TS ERRORS"; diff <(norm "$R/tsc-base.txt") <(norm "$R/tsc-full-$v.txt") || true; fi; done
 else echo "== tsc SKIPPED (set CCTYPES=/path/@cocos/creator-types/engine/cc.d.ts)"; fi
@@ -41,4 +47,6 @@ step "exclusion: dev vendor / candidates are outside creator-build-project"
 for p in tools/vendor-node candidates; do case "$(realpath "$G/$p")" in "$(realpath "$G/creator-build-project")"*) echo "FAIL $p inside project"; exit 1;; *) echo "OK $p outside creator-build-project";; esac; done
 if find "$G/creator-build-project" -path '*/node_modules/*' -o -name 'draco_decoder*' | grep -q .; then echo "FAIL draco/node_modules under project"; exit 1; else echo "OK no node_modules/draco3d under creator-build-project"; fi
 git -C "$G" check-ignore -q tools/vendor-node/node_modules && echo "OK vendor node_modules git-ignored (lockfile committed)"
+step "package size estimate (TS→System→terser)"; node "$T/estimate_size.cjs" "$SCRATCH/trees/base" "$SCRATCH" > "$R/size-estimate.json"; python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print({k:v['minifiedJsDelta'] for k,v in d.items()})" "$R/size-estimate.json"
+step "nothing landed in creator-build-project"; [ -z "$(git -C "$G" status --porcelain -- creator-build-project)" ] && [ -z "$(git -C "$G" status --porcelain --ignored -- creator-build-project)" ] && echo "OK creator-build-project clean (no tracked/untracked/ignored changes)"
 echo "ALL BOX TESTS DONE → $R"
