@@ -54,6 +54,8 @@ export interface WorldLease {
    * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
   setRoomLightWeight?(weight:number):boolean;
   getRoomLightWeight?():number;
+  hasRoomLight?():boolean;
+  isWorldVisible?():boolean;
   blendRoomLight?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   assertStaticWorld():void;
   dispose():void;
