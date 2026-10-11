@@ -1,18 +1,153 @@
 [
   {
+    "path": "creator-build-project/assets/bundles/audio_bgm_island/audio/bgm_main.mp3",
+    "bytes": 501333,
+    "sha256": "21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/background_foliage/painted-cloud.png",
+    "bytes": 1417468,
+    "sha256": "eeca70e033d1f1eb65b5e8f4c182d8be1c58e42816976533352c44a11cb323f2"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
     "bytes": 2006676,
     "sha256": "f543a242f2534e0b9235d47d131f1bbcc1c41344bfa14ac4c276f813e73663fb"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/combined_visual_m.glb",
-    "bytes": 5020780,
-    "sha256": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b"
+    "bytes": 5019964,
+    "sha256": "77bff8b3cb33c92a43cb02a4ad00f0f8e65f07e07052b9c870bea171194a9748"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_short.glb",
+    "bytes": 5768,
+    "sha256": "0ae020ed15d77e93b48fa217f1b97dd2583d8b67386552deb5d09da7541e0f1d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_tall.glb",
+    "bytes": 5880,
+    "sha256": "869dbf0c0633c936b573de0e644653fb9b2430169cb2f9ae23c480b8ed9c4528"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_compass.glb",
+    "bytes": 5340,
+    "sha256": "d90ec1408a8e94c3edd36bf9e78095511fb4c1de0290125d3e577b61c93911a0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_notebook.glb",
+    "bytes": 4952,
+    "sha256": "af605ce6c407a0979ba5fdf4e4b11bc0282836f0ee4e7d4d545a329fc9e5c37c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_satchel.glb",
+    "bytes": 5080,
+    "sha256": "f0cca35bca3ad76de7b8a73b2e4d758872d2af3b167ec2393a558bba87c10867"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/ui-props/ui_signpost.glb",
+    "bytes": 7500,
+    "sha256": "7daf8bf697407405e302e7679d18659ce19ec9df66249937028ce2eb8f554918"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_meadow/audio/bgm_meadow.mp3",
+    "bytes": 436288,
+    "sha256": "eb173a0d679f52e69a457c0a3512623e427efe5c2cf679e6caa9e1cb243cd87f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",
+    "bytes": 432526,
+    "sha256": "88016beea998d5993d6ad68a0013da269a1e3e32c7ee082b3df2e38baab2c3b5"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1114728,
-    "sha256": "0e8152e836f309868a9e6a485c9e2925e39dd99707d5f93d682e4a631a66b288"
+    "bytes": 1114604,
+    "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_amb/amb_waves_loop.mp3",
+    "bytes": 48644,
+    "sha256": "53e5d05a698c5faaa064531d818e7941a6c9236282ebaff990396498d1066c55"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_amb/amb_wind_soft_loop.mp3",
+    "bytes": 12033,
+    "sha256": "15dfdda0d9315a9762a777cb322071511e51af078e2df90e4ffa1ee0f77f510c"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_amb/amb_wind_strong_loop.mp3",
+    "bytes": 12033,
+    "sha256": "25a721c2de0225f0216b25e098e9c481dba8f684ec02efd71cd0b15a8f9aef99"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_1_L.mp3",
+    "bytes": 13836,
+    "sha256": "88841f7b5241b9f30041c90741edf6aa4abceef347eea4e0fe1660229a6cd844"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_1_R.mp3",
+    "bytes": 13836,
+    "sha256": "e82d3b0a683d0e2acbbd5cb6a26b53afc5bfc415cd5ef4b59d20e7cbec633158"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_2_L.mp3",
+    "bytes": 13418,
+    "sha256": "7b04851c21ef939baab7b569bc1e3c086195ffa34128814e78162d8728d7f7ba"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_2_R.mp3",
+    "bytes": 13418,
+    "sha256": "24dab167677d166cdc449c5588dd655b711ff9ccb00c1164d14fcad3c6542a7f"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_3_L.mp3",
+    "bytes": 13209,
+    "sha256": "bda1dd0370724845b7e23e2337288a1035d0819f711361d48a31c59680bab269"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/gull_lr/sfx_amb_gull_3_R.mp3",
+    "bytes": 13209,
+    "sha256": "81caaf1946c27f3b5d6f971e158e4b61fc25065eb9fe3909858a229602b4173e"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_amb_gull_1.mp3",
+    "bytes": 13628,
+    "sha256": "7d385524af0b2c186fe5da16f03b6bf2cedd3b31b353fcaa7358be4f6ea9bc1c"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_amb_gull_2.mp3",
+    "bytes": 13210,
+    "sha256": "8c57d5e737cccf750535b87cc3d0b75a2509905b60edcd0b4638fc20a1214a27"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_amb_gull_3.mp3",
+    "bytes": 13001,
+    "sha256": "8c2d4bbd5c43e8b456439bfae6e391e2d2cae55b33c8370a222da0364f87ff26"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_apron_flap.mp3",
+    "bytes": 6495,
+    "sha256": "521e8fafeca8b2a4d883d1be02defc807bc9f0fdf97af96557b3fbde45ec3aaa"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_1_great.mp3",
+    "bytes": 7932,
+    "sha256": "a033e1c9a307e0afa1d21a620ea7eea9e3e4c5598a8d150b2c6362d35f6a86fa"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_2_excellent.mp3",
+    "bytes": 8716,
+    "sha256": "ff839634a38f5a566263c7411f399634843017781ee8e1c4a240796f2a1a2257"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_3_amazing.mp3",
+    "bytes": 8585,
+    "sha256": "07ee73a43fd10c190f90ba3077c914bc683a19ec541c000deb5c018c7ef1fd48"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_cheer_4_unbelievable.mp3",
+    "bytes": 9499,
+    "sha256": "1521c23d1e058955d60681d19466620c582ba42a893a62d7f735c70d97e7710e"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_chest_open.mp3",
@@ -45,9 +180,44 @@
     "sha256": "fcad04e03b7504a1acdbdc1b97d83d621a3d5a9f76aaee54886d681eef1eb5e9"
   },
   {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_back.mp3",
+    "bytes": 1749,
+    "sha256": "c9cea1fedf0b0e0f79016713809d1c792dbb51e35d9c86081ee22288ce5cbf65"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_bag.mp3",
+    "bytes": 2219,
+    "sha256": "ee12c230855b372077cc75827ab48100e4decdfcb931de44ff34a5e211df1821"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_book.mp3",
+    "bytes": 2063,
+    "sha256": "2672221ce06a4014ef8505cc58cd3927dc99e2c08f493abb5e25beeda361807a"
+  },
+  {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3",
     "bytes": 1714,
     "sha256": "443769d588f408a03b96f75cc726e3425417529e10831ed23105c21f217d27ac"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_confirm.mp3",
+    "bytes": 1749,
+    "sha256": "f41b5ba1c3356a3b1960c701d98f53c66d3b2413089051d555d8076cb0c601b7"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_settings.mp3",
+    "bytes": 1279,
+    "sha256": "b586545691c551299694cf5e3743fc8df18f82149f6fa134d868e7037fec85c6"
+  },
+  {
+    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3",
+    "bytes": 2846,
+    "sha256": "595ee60a3514792ec7a196c7170e492e761f09d8c4a3db23784421612e331f20"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",
+    "bytes": 2118,
+    "sha256": "0bf1a4335842f3ab8821f40f28197b89298d285f5f52db733148102fdf27e16c"
   },
   {
     "path": "creator-build-project/assets/resources/ui/loading-reference.jpg",
@@ -58,6 +228,11 @@
     "path": "creator-build-project/assets/resources/ui/pieces.png",
     "bytes": 776072,
     "sha256": "0d9d66b936ed15d5d4c993686e51922e7e768dfcf28e5dd9b1795cd9f45d982e"
+  },
+  {
+    "path": "creator-build-project/assets/resources/ui/tools-original.png",
+    "bytes": 66831,
+    "sha256": "b9a28d5fe213153366e13a6dfb68966883871901c52bcf8b88c05c2ad7cd94b8"
   },
   {
     "path": "tools/branding/game-title-temporary.png",
