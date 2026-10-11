@@ -54,7 +54,11 @@ export const flow=new WorldFlow({config,mode:'motion',character:char,levels:{ent
 const settleListeners:((p:string,i?:any)=>void)[]=[];
 export const calls={leave:0,ret:0,look:0,mainline:0};
 /** combo: a level = a ManagedMobileBoardUI stand-in in the scene (7x7 cells under a board frame at boardCenter), intro modal for 1.5 s. */
-export const scene:any=new Node('Scene');scene.getComponentInChildren=(n:string)=>n==='WorldIntegrationBoot'?boot:null;
+/** Real Cocos layout: WorldIntegrationBoot is a component ON the Scene node; getComponentInChildren does NOT look at the node itself
+ *  (Cocos semantics), so a children-only lookup finds nothing. GB_BOOT_ON=child puts it on a child instead (both must work). */
+const bootOnChild=process.env.GB_BOOT_ON==='child';
+export const scene:any=new Node('Scene');{const own=scene.getComponent.bind(scene);scene.getComponent=(n:any)=>n==='WorldIntegrationBoot'?(bootOnChild?null:boot):own(n);
+ scene.getComponentInChildren=(n:string)=>n==='WorldIntegrationBoot'&&bootOnChild?boot:null;}
 export let board:any=null;
 function openBoard(){const n=new Node('ManagedBoard');scene.addChild(n);const b:any=n.addComponent(ManagedMobileBoardUI as any);const root=new Node('NativeBoardCanvas');n.addChild(root);root.addComponent(UITransform).setContentSize(W,H);
  const frame=new Node('IslandBoardCarving');root.addChild(frame);frame.setPosition(0,60);const cells:any[]=[];for(let i=0;i<49;i++){const c=new Node('cell'+i);frame.addChild(c);c.setPosition((i%7-3)*48,(3-Math.floor(i/7))*48);cells.push(c);}

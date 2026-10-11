@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Usage: tools/grokbot-autoplay/test/build_and_run.sh [T1_DIR]
 # Needs node>=18 and esbuild@0.21.5 (GB_TOOLS=<dir with node_modules/esbuild>, default /tmp/gb-t0-tools).
+# Loose-ES5 jobs (Cocos-build hazard check) also need, in the same GB_TOOLS: @babel/core@7.29.7 @babel/preset-env@7.29.7 @babel/preset-typescript@7.28.5
+#   (see package.json). They re-run the key paths with the T0 sources (src/*.ts) first compiled like Cocos' build does: babel preset-env
+#   loose:true, targets ie 11 -> [...x] becomes [].concat(x), for-of/destructuring become index-based. GB_LOOSE=0 skips them (not recommended).
 # T1_DIR (optional) = extracted T1-lighthouse-return-baseline package; enables the T1 touch/return tests against the REAL T1 code.
 # GB_INT_DIR (optional env) = checkout of int/v1 (5d66c30 or newer; dir containing creator-build-project/); enables autoplay=combo
 #   integration tests against the REAL int/v1 audio/GameAudio.ts + ui/CheerText.ts (+CheerTextModel). Without it they are SKIPPED.
@@ -9,7 +12,14 @@ export GB_PRELUDE_FILE="$(cd "$(dirname "$0")/.." && pwd)/prelude/gb-touch-prelu
 here="$(cd "$(dirname "$0")" && pwd)"; tools="${GB_TOOLS:-/tmp/gb-t0-tools}"; out="$(mktemp -d)"; t1="${1:-}"
 scripts="$here/../../../creator-build-project/assets/scripts"
 NODE_PATH="$tools/node_modules" node - "$here" "$out" "$scripts" "$t1" "${GB_INT_DIR:-}" <<'JS'
-const [here,out,scripts,t1,intDir]=process.argv.slice(2);const path=require('path');const esbuild=require('esbuild');
+const [here,out,scripts,t1,intDir]=process.argv.slice(2);const path=require('path');const esbuild=require('esbuild');const fs=require('fs');
+const LOOSE=process.env.GB_LOOSE!=='0';const srcDir=path.resolve(here,'../src')+path.sep;
+/** Cocos-like loose ES5 transform, applied ONLY to T0 sources (that is what we ship); everything else is bundled as-is. */
+const loosePlugin={name:'cocos-loose-es5',setup(b){const babel=require('@babel/core');b.onLoad({filter:/\.ts$/},a=>{if(!a.path.startsWith(srcDir))return undefined;
+ const r=babel.transformSync(fs.readFileSync(a.path,'utf8'),{filename:a.path,babelrc:false,configFile:false,sourceType:'module',
+  presets:[[require.resolve('@babel/preset-env'),{loose:true,modules:false,targets:{ie:'11'}}],[require.resolve('@babel/preset-typescript'),{onlyRemoveTypeImports:false}]]});
+ if(/\[\.\.\./.test(r.code))throw Error('loose transform left a spread in '+a.path);fs.writeFileSync(path.join(out,'loose-'+path.basename(a.path,'.ts')+'.js'),r.code);return {contents:r.code,loader:'js'};});}};
+const loose=(cfg)=>({...cfg,outfile:cfg.outfile.replace(/\.mjs$/,'-loose.mjs'),plugins:[loosePlugin,...cfg.plugins]});
 const mk=(entry,file,overlay,home)=>({entryPoints:[path.join(here,entry)],outfile:path.join(out,file),bundle:true,platform:'node',format:'esm',target:'node18',logLevel:'error',
  alias:{cc:path.join(here,'cc-stub.mjs'),'cc/env':path.join(here,'cc-env-stub.mjs')},
  plugins:[{name:'stubs',setup(b){b.onResolve({filter:/(^|\/)(WarmButton|JourneyNavigationSkin)$/},()=>({path:path.join(here,'ui-stubs.mjs')}));b.onResolve({filter:/(^|\/)audio\/GameAudio$/},()=>({path:path.join(here,'gameaudio-stub.mjs')}));
@@ -27,6 +37,9 @@ const jobs=[esbuild.build(mk('combo.test.ts','combounit.mjs',...base)),esbuild.b
 if(t1)for(const v of ['l123','l12']){const a=path.join(t1,'variants/baseline-'+v+'/after/creator-build-project/assets/scripts');const o=path.join(a,'world-r2/IslandJourneyOverlay.ts'),h=path.join(a,'world-r2/IslandHomeInteraction.ts');
  jobs.push(esbuild.build(mk('integration.ts','int-'+v+'.mjs',o,h)),esbuild.build(mk('integration-touch.ts','touch-'+v+'.mjs',o,h)));}
 if(intDir)jobs.push(esbuild.build(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
+if(LOOSE){jobs.push(esbuild.build(loose(mk('sequencer.test.ts','sequencer.mjs',...base))),esbuild.build(loose(mk('touch.test.ts','touchunit.mjs',...base))),esbuild.build(loose(mk('combo.test.ts','combounit.mjs',...base))),
+  esbuild.build(loose(mk('integration.ts','int-base.mjs',...base))),esbuild.build(loose(mk('integration-touch.ts','touch-base.mjs',...base))));
+ if(intDir)jobs.push(esbuild.build(loose(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts')))));}
 Promise.all(jobs).catch(e=>{console.error(e);process.exit(1);});
 JS
 r(){ local name="$1"; shift; if env "$@" > "$out/$name.log" 2>&1; then tail -1 "$out/$name.log"; else echo "FAILED: $name"; grep -m3 "^FAIL" "$out/$name.log"; exit 1; fi; }
@@ -61,4 +74,17 @@ if [ -n "${GB_INT_DIR:-}" ]; then
   r combo-macro-here-noboard GB_COMBO=1 GB_EXPECT='text=0:no-board,1:no-board,2:no-board,3:no-board .*sfxOk=1 textOk=0' GROKBOT_MACRO='combo:here' node -e "globalThis.GROKBOT_AUTOPLAY='combo:here';import('$out/int-combo.mjs')"
   r combo-noT6 GB_COMBO=1 GB_NO_T6=1 GB_EXPECT='text=absent' GB_QUERY='?autoplay=combo' node "$out/int-combo.mjs"
 else echo "SKIP combo integration (set GB_INT_DIR=<int/v1 checkout> to run against the real GameAudio/CheerText)"; fi
+if [ "${GB_LOOSE:-1}" != 0 ]; then
+  # Same key paths with T0 compiled Cocos-style (loose ES5). Boot is ON the Scene node (real Cocos layout) unless GB_BOOT_ON=child.
+  r loose-unit-seq node "$out/sequencer-loose.mjs"
+  r loose-unit-touch node "$out/touchunit-loose.mjs"
+  r loose-unit-combo node "$out/combounit-loose.mjs"
+  r loose-oab-visible GB_DOOR_VISIBLE=visible node "$out/int-base-loose.mjs"
+  r loose-oab-drag GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-base-loose.mjs"
+  r loose-oab-boot-child GB_BOOT_ON=child node "$out/int-base-loose.mjs"
+  r loose-touch-noT1 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-base-loose.mjs"
+  if [ -n "${GB_INT_DIR:-}" ]; then r loose-combo-touch GB_COMBO=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; r loose-combo-muted GB_COMBO=1 GB_COMBO_MUTED=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; fi
+  for f in "$out"/loose-*.js; do if grep -nE '\[\]\.concat\((this\.down|[a-zA-Z_.]*(Map|Set)\b)' "$f"; then echo "FAIL: loose output concat()s a Map/Set: $f"; exit 1; fi; done
+  echo "PASS loose-ES5 (Cocos-like babel preset-env loose, ie 11): T0 sources $(ls "$out"/loose-*.js | wc -l | tr -d ' ') files transformed, key paths ran"
+else echo "SKIP loose-ES5 jobs (GB_LOOSE=0)"; fi
 echo "artifacts: $out"

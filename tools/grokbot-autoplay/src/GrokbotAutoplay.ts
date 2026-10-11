@@ -43,7 +43,8 @@ function fakeTouch(id:number,x:number,y:number,down:boolean):Fake{const t:any={g
 /** ---------- shared context ---------- */
 class Ctx {
  readonly t0=now();boot:any=null;private sink=fileSink();private lighthouseCache:{p:Point;at:number}|null=null;
- findBoot(){if(this.boot&&this.boot.isValid!==false&&this.boot.node?.isValid!==false)return this.boot;this.boot=director.getScene()?.getComponentInChildren('WorldIntegrationBoot')||null;return this.boot;}
+ findBoot(){if(this.boot&&this.boot.isValid!==false&&this.boot.node?.isValid!==false)return this.boot;const s:any=director.getScene();this.boot=s?(s.getComponent?.('WorldIntegrationBoot')||s.getComponentInChildren?.('WorldIntegrationBoot')||null):null;return this.boot;}
+ /* ^ Cocos: getComponentInChildren does NOT check the node itself, and the boot lives ON the Scene node in real builds. */
  ready(b:any){return !!b&&b.loadPhase==='ready'&&b.ready&&!!b.composition;}
  commands(){const b=this.findBoot();if(!this.ready(b))return null;try{return b.composition.worldCommands();}catch{return null;}}
  state():string|null{const c=this.commands();if(!c)return null;try{return c.snapshot().state;}catch{return null;}}
@@ -79,15 +80,15 @@ class TouchBackend {
  inject(phase:TouchStep['phase'],finger:number,p:Point):{ok:boolean;reason?:string;info?:string}{
   const id=1000+finger;if(phase==='start'||phase==='move')this.down.set(id,p);else this.down.delete(id);
   if(this.kind==='wx-prelude'){const mk=(i:number,q:Point)=>({identifier:i,clientX:q.x,clientY:q.y,pageX:q.x,pageY:q.y,force:1});
-   const ev={type:'touch'+phase,touches:[...this.down].map(([i,q])=>mk(i,q)),changedTouches:[mk(id,p)],timeStamp:Date.now()};
+   const ev={type:'touch'+phase,touches:Array.from(this.down).map(([i,q])=>mk(i,q)),changedTouches:[mk(id,p)],timeStamp:Date.now()};
    const key=({start:'onTouchStart',move:'onTouchMove',end:'onTouchEnd',cancel:'onTouchCancel'} as const)[phase];
    const n=G.__gbTouch.emit(key,ev);return n>0?{ok:true,info:`backend=wx-prelude listeners=${n} touches=${ev.touches.length}`}:{ok:false,reason:'no-wx-listeners'};}
   if(this.kind==='web-dom'){const cv=(game as any).canvas,r=cv.getBoundingClientRect(),T=(G as any).Touch,TE=(G as any).TouchEvent;
    const mk=(i:number,q:Point)=>new T({identifier:i,target:cv,clientX:r.left+q.x,clientY:r.top+q.y,pageX:r.left+q.x,pageY:r.top+q.y,force:1});
-   const touches=[...this.down].map(([i,q])=>mk(i,q));cv.dispatchEvent(new TE('touch'+phase,{touches,targetTouches:touches,changedTouches:[mk(id,p)],bubbles:true,cancelable:true}));return {ok:true,info:`backend=web-dom touches=${touches.length}`};}
+   const touches=Array.from(this.down).map(([i,q])=>mk(i,q));cv.dispatchEvent(new TE('touch'+phase,{touches,targetTouches:touches,changedTouches:[mk(id,p)],bubbles:true,cancelable:true}));return {ok:true,info:`backend=web-dom touches=${touches.length}`};}
   return {ok:false,reason:'no-touch-backend'};
  }
- releaseAll(){for(const [id,p] of [...this.down])this.inject('cancel',id-1000,p);}
+ releaseAll(){Array.from(this.down).forEach(([id,p])=>this.inject('cancel',id-1000,p));}
 }
 
 /** ---------- read-only observers ---------- */
@@ -103,11 +104,11 @@ class Observers {
  private hookAudio(){if(this.audioHooked)return;const C:any=js.getClassByName('GameAudio');if(!C?.prototype?.play)return;this.audioHooked=true;const P=C.prototype,ctx=this.ctx;let source='';
   const wrap=(name:string,after:(self:any,args:any[],before:any)=>void,before?:(self:any,args:any[])=>any)=>{const orig=P[name];if(typeof orig!=='function')return;P[name]=function(this:any,...args:any[]){const b=before?.(this,args);const r=orig.apply(this,args);try{after(this,args,b);}catch{}return r;};};
   // play(): log request + what GameAudio actually did (new AudioSource voice or dropped), clip, effective volume.
-  wrap('play',(self,[n,v],before)=>{const sus=self.reasons?.size?1:0,muted=self.muted?1:0;let voice:any=null;try{for(const x of (self.sfxVoices?.values?.()??[]))if(!before.has(x.source))voice=x;}catch{}
+  wrap('play',(self,[n,v],before)=>{const sus=self.reasons?.size?1:0,muted=self.muted?1:0;let voice:any=null;try{Array.from<any>(self.sfxVoices?.values?.()??[]).forEach(x=>{if(!before.has(x.source))voice=x;});}catch{}
    const src=voice?.source,vol=src?Number(src.volume):Math.max(0,Math.min(1,Number.isFinite(v)?v:1)),eff=muted||sus?0:vol;
    ctx.mark('audio:sfx',`name=${n} accepted=${voice?1:0} clip=${src?.clip?.name??'-'} vol=${fmt(vol)} effVol=${fmt(voice?eff:0)} loop=${src?.loop?1:0} dur=${fmt(src?.duration??src?.clip?.duration)} muted=${muted} suspended=${sus}`);
    if(n==='sfx_level_clear')ctx.mark('audio:level-complete','accepted='+(voice?1:0));if(n==='sfx_chest_open')ctx.mark('audio:chest','source='+(source||'other')+' accepted='+(voice?1:0));},
-   (self)=>{const set=new Set<any>();try{for(const x of (self.sfxVoices?.values?.()??[]))set.add(x.source);}catch{}return set;});
+   (self)=>{const set=new Set<any>();try{Array.from<any>(self.sfxVoices?.values?.()??[]).forEach(x=>set.add(x.source));}catch{}return set;});
   wrap('onBoardFrame',(self,[v])=>{if(v?.kind==='clear'){const c=self.cascade,tier=c<=1?'normal':c===2?'combo_1':c===3?'combo_2':'combo_3';ctx.mark('audio:clear',`wave=${c} tier=${tier}${v.gbSynthetic?' synthetic=1 token='+v.token:''}`);}else if(v?.kind==='action')ctx.mark('audio:combo-reset');});
   wrap('onChestResult',()=>{source='';},()=>{source='chest';});wrap('onClaimResult',()=>{source='';},()=>{source='claim';});
   wrap('setMusic',(_s,[p])=>ctx.mark('audio:bgm-set','path='+p));

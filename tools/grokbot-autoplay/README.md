@@ -111,6 +111,10 @@ grep -rIlE 'GB_MARK|GROKBOT_AUTOPLAY|__gbTouch|GrokbotAutoplay|GrokbotMarks|grok
 - 注意：int/v1 的 `ui/CheerText.ts`（T6）里有一行**注释**提到 “T0 GB_MARK observer”。debug=false 的正式包会经过 terser，注释被去掉，所以照样 CLEAN（盒子上用 terser 验证过）。但如果用 debug=true 或带 sourcemap 的包去跑 check_release_strip.sh，会报 NOT CLEAN，误报在 CheerText 这一处。
 
 - combo 也可以不加宏，直接用启动 query：`autoplay=combo`（可加 `&gbComboGap=400&gbComboClears=5`）。看 `GB_MARK.log` 里的 `combo:result` 是 PASS 还是 FAIL。
+- 真实 Cocos 构建的两个坑（int/v1 5d66c30 Mac 实测发现，已修）：
+  - `WorldIntegrationBoot` 挂在 **Scene 节点本身**，而 Cocos 的 `getComponentInChildren` 不查自己。`findBoot()` 现在先 `scene.getComponent`，再查子节点。测试桩已改成 Cocos 的真实语义（默认挂在 Scene 上，`GB_BOOT_ON=child` 测挂在子节点）。其他查找都走 `js.getClassByName` + 静态 `instance`，不受影响。
+  - Cocos 构建用 babel loose 转 ES5：`[...map]` 会变成 `[].concat(map)`。T0 源码里不再对 Map/Set/迭代器用展开或 for-of，统一 `Array.from(...)`。
+  - `build_and_run.sh` 新增 loose-ES5 任务：先用 babel preset-env（loose:true，targets ie 11）只转译 T0 源码，再跑 unit/out-and-back/touch/combo 关键路径，并检查输出里没有 `[].concat(Map/Set)`。需要 GB_TOOLS 里装 `@babel/core@7.29.7 @babel/preset-env@7.29.7 @babel/preset-typescript@7.28.5`（见 test/package.json）。
 - 盒子上的测试：`GB_INT_DIR=<int/v1 检出目录> test/build_and_run.sh [T1包目录]`。combo 跑的是 int/v1 **真实的** `audio/GameAudio.ts` 和 `ui/CheerText.ts`（含 CheerTextModel），引擎是模拟的。没设 GB_INT_DIR 时跳过这部分。
 
 ## 回退

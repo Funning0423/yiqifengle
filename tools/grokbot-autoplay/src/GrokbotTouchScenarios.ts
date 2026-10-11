@@ -52,7 +52,7 @@ export function validateScenario(s:any):string|null{
 }
 /** 'a,b' names, group names (t1, t1-multi), plus optional custom JSON list. Unknown names -> error entries. */
 export function selectScenarios(spec:string,custom:TouchScenario[]=[]):{list:TouchScenario[];errors:string[]}{
- const all=new Map<string,TouchScenario>();for(const s of [...T1_PRESETS,...custom])all.set(s.name,s);const list:TouchScenario[]=[],errors:string[]=[];
+ const all=new Map<string,TouchScenario>();for(const s of T1_PRESETS.concat(custom))all.set(s.name,s);const list:TouchScenario[]=[],errors:string[]=[];
  for(const raw of spec.split(',').map(x=>x.trim()).filter(Boolean)){const names=PRESET_GROUPS[raw]??[raw];for(const n of names){const s=all.get(n);if(!s){errors.push('unknown:'+n);continue;}const bad=validateScenario(s);if(bad){errors.push(n+':'+bad);continue;}list.push(s);}}
  return {list,errors};
 }
@@ -84,7 +84,7 @@ export class TouchScenarioRunner {
  private exportScript():boolean{const s=this.cur(),last=new Map<number,Point>();const pts=s.steps.map(st=>{let p:Point|{error:string};if(st.phase==='start'||st.target||st.n)p=this.d.resolve(st);else p=last.get(st.finger)??{error:'x'};if('error' in p)return null;const q={x:p.x+(st.dx??0),y:p.y+(st.dy??0)};last.set(st.finger,q);return q;});
   const r=toWxGameInput(s,pts,this.client());this.d.mark('touch:wx-script',`name=${s.name} supported=${r.supported?1:0} cmds=${JSON.stringify(r.lines.join('\n'))}`);
   if(this.exportWx==='only'){this.finish('SKIP','-','exported-only');this.go('next');return true;}return false;}
- private releaseAll(){for(const [f,p] of [...this.down]){this.d.inject('cancel',f,p);this.d.mark('touch:cancel',`f=${f} x=${Math.round(p.x)} y=${Math.round(p.y)} cleanup=1`);}this.down.clear();}
+ private releaseAll(){Array.from(this.down).forEach(([f,p])=>{this.d.inject('cancel',f,p);this.d.mark('touch:cancel',`f=${f} x=${Math.round(p.x)} y=${Math.round(p.y)} cleanup=1`);});this.down.clear();}
  tick():void{
   if(this.phase==='done')return;this.frames++;const s0=this.d.state();
   if(s0!==this.prevState){if(s0==='walking-home'&&(this.phase==='steps'||this.phase==='observe'))this.returns++;this.prevState=s0;}
