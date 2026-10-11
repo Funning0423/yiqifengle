@@ -7,6 +7,8 @@
 # T1_DIR (optional) = extracted T1-lighthouse-return-baseline package; enables the T1 touch/return tests against the REAL T1 code.
 # GB_INT_DIR (optional env) = checkout of int/v1 (5d66c30 or newer; dir containing creator-build-project/); enables autoplay=combo
 #   integration tests against the REAL int/v1 audio/GameAudio.ts + ui/CheerText.ts (+CheerTextModel). Without it they are SKIPPED.
+# GB_UNLOCK_DIR (optional env) = checkout with creator-build-project/assets/scripts/audio/AudioUnlock.ts (work/GGbot-audiounlock); enables audio:unlock
+#   out-and-back tests against the REAL RoomExploreOverlay + AudioUnlock (door-tap / room-swipe / raw wx touch).
 # GB_T9_DIR (optional env) = checkout of work/GGbot-t9 (380891d or newer); enables the T9 named prop target tests (signpost/bag/book/settings, ui:tap).
 set -euo pipefail
 export GB_PRELUDE_FILE="$(cd "$(dirname "$0")/.." && pwd)/prelude/gb-touch-prelude.js"
@@ -42,6 +44,12 @@ if(t1)for(const v of ['l123','l12']){const a=path.join(t1,'variants/baseline-'+v
 /** T9 job: REAL work/GGbot-t9 overlay + IslandPropTaps + IslandHomeInteraction. */
 const t9=t9Dir&&path.join(t9Dir,'creator-build-project/assets/scripts');
 if(t9){const a=[path.join(t9,'world-r2/IslandJourneyOverlay.ts'),path.join(t9,'world-r2/IslandHomeInteraction.ts'),path.join(t9,'world-r2/IslandPropTaps.ts')];jobs.push(esbuild.build(mk('integration-t9.ts','int-t9.mjs',...a)));if(LOOSE)jobs.push(esbuild.build(loose(mk('integration-t9.ts','int-t9.mjs',...a))));}
+/** audio-unlock job: REAL RoomExploreOverlay + REAL audio/AudioUnlock.ts from GB_UNLOCK_DIR (work/GGbot-audiounlock or int/v1 after merge);
+ *  AudioUnlock's './GameAudio' -> gameaudio-unlock-stub (delegates to the harness FakeGameAudio). */
+const unlockDir=process.env.GB_UNLOCK_DIR&&path.join(process.env.GB_UNLOCK_DIR,'creator-build-project/assets/scripts');
+const mkUnlock=(entry,file)=>{const c=mk(entry,file,...base);c.plugins=[{name:'unlock',setup(b){b.onResolve({filter:/RoomExploreOverlay$/},()=>({path:path.join(unlockDir,'RoomExploreOverlay.ts')}));
+ b.onResolve({filter:/^\.\/GameAudio$/},a=>a.importer.endsWith('AudioUnlock.ts')?{path:path.join(here,'gameaudio-unlock-stub.mjs')}:undefined);}},...c.plugins];return c;};
+if(unlockDir){jobs.push(esbuild.build(mkUnlock('integration.ts','int-unlock.mjs')));if(LOOSE)jobs.push(esbuild.build(loose(mkUnlock('integration.ts','int-unlock.mjs'))));}
 if(intDir)jobs.push(esbuild.build(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
 if(LOOSE){jobs.push(esbuild.build(loose(mk('sequencer.test.ts','sequencer.mjs',...base))),esbuild.build(loose(mk('touch.test.ts','touchunit.mjs',...base))),esbuild.build(loose(mk('combo.test.ts','combounit.mjs',...base))),
   esbuild.build(loose(mk('integration.ts','int-base.mjs',...base))),esbuild.build(loose(mk('integration-touch.ts','touch-base.mjs',...base))));
@@ -85,6 +93,15 @@ if [ -n "${GB_INT_DIR:-}" ]; then
   r combo-macro-here-noboard GB_COMBO=1 GB_EXPECT='text=0:no-board,1:no-board,2:no-board,3:no-board .*sfxOk=1 textOk=0' GROKBOT_MACRO='combo:here' node -e "globalThis.GROKBOT_AUTOPLAY='combo:here';import('$out/int-combo.mjs')"
   r combo-noT6 GB_COMBO=1 GB_NO_T6=1 GB_EXPECT='text=absent' GB_QUERY='?autoplay=combo' node "$out/int-combo.mjs"
 else echo "SKIP combo integration (set GB_INT_DIR=<int/v1 checkout> to run against the real GameAudio/CheerText)"; fi
+if [ -n "${GB_UNLOCK_DIR:-}" ]; then
+  US="$GB_UNLOCK_DIR/creator-build-project/assets/scripts"
+  echo "audio unlock against REAL sources: RoomExploreOverlay $(sha256sum "$US/RoomExploreOverlay.ts" | cut -c1-8) AudioUnlock $(sha256sum "$US/audio/AudioUnlock.ts" | cut -c1-8)"
+  r unlock-oab-visible GB_UNLOCK=door-tap GB_DOOR_VISIBLE=visible node "$out/int-unlock.mjs"
+  r unlock-oab-hidden GB_UNLOCK=door-tap GB_DOOR_VISIBLE=hidden node "$out/int-unlock.mjs"
+  r unlock-oab-drag GB_UNLOCK=room-swipe GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-unlock.mjs"
+  r unlock-oab-wxtouch GB_UNLOCK=wx GB_UNLOCK_WXTOUCH=1 GB_QUERY='?autoplay=out-and-back&gbStart=4000' node "$out/int-unlock.mjs"
+  [ "${GB_LOOSE:-1}" != 0 ] && r loose-unlock-oab-wxtouch GB_UNLOCK=wx GB_UNLOCK_WXTOUCH=1 GB_QUERY='?autoplay=out-and-back&gbStart=4000' node "$out/int-unlock-loose.mjs"
+else echo "SKIP audio unlock (set GB_UNLOCK_DIR=<work/GGbot-audiounlock checkout>)"; fi
 if [ "${GB_LOOSE:-1}" != 0 ]; then
   # Same key paths with T0 compiled Cocos-style (loose ES5). Boot is ON the Scene node (real Cocos layout) unless GB_BOOT_ON=child.
   r loose-unit-seq node "$out/sequencer-loose.mjs"

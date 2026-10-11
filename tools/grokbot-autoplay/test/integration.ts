@@ -3,7 +3,10 @@ import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerT
 const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));process.exit(1);};
 (async()=>{
  const ap=()=>(globalThis as any).__GB_AUTOPLAY;
- await run(240,()=>ap()&&(ap().phase()==='done'||ap().phase()==='failed'));
+ const U=process.env.GB_UNLOCK||'';let wxTouched=false;
+ // GB_UNLOCK_WXTOUCH: a raw platform touch on a blank room spot BEFORE autoplay taps the door (gbStart=4000), through the REAL prelude.
+ await run(240,()=>ap()&&(ap().phase()==='done'||ap().phase()==='failed'),()=>{if(!process.env.GB_UNLOCK_WXTOUCH||wxTouched)return;  const st=flow.snapshot().state;if(st!=='home'||!names().includes('world-ready')||!(globalThis as any).__gbTouch?.emit)return;const b:any=(globalThis as any).__GB_AUTOPLAY;if(!b)return;wxTouched=true;
+  const t={identifier:7,clientX:40,clientY:120,pageX:40,pageY:120,force:1};const G:any=globalThis;G.__gbTouch.emit('onTouchStart',{type:'touchstart',touches:[t],changedTouches:[t],timeStamp:Date.now()});G.__gbTouch.emit('onTouchEnd',{type:'touchend',touches:[],changedTouches:[t],timeStamp:Date.now()});});
  // after the autoplay: observers must keep logging (manual play by Voice bot)
  const A:any=FakeGameAudio.instance;const T6=new FakeCheerTextHost();A.onBoardFrame({kind:'action'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});T6.show(0,{kind:'clear',wave:{removed:[{index:0}]}});T6.show(1,{kind:'clear',wave:{removed:[]}});T6.show(0,undefined);A.onRender('result.saved',true);A.onChestResult({newlyGrantedRewards:[1]});A.onClaimResult({ok:true});A.setMusic('audio_bgm/bgm_main');
  A.setMusicVolume(0.5);A.loopSource.playing=true;A.loopSource.currentTime=47.9;await run(0.1,()=>false);A.loopSource.currentTime=0.05;await run(0.05,()=>false);A.setMuted(true);A.play('sfx_ui_click',0.8);A.setMuted(false);(game as any).emit(Game.EVENT_HIDE);A.loopSource.playing=false;await run(0.1,()=>false);(game as any).emit(Game.EVENT_SHOW);(globalThis as any).__wxHide?.();(globalThis as any).__wxShow?.();
@@ -44,6 +47,17 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  if(env.t1){if(!rv.includes('lighthouse-touch(wx-prelude)'))fail('T1 return via '+rv);if(N.includes('open-return-panel')&&!L.find(l=>l.includes(' open-return-panel '))!.includes('skipped(T1'))fail('panel');}
  else if(!rv.includes('IslandJourneyOverlay.dispatch(returnHome)'))fail('return via '+rv);
  if(env.door==='reveal-by-drag'&&(calls.look<1||!N.includes('door-revealed')))fail('drag');
+ if(U){const ul=L.filter(l=>l.includes(' audio:unlock '));if(ul.length!==1)fail('audio:unlock count '+ul.length);
+  if(!new RegExp(' source='+U+' ').test(ul[0])||!/ via=__audioUnlock gestureSeen=1 status=ready playbackState=pending playing=0$/.test(ul[0]))fail('audio:unlock fields '+ul[0]);
+  const ui=N.indexOf('audio:unlock'),island=N.indexOf('state:island'),pend=L.findIndex(l=>/ audio:playback .*from=idle to=pending gestureSeen=1/.test(l)),play=L.findIndex(l=>/ audio:playback .*from=pending to=playing gestureSeen=1/.test(l));
+  if(!(ui>=0&&ui<island))fail('audio:unlock not before state:island');if(!(pend>=0&&play>pend&&play<island))fail('playback pending->playing not before island '+pend+' '+play+' '+island);
+  if(U==='door-tap'&&!(ui<=N.indexOf('tap-door')+1))fail('door-tap unlock should come with tap-door');
+  if(U==='wx'&&!(ui>N.indexOf('world-ready')&&ui<N.indexOf('tap-door')&&/ replay=0 /.test(ul[0])&&/ event=touchstart /.test(ul[0])))fail('wx unlock should be the live blank-room touch between world-ready and the door tap');
+  if(!N.includes('audio:unlock-hook')||!L.some(l=>/ audio:unlock-hook .*status=subscribed/.test(l)))fail('audio:unlock-hook');
+  const snap=(globalThis as any).__audioUnlock.snapshot();if(!snap.unlocked||snap.source!==U||!(snap.calls>=1)||snap.hooks.indexOf('wx.onTouchStart')<0||snap.hooks.indexOf('wx.onTouchEnd')<0)fail('snapshot '+JSON.stringify(snap));
+  if(!((A as any).gestures>=1))fail('notifyUserGesture never reached GameAudio');
+  console.error('audio:unlock '+ul[0].slice(ul[0].indexOf('source='))+' | snapshot '+JSON.stringify(snap));}
+ else if(N.includes('audio:unlock'))fail('audio:unlock without AudioUnlock/gesture');
  void flow;void engine;
- console.error(`PASS integration out-and-back door=${env.door} t1=${env.t1||'-'} cameraHook=${env.cameraHook}`);
+ console.error(`PASS integration out-and-back${U?' audio:unlock source='+U+' before island, playback pending->playing before island':''} door=${env.door} t1=${env.t1||'-'} cameraHook=${env.cameraHook}`);
 })().catch(e=>fail(String(e?.stack||e)));

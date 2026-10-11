@@ -99,7 +99,7 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.hookUnlock();}
  /** Walk driver (GGbot work/GGbot-walk): __worldIntegration.onFoot / onApronLift. Absent = not merged = no mark. */
  private motionFor:any=null;private motionOff:Array<()=>void>=[];
  private hookMotion(){const w=G.__worldIntegration;if(!w||w===this.motionFor||typeof w.onFoot!=='function')return;for(let i=0;i<this.motionOff.length;i++){try{this.motionOff[i]();}catch{}}this.motionOff=[];this.motionFor=w;const ctx=this.ctx;
@@ -107,6 +107,21 @@ class Observers {
   try{const off=w.onFoot((e:any)=>{const p=e&&e.pos;ctx.mark('anim:foot',`event=${e?.event} bone=${e?.bone} body=${e?.body} clip=${e?.clip} phase=${f3(e?.phase)} cycle=${e?.cycle} pos=${p?f3(p[0])+','+f3(p[2]):'-'}`);});if(typeof off==='function')this.motionOff.push(off);
    if(typeof w.onApronLift==='function'){const off2=w.onApronLift((strength:string,dur:number)=>ctx.mark('anim:apron-lift',`strength=${strength} dur=${f3(dur)}`));if(typeof off2==='function')this.motionOff.push(off2);}
    ctx.mark('anim:hooked','source=__worldIntegration');}catch(e){ctx.mark('anim:hooked','failed='+String(e));}}
+ /** Audio unlock (GGbot work/GGbot-audiounlock): AudioUnlock publishes __audioUnlock.onUnlock (replays if already unlocked).
+  *  audio:unlock is logged ONCE. Without __audioUnlock (older builds) the first gestureSeen false->true is logged instead.
+  *  audio:playback follows GameAudio.musicDiagnostics().playbackState (pending -> playing after the unlock). Read-only. */
+ private unlockFor:any=null;private unlockDone=false;private unlockNoticed=false;private playback:string|null=null;
+ private musicDiag(){const C:any=js.getClassByName('GameAudio');const a=C?.instance;if(!a||typeof a.musicDiagnostics!=='function')return null;try{return a.musicDiagnostics();}catch{return null;}}
+ private unlockFields(d:any){return `gestureSeen=${d?(d.gestureSeen?1:0):'-'} status=${d?.status??'-'} playbackState=${d?.playbackState??'-'} playing=${d?(d.playing?1:0):'-'}`;}
+ private hookUnlock(){const ctx=this.ctx,u=G.__audioUnlock;
+  if(u&&u!==this.unlockFor&&typeof u.onUnlock==='function'){this.unlockFor=u;
+   try{let sync=true;u.onUnlock((info:any)=>{if(this.unlockDone)return;this.unlockDone=true;const at=Number(info?.at);
+     ctx.mark('audio:unlock',`source=${info?.source??'-'} event=${info?.event||'-'} ms=${Number.isFinite(at)?Math.round(at-ctx.t0):'-'} replay=${sync?1:0} via=__audioUnlock `+this.unlockFields(this.musicDiag()||info?.diagnostics));});sync=false;
+    ctx.mark('audio:unlock-hook','status=subscribed');}catch(e){ctx.mark('audio:unlock-hook','status=subscribe-failed');}}
+  const d=this.musicDiag();
+  if(!u&&!this.unlockNoticed&&d){this.unlockNoticed=true;ctx.mark('audio:unlock-hook','status=unavailable using=gestureSeen-poll');}
+  if(!u&&!this.unlockDone&&d?.gestureSeen){this.unlockDone=true;ctx.mark('audio:unlock','source=unknown event=- ms=- replay=0 via=gestureSeen-poll '+this.unlockFields(d));}
+  const pb=d?String(d.playbackState):null;if(pb!==null&&pb!==this.playback){const from=this.playback;this.playback=pb;ctx.mark('audio:playback',`from=${from??'-'} to=${pb} gestureSeen=${d.gestureSeen?1:0} status=${d.status??'-'} path=${d.path??'-'}`);}}
  /** T9: IslandPropTaps via the boot's QA object (__worldIntegration.onPropTap); real and injected taps alike. Absent = T9 not merged = no mark. */
  private propTapsFor:any=null;private propTapsOff:(()=>void)|null=null;
  private hookPropTaps(){const w=G.__worldIntegration;if(!w||w===this.propTapsFor||typeof w.onPropTap!=='function')return;this.propTapsOff?.();this.propTapsFor=w;const ctx=this.ctx;

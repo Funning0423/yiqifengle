@@ -14,6 +14,7 @@
 | `src/GrokbotCombo.ts` | `autoplay=combo`：合成帧、期望值、判定、执行状态机（不依赖 cc） |
 | `src/GrokbotMarks.ts` | **GB_MARK 名字的唯一登记表**。新增打点只往这里加一行；没登记的名字照样输出，但会带 `unregistered=1` |
 | | `ui:cheer-text`（T6 飘字）：只有工程里有 `CheerTextHost` 时才会出现，包住它的 `show()` 记下档位、结果（show/replace/skip/no-board）、位置来源（clear/center）、坐标。 |
+| | `audio:unlock`（全局首次触摸解锁声音，只打一次）：`source=wx\|canvas\|cocos\|room-swipe\|door-tap event=touchstart\|touchend\|leave ms=<手势时刻> replay=0\|1 via=__audioUnlock gestureSeen=1 status playbackState playing`，字段取自 `GameAudio.musicDiagnostics()`。来自 AudioUnlock 的 `__audioUnlock.onUnlock`；没有 AudioUnlock 的老构建改为轮询 `gestureSeen`，记成 `source=unknown via=gestureSeen-poll`。`audio:unlock-hook` 表示订阅状态。`audio:playback from= to=` 记录 playbackState 的每次变化，正常顺序是解锁后 `idle→pending→playing`，而且要在 `state:island` 之前。测试：`GB_UNLOCK_DIR=<work/GGbot-audiounlock>`。 |
 | | `ui:tap`（T9 岛屿道具）：`target=signpost|bag|book|settings phase=press|confirm blocked=0|1 props=0|1`。来自 T9 的 `__worldIntegration.onPropTap`（真点和注入点都会有）；没合 T9 时不出现。`ui:tap-hooked` = 订阅成功。 |
 | | `anim:foot` / `anim:apron-lift`（走路驱动，新的 `anim` 组）：`anim:foot ... event=foot:R bone=foot.R body=L clip=walk_loop phase=0.000 cycle=n pos=x,z`（每次脚跟着地，来自按距离推进的走路相位；bone 和 body 左右相反，body 是身体左右），`anim:apron-lift ... strength=full|soft dur=秒`。来自 `__worldIntegration.onFoot / onApronLift`；没合走路驱动时不出现。`anim:hooked` = 订阅成功。 |
 | `src/*.meta` | 固定 uuid（92fca7bf / 59ace17b / 24830118 / 16cf1f79 / c0b1e7a5（Combo），目录 d370c13f） |

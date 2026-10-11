@@ -1,7 +1,7 @@
 /** Shared test world: REAL WorldFlow + REAL FirstsliceRoutes + REAL RoomExploreOverlay + REAL IslandJourneyOverlay
  * (baseline, or T1 'after' when bundled with T1) + REAL T1 IslandHomeInteraction (T1 bundles) + a boot stand-in that copies
  * WorldIntegrationBoot's invoke/overlay wiring + a fake platform/engine touch pipeline fed through the REAL prelude. */
-import {clock} from './setup';
+import {clock,raw} from './setup';
 import {director,input,js,game,Game,Node,UITransform} from 'cc';
 import {WorldFlow} from '../../../creator-build-project/assets/scripts/world-r1/WorldFlowCore';
 import type {CharacterAdapter,Action,Cancellation,StablePose,WorldLease} from '../../../creator-build-project/assets/scripts/world-r1/WorldFlowCore';
@@ -17,11 +17,8 @@ import {readFileSync} from 'fs';
 export const W=390,H=844,DPR=3;
 export const env={t9:!!process.env.GB_T9,door:process.env.GB_DOOR_VISIBLE||'visible',t1:process.env.GB_T1||'',cameraHook:!!process.env.GB_CAMERA_HOOK,prelude:process.env.GB_PRELUDE!=='0',combo:!!process.env.GB_COMBO,deadButton:process.env.GB_COMBO_BUTTON==='dead'};
 /* ---- fake WeChat platform + REAL prelude + fake Cocos touch source registered AFTER the prelude (as the engine is) ---- */
-const raw:Record<string,Function[]>={};const G:any=globalThis;
-G.wx={getWindowInfo:()=>({windowWidth:W,windowHeight:H,safeArea:{left:0,right:W,top:47,bottom:H-34}}),getSystemInfoSync:()=>({windowWidth:W,windowHeight:H}),getMenuButtonBoundingClientRect:()=>({left:281,right:368,top:51,bottom:83}),
- onHide:(f:any)=>{G.__wxHide=f;},onShow:(f:any)=>{G.__wxShow=f;}};
-for(const k of ['TouchStart','TouchMove','TouchEnd','TouchCancel']){raw[k]=[];G.wx['on'+k]=(f:Function)=>{raw[k].push(f);};G.wx['off'+k]=(f?:Function)=>{raw[k]=f?raw[k].filter(x=>x!==f):[];};}
-if(env.prelude)(0,eval)(readFileSync(process.env.GB_PRELUDE_FILE!,'utf8'));
+const G:any=globalThis;/* fake wx + REAL prelude now live in setup.ts: they must exist BEFORE any game module evaluates
+ * (real order: prelude -> adapter/engine -> game scripts; AudioUnlock registers wx.onTouch* at module load). */
 export const engine={claims:new Map<number,any>(),touches:new Map<number,{x:number;y:number}>(),buttonPresses:[] as string[],uiRoot:null as any};
 const evt=(id:number,p:{x:number;y:number})=>{const all=[...engine.touches].map(([i,q])=>({getID:()=>i,getLocation:()=>({x:q.x*DPR,y:(H-q.y)*DPR}),getUILocation:()=>({x:q.x,y:H-q.y})}));
  return {getID:()=>id,getLocation:()=>({x:p.x*DPR,y:(H-p.y)*DPR}),getUILocation:()=>({x:p.x,y:H-p.y}),getAllTouches:()=>all,windowId:0};};
@@ -97,7 +94,12 @@ export class FakeGameAudio{static instance:FakeGameAudio|null=null;cascade=0;mut
  loopSource:any={playing:false,currentTime:0,duration:48,volume:0.4,loop:true,clip:{name:'bgm_main',duration:48}};musicPath='audio_bgm/bgm_main';played:string[]=[];
  play(n:string,v=1){this.played.push(n);if(this.muted)return;const src={volume:v,loop:false,clip:{name:n,duration:0.8},duration:0.8};this.sfxVoices.set(src,{source:src,name:n});}
  setMusicVolume(v:number){this.musicVolume=v;this.loopSource.volume=v;} setMuted(m:boolean){this.muted=m;} onBoardFrame(v:any){if(v?.kind==='action'){this.cascade=0;return;}if(v?.kind==='clear'){this.cascade++;this.play(this.cascade<=1?'sfx_match_normal':this.cascade===2?'sfx_combo_1':this.cascade===3?'sfx_combo_2':'sfx_combo_3');}}
- onRender(state:string,won:boolean){if(state.startsWith('result.')&&won)this.play('sfx_level_clear');} onChestResult(r:any){if(r?.newlyGrantedRewards?.length>0)this.play('sfx_chest_open');} onClaimResult(r:any){if(r?.ok&&!r.duplicate)this.play('sfx_chest_open');} setMusic(p:string){this.musicPath=p;}}
+ onRender(state:string,won:boolean){if(state.startsWith('result.')&&won)this.play('sfx_level_clear');} onChestResult(r:any){if(r?.newlyGrantedRewards?.length>0)this.play('sfx_chest_open');} onClaimResult(r:any){if(r?.ok&&!r.duplicate)this.play('sfx_chest_open');} setMusic(p:string){this.musicPath=p;}
+ /** audio unlock (GB_UNLOCK_DIR job): GameAudio.onGesture / musicDiagnostics semantics -- gesture sets gestureSeen and requests the
+  *  loop (pending); the fake engine confirms playback 200 ms later (playing). Separate from loopSource so the observer tests above stay. */
+ gestureSeen=false;gestures=0;pbAt:number|null=null;
+ onGesture(){this.gestures++;this.gestureSeen=true;if(this.pbAt===null)this.pbAt=performance.now();}
+ musicDiagnostics(){const pb=this.pbAt===null?'idle':performance.now()-this.pbAt>=200?'playing':'pending';return {path:this.musicPath,status:'ready',error:null,gestureSeen:this.gestureSeen,muted:this.muted,volume:this.musicVolume,suspended:[],playRequested:pb!=='idle',playing:pb==='playing',playbackState:pb,audibleVerified:false};}}
 /** Stand-in for T6 CheerTextHost: show() returns the same result shape as the real one. */
 export class FakeCheerTextHost{active=-1;show(level:number,visual?:any){const d=level>this.active?(this.active<0?'show':'replace'):'skip';const rep=d==='replace'?this.active:-1;if(d!=='skip')this.active=level;const c=visual?.wave?.removed?.length?'clear':'center';return {tier:level,word:['Great!','Excellent!','Amazing!','Unbelievable!'][level],decision:d,source:c,x:c==='clear'?-96:0,y:c==='clear'?84:-60,replaced:rep};}}
 if(!env.combo){if(!process.env.GB_NO_T6)(js as any)._register('CheerTextHost',FakeCheerTextHost);

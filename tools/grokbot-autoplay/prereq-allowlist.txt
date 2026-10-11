@@ -83,3 +83,9 @@ observe 1c9c8147f5aa63a4d621fdf78416d628e2287723491c4520cbe6f6e4acb1d8bb world-r
 #  apronGust/motion. Glue reviewed: _referenceAdapter, composition/worldCommands, loadPhase/ready/busy, button(), paintNavigation,
 #  __worldIntegration.onPropTap unchanged. New T0 marks anim:foot / anim:apron-lift hook __worldIntegration. Verified sha256sum. Append only.
 strict a4f2254d50bc2ded590a4199e3c83157ab14cdf77acaea04d5b5b6a2d0f857ce WorldIntegrationBoot.ts            int/v1 e439b62 + GGbot walk driver (work/GGbot-walk afb5d7b)
+# GGbot audio unlock (work/GGbot-audiounlock bde9eff on int/v1 e439b62): RoomExploreOverlay forwards room-swipe/door-tap to the new
+#  audio/AudioUnlock.ts. Verified `git show bde9eff:.../RoomExploreOverlay.ts | sha256sum` = 119e5c2e..1e49. Glue reviewed: T0 reads
+#  root/down/up/leave/handle/rect/sync/diagnostics -- names, signatures and behaviour unchanged (leave is now a wrapper field that calls
+#  AudioUnlock.gesture('door-tap') then the original callback; down/up call AudioUnlock.gesture first, then the same body).
+#  AudioUnlock itself is read only via globalThis.__audioUnlock (like __worldIntegration.onPropTap: no entry). Boot at bde9eff == f8f5fdc3 (listed).
+strict 119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49 RoomExploreOverlay.ts              GGbot audio unlock (work/GGbot-audiounlock bde9eff)
