@@ -1,0 +1,205 @@
+{
+ "rows": [
+  {
+   "file": "sign_plank_3s.png",
+   "group": "旅程册",
+   "w": 196,
+   "h": 176,
+   "bytes": 9098,
+   "note": "精简版（无钉）横幅章节牌，三宫格（横向）：左 90 px / 右 90 px（箭头）不拉伸；高 176，显示宽 544"
+  },
+  {
+   "file": "region_tide.png",
+   "group": "旅程册",
+   "w": 208,
+   "h": 136,
+   "bytes": 13021,
+   "note": "地区之窗 200×128（含 4 px 窗沿）；combined_visual_m.glb 实渲"
+  },
+  {
+   "file": "region_meadow.png",
+   "group": "旅程册",
+   "w": 208,
+   "h": 136,
+   "bytes": 7930,
+   "note": "地区之窗 200×128（含 4 px 窗沿）；占位图"
+  },
+  {
+   "file": "region_sky.png",
+   "group": "旅程册",
+   "w": 208,
+   "h": 136,
+   "bytes": 4821,
+   "note": "地区之窗 200×128（含 4 px 窗沿）；占位图"
+  },
+  {
+   "file": "region_sky_locked.png",
+   "group": "旅程册",
+   "w": 208,
+   "h": 136,
+   "bytes": 2922,
+   "note": "地区之窗 200×128（含 4 px 窗沿）；占位图；未解锁：去色 + 雾"
+  },
+  {
+   "file": "hero_starlight.png",
+   "group": "首次获得",
+   "w": 400,
+   "h": 400,
+   "bytes": 27628,
+   "note": "道具介绍大图 400 px（(b) v3.1 模型 720 px 重渲后缩）"
+  },
+  {
+   "file": "hero_windbell.png",
+   "group": "首次获得",
+   "w": 400,
+   "h": 400,
+   "bytes": 25359,
+   "note": "同上（可选：先只放星光）"
+  },
+  {
+   "file": "hero_tidebottle.png",
+   "group": "首次获得",
+   "w": 400,
+   "h": 400,
+   "bytes": 26253,
+   "note": "同上（可选：先只放星光）"
+  },
+  {
+   "file": "tool_tidenet.png",
+   "group": "行囊",
+   "w": 154,
+   "h": 133,
+   "bytes": 10595,
+   "note": "潮汐网：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）"
+  },
+  {
+   "file": "tool_sunseed.png",
+   "group": "行囊",
+   "w": 154,
+   "h": 190,
+   "bytes": 11443,
+   "note": "日光籽：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）"
+  },
+  {
+   "file": "tool_starshears.png",
+   "group": "行囊",
+   "w": 154,
+   "h": 170,
+   "bytes": 10203,
+   "note": "星剪：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）"
+  },
+  {
+   "file": "icon_charm.png",
+   "group": "行囊",
+   "w": 124,
+   "h": 96,
+   "bytes": 7396,
+   "note": "装扮空状态的蝴蝶结（运行时半透明）"
+  },
+  {
+   "file": "icon_lock.png",
+   "group": "结算",
+   "w": 61,
+   "h": 72,
+   "bytes": 3652,
+   "note": "旅途回顾说明行 / 未解锁章节共用（显示 36–64 px）"
+  },
+  {
+   "file": "beacon_lighthouse.png",
+   "group": "灯塔目标格",
+   "w": 51,
+   "h": 96,
+   "bytes": 3557,
+   "note": "格子角上的小灯塔；HUD 目标图标用同一张缩小"
+  },
+  {
+   "file": "beacon_ring.png",
+   "group": "灯塔目标格",
+   "w": 96,
+   "h": 92,
+   "bytes": 2135,
+   "note": "金色灯座框（1 格大小，四角灯珠）；暖光池用程序画（0 B）"
+  },
+  {
+   "file": "title_星光.png",
+   "group": "标题字（烘焙）",
+   "w": 93,
+   "h": 47,
+   "bytes": 1927,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "title_旅人的行囊.png",
+   "group": "标题字（烘焙）",
+   "w": 235,
+   "h": 50,
+   "bytes": 4656,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "title_旅程册.png",
+   "group": "标题字（烘焙）",
+   "w": 142,
+   "h": 50,
+   "bytes": 3218,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "title_海岛小憩.png",
+   "group": "标题字（烘焙）",
+   "w": 186,
+   "h": 50,
+   "bytes": 3859,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "title_还没存上.png",
+   "group": "标题字（烘焙）",
+   "w": 188,
+   "h": 50,
+   "bytes": 3583,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "title_旅途回顾.png",
+   "group": "标题字（烘焙）",
+   "w": 188,
+   "h": 50,
+   "bytes": 3961,
+   "note": "霞鹜文楷 46 px，同 (c)"
+  },
+  {
+   "file": "chapter_潮汐小径.png",
+   "group": "标题字（烘焙）",
+   "w": 165,
+   "h": 44,
+   "bytes": 3446,
+   "note": "章节名 40 px"
+  },
+  {
+   "file": "chapter_花粉草甸.png",
+   "group": "标题字（烘焙）",
+   "w": 160,
+   "h": 45,
+   "bytes": 3298,
+   "note": "章节名 40 px"
+  },
+  {
+   "file": "chapter_天空回声.png",
+   "group": "标题字（烘焙）",
+   "w": 160,
+   "h": 44,
+   "bytes": 2825,
+   "note": "章节名 40 px"
+  }
+ ],
+ "groups": {
+  "旅程册": 37792,
+  "首次获得": 79240,
+  "行囊": 39637,
+  "结算": 3652,
+  "灯塔目标格": 5692,
+  "标题字（烘焙）": 30773
+ },
+ "total": 196786
+}

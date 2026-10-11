@@ -1,0 +1,282 @@
+[
+ {
+  "file": "panel_frame_9s.png",
+  "group": "弹窗框",
+  "w": 208,
+  "h": 208,
+  "bytes": 9621,
+  "note": "精简版（无角钉）。九宫格 insets 92 px（四边相同），中心 24 px 可拉伸；所有弹窗宽 680"
+ },
+ {
+  "file": "title_plank_3s.png",
+  "group": "弹窗框",
+  "w": 192,
+  "h": 105,
+  "bytes": 6558,
+  "note": "精简版（无绳无钉）。三宫格：左右各 84 px 不拉伸"
+ },
+ {
+  "file": "btn_primary_3s.png",
+  "group": "通用按钮",
+  "w": 162,
+  "h": 104,
+  "bytes": 5328,
+  "note": "三宫格：左右各 69 px 不拉伸；高 104 = 54pt"
+ },
+ {
+  "file": "btn_secondary_3s.png",
+  "group": "通用按钮",
+  "w": 162,
+  "h": 104,
+  "bytes": 5668,
+  "note": "三宫格：左右各 69 px 不拉伸；高 104 = 54pt"
+ },
+ {
+  "file": "btn_close.png",
+  "group": "通用按钮",
+  "w": 96,
+  "h": 98,
+  "bytes": 6128,
+  "note": "命中区 ≥44pt"
+ },
+ {
+  "file": "tile_restart.png",
+  "group": "暂停图标",
+  "w": 150,
+  "h": 125,
+  "bytes": 9612,
+  "note": ""
+ },
+ {
+  "file": "tile_bag.png",
+  "group": "暂停图标",
+  "w": 150,
+  "h": 135,
+  "bytes": 9238,
+  "note": ""
+ },
+ {
+  "file": "tile_settings.png",
+  "group": "暂停图标",
+  "w": 150,
+  "h": 144,
+  "bytes": 9932,
+  "note": ""
+ },
+ {
+  "file": "icon_music.png",
+  "group": "小图标",
+  "w": 73,
+  "h": 84,
+  "bytes": 2484,
+  "note": ""
+ },
+ {
+  "file": "icon_sfx.png",
+  "group": "小图标",
+  "w": 111,
+  "h": 84,
+  "bytes": 5570,
+  "note": ""
+ },
+ {
+  "file": "icon_sun.png",
+  "group": "小图标",
+  "w": 90,
+  "h": 84,
+  "bytes": 3754,
+  "note": ""
+ },
+ {
+  "file": "icon_moon.png",
+  "group": "小图标",
+  "w": 91,
+  "h": 84,
+  "bytes": 3753,
+  "note": ""
+ },
+ {
+  "file": "icon_motion.png",
+  "group": "小图标",
+  "w": 66,
+  "h": 84,
+  "bytes": 3394,
+  "note": ""
+ },
+ {
+  "file": "icon_home.png",
+  "group": "小图标",
+  "w": 36,
+  "h": 84,
+  "bytes": 3012,
+  "note": ""
+ },
+ {
+  "file": "icon_about.png",
+  "group": "小图标",
+  "w": 64,
+  "h": 84,
+  "bytes": 3235,
+  "note": ""
+ },
+ {
+  "file": "icon_play.png",
+  "group": "小图标",
+  "w": 46,
+  "h": 56,
+  "bytes": 1204,
+  "note": ""
+ },
+ {
+  "file": "toggle_on.png",
+  "group": "开关",
+  "w": 115,
+  "h": 56,
+  "bytes": 3225,
+  "note": "也做音乐音量滑条的已填充段（三宫格，左右各 28 px）"
+ },
+ {
+  "file": "toggle_off.png",
+  "group": "开关",
+  "w": 115,
+  "h": 56,
+  "bytes": 2986,
+  "note": "也做音乐音量滑条的轨道（三宫格）"
+ },
+ {
+  "file": "toggle_knob.png",
+  "group": "开关",
+  "w": 48,
+  "h": 48,
+  "bytes": 1956,
+  "note": "跟随 isOn 左右移动 0.15 s"
+ },
+ {
+  "file": "star_full.png",
+  "group": "结算",
+  "w": 184,
+  "h": 170,
+  "bytes": 10485,
+  "note": ""
+ },
+ {
+  "file": "star_empty.png",
+  "group": "结算",
+  "w": 190,
+  "h": 170,
+  "bytes": 8738,
+  "note": "也可用 star_full + 灰化，省 1 张"
+ },
+ {
+  "file": "reward_seal_tide.png",
+  "group": "奖励",
+  "w": 115,
+  "h": 128,
+  "bytes": 8223,
+  "note": "地区印记·潮汐"
+ },
+ {
+  "file": "reward_seal_meadow.png",
+  "group": "奖励",
+  "w": 115,
+  "h": 128,
+  "bytes": 8129,
+  "note": "地区印记·草甸"
+ },
+ {
+  "file": "reward_seal_sky.png",
+  "group": "奖励",
+  "w": 115,
+  "h": 128,
+  "bytes": 8257,
+  "note": "地区印记·天空城"
+ },
+ {
+  "file": "chest_closed.png",
+  "group": "宝箱(2D 备选)",
+  "w": 380,
+  "h": 345,
+  "bytes": 39775,
+  "note": "只在用 2D Sprite 方案时需要"
+ },
+ {
+  "file": "chest_open.png",
+  "group": "宝箱(2D 备选)",
+  "w": 380,
+  "h": 466,
+  "bytes": 50257,
+  "note": "同上"
+ },
+ {
+  "file": "fx_rays.png",
+  "group": "奖励",
+  "w": 310,
+  "h": 310,
+  "bytes": 16796,
+  "note": "显示时 ×2 放大、慢转 1 圈/12 s；纯程序也可，0 B"
+ },
+ {
+  "file": "stamp_claimed.png",
+  "group": "奖励",
+  "w": 200,
+  "h": 200,
+  "bytes": 6368,
+  "note": "已领取状态"
+ },
+ {
+  "file": "title_0.png",
+  "group": "标题字（烘焙）",
+  "w": 184,
+  "h": 50,
+  "bytes": 2801,
+  "note": "暂停一下"
+ },
+ {
+  "file": "title_1.png",
+  "group": "标题字（烘焙）",
+  "w": 258,
+  "h": 50,
+  "bytes": 4460,
+  "note": "重来这一关？"
+ },
+ {
+  "file": "title_2.png",
+  "group": "标题字（烘焙）",
+  "w": 94,
+  "h": 47,
+  "bytes": 2089,
+  "note": "设置"
+ },
+ {
+  "file": "title_3.png",
+  "group": "标题字（烘焙）",
+  "w": 95,
+  "h": 50,
+  "bytes": 2322,
+  "note": "获得"
+ },
+ {
+  "file": "title_4.png",
+  "group": "标题字（烘焙）",
+  "w": 143,
+  "h": 49,
+  "bytes": 3017,
+  "note": "过关啦"
+ },
+ {
+  "file": "title_5.png",
+  "group": "标题字（烘焙）",
+  "w": 186,
+  "h": 50,
+  "bytes": 2284,
+  "note": "差一点点"
+ },
+ {
+  "file": "result_chest.glb",
+  "group": "宝箱 GLB",
+  "w": 0,
+  "h": 0,
+  "bytes": 29536,
+  "note": "Draco，M_env_palette，不内嵌贴图；子节点 chest_lid 原点在铰链；动画 chest_open 0.5 s（0→−126°→−114°→−118°）"
+ }
+]
