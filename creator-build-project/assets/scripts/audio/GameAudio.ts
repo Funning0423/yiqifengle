@@ -575,7 +575,11 @@ export class GameAudio extends Component {
         : this.cascade === 2 ? 'sfx_combo_1'
         : this.cascade === 3 ? 'sfx_combo_2' : 'sfx_combo_3';
       this.play(name);
-      if (this.cascade >= 2) this.playCheer(Math.min(this.cascade - 2, CHEERS.length - 1));
+      if (this.cascade >= 2) {
+        const level = Math.min(this.cascade - 2, CHEERS.length - 1);
+        GameAudio.emitCheer(level);          // 飘字跟这里走，静音时也照样出字
+        this.playCheer(level);
+      }
       return;
     }
     // 'drop'（下落）、'shuffle'（洗牌）、'tool'（地区道具）暂时没有音效，见对照表
@@ -597,6 +601,19 @@ export class GameAudio extends Component {
   onChestResult(r: any) { if (r?.newlyGrantedRewards?.length > 0) this.play('sfx_chest_open'); }
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
+
+  /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable。返回取消订阅函数。
+   *  在连击判定的同一处触发，与鼓励音档位一致；静音、切后台时声音不播，但事件照发。 */
+  private static cheerListeners: Array<(level: number) => void> = [];
+  static onCheer(listener: (level: number) => void): () => void {
+    GameAudio.cheerListeners.push(listener);
+    return () => { GameAudio.cheerListeners = GameAudio.cheerListeners.filter(l => l !== listener); };
+  }
+  private static emitCheer(level: number) {
+    for (const l of GameAudio.cheerListeners.slice()) {
+      try { l(level); } catch (e) { console.warn('[GameAudio] cheer listener failed (gameplay unaffected)', e); }
+    }
+  }
 
   /** 鼓励音：已有更高或同档在播就不重复；低档在播时先停掉再播高档，避免几条念词叠在一起听不清 */
   private playCheer(level: number) {
