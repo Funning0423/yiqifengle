@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "scope": "Actual production TypeScript with Cocos lifecycle/GPU doubles, plus actual geometry bounds. Not a Creator/WeChat/device performance pass.",
+  "checks": [
+    "Closed→opened 650ms easing→closed; hidden pauses/camera off; resume; static target stops after draw; one isolated camera and 9 live mesh groups",
+    "Hide between GPU allocation and first draw defers readback until visible, preventing false blank-target failure",
+    "100 repeated closed/claimed entries release all 9 meshes, 6 materials, texture/frame/effect reference and draw callback",
+    "Dispose-before-load, missing effect, and partial target allocation failure are bounded with zero retained resources",
+    "Disabled and late-arriving camera conflicts are caught; all-transparent first GPU target is rejected before ready",
+    "Layer collision fails closed and does not alter any existing camera/layer/light settings",
+    "Animation-time mesh creation and mesh setter exceptions become error, display actual view fallback text, and release both old/candidate meshes plus all GPU resources",
+    "Short (16 opaque pixels), empty, null and throwing pixel rows fail closed before ready and leave zero GPU resources",
+    "101 lid angles use the same union-bounds camera with >10% full-size margin, no clipped lid and no camera breathing",
+    "4396 triangles: finite positions, matching normals, valid 16-bit indexes, outward winding, independently transformable lid"
+  ],
+  "boundsCases": 101,
+  "triangles": 4396,
+  "vertices": 8160,
+  "sampledDesktopCPUmsPerFrame": 0.057119650000000396
+}

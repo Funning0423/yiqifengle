@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "sourceSha256": "ea951b0ebdfa099a6ba3a9adbc6abe658f59bc00df7dac187dfab901baf531df",
+  "scope": "Actual Composition target resolver + actual RegionalAPI/CampaignHost/Provider; synthetic memory-only checkpoints. No real saves or rewards.",
+  "cases": 9,
+  "results": [
+    {
+      "stage": "r05-tide-02",
+      "seed": 11,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-tide-03",
+      "seed": 2,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-tide-04",
+      "seed": 2,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-meadow-02",
+      "seed": 2,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-meadow-03",
+      "seed": 10,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-meadow-04",
+      "seed": 11,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-sky-02",
+      "seed": 5,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-sky-03",
+      "seed": 4,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    },
+    {
+      "stage": "r05-sky-04",
+      "seed": 2,
+      "resumeGate": true,
+      "actualEntry": true,
+      "realProviderRestores": true,
+      "journalClickRestores": true,
+      "oldGateNegative": true,
+      "otherRegionNegative": true,
+      "wrongSeedNegative": true,
+      "saves": 0
+    }
+  ],
+  "corruptStorageBlocked": true,
+  "reportedTide02Seed2Restores": true
+}
