@@ -92,3 +92,9 @@ strict 119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49 RoomExpl
 # T9n night look (work/GGbot-t9n 2e8e018 on int/v1 c5db016). IslandJourneyOverlay: tags repaint with the props night weight only
 #  (paintTags, propNightWeight); isOpen/open/close, the three WarmButton hit nodes and their handlers unchanged. Boot unchanged (a4f2254d).
 strict 893ce0c9f357c99fc7cffcc999b7eb4dc02677bb568b14665f7cc334caa523ed world-r2/IslandJourneyOverlay.ts   int/v1 c5db016 + T9n (work/GGbot-t9n 2e8e018)
+# 运镜bot wind lens-occlusion (work/运镜bot-wind 50c0227 on int/v1 dcfda87; trial merge). WorldFlowCore: turn
+#  targets from first path point >=0.05 m (pathHeading; fixes 166 deg return snap) + palm-avoiding rail keys.
+#  Verified sha256sum on merge(dcfda87+50c0227) = f3fe3064..c6c4 (== git show 50c0227:WorldFlowCore.ts). Glue reviewed:
+#  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged. WorldFlowComponent ==
+#  4e9022bd (listed from 138bca5). Boot unchanged (a4f2254d). Observe-only, append only.
+observe f3fe306486a272b6d60007f4a03497607825edd1fc5f919266296f6328dac6c4 world-r1/WorldFlowCore.ts         运镜bot wind 50c0227 on int/v1 dcfda87 (lens occlusion + turn-target)
