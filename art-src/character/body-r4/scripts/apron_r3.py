@@ -86,6 +86,7 @@ if not me.materials: me.materials.append(mats[0])
 uvl=me.uv_layers[0] if me.uv_layers else me.uv_layers.new(name='UVMap')
 for d in uvl.data: d.uv=APRON_UV
 BELT0=NAP
+apron_o['n_panel']=NAP
 for p_ in me.polygons: p_.use_smooth=True
 # apron follows the dress weights exactly (offset sheet), front bones mapped onto the .mid (apron/wind) chain
 transfer(me,apron_o,dress_o,remap={'skirt.front':'skirt.front.mid','skirt.front.low':'skirt.front.low.mid'})
