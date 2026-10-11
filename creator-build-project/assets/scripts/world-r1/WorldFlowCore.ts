@@ -108,6 +108,13 @@ export interface RouteConfig {
    *  toIsland, over closeSeconds), stays there on the island (restore), and reopens to openDeg during toThreshold
    *  (finishing openBefore s before crossing-in, over openSeconds). Smoothstep, sampled with the camera span (no job, no pop). */
   doorDrift?:Readonly<{islandDeg:number;closeAfter:number;closeSeconds:number;openBefore:number;openSeconds:number}>;
+  /** T2+ return entry: ONE camera move from the doorway key (last cameraToThreshold key) over crossing-in, the door close
+   *  (doorSeconds; the leaf closes by smoothstep over doorCloseFraction of it, sampled with the camera span), toSeat and
+   *  the sit, ending exactly on cameraHome - continuing the inbound span (no stop at the threshold or for the door). Key
+   *  progress per list: cross/seat = walk progress, door/sit = time fraction of that segment; sit ends with cameraHome.
+   *  remapProgress (route builder, CameraPose) places these keys on the span clock. Omitted = original stop/close/toSeat. */
+  cameraEntry?:Readonly<{cross:readonly Pose[];door:readonly Pose[];seat:readonly Pose[];sit:readonly Pose[];doorSeconds:number;doorCloseFraction:number}>;
+  remapProgress?:(p:number,o?:TrackOptions)=>number;
   /** T3a: authored seat approach. Omitted = original [cameraInside,cameraHome]. Must end exactly on cameraHome. */
   cameraToSeat?:readonly Pose[];
   /** T2: interior-light weight ramps on the exterior walks (walk progress). Omitted = old on/off switching. */
@@ -280,8 +287,8 @@ export class WorldFlow {
   /** T2+: ONE camera track over consecutive timed segments (walks, stand/turn, holds). Each segment's keys carry their
    *  own 0..1 progress; they are re-timed onto the span clock and a key at the same instant as the previous one is
    *  dropped (shared junction key). Characters/lighting run segment by segment on the same job clock. */
-  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>,door?:ReadonlyArray<readonly [number,number]>):Promise<void> {
-    const keys=spanCameraKeys(segments),total=segments.reduce((a,x)=>a+x.seconds,0);
+  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>,door?:ReadonlyArray<readonly [number,number]>,keyMap?:(keys:Pose[])=>Pose[]):Promise<void> {
+    const raw=spanCameraKeys(segments),keys=keyMap?keyMap(raw):raw,total=segments.reduce((a,x)=>a+x.seconds,0);
     let camera:Promise<void>=Promise.resolve();
     // Camera progress follows the character's travelled distance inside walk segments (keys are placed by path progress),
     // time elsewhere (stand/turn/hold) and whenever the adapter reports nothing.
@@ -394,7 +401,9 @@ export class WorldFlow {
           // camera never holds then launches mid-ease (that was a C1-only start: 17 m/s^2 in one frame).
           segs.push({seconds:turnS,cameras:lead>0?[]:[{...toThreshold[0],progress:0}],run:tk=>this.action({kind:'turn',controllerRoot:a,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk)});
           walkKeys=toThreshold.slice(1);}
-        segs.push(this.walkSegment(c.toThreshold,walkKeys),this.walkSegment(c.inCrossing,crossIn,'crossing-in'));
+        segs.push(this.walkSegment(c.toThreshold,walkKeys));
+        if(c.cameraEntry&&this.mode==='motion'){await this.entrySpan(segs,t);return;}
+        segs.push(this.walkSegment(c.inCrossing,crossIn,'crossing-in'));
         const dd=c.doorDrift,total=segs.reduce((x,g)=>x+g.seconds,0),ci=total-segs[segs.length-1].seconds;
         const door=dd&&this.mode==='motion'?this.doorKeys(total,ci-dd.openBefore-dd.openSeconds,dd.openSeconds,this.islandDoorDeg(),c.openDeg):undefined;
         if(dd&&!door)this.world!.setDoor(c.openDeg);
@@ -404,10 +413,42 @@ export class WorldFlow {
         this.change('crossing-in');await this.walk(c.inCrossing,crossIn,t);}
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();
-      this.world!.setLayers(HOME);this.world!.setRoomLightWeight?.(1);this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t);
+      this.homeLayers();this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t);
       this.change('sitting');await this.action({kind:'sit',seat:c.seat},t);
       this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
     });
+  }
+  /** Door shut: interior-only layers on the full room light (T5: setLayers(interior) already lands on w=1). */
+  private homeLayers():void {this.world!.setLayers(HOME);this.world!.setRoomLightWeight?.(1);}
+  /** T2+ return entry (RouteConfig.cameraEntry): `segs` = the inbound segments up to the doorway key; appends crossing-in,
+   *  door close, toSeat and sit and runs them as ONE span. The inbound ease-in keeps its absolute duration and the cruise
+   *  speed is unchanged (easeIn' = easeIn*Tin/T with Tin = the old inbound span incl. crossing-in, easeIn'+easeOut' = easeIn+easeOut), so every frame up to the doorway is
+   *  the same as the old inbound track's cruise; the old 0.9 s ease-out stop at the end of crossing-in is gone and the
+   *  move eases out onto cameraHome instead. Entry keys (after the doorway key) are re-placed with remapProgress so the
+   *  lens reaches each key when she is at it. */
+  private async entrySpan(segs:SpanSegment[],t:Cancellation):Promise<void> {
+    const c=this.config,E=c.cameraEntry!,dd=c.doorDrift,o=c.cameraTracks!.inbound!;
+    const sitClip=this.character?.actionSeconds?.('sit'),sitS=this.turnSeconds()+(sitClip&&sitClip>0&&Number.isFinite(sitClip)?sitClip:1.0);
+    const tIn=segs.reduce((x,g)=>x+g.seconds,0),crossS=this.walkSeconds(c.inCrossing),doorS=E.doorSeconds>0?E.doorSeconds:1;
+    segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'),
+      {seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();}},
+      this.walkSegment(c.toSeat,E.seat,'walking-to-seat'),
+      {seconds:sitS,cameras:E.sit,state:'sitting',run:tk=>this.action({kind:'sit',seat:c.seat},tk)});
+    const total=segs.reduce((x,g)=>x+g.seconds,0),a=Math.max(0,o.easeIn??0),b=Math.max(0,o.easeOut??0),a2=a*(tIn+crossS)/total,b2=Math.max(0,Math.min(.5,a+b-a2));
+    const track:TrackOptions={...o,easeIn:a2,easeOut:b2},rm=c.remapProgress,at=(s:number)=>rm?rm(Math.max(0,Math.min(1,s/total)),track):s/total;
+    const p0=tIn/total,keyMap=(keys:Pose[]):Pose[]=>{if(!rm)return keys;
+      const out=keys.map(k=>{const p=(k as any).progress as number;return p>p0+1e-9&&p<1?{...k,progress:rm(p,track)}:k;});
+      for(let i=1;i<out.length;i++)if(!(((out[i] as any).progress as number)>((out[i-1] as any).progress as number))){console.warn('entry keys not monotone after retime; using span clock');return keys;}
+      return out;};
+    // Door channel (key progress): drift reopen (doorDrift, island part) then the close during the door segment.
+    // the close starts 0.1 of the door segment after she stops (key-progress clock vs state change: never during crossing-in)
+    const open=c.openDeg,from=dd?this.islandDoorDeg():open,d0=tIn+crossS+.1*doorS,d1=tIn+crossS+doorS*Math.max(.2,Math.min(1,E.doorCloseFraction||1));
+    const door:Array<readonly [number,number]>=[[0,from]];
+    if(dd&&from!==open){const r1=tIn-dd.openBefore,r0=r1-dd.openSeconds;door.push([Math.max(0,r0/total),from],[Math.max(1e-6,r1/total),open]);}
+    door.push([at(d0),open],[at(d1),0],[1,0]);
+    for(let i=1;i<door.length;i++)if(!(door[i][0]>door[i-1][0]))door[i]=[door[i-1][0]+1e-6,door[i][1]];
+    await this.span(segs,t,track,undefined,undefined,door,keyMap);
+    this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;

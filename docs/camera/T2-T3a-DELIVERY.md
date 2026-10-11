@@ -166,3 +166,28 @@ Offline previews (Blender Workbench, labelled, door open 86.4 deg): /workspace/y
 - Brightness: whole-frame mean luma 86.4 -> 45 changes 0.1 % (island), 2.3 % (frontal hold), 0.3 % (return) in total,
   spread over 2.6 s -> far below the 8 % per-frame step rule.
 - Rollback: delete `doorDrift` from TRANSITION_CAMERA (door stays at openDeg, all checks report disabled).
+
+## Return entry: one continuous move into the room (Funning, Mac round 3)
+- Feedback: walking back in, the camera around the door / door close felt like a camera-position switch.
+- Root cause (4be7adf, 60 fps flow_sim, constant speed): not a hard snap (max 1.13 deg / 3.5 cm per frame), but three
+  separate set-ups joined by stops and whips: (1) crossing-in (31.27-33.33 s) swung the lens 1.6 m to the right of the
+  doorway (OR -> C1 C2 C3 -> IR, rising to y 1.88 and dropping again) at up to 2.12 m/s / 57.5 deg/s with key kinks of
+  202 deg/s^2 and 9.8 m/s^2 (32.2 s); (2) it then STOPPED dead at IR (inbound ease-out) and stood still for the whole 1 s
+  door close (33.33-34.33 s); (3) a new toSeat track started from rest, hovered at the right wall (S1-S3, 37.0 s:
+  speed 0.05 m/s while panning 25 deg/s) and whipped 3.2 m back behind her to cameraHome (S4-S6) at up to 1.73 m/s /
+  67.6 deg/s, then stood still again for the 2.5 s turn + sit. Read on screen: a frontal shot, a jump to a side shot, a
+  freeze, then a fast swing to a third angle.
+- Fix: `TRANSITION_CAMERA.entry` + `RouteConfig.cameraEntry` + `WorldFlow.entrySpan`: the inbound span now continues
+  through crossing-in, the door close, toSeat and the sit as ONE track ending exactly on cameraHome. The lens backs into
+  the room ahead of her on the right, keeps drifting while the door closes behind her (door now closes by smoothstep on
+  the span clock instead of a linear 1 s job), lets her pass at the right wall while panning with her, then arcs once
+  behind her to the left and lands on cameraHome while she turns and sits (ease-out). Up to the doorway the frames are
+  identical to the old inbound cruise (easeIn' = easeIn*Tin/T, easeIn'+easeOut' kept: same cruise speed; first differing
+  frame 30.38 s, 0.14 mm). Entry keys are placed on the span clock with CameraPose.remapProgress (route builder).
+- New numbers (same window 30.27-42.77 s): max 0.58 deg / 1.5 cm per frame (34.7 deg/s, 0.9 m/s), 43 deg/s^2,
+  1.06 m/s^2, longest standstill 0.03 s (the final settle). Strict safe-area margin >= 0.02 over the whole entry;
+  lens >= 0.28 m from room geometry; head/chest always visible.
+- Test: `return-entry-continuous` in test_camera_frames.cjs (<= 0.75 deg & 0.025 m & 0.15 deg fov per frame,
+  <= 120 deg/s^2, <= 3 m/s^2, no standstill > 0.1 s before the home settle). FAILS on 4be7adf (1.13 deg/frame,
+  0.035 m/frame, 207 deg/s^2, 9.8 m/s^2, 2.47 s standstill).
+- Rollback: `TRANSITION_CAMERA.entry.enabled = false` (old C1..IR / stop / S1..S6 moves come back unchanged).
