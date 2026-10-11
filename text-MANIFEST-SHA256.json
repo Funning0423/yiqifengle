@@ -41,8 +41,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 3841,
-    "sha256": "a062551e5f8bed15edc04add548cdbcff165a7adb9f714555905cc80a636d265"
+    "bytes": 39751,
+    "sha256": "d6402854db7ab9d0819aaf9a7d2af13c83850afc32268375eb04cffbe0eb9b0b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -51,8 +51,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-    "bytes": 18155,
-    "sha256": "06335f6dc09e232bb1a67c4b4ecd5f0c2b510defaa1eb02ef112c826c2f603a3"
+    "bytes": 24062,
+    "sha256": "38b00097dd921a387db970a2e19e9e4a65d609b63baabac0e6ea6bec72b93695"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/combined_anchors_m.json",
@@ -308,11 +308,6 @@
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_confirm.mp3.meta",
     "bytes": 222,
     "sha256": "3a83b67257b88a4917e637f6badaf230cd79163aa69408879d870b83e9717bdb"
-  },
-  {
-    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_settings.mp3.meta",
-    "bytes": 222,
-    "sha256": "d8a439b8134b488f103f4ddccdde56633681260b7b8cdc6bd927f7b2a17a9a3d"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3.meta",
@@ -666,8 +661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 56839,
-    "sha256": "011ce344aa92cb85b96bb5ec25a0d3c36b0d8dfa82f1223e24fc0ff3e3b62d78"
+    "bytes": 57185,
+    "sha256": "b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -1166,8 +1161,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/GullFlock.ts",
-    "bytes": 7081,
-    "sha256": "da0314f540d4569748c3ec889f3d64d186fa49fe2b0564197e8333799a217466"
+    "bytes": 8880,
+    "sha256": "75030b5239a74d3d3bd50253fd347bd48ad6a94f3cd75a905d8c3c41302de424"
   },
   {
     "path": "creator-build-project/assets/scripts/render/GullFlock.ts.meta",
@@ -1176,8 +1171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/GullFlockCore.ts",
-    "bytes": 30961,
-    "sha256": "f385b119442eb8c2edb6ebd65383fca021dec8f4fbc0662b82a76d74f7614dee"
+    "bytes": 35437,
+    "sha256": "beda7c88501baddd2d2ffec20fa28931a22d3736ba06c1ca3678282445e6d93b"
   },
   {
     "path": "creator-build-project/assets/scripts/render/GullFlockCore.ts.meta",
@@ -1186,8 +1181,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts",
-    "bytes": 9665,
-    "sha256": "9efccc5a896ef18135b654e5eb487b38ece82710a3f707e2d9e0b0b7cc53fefc"
+    "bytes": 9800,
+    "sha256": "2389a05b38efac97dec85c78a956b6b6606a99f206a78ffd4e525e5aae714061"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFx.ts.meta",
@@ -1196,8 +1191,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts",
-    "bytes": 22492,
-    "sha256": "86871cc8a07643b6e39eef711eb955a0b7e14e626f4af9b6cfe7b82c88d26c0a"
+    "bytes": 24040,
+    "sha256": "0052b13d9a1201f2d28714c8ab1eb888ab790ff7f81209c97c9522fffed5cd8c"
   },
   {
     "path": "creator-build-project/assets/scripts/render/IslandAtmosphereFxCore.ts.meta",
@@ -1356,8 +1351,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
-    "bytes": 16663,
-    "sha256": "5a3b0fa4a87ec3553a4cd4c364644e604e980492707acef62e5643add4a65048"
+    "bytes": 23442,
+    "sha256": "0dbe50b8632a488c4e8bec4586c199b16e06dae2a821961b3dd1f4b310edcb48"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
@@ -1376,8 +1371,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
-    "bytes": 20899,
-    "sha256": "73d05311a361d23a8d0d60daba1844375d7bb5d3637de99401ce3edba7f55d8e"
+    "bytes": 23879,
+    "sha256": "7cf2ee17fa620c476c65d0909b60a95c43b7140bc79f1f7a8541664b6376e9f4"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
@@ -1406,8 +1401,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 45208,
-    "sha256": "728b630b1e2a7f4eab25d8887d3ec5c749eb689a0a1bbe8d34e99a0be4af5bf8"
+    "bytes": 47581,
+    "sha256": "4cacd38416f018ba0792f85fe75316420f1e6f7ec25f9fb16d729ce0227adf45"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",

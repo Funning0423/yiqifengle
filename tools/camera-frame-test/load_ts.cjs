@@ -18,4 +18,4 @@ function load(files=['CameraPose','WorldFlowCore','FirstsliceRoutes','Firstslice
   for(const f of files)if(fs.existsSync(path.join(tmp,f+'.js')))out[f]=require(path.join(tmp,f+'.js'));
   out.tsVersion=ts.version;out.tmp=tmp;return out;
 }
-module.exports={load,root};
+module.exports={load,root,typescript};

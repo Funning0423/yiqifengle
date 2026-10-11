@@ -55,18 +55,20 @@ export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
   | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
   | 'sfx_amb_gull_1' | 'sfx_amb_gull_2' | 'sfx_amb_gull_3'
-  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_settings' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
+  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
 
 /** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
 const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
 
-/** A5（Voice bot）：岛上 3D 道具点击音（Funning 选的 A 版）。press 播各自的音，confirm 统一播确认音。
- *  文件峰值约 -2 dBFS，按 UI_TAP_VOLUME 播，比鼓励音 / 消除音轻一档。 */
+/** A5（Voice bot）：岛上 3D 道具点击音。press 播各自的音，confirm 统一播确认音；设置没有专用音，播通用点击 sfx_ui_click。
+ *  ui-soft 柔和版（Funning 选定）：行囊 / 旅程册 / 路牌 / 通用点击是 Kenney CC0 录音，确认 / 返回是自制毛毡槌两音，
+ *  见 docs/audio-credits.md。响度已做在文件里（约 -21 ~ -22 LUFS，峰值 -5 ~ -13 dBFS），所以 UI_TAP_VOLUME = 1，
+ *  游戏里和 Funning 试听的电平一致；鼓励音文件约 -10 LUFS、音量 1，UI 音仍比鼓励音低约 11 dB。 */
 export type UiTapTarget = 'signpost' | 'bag' | 'book' | 'settings';
 const UI_PRESS: Record<UiTapTarget, SfxName> = {
-  bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_settings', signpost: 'sfx_ui_signpost',
+  bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
 };
-const UI_TAP_VOLUME = 0.65;
+const UI_TAP_VOLUME = 1;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
 export type SuspendReason = 'hidden' | 'interrupted';
@@ -905,7 +907,7 @@ export class GameAudio extends Component {
     return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
   }
 
-  onButton() { this.play('sfx_ui_click', 0.8); }
+  onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
   /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。 */
   onPropTap(target: UiTapTarget, phase: 'press' | 'confirm', info?: { blocked?: boolean } | null) {
     if (info?.blocked) return;
@@ -915,7 +917,7 @@ export class GameAudio extends Component {
   /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
   onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
-  onToolTap() { this.play('sfx_ui_click', 0.8); }
+  onToolTap() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
 }
 
 declare const wx: any;

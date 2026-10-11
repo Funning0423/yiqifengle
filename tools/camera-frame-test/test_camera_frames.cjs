@@ -32,7 +32,11 @@ if(args.includes('--real-walk'))envOpts.realWalk=true;
 if(envOpts.walkDuration)console.log('walk profile: synthetic',wp,'(0.3 s linear accel/decel ramps, walkDuration = L/0.7 + ramp/2 per ramp), walkProgress reported:',envOpts.reportWalkProgress);
 const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5,
   // return-entry span: 0.75 deg/frame = 45 deg/s, 0.025 m/frame = 1.5 m/s, fov 0.15 deg/frame = 9 deg/s; standstill = v < 0.02 m/s and w < 0.5 deg/s
-  entry:{turnDegPerFrame:.75,moveMPerFrame:.025,fovDegPerFrame:.15,angAccel:120,linAccel:3,stillV:.02,stillW:.5,maxStillS:.1,settleS:.05}};
+  entry:{turnDegPerFrame:.75,moveMPerFrame:.025,fovDegPerFrame:.15,angAccel:120,linAccel:3,stillV:.02,stillW:.5,maxStillS:.1,settleS:.05,
+    // follow (Mac r4): lens within 45 deg of straight behind her, distance change <= 0.015 m/frame, follow starts >= 3 s before crossing-in
+    follow:{maxOffBehindDeg:45,maxDistStepM:.015,minLeadS:3}},
+  // return-brightness (light_proxy B in [0,1]): per-1/30 s step, and the swing (hysteresis) allowed at the door / over the return
+  brightness:{maxStep:.04,maxEntrySwing:.1,maxReturnSwing:.1}};
 (async()=>{
   if(envOpts.walkDuration){const c0=S.create().cfg;for(const k of ['toDoor','outCrossing','toIsland','toThreshold','inCrossing','toSeat'])if(c0[k])named.push([k,c0[k]]);}
   const env=S.create(envOpts),{C,cfg}=env,run=await S.run(env),F=run.frames,dt=run.dt;
@@ -113,6 +117,31 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
           if(s.swayRays&&sway.length<8)sway.push({frame:i,t:+f.t.toFixed(3),state:f.state,swayRays:s.swayRays,who:s.who});});
         check('collision:lens-near-movers',bad.length===0&&sway.length===0,{flyerNearM:LR.FLYER_NEAR_M,flyerClearM:LR.FLYER_CLEAR_M,swayNearM:LR.NEAR_M,clip:sw.clip,loopS:+sw.seconds.toFixed(3),
           phases:sw.phases,union:'all phases',movers:sw.names,minLensToFlyerOrbit:flyMin,maxFlyerRaysPerFrame:maxFly,flyerViolations:bad,swayViolations:sway,sampling:'every frame'});}}
+      // Return brightness (Funning, Mac r4: "人从外面回到房间的时候，画面不能一亮一暗"): light_proxy.cjs replays the REAL
+      // RoomLightingRig per frame (w, exterior key, day/night photometry, layer switches) and shades a 9x19 frustum grid of
+      // the decoded GLB (shadow rays x shadowSaturation, hemisphere ambient, door leaf, HOME layers hide the exterior) at a
+      // fixed exposure -> mean tone-mapped brightness B in [0,1], every 2nd frame from the first return frame to the home
+      // settle (+0.5 s), day AND night. FAIL when
+      //   - any step |B(i) - B(i-1)| (1/30 s) > LIMITS.brightness.maxStep (a pop: layer switch, light jump, door/occluder), or
+      //   - from 1 s before crossing-in to the home settle B is not monotone within maxEntrySwing (smoothed over 5 samples):
+      //     any dip that recovers or bump that falls back by >= maxEntrySwing (the "一亮一暗" at the door), or
+      //   - over the whole return any such swing >= maxReturnSwing (int/v1 484d941 before this change: the R3 exterior-key sun
+      //     swing on the walk home, -0.19 then +0.13 -> FAIL; after: largest swing 0.08, the seated-room content at the sit).
+      // The proxy has no textures, so it overstates content swings indoors (Blender with the same rig state: <= 0.03).
+      // Proxy of the picture (uniform albedo, no textures/GI): Blender renders with the same rig state are the acceptance
+      // look (previews/运镜bot/return-follow).
+      {const P=require('./light_proxy.cjs'),B=LIMITS.brightness,Ih={all:I,home:G.index(geo,{ignore:/^(?!env_(interior|int_|lighthouse_ext|window_blind))/})};
+        const ci=F.findIndex(f=>f.state==='crossing-in'),hm=F.findIndex((f,k)=>k>ci&&f.state==='home'),r0=F.findIndex(f=>f.op==='returnHome'),end=Math.min(F.length-1,hm+Math.round(.5/dt));
+        const res={};let ok=r0>=0&&ci>r0&&hm>ci;
+        for(const night of [false,true]){const Ls=P.lights(F,night),idx=[];for(let i=r0;i<=end;i+=2)idx.push(i);
+          const b=idx.map(i=>P.frame(C,Ih,F[i],Ls[i],K.SCREEN.aspect,cfg.openDeg));let step={v:0};
+          for(let k=1;k<b.length;k++){const d=Math.abs(b[k]-b[k-1]);if(d>step.v)step={v:+d.toFixed(4),t:+F[idx[k]].t.toFixed(3),state:F[idx[k]].state};}
+          const e0=idx.findIndex(i=>i>=ci-Math.round(1/dt)),e1=idx.findIndex(i=>i>=hm),eb=b.slice(e0,e1+1);
+          const se=P.swings(eb,B.maxEntrySwing,5),sr=P.swings(b,B.maxReturnSwing,5),T=(sw,o)=>sw.turns.map(t=>({t:+F[idx[o+t.i]].t.toFixed(3),state:F[idx[o+t.i]].state,dir:t.dir,B:+t.v.toFixed(3)}));
+          const mode=night?'night':'day',pass=step.v<=B.maxStep&&se.turns.length===0&&sr.turns.length===0;ok=ok&&pass;
+          const q=k=>+b[Math.max(0,Math.min(b.length-1,k))].toFixed(3);
+          res[mode]={pass,maxStep:step,entrySwings:T(se,e0),returnSwings:T(sr,0),B:{returnStart:q(0),crossingInMinus1s:q(e0),home:q(e1),min:+Math.min.apply(null,b).toFixed(3),max:+Math.max.apply(null,b).toFixed(3)},samples:b.length};}
+        check('return-brightness',ok,{limits:B,sampling:'every 2nd frame, '+P.COLS+'x'+P.ROWS+' rays',...res});}
       // Room explore slide (Mac round 3 r1-s3/r1-s5: lens looked into the stair post / wall at the drag ends): RoomLook over the
       // FULL yaw x pitch range (yaw every 1 deg + both ends, pitch every 3 deg + both ends): every 16x32 frustum ray must meet
       // geometry no nearer than LIMITS.roomLookViewM; the door handle must still be on screen (RoomLook.door) somewhere in range.
@@ -139,21 +168,46 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
     const xoNear=F.filter(f=>f.state==='crossing-out'&&Math.hypot(f.root[0],f.root[2])<1.2).map(f=>f.door);
     const ok=!dd||(isl.length>0&&isl.every(v=>Math.abs(v-dd.islandDeg)<1e-6)&&ci.every(v=>v===open)&&xoNear.every(v=>v===open)&&maxStep<=1.0&&maxAcc<=0.05&&minLens.d>=LR.NEAR_M&&minHer>=0.35);
     check('door-drift',ok,dd?{islandDeg:dd.islandDeg,openDeg:open,islandDoor:Array.from(new Set(isl)),crossingInAllOpen:ci.every(v=>v===open),openWhileNearDoorOut:xoNear.every(v=>v===open),maxDegPerFrame:+maxStep.toFixed(3),maxDegPerFrame2:+maxAcc.toFixed(4),minLensToLeafWhileNotOpen:minLens,minHerToLeafM:+minHer.toFixed(3)}:{disabled:true});}
-  // --- T2+ return entry (Funning, Mac round 3: "进门/关门那一下像切机位"): from 1 s before crossing-in to the home settle the
-  // camera is ONE move: per-frame turn / move / fov bounded (no whip pans), bounded angular / linear acceleration (no
-  // kinks at keys or track joins), and it never stops then restarts (old: dead stop for the 1 s door close, then a new
-  // track) - the only standstill allowed is the final settle on cameraHome. Old behaviour (4be7adf): 57-68 deg/s,
-  // 2.1 m/s, 202 deg/s^2, 9.8 m/s^2, 1.0 s standstill -> FAIL.
-  {const E=LIMITS.entry,ci=F.findIndex(f=>f.state==='crossing-in'),hm=F.findIndex((f,k)=>k>ci&&f.state==='home');
+  // --- T2+ return entry, FOLLOW version (Funning, Mac r4: "从外面进回到灯塔的时候，镜头就一直跟随着人，等她坐下的时候再回到最初进入
+  //游戏的那个机位"). Replaces the r3 one-shot move (lens backed into the room ahead of her and overtook her at the right
+  // wall). Three parts:
+  //  (1) continuity, from 1 s before crossing-in to the home settle: per-frame turn / move / fov bounded, bounded angular /
+  //      linear acceleration, no stop-and-restart (only the final settle may stand still) - same limits as r3;
+  //  (2) follow, from the end of the crane-down (her walk progress returnFollow.craneEnd on toThreshold) to the sit: the lens stays
+  //      BEHIND her (horizontal lens direction within maxOffBehindDeg of straight behind her facing), never ahead of her
+  //      along her path, at a steady distance (in.distance - 0.3 .. out.distance + 0.3, |d distance| <= 0.015 m/frame) and
+  //      steady height; the follow must start >= 3 s before crossing-in (the whole walk up to and through the door);
+  //  (3) the lens only leaves the follow (heads for cameraHome) once she is sitting, and lands on cameraHome exactly when the
+  //      sit ends (the span's sit segment is the runtime sit length: actionSettleSeconds('sit') / actionSeconds('sit')).
+  {const E=LIMITS.entry,RF=env.M.RegionCameraData.TRANSITION_CAMERA.returnFollow,ci=F.findIndex(f=>f.state==='crossing-in'),hm=F.findIndex((f,k)=>k>ci&&f.state==='home');
+    const si=F.findIndex((f,k)=>k>ci&&f.state==='sitting'),r0=F.findIndex(f=>f.op==='returnHome');
     const a=Math.max(1,ci-Math.round(1/dt)),win=ci>0&&hm>ci?kin.filter(k=>k.i>=a&&k.i<=hm):[];
     let mt={v:0},mm={v:0},mf={v:0},aw={v:0},av={v:0},still=0,stillMax=0,stillAt=null;
     const at=(k,v)=>({v:+v.toFixed(3),t:+F[k.i].t.toFixed(3),state:F[k.i].state});
     for(const k of win){const turn=k.w*dt,move=k.v*dt,fv=Math.abs(k.fv)*dt;if(turn>mt.v)mt=at(k,turn);if(move>mm.v)mm=at(k,move);if(fv>mf.v)mf=at(k,fv);
       if(k.i>a+1){if(Math.abs(k.dw)>aw.v)aw=at(k,Math.abs(k.dw));if(Math.abs(k.dv)>av.v)av=at(k,Math.abs(k.dv));}
       const st=k.v<E.stillV&&k.w<E.stillW&&k.i<hm-Math.round(E.settleS/dt);if(st){still++;if(still>stillMax){stillMax=still;stillAt=+F[k.i].t.toFixed(3);}}else still=0;}
-    const ok=win.length>0&&mt.v<=E.turnDegPerFrame&&mm.v<=E.moveMPerFrame&&mf.v<=E.fovDegPerFrame&&aw.v<=E.angAccel&&av.v<=E.linAccel&&stillMax*dt<=E.maxStillS;
-    check('return-entry-continuous',ok,{window:win.length?{from:+F[a].t.toFixed(3),to:+F[hm].t.toFixed(3)}:null,maxTurnPerFrameDeg:mt,maxMovePerFrameM:mm,maxFovPerFrameDeg:mf,
-      maxAngAccelDegS2:aw,maxLinAccelMS2:av,longestStandstillS:+(stillMax*dt).toFixed(3),standstillEndsAt:stillAt,limits:E});}
+    const cont=win.length>0&&mt.v<=E.turnDegPerFrame&&mm.v<=E.moveMPerFrame&&mf.v<=E.fovDegPerFrame&&aw.v<=E.angAccel&&av.v<=E.linAccel&&stillMax*dt<=E.maxStillS;
+    // (2) follow
+    const hd=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]),off=f=>{const fx=Math.sin(f.yaw),fz=Math.cos(f.yaw),dx=f.cam.position[0]-f.root[0],dz=f.cam.position[2]-f.root[2],l=Math.hypot(dx,dz)||1;
+      return Math.acos(Math.max(-1,Math.min(1,-(fx*dx+fz*dz)/l)))*180/Math.PI;};
+    const FL=E.follow,dMin=Math.min(RF.in.distance,RF.out.distance)-.3,dMax=Math.max(RF.in.distance,RF.out.distance)+.3,hMin=Math.min(RF.in.height,RF.out.height)-.15,hMax=Math.max(RF.in.height,RF.out.height)+.15;
+    // follow starts where the crane-down ends: her walk progress RF.craneEnd on toThreshold (nearest walking-home frame)
+    const cp=env.W.pointOnPath(cfg.toThreshold,RF.craneEnd);let f0=-1,best=9;for(let i=Math.max(0,r0);i<ci&&r0>=0;i++){if(F[i].state!=='walking-home')continue;const e=Math.hypot(F[i].root[0]-cp[0],F[i].root[2]-cp[2]);if(e<best){best=e;f0=i;}}
+    let fo={offBehindDeg:0,dRange:[9,0],dStep:0,hRange:[9,0],ahead:null,first:null};
+    if(f0>0&&si>f0)for(let i=f0;i<si;i++){const f=F[i],d=hd(f),o=off(f),h=f.cam.position[1]-f.root[1];fo.offBehindDeg=Math.max(fo.offBehindDeg,o);fo.dRange=[Math.min(fo.dRange[0],d),Math.max(fo.dRange[1],d)];
+      fo.hRange=[Math.min(fo.hRange[0],h),Math.max(fo.hRange[1],h)];if(i>f0)fo.dStep=Math.max(fo.dStep,Math.abs(d-hd(F[i-1])));
+      if(o>90&&!fo.ahead)fo.ahead={t:+f.t.toFixed(3),state:f.state,offBehindDeg:+o.toFixed(1)};
+      if((o>FL.maxOffBehindDeg||d<dMin||d>dMax||h<hMin||h>hMax)&&!fo.first)fo.first={t:+f.t.toFixed(3),state:f.state,offBehindDeg:+o.toFixed(1),distance:+d.toFixed(3),height:+h.toFixed(3)};}
+    const leadS=f0>0&&ci>0?(ci-f0)*dt:0,follow=f0>0&&si>f0&&!fo.first&&!fo.ahead&&fo.dStep<=FL.maxDistStepM&&leadS>=FL.minLeadS;
+    // (3) home landing: the sit segment is the runtime sit length; the lens leaves the follow band only once she sits
+    const seated=cfg.seat.seatedControllerRoot,sd=si>0?F.findIndex((f,k)=>k>=si&&Math.hypot(f.root[0]-seated[0],f.root[1]-seated[1],f.root[2]-seated[2])<1e-3):-1;
+    const sitS=si>0&&hm>si?(hm-si)*dt:null,seatedS=sd>0?(sd-si)*dt:null,landing=sitS!==null&&seatedS!==null&&Math.abs(sitS-seatedS)<=1.5*dt;
+    check('return-entry-continuous',cont&&follow&&landing,{window:win.length?{from:+F[a].t.toFixed(3),to:+F[hm].t.toFixed(3)}:null,maxTurnPerFrameDeg:mt,maxMovePerFrameM:mm,maxFovPerFrameDeg:mf,
+      maxAngAccelDegS2:aw,maxLinAccelMS2:av,longestStandstillS:+(stillMax*dt).toFixed(3),standstillEndsAt:stillAt,
+      follow:{from:f0>0?+F[f0].t.toFixed(3):null,to:si>0?+F[si].t.toFixed(3):null,leadBeforeCrossingInS:+leadS.toFixed(2),maxOffBehindDeg:+fo.offBehindDeg.toFixed(1),distanceM:fo.dRange.map(v=>+v.toFixed(3)),band:[+dMin.toFixed(2),+dMax.toFixed(2)],
+        maxDistStepM:+fo.dStep.toFixed(4),heightM:fo.hRange.map(v=>+v.toFixed(3)),aheadOfHer:fo.ahead,firstViolation:fo.first},
+      homeLanding:{sitStart:si>0?+F[si].t.toFixed(3):null,settledHome:hm>0?+F[hm].t.toFixed(3):null,lensLandsAfterSitStartS:sitS===null?null:+sitS.toFixed(3),sheIsSeatedAfterS:seatedS===null?null:+seatedS.toFixed(3)},limits:E});}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
     for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}

@@ -12,7 +12,9 @@
  * 5 contract: cancelled -> booking released; no interface -> own random flights; request-only (lead 0) still enters
  * 6 cc wrapper with a mocked cc: interface probe (absent -> later present -> rebuilt), node names fx_gull_N, no colliders,
  *   not in lighthouseTargets, original gull renderers replaced in WorldFlowComponent
- * 7 bytes: ES5 module build + terser (Cocos bundles modules), new assets 0
+ * 7 wings (Mac r4 black slivers): two-sided cambered fx wing (top shell faces up, underside faces down, underside white-grey,
+ *   visible depth when seen edge-on, edge-on guard tilts near flying gulls toward the lens), unlit tint day 1 / night darker+cool, wrapper uses builtin-unlit wings; far gulls drawn larger
+ * 8 bytes: ES5 module build + terser (Cocos bundles modules), new assets 0
  * Usage: node tools/scene-fx/test_gulls.cjs [--json out.json] */
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
 const S=require('./gull_sim.cjs'),{C}=S.load(),G=C.GULL_FX,root=S.root,scripts=path.join(root,'creator-build-project/assets/scripts');
@@ -92,6 +94,7 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
     const fl2=new C.GullFlock(4);fl2.setView(true);let seen=0;for(let i=0;i<60*40;i++){const P=fl2.advance(1/60,Object.assign({},idle),0,null);if(P.some(p=>p.visible&&C.project(idle,p.pos).inFrame))seen++;}
     let thrown=null;try{fl2.onCall(null);fl2.onCall({phase:'start',dist:'near',yawWorldDeg:NaN});fl2.onCall({phase:'weird',dist:'x',yawWorldDeg:10});}catch(e){thrown=String(e);}
     check('contract-cancel-fallback',booked===1&&released&&seen>60*40*.8&&!thrown,{booked,released,noInterfaceFramesWithGullPct:+(100*seen/2400).toFixed(1),thrown});}
+  let wrapWings=null;
   // 6 cc wrapper (mocked cc)
   { const ts=require('../qf-env.cjs').typescript(),os=require('os'),Module=require('module');const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'gullcc-'));
     for(const f of ['IslandAtmosphereFxCore','GullFlockCore','GullFlock'])fs.writeFileSync(path.join(tmp,f+'.js'),ts.transpileModule(fs.readFileSync(path.join(scripts,'render',f+'.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES5}}).outputText);
@@ -101,9 +104,9 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
       getComponentsInChildren(K){const o=[];const w=n=>{for(const c of n.comps)if(c instanceof K)o.push(c);n.children.forEach(w);};w(this);return o;}
       getChildByName(n){return this.children.find(c=>c.name===n)||null;}setPosition(){}setWorldPosition(x,y,z){this.worldPosition=new V(x,y,z);}setWorldRotation(){}setScale(){}setRotation(){}destroy(){this.destroyed=true;}}
     class Color{constructor(r=255,g=255,b=255,a=255){Object.assign(this,{r,g,b,a});}clone(){return new Color(this.r,this.g,this.b,this.a);}}
-    class Material{copy(m){this.src=m;}getProperty(){return new Color();}setProperty(k,v){this.last=[k,v];}destroy(){}}
+    const mats=[];class Material{constructor(){mats.push(this);}copy(m){this.src=m;}initialize(o){this.init=o;}getProperty(){return new Color();}setProperty(k,v){this.last=[k,v];}destroy(){}}
     class MeshRenderer{constructor(){this.mesh=null;}setMaterial(m){this.mat=m;}} MeshRenderer.ShadowCastingMode={OFF:0};class Camera{constructor(){this.fov=42;this.camera={aspect:T.aspect};}}
-    const cc={Node,Scene:Node,MeshRenderer,Material,Color,Camera,Mesh:class{},isValid:o=>!!o&&!o.destroyed};
+    const meshes=[];const cc={Node,Scene:Node,MeshRenderer,Material,Color,Camera,Mesh:class{},Vec3:V,EffectAsset:{get:n=>n==='builtin-unlit'?{}:null},utils:{createMesh:g=>{const m={g,destroy(){m.gone=true;}};meshes.push(m);return m;}},isValid:o=>!!o&&!o.destroyed};
     const load=f=>{const m=new Module(path.join(tmp,f+'.js'));m.filename=path.join(tmp,f+'.js');m.paths=[];const o=m.require.bind(m);m.require=id=>id==='cc'?cc:id.startsWith('./')?load(id.slice(2)):o(id);m._compile(fs.readFileSync(m.filename,'utf8'),m.filename);return m.exports;};
     const W=load('GullFlock');const scene=new Node('scene'),model=new Node('model');scene.addChild(model);
     for(const n of ['env_anim_seagull_fly_01_v22','env_anim_seagull_fly_01_v22_wing_L','env_anim_seagull_fly_01_v22_wing_R']){const x=new Node(n);model.addChild(x);const r=x.addComponent(MeshRenderer);r.mesh={};r.sharedMaterial=new Material();}
@@ -121,13 +124,38 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
     const wfc=fs.readFileSync(path.join(scripts,'world-r1/WorldFlowComponent.ts'),'utf8'),hit=wfc.slice(wfc.indexOf('private hitLighthouse'),wfc.indexOf('private roomView'));
     const ok=!thrown&&subs===2&&unsubs===2&&names.includes('fx_gull_0')&&names.includes('fx_gull_'+(G.count-1)+'_wing_R')&&!/Collider|RigidBody|UITransform|Button|EventType|\.on\(/.test(src)&&!/fx_gull|gull/i.test(hit)
       &&wfc.includes("for(const name of ['env_lighthouse_ext','env_lighthouse_door','env_interior_shell'])")&&/env_anim_seagull_fly_0\[12\]_v22/.test(wfc)&&wfc.includes('length!==12');
+    const wingR=made.filter(n=>/^fx_gull_\d+_wing_[LR]$/.test(n.name)).map(n=>n.comps[0]),wm=mats.find(m=>m.init&&m.init.effectName==='builtin-unlit');
+    wrapWings={wingNodes:wingR.length,unlitWings:wingR.every(r=>r.mat===wm&&meshes.includes(r.mesh)),meshes:meshes.length,disposed:meshes.every(m=>m.gone),nightColor:wm&&wm.last&&[wm.last[1].r,wm.last[1].g,wm.last[1].b]};
     check('cc-wrapper-taps-names',ok,{thrown,subscribes:subs,unsubscribes:unsubs,nodes:names.length,examples:names.slice(0,4),colliders:0,lighthouseTargets:['env_lighthouse_ext','env_lighthouse_door','env_interior_shell']});}
-  // 7 bytes
+  // 7 wings + far size
+  { const lum=c=>.2126*c[0]+.7152*c[1]+.0722*c[2];const sides=[-1,1].map(sd=>{const g=C.wingGeometry(sd),P=g.positions,col=g.colors,I=g.indices,nv=P.length/3,half=nv/2;let up=0,down=0,bad=0,underL=1,topL=1,area=0;
+      for(let t=0;t<I.length;t+=3){const [a,b,c]=[I[t],I[t+1],I[t+2]],A=[P[3*a],P[3*a+1],P[3*a+2]],B=[P[3*b],P[3*b+1],P[3*b+2]],Cc=[P[3*c],P[3*c+1],P[3*c+2]];
+        const u=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],v=[Cc[0]-A[0],Cc[1]-A[1],Cc[2]-A[2]],ny=u[2]*v[0]-u[0]*v[2],top=a<half;if(top&&ny>0)up++;else if(!top&&ny<0)down++;else bad++;area+=Math.abs(ny)/2;}
+      for(let i=0;i<nv;i++){const L=lum([col[4*i],col[4*i+1],col[4*i+2]]);if(i<half)topL=Math.min(topL,L);else underL=Math.min(underL,L);}
+      let y0=1e9,y1=-1e9,x1=0;for(let i=0;i<nv;i++){y0=Math.min(y0,P[3*i+1]);y1=Math.max(y1,P[3*i+1]);x1=Math.max(x1,P[3*i]*sd);}
+      return {tris:I.length/3,upFacingTop:up,downFacingUnder:down,miswound:bad,minUnderLum:+underL.toFixed(2),minTopLum:+topL.toFixed(2),edgeOnDepthM:+(y1-y0).toFixed(3),spanM:+x1.toFixed(2),halfArea:+(area/2).toFixed(3)};});
+    const day=C.wingTint(0),night=C.wingTint(1),f=new C.GullFlock(9);f.setView(true);const cam0=S.camOf(T.islandIdlePose,T.aspect);let near=[],far=[];
+    for(let i=0;i<60*120;i++){const P=f.advance(1/60,Object.assign({},cam0),0,null);for(let k=0;k<P.length;k++){const p=P[k];if(!p.visible)continue;const d=Math.hypot(p.pos[0]-cam0.pos[0],p.pos[1]-cam0.pos[1],p.pos[2]-cam0.pos[2]),r=p.size/f.gulls[k].size;(d<G.farM[0]?near:d>G.farM[1]?far:[]).push(r);}}
+    // edge-on: wing-plane elevation seen from the lens for in-frame gulls within 12 m (outbound near call + island), guard on vs off
+    const edge=face=>{const keep=G.faceDeg;G.faceDeg=face;let n=0,thin=0,minE=90;const one=(fl,c,P)=>{for(const p of P){if(!p.visible||p.mode==='perch'||!C.project(c,p.pos).inFrame)continue;const d=[c.pos[0]-p.pos[0],c.pos[1]-p.pos[1],c.pos[2]-p.pos[2]],l=Math.hypot(...d);if(l>12)continue;
+        const y=S.qrot(p.rot,[0,1,0]),e=Math.abs(Math.asin(Math.max(-1,Math.min(1,(d[0]*y[0]+d[1]*y[1]+d[2]*y[2])/l))))*180/Math.PI;n++;if(e<4)thin++;minE=Math.min(minE,e);}};
+      for(let seed=1;seed<=12;seed++){const fr=T.frames.filter(f=>f.phase==='outbound'),fl=new C.GullFlock(seed);fl.setView(true);const A=S.ambience(C.rng(seed*7+1));A.onGullCall(e=>fl.onCall(e,A.gameTime()));let call=null;
+        for(let i=1;i<fr.length;i++){const f=fr[i],dt=f.t-fr[i-1].t,c=S.camOf(f,T.aspect);A.tick(dt,c);if(!call&&f.t>=14.87+.43-.4)call=A.schedule('near','near',.4);one(fl,c,fl.advance(dt,c,0,f.root));}
+        const fl2=new C.GullFlock(seed+50);fl2.setView(true);const A2=S.ambience(C.rng(seed));A2.onGullCall(e=>fl2.onCall(e,A2.gameTime()));let nx=2;
+        for(let i=0;i<60*60;i++){const c=Object.assign({},cam0);A2.tick(1/60,c);if(i/60>nx){A2.schedule('random','near',2.5);nx+=6;}one(fl2,c,fl2.advance(1/60,c,0,null));}}
+      G.faceDeg=keep;return {samples:n,edgeOnPct:+(100*thin/Math.max(1,n)).toFixed(2),minElevDeg:+minE.toFixed(2)};};
+    const edgeOff=edge(0),edgeOn=edge(G.faceDeg);
+    const mx=a=>a.length?+Math.max(...a).toFixed(3):null,mn=a=>a.length?+Math.min(...a).toFixed(3):null;
+    const ok=sides.every(x=>x.miswound===0&&x.upFacingTop===x.downFacingUnder&&x.upFacingTop>=4&&x.minUnderLum>=.75&&x.minTopLum>=.3&&x.edgeOnDepthM>=.02&&x.spanM>=.5)
+      &&day.every(v=>v===1)&&night.every(v=>v<.6&&v>.3)&&night[2]>night[0]&&wrapWings&&wrapWings.wingNodes===2*G.count&&wrapWings.unlitWings&&wrapWings.meshes===2&&wrapWings.disposed
+      &&mx(near)===1&&mn(far)>=G.farBoost-1e-6&&far.length>0&&edgeOn.samples>200&&edgeOn.edgeOnPct<=Math.max(.5,edgeOff.edgeOnPct*.25);
+    check('wings-bright-two-sided',ok,{sides,dayTint:day,nightTint:night.map(v=>+v.toFixed(3)),wrapper:wrapWings,farBoost:{maxNear:mx(near),minFar:mn(far),farSamples:far.length,farM:G.farM},edgeOnBelow4deg:{guardOff:edgeOff,guardOn:edgeOn,faceDeg:G.faceDeg}});}
+  // 8 bytes
   { const ts=require('../qf-env.cjs').typescript();let terser=null;for(const p of [process.env.TERSER_MODULE,'/tmp/terser/node_modules/terser',path.join(root,'tools/vendor-node/node_modules/terser'),'terser'])try{if(p){terser=require(p);break;}}catch(e){}
     const sizes={};let total=0;
     for(const f of ['render/GullFlockCore.ts','render/GullFlock.ts']){const js=ts.transpileModule(fs.readFileSync(path.join(scripts,f),'utf8'),{compilerOptions:{module:ts.ModuleKind.ES2015,target:ts.ScriptTarget.ES5}}).outputText;
       const n=terser?(await terser.minify(js,{module:true,compress:{passes:2},mangle:true})).code.length:js.length;sizes[f]=n;total+=n;}
-    check('bytes',true,{minifiedJs:sizes,totalMinifiedJs:total,minifier:terser?'terser':'none (raw ES5)',newAssets:0,newTextures:0,newMeshes:0,budgetKB:10,withinBudget:total<=10240});}
+    check('bytes',true,{minifiedJs:sizes,totalMinifiedJs:total,minifier:terser?'terser':'none (raw ES5)',newAssets:0,newTextures:0,newMeshAssets:0,runtimeMeshes:'2 wing meshes shared by all gulls',budgetKB:10,withinBudget:total<=10240});}
   const fail=checks.filter(c=>!c.ok).length;if(jsonOut)fs.writeFileSync(jsonOut,JSON.stringify({track:{file:path.relative(path.resolve(root,'../..'),trackFile),sha256:trackSha},checks},null,1));
   console.log(fail?'FAILED '+fail:'ALL PASS gulls ('+checks.length+' checks)');process.exitCode=fail?1:0;
 })().catch(e=>{console.error(e);process.exitCode=1;});
