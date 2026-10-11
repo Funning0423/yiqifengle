@@ -259,7 +259,14 @@ export class WorldFlowComponent extends Component {
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
-        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer];for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();},
+        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer];for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);},
+        // T5 room-light API (contract: render/RoomLightingRig.ts header). setLayers(interior) lands on w=1, setLayers(!interior) on w=0;
+        // only these calls produce intermediate w. blendRoomLight is a cancellable job like animateDoor/animateCamera.
+        setRoomLightWeight:(w:number)=>this.setRoomLightWeight(w),
+        getRoomLightWeight:()=>this.getRoomLightWeight(),
+        hasRoomLight:()=>this.hasRoomLight(),
+        isWorldVisible:()=>this.isWorldVisible(),
+        blendRoomLight:(from,to,seconds,t)=>this.run(seconds,t,p=>{this.roomLighting?.setRoomLightWeight(from+(to-from)*p);}),
         setDoor,setCamera,assertStaticWorld,
         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
@@ -294,7 +301,7 @@ export class WorldFlowComponent extends Component {
         const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
         return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
     };
-    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null};
+    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight(),hasRoomLight:()=>self.hasRoomLight(),isWorldVisible:()=>self.isWorldVisible()};
   }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
@@ -315,6 +322,15 @@ export class WorldFlowComponent extends Component {
     }
     if(Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');
   }
+  /** T5 passthrough: see RoomLightingRig.setRoomLightWeight. false when no rig / not in an interior view. */
+  setRoomLightWeight(weight:number):boolean {return !!this.roomLighting?.setRoomLightWeight(weight);}
+  /** T5 read-only, poll per frame (no events): current w in [0,1]; 0 when no rig / not in an interior view. */
+  getRoomLightWeight():number {return this.roomLighting?this.roomLighting.getRoomLightWeight():0;}
+  /** T5 read-only: true while a live rig exists (world loaded, not disposed); then getRoomLightWeight() is meaningful. */
+  hasRoomLight():boolean {return !this.disposed&&!!this.roomLighting&&this.roomLighting.hasRoomLight();}
+  /** T5 read-only: true when the island/home world is on screen (last setLayers had interior or exterior). False under
+   * levels/skycity/hidden/needs-resume, where the world stays loaded with layers NONE and w reads 0. */
+  isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure)this.roomLighting?.advance(dt);}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.clock.showEvents++;if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);this.flow?.show();this.reportRuntime('show');}

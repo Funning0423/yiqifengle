@@ -50,6 +50,13 @@ export interface WorldLease {
   animateDoor(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   animateCamera(path:readonly Pose[],seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
+  /** T5 room-light API (optional; owner GGbot; contract in render/RoomLightingRig.ts + docs/T5-material-swap.md "API").
+   * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
+  setRoomLightWeight?(weight:number):boolean;
+  getRoomLightWeight?():number;
+  hasRoomLight?():boolean;
+  isWorldVisible?():boolean;
+  blendRoomLight?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   assertStaticWorld():void;
   dispose():void;
 }
