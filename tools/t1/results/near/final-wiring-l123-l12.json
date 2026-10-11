@@ -1,0 +1,78 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "variant": "source",
+      "viewport": [
+        390,
+        844
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    },
+    {
+      "variant": "source",
+      "viewport": [
+        586,
+        1266
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    },
+    {
+      "variant": "source",
+      "viewport": [
+        844,
+        390
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    },
+    {
+      "variant": "baseline-source",
+      "viewport": [
+        390,
+        844
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    },
+    {
+      "variant": "baseline-source",
+      "viewport": [
+        586,
+        1266
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    },
+    {
+      "variant": "baseline-source",
+      "viewport": [
+        844,
+        390
+      ],
+      "oldReturnHomeNodeAbsent": true,
+      "staticHintOnly": true,
+      "preservesDayNight": true,
+      "originalReturnFacade": 1,
+      "invokes": 1
+    }
+  ],
+  "scope": "Actual full Boot and IslandJourneyOverlay with existing UI memory harness; injected input-class observer checks wiring/visibility gates. Real Cocos event and geometry tests separate."
+}

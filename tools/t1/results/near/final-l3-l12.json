@@ -1,0 +1,11 @@
+{
+ "pass": true,
+ "hasL3": false,
+ "checks": [
+  "L1+L2 variant registers no wx listener",
+  "no wx global: constructs/disposes",
+  "wx without offTouchStart: L3 not registered (no leak)",
+  "onTouchStart throwing: tolerated, no off call",
+  "malformed raw events ignored"
+ ]
+}

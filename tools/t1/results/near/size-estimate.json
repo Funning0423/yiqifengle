@@ -1,0 +1,52 @@
+{
+ "l123": {
+  "rows": {
+   "WorldIntegrationBoot.ts": {
+    "before": 29123,
+    "after": 29828,
+    "delta": 705
+   },
+   "world-r1/WorldFlowComponent.ts": {
+    "before": 27111,
+    "after": 28356,
+    "delta": 1245
+   },
+   "world-r2/IslandJourneyOverlay.ts": {
+    "before": 8316,
+    "after": 8279,
+    "delta": -37
+   },
+   "world-r2/IslandHomeInteraction.ts": {
+    "before": 0,
+    "after": 4841,
+    "delta": 4841
+   }
+  },
+  "minifiedJsDelta": 6754
+ },
+ "l12": {
+  "rows": {
+   "WorldIntegrationBoot.ts": {
+    "before": 29123,
+    "after": 29828,
+    "delta": 705
+   },
+   "world-r1/WorldFlowComponent.ts": {
+    "before": 27111,
+    "after": 28356,
+    "delta": 1245
+   },
+   "world-r2/IslandJourneyOverlay.ts": {
+    "before": 8316,
+    "after": 8279,
+    "delta": -37
+   },
+   "world-r2/IslandHomeInteraction.ts": {
+    "before": 0,
+    "after": 4200,
+    "delta": 4200
+   }
+  },
+  "minifiedJsDelta": 6113
+ }
+}

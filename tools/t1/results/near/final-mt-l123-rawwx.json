@@ -1,0 +1,62 @@
+{
+ "candidateSHA256": "a9e7de32d8f8c5857ebcaa82128161137e4db7a83e209c0fd932809378f7cd99",
+ "rawWx": true,
+ "engineTouchSource": "input._touchInput._createCallback (real 3.8.8 minigame source; releases touch before building EventTouch on end/cancel)",
+ "rows": [
+  {
+   "case": "single-tap-lighthouse",
+   "expected": 1,
+   "actual": 1,
+   "pass": true
+  },
+  {
+   "case": "B-held-on-WarmButton-A-releases-first",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "B-held-on-WarmButton-no-frame-between",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "B-tap-released-on-WarmButton-with-frame-before-A-up",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "B-tap-released-on-WarmButton-within-one-frame",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "B-on-sea-surface-held",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "B-first-on-WarmButton-then-A-tap",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "case": "clean-tap-after-multitouch-gesture",
+   "expected": 1,
+   "actual": 1,
+   "pass": true
+  },
+  {
+   "case": "tap-sea-only",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  }
+ ],
+ "gatePass": true
+}

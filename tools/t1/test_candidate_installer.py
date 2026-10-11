@@ -5,7 +5,8 @@ baseline-tree / near-tree 为只读源（git archive 导出）；每个场景复
 import sys, os, shutil, subprocess, json, hashlib, pathlib, tempfile, stat
 cand, base, near, scratch = (pathlib.Path(x).resolve() for x in sys.argv[1:5]); scratch.mkdir(parents=True, exist_ok=True)
 H = lambda b: hashlib.sha256(b).hexdigest(); S = 'creator-build-project/assets/scripts'; NEW = f'{S}/world-r2/IslandHomeInteraction'
-L123 = cand / 'variants/baseline-l123'; L12 = cand / 'variants/baseline-l12'
+TGT = os.environ.get('T1_TARGET', 'baseline'); OTHER = 'near' if TGT == 'baseline' else 'baseline'  # near 目标: argv 依次为 <cand> <near-tree> <baseline-tree>
+L123 = cand / f'variants/{TGT}-l123'; L12 = cand / f'variants/{TGT}-l12'
 def snap(p):
     out = {}
     for dp, dns, fns in os.walk(p, followlinks=False):
@@ -40,7 +41,7 @@ r = fresh('tgt'); t = r / f'{S}/WorldIntegrationBoot.ts'; t.write_bytes(t.read_b
 rec('prereq-target-mismatch:Boot', a[0] != 0 and snap(r) == b, apply=a[0], msg=a[1][-1:])
 # 4 错误树：near 分支（近镜 Core c5cd / Routes 8272）
 r = fresh('near', near); b = snap(r); a = run(L123, r)
-rec('wrong-tree-near-rejected', a[0] != 0 and snap(r) == b, apply=a[0], msg=[x for x in a[1] if 'mismatch' in x][:3])
+rec(f'wrong-tree-{OTHER}-rejected', a[0] != 0 and snap(r) == b, apply=a[0], msg=[x for x in a[1] if 'mismatch' in x][:3])
 # 5 互斥：l123 已装再装 l12 / 用 l12 回退
 r = fresh('excl'); run(L123, r); b = snap(r); a = run(L12, r); rb = run(L12, r, '--rollback')
 rec('mutually-exclusive-l12-on-l123', a[0] != 0 and rb[0] != 0 and snap(r) == b, apply=a[0], rollback=rb[0])
@@ -78,8 +79,8 @@ rec('rollback-refuses-nonregular-new-path', rb[0] != 0 and snap(r) == b, rollbac
 # 10 包损坏 → verify 报 3
 pc = scratch / 'pkg-corrupt'
 if pc.exists(): shutil.rmtree(pc)
-shutil.copytree(cand, pc); (pc / 'variants/baseline-l123/after' / (NEW + '.ts')).write_text('//tampered'); r = fresh('corrupt'); b = snap(r)
-vr = subprocess.run([sys.executable, str(pc / 'verify_t1.py'), str(pc / 'variants/baseline-l123'), str(r)], capture_output=True).returncode; a = run(pc / 'variants/baseline-l123', r)
+shutil.copytree(cand, pc); (pc / f'variants/{TGT}-l123/after' / (NEW + '.ts')).write_text('//tampered'); r = fresh('corrupt'); b = snap(r)
+vr = subprocess.run([sys.executable, str(pc / 'verify_t1.py'), str(pc / f'variants/{TGT}-l123'), str(r)], capture_output=True).returncode; a = run(pc / f'variants/{TGT}-l123', r)
 rec('tampered-package-rejected', vr == 3 and a[0] != 0 and snap(r) == b, verify=vr, apply=a[0])
 print(json.dumps({'pass': all(x['pass'] for x in rows), 'total': len(rows), 'failed': [x['case'] for x in rows if not x['pass']], 'rows': rows}, ensure_ascii=False, indent=1))
 sys.exit(0 if all(x['pass'] for x in rows) else 1)
