@@ -1,4 +1,5 @@
 import type { RouteConfig, Vec, Pose } from './WorldFlowCore';
+import { pointOnPath } from './WorldFlowCore';
 import { islandPoseEntry, homePoseEntry, characterPoseEntry, REGION_CAMERA, INTERIOR_CAMERA_CLEARANCE } from './RegionCameraData';
 import { assertAuthoredPose } from './CameraPose';
 /** v1.3: authored poses must carry position+target+fovVerticalDeg; validated (finite, roll 0, fov range) at route creation. */
@@ -21,7 +22,16 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     return {position:INTERIOR_CAMERA_CLEARANCE.followPositions[i],target:[p[0],.85,p[2]],fovVerticalDeg:60,progress:travelled/total};
   });
   const cameraInside:Pose=cameraToDoor[cameraToDoor.length-1];
-  const cameraOutside:Pose={position:INTERIOR_CAMERA_CLEARANCE.outsidePosition,target:[-.2,1.1,2.6]};
+  // Retain both approved stable cameras. This close follow pose stays behind the moving actor,
+  // rather than putting the lens beside her at the old outdoor threshold.
+  const cameraOutside:Pose={position:[-.35,1.35,-.9],target:[-.3,.86,1.3],fovVerticalDeg:72};
+  const outCrossing:Vec[]=[a('door_stand_point'),a('exit_point'),...range('exit_path',6,7)];
+  const toIsland:Vec[]=range('exit_path',7,17);
+  const toThreshold:Vec[]=[a('exit_path_17'),...range('return_path',0,7)];
+  const inCrossing:Vec[]=[a('return_path_07'),a('return_path_08'),a('entrance_point')];
+  const follow=(route:readonly Vec[],progress:number,position:Vec,fovVerticalDeg:number):Pose=>{
+    const p=pointOnPath(route,progress);return {position,target:[p[0],p[1]+.86,p[2]],fovVerticalDeg,progress};
+  };
   const cameraIsland:Pose=dataPose(island,'island');
   const cameraCharacter:Pose=dataPose(girl,'character');
   // Intermediate targets/FOV remain on the ORIGINAL linear blend at their original total progress.
@@ -36,21 +46,27 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
   const cameraHomeToDoor=REGION_CAMERA.homePoseSource==='sitting-room'
     ? guarded(cameraHome,cameraToDoor[0],[INTERIOR_CAMERA_CLEARANCE.homeGuard],cameraHome.fovVerticalDeg!)
     : [cameraHome,cameraToDoor[0]];
-  const cameraCrossOut=guarded(cameraInside,cameraOutside,INTERIOR_CAMERA_CLEARANCE.doorGuards,cameraInside.fovVerticalDeg!);
-  const returnGuards=[...INTERIOR_CAMERA_CLEARANCE.doorGuards].reverse().map(g=>({position:g.position,progress:1-g.progress}));
-  const cameraCrossIn=guarded(cameraOutside,cameraInside,returnGuards,cameraIsland.fovVerticalDeg!);
+  const cameraCrossOut:Pose[]=[{...cameraInside,progress:0},
+    follow(outCrossing,.35,[-.65,1.5,-1.45],70),follow(outCrossing,.55,[-.4,1.45,-1.2],72),{...cameraOutside,progress:1}];
+  const cameraCrossIn:Pose[]=[{...cameraOutside,progress:0},
+    follow(inCrossing,.45,[-.4,1.45,-1.2],72),follow(inCrossing,.65,[-.65,1.5,-1.45],70),{...cameraInside,progress:1}];
+  // Clear the portal before the orbit; elevated middle keys also avoid the foreground tree.
+  const cameraToIsland:Pose[]=[{...cameraOutside,progress:0},
+    follow(toIsland,.4,[-.3,1.55,1.05],72),follow(toIsland,.65,[-6.3,6.3,3],60),{...cameraIsland,progress:1}];
+  const cameraToThreshold:Pose[]=[{...cameraIsland,progress:0},
+    follow(toThreshold,.35,[-6.3,6.3,3],60),follow(toThreshold,.6,[-.3,1.55,1.05],72),{...cameraOutside,progress:1}];
 
   return {
     seat:{position:a('seat_anchor'),back:a('seat_back'),yawRad:facts.anchors.seat_anchor.properties.yaw_rad,seatedFoot:a('seated_foot_anchor'),standingFoot:a('stand_up_foot_anchor'),seatedControllerRoot:reference.seatedRoot,standingControllerRoot:reference.standingRoot},
     // Use the audited lower-reference controller route, never use a foot anchor as root/pelvis.
     toDoor,
-    outCrossing:[a('door_stand_point'),a('exit_point'),...range('exit_path',6,7)],
-    toIsland:range('exit_path',7,17),
+    outCrossing,
+    toIsland,
     // Preserve the real 2.97 mm endpoint gap as an explicit connector, never rename the anchors.
-    toThreshold:[a('exit_path_17'),...range('return_path',0,7)],
-    inCrossing:[a('return_path_07'),a('return_path_08'),a('entrance_point')],
+    toThreshold,
+    inCrossing,
     toSeat:[a('entrance_point'),...range('return_path',10,15),reference.standingRoot],
-    cameraHome,cameraHomeToDoor,cameraToDoor,cameraInside,cameraOutside,cameraCrossOut,cameraCrossIn,cameraIsland,cameraCharacter,openDeg:facts.door.openDeg,speed:.7,
+    cameraHome,cameraHomeToDoor,cameraToDoor,cameraInside,cameraOutside,cameraCrossOut,cameraCrossIn,cameraIsland,cameraCharacter,cameraToIsland,cameraToThreshold,openDeg:facts.door.openDeg,speed:.7,
     islandYawRad:(island.characterYawDeg??0)*Math.PI/180,
   };
 }

@@ -186,6 +186,16 @@ export class RoomLightingRig {
     // Older plain-color seas remain untouched. This optional binding requires the
     // imported wavelet texture and the existing standard albedo sampler; no tangent stream.
     if (!pass || !handle || !pass.defines.USE_ALBEDO_MAP || !shared.getProperty('mainTexture')) return;
+    // One-time read-only import receipt. Sampling state must be observed on the
+    // actual device before blaming absent mipmaps for distant high-frequency crests.
+    const texture = shared.getProperty('mainTexture') as Texture2D;
+    const sampler = typeof texture.getSamplerInfo === 'function' ? texture.getSamplerInfo() : null;
+    const gpu = typeof texture.getGFXTexture === 'function' ? texture.getGFXTexture() : null;
+    const receipt = JSON.stringify({ width: texture.width ?? null, height: texture.height ?? null,
+      mipLevels: texture.mipmapLevel ?? null, gpuLevels: gpu?.levelCount ?? null,
+      min: sampler?.minFilter ?? null, mag: sampler?.magFilter ?? null, mip: sampler?.mipFilter ?? null,
+      anisotropy: sampler?.maxAnisotropy ?? null });
+    this.notices.push('SeaSampler ' + receipt); console.info('[SeaSampler]', receipt);
     const base = new Vec4(); pass.getUniform(handle, base);
     if (![base.x, base.y, base.z, base.w].every(Number.isFinite)) return;
     const instance = r.getMaterialInstance(0);
@@ -319,7 +329,7 @@ export class RoomLightingRig {
         s.node.setWorldPosition(.8, 6.6, -7); s.node.lookAt(new Vec3(-.4, .6, -2));
         s.shadowEnabled = true; s.enableCSM = false; s.shadowFixedArea = true;
         s.shadowNear = .1; s.shadowFar = ROOM_LIGHTING.shadowFar; s.shadowOrthoSize = ROOM_LIGHTING.shadowOrthoSize;
-        s.shadowPcf = renderer.scene.PCFType.SOFT; s.shadowBias = .0001; s.shadowNormalBias = .015;
+        s.shadowPcf = renderer.scene.PCFType.SOFT_2X; s.shadowBias = .0001; s.shadowNormalBias = .015;
       }
       s.illuminance = saved.illuminance * (night ? ROOM_LIGHTING.moonlightScale : ROOM_LIGHTING.daylightScale);
       s.color = night ? this.sunNightColor : this.sunDayColor;

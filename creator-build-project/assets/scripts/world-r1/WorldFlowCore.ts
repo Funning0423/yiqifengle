@@ -62,6 +62,9 @@ export interface RouteConfig {
   cameraHomeToDoor?:readonly Pose[]; cameraCrossOut?:readonly Pose[]; cameraCrossIn?:readonly Pose[];
   /** v2.3 girl framing, applied through the same camera track before the wide island pose. */
   cameraCharacter?:Pose;
+  /** Exterior follow rails keep the moving actor framed without changing stable endpoint poses. */
+  cameraToIsland?:readonly Pose[];
+  cameraToThreshold?:readonly Pose[];
   openDeg:number; speed:number;
   /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
   islandYawRad?:number;
@@ -168,7 +171,7 @@ export class WorldFlow {
       this.change('opening-door');await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
       this.world!.setLayers(BOTH);this.change('crossing-out');
       await this.walk(c.outCrossing,c.cameraCrossOut??[c.cameraInside,c.cameraOutside],t);
-      await this.walk(c.toIsland,c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland],t);
+      await this.walk(c.toIsland,c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]),t);
       this.stable='island';this.restore();this.change('island');
     });
   }
@@ -203,7 +206,7 @@ export class WorldFlow {
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
       const c=this.config;this.world!.setLayers(BOTH);
-      await this.walk(c.toThreshold,[c.cameraIsland,c.cameraOutside],t);
+      await this.walk(c.toThreshold,c.cameraToThreshold??[c.cameraIsland,c.cameraOutside],t);
       this.change('crossing-in');await this.walk(c.inCrossing,c.cameraCrossIn??[c.cameraOutside,c.cameraInside],t);
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();

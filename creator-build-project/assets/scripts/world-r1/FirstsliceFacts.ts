@@ -1843,7 +1843,7 @@ export const FIRSTSLICE = {
     "maxDeg": 105
   },
   "source": {
-    "combined_visual_m.glb": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b",
+    "combined_visual_m.glb": "77bff8b3cb33c92a43cb02a4ad00f0f8e65f07e07052b9c870bea171194a9748",
     "combined_anchors_m.json": "e3b2684e6e7009ced805d2925b5cedef52cbd4213d3c46e7a41fa788467275cb",
     "combined_collision_proxies.json": "c5e2b578e4bd0bf5408178f7613f864c54cab103be9e04c9667944ff8ceceff2"
   }
