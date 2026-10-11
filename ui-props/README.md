@@ -30,7 +30,7 @@ python3 src/mockup.py                                          # 合成 mockup-p
 ## 网格
 | 道具 | 三角面 | 包围盒 (m, x·y·z, Blender Z 向上) | GLB (Draco) |
 |---|---|---|---|
-| ui_signpost 继续旅程木牌（含子节点 lamp_glass 12 面） | 808 | 2.47 × 0.37 × 1.88 | 7.3 KB |
+| ui_signpost 继续旅程木牌（含子节点 lamp_glass） | 808 | 2.47 × 0.37 × 1.88 | 7.3 KB |
 | ui_satchel 行囊 | 696 | 0.86 × 0.52 × 0.92 | 5.0 KB |
 | ui_notebook 旅程册 | 584 | 0.67 × 0.32 × 0.89 | 4.8 KB |
 | ui_compass 设置 | 532 | 0.84 × 0.29 × 1.05 | 5.2 KB |
