@@ -1,10 +1,22 @@
 {
- "pass": 14,
- "total": 14,
+ "pass": 17,
+ "total": 17,
  "results": [
   [
    "PASS",
-   "hide/slideIn idempotent; no double slide; slide is position-only and monotone"
+   "gate hide/slideIn idempotent; empty content never shows; no double slide; position-only, monotone"
+  ],
+  [
+   "PASS",
+   "content gating: content during cutscene stays hidden; gate opens with content -> slideIn(path); flicker reverses smoothly"
+  ],
+  [
+   "PASS",
+   "stale cutscene text at the settle callback never flashes the plate (gate resolves on next frame content)"
+  ],
+  [
+   "PASS",
+   "content appears later while settled -> slides in then; gate re-closes on next cutscene (jump, no slide)"
   ],
   [
    "PASS",

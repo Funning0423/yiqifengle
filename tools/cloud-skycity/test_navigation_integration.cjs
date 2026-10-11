@@ -24,17 +24,23 @@ for(const [w,h] of [[320,568],[390,844],[402,874],[568,320],[844,390]]){
  // only after island + onCameraSettled('island'); return hides on walking-home and slides in on home after settle.
  {const settled=[],crane=[];boot.composition.world={onCameraSettled:l=>{settled.push(l);return ()=>settled.splice(settled.indexOf(l),1);},onCraneStart:l=>{crane.push(l);return ()=>crane.splice(crane.indexOf(l),1);}};
   boot.bindHudHooks();assert.equal(settled.length,1);assert.equal(crane.length,1);hudLog.length=0;
-  const plate=boot.status.node.parent,ph=plate.getComponent(H.UITransform).height,base=h/2-130,frames=(n,dt=1/60)=>{for(let i=0;i<n;i++)boot.paintNavigation(dt);};
-  snap={state:'home',needsResume:false,hidden:false};frames(2);assert.equal(plate.position.y,base,'shown at layout base');
-  for(const st of ['standing','turning-out','walking-out','opening-door','crossing-out']){snap={state:st,needsResume:false,hidden:false};frames(3);}
-  assert.ok(plate.position.y>=h/2+ph/2,'hidden = fully above the top edge (no fade)');crane[0]({segment:'toIsland',progress:.4,seconds:4.93});
-  snap={state:'island',needsResume:false,hidden:false};frames(60);assert.ok(plate.position.y>=h/2+ph/2,'island state alone does not slide in (camera not settled)');
-  settled[0]('island');frames(1);const mid=plate.position.y;assert.ok(mid<h/2+ph/2+8&&mid>base,'sliding');frames(30);assert.equal(plate.position.y,base,'back at base after 0.25 s');
-  assert.deepEqual(hudLog.filter(l=>l.m!=='await-settle').map(l=>l.m+':'+(l.path||l.reason)),['hide:standing','slideIn:settled']);
-  for(const st of ['walking-home','crossing-in','closing-door','walking-to-seat','sitting']){snap={state:st,needsResume:false,hidden:false};frames(3);}assert.ok(plate.position.y>=h/2+ph/2);
-  settled[0]('home');snap={state:'home',needsResume:false,hidden:false};frames(30);assert.equal(plate.position.y,base);
-  assert.equal(hudLog.filter(l=>l.m==='slideIn').length,2,'one slide per transition');
+  const plate=boot.status.node.parent,ph=plate.getComponent(H.UITransform).height,base=h/2-130,off=()=>plate.position.y>=h/2+ph/2,frames=(n,dt=1/60)=>{for(let i=0;i<n;i++)boot.paintNavigation(dt);};
+  const moves=()=>hudLog.filter(l=>l.m==='slideIn'||l.m==='slideOut').map(l=>l.m+':'+l.reason+':'+l.path);
+  snap={state:'home',needsResume:false,hidden:false};frames(20);assert.equal(plate.active,false,'home without content: no plate (lead: no permanent text)');assert.ok(off());
+  for(const st of ['standing','turning-out','walking-out','opening-door','crossing-out']){snap={state:st,needsResume:false,hidden:false};frames(3);assert.equal(plate.active,false,'transition text hidden during cutscene: '+st);}
+  crane[0]({segment:'toIsland',progress:.4,seconds:4.93});snap={state:'island',needsResume:false,hidden:false};frames(60);assert.equal(plate.active,false);
+  settled[0]('island');frames(30);assert.equal(plate.active,false,'island settled, no content -> stays hidden');assert.equal(boot.status.string,'');
+  assert.deepEqual(hudLog.filter(l=>l.m==='gate-open'||l.m==='stay-hidden').map(l=>l.m+':'+l.path+(l.reason?':'+l.reason:'')),['gate-open:settled','stay-hidden:settled:empty']);assert.deepEqual(moves(),[]);
+  boot.error='网络有点慢，请稍后再试';frames(1);assert.equal(plate.active,true);const mid=plate.position.y;assert.ok(mid>base&&mid<h/2+ph/2+8,'error appears later -> slides in');
+  frames(30);assert.equal(plate.position.y,base);assert.equal(boot.status.string,boot.error);
+  boot.error='';frames(1);assert.equal(plate.active,true,'slide-out keeps plate active');assert.ok(plate.position.y>base);frames(30);assert.equal(plate.active,false);assert.ok(off());assert.equal(boot.status.string,'');
+  assert.deepEqual(moves(),['slideIn:content:content-change','slideOut:empty:content-change']);
+  for(const st of ['walking-home','crossing-in','closing-door','walking-to-seat','sitting']){snap={state:st,needsResume:false,hidden:false};frames(3);assert.equal(plate.active,false);}
+  settled[0]('home');snap={state:'home',needsResume:false,hidden:false};frames(30);assert.equal(plate.active,false,'home settled, no content -> hidden');assert.equal(hudLog.filter(l=>l.m==='stay-hidden').length,2);
+  assert.equal(hudLog.filter(l=>l.m==='gate-open').length,2,'one gate opening per transition');
+  snap={state:'skycity',needsResume:false,hidden:false};frames(30);assert.equal(plate.active,true);assert.equal(plate.position.y,base,'skycity hint slides in (content)');
+  snap={state:'island',needsResume:false,hidden:false};frames(30);assert.equal(plate.active,false,'back on island: hint gone -> slid out');
   boot.onDestroy?.call(boot);assert.equal(settled.length,0,'hooks unsubscribed on destroy');assert.equal(ih.disposed,true,'T1 stub disposed with Boot');}
  cases++;
 }
-console.log(JSON.stringify({status:'PASS',cases,checks:['actual Boot wiring leaves one island primary plus three small utilities','T1 IslandHomeInteraction wired (stub): enabled on stable island, disabled off-island, disposed with Boot','GGbot HUD: real StatusHud via Boot, hide on standing/walking-home, slideIn only after settled(island/home), position-only, hooks unsubscribed','legacy six-button grid and day/night banner absent','primary/dock nonoverlap across five viewports','open journal blocks captured mainline release','skycity return and loading cancel stay separate, no background dock','no per-frame primary skin rebuild'],scope:'actual type-stripped Boot/overlay with Cocos memory doubles; no native screenshots/touch/save access'},null,2));
+console.log(JSON.stringify({status:'PASS',cases,checks:['actual Boot wiring leaves one island primary plus three small utilities','T1 IslandHomeInteraction wired (stub): enabled on stable island, disabled off-island, disposed with Boot','GGbot HUD: real StatusHud via Boot; hidden in cutscenes, gate opens on settled(island/home); on screen only with content (error/skycity), slides in/out on content change, never an empty plate; hooks unsubscribed','legacy six-button grid and day/night banner absent','primary/dock nonoverlap across five viewports','open journal blocks captured mainline release','skycity return and loading cancel stay separate, no background dock','no per-frame primary skin rebuild'],scope:'actual type-stripped Boot/overlay with Cocos memory doubles; no native screenshots/touch/save access'},null,2));

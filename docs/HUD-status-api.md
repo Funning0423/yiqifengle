@@ -6,11 +6,19 @@
 `WorldIntegrationBoot.status` 的父节点 `LabelPlate`（顶部深青色圆角条，显示“正在走向海岛…”等过场文字、错误、天空城提示）。
 布局基准位置不变：`y = H/2 - 130`（resize 里设置）；如果微信胶囊底部 + 4 px 或安全区顶部比它更低，就把基准往下压到胶囊下面（`topInset()`，常见机型不会触发）。
 
+## 显示策略（lead 2026-10-11 决定）
+岛上和家里**不放常驻文字**（Funning 倾向用视觉引导）。状态条只在有内容时出现在屏幕上：错误、天空城提示等。没有内容时一直藏在屏幕外，不会出现空条。
+- 过场中：gate 关闭。即使有“正在走向海岛…”这类过场文字，状态条也不显示。
+- gate 何时打开：仍按 settle/crane 的时机和兜底规则（见下文）。打开后，有内容才滑入（`slideIn reason=content`）；没内容就继续隐藏（`stay-hidden reason=empty`）。
+- gate 打开后：内容后来出现就滑入（`path=content-change`）；内容变空就滑出（`slideOut reason=empty`）。滑动用 0.25 s smoothstep，只改位置，不做淡出；滑到一半反向也连续，不会跳。滑出过程中保留最后一条文字，完全移出后才 `active=false` 并清空文字。
+- settle 回调是在同一步里同步触发的，触发时上一帧的过场文字（例如“正在坐下…”）还没更新。所以 gate 打开后，要等**下一次** `setContent`/`tick` 拿到新内容再决定显示还是隐藏，避免闪一下（有专门测试）。
+
 ## API（`assets/scripts/ui/StatusHud.ts`，无 cc 依赖）
-- `StatusHud.hide(reason)`：已隐藏时不做任何事。滑入途中调用会直接移到屏幕外（不做淡出）。
-- `StatusHud.slideIn(reason, path)`：已显示或正在滑入时不做任何事，所以不会重复滑。0.25 s ease-out，从屏幕顶端外面滑到基准位置。**只改位置，不改透明度。**
-- Boot 公共入口：`boot.hideHud(reason)` / `boot.slideInHud(reason)` / `boot.statusHud.state`。
-- 只控制位置；条子是否 active 仍按原来的内容规则（有过场文字、错误或天空城时才显示）。
+- `hide(reason)`：关闭 gate，立即移到屏幕外（不淡出）。重复调用无效果。
+- `slideIn(reason, path)`：打开 gate（日志 `gate-open`），下一帧按内容决定滑入或继续隐藏。重复调用无效果。
+- `setContent(has)`：Boot 每帧在 tick 之前上报是否有文字；同一个值重复上报不产生任何动作。
+- `state`：`hidden`（gate 关闭）/ `out` / `sliding-in` / `shown` / `sliding-out`；`visible()` 表示状态条需要 active。
+- Boot 入口：`boot.hideHud()` / `boot.slideInHud()` / `boot.statusHud`。状态条的 active 只由 `applyStatusHud` 决定，原来每帧按文字设置 active 的那条规则已删除。
 
 ## 挂钩点（StatusHudDriver，由 Boot 驱动）
 | 时机 | 动作 |
@@ -33,7 +41,7 @@
 | 有钩子但没收到 crane（fixed 模式 / 回程 home） | 2 s | `timeout-nocrane` |
 | 隐藏期间进入非过场、也不是目标的状态（paused/error/取消后回到 home 或 island/level/skycity） | 立即 | `interrupt` |
 | 任何情况下隐藏超过 60 s | 立即 | `timeout-max` |
-日志格式：`[OI_HUD] hooks {...}`、`hide {...}`、`await-settle {target,hooks,crane,timeout,path}`、`slideIn {reason,path}`、`fallback {path,target,afterTarget}`。
+日志格式：`[OI_HUD] hooks {...}`、`hide {reason}`、`await-settle {target,hooks,crane,timeout,path}`、`gate-open {path,trigger}`、`slideIn {path,reason:content}`、`stay-hidden {path,reason:empty}`、`slideOut {path,reason:empty}`、`fallback {path,target,afterTarget}`。
 
 ## 测试
 - `tools/hud/test_status_hud.cjs`：14 项。包括幂等、只动位置、各兜底路径（含“island 提前出现 → 不会在 crane 中途滑入”）、中断、状态来回切换、过期 settle、60 s 上限、胶囊 inset、Boot 接线，以及用**真实 WorldFlow**（flow_sim，T2+ 路由，60 fps）重放 real / settle 晚 2 s / settle 丢失三种情况。
@@ -42,4 +50,4 @@
 
 ## 未测 / 需要 Mac 验证
 - 真机：滑入观感、胶囊遮挡、`[OI_HUD]` 日志里的 path 是否为 `settled`。
-- 内容规则：到岛和到家之后，条子本来就没有文字（只有错误或天空城时才显示），所以正常流程里“滑入”不一定看得见；可见效果主要出现在有错误提示或天空城的时候。如果 Funning 希望到岛后常驻一条提示，需要另外定文案。
+- 真机上确认：到岛和到家时不出现空条；出错时滑入，错误消失后滑出。
