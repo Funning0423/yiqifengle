@@ -81,6 +81,14 @@ bash body-r2/final/render_r2.sh          # body-r3：bash body-r3/final/render_r
 # 7) 拼对比图 → previews/*.png（大图，不提交）+ share/*.jpg（<200 KB，提交）
 (cd body-r2/final && python3 sheets_r2.py)  # body-r3：sheets_r3.py；头部和 body-r1：final/render_all.sh + final/sheets.py
 # 8) 单张渲染：blender -b --python scripts/render.py -- <glb 或 .blend> <输出目录> <shots.json> [动作名 帧]
+# --- 云端 cloud/character-model 这一轮（head-hy + body-r4，见 cloud-tasks/RESULT-character-model.md）---
+# 9) 混元头部重拓扑：分类 → 贴图 → build_head_hy.py → head-hy/head_hy_work_final.blend（混元 glb 用 env.sh 的 HUNYUAN_GLB）
+bash head-hy/scripts/run_all.sh
+# 10) body-r4（读 head-hy 的 .blend；T_G2_BODY 在 GLB 里缩到 256²）→ body-r4/chr_b_r5g2_body-r4_TEST.glb、..._walk-v2_TEST.glb
+bash body-r4/scripts/run_all.sh
+# 11) 穿模：全部 14 段运行时动作 + walk_loop_v2，每帧；表格：qa_table.py --md；另用动画工具包 walk_clipcheck.py 复核
+(cd body-r4 && "$BLENDER" -b body_r4_work.blend --python scripts/qa_clash.py -- "$E60" "$W2" data/qa_clash.json 1 && python3 scripts/qa_table.py data/qa_clash.json --md)
+# 12) 包体：python3 body-r4/scripts/glb_size.py body-r4/chr_b_r5g2_body-r4_TEST.glb；出图：bash body-r4/final/render_r4.sh && python3 body-r4/final/sheets_r4.py
 ```
 - GLB 导出不走 Blender 的 glTF 导出器：`build_body.py` / `build_head.py` 把新网格按材质分组写进 `data/head_prims.npz`，`splice_glb.py` 只替换 e60 GLB 里对应的 primitive 和图片，其余字节（骨骼、IBM、动作、其他网格）原样保留。所以 28 根骨、IBM、动作都和 e60 逐字节一致。
 - 快速自查：`body-r2/scripts/quick.sh [/tmp/q.png]` 输出一张 V12 / 新版 4×3 的拼图。
@@ -111,6 +119,7 @@ bash body-r2/final/render_r2.sh          # body-r3：bash body-r3/final/render_r
 | body-r1（头 R2 + 上身 R1） | 22387 | 13237 | 1380 KB | 袖→围裙 7.0，手→围裙 9.1，0 穿插 |
 | **body-r2** | **23421** | **13514** | **1412 KB**（walk-v2 版 1428 KB） | 0 穿插，最小 6.8（右手→围裙）。door_reach 第 4 帧右袖→围裙 2.8 mm（15 个三角对）；坐姿的穿插是 e60 就有的 |
 | body-r3 WIP | 22350 | 12606 | 1357 KB | walk_v2 0 穿插，袖→围裙 7.3；**walk_loop 手→裙 4.8 mm、围裙→裙 4.3–5.8 mm，不达标** |
+| **body-r4 + head-hy**（云端，待验收） | 22576 | 12781 | 1,386,032 B（14 段动作的运行时 GLB 为 2,115,652 B） | 除坐姿 3 段外全部 ≥ 6 mm（最小：door_reach 右袖→围裙 7.2，walk 手→围裙 8.5，围裙→裙 8.2）；头部 5582 三角面。详见 `cloud-tasks/RESULT-character-model.md` |
 
 各部件的三角面（body-r2）：躯干 840、袖 2×1000、围兜 160、肩带 2×48、手 2×448、小腿 2×364、鞋 2×432、头部 5628。详细的逐动作穿模表见 `body-r2/README.md`、`body-r2/data/qa_clash_final.json`、`body-r3/data/qa_clash.json`。
 
