@@ -127,7 +127,7 @@ export class ManagedMobileBoardUI extends Component {
   }
   private toolSlot(slot:number){const n=this.box('slot-'+slot,this.tray,0,0,46,46),surface=tactileToolButton(n);
     const art=this.box('OriginalToolArt',n,0,1,40,40);art.addComponent(Sprite);art.addComponent(Graphics);surface.addContent(art);
-    const label=this.text(n,'',0,-30,11,56,'#fff3d3');label.node.name='ToolLabel';
+    const label=this.text(n,'',0,-30,11,56,'#fff3d3');label.node.name='ToolLabel';label.enableOutline=true;label.outlineColor=new Color('#173e39dc');label.outlineWidth=.65;
     const count=this.box('ToolCount',n,18,18,22,22);count.addComponent(Graphics);const quantity=this.text(count,'',0,1,12,24,'#355c51');quantity.node.name='Quantity';
     const selected=this.box('ToolSelection',n,0,0,46,46);selected.addComponent(Graphics);
     n.on(Node.EventType.TOUCH_START,(e:EventTouch)=>{if(this.toolDrag||!this.canUseTools())return;const tool=this.toolCatalog()[slot];if(!tool?.available){this.cancelToolInput();this.paintToolTray();this.paint();this.status.string=tool?.reason||'本关没有可用道具';return;}this.toolTapAccepted=false;const p=e.getUILocation();this.toolDrag={kind:tool.kind,slot,pointer:e.getID(),start:{x:p.x,y:p.y},moved:false,version:this.toolVersion()};},this);
@@ -141,12 +141,12 @@ export class ManagedMobileBoardUI extends Component {
     if(this.disposing||!this.root||!isValid(this.root,true)||!this.snapshot||!this.layoutInfo)return;const catalog=this.toolCatalog(),d=this.layoutInfo;
     if(d.safe.portrait){this.tray.getComponent(Graphics)!.clear();if(this.snapshot.provider==='regional-r05'){const guide=!!this.snapshot.active?.guide;this.hintBtn.setPosition(-36,d.utilityY);this.pause.setPosition(guide?36:0,d.utilityY);this.utilityRail.getComponent(Graphics)!.clear();}}
     for(const key of Object.keys(this.targets))if(key==='bomb'||key.startsWith('tool-'))delete this.targets[key];
-    this.tools.forEach((n,i)=>{const tool=catalog[i];n.active=!!tool;if(!tool)return;
+    this.tools.forEach((n,i)=>{const tool=catalog[i];n.active=!!tool;if(!tool)return;tactileToolButton(n,tool.available);
       if(d.safe.portrait)n.setPosition((i-(catalog.length-1)/2)*Math.min(62,(d.width-36)/catalog.length),d.toolY);
       else n.setPosition(d.width/2-d.safe.right-83+(i%2)*58,d.height/2-d.safe.top-95-Math.floor(i/2)*72);
-      const sprite=n.getChildByName('OriginalToolArt')!.getComponent(Sprite)!;sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=tool.art?this.toolArt?.frame(tool.art):null;sprite.color=new Color(tool.available?'#ffffffff':'#ffffff99');const fallback=n.getChildByName('OriginalToolArt')!.getComponent(Graphics)!;fallback.clear();if(!tool.art)this.drawToolEmblem(fallback,tool.kind,tool.available);
-      const label=n.getChildByName('ToolLabel')!.getComponent(Label)!;label.string=tool.name;label.color=new Color(tool.available?'#fff3d3':'#c7d5be');
-      const badge=n.getChildByName('ToolCount')!,badgeGraphics=badge.getComponent(Graphics)!;badgeGraphics.clear();badgeGraphics.fillColor=new Color('#153f3866');badgeGraphics.circle(0,-1,11);badgeGraphics.fill();badgeGraphics.fillColor=new Color(tool.available?'#ffde88':'#cbd2bf');badgeGraphics.circle(0,1,10);badgeGraphics.fill();badgeGraphics.strokeColor=new Color('#fff4c9');badgeGraphics.lineWidth=1;badgeGraphics.circle(0,1,8.5);badgeGraphics.stroke();badge.getChildByName('Quantity')!.getComponent(Label)!.string=String(tool.count);
+      const sprite=n.getChildByName('OriginalToolArt')!.getComponent(Sprite)!;sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.spriteFrame=tool.art?this.toolArt?.frame(tool.art):null;sprite.color=new Color(tool.available?'#ffffffff':'#a8bba6ff');const fallback=n.getChildByName('OriginalToolArt')!.getComponent(Graphics)!;fallback.clear();if(!tool.art)this.drawToolEmblem(fallback,tool.kind,tool.available);
+      const label=n.getChildByName('ToolLabel')!.getComponent(Label)!;label.string=tool.name;label.color=new Color(tool.available?'#fff3d3':'#c8d0be');
+      const badge=n.getChildByName('ToolCount')!,badgeGraphics=badge.getComponent(Graphics)!;badgeGraphics.clear();badgeGraphics.fillColor=new Color('#153f3866');badgeGraphics.circle(0,-1,11);badgeGraphics.fill();badgeGraphics.fillColor=new Color(tool.available?'#ffde88':'#aebda9');badgeGraphics.circle(0,1,10);badgeGraphics.fill();badgeGraphics.strokeColor=new Color('#fff4c9');badgeGraphics.lineWidth=1;badgeGraphics.circle(0,1,8.5);badgeGraphics.stroke();badge.getChildByName('Quantity')!.getComponent(Label)!.string=String(tool.count);
       const g=n.getChildByName('ToolSelection')!.getComponent(Graphics)!;g.clear();if(this.armedTool===tool.kind||this.toolDrag?.kind===tool.kind){g.strokeColor=new Color('#ffdc76');g.lineWidth=3;g.circle(0,0,25);g.stroke();g.fillColor=new Color('#ffdc76');g.moveTo(-4,30);g.lineTo(4,30);g.lineTo(0,25);g.close();g.fill();}
       this.targets['tool-'+tool.kind]=n;if(tool.kind==='bomb')this.targets.bomb=n;
     });

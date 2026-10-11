@@ -1,0 +1,18 @@
+'use strict';
+const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto'),assert=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');
+const {H,scenario,sourceRoot}=require('./occlusion.cjs')(),{fishBounds}=require('./corridor.cjs'),out=path.resolve(__dirname,'../../evidence/cloud-leap-proposal');
+const dir=path.join(sourceRoot,'creator-build-project/assets/scripts/world-r2'),files=['OriginalLevelBackground.ts','OriginalLevelEnvironment.ts'],sources=Object.fromEntries(files.map(f=>[f,fs.readFileSync(path.join(dir,f),'utf8')])),hash=s=>crypto.createHash('sha256').update(s).digest('hex');
+const sourceSha256=Object.fromEntries(files.map(f=>[f,hash(sources[f])])),code=sources[files[0]],reader=code.slice(code.indexOf('export function readOceanVisualLayout'),code.indexOf("/** Uses the board's existing Canvas/camera"));
+const read=new Function('UITransform','Label',stripTypeScriptTypes(reader,{mode:'transform'}).replace('export ','')+';return readOceanVisualLayout;')(H.UITransform,H.Label),ctx={console};vm.createContext(ctx);vm.runInContext(stripTypeScriptTypes(sources[files[1]].replace(/^import .*;\n/gm,'').replace(/export /g,''),{mode:'transform'}),ctx);
+const results=[];
+for(const[w,h,notch]of[[320,568,'none'],[390,844,'none'],[402,874,'none'],[568,320,'none'],[844,390,'none'],...['left','right','both'].flatMap(n=>[[568,320,n],[844,390,n]])])for(const capsule of[false,true])for(const goals of[1,2,3,4]){
+ const s=scenario(w,h,capsule,goals,notch,read),plan=ctx.chooseOceanLeapCorridor(s.readerLayout),violations=[],tested=new Set;let minDistance=Infinity;
+ if(plan)for(let t=0;t<=1800;t++){const p=t/1800,a=Math.atan2(-plan.lift*Math.PI*Math.cos(p*Math.PI),plan.span)*.55,b=fishBounds(a,plan.scale),x=plan.startX+plan.span*p,y=plan.surfaceY+plan.drop-Math.sin(p*Math.PI)*plan.lift,box={left:x+b.left,right:x+b.right,top:y+b.top,bottom:y+b.bottom};
+  if(box.left<s.domain.left||box.right>s.domain.right||box.top<s.domain.top||box.bottom>s.domain.bottom)violations.push({t,name:'physical-safe-domain',box});
+  for(const r of s.occluders){tested.add(r.name);const dx=Math.max(r.left-box.right,box.left-r.right,0),dy=Math.max(r.top-box.bottom,box.top-r.bottom,0);minDistance=Math.min(minDistance,Math.hypot(dx,dy));if(!dx&&!dy)violations.push({t,name:r.name,kind:r.kind,box,rect:r});}
+ }
+ results.push({w,h,capsule,goals,notch,plan,physicalSafe:s.physicalSafe,coverage:s.coverage,occluderNames:[...tested],minimumUiDistancePx:Number.isFinite(minDistance)?minDistance:null,violations:violations.slice(0,4),violationCount:violations.length,fullPeriodSamples:plan?1801:0});
+ console.log(w,h,notch,capsule,goals,!plan?'NO PLAN':violations.length?'COLLISION '+JSON.stringify(violations[0]):'PASS '+minDistance.toFixed(2)+'px');
+}
+for(const f of files)assert.equal(hash(fs.readFileSync(path.join(dir,f),'utf8')),sourceSha256[f],f+' changed during analysis');
+const report={scope:'Independent offline check of production reader and selector against actual Board Graphics/Sprites/Labels plus conservative production extents. No native animation acceptance.',sourceSha256,total:results.length,plans:results.filter(r=>r.plan).length,passed:results.filter(r=>r.plan&&!r.violationCount).length,results};fs.writeFileSync(path.join(out,'production-reader-crosscheck.json'),JSON.stringify(report,null,2)+'\n');console.log(report.passed+'/'+report.total);assert(results.every(r=>!r.violationCount),'Production plan intersects independent visual geometry');if(process.env.QF_REQUIRE_ALL_PLANS==='1')assert(results.every(r=>r.plan),'All physical safe-area scenarios need a plan');

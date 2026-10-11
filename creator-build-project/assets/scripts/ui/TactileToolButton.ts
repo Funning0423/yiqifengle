@@ -5,20 +5,21 @@ import { WarmButton } from '../WarmButton';
 export function paintToolMaterial(c:any,part:'base'|'cap'):void {
  c.save();c.translate(32,32);const ellipse=(x:number,y:number,rx:number,ry:number,fill:any)=>{c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fillStyle=fill;c.fill();};
  if(part==='base'){
-  ellipse(0,7,23,20,'#163e3642');ellipse(0,4,23,21.3,'#3c4430');
-  const wood=c.createLinearGradient(-20,-17,18,28);wood.addColorStop(0,'#b29b66');wood.addColorStop(.4,'#907648');wood.addColorStop(.7,'#726039');wood.addColorStop(1,'#4d4930');ellipse(0,2.3,23,21.8,wood);
+  ellipse(0,7,23,20,'#163e3642');ellipse(0,4,23,21.3,'#393a2b');
+  const wood=c.createLinearGradient(-20,-17,18,28);wood.addColorStop(0,'#a48752');wood.addColorStop(.4,'#80623a');wood.addColorStop(.7,'#664c30');wood.addColorStop(1,'#413e2b');ellipse(0,2.3,23,21.8,wood);
   c.save();c.beginPath();c.ellipse(0,2.3,22.4,21.2,0,0,Math.PI*2);c.clip();
-  for(let i=0;i<7;i++){c.strokeStyle=i%2?'#d5bb7b52':'#413f2c55';c.lineWidth=.6;c.beginPath();c.moveTo(-27,6+i*3);c.bezierCurveTo(-9,2+i*3,8,10+i*2.1,26,4+i*3);c.stroke();}c.restore();
-  c.strokeStyle='#d6bd7c';c.lineWidth=.7;c.beginPath();c.ellipse(0,2,22.1,20.7,0,.1,2.9);c.stroke();
+  for(let i=0;i<7;i++){c.strokeStyle=i%2?'#c8a66c60':'#352e2466';c.lineWidth=.6;c.beginPath();c.moveTo(-27,6+i*3);c.bezierCurveTo(-9,2+i*3,8,10+i*2.1,26,4+i*3);c.stroke();}c.restore();
+  ellipse(0,2.3,21.8,20.4,'#26392b85');
+  c.strokeStyle='#b69660';c.lineWidth=.7;c.beginPath();c.ellipse(0,2,22.1,20.7,0,.1,2.9);c.stroke();
  }else{
-  let metal=c.createLinearGradient(-22,-23,19,22);metal.addColorStop(0,'#fff1bc');metal.addColorStop(.19,'#d9bb77');metal.addColorStop(.45,'#a98b4d');metal.addColorStop(.67,'#ddc18a');metal.addColorStop(1,'#756641');ellipse(0,0,23,21.6,metal);
+  let metal=c.createLinearGradient(-22,-23,19,22);metal.addColorStop(0,'#d8bd7f');metal.addColorStop(.19,'#b79a5c');metal.addColorStop(.45,'#846b3d');metal.addColorStop(.67,'#bea46b');metal.addColorStop(1,'#605536');ellipse(0,0,23,21.6,metal);
   c.strokeStyle='#5c5c3a';c.lineWidth=.7;c.beginPath();c.ellipse(0,0,22.8,21.4,0,0,7);c.stroke();
-  const ivory=c.createRadialGradient(-7,-10,2,1,2,26);ivory.addColorStop(0,'#fffbe7');ivory.addColorStop(.45,'#eee7c8');ivory.addColorStop(.8,'#d0d2ad');ivory.addColorStop(1,'#a6b28d');ellipse(0,-.8,20.2,18.8,ivory);
+  const ivory=c.createRadialGradient(-8,-11,1,1,2,26);ivory.addColorStop(0,'#e8e1c3');ivory.addColorStop(.28,'#d8d6b6');ivory.addColorStop(.72,'#bac3a4');ivory.addColorStop(1,'#8c9d82');ellipse(0,-.8,20.2,18.8,ivory);
   // Fine deterministic fibre and brass speckle, baked once rather than animated noise.
   c.save();c.beginPath();c.ellipse(0,-.8,20,18.6,0,0,7);c.clip();
-  for(let i=0;i<30;i++){const x=((i*37)%41)-20,y=((i*17)%37)-19;c.strokeStyle=i%3?'#b0ae7922':'#fffef633';c.lineWidth=.45;c.beginPath();c.moveTo(x,y);c.lineTo(x+2.4,y-.4);c.stroke();}c.restore();
-  c.strokeStyle='#fffced';c.lineWidth=1.1;c.beginPath();c.ellipse(0,-.8,19.4,18.2,0,-2.8,-.6);c.stroke();c.strokeStyle='#7c8b6366';c.lineWidth=.8;c.beginPath();c.ellipse(0,-.4,19.4,18.2,0,.3,2.6);c.stroke();
-  for(let i=0;i<16;i++){const a=i*Math.PI/8,x=Math.cos(a)*21.7,y=Math.sin(a)*20.1;c.fillStyle=i%2?'#fff0bc55':'#7b673944';c.fillRect(x,y,.55,.7);}
+  for(let i=0;i<30;i++){const x=((i*37)%41)-20,y=((i*17)%37)-19;c.strokeStyle=i%3?'#777f592b':'#efe8c229';c.lineWidth=.45;c.beginPath();c.moveTo(x,y);c.lineTo(x+2.4,y-.4);c.stroke();}c.restore();
+  c.strokeStyle='#e6dfbdba';c.lineWidth=.7;c.beginPath();c.ellipse(0,-.8,19.4,18.2,0,-2.65,-1.2);c.stroke();c.strokeStyle='#536b4f99';c.lineWidth=.8;c.beginPath();c.ellipse(0,-.4,19.4,18.2,0,.3,2.6);c.stroke();
+  for(let i=0;i<16;i++){const a=i*Math.PI/8,x=Math.cos(a)*21.7,y=Math.sin(a)*20.1;c.fillStyle=i%2?'#e4c89255':'#64533266';c.fillRect(x,y,.55,.7);}
  }
  c.restore();
 }
@@ -35,16 +36,17 @@ function acquire():Atlas {
 const {ccclass}=_decorator;
 @ccclass('TactileToolButton')
 export class TactileToolButton extends Component {
- private owned:Atlas|null=null;private face:Node|null=null;private ink:Graphics|null=null;
+ private owned:Atlas|null=null;private face:Node|null=null;private base:Node|null=null;private ink:Graphics|null=null;private available:boolean|null=null;
  initialize():Graphics {
   if(this.ink){this.ink.clear();return this.ink;}
   const surface=this.node.getComponent(WarmButton)||this.node.addComponent(WarmButton),make=(name:string)=>{const n=new Node(name);n.layer=this.node.layer;this.node.addChild(n);n.addComponent(UITransform).setContentSize(64,64);return n;};
-  const base=make('ToolWoodBase'),face=make('ToolIvoryCap');this.face=face;
+  const base=make('ToolWoodBase'),face=make('ToolIvoryCap');this.face=face;this.base=base;
   try{this.owned=acquire();[base,face].forEach((n,i)=>{const s=n.addComponent(Sprite);s.sizeMode=Sprite.SizeMode.CUSTOM;s.spriteFrame=this.owned!.frames[i];s.color=new Color('#ffffff');});}
   catch(error){const g=base.addComponent(Graphics);g.fillColor=new Color('#655539');g.ellipse(0,-4,23,22);g.fill();const cap=face.addComponent(Graphics);cap.fillColor=new Color('#e8dfba');cap.ellipse(0,0,22,21);cap.fill();cap.strokeColor=new Color('#c8a66a');cap.lineWidth=2;cap.ellipse(0,0,22,21);cap.stroke();console.warn('[TactileToolButton] Material bake unavailable; circular fallback retained.',error);}
   surface.addContent(face);const ink=make('ToolEmbossedIcon');this.ink=ink.addComponent(Graphics);surface.addContent(ink);return this.ink;
  }
- onDestroy(){const a=this.owned;this.owned=null;if(a&&--a.refs===0){for(const f of a.frames)f.destroy();a.texture.destroy();a.image.destroy();if(cache===a)cache=null;}this.face=null;this.ink=null;}
+ setAvailable(value:boolean){if(this.available===value)return;this.available=value;for(const [n,tint] of [[this.base,value?'#ffffff':'#c5bfab'],[this.face,value?'#ffffff':'#c6cec0']] as const){const sprite=n?.getComponent(Sprite);if(sprite)sprite.color=new Color(tint);}}
+ onDestroy(){const a=this.owned;this.owned=null;if(a&&--a.refs===0){for(const f of a.frames)f.destroy();a.texture.destroy();a.image.destroy();if(cache===a)cache=null;}this.face=null;this.base=null;this.ink=null;}
 }
-export function tactileToolButton(node:Node):WarmButton {const skin=node.getComponent(TactileToolButton)||node.addComponent(TactileToolButton);skin.initialize();return node.getComponent(WarmButton)!;}
+export function tactileToolButton(node:Node,available?:boolean):WarmButton {const skin=node.getComponent(TactileToolButton)||node.addComponent(TactileToolButton);skin.initialize();if(available!==undefined)skin.setAvailable(available);return node.getComponent(WarmButton)!;}
 export function tactileToolGraphics(node:Node):Graphics {const skin=node.getComponent(TactileToolButton)||node.addComponent(TactileToolButton);return skin.initialize();}

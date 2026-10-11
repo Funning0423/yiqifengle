@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict'),crypto=require('crypto'),stamp=require('./source_stamp.cjs');
+const root=process.env.QF_OCEAN_SOURCE_ROOT||path.resolve(__dirname,'../..'),sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),rows=[];
+function check(report,p){const actual=report.source||report.sourceSha256;assert.deepEqual(actual,stamp.source,'Stale production hash in '+p);}
+// Explicit negative control for the previously shipped seven-profile lifecycle report.
+assert.throws(()=>check({source:{...stamp.source,'OriginalLevelEnvironment.ts':'63b2d160850d6e59c2f616887d71311696fb2962912d5716ac9bb6d256a66226'}},'negative legacy lifecycle'),/Stale production hash/);
+for(const p of ['provider-results.json','provider-full-leap.json','pending-layout.json','reader-results.json','independent-reader-crosscheck.json','video-manifest.json','selector-timing.json']){const file=path.join(root,'evidence/cloud-ocean-leap',p);check(JSON.parse(fs.readFileSync(file)),p);rows.push({path:path.relative(root,file),sha256:sha(file)});}
+for(const p of ['evidence/cloud-leap-proposal/verification-summary.json','evidence/cloud-ocean-safe-rotation/safe-flip-results.json','evidence/cloud-ocean-safe-rotation/safe-flip-first-visible.json']){const file=path.join(root,p);check(JSON.parse(fs.readFileSync(file)),p);rows.push({path:p,sha256:sha(file)});}
+const legacy=path.join(root,'evidence/cloud-ocean-leap/legacy-parity.json');assert.equal(JSON.parse(fs.readFileSync(legacy)).sourceSha256,stamp.source['OriginalLevelEnvironment.ts']);rows.push({path:path.relative(root,legacy),sha256:sha(legacy),scope:'Environment-only original primitive parity'});
+const report={result:'PASS',source:stamp.verify(),staleSevenProfileLifecycleNegative:'rejected',reports:rows};fs.writeFileSync(path.join(root,'evidence/cloud-ocean-safe-rotation/report-source-gate.json'),JSON.stringify(report,null,2)+'\n');console.log('PASS current-production hash gate for',rows.length,'reports');

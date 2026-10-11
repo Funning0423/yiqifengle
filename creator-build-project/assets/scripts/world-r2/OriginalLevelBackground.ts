@@ -1,5 +1,5 @@
-import { _decorator, Component, assetManager, AssetManager, ImageAsset, Texture2D, SpriteFrame, Sprite, Node, Layers, UITransform, Color, Rect, Size, Graphics, sys, isValid } from 'cc';
-import { MAIN, createOceanSample, sampleOceanFrame, paintOceanBackdrop, paintOceanFish, paintOceanTail, paintOceanGull } from './OriginalLevelEnvironment';
+import { _decorator, Component, assetManager, AssetManager, ImageAsset, Texture2D, SpriteFrame, Sprite, Node, Layers, UITransform, Color, Rect, Size, Graphics, Label, sys, isValid } from 'cc';
+import { MAIN, createOceanSample, sampleOceanFrame, chooseOceanLeapCorridor, paintOceanBackdrop, paintOceanFish, paintOceanTail, paintOceanGull } from './OriginalLevelEnvironment';
 import type { LevelBackgroundFactory, LevelBackgroundFrame } from './LevelBackground';
 import type { Cancellation } from '../world-r1/WorldFlowCore';
 
@@ -50,16 +50,51 @@ function loadImage(bundle:AssetManager.Bundle,path:string,token:Cancellation,own
     catch(error){reject(error);}
   }));
 }
+/** Read existing visual geometry only, after Board paint. No private controller/snapshot/storage access.
+ * Known plate shadows and the whole badge/label/selection envelope are included; no pixel readback. */
+export function readOceanVisualLayout(canvasRoot:Node,width:number,height:number,boardTop:number,system?:any):any {
+  const rectangles:any[]=[];let boardRect:any=null,toolSkinReady=true,toolCount=0;
+  const put=(name:string,x:number,y:number,sx:number,sy:number,left:number,right:number,top:number,bottom:number)=>{const r={name,left:width/2+x+left*sx,right:width/2+x+right*sx,top:height/2-y-top*sy,bottom:height/2-y-bottom*sy};rectangles.push(r);if(name==='IslandBoardCarving')boardRect=r;};
+  const visit=(n:Node,px=0,py=0,sx=1,sy=1)=>{
+    if(!n.active)return;const x=px+n.position.x*sx,y=py+n.position.y*sy;sx*=n.scale.x;sy*=n.scale.y;
+    const name=n.name,t=n.getComponent(UITransform);
+    if(name==='OriginalMainlineBackground'||name==='CenteredNativeGrid'||name==='RegionalFocusCue'||name==='Backpack'||name==='RetryConfirm'||name==='NativeStageSelection'||name==='NativeResult'||name==='ToolDragGhost')return;
+    if(t&&(name==='IslandBoardCarving'||name==='LevelTitle'||name==='Moves'||/^Goal-\d+$/.test(name))){put(name,x,y,sx,sy,-t.width/2-1,t.width/2+1,t.height/2+.5,-t.height/2-8);return;}
+    if(t&&/^slot-\d+$/.test(name)){toolCount++;toolSkinReady=toolSkinReady&&!!n.getChildByName('ToolWoodBase');put(name,x,y,sx,sy,-28,30,30,-41.5);return;}
+    if(t&&['retry','hint','pause'].includes(name)){put(name,x,y,sx,sy,-23.5,23.5,24,-28);return;}
+    if(t&&['back','bag'].includes(name)){put(name,x,y,sx,sy,-t.width/2-1,t.width/2+1,t.height/2+1,-t.height/2-3);return;}
+    // Reserve status text even while empty: hints/errors may appear without another resize.
+    if(t&&n.getComponent(Label)){put(name,x,y,sx,sy,-t.width/2,t.width/2,t.height/2,-t.height/2);return;}
+    for(const child of n.children)visit(child,x,y,sx,sy);
+  };
+  for(const child of canvasRoot.children)visit(child);
+  const physical=system||readOceanSystemLayout(width,height),{safe,capsule}=physical;if(capsule)rectangles.push(capsule);
+  const logicalHeight=height*390/width,horizon=Math.max(50,Math.min(logicalHeight*.65,boardTop*390/width+20))*width/390;
+  return {width,height,horizon,rectangles,safe,systemKey:physical.key,boardRect,toolSkinReady:toolSkinReady&&toolCount>0};
+}
+/** Small read-only OS snapshot. It does not traverse HUD nodes or choose a trajectory. */
+function readOceanSystemLayout(width:number,height:number):any {
+  const portrait=width<height,safe={left:portrait?0:44,right:width-(portrait?0:44),top:0,bottom:height-(portrait?34:21)};
+  let capsule:any=null;
+  const wx=(globalThis as any).wx;let info:any=null;try{info=wx?.getWindowInfo?.();}catch{}if(!info)try{info=wx?.getSystemInfoSync?.();}catch{}
+  const ww=Number(info?.windowWidth)||width,hh=Number(info?.windowHeight)||height,sx=width/ww,sy=height/hh;
+  const valid=(a:any)=>a&&[a.left,a.right,a.top,a.bottom].every(Number.isFinite)&&a.left>=0&&a.right>a.left&&a.right<=ww&&a.top>=0&&a.bottom>a.top&&a.bottom<=hh;
+  if(ww>0&&hh>0&&Number.isFinite(sx)&&Number.isFinite(sy)){
+    if(valid(info?.safeArea)){const a=info.safeArea;Object.assign(safe,{left:a.left*sx,right:a.right*sx,top:a.top*sy,bottom:a.bottom*sy});}
+    try{const a=wx?.getMenuButtonBoundingClientRect?.();if(valid(a)&&a.bottom<hh*.35)capsule={name:'WeChat capsule',left:a.left*sx,right:a.right*sx,top:a.top*sy,bottom:a.bottom*sy};}catch{}
+  }
+  return {safe,capsule,key:[safe.left,safe.right,safe.top,safe.bottom,capsule?.left,capsule?.right,capsule?.top,capsule?.bottom].join('/')};
+}
 /** Uses the board's existing Canvas/camera, behind its HUD. No second UI camera, no world camera/layer mutations. */
 export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
   const level=originalMainlineLevel(selection.provider,selection.stageId);if(level===null)return null;
   const images:ImageAsset[]=[];let canvas:any=null,node:Node|null=null,texture:Texture2D|null=null,image:ImageAsset|null=null,frame:SpriteFrame|null=null;
-  let disposed=false,visible=false,paused=true,lastKey='';let offCancel=()=>{};
+  let disposed=false,visible=false,paused=true,lastKey='';let offCancel=()=>{},offWindowResize=()=>{};
   const family=String(MAIN[level][0]);
   type AtmosphereSprite={node:Node;sprite:Sprite;color:Color;alpha:number};
   let atmosphereImage:ImageAsset|null=null,atmosphereTexture:Texture2D|null=null;
   const atmosphereFrames:SpriteFrame[]=[];
-  const oceanSample=createOceanSample(),oceanInput={width:390,height:0,waterTop:0,skyY:0,timeMs:0,nightBlend:0,reducedMotion:false};
+  const oceanSample=createOceanSample(),oceanInput={width:390,height:0,waterTop:0,skyY:0,timeMs:0,nightBlend:0,reducedMotion:false,leapCorridor:null as any};
   type FishSprite={root:Node;body:AtmosphereSprite;tail:AtmosphereSprite};
   const oceanFish:FishSprite[]=[];let leapFish:FishSprite|null=null,gull:AtmosphereSprite|null=null,waves:Graphics|null=null;
   let oceanDrawTime=-Infinity,oceanDrawNight=-1,waveBuilds=0,logicalWaterTop=0,logicalSkyY=0;
@@ -67,6 +102,11 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
   let logicalHeight=0,logicalBoardTop=0,boardTime=0,ticks=0,staticUploads=0;
   let reducedMotion=currentReducedMotion(),nightBlend=currentNight(),nightTarget=nightBlend,nightFrom=nightBlend,nightElapsed=1.1;
   let settingsElapsed=0,skipDelta=true;
+  let corridorDirty=true,corridorPixels:any=null,corridorLayout:any=null,lastFrame:{width:number;height:number;boardTop:number}|null=null,corridorBuilds=0;
+  // A same-size rotation can swap physical safe-area sides without changing the static texture key.
+  // Hide the old route synchronously; read the finished HUD and current OS geometry on the next update.
+  const invalidateCorridor=()=>{corridorDirty=true;corridorPixels=null;corridorLayout=null;oceanInput.leapCorridor=null;if(leapFish)leapFish.root.active=false;};
+  const refreshCorridor=(system?:any)=>{if(!lastFrame||!node)return;const root=parent.getChildByName('NativeBoardCanvas');if(!root)return;corridorLayout=readOceanVisualLayout(root,lastFrame.width,lastFrame.height,lastFrame.boardTop,system);corridorPixels=corridorLayout.toolSkinReady?chooseOceanLeapCorridor(corridorLayout):null;const factor=390/lastFrame.width; oceanInput.leapCorridor=corridorPixels?Object.fromEntries(['startX','surfaceY','span','lift','drop','scale'].map(k=>[k,corridorPixels[k]*factor])):null;corridorDirty=false;corridorBuilds++;};
   const refreshSettings=(snapNight=false)=>{
     reducedMotion=currentReducedMotion();const next=currentNight();
     if(next!==nightTarget){nightFrom=nightBlend;nightTarget=next;nightElapsed=0;}
@@ -84,6 +124,9 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
     if(moon){moon.node.active=nightBlend>.001;setAlpha(moon,nightBlend);}
     if(waves){
       Object.assign(oceanInput,{height:logicalHeight,waterTop:logicalWaterTop,skyY:logicalSkyY,timeMs:boardTime,nightBlend,reducedMotion});sampleOceanFrame(oceanInput,oceanSample);
+      // Some hosts swap safe-area sides without delivering resize. Before every visible leap frame,
+      // compare only the OS rectangle signature; expensive HUD reads/selection run only on change.
+      if(oceanSample.leap.visible&&lastFrame){const physical=readOceanSystemLayout(lastFrame.width,lastFrame.height);if(physical.key!==corridorLayout?.systemKey){invalidateCorridor();refreshCorridor(physical);sampleOceanFrame(oceanInput,oceanSample);}}
       const placeFish=(fish:FishSprite,pose:any,swimmer=false)=>{
         fish.root.active=pose.visible!==false&&oceanSample.waterHeight>0;if(!fish.root.active)return;
         fish.root.setPosition(pose.x,-pose.y,0);fish.root.angle=-(pose.angle||0)*180/Math.PI;
@@ -104,6 +147,7 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
   };
   const advance=(dt:number)=>{
     if(disposed||!visible||paused||!motionRoot||!Number.isFinite(dt)||dt<0)return;
+    if(corridorDirty)refreshCorridor();
     // Drop the first resumed delta and clamp subsequent stalls, as original boardTime did (50ms).
     const elapsed=skipDelta?0:Math.min(dt,.05);skipDelta=false;
     settingsElapsed+=elapsed;if(settingsElapsed>=.25){settingsElapsed=0;refreshSettings();}
@@ -150,9 +194,10 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
     clock=motionRoot.addComponent(OriginalLevelBackgroundMotion);clock.tick=advance;clock.enabled=visible&&!paused;
   };
   const dispose=()=>{
-    if(disposed)return;disposed=true;offCancel();
+    if(disposed)return;disposed=true;offCancel();offWindowResize();
     if(clock){clock.enabled=false;clock.tick=null;}clock=null;
     if(node&&isValid(node,true))node.destroy();node=null;motionRoot=null;shade=null;moon=null;oceanFish.length=0;leapFish=null;gull=null;waves=null;
+    corridorPixels=null;corridorLayout=null;lastFrame=null;oceanInput.leapCorridor=null;
     for(const f of atmosphereFrames)f.destroy();atmosphereFrames.length=0;atmosphereTexture?.destroy();atmosphereTexture=null;atmosphereImage?.destroy();atmosphereImage=null;
     frame?.destroy();frame=null;texture?.destroy();texture=null;image?.destroy();image=null;
     if(canvas){canvas.width=1;canvas.height=1;canvas=null;}
@@ -164,6 +209,13 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
     token.check();
     const foliage=await loadBundle('background_foliage',token);token.check();
     const cloud=await loadImage(foliage,'painted-cloud',token,own);token.check();
+    // Subscribe only when the paired removal API exists; never remove another owner's listener.
+    const wx=(globalThis as any).wx;
+    if(typeof wx?.onWindowResize==='function'&&typeof wx?.offWindowResize==='function'){
+      const onResize=()=>{if(!disposed)invalidateCorridor();};
+      offWindowResize=()=>{try{wx.offWindowResize(onResize);}catch{}};
+      try{wx.onWindowResize(onResize);}catch{offWindowResize();offWindowResize=()=>{};}
+    }
 
     return {
       frame:(_portrait:boolean,layout?:LevelBackgroundFrame)=>{
@@ -172,6 +224,7 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
         if(!(width>0&&height>0&&Number.isFinite(width)&&Number.isFinite(height)&&Number.isFinite(boardTop)))throw Error('Invalid original background layout');
         const canvasRoot=parent.getChildByName('NativeBoardCanvas');if(!canvasRoot)throw Error('Native board Canvas missing');
         const grid=canvasRoot.getChildByName('CenteredNativeGrid')?.getComponent(UITransform);if(!grid||!(grid.height>0))throw Error('Original ocean requires actual board grid size');
+        lastFrame={width,height,boardTop};invalidateCorridor();
         const key=width+'/'+height+'/'+boardTop+'/'+grid.height;if(key===lastKey)return;
         if(!node){node=new Node('OriginalMainlineBackground');node.layer=Layers.Enum.UI_2D;canvasRoot.addChild(node);node.setSiblingIndex(0);node.addComponent(UITransform);node.addComponent(Sprite);node.active=visible;}
         // Match the source's 390-unit width without stretching x/y independently; cap generated surface pixels.
@@ -199,14 +252,14 @@ export const createOriginalLevelBackground:LevelBackgroundFactory=async({parent,
         presentMotion();lastKey=key;
       },
       setVisible:(value:boolean)=>{if(disposed)return;visible=value;skipDelta=true;
-        if(value){refreshSettings(paused);presentMotion();}
+        if(value){refreshSettings(paused);refreshCorridor();presentMotion();}
         if(node&&isValid(node,true))node.active=value;if(clock)clock.enabled=visible&&!paused;
       },
       setPaused:(value:boolean)=>{if(disposed||paused===value)return;paused=value;skipDelta=true;
-        if(!value){refreshSettings();presentMotion();}if(clock)clock.enabled=visible&&!paused;
+        if(!value){refreshSettings();invalidateCorridor();refreshCorridor();presentMotion();}if(clock)clock.enabled=visible&&!paused;
       },
       diagnostics:()=>({renderer:'original-ocean-visual-only+sprite-atlas',family,level:level+1,visible,paused,reducedMotion,boardTime,nightBlend,
-        motionNodes:oceanFish.length+2,ticks,staticUploads,atmosphereAtlasPixels:atmosphereTexture?256*128:0,nightVertexAlpha:shade?.alpha??0,waveBuilds,waterTop:logicalWaterTop,skyY:logicalSkyY,fish:oceanSample.fish.map((f:any)=>({x:f.x,y:f.y})),gull:{...oceanSample.gull},leap:{...oceanSample.leap},dynamicTextureUploads:0,ownedPixels:canvas?canvas.width*canvas.height:0}),
+        motionNodes:oceanFish.length+2,corridorBuilds,leapCorridor:corridorPixels,leapLayout:corridorLayout,ticks,staticUploads,atmosphereAtlasPixels:atmosphereTexture?256*128:0,nightVertexAlpha:shade?.alpha??0,waveBuilds,waterTop:logicalWaterTop,skyY:logicalSkyY,fish:oceanSample.fish.map((f:any)=>({x:f.x,y:f.y})),gull:{...oceanSample.gull},leap:{...oceanSample.leap},dynamicTextureUploads:0,ownedPixels:canvas?canvas.width*canvas.height:0}),
       dispose,
     };
   }catch(error){dispose();throw error;}
