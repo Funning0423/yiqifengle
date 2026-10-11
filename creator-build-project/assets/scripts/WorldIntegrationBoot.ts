@@ -76,7 +76,7 @@ export class WorldIntegrationBoot extends Component {
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
  private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private islandEntrance=-1;private error='';private doorReached=false;
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private error='';private doorReached=false;
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -166,18 +166,16 @@ export class WorldIntegrationBoot extends Component {
   n.setScale(1,1,1);n.setPosition(r.x,r.y,0);
  }
  /** Funning 2026-10-11: the top status plate is HIDDEN during outbound/return transitions and slides back in (position
-  * animation, no opacity fade) once the character is still and operable. GGbot owns the HUD API.
-  * TODO(GGbot): wire 'hide' -> statusHud.hide() and 'slideIn' -> statusHud.slideIn(). Intentionally a no-op here. */
- private hudTransition(_kind:'hide'|'slideIn',_place:string){}
- /** Call-site timing (see docs/camera/T2-T3a-DELIVERY.md): hide on 'standing' (leaveHome) / 'walking-home' (returnHome);
-  * settled + slideIn on 'island' after crossing-out and on 'home' after sitting. */
+  * animation, no opacity fade) once the character is still and operable.
+  * SUPERSEDED (Funning final, 2026-10-11): the top status bar is REMOVED. It never appears in the ready world (home,
+  * cutscenes, island, errors, skycity); see docs/HUD-status-api.md. No hide/slideIn calls remain; this only starts the
+  * T2 island button entrance. */
  private trackTransitionHud(state:string){const prev=this.hudState;if(state===prev)return;this.hudState=state;
-  if(state==='standing'||state==='walking-home')this.hudTransition('hide',state);
-  const place=state==='island'&&prev==='crossing-out'?'island':state==='home'&&prev==='sitting'?'home':null;
   if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
-  // Same instant as WorldFlowComponent.onCameraSettled(place) (camera at rest, girl still).
-  if(place)this.hudTransition('slideIn',place);
  }
+ /** Status bar removed: its text is console-only. Logs once per change, errors and the skycity hint only. */
+ private logSuppressedStatus(kind:string,text:string){const key=kind+'|'+text;if(key===this.suppressedStatus)return;this.suppressedStatus=key;
+  if(text)console.info('[OI_HUD] suppressed '+JSON.stringify({kind,text}));}
  /** T2: island buttons enter with a 0.25 s slide (24 px) + scale (0.94->1). Position/scale only: no opacity, so the
   * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame. */
  private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0)return;
@@ -186,10 +184,11 @@ export class WorldIntegrationBoot extends Component {
   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
   if(this.islandEntrance>=1)this.islandEntrance=-1;
  }
- private paintNavigation(dt=0){let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;return;}this.ready=true;}
+ private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
+ let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
  // 0007 v1.3 (GGbot): home camera is pose DATA now (world-r1/RegionCameraData.ts homePoseSource='oi-interim-standing', same -1.1,1.5,-2.4 -> .1,.86,-4.35, fov 55); only CameraPose.applyCameraPose writes the camera.
- const transitionText=({'standing':'正在起身…','turning-out':'正在转身…','walking-out':'正在走向门口…','opening-door':'正在开门…','crossing-out':'正在走向海岛…','walking-home':'正在回屋…','crossing-in':'正在进屋…','closing-door':'正在关门…','walking-to-seat':'正在走向椅子…','sitting':'正在坐下…','skycity-loading':'正在前往天空城…'} as any)[s.state];
- this.notice.node.parent!.active=false;this.status.node.parent!.active=!!this.error||!!transitionText;this.status.string=this.error||transitionText||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':'');if(s.state==='skycity')this.status.node.parent!.active=true;
+ this.notice.node.parent!.active=false;this.status.string='';
+ this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  for(const [k,n]of Array.from(this.controls))n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);if(s.state==='island')for(const id of ISLAND_NAV_IDS)this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}
