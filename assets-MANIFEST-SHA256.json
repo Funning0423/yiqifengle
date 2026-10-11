@@ -181,38 +181,33 @@
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_back.mp3",
-    "bytes": 1749,
-    "sha256": "c9cea1fedf0b0e0f79016713809d1c792dbb51e35d9c86081ee22288ce5cbf65"
+    "bytes": 4771,
+    "sha256": "8b6f5b5e9b6dc3bb6ba245b71f576c05ca480cdc99b74677901b6b476ff67396"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_bag.mp3",
-    "bytes": 2219,
-    "sha256": "ee12c230855b372077cc75827ab48100e4decdfcb931de44ff34a5e211df1821"
+    "bytes": 4144,
+    "sha256": "fc657528fca343a40ce80714047787e8e3d032e9868d039190fcad4e6af47e9e"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_book.mp3",
-    "bytes": 2063,
-    "sha256": "2672221ce06a4014ef8505cc58cd3927dc99e2c08f493abb5e25beeda361807a"
+    "bytes": 4144,
+    "sha256": "9a144081650aa458d783bfd9b00cc7662119f6227d2a76a1b4ef513753f4eab3"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3",
-    "bytes": 1714,
-    "sha256": "443769d588f408a03b96f75cc726e3425417529e10831ed23105c21f217d27ac"
+    "bytes": 3204,
+    "sha256": "897d92b72ba4047ae97cc0c0aecd0bb9b2f2c760b8964056e712024f82a98b11"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_confirm.mp3",
-    "bytes": 1749,
-    "sha256": "f41b5ba1c3356a3b1960c701d98f53c66d3b2413089051d555d8076cb0c601b7"
-  },
-  {
-    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_settings.mp3",
-    "bytes": 1279,
-    "sha256": "b586545691c551299694cf5e3743fc8df18f82149f6fa134d868e7037fec85c6"
+    "bytes": 4771,
+    "sha256": "1aa092fe6c8584e842cb28a25114eba31e6c5c14a868d624c2688a68254e9324"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3",
-    "bytes": 2846,
-    "sha256": "595ee60a3514792ec7a196c7170e492e761f09d8c4a3db23784421612e331f20"
+    "bytes": 3831,
+    "sha256": "711a2a76492d5122cdbea6bbe79eece418f8be0edf51fe5a187efc40a5c35962"
   },
   {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",

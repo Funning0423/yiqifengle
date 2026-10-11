@@ -310,11 +310,6 @@
     "sha256": "3a83b67257b88a4917e637f6badaf230cd79163aa69408879d870b83e9717bdb"
   },
   {
-    "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_settings.mp3.meta",
-    "bytes": 222,
-    "sha256": "d8a439b8134b488f103f4ddccdde56633681260b7b8cdc6bd927f7b2a17a9a3d"
-  },
-  {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3.meta",
     "bytes": 222,
     "sha256": "01d1f3a0f7c78ad3c678315d5c6802bb275a6a876b23a368a3f8bc46d2fc9e7d"
@@ -666,8 +661,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 56839,
-    "sha256": "011ce344aa92cb85b96bb5ec25a0d3c36b0d8dfa82f1223e24fc0ff3e3b62d78"
+    "bytes": 57185,
+    "sha256": "b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",

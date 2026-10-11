@@ -8,7 +8,7 @@ const S = 'creator-build-project/assets/scripts', R = 'creator-build-project/ass
 const src = fs.readFileSync(path.join(S, 'audio/GameAudio.ts'), 'utf8');
 const plain = src.replace(/^import .* from 'cc';\n/m, '').replace(/^@ccclass\('GameAudio'\)\n/m, '').replace(/export /g, '');
 const code = stripTypeScriptTypes(plain, { mode: 'transform' }) + '\nglobalThis.AudioClass = GameAudio;';
-const NAMES = ['bag', 'book', 'settings', 'signpost', 'confirm', 'back'];
+const NAMES = ['bag', 'book', 'signpost', 'confirm', 'back', 'click'];   // ui-soft: settings has no own file, it plays click
 let count = 0; const test = (n, f) => { f(); count++; console.log('PASS', n); };
 
 function harness() {
@@ -26,7 +26,7 @@ function harness() {
   vm.runInNewContext(code, ctx); const A = ctx.AudioClass; let t = 10000; A.now = () => t;
   const a = A.ensure();
   const clip = name => ({ name, addRef() {}, decRef() {} });
-  sfxLoads[0](null, [...NAMES.map(n => clip('sfx_ui_' + n)), clip('sfx_ui_click')]);
+  sfxLoads[0](null, NAMES.map(n => clip('sfx_ui_' + n)));
   const played = () => [...a.sfxVoices.values()].map(v => [v.name, v.source.volume]);
   const reset = () => { for (const s of [...a.sfxVoices.keys()]) a.retireSfx(s); t += 1000; };
   return { a, game, played, reset };
@@ -34,11 +34,11 @@ function harness() {
 
 test('press plays the target sound, confirm plays sfx_ui_confirm, at UI volume below cheers', () => {
   const h = harness();
-  for (const [target, n] of [['bag', 'bag'], ['book', 'book'], ['settings', 'settings'], ['signpost', 'signpost']]) {
+  for (const [target, n] of [['bag', 'bag'], ['book', 'book'], ['settings', 'click'], ['signpost', 'signpost']]) {
     h.a.onPropTap(target, 'press', { blocked: false, props: true });
-    assert.deepEqual(h.played(), [['sfx_ui_' + n, 0.65]]); h.reset();
+    assert.deepEqual(h.played(), [['sfx_ui_' + n, 1]]); h.reset();
     h.a.onPropTap(target, 'confirm', { blocked: false, props: false });
-    assert.deepEqual(h.played(), [['sfx_ui_confirm', 0.65]]); h.reset();
+    assert.deepEqual(h.played(), [['sfx_ui_confirm', 1]]); h.reset();
   }
 });
 test('blocked press/confirm plays nothing; unknown target/phase plays nothing', () => {
@@ -51,11 +51,12 @@ test('muted and suspended (hidden) drop UI tap sounds like every other SFX', () 
   const h = harness();
   h.a.muted = true; h.a.onPropTap('bag', 'press', { blocked: false }); h.a.onUiBack(); assert.deepEqual(h.played(), []);
   h.a.muted = false; h.game.emit('hide'); h.a.onPropTap('bag', 'confirm', { blocked: false }); assert.deepEqual(h.played(), []);
-  h.game.emit('show'); h.a.onPropTap('bag', 'press', { blocked: false }); assert.deepEqual(h.played(), [['sfx_ui_bag', 0.65]]);
+  h.game.emit('show'); h.a.onPropTap('bag', 'press', { blocked: false }); assert.deepEqual(h.played(), [['sfx_ui_bag', 1]]);
 });
-test('onUiBack plays sfx_ui_back; generic onButton unchanged', () => {
-  const h = harness(); h.a.onUiBack(); assert.deepEqual(h.played(), [['sfx_ui_back', 0.65]]); h.reset();
-  h.a.onButton(); assert.deepEqual(h.played(), [['sfx_ui_click', 0.8]]);
+test('onUiBack plays sfx_ui_back; generic onButton / onToolTap play the soft click at UI volume 1', () => {
+  const h = harness(); h.a.onUiBack(); assert.deepEqual(h.played(), [['sfx_ui_back', 1]]); h.reset();
+  h.a.onButton(); assert.deepEqual(h.played(), [['sfx_ui_click', 1]]); h.reset();
+  h.a.onToolTap(); assert.deepEqual(h.played(), [['sfx_ui_click', 1]]);
 });
 test('AudioBridge: subscribes onPropTap in onLoad, unsubscribes in onDestroy, no double click on prop hit areas, back buttons', () => {
   const b = fs.readFileSync(path.join(S, 'audio/AudioBridge.ts'), 'utf8');
@@ -69,7 +70,7 @@ test('AudioBridge: subscribes onPropTap in onLoad, unsubscribes in onDestroy, no
   assert.match(o, /'Island-'\+role/); assert.match(o, /this\.button\('Close'/); assert.match(o, /this\.button\('BackToChapters'/); assert.match(o, /'IslandParchment'/);
   assert.match(fs.readFileSync(path.join(S, 'WorldIntegrationBoot.ts'), 'utf8'), /if\(id==='mainline'\)emitPropTap\('signpost','confirm'/);
 });
-test('six mp3 + meta: mono 44.1 kHz MPEG-1 L3, total <= 40 KB, unique uuids, cheer-style meta', () => {
+test('ui-soft mp3 + meta (no sfx_ui_settings): mono 44.1 kHz MPEG-1 L3, total <= 40 KB, unique uuids, cheer-style meta', () => {
   const uuids = new Set(); let total = 0;
   for (const f of fs.readdirSync(R).filter(f => f.endsWith('.meta'))) uuids.add(JSON.parse(fs.readFileSync(path.join(R, f))).uuid);
   const ref = JSON.parse(fs.readFileSync(path.join(R, 'sfx_cheer_1_great.mp3.meta')));
@@ -81,6 +82,7 @@ test('six mp3 + meta: mono 44.1 kHz MPEG-1 L3, total <= 40 KB, unique uuids, che
     assert.deepEqual({ ...meta, uuid: '' }, { ...ref, uuid: '' }); assert.match(meta.uuid, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     assert.ok(src.includes(`'sfx_ui_${n}'`), 'SfxName has sfx_ui_' + n);
   }
+  assert.ok(!fs.existsSync(path.join(R, 'sfx_ui_settings.mp3')) && !fs.existsSync(path.join(R, 'sfx_ui_settings.mp3.meta')) && !src.includes("'sfx_ui_settings'"), 'sfx_ui_settings removed');
   const metas = fs.readdirSync(R).filter(f => f.endsWith('.meta')).length; assert.equal(uuids.size, metas, 'uuids unique in audio_sfx');
   assert.ok(total <= 40 * 1024, 'total ' + total); console.log('  total bytes', total);
 });
