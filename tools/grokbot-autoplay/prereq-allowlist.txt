@@ -71,3 +71,9 @@ observe 1a7b80278cc804db2573cf61b64fb6db7a75f1f6faf49b4c6016df18e18d8190 audio/G
 # AudioBridge at 3a966c1 == 45fc0889 (already listed from A5 6307433). Boot at f0f3a13/3a966c1 == f8f5fdc3 (listed).
 observe 99cb29e452c53813cc339846f9f401ac0a58a7dbcb982bc1681a4dc37ed1bd82 world-r1/WorldFlowComponent.ts   int/v1 f0f3a13 (运镜bot wind API ff5a2e8)
 observe 6a1a2f94a8fdaa85bb4d70b1ff7634b3c26fe785cdded70c263325446b291b4f audio/GameAudio.ts              Voice bot A5v3 (work/Voice-bot-a5v3 3a966c1)
+# 运镜bot wind (work/运镜bot-wind 138bca5 on int/v1 e439b62): frontal swing + real wind channel (WorldFlowCore.setWind/windAt,
+#  WorldLease.animateCamera optional onSample) + palm-avoiding return rail. Verified `git show 138bca5:<file> | sha256sum`.
+#  Glue reviewed: WorldFlowCore.walk(path,cameras|null,token)/config paths and WorldFlowComponent.flow + onCameraSettled/onCraneStart
+#  unchanged. Boot/GameAudio/AudioBridge at 138bca5 == f8f5fdc3/6a1a2f94/45fc0889 (listed). Observe-only, append only.
+observe 4e9022bd153007f094f69c75c0b8d0d10f947db55efee764b9cd570243fcab8d world-r1/WorldFlowComponent.ts   运镜bot wind (work/运镜bot-wind 138bca5)
+observe 1c9c8147f5aa63a4d621fdf78416d628e2287723491c4520cbe6f6e4acb1d8bb world-r1/WorldFlowCore.ts         运镜bot wind (work/运镜bot-wind 138bca5)
