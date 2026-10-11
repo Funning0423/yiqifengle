@@ -77,7 +77,7 @@ COL = {k: srgb2lin(cfg['colors'][k]) for k in ('beam', 'glow', 'glint')}
 def setfx(o, a, rgb):
     o['fxa'] = float(a); o['fxc'] = list(rgb); o.hide_render = a <= 1 / 255
 for k, f in enumerate(cfg['frames']):
-    if k % EVERY: continue
+    if k % EVERY or (os.environ.get('FX_RESUME') == '1' and os.path.exists(os.path.join(OUT, 'f%05d.png' % k))): continue
     n = f['night']
     sun.energy = 3.2 + (0.9 - 3.2) * n; sun.color = lerp((1, .97, .92), (180 / 255, 198 / 255, 232 / 255), n)
     bg.inputs[0].default_value = lerp((.55, .7, .8, 1), (.03, .05, .12, 1), n); bg.inputs[1].default_value = .9 + (.5 - .9) * n
