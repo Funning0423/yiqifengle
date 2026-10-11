@@ -12,7 +12,10 @@ function create(opts={}){
   const cfg=R.createFirstsliceRoutes(F.FIRSTSLICE,REF.CHARACTER_REFERENCE,opts.walkDuration?{walkDuration:opts.walkDuration}:undefined);
   return {M,C,W,cfg,REF,walkProfile:opts.walkProfile||null,reportWalkProgress:opts.reportWalkProgress!==false,realWalk:!!opts.realWalk};
 }
-async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.0,sitSeconds=1.0}={}){
+/** run opts: standSeconds/sitSeconds = sim clip lengths; reportActionSeconds: the sim character also REPORTS them through
+ *  CharacterAdapter.actionSeconds (as the real FlowReferenceStandin does from AnimationClip.duration); sitSettleSeconds:
+ *  reported through actionSettleSeconds('sit') (anim_meta settle frame). */
+async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.0,sitSeconds=1.0,reportActionSeconds=false,sitSettleSeconds}={}){
   const {C,W,cfg}=env;const dt=1/fps;
   const cam={fov:55,p:[0,0,0],q:[0,0,0,1],node:{setWorldPosition(x,y,z){cam.p=[x,y,z]},setWorldRotation(x,y,z,w){cam.q=[x,y,z,w]}}};
   const jobs=new Set(),actions=[];
@@ -53,12 +56,14 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
       return new Promise((resolve,reject)=>{const j={action,duration,from:[...ch.root],elapsed:0,resolve,reject,off:()=>{}};ch.job=j;j.off=token.onCancel(()=>{if(ch.job===j)ch.job=null;reject(new W.Cancelled());});});},
     cancelAndReset(pose){ch.job=null;ch.root=[...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot)];ch.yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad;},
     setVisible(){},dispose(){},
+    ...(reportActionSeconds?{actionSeconds:k=>k==='sit'?sitSeconds:k==='stand'?standSeconds:1.5}:{}),
+    ...(sitSettleSeconds!==undefined?{actionSettleSeconds:()=>sitSettleSeconds}:{}),
     walkProgress:env.reportWalkProgress?()=>{const j=ch.job;return j&&j.action.kind==='walk'?(j.distance??0):null;}:undefined};
   // --real-walk: replace the sim character by GGbot's real walk driver (real_walk.cjs); root/yaw read from its node.
-  if(env.realWalk){const R=require('./real_walk.cjs').create(env.M,W),st=R.standin,n=R.node;env.realWalkGlb=R.glb;console.log('character: REAL walk driver (FlowReferenceStandin+CharacterMotion), walkProgress from the driver, GLB '+R.glb);
+  if(env.realWalk){const R=require('./real_walk.cjs').create(env.M,W),st=R.standin,n=R.node;env.realWalkGlb=R.glb;env.realWalkClips=R.clips;env.realWalkStandin=st;console.log('character: REAL walk driver (FlowReferenceStandin+CharacterMotion), walkProgress from the driver, GLB '+R.glb);
     const real={get root(){return [n.worldPosition.x,n.worldPosition.y,n.worldPosition.z];},get yaw(){return n.yaw;},
       advance:dt=>st.advance(dt),perform:(a,t)=>{actions.push(a);return st.perform(a,t);},cancelAndReset:p=>st.cancelAndReset(p),setVisible:v=>st.setVisible&&st.setVisible(v),dispose(){},
-      walkProgress:()=>st.walkProgress(),actionSeconds:st.actionSeconds?k=>st.actionSeconds(k):undefined,get calibrated(){return st.calibrated;},get coordinates(){return st.coordinates;}};
+      walkProgress:()=>st.walkProgress(),actionSeconds:st.actionSeconds?k=>st.actionSeconds(k):undefined,actionSettleSeconds:st.actionSettleSeconds?k=>st.actionSettleSeconds(k):undefined,get calibrated(){return st.calibrated;},get coordinates(){return st.coordinates;}};
     st.cancelAndReset({kind:'seated',seat:cfg.seat});Object.keys(ch).forEach(k=>{delete ch[k];});Object.defineProperties(ch,Object.getOwnPropertyDescriptors(real));}
   const states=[];let frame=0,state='';
   const flow=new W.WorldFlow({config:cfg,mode:'motion',character:ch,levels:{enter:async()=>{throw Error('unused')}},loadWorld:async()=>lease,onChange:s=>{state=s.state;states.push({frame,state:s.state});log('state',s.state);}});

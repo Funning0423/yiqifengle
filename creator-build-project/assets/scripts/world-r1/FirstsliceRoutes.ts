@@ -111,7 +111,8 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     const inboundRail=():Pose[]=>{const ce=T.craneDown.endProgress,rail=T.railIn.map(k=>railPose(toThreshold,k)),end=rail[0];
       if(!end||Math.abs(end.progress!-ce)>1e-9)throw Error('railIn must start on craneDown.endProgress');
       const w=walkS(toThreshold),turn=1.5+T.craneDown.leadSeconds,total=turn+ce*w,ra=pointOnPath(toThreshold,ce),rb=toThreshold[0],keys:Pose[]=[];
-      for(let i=1;i<T.craneDown.steps;i++){const q=ce*i/T.craneDown.steps,u=1-(turn+q*w)/total;keys.push(cranePose(end,ra,cameraIsland,rb,pointOnPath(toThreshold,q),u,q));}
+      const via=T.craneDown.positions;if(via&&via.length!==T.craneDown.steps-1)throw Error('craneDown.positions needs steps-1 entries');
+      for(let i=1;i<T.craneDown.steps;i++){const q=ce*i/T.craneDown.steps,u=1-(turn+q*w)/total,k=cranePose(end,ra,cameraIsland,rb,pointOnPath(toThreshold,q),u,q);keys.push(via?{...k,position:[via[i-1][0],via[i-1][1],via[i-1][2]]}:k);}
       // Door approach: authored absolute keys (doorstep, doorway; lens passes the narrow gap between jamb and open leaf
       // below the doorway palm) BEFORE she reaches the door, so she is framed from inside as she walks in.
       const door=T.railInDoor.map(d=>key(d.key,toThreshold,d.progress));
