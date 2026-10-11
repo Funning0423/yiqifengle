@@ -1,6 +1,6 @@
-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, RenderRoot2D, Color, assetManager, AssetManager, instantiate, isValid } from 'cc';
+import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, RenderRoot2D, Color, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import type { CameraPose } from '../world-r1/CameraPose';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostRectUi, uiToScreen, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 
 /**
@@ -18,7 +18,8 @@ export class IslandProps {
   private ready_ = false; private failure: string | null = null; private disposed = false;
   private palette: Material | null = null; private lamp: MeshRenderer | null = null; private lampDay: Material | null = null; private night: boolean | null = null;
   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>();
-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string };
+  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string };
+  private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
   constructor(parent: Node, private camera: Camera) {
     this.root = new Node('IslandUiProps'); parent.addChild(this.root); this.root.active = false;
   }
@@ -42,6 +43,7 @@ export class IslandProps {
       for (const p of ISLAND_PROPS.palms) this.palms.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
       for (const role of PROP_ROLES) { const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, ISLAND_PROPS.seaY, 0], 0, 1); n.active = false; this.buttons.set(role, n); }
       this.addSignText(this.sign);
+      this.addSignWater();
       if (!this.lamp) console.warn('[T9_PROPS] lamp_glass renderer missing; lamp stays as imported');
       this.ready_ = true; return true;
     } catch (e) { this.failure = String(e); console.warn('[T9_PROPS] props unavailable, flat buttons stay', this.failure); return false; }
@@ -67,6 +69,38 @@ export class IslandProps {
       this.stats.label = 'render-root-2d';
     } catch (e) { this.stats.label = 'failed:' + String(e); console.warn('[T9_PROPS] sign text unavailable', String(e)); }
   }
+  /** Contact shadow + two ripple rings at the sign posts. Procedural meshes (vertex alpha) + builtin-unlit technique 3
+   * (two-sided alpha blend, no depth write; same as the tea steam in RoomLightingRig). No asset bytes; optional. */
+  private addSignWater() {
+    try {
+      if (!EffectAsset.get('builtin-unlit')) { this.stats.water = 'skipped:no-builtin-unlit'; return; }
+      const S = ISLAND_PROPS.signpost, W = S.water;
+      const mk = (g: FlatMesh) => { const m = utils.createMesh({ positions: g.positions, normals: g.normals, colors: g.colors, indices: g.indices }, undefined, { calculateBounds: true }); this.water.meshes.push(m); return m; };
+      const mat = (hex: string, a: number) => { const m = new Material(); m.initialize({ effectName: 'builtin-unlit', technique: 3, defines: { USE_VERTEX_COLOR: true } }); const c = new Color(hex); c.a = Math.round(a * 255); m.setProperty('mainColor', c); return m; };
+      const place = (name: string, mesh: Mesh, m: Material, lift: number) => {
+        const n = new Node(name); n.layer = this.sign!.layer; this.root.addChild(n);
+        n.setPosition(S.position[0], ISLAND_PROPS.seaY + lift, S.position[2]); n.setRotationFromEuler(0, S.yawDeg, 0); n.setScale(S.scale, 1, S.scale);
+        const r = n.addComponent(MeshRenderer); r.mesh = mesh; r.setMaterial(m, 0);
+        r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; r.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF; return n; };
+      this.water.shadow = mat(W.shadow.color, W.shadow.alpha);
+      place('SignContactShadow', mk(softEllipse(W.centerX, W.shadow.rx, W.shadow.rz)), this.water.shadow, W.ripple.lift * 0.5);
+      const ring = mk(softRing(W.centerX, W.ripple.rx, W.ripple.rz, W.ripple.band));
+      for (let k = 0; k < 2; k++) { const m = mat(W.ripple.color, W.ripple.alpha); this.water.ripples.push({ node: place('SignRipple' + k, ring, m, W.ripple.lift), material: m }); }
+      this.stats.water = 'procedural';
+    } catch (e) { this.stats.water = 'failed:' + String(e); console.warn('[T9_PROPS] sign water unavailable', String(e)); }
+  }
+  private tickWater(night: boolean) {
+    const S = ISLAND_PROPS.signpost, W = S.water.ripple, t = game.totalTime / 1000;
+    if (this.water.shadow) { const c = new Color(S.water.shadow.color); c.a = Math.round((night ? S.water.shadow.nightAlpha : S.water.shadow.alpha) * 255); this.water.shadow.setProperty('mainColor', c); }
+    this.water.ripples.forEach((r, k) => {
+      if (!isValid(r.node, true)) return; const a = rippleAt(t, k), c = new Color(night ? W.nightColor : W.color);
+      // grow around the centre between the posts (mesh is centred at centerX)
+      const cx = S.water.centerX * S.scale, yaw = S.yawDeg * Math.PI / 180, dx = cx * (1 - a.scale);
+      r.node.setPosition(S.position[0] + dx * Math.cos(yaw), ISLAND_PROPS.seaY + W.lift, S.position[2] - dx * Math.sin(yaw));
+      r.node.setScale(S.scale * a.scale, 1, S.scale * a.scale);
+      c.a = Math.round((night ? W.nightAlpha : W.alpha) * a.alpha * 255); r.material.setProperty('mainColor', c);
+    });
+  }
   /** Current world-camera pose (read-only; camera is written by CameraPose.applyCameraPose only). */
   pose(): CameraPose | null {
     const c = this.camera; if (!c || !isValid(c, true) || !isValid(c.node, true)) return null;
@@ -81,6 +115,7 @@ export class IslandProps {
       this.night = o.night;
       if (this.lamp && isValid(this.lamp, true)) { const m = o.night ? this.palette : this.lampDay; if (m) { this.lamp.setSharedMaterial(m, 0); this.stats.lampSwaps++; } }
     }
+    if (o.exterior) this.tickWater(o.night);
     const pose = o.buttons && o.exterior ? this.pose() : null;
     const slots = pose && o.width > 0 && o.height > 0 ? propButtonLayout(o.width, o.height).slots : [];
     for (const role of PROP_ROLES) {
@@ -98,5 +133,5 @@ export class IslandProps {
     const r = signpostRectUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; this.disposed = true; this.ready_ = false; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); }
+  dispose() { if (this.disposed) return; this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); }
 }

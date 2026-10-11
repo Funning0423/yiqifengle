@@ -27,16 +27,28 @@ ok('screen props stand on the sea under their anchor at the runtime island camer
     const top=C.projectPoint(pose,w/h,[a.point[0],a.point[1]+P.buttons[s.role].heightM*a.scale,a.point[2]]);assert(Math.abs((top.y-q.y)/2*h-s.prop.height)<s.prop.height*.05,'pixel height');
     assert(a.scale>.3&&a.scale<6,'scale '+a.scale);}
 });
-ok('signpost: in front of camera, inside the portrait screen, below the beach, clear of the bottom-row hits and of the girl',()=>{
+ok('signpost: hugs the front-right shore (posts in front of the waterline, panel overlaps sand <= 55 %), inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3);
-  for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,0),'sign inside '+w+'x'+h);
+  for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,8),'sign inside safe inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'sign vs '+s.role+' '+w+'x'+h);
     const g=L.projectRectUi(pose,w,h,girl);assert(!overlap(r,g),'sign covers girl '+w+'x'+h);}
-  const r=L.signpostRectUi(pose,390,844),topFrac=.5-(r.y+r.height/2)/844,rightFrac=.5+r.x/390;
-  assert(topFrac>=.62,'sign top below the beach line (~0.62 H): '+topFrac.toFixed(3));assert(rightFrac>.55,'sign on the right half');
-  const base=C.projectPoint(pose,390/844,P.signpost.position);assert(base.depth>20);
+  // hugs the shore: posts stand in front of (below on screen) the waterline of the front-right beach, within 3 m of it; the
+  // panel may overlap the sand behind it by at most ~55 % of its height (lamp + panel top, like mockup-portrait.png)
+  const SHORE_Z=10.7; // measured: island ground crosses sea level (-0.92) at z ~ 10.6-10.7 for x = 1..3 (front-right beach)
+  const S=P.signpost;assert(S.position[2]>SHORE_Z+0.5&&S.position[2]<SHORE_Z+3,'sign within 0.5-3 m off the waterline: z='+S.position[2]);
+  for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h),shore=C.projectPoint(pose,w/h,[S.position[0],P.seaY,SHORE_Z]),shoreUi=shore.y*h/2;
+    const bottom=r.y-r.height/2,top=r.y+r.height/2;assert(bottom<shoreUi,'posts below the waterline on screen '+w+'x'+h);
+    assert((top-shoreUi)/r.height<=.55,'panel overlaps the beach by '+((top-shoreUi)/r.height).toFixed(2)+' '+w+'x'+h);}
+  const r=L.signpostRectUi(pose,390,844);assert(.5+r.x/390>.55,'sign on the right half');assert(r.width>=64&&r.height>=48,'tap target');
+  const base=C.projectPoint(pose,390/844,S.position);assert(base.depth>20);
 });
-ok('world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present',()=>{
+ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present',()=>{
+  const W=P.signpost.water,sh=L.softEllipse(W.centerX,W.shadow.rx,W.shadow.rz),rg=L.softRing(W.centerX,W.ripple.rx,W.ripple.rz,W.ripple.band);
+  for(const m of [sh,rg]){assert.equal(m.positions.length/3,m.colors.length/4);assert(m.indices.every(i=>i<m.positions.length/3));assert(m.positions.every((v,i)=>i%3!==1||v===0),'flat');}
+  assert.equal(sh.colors[3],1);assert.equal(sh.colors[sh.colors.length-1],0,'shadow fades to 0 at the rim');assert(rg.colors.filter((_,i)=>i%4===3).every(a=>a===0||a===1));
+  for(const x of W.postsX)assert(Math.abs(x-W.centerX)<W.ripple.rx*(1-W.ripple.band),'posts inside the ripple ring');
+  const a0=L.rippleAt(0,0),a1=L.rippleAt(0,1),aw=L.rippleAt(W.ripple.periodS,0);assert.equal(a0.scale,1);assert(Math.abs(a1.scale-(1+W.ripple.grow/2))<1e-9);assert(Math.abs(aw.scale-a0.scale)<1e-9,'periodic');
+  assert(L.rippleAt(W.ripple.periodS/2,0).alpha>.99&&a0.alpha<1e-9,'fade in/out');assert(W.ripple.nightAlpha<W.ripple.alpha&&W.shadow.nightAlpha<W.shadow.alpha,'dimmer at night');
   for(const p of P.palms){assert(p.position[2]>6.5&&p.position[2]<10.5,'palm z on beach');assert(p.position[1]>-1&&p.position[1]<.2);}
   assert(P.signpost.position[1]<P.seaY,'sign posts stand in the water');
   const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];

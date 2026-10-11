@@ -29,8 +29,11 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-0.62, -1.05, 18.6] as V3, yawDeg: -16, scale: 1.7,
+    prefab: 'ui_signpost', position: [1.9, -1.15, 13.1] as V3, yawDeg: -20, scale: 1.2,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
+    /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
+    water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
+      ripple: { rx: 1.05, rz: 0.36, band: 0.1, color: '#f4fbff', alpha: 0.75, nightColor: '#a9c4dc', nightAlpha: 0.30, periodS: 2.6, grow: 0.45, lift: 0.015 } },
     /** Local AABB of the GLB (origin = bottom centre, front = +Z). */
     boxMin: [-1.235, 0, -0.183] as V3, boxMax: [1.235, 1.875, 0.183] as V3,
     /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face. */
@@ -126,6 +129,29 @@ export function projectRectUi(pose: CameraPose, width: number, height: number, p
   for (const p of points) { const q = projectPoint(pose, aspect, p); if (!(q.depth > 0.05)) return null; x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x); y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y); }
   const w = Math.max(minW, (x1 - x0) * width / 2), h = Math.max(minH, (y1 - y0) * height / 2);
   return { x: (x0 + x1) / 2 * width / 2, y: (y0 + y1) / 2 * height / 2, width: w, height: h };
+}
+
+export type FlatMesh = { positions: number[]; colors: number[]; normals: number[]; indices: number[] };
+/** Soft ellipse (alpha 1 at the centre -> 0 at the rim), y = 0, CCW seen from +Y. */
+export function softEllipse(cx: number, rx: number, rz: number, seg = 28): FlatMesh {
+  const m: FlatMesh = { positions: [cx, 0, 0], colors: [1, 1, 1, 1], normals: [0, 1, 0], indices: [] };
+  const rings: [number, number][] = [[0.55, 0.8], [0.8, 0.45], [1, 0]];
+  for (const [k, a] of rings) for (let i = 0; i < seg; i++) { const t = i / seg * Math.PI * 2; m.positions.push(cx + Math.cos(t) * rx * k, 0, Math.sin(t) * rz * k); m.colors.push(1, 1, 1, a); m.normals.push(0, 1, 0); }
+  for (let i = 0; i < seg; i++) { const j = (i + 1) % seg; m.indices.push(0, 1 + j, 1 + i);
+    for (let r = 0; r < rings.length - 1; r++) { const a = 1 + r * seg + i, b = 1 + r * seg + j, c = 1 + (r + 1) * seg + j, d = 1 + (r + 1) * seg + i; m.indices.push(a, c, b, a, d, c); } }
+  return m;
+}
+/** Thin soft ellipse ring (alpha 0 -> 1 -> 0 across `band`, as a fraction of the radius). */
+export function softRing(cx: number, rx: number, rz: number, band: number, seg = 40): FlatMesh {
+  const m: FlatMesh = { positions: [], colors: [], normals: [], indices: [] }, ks: [number, number][] = [[1 - band, 0], [1, 1], [1 + band, 0]];
+  for (const [k, a] of ks) for (let i = 0; i < seg; i++) { const t = i / seg * Math.PI * 2; m.positions.push(cx + Math.cos(t) * rx * k, 0, Math.sin(t) * rz * k); m.colors.push(1, 1, 1, a); m.normals.push(0, 1, 0); }
+  for (let r = 0; r < 2; r++) for (let i = 0; i < seg; i++) { const j = (i + 1) % seg, a = r * seg + i, b = r * seg + j, c = (r + 1) * seg + j, d = (r + 1) * seg + i; m.indices.push(a, c, b, a, d, c); }
+  return m;
+}
+/** Ripple animation at time t (s) for ring `k` of 2: scale and alpha factor. Pure (tested); IslandProps applies it. */
+export function rippleAt(t: number, k: number): { scale: number; alpha: number } {
+  const W = ISLAND_PROPS.signpost.water.ripple, f = (((t / W.periodS + k / 2) % 1) + 1) % 1;
+  return { scale: 1 + W.grow * f, alpha: Math.sin(Math.PI * f) };
 }
 
 /** Signpost hit rect in UI units for the current camera (null = not in front of the camera). */

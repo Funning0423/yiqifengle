@@ -23,6 +23,18 @@ for it in cfg.get('props',[]):
                 if m and m.use_nodes:
                     b=m.node_tree.nodes.get('Principled BSDF')
                     if b: b.inputs['Emission Color'].default_value=(1,.87,.6,1); b.inputs['Emission Strength'].default_value=2
+for k,fl in enumerate(cfg.get('flats',[])):  # procedural sign water: world positions (Cocos), vertex alpha, flat colour
+    me=bpy.data.meshes.new('flat%d'%k); P=fl['positions']; V=[tuple(cc2bl(P[i:i+3])) for i in range(0,len(P),3)]; I=fl['indices']
+    me.from_pydata(V,[],[tuple(I[i:i+3]) for i in range(0,len(I),3)]); me.update()
+    ca=me.color_attributes.new('a','FLOAT_COLOR','POINT'); C=fl['colors']
+    for i in range(len(V)): ca.data[i].color=(1,1,1,C[i*4+3])
+    ob=bpy.data.objects.new('flat%d'%k,me); sc.collection.objects.link(ob)
+    m=bpy.data.materials.new('flatm%d'%k); m.use_nodes=True; m.blend_method='BLEND'; nt=m.node_tree; nt.nodes.clear()
+    out=nt.nodes.new('ShaderNodeOutputMaterial'); em=nt.nodes.new('ShaderNodeEmission'); tr=nt.nodes.new('ShaderNodeBsdfTransparent'); mx=nt.nodes.new('ShaderNodeMixShader'); at=nt.nodes.new('ShaderNodeVertexColor'); at.layer_name='a'
+    mul=nt.nodes.new('ShaderNodeMath'); mul.operation='MULTIPLY'; mul.inputs[1].default_value=fl['alpha']
+    em.inputs[0].default_value=tuple(fl['rgb'])+(1,); em.inputs[1].default_value=fl.get('strength',1.0)
+    nt.links.new(at.outputs['Alpha'],mul.inputs[0]); nt.links.new(mul.outputs[0],mx.inputs[0]); nt.links.new(tr.outputs[0],mx.inputs[1]); nt.links.new(em.outputs[0],mx.inputs[2]); nt.links.new(mx.outputs[0],out.inputs[0])
+    ob.data.materials.append(m)
 for ch in cfg.get('chars',[]):
     objs=imp(ch['glb']); roots=[o for o in objs if o.parent is None]
     E=bpy.data.objects.new('char',None); sc.collection.objects.link(E)

@@ -10,7 +10,8 @@ const lay=L.propButtonLayout(w,h);
 const buttons=lay.slots.map(s=>{const [sx,sy]=L.uiToScreen(s.prop.x,s.prop.bottom,w,h);const a=L.seaAnchor(pose,aspect,sx,sy,s.prop.height,h,P.buttons[s.role].heightM);
   return {role:s.role,prefab:P.buttons[s.role].prefab,label:P.buttons[s.role].label,position:a.point.map(v=>+v.toFixed(4)),yawDeg:+a.yawDeg.toFixed(2),scale:+a.scale.toFixed(4),onSea:a.onSea,slot:s};});
 const S=P.signpost;
+const WW=S.water,water={shadow:L.softEllipse(WW.centerX,WW.shadow.rx,WW.shadow.rz),ring:L.softRing(WW.centerX,WW.ripple.rx,WW.ripple.rz,WW.ripple.band),ripples:[L.rippleAt(0.9,0),L.rippleAt(0.9,1)]};
 const out={frame:{width:w,height:h},pose:{source:R.REGION_CAMERA.islandPoseSource,...R.islandPoseEntry()},
   signpost:{...S,screenBase:ndc(S.position),rectUi:L.signpostRectUi(pose,w,h),textCenterWorld:L.propCorners({position:S.position,yawDeg:S.yawDeg,scale:S.scale},S.text.center,S.text.center)[0]},
-  palms:P.palms.map(p=>({...p,screenBase:ndc(p.position)})),buttons};
+  water,palms:P.palms.map(p=>({...p,screenBase:ndc(p.position)})),buttons};
 console.log(JSON.stringify(out,null,1));
