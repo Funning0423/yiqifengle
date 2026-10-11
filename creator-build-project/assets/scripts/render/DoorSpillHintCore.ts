@@ -16,8 +16,8 @@ export const DOOR_SPILL = Object.freeze({
   centerX: 0,
   /** Lateral profile across a row (fraction of half-width -> alpha factor); soft edges. */
   columns: [[-1, 0], [-0.55, 1], [0.55, 1], [1, 0]] as ReadonlyArray<readonly [number, number]>,
-  /** Peak alpha by mode: brighter at night, fainter by day. */
-  peakAlpha: { day: 0.26, night: 0.55 },
+  /** Peak alpha by mode: brighter at night, fainter by day (night 0.55 -> 0.85 after Mac round 2: "visible but faint"). */
+  peakAlpha: { day: 0.26, night: 0.85 },
   /** Fade speed (alpha units of peak per second); 0 -> 1 in 0.4 s, never a pop. */
   fadePerSecond: 2.5,
 });

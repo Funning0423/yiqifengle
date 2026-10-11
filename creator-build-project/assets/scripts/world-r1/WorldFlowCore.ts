@@ -63,7 +63,9 @@ export interface WorldLease {
   /** options omitted = original linear keyed track. */
   /** progress (T2+, optional): track-timeline fraction 0..1 from a distance-travelled signal; null = use time. The lease
    *  keeps it monotone and ends on 1 with the job. */
-  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions,progress?:()=>number|null):Promise<void>;
+  animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions,progress?:()=>number|null,onSample?:(keyProgress:number)=>void):Promise<void>;
+  // onSample (T2+, optional): called after every written sample with the eased track progress (the key-progress space of
+  // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
   wait?(seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
@@ -107,6 +109,9 @@ export interface RouteConfig {
   /** T2: interior-light weight ramps on the exterior walks (walk progress). Omitted = old on/off switching. */
   interiorLighting?:Readonly<{crossOut?:WeightRamp;toIsland?:WeightRamp;toThreshold?:WeightRamp;crossIn?:WeightRamp}>;
   openDeg:number; speed:number;
+  /** T2+ wind strength channel on the outbound span: [span key progress, strength 0..1] keys, smoothstep between keys
+   *  (C1, no overshoot); evaluated at the camera track's eased progress, so it follows the camera (and distance). */
+  wind?:Readonly<{outbound?:ReadonlyArray<readonly [number,number]>}>;
   /** Shared walk-duration contract (FirstsliceRoutes.walkDuration); absent = pathDuration(path,speed). */
   walkDuration?:(path:readonly Vec[])=>number;
   /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
@@ -121,6 +126,14 @@ const NONE:Layers={interior:false,exterior:false,door:false,backdrop:false};
 export const layerStates={HOME,ISLAND,BOTH,NONE};
 export const distance=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 export function pathDuration(path:readonly Vec[],speed:number):number {return path.slice(1).reduce((sum,p,i)=>sum+distance(path[i],p),0)/speed;}
+/** Heading (yaw, +Z forward, atan2(dx,dz)) of a path at its start - toward the first point at least minDist (0.05 m, horizontal)
+ *  from path[0] - or, atEnd, at its end - from the last point at least minDist before the end. Tiny lead-in/out segments
+ *  (toThreshold's first segment is 3 mm and points backward) therefore never set a turn target. Falls back to the farthest point. */
+export const HEADING_MIN_DIST=0.05;
+export function pathHeading(path:readonly Vec[],atEnd=false,minDist=HEADING_MIN_DIST):number {
+  const n=path.length;if(n<2)return 0;const o=atEnd?path[n-1]:path[0];let best=o,bd=0;
+  for(let k=1;k<n;k++){const p=atEnd?path[n-1-k]:path[k],d=Math.hypot(p[0]-o[0],p[2]-o[2]);if(d>bd){bd=d;best=p;}if(d>=minDist){best=p;break;}}
+  return atEnd?Math.atan2(o[0]-best[0],o[2]-best[2]):Math.atan2(best[0]-o[0],best[2]-o[2]);}
 export function interpolate(a:Vec,b:Vec,t:number):Vec {return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
 /** Arclength interpolation, rather than equal-time interpolation of uneven source samples. */
 export function pointOnPath(path:readonly Vec[],t:number):Vec {
@@ -132,6 +145,12 @@ export function pointOnPath(path:readonly Vec[],t:number):Vec {
 /** T2+ span segment: `seconds` of the span clock, optional camera keys (0..1 progress within the segment, omitted =
  *  evenly spaced), and the character/lighting work that runs for that segment. */
 export type SpanSegment={seconds:number;walk?:boolean;cameras:readonly Pose[];run:(token:Cancellation)=>Promise<void>;state?:State};
+/** Pure (T2+ wind): strength at key progress p from [progress,value] keys; smoothstep between neighbours, clamped ends. */
+export function windAt(keys:ReadonlyArray<readonly [number,number]>,p:number):number {
+  const n=keys.length;if(!n)return 0;if(p<=keys[0][0])return keys[0][1];if(p>=keys[n-1][0])return keys[n-1][1];
+  for(let i=1;i<n;i++){const a=keys[i-1],b=keys[i];if(p<=b[0]){const u=b[0]>a[0]?(p-a[0])/(b[0]-a[0]):1,s=u*u*(3-2*u);return a[1]+(b[1]-a[1])*s;}}
+  return keys[n-1][1];
+}
 /** Pure: re-time per-segment keys onto one 0..1 span track; a key at the same instant as the previous one is dropped. */
 export function spanCameraKeys(segments:readonly {seconds:number;cameras:readonly Pose[]}[]):Pose[] {
   const total=segments.reduce((a,x)=>a+x.seconds,0);if(!(total>0))throw Error('Empty camera span');
@@ -156,6 +175,14 @@ export class WorldFlow {
   private readonly levels:LevelAdapter; private readonly loadWorld:(token:Cancellation)=>Promise<WorldLease>;
   private readonly emit:(snapshot:Snapshot)=>void;
   private readonly cameraListeners=new Set<(event:CameraEvent)=>void>();
+  private wind=0;private readonly windListeners=new Set<(strength:number)=>void>();
+  /** T2+ wind strength 0..1 (per-frame getter; Voice bot + 角色动画bot). 0 indoors and whenever the flow is stable (island
+   *  idle, home, levels, paused): restore() forces 0. Rises during the outbound frontal swing, 1 exactly at the frontal key. */
+  getWindStrength():number {return this.wind;}
+  /** T2+: subscribe to wind-strength changes (fired only when the value changes); returns unsubscribe. */
+  onWindStrength(listener:(strength:number)=>void):()=>void {this.windListeners.add(listener);return ()=>{this.windListeners.delete(listener);};}
+  private setWind(v:number):void {const w=v>0?Math.min(1,v):0;if(w===this.wind)return;this.wind=w;
+    Array.from(this.windListeners).forEach(fn=>{try{fn(w);}catch(error){console.warn('wind listener failed',String(error));}});}
   /** T2+: subscribe to camera events; returns unsubscribe. Listener errors are contained. */
   onCameraEvent(listener:(event:CameraEvent)=>void):()=>void {this.cameraListeners.add(listener);return ()=>{this.cameraListeners.delete(listener);};}
   private cameraEvent(event:CameraEvent):void {for(const fn of Array.from(this.cameraListeners)){try{fn(event);}catch(error){console.warn('camera event listener failed',String(error));}}}
@@ -174,6 +201,7 @@ export class WorldFlow {
   }
   private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
   private restore():void {
+    this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.config.openDeg);
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
@@ -248,14 +276,15 @@ export class WorldFlow {
   /** T2+: ONE camera track over consecutive timed segments (walks, stand/turn, holds). Each segment's keys carry their
    *  own 0..1 progress; they are re-timed onto the span clock and a key at the same instant as the previous one is
    *  dropped (shared junction key). Characters/lighting run segment by segment on the same job clock. */
-  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number}):Promise<void> {
+  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>):Promise<void> {
     const keys=spanCameraKeys(segments),total=segments.reduce((a,x)=>a+x.seconds,0);
     let camera:Promise<void>=Promise.resolve();
     // Camera progress follows the character's travelled distance inside walk segments (keys are placed by path progress),
     // time elsewhere (stand/turn/hold) and whenever the adapter reports nothing.
     const cur={start:0,seconds:0,walk:false};
     const byDistance=()=>{if(!cur.walk||!(total>0))return null;const f=this.walkFraction();return f===null?null:(cur.start+f*cur.seconds)/total;};
-    if(this.mode==='motion'){camera=this.world!.animateCamera(keys,total,token,track,byDistance);
+    const onSample=wind&&wind.length?(e:number)=>{if(!token.cancelled)this.setWind(windAt(wind,e));}:undefined;
+    if(this.mode==='motion'){camera=onSample?this.world!.animateCamera(keys,total,token,track,byDistance,onSample):this.world!.animateCamera(keys,total,token,track,byDistance);
       if(mark&&mark.seconds>=0&&mark.seconds<=total&&this.world!.wait){const seconds=mark.seconds;
         this.world!.wait(seconds,token).then(()=>{if(!token.cancelled)this.cameraEvent({kind:'crane-start',segment:'toIsland',progress:mark.progress,seconds});},()=>{});}}
     else this.world!.setCamera(keys[keys.length-1]);
@@ -278,7 +307,7 @@ export class WorldFlow {
   async leaveHome(options?:{from?:Pose}):Promise<Result> {
     const fail=this.blocked('home',true);if(fail)return fail;
     return this.operate('standing',async t=>{
-      const c=this.config,turn:Action={kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:Math.atan2(c.toDoor[1][0]-c.toDoor[0][0],c.toDoor[1][2]-c.toDoor[0][2]),direction:'left'};
+      const c=this.config,turn:Action={kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:pathHeading(c.toDoor),direction:'left'};
       if(this.mode==='motion'&&c.cameraStandTurn&&c.cameraTracks?.standTurn){
         const stand=this.character?.actionSeconds?.('stand'),standS=stand&&stand>0&&Number.isFinite(stand)?stand:1.0,turnS=this.turnSeconds();
         const from=options?.from,lead=from?rejoinSeconds(from,c.cameraHome):0,segs:SpanSegment[]=[];
@@ -295,15 +324,15 @@ export class WorldFlow {
       this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);this.change('crossing-out');
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
-        const end=c.toIsland[c.toIsland.length-1],prev=c.toIsland[c.toIsland.length-2]??end,settle=c.crane?.settleSeconds??0;
+        const end=c.toIsland[c.toIsland.length-1],settle=c.crane?.settleSeconds??0;
         const segs:SpanSegment[]=[this.walkSegment(c.outCrossing,crossOut),this.walkSegment(c.toIsland,settle>0?toIsland.slice(0,-1):toIsland)];
-        if(settle>0){const fromYaw=Math.atan2(end[0]-prev[0],end[2]-prev[2]),toYaw=c.islandYawRad??0,turnS=this.turnSeconds();
+        if(settle>0){const fromYaw=pathHeading(c.toIsland,true),toYaw=c.islandYawRad??0,turnS=this.turnSeconds();
           const turnNeeded=Math.abs(Math.atan2(Math.sin(toYaw-fromYaw),Math.cos(toYaw-fromYaw)))>.01&&turnS<=settle;
           segs.push({seconds:settle,cameras:[{...toIsland[toIsland.length-1],progress:1}],run:async tk=>{
             if(turnNeeded){await this.action({kind:'turn',controllerRoot:end,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk);await this.waitSeconds(settle-turnS,tk);}
             else await this.waitSeconds(settle,tk);}});}
         const cs=c.crane?.startSeconds;
-        await this.span(segs,t,c.cameraTracks.outbound,c.crane&&cs!==undefined?{name:'crane-start',progress:c.crane.startProgress,seconds:cs}:undefined);
+        await this.span(segs,t,c.cameraTracks.outbound,c.crane&&cs!==undefined?{name:'crane-start',progress:c.crane.startProgress,seconds:cs}:undefined,c.wind?.outbound);
       }
       else{await this.walk(c.outCrossing,crossOut,t);await this.walk(c.toIsland,toIsland,t);}
       // Weight is already 0 here and the camera is exactly cameraIsland with zero speed: restore() changes nothing visible.
@@ -347,7 +376,7 @@ export class WorldFlow {
       if(c.cameraTracks?.inbound){
         // T2+: she first turns from islandYaw onto the path (the original snapped ~160 deg on the first walk frame);
         // the crane-down starts with the turn, so camera and girl start together.
-        const a=c.toThreshold[0],b=c.toThreshold.find(p=>Math.hypot(p[0]-a[0],p[2]-a[2])>1e-6)??a,fromYaw=c.islandYawRad??0,toYaw=Math.atan2(b[0]-a[0],b[2]-a[2]),turnS=this.turnSeconds();
+        const a=c.toThreshold[0],fromYaw=c.islandYawRad??0,toYaw=pathHeading(c.toThreshold),turnS=this.turnSeconds();
         const segs:SpanSegment[]=[];let walkKeys=toThreshold;const lead=c.crane?.returnLeadSeconds??0;
         if(lead>0){segs.push({seconds:lead,cameras:[{...toThreshold[0],progress:0}],run:tk=>this.waitSeconds(lead,tk)});walkKeys=toThreshold.slice(1);}
         if(c.crane&&Math.abs(Math.atan2(Math.sin(toYaw-fromYaw),Math.cos(toYaw-fromYaw)))>.01){
@@ -389,7 +418,7 @@ export class WorldFlow {
     if(this.state==='disposed')return;this.error=message;this.needsResume=true;this.invalidate();this.level?.hide();this.visit?.hide();this.character?.setVisible(false);this.world?.setLayers(NONE);this.change('error');
   }
   dispose():void {
-    if(this.state==='disposed')return;this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
+    if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
     this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
   }
 }

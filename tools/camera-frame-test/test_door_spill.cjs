@@ -56,7 +56,7 @@ function pngPixel(png,x,y){// minimal 8-bit RGB/RGBA non-interlaced PNG decoder
     let lateOn=0;{let since=-1,shown2=0;for(const f of F){const L=f.layers||{};if(!L.interior)shown2=0;shown2=core.stepSpill(shown2,core.spillTarget({interior:!!L.interior,exterior:!!L.exterior,night}),dt);since=L.exterior?(since<0?0:since+dt):-1;if(since>1/D.fadePerSecond+dt&&shown2>0)lateOn++;}}
     const r={night,maxAlphaStepPerFrame:+maxStep.toFixed(4),limit:+(D.fadePerSecond*dt*core.spillPeak(night)+1e-6).toFixed(4),leakFrames:leak.slice(0,5),framesWithExterior:outside,onAfterDoorOpenFrames:lateOn,homeAlpha:homeA.length?+homeA[homeA.length-1].toFixed(3):null};
     check('layers-'+(night?'night':'day'),!leak.length&&!lateOn&&maxStep<=D.fadePerSecond*dt*core.spillPeak(night)+1e-9&&r.homeAlpha===+core.spillPeak(night).toFixed(3),r);}
-  check('night-brighter-than-day',D.peakAlpha.night>D.peakAlpha.day&&D.peakAlpha.day>0&&D.peakAlpha.night<=.6,D.peakAlpha);
+  check('night-brighter-than-day',D.peakAlpha.night>D.peakAlpha.day&&D.peakAlpha.day>0&&D.peakAlpha.night<=.9,D.peakAlpha);
   // 5. wiring in the real component (sim does not run cc)
   const comp=fs.readFileSync(path.join(scripts,'world-r1/WorldFlowComponent.ts'),'utf8'),wrap=fs.readFileSync(path.join(scripts,'render/DoorSpillHint.ts'),'utf8');
   const applyDN=(comp.match(/private applyDayNight\(\):void \{[\s\S]*?\n  \}/)||[''])[0];

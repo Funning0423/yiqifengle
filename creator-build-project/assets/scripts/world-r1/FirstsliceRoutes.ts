@@ -131,6 +131,13 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       cameraToSeat:[{...insideReturn,progress:0},key('S1',toSeat,.14),key('S2',toSeat,.28),key('S3',toSeat,.42),key('S4',toSeat,.57),key('S5',toSeat,.71),key('S6',toSeat,.86),{...cameraHome,progress:1}],
       cameraTracks:TRANSITION_CAMERA.tracks as RouteConfig['cameraTracks'],
       interiorLighting:TRANSITION_CAMERA.lighting,
+      // T2+ wind channel: keys in outbound-span key progress (crossing-out walk + toIsland walk + settle, all from walkDuration).
+      ...(railOn&&T.windOut?{wind:{outbound:(()=>{const W=T.windOut,a=walkS(outCrossing),b=walkS(toIsland),tot=a+b+T.crane.settleSeconds;
+        const f=T.railOut.filter(k=>k.frontal);if(f.length!==1)throw Error('railOut needs exactly one frontal key');
+        const fp=f[0].progress,he=T.crane.startProgress;if(!(W.swingStart<fp&&fp<he))throw Error('wind: swingStart < frontal < crane.startProgress');
+        const out=(q:number)=>q*a/tot,isl=(p:number)=>(a+p*b)/tot;
+        const keys:Array<readonly [number,number]>=[[0,0],[out(W.doorProgress),W.base],[isl(W.swingStart),W.base],[isl(fp),1],[isl(he),1],[1,0]];
+        for(let i=1;i<keys.length;i++)if(!(keys[i][0]>keys[i-1][0]))throw Error('wind keys must increase');return keys;})()}}:{}),
     };
   })():null;
 
