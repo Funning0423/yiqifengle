@@ -85,6 +85,12 @@ export const LOOP_XFADE_S = 0.15;
 export const SCENE_XFADE_S = 1.5;
 /** 交叉要在真正的尾巴之前做完：再留两帧余量（update 按帧检查） */
 const LOOP_SAFETY_S = 0.03;
+// 出门大风时 BGM 让一点（WindAudio 每帧调 setWindDuck(平滑后的风力 s)）：-4 dB x smoothstep(0.2, 1.0, s)，再按 0.5 s 时间常数平滑。
+// 峰值余量见 docs/audio-events.md（风 + 海浪 + 拍打 + 近处海鸥 + BGM 循环交叉）。
+const WIND_DUCK_DB = -4;
+const WIND_DUCK_TAU_S = 0.5;
+const WIND_DUCK_FROM = 0.2;
+const WIND_DUCK_TO = 1.0;
 /** currentTime 在小游戏里可能按 ~250 ms 更新；外推最多超前这么多 */
 const POS_EXTRAPOLATE_MAX_S = 0.35;
 
@@ -133,6 +139,9 @@ export class GameAudio extends Component {
   /** currentTime 外推基准 */
   private posCt = NaN;
   private posAt = 0;
+  private windDuckTarget = 0;   // 0..1（smoothstep 后）
+  private windDuck = 0;         // 平滑后的 0..1
+  private windDuckAt = -1;      // 上次平滑的 GameAudio.now()（ms）
   private musicGeneration = 0;
   private musicVolume = 0.4;
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
@@ -579,9 +588,23 @@ export class GameAudio extends Component {
   private static eqOut(t: number) { return Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
   private sceneT() { return this.sceneFadeAt === null ? 0 : (GameAudio.now() - this.sceneFadeAt) / (SCENE_XFADE_S * 1000); }
   private loopT() { return this.loopXfadeAt === null ? 0 : (GameAudio.now() - this.loopXfadeAt) / (LOOP_XFADE_S * 1000); }
-  /** All music gains in one place: musicVolume x scene fade-in x loop crossfade. */
+  /** WindAudio, every frame: smoothed wind strength s (0..1; 0 when wind is silent / not allowed). Ducks the BGM up to WIND_DUCK_DB. */
+  setWindDuck(s: number) {
+    const x = Number.isFinite(s) ? Math.max(0, Math.min(1, s)) : 0;
+    const u = Math.max(0, Math.min(1, (x - WIND_DUCK_FROM) / (WIND_DUCK_TO - WIND_DUCK_FROM)));
+    this.windDuckTarget = u * u * (3 - 2 * u);
+  }
+  /** Current BGM gain from the wind duck (1 = none). */
+  windDuckGain() { return Math.pow(10, WIND_DUCK_DB * this.windDuck / 20); }
+  private tickWindDuck() {
+    const now = GameAudio.now(), dt = this.windDuckAt < 0 ? 0 : Math.max(0, Math.min(0.25, (now - this.windDuckAt) / 1000));
+    this.windDuckAt = now;
+    this.windDuck += (this.windDuckTarget - this.windDuck) * (1 - Math.exp(-dt / WIND_DUCK_TAU_S));
+    if (Math.abs(this.windDuck - this.windDuckTarget) < 1e-4) this.windDuck = this.windDuckTarget;
+  }
+  /** All music gains in one place: musicVolume x wind duck x scene fade-in x loop crossfade. */
   private applyMusicGains() {
-    const v = this.musicVolume;
+    const v = this.musicVolume * this.windDuckGain();
     const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
     const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
     const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
@@ -640,6 +663,7 @@ export class GameAudio extends Component {
     if (this.sceneFadeAt !== null && this.sceneT() >= 1) { this.retireFadeOut(); this.sceneFadeIn = false; }
     else if (this.sceneFadeIn && !this.fadeOutSource && this.sceneFadeAt === null && this.loopSource.playing) this.sceneFadeAt = GameAudio.now();
     this.tickLoopCrossfade();
+    this.tickWindDuck();
     this.applyMusicGains();
   }
   private tickLoopCrossfade() {
@@ -689,6 +713,7 @@ export class GameAudio extends Component {
       playbackRetryAfterMs: this.loopNeedsReplacement ? Math.max(0, this.loopNextReplacementAt - GameAudio.now()) : 0,
       loopCrossfade: { partner: !!this.loopPartner, fading: this.loopXfadeAt !== null, completed: this.loopXfades,
         paddingS: MP3_PADDING_S, xfadeS: LOOP_XFADE_S },
+      windDuck: { target: +this.windDuckTarget.toFixed(3), value: +this.windDuck.toFixed(3), gain: +this.windDuckGain().toFixed(3), maxDb: WIND_DUCK_DB },
       sceneCrossfade: { fadingOut: !!this.fadeOutSource, started: this.sceneFadeAt !== null, fadeIn: this.sceneFadeIn, xfadeS: SCENE_XFADE_S },
       audibleVerified: false };
   }

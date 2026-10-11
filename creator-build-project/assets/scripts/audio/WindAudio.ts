@@ -110,7 +110,7 @@ export class WindAudio extends Component {
     for (const p in this.clips) { const c = this.clips[p]; if (c) c.decRef(); }
     this.clips = {}; this.flow = null; this.boot = null;
     if (owner) {
-      WindAudio.instance = null; AmbienceAudio.setWindExit(0);
+      WindAudio.instance = null; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
       const g = (globalThis as any).__voiceWind; if (g) delete (globalThis as any).__voiceWind;
     }
   }
@@ -118,6 +118,11 @@ export class WindAudio extends Component {
   snapshot() {
     return { s: this.s, soft: this.softSrc ? this.softSrc.volume : 0, strong: this.strongSrc ? this.strongSrc.volume : 0,
       softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length };
+  }
+
+  /** GameAudio.setWindDuck if present (older GameAudio / test stubs: no-op) */
+  private static duckBgm(s: number) {
+    const a: any = GameAudio.instance; if (a && typeof a.setWindDuck === 'function') { try { a.setWindDuck(s); } catch { /* optional */ } }
   }
 
   onApronLift(strength: ApronLiftStrength, durationSec?: number) {
@@ -230,7 +235,7 @@ export class WindAudio extends Component {
     const g = this.gustValue(dt);
     const allowed = this.allowed();
     if (!allowed) {
-      this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); this.quietFor = IDLE_PAUSE_S;
+      this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
       this.pauseLoops();
       return;
     }
@@ -242,6 +247,7 @@ export class WindAudio extends Component {
     this.sWind += (wind - this.sWind) * k;
     if (this.sWind < 1e-4 && wind === 0) this.sWind = 0;
     AmbienceAudio.setWindExit(this.sWind);
+    WindAudio.duckBgm(this.s);   // BGM 让风：GameAudio 里 -4 dB x smoothstep(0.2, 1, s)，0.5 s 平滑
     const sv = softGain(this.s) * WIND_MAX_VOL, st = strongGain(this.s) * WIND_MAX_VOL;
     if (sv < ON_GAIN && st < ON_GAIN) {
       this.quietFor += dt;

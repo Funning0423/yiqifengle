@@ -16,3 +16,4 @@
 - 静音 / 切后台 / 来电 / 音量 0 / `setMusic(null)` / 销毁：额外声源立即停掉，只留 `loopSource`。
 - `audio/SceneMusic.ts` 每 0.25 s 只读轮询 WorldFlow 快照和棋盘 `hostPresentation()`，映射见 `sceneTrackFor()`；场景曲加载失败时这次回落到小岛 BGM。
 - 测试：`node tools/voice-bot/bgm/test_scene_bgm.cjs`。
+- 风力让路：WindAudio 每帧调用 `GameAudio.setWindDuck(s)`，BGM 降 -4 dB × smoothstep(0.2, 1, s)，0.5 s 平滑；乘在 musicVolume 上。数字见 docs/audio-events.md 的“峰值余量”一节。

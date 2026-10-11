@@ -34,7 +34,8 @@ export const EXIT_AUDIO = {
   ],
   nearDelayS: 0.4, nearClip: 'sfx_amb_gull_1' as SfxName, nearVol: 0.5, nearMaxLateS: 4,   // onApronLift('full') 之后的近处海鸥
   craneDelayS: 1.5, craneClip: 'sfx_amb_gull_1' as SfxName, craneVol: GULL_VOL, craneMaxLateS: 0,
-  gullMinGapS: 2.5,             // 任意两声海鸥最小间隔（素材带 ~1 s 尾巴）；太近就按 maxLateS 顺延或丢掉
+  gullMinGapS: 2.5,             // 同距离（near-near / far-far）两声海鸥最小间隔（素材带 ~1 s 尾巴）；太近就按 maxLateS 顺延或丢掉
+  gullCrossGapS: 1.2,           // near 和 far 之间只要 1.2 s（远近两声叠一点听得清）；出门近处那声因此能落在拍打后 0.4 s
 };
 const SMOOTH_PER_S = 4;          // 一阶平滑，避免 w 有台阶时音量跳
 const REFIND_S = 1;              // 没找到 WorldFlowComponent 时每秒再找一次
@@ -83,10 +84,11 @@ export function gullPan(yawWorldDeg: number, camYawDeg: number | null): number {
   if (camYawDeg === null || !Number.isFinite(camYawDeg) || !Number.isFinite(yawWorldDeg)) return 0;
   return GULL_EVENTS.panDepth * Math.sin((camYawDeg - yawWorldDeg) * Math.PI / 180);
 }
-/** 等功率 L/R 增益（中间时两边都是 1，和原来单声道居中一样响） */
+/** L/R 增益：等功率曲线按较响的一边归一化——响的一边始终是 1（居中时两边都是 1，和原来单声道居中一样响），
+ *  只把另一边压低，所以声像不会把任何一边推到 vol 以上（峰值余量，见 docs/audio-events.md）。pan 0.5 时 1 / 0.414。 */
 export function panGains(pan: number): { l: number; r: number } {
-  const p = Math.max(-1, Math.min(1, pan)), th = (p + 1) * Math.PI / 4;
-  return { l: Math.SQRT2 * Math.cos(th), r: Math.SQRT2 * Math.sin(th) };
+  const p = Math.max(-1, Math.min(1, pan)), th = (p + 1) * Math.PI / 4, c = Math.cos(th), s = Math.sin(th), m = Math.max(c, s);
+  return { l: c / m, r: s / m };
 }
 /** 近处海鸥方位：镜头朝向 ±60° 内；镜头在转（|rate| > 4°/s）时放在转向那一侧。镜头未知时任意方位。 */
 export function nearGullYaw(camYawDeg: number | null, camRateDegS: number, rnd: () => number): number {
@@ -98,11 +100,29 @@ export function nearGullYaw(camYawDeg: number | null, camRateDegS: number, rnd: 
   }
   return wrap360(camYawDeg + (rnd() * 2 - 1) * G.nearYawSpreadDeg);
 }
-/** 最早可用的开始时间：离 taken 里每个时间都 >= gap；比 due 晚超过 maxLate 返回 -1 */
-export function findGullSlot(due: number, maxLate: number, taken: number[], gap: number): number {
-  const ts = taken.slice().sort((a, b) => a - b); let t = due;
-  for (let i = 0; i < ts.length; i++) if (t > ts[i] - gap + 1e-9 && t < ts[i] + gap - 1e-9) t = ts[i] + gap;
+export interface GullSlotEntry { at: number; dist: GullDist | null }
+/** 两声之间要隔多久：同距离（或距离未知）same，远近不同 cross */
+export function gullGap(a: GullDist | null, b: GullDist | null, same: number, cross: number): number { return a === null || b === null || a === b ? same : cross; }
+/** 最早可用的开始时间：离 taken 里每一声都满足 gullGap；比 due 晚超过 maxLate 返回 -1。taken 可以直接给数字（距离未知 = same）。 */
+export function findGullSlot(due: number, maxLate: number, taken: (number | GullSlotEntry)[], same: number, dist: GullDist | null = null, cross = same): number {
+  const es: GullSlotEntry[] = []; for (let i = 0; i < taken.length; i++) { const x = taken[i]; es.push(typeof x === 'number' ? { at: x, dist: null } : x); }
+  es.sort((a, b) => a.at - b.at); let t = due;
+  for (let pass = 0; pass < 8; pass++) {
+    let moved = false;
+    for (let i = 0; i < es.length; i++) { const g = gullGap(es[i].dist, dist, same, cross); if (t > es[i].at - g + 1e-9 && t < es[i].at + g - 1e-9) { t = es[i].at + g; moved = true; } }
+    if (!moved) break;
+  }
   return t - due <= maxLate + 1e-9 ? t : -1;
+}
+/** 随机海鸥素材的洗牌袋：每轮三个素材各一次、顺序随机，新一轮第一个不等于上一个（绝不连续重复；6 声里每个正好 2 次） */
+export function nextFromBag(bag: SfxName[], all: SfxName[], last: SfxName | null, rnd: () => number): SfxName {
+  if (!bag.length) {
+    const b = all.slice();
+    for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)) % (i + 1); const x = b[i]; b[i] = b[j]; b[j] = x; }
+    if (b.length > 1 && b[b.length - 1] === last) { const x = b[0]; b[0] = b[b.length - 1]; b[b.length - 1] = x; }
+    for (let i = 0; i < b.length; i++) bag.push(b[i]);
+  }
+  return bag.pop() as SfxName;
 }
 /** 夜间随机海鸥：频率倍数、音量倍数（w: 0 白天 .. 1 夜里） */
 export function nightGullScale(w: number): { rate: number; vol: number } {
@@ -111,7 +131,8 @@ export function nightGullScale(w: number): { rate: number; vol: number } {
 }
 
 interface GullCall { id: number; kind: GullKind; at: number; dist: GullDist; yawWorldDeg: number; distM: number; durS: number; clip: SfxName; vol: number; minWind: number; distantIdx: number }
-interface GullVoice { l: AudioSource; r: AudioSource; call: GullCall | null; end: number }
+interface GullVoice { l: AudioSource; r: AudioSource; call: GullCall | null; end: number; fadeAt: number }
+const YIELD_FADE_S = 0.25;   // 让路的远处海鸥 0.25 s 淡出
 
 @ccclass('AmbienceAudio')
 export class AmbienceAudio extends Component {
@@ -125,6 +146,9 @@ export class AmbienceAudio extends Component {
   private craneHooked: any = null;   // 已订阅 onCraneStart 的 flow
   private clock = 0;                 // 本组件自己的秒表（update 累加）= 海鸥事件的 game time
   private lastGullAt = -1e9;         // 上一声实际开始的时间
+  private lastGullDist: GullDist | null = null;
+  private recent: { at: number; dist: GullDist; c: GullCall }[] = [];   // 最近开始的几声（算间隔、让路用）
+  private bag: SfxName[] = []; private lastRandomClip: SfxName | null = null;
   private pending: GullCall[] = [];  // 已 'scheduled'、还没 'start' 的海鸥
   private distantDone: boolean[] = [];
   private exitActive = false;
@@ -263,13 +287,34 @@ export class AmbienceAudio extends Component {
     }
   }
 
-  private takenTimes(): number[] {
-    const t = [this.lastGullAt]; for (let i = 0; i < this.pending.length; i++) t.push(this.pending[i].at); return t;
+  private taken(): GullSlotEntry[] {
+    const t: GullSlotEntry[] = []; let hasLast = false;
+    for (let i = 0; i < this.recent.length; i++) { t.push({ at: this.recent[i].at, dist: this.recent[i].dist }); if (this.recent[i].at === this.lastGullAt) hasLast = true; }
+    if (!hasLast) t.push({ at: this.lastGullAt, dist: this.lastGullDist });   // 测试 / 诊断直接设的 lastGullAt：距离未知按同距离
+    for (let i = 0; i < this.pending.length; i++) t.push({ at: this.pending[i].at, dist: this.pending[i].dist });
+    return t;
+  }
+  private gapTo(a: GullDist | null, b: GullDist | null) { return gullGap(a, b, EXIT_AUDIO.gullMinGapS, EXIT_AUDIO.gullCrossGapS); }
+  /** 出门近处海鸥优先：和它冲突的远处 / 随机海鸥让路——还没开始的取消，已经开始的淡出并发 'cancelled' */
+  private yieldTo(due: number) {
+    const list = this.pending.slice();
+    for (let i = 0; i < list.length; i++) { const p = list[i]; if ((p.kind === 'distant' || p.kind === 'random') && Math.abs(p.at - due) < this.gapTo(p.dist, 'near') - 1e-9) this.cancelGull(p); }
+    for (let i = this.recent.length - 1; i >= 0; i--) {
+      const r = this.recent[i]; if (r.c.kind !== 'distant' && r.c.kind !== 'random') continue;
+      if (due - r.at >= this.gapTo(r.dist, 'near') - 1e-9) continue;
+      let v: GullVoice | null = null; for (let k = 0; k < this.voices.length; k++) if (this.voices[k].call === r.c) v = this.voices[k];
+      if (!v) continue;                                  // 居中兜底播放（GameAudio.play）停不了：近处那声按间隔顺延
+      if (v.fadeAt < 0) v.fadeAt = this.clock;
+      this.recent.splice(i, 1);
+      if (this.lastGullAt === r.at) { this.lastGullAt = -1e9; this.lastGullDist = null; for (let k = 0; k < this.recent.length; k++) if (this.recent[k].at > this.lastGullAt) { this.lastGullAt = this.recent[k].at; this.lastGullDist = this.recent[k].dist; } }
+      this.emit(r.c, 'cancelled');
+    }
   }
 
   /** 决定一声海鸥：找满足最小间隔的时间（最多晚 maxLate），选好方位，发 'scheduled'。放不下返回 null（不发事件）。 */
   private planGull(kind: GullKind, dist: GullDist, due: number, clip: SfxName, vol: number, maxLate: number, yaw?: number, minWind = -1, distantIdx = -1): GullCall | null {
-    const at = findGullSlot(due, maxLate, this.takenTimes(), EXIT_AUDIO.gullMinGapS);
+    if (kind === 'near') this.yieldTo(due);
+    const at = findGullSlot(due, maxLate, this.taken(), EXIT_AUDIO.gullMinGapS, dist, EXIT_AUDIO.gullCrossGapS);
     if (at < 0) return null;
     const G = GULL_EVENTS, rnd = AmbienceAudio.rnd, range = dist === 'near' ? G.nearDistM : G.farDistM;
     const yawW = yaw !== undefined ? wrap360(yaw) : dist === 'near' ? nearGullYaw(this.camYaw, this.camRate, rnd) : wrap360(rnd() * 360);
@@ -292,7 +337,6 @@ export class AmbienceAudio extends Component {
     const y = Number(yawWorldDeg); if (!Number.isFinite(y)) return null;
     const audio = GameAudio.instance;
     if (!audio || !audio.canPlayAmbience() || !(this.lastOutdoor > 0.5 || (this.lastOutdoor >= 0 && AmbienceAudio.windExit >= EXIT_AUDIO.exitOn))) return null;
-    if (this.clock - this.lastGullAt < EXIT_AUDIO.gullMinGapS - 1e-9) return null;
     const E = EXIT_AUDIO, d = E.distant[Math.floor(AmbienceAudio.rnd() * E.distant.length) % E.distant.length];
     const c = this.planGull('request', dist, this.clock, dist === 'near' ? E.nearClip : d.clip, dist === 'near' ? E.nearVol : d.vol, 0, y);
     if (!c) return null;
@@ -302,18 +346,19 @@ export class AmbienceAudio extends Component {
 
   private startCall(audio: GameAudio, c: GullCall) {
     const i = this.pending.indexOf(c); if (i >= 0) this.pending.splice(i, 1);
-    c.at = this.clock; this.lastGullAt = this.clock; this.gullIn = this.nextGull();
+    c.at = this.clock; this.lastGullAt = this.clock; this.lastGullDist = c.dist; this.gullIn = this.nextGull();
+    this.recent.push({ at: c.at, dist: c.dist, c }); if (this.recent.length > 4) this.recent.shift();
     this.emit(c, 'start');
     const L = this.lrClips[c.clip + '_L'], R = this.lrClips[c.clip + '_R'];
     if (!L || !R) { audio.play(c.clip, c.vol); return; }   // 没有 L/R 版本：居中
     let v: GullVoice | null = null;
     for (let k = 0; k < this.voices.length; k++) if (!this.voices[k].call) { v = this.voices[k]; break; }
-    if (!v && this.voices.length < 2) {
+    if (!v && this.voices.length < 3) {   // near 0 s, far 1.2 s, near 2.5 s can overlap (3.4 s clips)
       const mk = () => { const s = this.node.addComponent(AudioSource); s.playOnAwake = false; s.loop = false; s.volume = 0; return s; };
-      v = { l: mk(), r: mk(), call: null, end: 0 }; this.voices.push(v);
+      v = { l: mk(), r: mk(), call: null, end: 0, fadeAt: -1 }; this.voices.push(v);
     }
     if (!v) { v = this.voices[0]; for (let k = 1; k < this.voices.length; k++) if (this.voices[k].end < v.end) v = this.voices[k]; this.stopVoice(v); }
-    v.call = c; v.end = this.clock + c.durS + 0.1;
+    v.call = c; v.end = this.clock + c.durS + 0.1; v.fadeAt = -1;
     try { v.l.stop(); v.r.stop(); } catch { /* ignore */ }
     v.l.clip = L; v.r.clip = R; this.applyPan(v);
     try { v.l.play(); v.r.play(); } catch (e) { console.warn('[AmbienceAudio] gull play failed', e); this.stopVoice(v); }
@@ -322,11 +367,12 @@ export class AmbienceAudio extends Component {
   private applyPan(v: GullVoice) {
     if (!v.call) return;
     const g = panGains(gullPan(v.call.yawWorldDeg, this.camYaw));
-    v.l.volume = Math.min(1, v.call.vol * g.l); v.r.volume = Math.min(1, v.call.vol * g.r);
+    const f = v.fadeAt < 0 ? 1 : Math.max(0, 1 - (this.clock - v.fadeAt) / YIELD_FADE_S);
+    v.l.volume = Math.min(1, v.call.vol * g.l * f); v.r.volume = Math.min(1, v.call.vol * g.r * f);
   }
 
   private stopVoice(v: GullVoice) {
-    v.call = null; v.end = 0;
+    v.call = null; v.end = 0; v.fadeAt = -1;
     try { v.l.stop(); v.r.stop(); } catch { /* ignore */ }
   }
 
@@ -399,7 +445,7 @@ export class AmbienceAudio extends Component {
       this.gullIn -= dt * night.rate;
       let hasRandom = false; for (let i = 0; i < this.pending.length; i++) if (this.pending[i].kind === 'random') hasRandom = true;
       if (!hasRandom && this.gullIn / night.rate <= G.randomLeadS) {
-        const clip = GULLS[Math.floor(AmbienceAudio.rnd() * GULLS.length) % GULLS.length];
+        const clip = nextFromBag(this.bag, GULLS, this.lastRandomClip, AmbienceAudio.rnd); this.lastRandomClip = clip;
         const c = this.planGull('random', RANDOM_DIST[clip], this.clock + Math.max(0, this.gullIn / night.rate), clip, +(GULL_VOL * night.vol).toFixed(4), 30);
         if (!c) this.gullIn = E.gullMinGapS;
       }
@@ -407,7 +453,7 @@ export class AmbienceAudio extends Component {
     // 声像：每帧按当前镜头朝向重算；到时间的声源收回；不能出声时立即停
     for (let i = 0; i < this.voices.length; i++) {
       const v = this.voices[i]; if (!v.call) continue;
-      if (!canSound || this.clock >= v.end) this.stopVoice(v); else this.applyPan(v);
+      if (!canSound || this.clock >= v.end || (v.fadeAt >= 0 && this.clock - v.fadeAt >= YIELD_FADE_S)) this.stopVoice(v); else this.applyPan(v);
     }
   }
 }

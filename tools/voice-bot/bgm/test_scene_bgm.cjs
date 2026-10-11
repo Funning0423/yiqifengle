@@ -81,6 +81,17 @@ const unlock = w => w.input.emit('touch');
 }
 
 // ---------- 2. crossfade looping ----------
+// ---------- wind duck (item 5 headroom): -4 dB x smoothstep(0.2, 1, s), 0.5 s smoothing, on top of musicVolume ----------
+{ const w = world(); w.ready('main', 80); unlock(w); w.step(0.1); const a = w.a, v0 = a.loopSource.volume;
+  ok(near(v0, 0.4, 1e-6) && a.musicDiagnostics().windDuck.gain === 1, 'no wind: BGM at musicVolume 0.4, duck gain 1', a.musicDiagnostics().windDuck);
+  a.setWindDuck(1); w.step(0.5); const g05 = a.loopSource.volume / 0.4, exp05 = Math.pow(10, -4 * (1 - Math.exp(-1)) / 20);
+  ok(near(g05, exp05, 0.01), 'wind 1: after 0.5 s the duck is 1-1/e of the way (tau 0.5 s)', { g05: +g05.toFixed(4), exp05: +exp05.toFixed(4) });
+  w.step(3); ok(near(a.loopSource.volume, 0.4 * Math.pow(10, -4 / 20), 1e-3), 'wind 1 held: BGM -4 dB (0.4 -> 0.252)', a.loopSource.volume);
+  a.setWindDuck(0.2); w.step(4); ok(near(a.loopSource.volume, 0.4, 1e-3), 'wind <= 0.2: no duck (back to 0.4)', a.loopSource.volume);
+  a.setWindDuck(0.6); w.step(4); ok(near(a.loopSource.volume, 0.4 * Math.pow(10, -2 / 20), 1e-3), 'wind 0.6: smoothstep 0.5 -> -2 dB', a.loopSource.volume);
+  a.setWindDuck(NaN); w.step(4); ok(near(a.loopSource.volume, 0.4, 1e-3), 'NaN -> treated as 0');
+  a.setMusicVolume && a.setMusicVolume(0.8); a.setWindDuck(1); w.step(4); if (a.setMusicVolume) ok(near(a.loopSource.volume, 0.8 * Math.pow(10, -4 / 20), 2e-3), 'duck multiplies the player music volume', a.loopSource.volume);
+}
 function loopWorld(opts) { const w = world(opts); const c = w.ready('main', 10); unlock(w); w.step(0.02); return { w, c }; }
 { const { w, c } = loopWorld({}); const a = w.a, first = a.loopSource;
   const startAt = w.GA.GameAudio.loopStartAt(10);

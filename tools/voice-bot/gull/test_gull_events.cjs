@@ -51,7 +51,10 @@ const G0 = env().amb.GULL_EVENTS;
   ok(near(cameraYawDeg({ x: 0, z: 1 }), 0) && near(cameraYawDeg({ x: 1, z: 0 }), 90) && near(cameraYawDeg({ x: 0, z: -1 }), 180) && near(cameraYawDeg({ x: -1, z: 0 }), 270) && cameraYawDeg({ x: 0, z: 0 }) === null, 'cameraYawDeg: atan2(x,z), 0=+Z 90=+X (beam / camera-track convention)');
   ok(near(gullPan(90, 180), 0.5) && near(gullPan(270, 180), -0.5) && near(gullPan(180, 180), 0) && near(gullPan(0, 180), 0) && gullPan(90, null) === 0, 'gullPan = 0.5*sin(camYaw - yaw): +X gull right of a -Z camera, behind = centre, no camera = centre');
   const c = panGains(0), r = panGains(0.5), l = panGains(-0.5);
-  ok(near(c.l, 1) && near(c.r, 1) && r.r > r.l && near(r.l * r.l + r.r * r.r, 2) && near(l.l, r.r) && near(l.r, r.l), 'panGains: equal power, centre = 1/1 (same as the old centred mono), mirror-symmetric', { r });
+  ok(near(c.l, 1) && near(c.r, 1) && near(r.r, 1) && near(r.l, Math.SQRT2 - 1) && near(l.l, r.r) && near(l.r, r.l), 'panGains: equal-power curve normalised to the louder side (centre 1/1 like the old centred mono; louder side never above 1; pan 0.5 -> 1/0.414), mirror-symmetric', { r });
+  let mono = true; for (let q = -1; q <= 1.0001; q += 0.05) { const g = panGains(q); if (Math.max(g.l, g.r) > 1 + 1e-9) mono = false; } ok(mono, 'panGains never above 1 on either side (headroom)');
+  ok(findGullSlot(1.2, 0, [{ at: 0, dist: 'far' }], 2.5, 'near', 1.2) === 1.2 && findGullSlot(1.1, 1, [{ at: 0, dist: 'far' }], 2.5, 'near', 1.2) === 1.2 && findGullSlot(1.2, 0, [{ at: 0, dist: 'near' }], 2.5, 'near', 1.2) === -1 && findGullSlot(1.2, 0, [{ at: 0, dist: null }], 2.5, 'near', 1.2) === -1,
+    'distance-aware slots: near<->far 1.2 s, same distance (or unknown) 2.5 s');
   ok(findGullSlot(5, 0, [0], 2.5) === 5 && findGullSlot(1, 4, [0], 2.5) === 2.5 && findGullSlot(1, 1, [0], 2.5) === -1 && findGullSlot(3, 10, [0, 4], 2.5) === 6.5, 'findGullSlot: >= 2.5 s from every taken time, maxLate respected');
   ok(near(nightGullScale(0).rate, 1) && near(nightGullScale(1).rate, 0.4) && near(nightGullScale(0.5).rate, 0.7) && near(nightGullScale(1).vol, Math.pow(10, -3 / 20)) && near(nightGullScale(0).vol, 1), 'nightGullScale: rate x0.4 and -3 dB at night, lerped by weight');
   let inside = true, side = true; for (let i = 0; i < 200; i++) { const q = i / 200, y = nearGullYaw(350, 0, () => q), d = ((y - 350 + 540) % 360) - 180; if (Math.abs(d) > 60 + 1e-6) inside = false;
@@ -132,14 +135,17 @@ const G0 = env().amb.GULL_EVENTS;
 { const e = env(); e.a.gullIn = 1e9; e.run(1);
   const id1 = e.A.requestGullCall('near', 10); const p = e.ev.filter(x => x.id === id1);
   ok(typeof id1 === 'number' && p.length === 2 && p[0].phase === 'scheduled' && p[1].phase === 'start' && p[0].leadS === 0 && p[0].at === p[1].at && p[0].yawWorldDeg === 10 && p[0].kind === 'request', 'request: returns id, scheduled == start immediately, uses the given yaw', p);
-  e.run(1); ok(e.A.requestGullCall('far', 200) === null, 'request 1 s after the last gull -> null'); e.run(1.4); ok(e.A.requestGullCall('far', 200) === null, '2.4 s -> null');
-  e.run(0.2); const id2 = e.A.requestGullCall('far', 200); ok(typeof id2 === 'number' && id2 !== id1 && e.starts().slice(-1)[0].dist === 'far', '>= 2.5 s -> plays (far)');
+  e.run(1); ok(e.A.requestGullCall('far', 200) === null && e.A.requestGullCall('near', 200) === null, 'request 1 s after a near gull -> null (far needs 1.2 s, near 2.5 s)');
+  e.run(0.3); ok(e.A.requestGullCall('near', 200) === null, 'near 1.3 s after near -> null (same distance 2.5 s)');
+  const idF = e.A.requestGullCall('far', 200); ok(typeof idF === 'number' && e.starts().slice(-1)[0].dist === 'far', 'far 1.3 s after near -> plays (cross gap 1.2 s)');
+  e.run(1.25); ok(e.A.requestGullCall('far', 10) === null, 'far 1.25 s after far -> null'); ok(typeof e.A.requestGullCall('near', 10) === 'number', 'near 2.55 s after near and 1.25 s after far -> plays');
+  e.run(1.3); const id2 = e.A.requestGullCall('far', 200); ok(typeof id2 === 'number' && id2 !== id1, 'far >= 2.5 s after the last far -> plays');
   e.run(3); e.A.notifyApronFull(); e.run(DT); ok(e.A.requestGullCall('near', 0) === null, 'a scheduled gull starting within 2.5 s blocks a request (keeps the min gap)');
   ok(e.A.requestGullCall('near', NaN) === null && e.A.requestGullCall('mid', 0) === null, 'bad args -> null');
   const g = env(); g.a.gullIn = 1e9; g.run(1); g.GameAudio.instance.can = false; g.run(DT); ok(g.A.requestGullCall('near', 0) === null, 'ambience not allowed (muted / no gesture / hidden) -> null');
   const i = env(); i.a.gullIn = 1e9; i.flow.w = 1; i.run(1); ok(i.A.requestGullCall('near', 0) === null && i.ev.length === 0, 'indoors -> null, no events');
   const v = env(); v.a.gullIn = 1e9; v.flow.visible = false; v.run(1); ok(v.A.requestGullCall('near', 0) === null, 'world not visible (level / sky city) -> null');
-  const x = env(); x.a.gullIn = 1e9; x.flow.w = 1; x.A.setWindExit(0.5); x.run(1); x.ev.length = 0; x.a.lastGullAt = -1e9; x.a.pending = [];
+  const x = env(); x.a.gullIn = 1e9; x.flow.w = 1; x.A.setWindExit(0.5); x.run(1); x.ev.length = 0; x.a.lastGullAt = -1e9; x.a.pending = []; x.a.recent = [];
   ok(typeof x.A.requestGullCall('near', 0) === 'number', 'exit wind segment (crossing the door, w still 1) counts as outdoor');
   // unsubscribe + __worldIntegration
   const u = env(); u.a.gullIn = 1e9; u.run(1); u.off(); u.A.requestGullCall('near', 0); ok(u.ev.length === 0, 'unsubscribe stops events');
@@ -151,6 +157,35 @@ const G0 = env().amb.GULL_EVENTS;
   const th = env(); th.A.onGullCall(() => { throw Error('boom'); }); th.a.gullIn = 1e9; th.run(1); ok(typeof th.A.requestGullCall('near', 0) === 'number' && th.starts().length === 1, 'a throwing listener does not break audio or other listeners');
   // destroy
   const ds = env(); ds.a.gullIn = 1e9; ds.run(1); ds.A.requestGullCall('near', 0); ds.a.onDestroy(); ok(ds.A.requestGullCall('near', 0) === null && ds.a.voices.length === 0, 'destroy: voices released, requests null');
+}
+// ---- item 5: exit near gull priority (distant yields), crane same-distance gap
+{ // pending distant (scheduled at the crossing, +0.5 s) conflicting with the near call -> cancelled, near keeps lift + 0.4
+  const e = env(); e.a.gullIn = 1e9; e.run(1); e.A.setWindExit(0.2); e.run(0.5); e.A.setWindExit(0.45); e.run(DT);
+  const d = e.sched().slice(-1)[0]; e.A.notifyApronFull(); e.run(DT); const nr = e.sched().slice(-1)[0];
+  ok(d.kind === 'distant' && e.ev.some(x => x.id === d.id && x.phase === 'cancelled') && nr.kind === 'near' && near(nr.leadS, 0.4 - DT, DT + 1e-6), 'pending distant gull within 1.2 s of the near one -> cancelled; near keeps its 0.4 s lead', { d: d.id, lead: nr.leadS });
+  e.run(1); ok(e.starts().length === 1 && e.starts()[0].id === nr.id, 'only the near gull plays');
+  // started distant 0.6 s before the near due time -> faded out + 'cancelled', near on time
+  const f = env(); f.a.gullIn = 1e9; f.run(1); f.A.setWindExit(0.2); f.run(0.5); f.A.setWindExit(0.45); f.run(0.6);
+  const ds = f.starts()[0]; ok(ds && ds.kind === 'distant', 'distant started'); const tLift = f.A.gameTime(); f.A.notifyApronFull(); f.run(DT); const fv = f.a.voices.find(v => v.call && v.call.id === ds.id);
+  ok(f.ev.some(x => x.id === ds.id && x.phase === 'cancelled') && fv && fv.fadeAt >= 0, "already-playing distant gull too close -> 'cancelled' after 'start' and faded out (0.25 s)");
+  f.run(0.3); ok(!f.a.voices.some(v => v.call && v.call.id === ds.id), 'distant voice released after the fade');
+  f.run(0.2); const ns = f.starts().slice(-1)[0]; ok(ns.kind === 'near' && near(ns.at - tLift, 0.4, 2 * DT + 1e-6) && tLift - ds.at < 1.2, 'near gull still at lift + 0.4 s (distant started < 1.2 s before it)', { fromLift: +(ns.at - tLift).toFixed(3), distantBefore: +(ns.at - ds.at).toFixed(3) });
+  // distant 1.3 s before -> kept (cross gap 1.2)
+  const k = env(); k.a.gullIn = 1e9; k.run(1); k.A.setWindExit(0.2); k.run(0.5); k.A.setWindExit(0.45); k.run(0.5 + 0.9); k.A.notifyApronFull(); k.run(1);
+  ok(k.starts().length === 2 && !k.ev.some(x => x.phase === 'cancelled') && k.starts()[1].at - k.starts()[0].at >= 1.2 - 1e-6, 'distant >= 1.2 s before the near gull -> both play', k.starts().map(x => [x.kind, +x.at.toFixed(2)]));
+  // crane: same distance as the near gull -> needs 2.5 s, maxLate 0 -> dropped; far before it does not block it
+  const c = env(); c.a.gullIn = 1e9; c.run(1); c.A.notifyApronFull(); c.run(0.6); c.flow.cranes[0]({}); c.run(3);
+  ok(c.starts().length === 1 && !c.sched().some(x => x.kind === 'crane'), 'crane gull 1.7 s after the near gull (same distance) -> dropped, no events');
+  const c2 = env(); c2.a.gullIn = 1e9; c2.run(1); c2.A.requestGullCall('far', 0); c2.run(0.1); c2.flow.cranes[0]({}); c2.run(2);
+  ok(c2.starts().length === 2 && c2.starts()[1].kind === 'crane', 'crane gull 1.6 s after a far gull -> plays (cross gap)');
+}
+// ---- item 5: random clip shuffle bag
+{ const { amb } = env(); const all = ['sfx_amb_gull_1', 'sfx_amb_gull_2', 'sfx_amb_gull_3']; let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const bag = []; let last = null, rep2 = 0; const seq = []; for (let i = 0; i < 600; i++) { const c = amb.nextFromBag(bag, all, last, rnd); if (c === last) rep2++; last = c; seq.push(c); }
+  ok(rep2 === 0, 'shuffle bag: never the same clip twice in a row (600 draws)');
+  let even = true; for (let i = 0; i + 6 <= seq.length; i += 6) { const n1 = all.map(c => seq.slice(i, i + 6).filter(x => x === c).length); if (n1.some(x => x !== 2)) even = false; } ok(even, 'every 6 calls: each clip exactly 2 times');
+  const e = env({ rnd: () => 0.999 }); e.run(150); const cl = e.starts().map(x => x.clip);
+  ok(cl.length >= 6 && cl.every((x, i) => i === 0 || x !== cl[i - 1]) && all.every(c => cl.slice(0, 6).filter(x => x === c).length === 2), 'in game (worst rnd = constant): random gull clips never repeat back to back, 2 each over 6', cl);
 }
 // ---- ES5 (loose): no Map/Set/for-of/spread in the new audio files; transpiles clean
 { const bad = []; for (const f of [AMB, NIGHT]) { const s = fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '');
