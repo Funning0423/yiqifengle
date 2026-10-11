@@ -26,10 +26,8 @@ source = root / 'creator-build-project/build' / name
 assert (source / 'game.js').is_file()
 assert (source / 'game.json').is_file()
 subprocess.run(['python3',str(root/'tools/check_wechat_build.py'),str(source)],check=True)
-first=(source/'first-screen.js').read_text()
-assert re.search(r'useDefaultLogo\s*=\s*false',first)
-assert sha(source/'logo.png')==sha(root/'tools/branding/game-title-temporary.png')
-assert json.loads((source/'src/settings.json').read_text())['splashScreen']['logo']['type']=='custom'
+# Custom first screen (docs/first-screen.md): the build must carry build-templates/wechatgame/first-screen.js + startup-art.
+subprocess.run(['python3',str(root/'tools/verify_native_loading.py'),str(source)],check=True)
 backup = evidence / ('rollback-before-'+tag+'.zip')
 assert not backup.exists(), 'Already staged; stop'
 with zipfile.ZipFile(backup, 'w', zipfile.ZIP_DEFLATED) as z:
