@@ -148,3 +148,21 @@ Tests: test_camera_frames.cjs adds `wind-strength`, `wind-frontal`, `occlusion:p
 on head OR chest; T9 props are merged from git 0ec1701 (`t9_props.cjs`, override T9_ROOT). rail-distance-band now covers
 the swing: from the first side key (>= 2 m) to crane-start, 2.0-5.5 m (was 3.5-5 m side rail).
 Offline previews (Blender Workbench, labelled, door open 86.4 deg): /workspace/yiqifengle/previews/运镜bot/frontal-swing/.
+
+## Doorway-clean (lead B): door drift on the island
+- From the island and the frontal/crane/return frames the fully open doorway (86.4 deg) showed the whole cluttered interior.
+  Props and lighting are untouched; instead `RegionCameraData.TRANSITION_CAMERA.doorDrift` (routes `doorDrift`) lets the door
+  drift (wind) to **45 deg** after she has walked clear: starts 1.2 s into toIsland, smoothstep over 2.6 s (open again only on
+  the walk home). It reopens to openDeg during toThreshold, finishing 4.1 s before crossing-in (~27.7 s from leaveHome at
+  constant speed), smoothstep over 2.4 s. Driven per frame from the camera span's onSample (same channel as wind), so it is
+  distance-driven, cancellable, and never a job of its own; `restore()` uses islandDeg on the island, 0 at home.
+  Fixed (non-motion) mode: island snaps to islandDeg on restore, return sets openDeg before walking.
+- Angle choice (offline renders 86.4/45/30/20, previews/运镜bot/doorway-clean/): 45 keeps a warm half-opening with a chair
+  and the rug (lived-in); 30 leaves only a floor sliver; 20 reads as closed. No interior dim needed (lighting stays GGbot's).
+- Tests: `door-drift` (open on every crossing frame and while she is within 1.2 m of the door, islandDeg on the island,
+  <= 0.5 deg/frame, no velocity jump, leaf >= 1.0 m from the lens whenever not fully open, >= 0.35 m from her);
+  `collision:door-leaf-clearance` (lens vs posed leaf >= 0.15 m every frame); lens-near-geometry now includes the posed leaf
+  (fully open / closed = doorway architecture, reported; any other angle = prop, fails within 1.0 m).
+- Brightness: whole-frame mean luma 86.4 -> 45 changes 0.1 % (island), 2.3 % (frontal hold), 0.3 % (return) in total,
+  spread over 2.6 s -> far below the 8 % per-frame step rule.
+- Rollback: delete `doorDrift` from TRANSITION_CAMERA (door stays at openDeg, all checks report disabled).

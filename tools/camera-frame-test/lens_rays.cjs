@@ -18,10 +18,26 @@ const ARCH=/^env_(interior_shell|interior_props_merged|int_anim_|lighthouse_ext|
 function rays(C,cam,aspect){const th=Math.tan(cam.fovVerticalDeg*Math.PI/360),out=[];
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const x=((c+.5)/COLS*2-1)*th*aspect,y=(1-(r+.5)/ROWS*2)*th,l=Math.hypot(x,y,1);out.push(C.rotate(cam.rotation,[x/l,y/l,-1/l]));}
   return out;}
-/** -> {near:{mesh:count}, nearProps:n, nearArch:n, cover:fraction blocked within COVER_M, coverProps:fraction} */
-function sample(C,I,cam,aspect){const p=cam.position,near={},R=rays(C,cam,aspect);let nearProps=0,nearArch=0,cover=0,coverProps=0;
-  for(let i=0;i<R.length;i++){const d=R[i];const h1=I.occluded(p,[p[0]+d[0]*(NEAR_M+.05),p[1]+d[1]*(NEAR_M+.05),p[2]+d[2]*(NEAR_M+.05)]);
+/** Door leaf (dynamic, not in the GLB ray index): quad from FirstsliceFacts door_hinge (x 0.72022, z 0, axis +Y), width
+ *  1.4404, height 2.4023, swinging outward (+Z) to `deg` (Cocos Ry: closed leaf -X -> (-cos, 0, +sin)). Name
+ *  'door_leaf@open' / '@closed' at the ends (doorway architecture, reported) else 'door_leaf' (a prop: fails within NEAR_M). */
+const DOOR={hinge:[0.72022,0,0],width:1.4404,height:2.4023};
+function doorQuad(deg,openDeg){const a=deg*Math.PI/180;return {name:Math.abs(deg-openDeg)<1e-6?'door_leaf@open':deg<1e-6?'door_leaf@closed':'door_leaf',o:DOOR.hinge,u:[-DOOR.width*Math.cos(a),0,DOOR.width*Math.sin(a)],v:[0,DOOR.height,0]};}
+/** Ray p + t*d (|d| = 1) vs quad o + a*u + b*v: t or Infinity. */
+function hitQuad(p,d,q){const n=[q.u[1]*q.v[2]-q.u[2]*q.v[1],q.u[2]*q.v[0]-q.u[0]*q.v[2],q.u[0]*q.v[1]-q.u[1]*q.v[0]],den=n[0]*d[0]+n[1]*d[1]+n[2]*d[2];if(Math.abs(den)<1e-12)return Infinity;
+  const w=[q.o[0]-p[0],q.o[1]-p[1],q.o[2]-p[2]],t=(n[0]*w[0]+n[1]*w[1]+n[2]*w[2])/den;if(!(t>1e-3))return Infinity;const x=[p[0]+d[0]*t-q.o[0],p[1]+d[1]*t-q.o[1],p[2]+d[2]*t-q.o[2]];
+  const uu=q.u[0]*q.u[0]+q.u[1]*q.u[1]+q.u[2]*q.u[2],vv=q.v[0]*q.v[0]+q.v[1]*q.v[1]+q.v[2]*q.v[2],a=(x[0]*q.u[0]+x[1]*q.u[1]+x[2]*q.u[2])/uu,b=(x[0]*q.v[0]+x[1]*q.v[1]+x[2]*q.v[2])/vv;return a>=0&&a<=1&&b>=0&&b<=1?t:Infinity;}
+/** Closest distance from point p to quad q. */
+function quadDist(p,q){const w=[p[0]-q.o[0],p[1]-q.o[1],p[2]-q.o[2]],uu=q.u[0]*q.u[0]+q.u[1]*q.u[1]+q.u[2]*q.u[2],vv=q.v[0]*q.v[0]+q.v[1]*q.v[1]+q.v[2]*q.v[2];
+  const a=Math.max(0,Math.min(1,(w[0]*q.u[0]+w[1]*q.u[1]+w[2]*q.u[2])/uu)),b=Math.max(0,Math.min(1,(w[0]*q.v[0]+w[1]*q.v[1]+w[2]*q.v[2])/vv));return Math.hypot(w[0]-a*q.u[0]-b*q.v[0],w[1]-a*q.u[1]-b*q.v[1],w[2]-a*q.u[2]-b*q.v[2]);}
+/** -> {near:{mesh:count}, nearProps:n, nearArch:n, cover:fraction blocked within COVER_M, coverProps:fraction}; quads: extra
+ *  dynamic surfaces (e.g. doorQuad) tested analytically, '@open' names count as architecture. */
+function sample(C,I,cam,aspect,quads){const p=cam.position,near={},R=rays(C,cam,aspect);let nearProps=0,nearArch=0,cover=0,coverProps=0;const Q=quads||[],arch=n=>ARCH.test(n)||/@(open|closed)$/.test(n);
+  for(let i=0;i<R.length;i++){const d=R[i];let qn=null,qt=Infinity;for(let k=0;k<Q.length;k++){const t=hitQuad(p,d,Q[k]);if(t<qt){qt=t;qn=Q[k].name;}}
+    if(qt<=NEAR_M){near[qn]=(near[qn]||0)+1;if(arch(qn))nearArch++;else{nearProps++;coverProps++;}cover++;continue;}
+    const h1=I.occluded(p,[p[0]+d[0]*(NEAR_M+.05),p[1]+d[1]*(NEAR_M+.05),p[2]+d[2]*(NEAR_M+.05)]);
     if(h1){near[h1]=(near[h1]||0)+1;if(ARCH.test(h1))nearArch++;else nearProps++;cover++;if(!ARCH.test(h1))coverProps++;continue;}
+    if(qt<=COVER_M){cover++;if(!arch(qn))coverProps++;continue;}
     const h2=I.occluded(p,[p[0]+d[0]*(COVER_M+.05),p[1]+d[1]*(COVER_M+.05),p[2]+d[2]*(COVER_M+.05)]);if(h2){cover++;if(!ARCH.test(h2))coverProps++;}}
   return {near,nearProps,nearArch,cover:cover/R.length,coverProps:coverProps/R.length};}
-module.exports={NEAR_M,COVER_M,COLS,ROWS,ARCH,rays,sample};
+module.exports={NEAR_M,COVER_M,COLS,ROWS,ARCH,DOOR,doorQuad,hitQuad,quadDist,rays,sample};

@@ -181,6 +181,11 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  frontal railOut key -> held to crane.startProgress -> eases to exactly 0 when the camera settles on cameraIsland.
    *  Smoothstep between these keys on the camera track's eased progress (distance-driven via walkDuration). */
   windOut: { doorProgress: 0.12, base: 0.15, swingStart: 0 },
+  /** T2+ doorway-clean (lead B): seen from the island the open doorway showed the whole cluttered interior. Props stay put;
+   *  the door drifts (wind) to islandDeg after she has walked clear and reopens before she walks back in, so the island and
+   *  frontal/crane/return frames show a warm half-opening (a chair + the rug) instead of the whole room. islandDeg picked from
+   *  offline renders of 86.4/45/30/20 (30 = floor sliver only, 20 reads closed). Rollback: delete this entry (door stays at openDeg). */
+  doorDrift: { islandDeg: 45, closeAfter: 1.2, closeSeconds: 2.6, openBefore: 4.1, openSeconds: 2.4 },
   /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn. */
   craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861 },
 });
