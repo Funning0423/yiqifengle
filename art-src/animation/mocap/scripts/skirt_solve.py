@@ -194,9 +194,10 @@ class Solver:
             for v, sg in push.items():
                 dv = -STEP * (1 if sum(sg) >= 0 else -1)
                 up = PARENT_VAR.get(v, v)
-                npos, nneg = sum(1 for g in sg if g > 0), sum(1 for g in sg if g < 0)
-                if up in ROLLS and min(npos, nneg) > 0.2 * len(sg) and x.get('roll.' + up, 0.0) + STEP <= CAP['roll.' + up]:
-                    x['roll.' + up] = x.get('roll.' + up, 0.0) + STEP     # knee in front AND shin behind: flare out
+                # side panels: a leg pressing on them from inside is cleared by flaring the panel outward; pitch only
+                # helps once the flare is at its cap
+                if up in ROLLS and x.get('roll.' + up, 0.0) + STEP <= CAP['roll.' + up]:
+                    x['roll.' + up] = x.get('roll.' + up, 0.0) + STEP
                     moved = True
                     continue
                 while v is not None and abs(x.get(v, 0.0) + dv) > CAP[v]:
