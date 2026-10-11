@@ -47,3 +47,6 @@ Thumbs.db
 npm-debug.log*
 yarn-error.log*
 audio-preview/
+
+# 本地测试输出（test_composition 等写到这里），不进仓库
+/evidence/
