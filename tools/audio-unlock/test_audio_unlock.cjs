@@ -189,7 +189,15 @@ const BLANK = [50, 700], DOOR = [300, 844 - 400];   // client px (y down); door 
 { const bad = [];
   for (const f of ['audio/AudioUnlock.ts', 'RoomExploreOverlay.ts']) { const src = fs.readFileSync(path.join(S, f), 'utf8');
     if (/for\s*\(\s*(const|let|var)\s+[^;)]*\s+of\s/.test(src)) bad.push(f + ': for-of'); if (/\.\.\.\s*(this\.)?\w*(Map|Set|map|set)\b/.test(src.replace(/\.\.\.this\.(start|handle|rect)/g, ''))) bad.push(f + ': spread of Map/Set'); }
-  ok(bad.length === 0, 'AudioUnlock/RoomExploreOverlay: no for-of, no Map/Set spread (ES5 loose-safe)', bad); }
+  // same TS check as tools/camera-frame-test/test_es5_safety.cjs (kept here so that file's FILES list stays untouched): target ES5,
+  // downlevelIteration off, Cocos cc types when vendored -> any iterable spread / for-of over a non-array is a TS error
+  const CC = ['/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/@cocos/creator-types/engine/cc.d.ts', process.env.QF_CC_DTS || ''].filter(f => f && fs.existsSync(f));
+  const files = ['audio/AudioUnlock.ts', 'RoomExploreOverlay.ts'].map(f => path.join(S, f));
+  const envDts = path.join(require('os').tmpdir(), 'au-cc-env.d.ts'); fs.writeFileSync(envDts, "declare module 'cc/env' { export const EDITOR: boolean; }");
+  const prog = ts.createProgram(files.concat(CC.slice(0, 1), [envDts]), { target: ts.ScriptTarget.ES5, downlevelIteration: false, lib: ['lib.es2017.d.ts', 'lib.dom.d.ts'], noEmit: true, strict: false, skipLibCheck: true, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.NodeJs, experimentalDecorators: true });
+  const ITER = new Set([2802, 2461, 2569, 2548, 2549, 2495]);
+  for (const sf of prog.getSourceFiles()) { if (!files.includes(sf.fileName)) continue; for (const d of prog.getSemanticDiagnostics(sf).concat(prog.getSyntacticDiagnostics(sf))) if (ITER.has(d.code)) bad.push(path.basename(sf.fileName) + ' TS' + d.code); }
+  ok(bad.length === 0, 'AudioUnlock/RoomExploreOverlay: no for-of / Map-Set spread; TS target ES5 downlevelIteration off: 0 iteration errors (cc types ' + (CC.length ? 'on' : 'OFF') + ')', bad); }
 
 console.log(fail ? `FAILED ${fail}` : 'ALL PASS audio-unlock');
 process.exit(fail ? 1 : 0);

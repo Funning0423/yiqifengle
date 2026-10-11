@@ -19,3 +19,4 @@
 
 ## 测试
 `node tools/audio-unlock/test_audio_unlock.cjs`（需要 Node 22）。跑的是真实的 AudioUnlock、GameAudio、RoomExploreOverlay、AmbienceAudio 和 WindAudio，触摸路由按 Cocos 的规则模拟：平台层先收到，UI 节点命中就吞掉，只有没吞掉的才进全局 input。
+最后一项是 ES5 安全检查，和 `test_es5_safety.cjs` 用同一套 TS 规则，但单独放在这个测试里，这样就不用改那个文件的 FILES 列表，免得和 work/GGbot-walk 冲突。
