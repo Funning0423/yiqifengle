@@ -12,3 +12,9 @@ observe d7be489e134dca868f303ce240404542c9fd68aa958ca4f7d39facc42f70da49 world-r
 observe 0d6a4d40f58c108adf93dbb1ebf8b47c2d757d5812284f6e441f5fe58468ec7d world-r1/WorldFlowCore.ts         baseline/matte/T1
 observe c5cd721f94351c05b2ee80eb5ab56456398b57f41af31d461c990006aedf0558 world-r1/WorldFlowCore.ts         near
 observe d067086fb4bcfe0d8fa8f97a2f89f8a0d0eac060008606186a0955c35c1cb424 audio/GameAudio.ts              all
+# int/v1 entries (added by GGbot for T1-near integration; observe glue reviewed: WorldFlowCore.walk/config, WorldFlowComponent.flow, GameAudio.instance/play/loopSource/setMusic*/setMuted unchanged).
+# Pure near + T1-near (work/GGbot-t1-near 588ba07) needs no new entries: all its files are already listed above.
+observe dfb97e45cead6847315838830c8cc3ba6eb56aa7f5d9325d2783fb6c25b44439 world-r1/WorldFlowComponent.ts   int/v1 d72cd75 + T1-near 588ba07 (trial merge a898e1c)
+observe 072bd370f8edb904e1f259aee301db6d0fa7238164bf3151d389bd36fad77204 world-r1/WorldFlowComponent.ts   int/v1 d72cd75 (T5+df09ce8, before T1)
+observe 4715d357ac79113483da5b386e31b7f75b2c009273bbfaad43d51e5454d805fd world-r1/WorldFlowCore.ts         int/v1 d72cd75 (T5 optional room-light members), with or without T1
+observe 943154241ca8d6d1eecae7470d2c6c5a44436b79c4def68cb637eed19902b682 audio/GameAudio.ts              int/v1 d72cd75 (A2 cheers), with or without T1
