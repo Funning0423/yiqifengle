@@ -4,6 +4,26 @@ import { Node, Scene, DirectionalLight, SpotLight, MeshRenderer, SkeletalAnimati
 /** Cocos 3.8.8 runtime lighting. Imported assets, cameras and bones stay unchanged; lamp emission uses one owned material instance.
  * One room-only directional shadow map + one unshadowed local lamp; two steam draw calls.
  * The owner advances this after animation and disposes it before releasing the model. */
+/* ---------------------------------------------------------------------------------------------
+ * T5 ROOM-LIGHT API (owner: GGbot). One interface; WorldFlowCore does not drive it.
+ *   setRoomLightWeight(w: number): boolean     getRoomLightWeight(): number
+ *   (WorldFlowComponent passthroughs + optional WorldLease.setRoomLightWeight/getRoomLightWeight/blendRoomLight)
+ * - w in [0,1], clamped. Non-finite w is rejected (returns false, nothing changes).
+ * - w=0: the scene's original island light (Main Light rotation, illuminance/colour as set by day/night,
+ *   ambient skyIllum/skyColor/groundAlbedo as authored); room shadow strength 0.
+ *   w=1: the indoor light, assignment-for-assignment identical to the pre-T5 setView(interior=true).
+ *   In between: sun rotation slerp, illuminance/colour/ambient lerp, shadowSaturation = room*w.
+ * - Only meaningful while the view includes the interior (setView(interior=true), i.e. HOME or BOTH).
+ *   Otherwise set returns false and get returns 0. After dispose: set false, get 0.
+ * - setView(true) entering from non-interior: w := 1. setView(true) again (day/night toggle): w kept, re-applied
+ *   with the new day/night endpoints. setView(false) (ISLAND/NONE via restore()): w := 0 and the original
+ *   restoreSun() runs (shadow flags/size restored).
+ *   The WorldFlowComponent adapter additionally forces w := 1 on every setLayers() with interior=true
+ *   (HOME or BOTH), so restore()/setLayers always land on a fully defined state. To start BOTH on island
+ *   light, call setLayers(BOTH) then setRoomLightWeight(0) in the same synchronous step (no frame between).
+ * - Idempotent: the same w always produces the same writes; nothing accumulates.
+ * - Without a driver, BOTH keeps w=1 until restore(ISLAND) sets 0: the original one-frame jump remains.
+ * ------------------------------------------------------------------------------------------- */
 export const ROOM_LIGHTING = Object.freeze({
   shadowMapSize: 1024, shadowOrthoSize: 4.1, shadowFar: 12,
   daylightScale: .60, moonlightScale: .035, ambientToMainDay: .15, ambientToMainNight: .065,
@@ -326,6 +346,7 @@ export class RoomLightingRig {
     if (this.disposed) return;
     const changed = interior !== this.interior;
     this.interior = interior; this.backdrop = backdrop; this.night = night;
+    if (changed) this.roomWeight = interior ? 1 : 0;
     if (live(this.root)) this.root.active = interior;
     this.applyLampState(night);
     for (let i = 0; i < this.steam.length; i++) if (live(this.steam[i].node)) this.steam[i].node.active = interior;
@@ -345,19 +366,20 @@ export class RoomLightingRig {
         s.shadowEnabled = true; s.enableCSM = false; s.shadowFixedArea = true;
         s.shadowNear = .1; s.shadowFar = ROOM_LIGHTING.shadowFar; s.shadowOrthoSize = ROOM_LIGHTING.shadowOrthoSize;
         s.shadowPcf = renderer.scene.PCFType.SOFT_2X; s.shadowBias = .0001; s.shadowNormalBias = .015;
-        this.roomWeight = 1;
       }
       this.applyRoomWeight();
-    } else if (changed) { this.roomWeight = 0; this.restoreSun(false); }
+    } else if (changed) this.restoreSun(false);
   }
 
-  /** T5: blend the global sun/ambient/shadow-strength between island (0) and room (1) photometry.
-   * Geometry layers are untouched. Returns false (no-op) unless the room view is active. */
+  /** T5 API — see the contract at the top of this file. Returns true when w was applied. */
   setRoomLightWeight(weight: number): boolean {
     if (this.disposed || !this.interior || !Number.isFinite(weight)) return false;
     this.roomWeight = Math.min(1, Math.max(0, weight));
     return this.applyRoomWeight();
   }
+
+  /** T5 API (read-only, poll per frame; no events): current w in [0,1]. 0 outside an interior view and after dispose. */
+  getRoomLightWeight(): number { return this.disposed || !this.interior ? 0 : this.roomWeight; }
 
   private applyRoomWeight(): boolean {
     const s = this.sun, saved = this.sunState;

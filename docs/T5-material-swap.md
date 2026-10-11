@@ -56,60 +56,86 @@ near `41fabe7`：
 
 baseline `1ef9f1d` 机制完全相同：`WorldFlowCore.ts:109/169/172/205`，`WorldFlowComponent.ts:262/331`，`RoomLightingRig.ts:304/319/335`（唯一差别是 near 把室内阴影 PCF 从 SOFT 改成 SOFT_2X，与本问题无关）。
 
-## 3. 统一方案（已做原型，只改代码，不动资产）
+## 3. 统一方案
 
-**原则：画面里看得到外景时只用一套光——场景原本的海岛方案；室内方案只在镜头在屋里时生效；两者之间按走路进度连续过渡，不再有"一帧切换"。**
+**原则：外景能看到的时候只用一套光，就是场景原来的海岛光；室内光只在镜头在屋里时生效；两者之间按镜头分段进度连续过渡，不再一帧切换。**
 
-原型（本分支提交）：
-- `RoomLightingRig.ts`：新增 `setRoomLightWeight(w)`（0 = 海岛方案，1 = 室内方案）。插值太阳朝向（slerp：从场景原朝向到室内 lookAt 朝向）、强度、颜色、环境光强度/颜色；阴影强度 `shadowSaturation` 从 0.72 渐变到 0（0 = 阴影完全不压暗，所以关阴影时不会跳）。`w=1` 时用与旧代码**完全相同**的赋值（屋内画面不变）；`setView(false)` 仍走原 `restoreSun`。
-- `WorldFlowComponent.ts`：world lease 新增 `blendRoomLight(from,to,seconds,token)`（走现有 `run()` job，可取消）；离散的 `setLayers()` 只要 interior 就落回 w=1，保证取消/暂停/恢复后状态确定。
-- `WorldFlowCore.ts`：`WorldLease.blendRoomLight?` 为**可选**（老 adapter/测试桩不受影响）。
-  - 出门：`outCrossing` 走完（镜头已在门外、背对塔）后，与 `toIsland` 这段走路**同时、同时长**把 w 从 1 渐变到 0（实测路线 6.26 s ≈ 376 帧），所以到 `restore()` 时光照已经是海岛方案，`restore()` 只剩关室内壳。
-  - 回屋：`setLayers(BOTH)` 同一同步步骤里把 w 设为 0（不再在岛视角跳暗），随 `toThreshold`（7.05 s）渐变到 1，到门口时正好是室内方案。
+分工（主管已定）：光照接口只有一个 `setRoomLightWeight`，由 GGbot 维护；**由运镜bot 在 T2+ 里按镜头分段进度驱动 w**（出门：toIsland 到升镜之间 w→0；回屋：先保持海岛光，在 toThreshold/crossing-in 内 w→1）；门洞黑洞遗留也归运镜bot；声音bot 读同一条曲线驱动环境声。
 
-估算（`tools/t5/test_room_light_blend.cjs`，塔正面 Lambert 代理 + gamma，两端标定到视频实测亮度 151.3/203.4）：
-旧逻辑单帧 +34.4%（与视频一致）；新逻辑最差单帧 **0.55%**（376 帧）；即使压缩到 **53 帧** 也只有 **3.3%/帧**，< 8% 门槛。
+> **注意：本提交只提供接口，不驱动。** WorldFlowCore 已回到 near 原行为，所以在运镜bot 接上之前，**出门 22.75 s 和回屋开头那一帧的跳变（+34%/−35%）仍然存在**，跟 near 一样。旧的自动渐变（第一版 `bf00258`）没有保留成开关：放进 Core 要加配置项和时序代码，不算"很小的改动"，而且跟运镜bot 的驱动会重复。
 
-不推荐的备选：
-- 只把 `restore()` 挪到镜头背对塔时：海面/地面仍会一帧跳 24%+，过不了 8%。
-- 改室内方案的太阳方向去迁就外景：会改动已验收的屋内画面。
-- 再做一套"室内看到的外景"资产：增包，且没必要——外景本来就只有一套。
+## 4. API（最终版）
 
-## 4. 包体影响
-- 不改任何资产（glb/材质/贴图/场景/meta 都没动），不新增文件进 `assets/`（新文件只在 `tools/t5/`、`docs/`）。
-- JS：三个文件 terser 压缩后合计 **+2084 B**（RoomLightingRig +1519，WorldFlowCore +356，WorldFlowComponent +209）。
+位置与签名：
+- `render/RoomLightingRig.ts`
+  - `setRoomLightWeight(weight: number): boolean`
+  - `getRoomLightWeight(): number`
+  - 文件头注释写了完整契约
+- `world-r1/WorldFlowComponent.ts`（透传，其他模块从这里拿）
+  - `setRoomLightWeight(weight:number):boolean`；没有 rig 时返回 false
+  - `getRoomLightWeight():number`；没有 rig 时返回 0
+  - 调试：`__worldDayNight.roomLightWeight()`
+- `world-r1/WorldFlowCore.ts` 的 `WorldLease` 新增三个**可选**成员（Core 自己不调用；老 adapter 和测试桩不用改）：
+  - `setRoomLightWeight?(weight)`
+  - `getRoomLightWeight?()`
+  - `blendRoomLight?(from,to,seconds,token):Promise<void>`
 
-## 5. 风险
-1. 盒子上没跑 Cocos/微信：插值是 3.8.8 公开 API（`Quat.slerp`、`Color.lerp`、`Vec4.lerp`、`ambient.skyColor/groundAlbedo`、`shadowSaturation`），但真实画面（tone mapping、阴影图在 fixed-area 下随太阳旋转的样子）必须在 Mac/真机上看。
-2. 过渡期间太阳在转，室内 fixed-area 阴影图跟着转；阴影强度同时在淡出，预计不明显，需目测。
-3. 门洞/窗洞"能看到室内 → 黑洞"仍在 `restore()` 那帧发生（关 `env_interior_shell`）。面积约占画面 1% 以内、远低于 8%，但如美术介意，可以在渐变结束后再关、或改成门洞也受同一过渡（不在本原型范围）。
-4. 渐变期间切昼夜（`applyDayNight`）会按当前 w 重新计算，两端值随昼夜一起变，不会跳回 w=1。
-5. `fixed` 镜头模式下镜头直接跳到终点，光照仍按走路时长渐变（无害）。
-6. 补丁基于 near；baseline 上 `RoomLightingRig.ts`/`WorldFlowCore.ts` 有上下文差异，`git apply` 不能直接用，需要手工 rebase（逻辑相同）。叠加 df09ce8 没有冲突。
+契约：
+1. **取值**：w ∈ [0,1]，超出范围会被截断（−1→0，2→1）；NaN/±Infinity 拒绝，返回 false，状态不变。
+2. **端点**：
+   - w=0：场景原海岛光。Main Light 用场景原朝向，亮度/颜色是昼夜逻辑刚写入的值；环境光 skyIllum/skyColor/groundAlbedo 用原值；室内阴影强度为 0。
+   - w=1：室内光，赋值和 T5 之前的 `setView(interior=true)` **逐条相同**，屋内画面不变。
+   - 中间值：太阳朝向 slerp，亮度/颜色/环境光 lerp，`shadowSaturation = 室内值×w`。
+3. **只在包含室内的视图里有效**（HOME 或 BOTH，即 rig 处于 interior）。不在室内视图时，set 返回 false、get 返回 0；dispose 之后同样。
+4. **和 restore()/setLayers 的关系**：
+   - `setLayers(HOME)` 或 `setLayers(BOTH)`：w **强制设为 1**，包括本来就在室内视图的情况。
+   - `restore()` 落到 ISLAND/NONE（interior=false）：w 设为 0，并执行原来的 `restoreSun`（恢复阴影开关和尺寸）。
+   - `restore()` 落到 HOME：w=1。
+   - `restore()` 会先调 `cancelTransient()`，所以正在进行的 `blendRoomLight` 会被取消。
+   - 昼夜切换（`applyDayNight` 再次调 `setView(true)`）**保留当前 w**，只按新的昼夜端点重新计算。
+   - 想让 BOTH 一开始就是海岛光：在**同一个同步步骤**里先 `setLayers(BOTH)` 再 `setRoomLightWeight(0)`，中间没有渲染帧，所以不会闪。
+5. **`blendRoomLight(from,to,seconds,token)`**：跟 animateDoor/animateCamera 是同一套 job 机制。
+   - 调用时同步写入 `from`，之后每帧按 `elapsed/seconds` 线性推进，结束时恰好写入 `to` 再 resolve。
+   - `seconds<=0` 或非有限值：直接写 `to` 并 resolve。
+   - token 已取消时调用：同步抛出 Cancelled。
+   - 中途被取消（token.cancel / cancelTransient / dispose）：reject Cancelled，**w 停在最后写入的值，不回弹**；之后再调 setLayers/restore 会按第 4 条落到确定状态。
+6. **幂等**：同一个 w 总是产生相同的写入，和之前经过哪些值无关（0.3 经过 0.9 再回 0.3 = 直接设 0.3），不会累积误差。
+7. **读取**：`getRoomLightWeight()` 只读，供每帧轮询，**没有事件**。声音bot 直接轮询即可。
 
-## 6. 已测 / 失败 / 未测
-**已测（盒子，pinned Node 23.11.0 + typescript 5.8.3 + @cocos/creator-types 3.8.8，来自 work/GGbot 的 tools/vendor-node）**
+## 5. 包体影响
+- 不改任何资产（glb/材质/贴图/场景/meta 都没动），`assets/` 下没有新增文件（新文件只在 `tools/t5/`、`docs/`）。
+- JS（terser 压缩后，对比 near）：RoomLightingRig +1584 B，WorldFlowComponent +547 B，WorldFlowCore +0 B（只加了类型声明），**合计 +2131 B**。
+
+## 6. 风险
+1. 盒子上没跑 Cocos/微信。插值用的都是 3.8.8 公开 API（`Quat.slerp`、`Color.lerp`、`Vec4.lerp`、`ambient.skyColor/groundAlbedo`、`shadowSaturation`），但真实画面要在 Mac/真机上看。
+2. 过渡期间太阳在转，室内 fixed-area 阴影图会跟着转，同时阴影强度在淡出，需要目测。
+3. 门洞黑洞（`restore()` 那帧关掉 `env_interior_shell`）归运镜bot。
+4. 运镜bot 接上之前，跳变仍在（见 §3）。
+5. 补丁基于 near；放到 baseline 需要手工 rebase（逻辑相同）。叠加 df09ce8 没有冲突。
+
+## 7. 已测 / 失败 / 未测
+**已测（盒子，用 work/GGbot 里的 tools/vendor-node：Node 23.11.0 + typescript 5.8.3 + @cocos/creator-types 3.8.8）**
 - 视频逐帧亮度：出门 +34.4%/1 帧、回屋 −35.5%/1 帧，突变前镜头静止 ✓；walk3 夜间同样现象 ✓
-- 资产核对：baseline 与 near 的灯塔/小屋 mesh、材质、贴图、LOD、烘焙设置 ✓（只有一套）
-- `tools/t5/test_room_light_blend.cjs` 8/8 通过：出门/回屋调用顺序与时长、老 adapter 不带 blend 仍能完成、取消中途无 unhandled rejection 且落到稳定层、w=1 与旧室内值完全一致、w=0 与海岛值一致且之后 `restore()` 不再改变亮度、退出室内/销毁后为 no-op、53 帧与 376 帧过渡每帧 < 8%
-- 回归：`tools/cloud-skycity/test_flow.cjs` ✓、`tools/cloud-skycity/test_adapter.cjs` ✓、`tools/test_camera0007_failure.cjs` ✓（42 条路径 / 7334 样本）
-- tsc（cc.d.ts 3.8.8）：0 个新错误（near 原有 11 个）
-- 与 df09ce8 的 `WorldFlowComponent.ts` 叠加 `git apply --check` ✓
+- 资产核对：baseline 和 near 的灯塔/小屋只有一套 ✓
+- `tools/t5/test_room_light_blend.cjs` 13/13 ✓：
+  - A：Core 不驱动 w；老 adapter 没有光照 API 也能完成流程；Core 和 near 的差异只有可选 API 成员
+  - B：w=1 与旧室内值逐条一致；w=0 与场景海岛值一致，之后 restore 不再改亮度；截断与拒绝；幂等/与路径无关；不在室内或 dispose 后 set=false、get=0；昼夜切换保留 w
+  - C：从 WorldFlowComponent 原样抽取 `run`/job 循环/`blendRoomLight`/透传方法来驱动真实 rig：端点、逐帧线性、seconds≤0、token 取消和 cancelJobs 取消都停在最后的 w、已取消的 token 同步抛错、没有 rig 时透传返回 0/false
+  - D：用模拟的镜头分段进度驱动 w 做跳变估算：不驱动时单帧 34.4%；53 帧内过渡最差 3.28%/帧；toIsland（376 帧）0.55%/帧；toThreshold（423 帧）0.49%/帧（估算，不是渲染结果）
+- 回归：`cloud-skycity/test_flow` ✓、`cloud-skycity/test_adapter` ✓、`test_camera0007_failure` ✓
+- tsc：0 个新错误（near 原有 11 个）
 
 **失败**
 - `tools/cloud-island-camera/test_composition.cjs`：near `41fabe7` 原样就失败（期望值是旧镜头位姿），与本改动无关。
 
 **未测**
-- Mac Cocos 构建 + 微信开发者工具/真机录屏：需要主管跑出门、回屋（白天+夜晚）各一遍，用 `tools/t5/measure_video_jump.py <录屏> <开始秒> <时长>` 量 53 帧窗口内最大单帧跳变（目标 < 8%），并目测过渡期阴影和门洞。
-- 真实渲染下的亮度曲线（盒子上是代理估算，不是渲染结果）。
-- baseline 版本的补丁（需要 rebase）。
+- Mac 构建 + 微信/真机，要等运镜bot 接上驱动之后才有意义：录出门/回屋（白天+夜晚），用 `tools/t5/measure_video_jump.py <录屏> <开始秒> <时长>` 量 53 帧内最大单帧跳变（目标 < 8%）。
+- 只接了 API、还没驱动时的真机：应该与 near 完全一样（w 始终是 0 或 1）。
+- baseline 版本（需要 rebase）。
 
-## 7. Mac 验证步骤
+## 8. 运行测试
 ```
-cd <repo> && git checkout work/GGbot-t5        # 或 cherry-pick 到要测的分支
-# 照常 CLI 构建微信包（同 mac-tests/phase0-build.log 的命令），进游戏：
-#  1) 白天：出门 → 录屏 08；回屋 → 录屏 11
-#  2) 夜晚：__worldDayNight.set('night') 后重复
-python3 tools/t5/measure_video_jump.py 08.mp4 <出门开始秒> <时长>   # 打印最差帧
-# 运行时诊断：__worldDayNight.roomLighting().photometry 看 sunIlluminance / ambientSkyIllum / shadowSaturation 随走路连续变化
+N=<work/GGbot>/tools/vendor-node/node-runtime/node-v23.11.0-linux-x64/bin/node
+QF_TYPESCRIPT_MODULE=<work/GGbot>/tools/vendor-node/node_modules/typescript $N --no-warnings tools/t5/test_room_light_blend.cjs
+QF_TYPESCRIPT_MODULE=... $N tools/t5/print_walk_durations.cjs     # toIsland / toThreshold 时长
 ```

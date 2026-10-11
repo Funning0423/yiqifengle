@@ -1,12 +1,15 @@
 'use strict';
-// T5-material: box-side test of the lighting blend (no Cocos runtime). Two parts:
-//  A) real type-stripped WorldFlowCore: leaveHome/returnHome call order + cancellation + old adapters.
-//  B) real type-stripped RoomLightingRig with a minimal 'cc' mock: weight 1 == legacy room values,
-//     weight 0 == island values, and a facade-radiance proxy changes < 8% per frame (and over any 53-frame window per step).
+// T5-material room-light API test (no Cocos runtime). Parts:
+//  A) real type-stripped WorldFlowCore: does NOT drive w (API-final), older adapters fine.
+//  B) real RoomLightingRig (TS-transpiled) with a minimal 'cc' mock: set/get, clamp, reject non-finite, endpoints exact,
+//     idempotency, setView transitions.
+//  C) the real WorldFlowComponent run()/job loop/blendRoomLight source text (extracted verbatim) driving the real rig:
+//     blend endpoints, frame stepping, cancellation keeps last w.
+//  D) jump estimate when w is driven by a simulated camera-segment progress (what 运镜bot will wire).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),Module=require('node:module');
 const {stripTypeScriptTypes}=Module;
 const root=path.resolve(__dirname,'../../creator-build-project/assets/scripts');
-const results=[];const test=async(name,fn)=>{try{await fn();results.push({name,pass:true});}catch(e){results.push({name,pass:false,error:String(e&&e.stack||e)});}};
+const results=[];const test=async(name,fn)=>{if(process.env.T5_TRACE)console.error("start",name);try{await fn();results.push({name,pass:true});}catch(e){results.push({name,pass:false,error:String(e&&e.stack||e)});}};
 
 // ---------- A) flow ----------
 const coreSrc=fs.readFileSync(path.join(root,'world-r1/WorldFlowCore.ts'),'utf8');
@@ -25,29 +28,20 @@ function fixture({withBlend=true,blendImpl}={}){
   return {f,log,config};
 }
 const run=async()=>{
-await test('outbound: BOTH at door, blend 1->0 over exactly the toIsland walk, then ISLAND',async()=>{
-  const x=fixture();await x.f.load();x.log.length=0;assert.equal((await x.f.leaveHome()).ok,true);
-  const d=pathDuration(x.config.toIsland,x.config.speed);assert.ok(d>0);
-  const iB=x.log.indexOf('layers:BOTH'),iL=x.log.indexOf(`blend:1->0@${d}`),iI=x.log.lastIndexOf('layers:ISLAND');
-  assert.ok(iB>=0&&iL>iB&&iI>iL,JSON.stringify(x.log));
-  // the blend starts after outCrossing walk (2nd walk) and together with the toIsland walk (3rd)
-  const walks=x.log.map((v,i)=>v==='act:walk'?i:-1).filter(i=>i>=0);assert.ok(iL>walks.at(-2)&&iL<walks.at(-1),JSON.stringify(x.log));
+await test('WorldFlowCore never drives w (leaveHome/returnHome make no light calls)',async()=>{
+  const calls=[];const x=fixture({blendImpl:async(...a)=>{calls.push(a);}});
+  await x.f.load();assert.equal((await x.f.leaveHome()).ok,true);assert.equal((await x.f.returnHome()).ok,true);
+  assert.equal(calls.length,0);assert.ok(!x.log.some(v=>v.startsWith('blend')));
+  const L=x.log.filter(v=>v.startsWith('layers:'));assert.ok(L.includes('layers:BOTH')&&L.includes('layers:ISLAND')&&L.at(-1)==='layers:HOME',JSON.stringify(L));
 });
-await test('return: BOTH then blend 0->1 in the same synchronous step, over the toThreshold walk',async()=>{
-  const x=fixture();await x.f.load();await x.f.leaveHome();x.log.length=0;assert.equal((await x.f.returnHome()).ok,true);
-  const d=pathDuration(x.config.toThreshold,x.config.speed);
-  assert.equal(x.log[0],'layers:BOTH');assert.equal(x.log[1],`blend:0->1@${d}`);assert.ok(x.log.includes('layers:HOME'));
-});
-await test('adapter without blendRoomLight (older leases) still completes both flows',async()=>{
+await test('adapter without the optional light API still completes both flows',async()=>{
   const x=fixture({withBlend:false});await x.f.load();assert.equal((await x.f.leaveHome()).ok,true);assert.equal((await x.f.returnHome()).ok,true);assert.equal(x.f.snapshot().state,'home');
 });
-await test('cancel mid-blend: no unhandled rejection, flow lands on a stable layer state',async()=>{
-  let unhandled=0;const h=()=>unhandled++;process.on('unhandledRejection',h);
-  const x=fixture({blendImpl:(f,t,s,token)=>new Promise((_,rej)=>token.onCancel(()=>rej(Error('Cancelled'))))});await x.f.load();
-  const p=x.f.leaveHome();for(let i=0;i<10;i++)await Promise.resolve();
-  assert.equal(x.f.cancelTransition().ok,true);const r=await p;assert.equal(r.ok,false);
-  await new Promise(r=>setTimeout(r,20));process.off('unhandledRejection',h);assert.equal(unhandled,0);
-  assert.ok(/^layers:(HOME|ISLAND)$/.test(x.log.filter(v=>v.startsWith('layers:')).at(-1)),JSON.stringify(x.log));
+await test('WorldFlowCore source == near 41fabe7 except the optional WorldLease API members',async()=>{
+  const near=require('node:child_process').execFileSync('git',['show','41fabe7:creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts'],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'});
+  const extra=coreSrc.split('\n').filter(l=>!near.split('\n').includes(l));
+  assert.ok(extra.length<=6&&extra.every(l=>/RoomLight|T5 room-light|WorldFlowCore itself never drives/.test(l)),JSON.stringify(extra));
+  assert.equal(near.split('\n').filter(l=>!coreSrc.split('\n').includes(l)).length,0);
 });
 
 // ---------- B) rig photometry ----------
@@ -98,37 +92,91 @@ function makeRig(){
 const luma=v=>.2126*v.x+.7152*v.y+.0722*v.z;
 function facade({sun,ambient}){const d=rotate(sun.node.rotation,[0,0,-1]);const nl=Math.max(0,-d[2]);const c=luma(new Vec4(sun.color.r/255,sun.color.g/255,sun.color.b/255));
   return sun.illuminance*c*nl*(1-sun.shadowSaturation*0)+ambient.skyIllum*(.5*luma(ambient._sky)+.5*luma(ambient._ground));}
-await test('weight 1 (setView interior) reproduces the legacy room photometry exactly',async()=>{
-  const x=makeRig();x.rig.setView(true,true,false);
+const ISLAND_Q=new Quat(-.25,-.25,-.06698729810778066,.9330127018922194),ROOM_Q=lookAtQuat([.8,6.6,-7],[-.4,.6,-2]);
+const qeq=(a,b,eps=1e-12)=>['x','y','z','w'].every(k=>Math.abs(a[k]-b[k])<eps);
+const snap=x=>JSON.stringify({i:x.sun.illuminance,c:[x.sun.color.r,x.sun.color.g,x.sun.color.b,x.sun.color.a],q:x.sun.node.rotation,sat:x.sun.shadowSaturation,a:x.ambient.skyIllum,sky:x.ambient._sky,gr:x.ambient._ground});
+await test('B1 w=1 on entering interior == legacy room photometry exactly; get()=1',async()=>{
+  const x=makeRig();assert.equal(x.rig.getRoomLightWeight(),0);x.rig.setView(true,true,false);assert.equal(x.rig.getRoomLightWeight(),1);
   assert.equal(x.sun.illuminance,125000*ROOM_LIGHTING.daylightScale);assert.deepEqual([x.sun.color.r,x.sun.color.g,x.sun.color.b],[0xff,0xf4,0xde]);
   assert.equal(x.ambient.skyIllum,125000*ROOM_LIGHTING.ambientToMainDay);assert.equal(x.sun.shadowSaturation,ROOM_LIGHTING.shadowSaturationDay);
-  const want=lookAtQuat([.8,6.6,-7],[-.4,.6,-2]);for(const k of ['x','y','z','w'])assert.ok(Math.abs(x.sun.node.rotation[k]-want[k])<1e-12);
+  assert.deepEqual(x.ambient._sky,new Vec4(0xb4/255,0xc8/255,0xdd/255,1));assert.ok(qeq(x.sun.node.rotation,ROOM_Q));
   assert.equal(x.sun.shadowEnabled,true);assert.equal(x.scene.globals.shadows.shadowMapSize,1024);
 });
-await test('weight 0 == island set (scene sun rotation, 125000 lx white, ambient 20000/raw colours, shadow strength 0)',async()=>{
-  const x=makeRig();x.rig.setView(true,true,false);assert.equal(x.rig.setRoomLightWeight(0),true);
+await test('B2 w=0 == scene island light exactly; restore(ISLAND) afterwards changes no photometry',async()=>{
+  const x=makeRig();x.rig.setView(true,true,false);assert.equal(x.rig.setRoomLightWeight(0),true);assert.equal(x.rig.getRoomLightWeight(),0);
   assert.equal(x.sun.illuminance,125000);assert.deepEqual([x.sun.color.r,x.sun.color.g,x.sun.color.b],[255,255,255]);
-  assert.equal(x.ambient.skyIllum,20000);assert.deepEqual(x.ambient._sky,new Vec4(.2,.502,.8,1));assert.equal(x.sun.shadowSaturation,0);
-  for(const k of ['x','y','z','w'])assert.ok(Math.abs(x.sun.node.rotation[k]-new Quat(-.25,-.25,-.06698729810778066,.9330127018922194)[k])<1e-9);
-  // then ISLAND restore(): no further photometric change (same values as weight 0 apart from shadow flags)
-  const before=facade(x);x.sun.illuminance=125000;x.rig.setView(false,true,false);assert.ok(Math.abs(facade(x)-before)/before<1e-9);
+  assert.equal(x.ambient.skyIllum,20000);assert.deepEqual(x.ambient._sky,new Vec4(.2,.502,.8,1));assert.deepEqual(x.ambient._ground,new Vec4(.2,.2,.2,1));
+  assert.equal(x.sun.shadowSaturation,0);assert.ok(qeq(x.sun.node.rotation,ISLAND_Q,1e-9));
+  const before=facade(x);x.sun.illuminance=125000;x.rig.setView(false,true,false);assert.ok(Math.abs(facade(x)-before)/before<1e-9);assert.equal(x.rig.getRoomLightWeight(),0);
 });
-await test('setRoomLightWeight is a no-op outside interior view and when disposed',async()=>{
-  const x=makeRig();assert.equal(x.rig.setRoomLightWeight(.5),false);x.rig.setView(true,true,false);x.rig.dispose();assert.equal(x.rig.setRoomLightWeight(.5),false);
+await test('B3 clamp and reject: -1->0, 2->1, NaN/Infinity rejected (false, unchanged)',async()=>{
+  const x=makeRig();x.rig.setView(true,true,false);
+  assert.equal(x.rig.setRoomLightWeight(-1),true);assert.equal(x.rig.getRoomLightWeight(),0);
+  assert.equal(x.rig.setRoomLightWeight(2),true);assert.equal(x.rig.getRoomLightWeight(),1);
+  x.rig.setRoomLightWeight(.25);const s0=snap(x);
+  for(const bad of [NaN,Infinity,-Infinity])assert.equal(x.rig.setRoomLightWeight(bad),false);
+  assert.equal(x.rig.getRoomLightWeight(),.25);assert.equal(snap(x),s0);
 });
+await test('B4 idempotent: same w -> identical state; path independence (0.3 via 0.9 == direct 0.3)',async()=>{
+  const x=makeRig();x.rig.setView(true,true,false);x.rig.setRoomLightWeight(.3);const a=snap(x);x.rig.setRoomLightWeight(.3);assert.equal(snap(x),a);
+  x.rig.setRoomLightWeight(.9);x.rig.setRoomLightWeight(.3);assert.equal(snap(x),a);
+  x.rig.setRoomLightWeight(1);const legacy=makeRig();legacy.rig.setView(true,true,false);assert.equal(snap(x),snap(legacy));
+});
+await test('B5 outside interior / after dispose: set=false, get=0; setView(true) again keeps w (day/night toggle)',async()=>{
+  const x=makeRig();assert.equal(x.rig.setRoomLightWeight(.5),false);assert.equal(x.rig.getRoomLightWeight(),0);
+  x.rig.setView(true,true,false);x.rig.setRoomLightWeight(.4);x.rig.setView(true,true,true);assert.equal(x.rig.getRoomLightWeight(),.4);
+  x.rig.setView(false,true,true);assert.equal(x.rig.getRoomLightWeight(),0);x.rig.setView(true,true,false);assert.equal(x.rig.getRoomLightWeight(),1);
+  x.rig.dispose();assert.equal(x.rig.setRoomLightWeight(.5),false);assert.equal(x.rig.getRoomLightWeight(),0);
+});
+
+// ---------- C) real WorldFlowComponent job runner + blendRoomLight lambda, extracted verbatim ----------
+const compSrc=fs.readFileSync(path.join(root,'world-r1/WorldFlowComponent.ts'),'utf8');
+const grab=(re,what)=>{const m=compSrc.match(re);assert.ok(m,'cannot extract '+what);return m[0];};
+const runSrc=grab(/  private run\(seconds:number[\s\S]*?\n  \}\n/,'run()');
+const cancelSrc=grab(/  private cancelJobs\(\):void \{[^\n]*\n/,'cancelJobs()');
+const loopSrc=grab(/    for\(const j of Array\.from\(this\.jobs\)\) \{\n[\s\S]*?\n    \}\n/,'job loop');
+const blendSrc=grab(/blendRoomLight:\(from,to,seconds,t\)=>[^\n]*\n/,'blendRoomLight').trim().replace(/,$/,'');
+const passSrc=grab(/  setRoomLightWeight\(weight:number\):boolean \{[^\n]*\n  [^\n]*\n  getRoomLightWeight\(\):number \{[^\n]*\n/,'passthroughs');
+const harnessTs=`class Harness { jobs=new Set(); roomLighting:any=null;\n${runSrc}${cancelSrc}${passSrc}  step(frameDt:number){\n${loopSrc}  }\n  lease(){return {${blendSrc}};}\n}`;
+const harnessJs=ts.transpileModule(harnessTs,{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.None,useDefineForClassFields:false}}).outputText;
+const hctx={Cancelled:ctx.api.Cancelled||class Cancelled extends Error{},console};
+vm.runInNewContext(coreJs+'\nthis.Cancelled=Cancelled;this.Cancellation=Cancellation;',hctx);
+vm.runInNewContext(harnessJs+'\nthis.Harness=Harness;',hctx);
+const mk=()=>{const x=makeRig();x.rig.setView(true,true,false);const h=new hctx.Harness();h.roomLighting=x.rig;return {x,h,lease:h.lease(),token:new hctx.Cancellation()};};
+await test('C1 blend: writes `from` synchronously, linear per frame, resolves on exactly `to`',async()=>{
+  const {x,h,lease,token}=mk();let done=false;const p=lease.blendRoomLight(1,0,1,token).then(()=>{done=true;});
+  assert.equal(x.rig.getRoomLightWeight(),1);for(let i=1;i<=9;i++){h.step(.1);assert.ok(Math.abs(x.rig.getRoomLightWeight()-(1-i/10))<1e-9);}
+  h.step(.1);if(!done)h.step(.1); /* float accumulation: 10x0.1 < 1, real loop also finishes next frame */await p;assert.equal(done,true);assert.equal(x.rig.getRoomLightWeight(),0);assert.equal(h.jobs.size,0);
+});
+await test('C2 seconds<=0 or non-finite -> jumps to `to` and resolves',async()=>{
+  for(const s of [0,-1,NaN]){const {x,lease,token}=mk();await lease.blendRoomLight(1,.2,s,token);assert.ok(Math.abs(x.rig.getRoomLightWeight()-.2)<1e-12);}
+});
+await test('C3 cancel (token or cancelJobs) rejects Cancelled, keeps last w, no further writes',async()=>{
+  {const {x,h,lease,token}=mk();const p=lease.blendRoomLight(1,0,1,token);h.step(.3);token.cancel();await assert.rejects(p,e=>e instanceof hctx.Cancelled);
+   const w=x.rig.getRoomLightWeight();assert.ok(Math.abs(w-.7)<1e-9);h.step(.5);assert.equal(x.rig.getRoomLightWeight(),w);}
+  {const {x,h,lease,token}=mk();const p=lease.blendRoomLight(0,1,1,token);h.step(.4);h.cancelJobs();await assert.rejects(p,e=>e instanceof hctx.Cancelled);assert.ok(Math.abs(x.rig.getRoomLightWeight()-.4)<1e-9);}
+  {const {lease,token}=mk();token.cancel();assert.throws(()=>lease.blendRoomLight(0,1,1,token));}
+});
+await test('C4 component passthroughs: get=0 / set=false without rig',async()=>{
+  const h=new hctx.Harness();assert.equal(h.getRoomLightWeight(),0);assert.equal(h.setRoomLightWeight(.5),false);
+  const {h:h2}=mk();assert.equal(h2.setRoomLightWeight(.5),true);assert.equal(h2.getRoomLightWeight(),.5);
+});
+
+// ---------- D) jump estimate, w driven by simulated camera-segment progress ----------
 const metrics={};
-await test('facade proxy calibrated to video lumas: legacy one-frame jump > 8%, blended worst frame < 8% (53 frames and real walk)',async()=>{
-  // Display-luma estimate: L = a*R^(1/2.2)+b, a/b fitted so the two endpoints equal the measured tower ROI luma
-  // in 08-outbound-motion.mp4 (room 151.3 at 22.733 s, island 203.4 at 22.750 s). Estimate only, not a render.
+await test('D jump estimate (proxy calibrated to video lumas): undriven one-frame jump > 8%; segment-driven < 8%/frame',async()=>{
+  // Display-luma estimate L = a*R^(1/2.2)+b, fitted so endpoints equal tower ROI luma in 08-outbound-motion.mp4
+  // (room 151.3 @22.733 s, island 203.4 @22.750 s). Estimate only, not a render.
   const x=makeRig();x.rig.setView(true,true,false);const room=facade(x);x.rig.setRoomLightWeight(0);const island=facade(x);
   const g=v=>Math.pow(v,1/2.2),a=(203.4-151.3)/(g(island)-g(room)),b=151.3-a*g(room),L=v=>a*g(v)+b;
-  metrics.legacyJumpPct=(L(island)-L(room))/L(room)*100;
-  const walkFrames=Math.round(60*(Number(process.env.T5_TOISLAND_SECONDS)||0));
-  for(const frames of [53,...(walkFrames>53?[walkFrames]:[])]){let worst=0,prev=null;for(let i=0;i<=frames;i++){x.rig.setRoomLightWeight(1-i/frames);const v=L(facade(x));if(prev!==null)worst=Math.max(worst,Math.abs(v-prev)/Math.min(v,prev)*100);prev=v;}
-    metrics['worstPerFramePct@'+frames+'f']=worst;assert.ok(worst<8,`${frames}: ${worst}`);}
-  assert.ok(metrics.legacyJumpPct>8);
+  metrics.undrivenJumpPct=(L(island)-L(room))/L(room)*100;assert.ok(metrics.undrivenJumpPct>8);
+  // simulated segments: 53 frames (gate), toIsland 6.263 s and toThreshold 7.047 s at 60 fps (tools/t5/print_walk_durations.cjs)
+  for(const [name,frames,from,to] of [['53f',53,1,0],['toIsland',Math.round(6.263*60),1,0],['toThreshold',Math.round(7.047*60),0,1]]){
+    let worst=0,prev=null;for(let i=0;i<=frames;i++){const progress=i/frames;x.rig.setRoomLightWeight(from+(to-from)*progress);const v=L(facade(x));if(prev!==null)worst=Math.max(worst,Math.abs(v-prev)/Math.min(v,prev)*100);prev=v;}
+    metrics['worstPerFramePct@'+name]=worst;assert.ok(worst<8,`${name}: ${worst}`);}
 });
-console.log(JSON.stringify({scope:'type-stripped WorldFlowCore + RoomLightingRig with cc mock; proxy radiance, not a render',metrics,cases:results.length,pass:results.every(r=>r.pass),results},null,1));
-if(!results.every(r=>r.pass))process.exitCode=1;
+console.log(JSON.stringify({scope:'API-final: real WorldFlowCore (stripped) + real RoomLightingRig + verbatim WorldFlowComponent job/blend source with cc mock; jump figures are a proxy, not a render',metrics,cases:results.length,pass:results.every(r=>r.pass),results},null,1));
+process.exitCode=results.every(r=>r.pass)?0:1;
 };
+process.exitCode=1; // stays 1 if a test hangs and the loop drains before the summary
 run().catch(e=>{console.error(e);process.exitCode=1;});
