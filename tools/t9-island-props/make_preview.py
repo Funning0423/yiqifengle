@@ -65,7 +65,8 @@ def outline(rect,col):
     x0,y0=ui2px(rect['x']-rect['width']/2,rect['y']+rect['height']/2); x1,y1=ui2px(rect['x']+rect['width']/2,rect['y']-rect['height']/2); d.rectangle([x0,y0,x1,y1],outline=col,width=1)
 clean=im.copy()
 for b in L['buttons']: outline(b['slot']['hit'],(255,60,60,200))
-if S['rectUi']: outline(S['rectUi'],(255,60,60,200))
+if S.get('hitUi'): outline(S['hitUi'],(255,60,60,200))
+if S['rectUi'] and S.get('hitUi')!=S['rectUi']: outline(S['rectUi'],(255,160,60,160))
 for img,name in ((clean,f'island-portrait-{tag}.png'),(im,f'island-portrait-{tag}-hitareas.png')):
     dd=ImageDraw.Draw(img); f=font(13*SC); s='NON-NATIVE offline preview (Blender Cycles, runtime island camera)'
     dd.rectangle([0,RH-22*SC,RW,RH],fill=(0,0,0,150)); dd.text((6,RH-19*SC),s,font=font(10*SC),fill=(255,255,255,255))

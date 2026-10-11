@@ -12,6 +12,6 @@ const buttons=lay.slots.map(s=>{const [sx,sy]=L.uiToScreen(s.prop.x,s.prop.botto
 const S=P.signpost;
 const WW=S.water,water={shadow:L.softEllipse(WW.centerX,WW.shadow.rx,WW.shadow.rz),ring:L.softRing(WW.centerX,WW.ripple.rx,WW.ripple.rz,WW.ripple.band),ripples:[L.rippleAt(0.9,0),L.rippleAt(0.9,1)]};
 const out={frame:{width:w,height:h},pose:{source:R.REGION_CAMERA.islandPoseSource,...R.islandPoseEntry()},
-  signpost:{...S,screenBase:ndc(S.position),rectUi:L.signpostRectUi(pose,w,h),textCenterWorld:L.propCorners({position:S.position,yawDeg:S.yawDeg,scale:S.scale},S.text.center,S.text.center)[0]},
+  signpost:{...S,screenBase:ndc(S.position),rectUi:L.signpostRectUi(pose,w,h),hitUi:L.signpostHitUi(pose,w,h),textCenterWorld:L.propCorners({position:S.position,yawDeg:S.yawDeg,scale:S.scale},S.text.center,S.text.center)[0]},
   water,palms:P.palms.map(p=>({...p,screenBase:ndc(p.position)})),buttons};
 console.log(JSON.stringify(out,null,1));

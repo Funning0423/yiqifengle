@@ -1,6 +1,6 @@
 import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, RenderRoot2D, Color, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import type { CameraPose } from '../world-r1/CameraPose';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostHitUi, uiToScreen, softEllipse, softRing, rippleAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 
 /**
@@ -127,10 +127,10 @@ export class IslandProps {
       if (!n.active) n.active = true;
     }
   }
-  /** Hit rect of the signpost in UI units (centre origin) for the live camera, or null when not usable. */
+  /** Mainline hit rect (>= 88x88, see signpostHitUi) of the signpost in UI units (centre origin) for the live camera, or null when not usable. */
   signRect(width: number, height: number): Rect | null {
     if (!this.ready || !this.root.active) return null; const pose = this.pose(); if (!pose || !(width > 0) || !(height > 0)) return null;
-    const r = signpostRectUi(pose, width, height); if (!r) return null;
+    const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
   dispose() { if (this.disposed) return; this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); }
