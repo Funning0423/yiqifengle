@@ -46,11 +46,10 @@ src_bow=bow_o.copy(); src_bow.data=bow_o.data.copy(); bpy.context.scene.collecti
 # white texel on T_G2_BODY used by the old bow (BOW keeps M_G2_BODY so the prefab material slot is unchanged)
 img=[n for n in bow_o.data.materials[0].node_tree.nodes if n.type=='TEX_IMAGE'][0].image
 W_,H_=img.size; px=np.array(img.pixels[:]).reshape(H_,W_,4)
-best=(9,None)
-for d in bow_o.data.uv_layers[0].data:
-    u,v=d.uv; c=px[int((v%1)*H_)%H_,int((u%1)*W_)%W_,:3]; sc=abs(1-c.mean())+ (c.max()-c.min())
-    if sc<best[0]: best=(sc,(u,v))
-BOW_UV=best[1]; print('BOW_UV',BOW_UV,best[0])
+# centre of the largest pure-white block, so the texel stays white after splice_glb shrinks T_G2_BODY to 256^2
+K_=W_//32; wh=(px[:,:,:3].min(2)>0.92).astype(np.int32); ii=np.pad(wh.cumsum(0).cumsum(1),((1,0),(1,0)))
+cnt=ii[K_:,K_:]-ii[:-K_,K_:]-ii[K_:,:-K_]+ii[:-K_,:-K_]; ry,rx=np.unravel_index(cnt.argmax(),cnt.shape)
+BOW_UV=((rx+K_/2)/W_,(ry+K_/2)/H_); print('BOW_UV',BOW_UV,cnt.max(),K_*K_)
 APRON_UV=tuple(AP['uv'])
 # --- apron panel
 bm=bmesh.new(); NR=AP['rows']; NC=AP['cols']; G=[]

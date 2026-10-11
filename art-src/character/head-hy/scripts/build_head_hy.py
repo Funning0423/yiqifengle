@@ -102,7 +102,7 @@ for v in bm.verts:
         p=h[0]; w=1.0
     # stay inside the hair (with gap) wherever hair covers this direction
     re,az,th=env_r(p)
-    if th<thend(az)-4 and not (abs(az)<60 and th>45):
+    if th<thend(az)+(14 if abs(az)>75 else -4) and not (abs(az)<60 and th>45):
         rp=(p-CH).length; lim=re-P['skull_hair_gap']
         if rp>lim: p=CH+(p-CH)*(lim/rp)
     v.co=p; hitw[v.index]=w
@@ -170,7 +170,7 @@ NL=48
 def crown_end(az):
     base=50 if abs(az)<46 else (50+(min(abs(az),70)-46)/24*32)
     return min(base,thend(az)-6)
-ROWS_C=12
+ROWS_C=10
 ocrown=sheet('N_hair_crown',NL,ROWS_C,lambda i,j: hair_pt(-180+360*i/NL,lerp(2,crown_end(-180+360*i/NL),j/(ROWS_C-1)),0.004),close_u=True)
 bm=bmesh.new(); bm.from_mesh(ocrown.data); bm.verts.ensure_lookup_table()
 ring=[bm.verts[i] for i in range(NL)]; top=bm.verts.new(hair_pt(0,0,0.004,False))
@@ -215,7 +215,7 @@ def back_fn(i,j):
     th=lerp(74,te,tj)
     p=hair_pt(az,th,0.0)
     if tj>0.78:
-        k=(tj-0.78)/0.22; q=(p-Vector((CH.x,CH.y,p.z))); p=Vector((CH.x,CH.y,p.z))+q*(1-0.22*k*k); p.z+=0.012*k*k
+        k=(tj-0.78)/0.22; q=(p-Vector((CH.x,CH.y,p.z))); p=Vector((CH.x,CH.y,p.z))+q*(1-0.15*k*k); p.z+=0.012*k*k
     return p
 oback=sheet('N_hair_back',NCb,NRb,back_fn)
 # fringe: 7 strands, root on the crown, tip on the Hunyuan fringe hem; S=(root az, tip az, width deg)
@@ -238,8 +238,9 @@ fr_phase=sum((FR_S[k] for k in sorted(FR_S,key=lambda n:int(n.split('_')[-1]))),
 def cheek_fn(sign):
     def fn(i,j):
         az=sign*lerp(72,118,i/6); z=lerp(1.60,1.47,j/6)
-        h=hug(az,z,0.004)
-        if h is None: h=hair_pt(az,110,-0.01,False)
+        h=None; zz=z
+        while h is None and zz<1.62: h=hug(az,zz,0.0075); zz+=0.004
+        if h is None: return hair_pt(az,110,-0.01,False)
         return h
     return fn
 ocheekL=sheet('N_hair_cheek_L',7,7,cheek_fn(1)); ocheekR=sheet('N_hair_cheek_R',7,7,cheek_fn(-1))

@@ -1,0 +1,1164 @@
+{
+ "tool": "anim-tools \u89d2\u8272\u52a8\u753bbot/walk-v2/walk_clipcheck.py (sub 2), base_* = runtime GLB before this round",
+ "clips": {
+  "base_door_reach": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 449
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 18.6
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 43.4,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 114.4,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 6.4,
+     "frame": 5.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.1,
+     "frame": 6.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 1247,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 9.0
+   }
+  },
+  "base_idle_breathing_loop": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 43.4,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 114.4,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 56.3,
+     "frame": 50.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 3.6,
+     "frame": 0.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 0,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "base_walk_loop": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 8.4,
+     "frame": 7.5
+    },
+    "clear_leg_apron_mm": {
+     "min": 16.4,
+     "frame": 7.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 6.8,
+     "frame": 13.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 2.5,
+     "frame": 16.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 39.9,
+     "frame": 13.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 0,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "base_walk_start": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 0
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 8.6,
+     "frame": 46.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 16.5,
+     "frame": 46.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 8.5,
+     "frame": 51.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 2.8,
+     "frame": 22.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 29.3,
+     "frame": 19.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 0,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "door_reach": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 2088
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 26.0
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 43.4,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 117.7,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 7.7,
+     "frame": 6.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 1.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 4586,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 10.0
+   }
+  },
+  "idle_breathing_loop": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 1452
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 1.6
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 43.4,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 117.7,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 53.7,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.3,
+     "frame": 0.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 7260,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "sit_down": {
+   "total_vertex_hits": {
+    "leg_out_dress": 8715,
+    "leg_out_apron": 913,
+    "dress_out_apron": 4039,
+    "apron_in_dress": 949,
+    "arm_in_dress": 535,
+    "arm_in_apron": 735,
+    "arm_in_torso": 4279
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 139.8,
+    "leg_out_apron": 56.2,
+    "dress_out_apron": 307.8,
+    "apron_in_dress": 50.0,
+    "arm_in_dress": 49.8,
+    "arm_in_apron": 49.9,
+    "arm_in_torso": 27.4
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 0.0,
+     "frame": 17.5
+    },
+    "clear_leg_apron_mm": {
+     "min": 0.1,
+     "frame": 27.5
+    },
+    "clear_arm_cloth_mm": {
+     "min": 0.0,
+     "frame": 20.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 2.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 11265,
+    "tri_leg_apron": 2426,
+    "tri_dress_apron_new": 688,
+    "tri_arm_any": 15997,
+    "tri_leg_dress_margin": 11668,
+    "tri_leg_apron_margin": 2641,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 37.5,
+    "leg_out_apron": 37.5,
+    "dress_out_apron": 31.5,
+    "apron_in_dress": 25.5,
+    "arm_in_dress": 32.5,
+    "arm_in_apron": 35.0,
+    "arm_in_torso": 37.5
+   }
+  },
+  "sit_hold": {
+   "total_vertex_hits": {
+    "leg_out_dress": 25600,
+    "leg_out_apron": 4880,
+    "dress_out_apron": 18400,
+    "apron_in_dress": 3600,
+    "arm_in_dress": 2880,
+    "arm_in_apron": 2800,
+    "arm_in_torso": 7280
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 139.8,
+    "leg_out_apron": 56.2,
+    "dress_out_apron": 288.9,
+    "apron_in_dress": 49.8,
+    "arm_in_dress": 47.2,
+    "arm_in_apron": 47.3,
+    "arm_in_torso": 27.4
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 0.0,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 0.4,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 0.0,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.1,
+     "frame": 0.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 9000.0,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 18320,
+    "tri_leg_apron": 11040,
+    "tri_dress_apron_new": 8640,
+    "tri_arm_any": 37760,
+    "tri_leg_dress_margin": 19600,
+    "tri_leg_apron_margin": 10960,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "stand_up": {
+   "total_vertex_hits": {
+    "leg_out_dress": 8075,
+    "leg_out_apron": 791,
+    "dress_out_apron": 3579,
+    "apron_in_dress": 859,
+    "arm_in_dress": 464,
+    "arm_in_apron": 664,
+    "arm_in_torso": 4108
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 139.8,
+    "leg_out_apron": 56.2,
+    "dress_out_apron": 307.8,
+    "apron_in_dress": 50.0,
+    "arm_in_dress": 49.8,
+    "arm_in_apron": 49.9,
+    "arm_in_torso": 27.4
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 0.0,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 0.1,
+     "frame": 1.5
+    },
+    "clear_arm_cloth_mm": {
+     "min": 0.0,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 0.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 30.6,
+     "frame": 37.5
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 10807,
+    "tri_leg_apron": 2150,
+    "tri_dress_apron_new": 472,
+    "tri_arm_any": 15109,
+    "tri_leg_dress_margin": 11178,
+    "tri_leg_apron_margin": 2367,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 6.0,
+    "apron_in_dress": 12.0,
+    "arm_in_dress": 4.0,
+    "arm_in_apron": 2.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "walk_loop": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 1413
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 9.2
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 9.1,
+     "frame": 8.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 20.3,
+     "frame": 7.5
+    },
+    "clear_arm_cloth_mm": {
+     "min": 7.4,
+     "frame": 12.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 7.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 39.9,
+     "frame": 13.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 5171,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 11.0
+   }
+  },
+  "walk_loop_v2": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 1413
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 9.2
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 9.1,
+     "frame": 8.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 20.3,
+     "frame": 7.5
+    },
+    "clear_arm_cloth_mm": {
+     "min": 7.4,
+     "frame": 12.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 7.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 39.9,
+     "frame": 13.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 5171,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 11.0
+   }
+  },
+  "walk_start": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 1533
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 9.2
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 9.4,
+     "frame": 46.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 20.5,
+     "frame": 46.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 7.4,
+     "frame": 51.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 6.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.1,
+     "frame": 17.5
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 5895,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 50.5
+   }
+  },
+  "walk_stop_bodyL": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 944
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 8.5
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 15.9,
+     "frame": 2.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 27.0,
+     "frame": 2.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 26.9,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 4.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.2,
+     "frame": 43.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 3796,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "walk_stop_bodyR": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 949
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 8.7
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 13.3,
+     "frame": 11.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 25.4,
+     "frame": 11.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 27.2,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 4.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.2,
+     "frame": 43.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 3662,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "walk_turn_180": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 526
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 4.3
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 10.9,
+     "frame": 27.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 22.7,
+     "frame": 27.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 52.9,
+     "frame": 5.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 5.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.1,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 2670,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 20.5
+   }
+  },
+  "walk_turn_180_bodyR": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 628
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 4.4
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 11.0,
+     "frame": 27.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 22.7,
+     "frame": 27.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 53.1,
+     "frame": 5.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 5.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.1,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 2776,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 20.0
+   }
+  },
+  "walk_turn_90_bodyL": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 455
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 2.1
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 12.2,
+     "frame": 21.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 24.0,
+     "frame": 31.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 52.9,
+     "frame": 7.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 6.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.1,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 2699,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 18.0
+   }
+  },
+  "walk_turn_90_bodyR": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 506
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 2.7
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 12.0,
+     "frame": 20.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 24.7,
+     "frame": 32.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 53.1,
+     "frame": 7.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.0,
+     "frame": 6.5
+    },
+    "clear_legfoot_back_mm": {
+     "min": 32.1,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 2840,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 20.0
+   }
+  },
+  "wind_sway_loop": {
+   "total_vertex_hits": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 3872
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 0,
+    "leg_out_apron": 0,
+    "dress_out_apron": 0,
+    "apron_in_dress": 0,
+    "arm_in_dress": 0,
+    "arm_in_apron": 0,
+    "arm_in_torso": 6.6
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 21.8,
+     "frame": 35.5
+    },
+    "clear_leg_apron_mm": {
+     "min": 118.8,
+     "frame": 91.5
+    },
+    "clear_arm_cloth_mm": {
+     "min": 25.2,
+     "frame": 29.5
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.4,
+     "frame": 0.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 23.1,
+     "frame": 36.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 0,
+    "tri_leg_apron": 0,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 14520,
+    "tri_leg_dress_margin": 0,
+    "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  }
+ }
+}

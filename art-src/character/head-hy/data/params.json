@@ -9,7 +9,7 @@
   0.008,
   1.55
  ],
- "skull_cuts": 11,
+ "skull_cuts": 10,
  "skull_smooth": 3,
  "skull_fallback": {
   "x": 0.072,
@@ -106,7 +106,7 @@
   ]
  ],
  "hat": {
-  "N": 32,
+  "N": 28,
   "thick0": 0.0055,
   "thick1": 0.0042,
   "crown_shrink": 0.0,

@@ -16,12 +16,12 @@
   "tris": 160
  },
  "N_strap_L": {
-  "verts": 50,
-  "tris": 48
+  "verts": 58,
+  "tris": 56
  },
  "N_strap_R": {
-  "verts": 50,
-  "tris": 48
+  "verts": 58,
+  "tris": 56
  },
  "N_hand_L": {
   "verts": 236,

@@ -152,13 +152,18 @@ for side in ('L','R'):
     new_parts.remove(o2); bpy.data.objects.remove(o2)
 # ---------------- bib + straps (white) ----------------
 BIB=P['bib']
+_dr=bpy.data.objects['LOD0_G2_DRESS']
+dbib=BVHTree.FromPolygons([_dr.matrix_world@v.co for v in _dr.data.vertices],[list(q.vertices) for q in _dr.data.polygons])
+def bib_hit(o,d,dist):
+    hs=[h for h in (tbvh.ray_cast(o,d,dist),dbib.ray_cast(o,d,dist)) if h[0] is not None]
+    return min(hs,key=lambda h:h[3]) if hs else (None,None,None,None)
 def bib():
     bm=bmesh.new(); NX,NZ=8,10; G=[]
     for j in range(NZ+1):
         z=lerp(BIB['z0'],BIB['z1'],j/NZ); hw=lerp(BIB['w0'],BIB['w1'],j/NZ)
         r=[]
         for i in range(NX+1):
-            x=lerp(-hw,hw,i/NX); hit=tbvh.ray_cast(Vector((x,-0.4,z)),Vector((0,1,0)),0.5)
+            x=lerp(-hw,hw,i/NX); hit=bib_hit(Vector((x,-0.4,z)),Vector((0,1,0)),0.5)
             p=hit[0]+hit[1]*BIB['off']
             r.append(bm.verts.new(p))
         G.append(r)
@@ -167,7 +172,7 @@ def bib():
     return mkobj('N_bib',bm)
 obib=bib()
 def strap(sx):
-    ctrl=[(BIB['w1']-BIB['strap_w']/2,BIB['z1']-0.022,-1),(0.064,1.372,-0.7),(0.072,1.394,0),(0.072,1.372,0.7),(0.072,1.30,1),(0.066,1.22,1),(0.063,1.16,1)]
+    ctrl=[(BIB['w1']-BIB['strap_w']/2,BIB['z1']-0.022,-1),(0.064,1.372,-0.7),(0.072,1.394,0),(0.072,1.372,0.7),(0.072,1.30,1),(0.066,1.22,1),(0.063,1.16,1),(0.062,1.128,1)]
     pts=[]
     for (x0,z0,f0),(x1,z1,f1) in zip(ctrl,ctrl[1:]):
         for q in np.linspace(0,1,4,endpoint=False): pts.append((lerp(x0,x1,q),lerp(z0,z1,q),lerp(f0,f1,q)))
@@ -175,7 +180,7 @@ def strap(sx):
     C=[]
     for x,z,f in pts:
         g=Vector((sx*x,-0.015+f*0.075,z)); O=Vector((sx*x*0.5,-0.015,1.29))
-        d=(g-O).normalized(); hit=tbvh.ray_cast(O+d*0.5,-d,0.6)
+        d=(g-O).normalized(); hit=bib_hit(O+d*0.5,-d,0.6)
         if hit[0] is None: hit=tbvh.find_nearest(g)
         C.append((hit[0],hit[1]))
     bm=bmesh.new(); rows=[]
@@ -361,7 +366,8 @@ def torso_w(co):
     else: w=dict(keys[-1][1])
     # shoulder: blend upper_arm near the armhole
     ax=abs(co.x); side='R' if co.x>0 else 'L'
-    ua=P['torso_arm_w']*smooth((ax-0.110)/0.050)*smooth((z-1.26)/0.05)
+    z0,dz=P.get('torso_arm_z',[1.26,0.05])
+    ua=P['torso_arm_w']*smooth((ax-0.110)/0.050)*smooth((z-z0)/dz)
     if ua>0:
         w={b:x*(1-ua) for b,x in w.items()}; w[f'upper_arm.{side}']=w.get(f'upper_arm.{side}',0)+ua
     return w
