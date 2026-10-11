@@ -15,7 +15,9 @@ import skirt_solve as SS        # noqa: E402
 from export_clips import ORDER  # noqa: E402
 
 FPS = CB.FPS
-NO_ARMS = {'sit_hold', 'sit_down', 'stand_up', 'door_reach'}     # hands IK-placed (lap / door handle): arms stay as built
+NO_ARMS = {'sit_hold', 'sit_down', 'stand_up'}     # hands IK-placed on the lap: arms stay as built
+ARM_SIDES = {'door_reach': 'R'}     # bone .L holds the door handle (IK); only her free left arm (bone .R) is solved
+SEATED = {'sit_hold', 'sit_down', 'stand_up'}     # seated drape is task 03: no closest-approach term (cannot clear the lap)
 
 
 def hub_curves(out, name):
@@ -64,6 +66,8 @@ def main():
         with open(os.path.join(out, name + '.json')) as f:
             meta = json.load(f)
         lock = lock_for(out, meta, d)
+        solver.near = 0.0 if name in SEATED else SS.MARG_NEAR
+        solver.arm_sides = ARM_SIDES.get(name, 'LR')
         log = []
         Qo, rep = SS.solve_clip(solver, d['Q'], d['T'], periodic=meta['loop'], lock=lock, arms=name not in NO_ARMS,
                                 log=lambda *a: log.append(' '.join(str(x) for x in a)))

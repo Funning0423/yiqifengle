@@ -17,6 +17,10 @@ ROLLS = {'skirt.left': -1.0, 'skirt.right': 1.0}        # outward flare sign abo
 VARS = PANELS + [LOWS[p] for p in PANELS] + ['roll.' + p for p in ROLLS] + ['arm.L', 'arm.R']
 MARG_LEG = 0.006
 MARG_ARM = 0.003
+# closest approach leg -> dress in any direction (walk_clipcheck clear_leg_dress_mm must stay >= 6 mm); the extra 3 mm
+# covers the GLB key reduction of the skirt curves at the hem
+MARG_NEAR = 0.009
+NEAR_MAX_Y = 0.95
 STEP = np.radians(1.0)
 CAP = {v: np.radians(50.0) for v in VARS}
 CAP['arm.L'] = CAP['arm.R'] = np.radians(25.0)
@@ -85,6 +89,8 @@ class Solver:
             self.face_var[k] = fv
         self.hi = r.idx['hips']
         self.ci = r.idx['chest']
+        self.near = MARG_NEAR
+        self.arm_sides = 'LR'
 
     # ---------- skinning ----------
     def skin(self, W, md, ids=None):
@@ -142,7 +148,7 @@ class Solver:
         tA = BVHTree.FromPolygons([Vector(v) for v in ap], self.md['APRON']['F'].tolist())
         lg = self.skin(W, self.md['BODY'], self.leg_ids)
         push = {}
-        hits = dict(leg_dress=0, leg_apron=0, arm=0)
+        hits = dict(leg_dress=0, leg_apron=0, arm=0, leg_near=0)
         depth = 0.0
         for p in lg:
             d = np.array([H[0] - p[0], 0.0, H[2] - p[2]])
@@ -151,6 +157,13 @@ class Solver:
                 continue
             d /= L
             fw = 1.0 if (Rh.T @ (p - H))[2] > 0 else -1.0
+            if self.near > 0 and p[1] <= NEAR_MAX_Y:
+                nn = tD.find_nearest(Vector(p), self.near)
+                if nn[0] is not None:
+                    hits['leg_near'] += 1
+                    var = self.face_var['DRESS'][nn[2]]
+                    if var:
+                        push.setdefault(var, []).append(fw)
             o = Vector(p - d * marg_leg)
             dv = Vector(d)
             for tree, key, k in ((tD, 'leg_dress', 'DRESS'), (tA, 'leg_apron', 'APRON')):
@@ -167,6 +180,8 @@ class Solver:
             tor = self.skin(W, self.md['BODY'], self.torso_ids)
             tC = BVHTree.FromPolygons([Vector(v) for v in tor], self.torso_F.tolist())
             for p, s in zip(am, self.arm_side):
+                if s not in self.arm_sides:
+                    continue
                 d = np.array([p[0] - H[0], 0.0, p[2] - H[2]])
                 L = np.linalg.norm(d)
                 if L < 1e-4:
@@ -295,7 +310,7 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
                 lag = np.interp(np.arange(n) - low_lag, np.arange(n), up)
             cur[LOWS[p]] = cur[LOWS[p]] + low_k * (lag - up)
         bad = []
-        tot = dict(leg_dress=0, leg_apron=0, arm=0)
+        tot = dict(leg_dress=0, leg_apron=0, arm=0, leg_near=0)
         for i in range(n):
             for frac in (0.0, 0.5):
                 if frac and not periodic and i == n - 1:
