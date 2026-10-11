@@ -27,7 +27,7 @@ function env(opts = {}) {
   if (opts.noHook) delete flow.onApronLift;
   const audioNode = new Node();
   const gulls = []; let now = 0;
-  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, play(n, v) { gulls.push({ t: +now.toFixed(3), n, v }); } }, ensure() { return this.instance; } };
+  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, plays: [], play(n, v) { this.plays.push({ t: +now.toFixed(3), n, v }); } }, ensure() { return this.instance; } };
   const scene = { getComponentInChildren(n) { return n === 'WorldFlowComponent' ? flow : null; } };
   const cc = { _decorator: { ccclass: () => (C) => C }, Component, AudioSource, AudioClip: class {},
     isValid: (o) => !!o && o.valid !== false && o.destroyed !== true,
@@ -37,12 +37,15 @@ function env(opts = {}) {
   const load = (file, code, extra) => { const m = new Module(file); m.filename = file; m.paths = []; const o = m.require.bind(m);
     m.require = (id) => id === 'cc' ? cc : id === './GameAudio' ? { GameAudio } : extra && extra[id] ? extra[id] : o(id); m._compile(code, file); return m.exports; };
   const amb = load(AMB, ambJs);
+  // gulls now play through AmbienceAudio's own L/R voices (stereo pan); record them from the 'start' events
+  amb.AmbienceAudio.onGullCall(e => { if (e.phase === 'start') gulls.push({ t: +now.toFixed(3), n: e.clip, v: e.vol }); });
   const mod = load(SRC, js, { './AmbienceAudio': amb });
   amb.AmbienceAudio.windExit = 0;
   if (!opts.withAmbience) onceCbs.splice(0, 1);       // only WindAudio unless asked
   onceCbs.forEach(cb => cb());
   const w = audioNode.getComponent(mod.WindAudio), a = audioNode.getComponent(amb.AmbienceAudio);
-  const sources = () => audioNode.comps.filter(c => c instanceof AudioSource && c !== (a && a.src));
+  const gullSrc = c => !!a && a.voices.some(v => v.l === c || v.r === c);
+  const sources = () => audioNode.comps.filter(c => c instanceof AudioSource && c !== (a && a.src) && !gullSrc(c));
   const run = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) { now += dt; w.update(dt); if (a) a.update(dt); } };
   return { mod, amb, w, a, flow, GameAudio, sources, run, loads, unsubbed, gulls, now: () => now };
 }
@@ -156,7 +159,7 @@ const gaps = (g) => g.slice(1).map((x, i) => +(x.t - g[i].t).toFixed(3));
   const G = e.gulls.map(x => ({ ...x, t: +(x.t - t0).toFixed(2) }));
   ok(wavesAtSill > 0.002 && wavesAtSill < 0.02 && wavesAt12 > 0.15, 'real: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s (w ramp + floor)', { at11: +wavesAtSill.toFixed(4), at13_5: +wavesAt12.toFixed(4) });
   ok(G.length === 2, 'real: exactly two gulls over the exit (0.7 merged, crane gull skipped)', G);
-  ok(G[0] && G[0].n === A.distant[0].clip && near(G[0].v, 0.3) && G[0].t > 13 && G[0].t < 13.6, 'real: one distant gull at the 0.4 crossing (~13.3 s)', G[0]);
+  ok(G[0] && G[0].n === A.distant[0].clip && near(G[0].v, 0.3) && G[0].t > 13.7 && G[0].t < 14.2, 'real: one distant gull 0.5 s after the 0.4 crossing (~14.0 s; decided at the crossing)', G[0]);
   ok(!G.some(x => x.n === A.distant[1].clip), 'real: 0.7 crossing (~0.6 s later) merged into the first');
   ok(G[1] && G[1].n === A.nearClip && near(G[1].v, 0.5) && G[1].t >= G[0].t + 2.5 - 0.02 && G[1].t <= TL.events.apronLift + 0.4 + 4, 'real: near gull after apron lift, waits for the 2.5 s gap', { near: G[1], fromFlap: G[1] && +(G[1].t - TL.events.apronLift).toFixed(2) });
   ok(gaps(G).every(x => x >= 2.5 - 0.02), 'real: all gull gaps >= 2.5 s', gaps(G));
@@ -165,8 +168,8 @@ const gaps = (g) => g.slice(1).map((x, i) => +(x.t - g[i].t).toFixed(3));
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1.2); e.gulls.length = 0; e.a.gullIn = 1e9;
   e.flow.cranes[0]({ segment: 'toIsland', progress: .5, seconds: 3 }); const t0 = e.now(); e.run(2);
   ok(e.gulls.length === 1 && e.gulls[0].n === 'sfx_amb_gull_1' && near(e.gulls[0].t - t0, 1.5, 0.04) && near(e.gulls[0].v, 0.6), 'crane gull 1.5 s after onCraneStart (gap free) at 0.6', e.gulls);
-  e.run(0.5); e.flow.cranes[0]({}); e.run(5);
-  ok(e.gulls.length === 1, 'crane gull 2.0 s after the previous one -> skipped, not delayed', e.gulls);
+  e.run(0.2); e.flow.cranes[0]({}); e.run(5);   // due 2.2 s after the previous gull (decided at onCraneStart)
+  ok(e.gulls.length === 1, 'crane gull due 2.2 s after the previous one -> skipped, not delayed', e.gulls);
 }
 // near gull waits for the gap but is dropped if it would be > nearMaxLateS late
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1); e.gulls.length = 0; e.a.gullIn = 1e9;

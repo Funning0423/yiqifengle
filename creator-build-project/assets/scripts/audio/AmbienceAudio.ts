@@ -9,6 +9,8 @@
 //   - 远处海鸥：一次上升过程中 s 第一次越过 0.4、0.7 各一声（不同素材、更轻），s 回到 0.1 以下才重置。
 //   - 近处海鸥：onApronLift('full') 后 0.4 s 一声（WindAudio 调 AmbienceAudio.notifyApronFull()），让开布料声。
 //   - 起升镜头海鸥保留；任何两声海鸥间隔至少 GULL_MIN_GAP_S（太近就顺延）；出门过程中不放随机海鸥。
+// 海鸥事件（给场景特效bot 的可见海鸥，docs/audio-events.md）：每声海鸥先 'scheduled' 再 'start'（同一 id），
+//   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio, SfxName } from './GameAudio';
 const { ccclass } = _decorator;
@@ -20,7 +22,7 @@ const GULL_MIN_S = 8, GULL_MAX_S = 20, GULL_VOL = 0.6;   // gull v6（真实录�
 // 出门风声段的海鸥 / 海浪参数（触发逻辑和音量都在这里调）。vol 是绝对音量（AudioSource.volume）。
 // maxLateS：因为最小间隔要等的时候，最多晚多少秒；超过就丢掉（0 = 不等，间隔不够直接跳过 / 并掉）。
 // 按 运镜bot 138bca5 的真实时间线（leaveHome 起：10.00 跨门 0.1 → 12.36 起 0.15 → 14.73 正面 1.0 → 14.82 围裙掀起 →
-// 15.48 起升 → 21.62 回 0）：0.4 一声远处（~13.3 s）；0.7 那声离得太近，并掉；近处在间隔满足后放；起升那声间隔不够就不放。
+// 15.48 起升 → 21.62 回 0）：0.4 一声远处（越线 ~13.5 s 时决定，0.5 s 后 ~14.0 s 开始）；0.7 那声离得太近，并掉；近处在间隔满足后放；起升那声间隔不够就不放。
 export const EXIT_AUDIO = {
   waveWindFloor: 0.35,          // 出门时海浪最低音量 = waveWindFloor * smoothstep(waveFloorFrom, waveFloorTo, s)
   waveFloorFrom: 0.1, waveFloorTo: 0.6,
@@ -37,6 +39,80 @@ export const EXIT_AUDIO = {
 const SMOOTH_PER_S = 4;          // 一阶平滑，避免 w 有台阶时音量跳
 const REFIND_S = 1;              // 没找到 WorldFlowComponent 时每秒再找一次
 
+// ---------------------------------------------------------------- gull call events (docs/audio-events.md)
+export type GullDist = 'near' | 'far';
+export type GullPhase = 'scheduled' | 'start' | 'cancelled';
+export type GullKind = 'random' | 'distant' | 'near' | 'crane' | 'request';
+export interface GullCallEvent {
+  id: number; phase: GullPhase;
+  /** 'scheduled'：计划开始的时间；'start'：实际开始的时间（AmbienceAudio.gameTime() 时钟，秒） */
+  at: number;
+  dist: GullDist; yawWorldDeg: number; distM: number; durS: number;
+  /** 发出事件时距离开始还有多少秒（'start' / 'cancelled' 为 0） */
+  leadS: number;
+  kind: GullKind; clip: SfxName; vol: number;
+}
+export type GullCallListener = (e: GullCallEvent) => void;
+export const GULL_EVENTS = {
+  randomLeadS: 2.5,             // 随机海鸥提前 2.5 s 决定
+  // 远处海鸥：风力越线时决定，延后 0.5 s 开始（lead 0.5 s）。没有用"预测越线"：出门风力先在 0.15 停 ~1.5 s 再加速上升，
+  // 线性外推要么误报（停住后再取消），要么晚 ~1 s；固定延时最稳，0.4 那声从 ~13.5 s 移到 ~14.0 s，听不出差别。
+  distantDelayS: 0.5,
+  distantCancelBelow: 0.08,     // 到点时风力 < 阈值 - 0.08（风又回落了）就取消
+  nearYawSpreadDeg: 60,         // 近处海鸥：方位在镜头水平朝向 ±60° 内
+  nearTurnMinDeg: 5,            // 镜头在转：放在转向那一侧的 [5°, 60°]
+  turnRateDegS: 4,              // 镜头水平角速度超过 4°/s 算"在转"
+  panDepth: 0.5,                // pan = 0.5 * sin(相对方位)
+  nearDistM: [6, 12], farDistM: [30, 60],
+  nightRateScale: 0.4, nightVolDb: -3,   // 夜里随机海鸥：频率 x0.4，音量 -3 dB（按 propNightWeight 线性插值）
+  durS: { sfx_amb_gull_1: 3.40, sfx_amb_gull_2: 3.29, sfx_amb_gull_3: 3.24 } as { [k: string]: number },
+  lrDir: 'audio_sfx/gull_lr/',  // <clip>_L / <clip>_R：单声道素材分别放在左 / 右声道的立体声版本
+};
+const RANDOM_DIST: { [k: string]: GullDist } = { sfx_amb_gull_1: 'near', sfx_amb_gull_2: 'far', sfx_amb_gull_3: 'far' };
+
+const wrap360 = (d: number) => { const r = d % 360; return r < 0 ? r + 360 : r; };
+const wrap180 = (d: number) => { const r = wrap360(d); return r > 180 ? r - 360 : r; };
+/** 镜头水平朝向（度）：forward 的 atan2(x, z)，0 = +Z，90 = +X（和 IslandAtmosphereFx 光束、运镜bot 相同的约定） */
+export function cameraYawDeg(fwd: { x: number; z: number } | null | undefined): number | null {
+  if (!fwd) return null; const x = Number(fwd.x), z = Number(fwd.z);
+  if (!Number.isFinite(x) || !Number.isFinite(z) || x * x + z * z < 1e-8) return null;
+  return wrap360(Math.atan2(x, z) * 180 / Math.PI);
+}
+/** 声像 -1（左）..1（右）：海鸥在镜头右侧为正。pan = panDepth * sin(camYaw - yawWorld) */
+export function gullPan(yawWorldDeg: number, camYawDeg: number | null): number {
+  if (camYawDeg === null || !Number.isFinite(camYawDeg) || !Number.isFinite(yawWorldDeg)) return 0;
+  return GULL_EVENTS.panDepth * Math.sin((camYawDeg - yawWorldDeg) * Math.PI / 180);
+}
+/** 等功率 L/R 增益（中间时两边都是 1，和原来单声道居中一样响） */
+export function panGains(pan: number): { l: number; r: number } {
+  const p = Math.max(-1, Math.min(1, pan)), th = (p + 1) * Math.PI / 4;
+  return { l: Math.SQRT2 * Math.cos(th), r: Math.SQRT2 * Math.sin(th) };
+}
+/** 近处海鸥方位：镜头朝向 ±60° 内；镜头在转（|rate| > 4°/s）时放在转向那一侧。镜头未知时任意方位。 */
+export function nearGullYaw(camYawDeg: number | null, camRateDegS: number, rnd: () => number): number {
+  const G = GULL_EVENTS;
+  if (camYawDeg === null) return wrap360(rnd() * 360);
+  if (Math.abs(camRateDegS) > G.turnRateDegS) {
+    const side = camRateDegS > 0 ? 1 : -1;
+    return wrap360(camYawDeg + side * (G.nearTurnMinDeg + rnd() * (G.nearYawSpreadDeg - G.nearTurnMinDeg)));
+  }
+  return wrap360(camYawDeg + (rnd() * 2 - 1) * G.nearYawSpreadDeg);
+}
+/** 最早可用的开始时间：离 taken 里每个时间都 >= gap；比 due 晚超过 maxLate 返回 -1 */
+export function findGullSlot(due: number, maxLate: number, taken: number[], gap: number): number {
+  const ts = taken.slice().sort((a, b) => a - b); let t = due;
+  for (let i = 0; i < ts.length; i++) if (t > ts[i] - gap + 1e-9 && t < ts[i] + gap - 1e-9) t = ts[i] + gap;
+  return t - due <= maxLate + 1e-9 ? t : -1;
+}
+/** 夜间随机海鸥：频率倍数、音量倍数（w: 0 白天 .. 1 夜里） */
+export function nightGullScale(w: number): { rate: number; vol: number } {
+  const k = Number.isFinite(w) ? Math.max(0, Math.min(1, w)) : 0, G = GULL_EVENTS;
+  return { rate: 1 + (G.nightRateScale - 1) * k, vol: 1 + (Math.pow(10, G.nightVolDb / 20) - 1) * k };
+}
+
+interface GullCall { id: number; kind: GullKind; at: number; dist: GullDist; yawWorldDeg: number; distM: number; durS: number; clip: SfxName; vol: number; minWind: number; distantIdx: number }
+interface GullVoice { l: AudioSource; r: AudioSource; call: GullCall | null; end: number }
+
 @ccclass('AmbienceAudio')
 export class AmbienceAudio extends Component {
   private src: AudioSource | null = null;
@@ -44,21 +120,46 @@ export class AmbienceAudio extends Component {
   private flow: any = null;
   private refindIn = 0;
   private vol = 0;
-  private gullIn = GULL_MIN_S;
+  private gullIn = GULL_MIN_S;       // 距离下一声随机海鸥开始还有多少"白天秒"（夜里按 nightRate 变慢）
   private alive = true;
   private craneHooked: any = null;   // 已订阅 onCraneStart 的 flow
-  private clock = 0;                 // 本组件自己的秒表（update 累加）
-  private lastGullAt = -1e9;
-  private pending: { at: number; clip: SfxName; vol: number; maxLate: number }[] = [];
+  private clock = 0;                 // 本组件自己的秒表（update 累加）= 海鸥事件的 game time
+  private lastGullAt = -1e9;         // 上一声实际开始的时间
+  private pending: GullCall[] = [];  // 已 'scheduled'、还没 'start' 的海鸥
   private distantDone: boolean[] = [];
   private exitActive = false;
+  private lastOutdoor = -1;
+  private canSoundNow = false;
+  private camYaw: number | null = null; private camRate = 0;
+  private lrClips: { [k: string]: AudioClip } = {};
+  private voices: GullVoice[] = [];
 
   /** WindAudio 每帧调用：平滑后的 getWindStrength()（被静音/看不见世界时传 0） */
   static windExit = 0;
   private static nearRequests = 0;
+  private static inst: AmbienceAudio | null = null;
+  private static listeners: GullCallListener[] = [];
+  private static nextId = 1;
+  private static nightSource: (() => number) | null = null;
+  static rnd: () => number = Math.random;
   static setWindExit(s: number) { AmbienceAudio.windExit = Number.isFinite(s) ? Math.max(0, Math.min(1, s)) : 0; }
   /** WindAudio 在 onApronLift('full') 时调用：nearDelayS 后放一声近处海鸥 */
   static notifyApronFull() { AmbienceAudio.nearRequests++; }
+  /** 夜间权重来源（AmbienceNight.ts 注册 IslandPropsLayout.propNightWeight）；没有就按白天 */
+  static setNightSource(fn: (() => number) | null) { AmbienceAudio.nightSource = typeof fn === 'function' ? fn : null; }
+  static nightWeight(): number { try { const f = AmbienceAudio.nightSource; const w = f ? Number(f()) : 0; return Number.isFinite(w) ? Math.max(0, Math.min(1, w)) : 0; } catch { return 0; } }
+  /** 海鸥事件的时钟（秒）：事件里的 at 都是这个时钟 */
+  static gameTime(): number { return AmbienceAudio.inst ? AmbienceAudio.inst.clock : 0; }
+  /** 订阅海鸥事件；返回取消订阅函数 */
+  static onGullCall(cb: GullCallListener): () => void {
+    if (typeof cb !== 'function') return () => {};
+    AmbienceAudio.listeners.push(cb);
+    return () => { const i = AmbienceAudio.listeners.indexOf(cb); if (i >= 0) AmbienceAudio.listeners.splice(i, 1); };
+  }
+  /** 立即放一声（离上一声 >= 2.5 s、且前后 2.5 s 内没有已排的海鸥、环境声允许、在室外）；返回 id 或 null */
+  static requestGullCall(dist: GullDist, yawWorldDeg: number): number | null {
+    const a = AmbienceAudio.inst; return a && a.alive ? a.request(dist, yawWorldDeg) : null;
+  }
 
   static ensure() {
     try {
@@ -68,6 +169,7 @@ export class AmbienceAudio extends Component {
   }
 
   onLoad() {
+    AmbienceAudio.inst = this;
     this.src = this.node.addComponent(AudioSource);
     this.src.playOnAwake = false; this.src.loop = true; this.src.volume = 0;
     resources.load(WAVES_PATH, AudioClip, (err, clip) => {
@@ -75,17 +177,45 @@ export class AmbienceAudio extends Component {
       if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); return; }
       clip.addRef(); this.clip = clip; if (this.src) this.src.clip = clip;
     });
+    // 声像用的 L/R 版本（缺了就退回 GameAudio.play 居中播放）
+    for (let i = 0; i < GULLS.length; i++) {
+      for (let s = 0; s < 2; s++) {
+        const key = GULLS[i] + (s ? '_R' : '_L');
+        resources.load(GULL_EVENTS.lrDir + key, AudioClip, (err, clip) => {
+          if (!this.alive || !isValid(this.node, true)) return;
+          if (err || !clip) { console.warn('[AmbienceAudio] gull L/R load failed', key, err); return; }
+          clip.addRef(); this.lrClips[key] = clip;
+        });
+      }
+    }
     this.gullIn = this.nextGull();
+    this.exposeOnWorld();
   }
 
   onDestroy() {
     this.alive = false;
+    if (AmbienceAudio.inst === this) AmbienceAudio.inst = null;
     try { this.src?.stop(); } catch { /* ignore */ }
     if (this.src) { try { this.src.clip = null; this.src.destroy(); } catch { /* ignore */ } }
     this.clip?.decRef(); this.clip = null; this.src = null; this.flow = null;
+    for (let i = 0; i < this.voices.length; i++) { const v = this.voices[i]; this.stopVoice(v); try { v.l.destroy(); v.r.destroy(); } catch { /* ignore */ } }
+    this.voices = [];
+    const keys = Object.keys(this.lrClips); for (let i = 0; i < keys.length; i++) { try { this.lrClips[keys[i]].decRef(); } catch { /* ignore */ } }
+    this.lrClips = {};
+    this.pending = [];
   }
 
-  private nextGull() { return GULL_MIN_S + Math.random() * (GULL_MAX_S - GULL_MIN_S); }
+  private nextGull() { return GULL_MIN_S + AmbienceAudio.rnd() * (GULL_MAX_S - GULL_MIN_S); }
+
+  /** __worldIntegration 由 WorldIntegrationBoot 创建 / 重建；每帧把海鸥接口挂上去（不改 Boot） */
+  private exposeOnWorld() {
+    try {
+      const wi = (globalThis as any).__worldIntegration;
+      if (wi && typeof wi === 'object' && wi.onGullCall !== AmbienceAudio.onGullCall) {
+        wi.onGullCall = AmbienceAudio.onGullCall; wi.requestGullCall = AmbienceAudio.requestGullCall; wi.gullClock = AmbienceAudio.gameTime;
+      }
+    } catch { /* optional */ }
+  }
 
   /** 0 = 室内（无声），1 = 室外；-1 = 没有世界 / 没有 rig / 世界不可见（连出门风声段的海浪也不放） */
   private outdoorAmount(dt: number): number {
@@ -95,9 +225,9 @@ export class AmbienceAudio extends Component {
       this.refindIn = REFIND_S;
       try { this.flow = director.getScene()?.getComponentInChildren('WorldFlowComponent') ?? null; } catch { this.flow = null; }
       if (!this.flow) return -1;
-      // T2+ 升降镜头起升后约 1.5 秒放一声海鸥，配合画面拉高成海岛全景（接口不存在就跳过）
+      // T2+ 升降镜头起升时决定一声海鸥（1.5 s 后开始），配合画面拉高成海岛全景（接口不存在就跳过）
       if (this.craneHooked !== this.flow && typeof this.flow.onCraneStart === 'function') {
-        try { this.flow.onCraneStart(() => { if (this.alive) this.queueGull(this.clock + EXIT_AUDIO.craneDelayS, EXIT_AUDIO.craneClip, EXIT_AUDIO.craneVol, EXIT_AUDIO.craneMaxLateS); }); this.craneHooked = this.flow; } catch { /* optional */ }
+        try { this.flow.onCraneStart(() => { if (this.alive && this.canSoundNow) this.planGull('crane', 'near', this.clock + EXIT_AUDIO.craneDelayS, EXIT_AUDIO.craneClip, EXIT_AUDIO.craneVol, EXIT_AUDIO.craneMaxLateS); }); this.craneHooked = this.flow; } catch { /* optional */ }
       }
     }
     const get = this.flow.getRoomLightWeight;
@@ -114,13 +244,98 @@ export class AmbienceAudio extends Component {
     return 1 - w;
   }
 
-  private queueGull(at: number, clip: SfxName, vol: number, maxLate: number) {
-    this.pending.push({ at, clip, vol, maxLate });
+  /** 每帧读当前镜头水平朝向和角速度（没有镜头时为 null，声像居中） */
+  private trackCamera(dt: number) {
+    let yaw: number | null = null;
+    try { const n = this.flow && this.flow.worldCamera && this.flow.worldCamera.node; if (n && isValid(n, true)) yaw = cameraYawDeg(n.forward); } catch { yaw = null; }
+    if (yaw !== null && this.camYaw !== null && dt > 0) {
+      const r = wrap180(yaw - this.camYaw) / dt; this.camRate += (r - this.camRate) * Math.min(1, dt * 8);
+    } else this.camRate = 0;
+    this.camYaw = yaw;
   }
 
-  /** 放一声海鸥并记下时间（最小间隔由调用方检查） */
-  private playGull(audio: GameAudio, clip: SfxName, vol: number) {
-    audio.play(clip, vol); this.lastGullAt = this.clock;
+  private emit(c: GullCall, phase: GullPhase) {
+    const ls = AmbienceAudio.listeners.slice();
+    for (let i = 0; i < ls.length; i++) {
+      const e: GullCallEvent = { id: c.id, phase, at: c.at, dist: c.dist, yawWorldDeg: c.yawWorldDeg, distM: c.distM, durS: c.durS,
+        leadS: phase === 'scheduled' ? Math.max(0, c.at - this.clock) : 0, kind: c.kind, clip: c.clip, vol: c.vol };
+      try { ls[i](e); } catch (err) { console.warn('[AmbienceAudio] onGullCall listener threw', err); }
+    }
+  }
+
+  private takenTimes(): number[] {
+    const t = [this.lastGullAt]; for (let i = 0; i < this.pending.length; i++) t.push(this.pending[i].at); return t;
+  }
+
+  /** 决定一声海鸥：找满足最小间隔的时间（最多晚 maxLate），选好方位，发 'scheduled'。放不下返回 null（不发事件）。 */
+  private planGull(kind: GullKind, dist: GullDist, due: number, clip: SfxName, vol: number, maxLate: number, yaw?: number, minWind = -1, distantIdx = -1): GullCall | null {
+    const at = findGullSlot(due, maxLate, this.takenTimes(), EXIT_AUDIO.gullMinGapS);
+    if (at < 0) return null;
+    const G = GULL_EVENTS, rnd = AmbienceAudio.rnd, range = dist === 'near' ? G.nearDistM : G.farDistM;
+    const yawW = yaw !== undefined ? wrap360(yaw) : dist === 'near' ? nearGullYaw(this.camYaw, this.camRate, rnd) : wrap360(rnd() * 360);
+    const c: GullCall = { id: AmbienceAudio.nextId++, kind, at, dist, yawWorldDeg: +yawW.toFixed(2), distM: +(range[0] + rnd() * (range[1] - range[0])).toFixed(1),
+      durS: G.durS[clip] || 3.3, clip, vol, minWind, distantIdx };
+    this.pending.push(c);
+    this.emit(c, 'scheduled');
+    return c;
+  }
+
+  private cancelGull(c: GullCall) {
+    const i = this.pending.indexOf(c); if (i >= 0) this.pending.splice(i, 1);
+    if (c.distantIdx >= 0) this.distantDone[c.distantIdx] = false;
+    if (c.kind === 'random') this.gullIn = Math.max(this.gullIn, GULL_EVENTS.randomLeadS);   // 下次仍提前 2.5 s 决定
+    this.emit(c, 'cancelled');
+  }
+
+  private request(dist: GullDist, yawWorldDeg: number): number | null {
+    if (dist !== 'near' && dist !== 'far') return null;
+    const y = Number(yawWorldDeg); if (!Number.isFinite(y)) return null;
+    const audio = GameAudio.instance;
+    if (!audio || !audio.canPlayAmbience() || !(this.lastOutdoor > 0.5 || (this.lastOutdoor >= 0 && AmbienceAudio.windExit >= EXIT_AUDIO.exitOn))) return null;
+    if (this.clock - this.lastGullAt < EXIT_AUDIO.gullMinGapS - 1e-9) return null;
+    const E = EXIT_AUDIO, d = E.distant[Math.floor(AmbienceAudio.rnd() * E.distant.length) % E.distant.length];
+    const c = this.planGull('request', dist, this.clock, dist === 'near' ? E.nearClip : d.clip, dist === 'near' ? E.nearVol : d.vol, 0, y);
+    if (!c) return null;
+    this.startCall(audio, c);
+    return c.id;
+  }
+
+  private startCall(audio: GameAudio, c: GullCall) {
+    const i = this.pending.indexOf(c); if (i >= 0) this.pending.splice(i, 1);
+    c.at = this.clock; this.lastGullAt = this.clock; this.gullIn = this.nextGull();
+    this.emit(c, 'start');
+    const L = this.lrClips[c.clip + '_L'], R = this.lrClips[c.clip + '_R'];
+    if (!L || !R) { audio.play(c.clip, c.vol); return; }   // 没有 L/R 版本：居中
+    let v: GullVoice | null = null;
+    for (let k = 0; k < this.voices.length; k++) if (!this.voices[k].call) { v = this.voices[k]; break; }
+    if (!v && this.voices.length < 2) {
+      const mk = () => { const s = this.node.addComponent(AudioSource); s.playOnAwake = false; s.loop = false; s.volume = 0; return s; };
+      v = { l: mk(), r: mk(), call: null, end: 0 }; this.voices.push(v);
+    }
+    if (!v) { v = this.voices[0]; for (let k = 1; k < this.voices.length; k++) if (this.voices[k].end < v.end) v = this.voices[k]; this.stopVoice(v); }
+    v.call = c; v.end = this.clock + c.durS + 0.1;
+    try { v.l.stop(); v.r.stop(); } catch { /* ignore */ }
+    v.l.clip = L; v.r.clip = R; this.applyPan(v);
+    try { v.l.play(); v.r.play(); } catch (e) { console.warn('[AmbienceAudio] gull play failed', e); this.stopVoice(v); }
+  }
+
+  private applyPan(v: GullVoice) {
+    if (!v.call) return;
+    const g = panGains(gullPan(v.call.yawWorldDeg, this.camYaw));
+    v.l.volume = Math.min(1, v.call.vol * g.l); v.r.volume = Math.min(1, v.call.vol * g.r);
+  }
+
+  private stopVoice(v: GullVoice) {
+    v.call = null; v.end = 0;
+    try { v.l.stop(); v.r.stop(); } catch { /* ignore */ }
+  }
+
+  /** 诊断：排队的海鸥、正在响的海鸥和声像 */
+  gullDiagnostics() {
+    const playing: { id: number; pan: number; l: number; r: number }[] = [];
+    for (let i = 0; i < this.voices.length; i++) { const v = this.voices[i]; if (v.call) playing.push({ id: v.call.id, pan: +gullPan(v.call.yawWorldDeg, this.camYaw).toFixed(3), l: +v.l.volume.toFixed(3), r: +v.r.volume.toFixed(3) }); }
+    return { clock: +this.clock.toFixed(3), camYaw: this.camYaw, camRate: +this.camRate.toFixed(2), night: AmbienceAudio.nightWeight(), lastGullAt: this.lastGullAt,
+      pending: this.pending.map(c => ({ id: c.id, kind: c.kind, at: +c.at.toFixed(3), dist: c.dist, yaw: c.yawWorldDeg })), playing, lr: Object.keys(this.lrClips).length };
   }
 
   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
@@ -128,12 +343,16 @@ export class AmbienceAudio extends Component {
   update(dt: number) {
     const src = this.src; if (!src) return;
     this.clock += dt;
+    this.exposeOnWorld();
     const audio = GameAudio.instance;
     const canSound = !!audio && audio.canPlayAmbience();
+    this.canSoundNow = canSound;
     const allowed = canSound && !!this.clip;
     const outdoor = this.outdoorAmount(dt);
+    this.lastOutdoor = outdoor;
+    this.trackCamera(dt);
     const wind = outdoor >= 0 ? AmbienceAudio.windExit : 0;
-    const E = EXIT_AUDIO;
+    const E = EXIT_AUDIO, G = GULL_EVENTS;
     const floor = E.waveWindFloor * AmbienceAudio.smoothstep(E.waveFloorFrom, E.waveFloorTo, wind);
     const duck = 1 - E.waveWindDuck * AmbienceAudio.smoothstep(0.3, 1.0, wind);
     const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
@@ -146,44 +365,49 @@ export class AmbienceAudio extends Component {
       src.volume = this.vol;
       if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
-    // 出门风声段：越过阈值的远处海鸥，回到 exitOn 以下重置
+    // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
     else {
       this.exitActive = true;
       for (let i = 0; i < E.distant.length; i++) {
-        const d = E.distant[i];
-        if (!this.distantDone[i] && wind >= d.at) { this.distantDone[i] = true; if (canSound) this.queueGull(this.clock, d.clip, d.vol, d.maxLateS); }
+        const d = E.distant[i]; if (this.distantDone[i]) continue;
+        if (wind < d.at) continue;
+        this.distantDone[i] = true;
+        if (canSound && outdoor >= 0) this.planGull('distant', 'far', this.clock + G.distantDelayS, d.clip, d.vol, d.maxLateS, undefined, d.at - G.distantCancelBelow, i);
       }
     }
+    // 随机海鸥在出门风声段、室内时不放：已排的取消
+    const randomOk = allowed && !this.exitActive && outdoor * WAVES_MAX_VOL > WAVES_MAX_VOL * 0.8;
     while (AmbienceAudio.nearRequests > 0) {
       AmbienceAudio.nearRequests--;
-      if (canSound) this.queueGull(this.clock + E.nearDelayS, E.nearClip, E.nearVol, E.nearMaxLateS);
+      if (canSound) this.planGull('near', 'near', this.clock + E.nearDelayS, E.nearClip, E.nearVol, E.nearMaxLateS);
     }
-    // 排队的海鸥：到点且离上一声 >= gullMinGapS 才放；要等就顺延，晚于 maxLate 就丢掉（被静音时全部丢弃）
+    // 已排的海鸥：被静音 / 看不见世界时全部取消；到点就开始（时间在排的时候已经满足最小间隔）
     if (this.pending.length) {
-      if (!canSound || outdoor < 0) this.pending = [];
-      else {
-        this.pending.sort((x, y) => x.at - y.at);
-        const gapOk = this.clock - this.lastGullAt >= E.gullMinGapS;
-        const keep: { at: number; clip: SfxName; vol: number; maxLate: number }[] = [];
-        let played = false;
-        for (let i = 0; i < this.pending.length; i++) {
-          const g = this.pending[i];
-          if (this.clock < g.at) { keep.push(g); continue; }
-          if (!played && gapOk) { played = true; this.playGull(audio!, g.clip, g.vol); this.gullIn = this.nextGull(); continue; }
-          if (this.clock - g.at > g.maxLate) continue;     // 等太久 / 不等：丢掉
-          keep.push(g);
-        }
-        this.pending = keep;
+      const list = this.pending.slice();
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
+        if (!canSound || outdoor < 0 || (c.kind === 'random' && !randomOk)) { this.cancelGull(c); continue; }
+        if (this.clock + 1e-9 < c.at) continue;
+        if (c.minWind >= 0 && wind < c.minWind) { this.cancelGull(c); continue; }
+        this.startCall(audio!, c);
       }
     }
-    // 随机海鸥：只在基本处于室外、且不在出门风声段时计时
-    if (allowed && !this.exitActive && outdoor * WAVES_MAX_VOL > WAVES_MAX_VOL * 0.8) {
-      this.gullIn -= dt;
-      if (this.gullIn <= 0) {
-        if (this.clock - this.lastGullAt < E.gullMinGapS || this.pending.length) { this.gullIn = E.gullMinGapS; }
-        else { this.gullIn = this.nextGull(); this.playGull(audio!, GULLS[Math.floor(Math.random() * GULLS.length)], GULL_VOL); }
+    // 随机海鸥：只在基本处于室外、且不在出门风声段时计时；提前 randomLeadS 决定。夜里频率、音量按 propNightWeight 降低
+    if (randomOk) {
+      const night = nightGullScale(AmbienceAudio.nightWeight());
+      this.gullIn -= dt * night.rate;
+      let hasRandom = false; for (let i = 0; i < this.pending.length; i++) if (this.pending[i].kind === 'random') hasRandom = true;
+      if (!hasRandom && this.gullIn / night.rate <= G.randomLeadS) {
+        const clip = GULLS[Math.floor(AmbienceAudio.rnd() * GULLS.length) % GULLS.length];
+        const c = this.planGull('random', RANDOM_DIST[clip], this.clock + Math.max(0, this.gullIn / night.rate), clip, +(GULL_VOL * night.vol).toFixed(4), 30);
+        if (!c) this.gullIn = E.gullMinGapS;
       }
+    }
+    // 声像：每帧按当前镜头朝向重算；到时间的声源收回；不能出声时立即停
+    for (let i = 0; i < this.voices.length; i++) {
+      const v = this.voices[i]; if (!v.call) continue;
+      if (!canSound || this.clock >= v.end) this.stopVoice(v); else this.applyPan(v);
     }
   }
 }
