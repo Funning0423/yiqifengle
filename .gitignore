@@ -30,3 +30,19 @@ creator-runtime-project/
 /output/mainline-profile-*/
 
 /output/mainline-r5-regression/
+
+# ---- Cocos Creator 3.8 generic (added by Grok Bot, phase 0) ----
+library/
+temp/
+local/
+build/
+profiles/
+node_modules/
+**/creator-build-project/settings/v2/packages/*.local.json
+*.tmp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+npm-debug.log*
+yarn-error.log*
