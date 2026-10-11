@@ -52,6 +52,8 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;this.playNamed(kind==='sit'?'sit_hold':'idle_breathing_loop',true);j.resolve();}
   else if(!j&&this.visualName==='door_reach'&&this.visualElapsed>=this.visualState.clip.duration)this.playNamed('idle_breathing_loop',true);
  }
+ /** T2+: stand/sit = authored clip length; turn = the fixed 1.5 s used by perform(). */
+ actionSeconds(kind:'stand'|'sit'|'turn'){if(kind==='turn')return 1.5;const clip=this.anim?.clips.find(c=>c?.name===(kind==='stand'?'stand_up':'sit_down'));const d=clip?.duration;return Number.isFinite(d)&&d!>0?d:undefined;}
  perform(action:Action,token:Cancellation):Promise<void>{token.check();if(this.disposed)return Promise.reject(Error('Character disposed'));if(this.job)return Promise.reject(Error('Character action busy'));
   if(action.kind==='sit'){
    const q=this.node.worldRotation,from=Math.atan2(2*(q.x*q.z+q.w*q.y),1-2*(q.x*q.x+q.y*q.y));
@@ -73,7 +75,7 @@ export class WorldIntegrationBoot extends Component {
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
  private loadingBackdrop:Node|null=null;private loadingImageSize={width:710,height:1536};private characterPrefab:Prefab|null=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private islandEntrance=-1;private settledListeners=new Set<(place:'island'|'home')=>void>();private error='';private doorReached=false;
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private islandEntrance=-1;private error='';private doorReached=false;
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -162,10 +164,6 @@ export class WorldIntegrationBoot extends Component {
   if(n.name==='mainline')applyJourneyNavigationSkin(n,'primary',r.width,r.height);}
   n.setScale(1,1,1);n.setPosition(r.x,r.y,0);
  }
- /** T2/T3a: fires once per completed journey when the world camera is at its final stable pose with zero speed
-  * (outbound/return ease-out finishes inside the last walk, before restore()). For debug logging (e.g. GGbot T0 GB_MARK)
-  * and HUD sequencing. Returns an unsubscribe function. Release builds only call registered listeners; nothing is logged here. */
- onCameraSettled(fn:(place:'island'|'home')=>void){this.settledListeners.add(fn);return ()=>{this.settledListeners.delete(fn);};}
  /** Funning 2026-10-11: the top status plate is HIDDEN during outbound/return transitions and slides back in (position
   * animation, no opacity fade) once the character is still and operable. GGbot owns the HUD API.
   * TODO(GGbot): wire 'hide' -> statusHud.hide() and 'slideIn' -> statusHud.slideIn(). Intentionally a no-op here. */
@@ -176,7 +174,8 @@ export class WorldIntegrationBoot extends Component {
   if(state==='standing'||state==='walking-home')this.hudTransition('hide',state);
   const place=state==='island'&&prev==='crossing-out'?'island':state==='home'&&prev==='sitting'?'home':null;
   if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
-  if(place){this.hudTransition('slideIn',place);for(const fn of Array.from(this.settledListeners)){try{fn(place);}catch(error){console.warn('onCameraSettled listener failed',String(error));}}}
+  // Same instant as WorldFlowComponent.onCameraSettled(place) (camera at rest, girl still).
+  if(place)this.hudTransition('slideIn',place);
  }
  /** T2: island buttons enter with a 0.25 s slide (24 px) + scale (0.94->1). Position/scale only: no opacity, so the
   * scene is never masked. Applied after placeNavigationControl, which rewrites the base pose every frame. */

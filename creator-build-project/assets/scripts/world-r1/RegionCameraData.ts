@@ -9,7 +9,7 @@
  */
 import type { AuthoredPose } from './CameraPose';
 export type IslandPoseSource = 'legacy-capsule' | 'temporary-6m' | 'yunjing-final' | 'v23-wide' | 'v23-girl' | 'v24-readable';
-export type HomePoseSource = 'legacy-capsule' | 'oi-interim-standing' | 'sitting-room';
+export type HomePoseSource = 'legacy-capsule' | 'oi-interim-standing' | 'sitting-room' | 'corner-all-four';
 export type PoseEntry = AuthoredPose & Readonly<{ characterYawDeg?: number; source: string }>;
 export const REGION_CAMERA = {
   version: 2,
@@ -44,6 +44,11 @@ export const REGION_CAMERA = {
       // User-approved 2026-10-10 room/window portrait, pulled back only 0.10 m. Original actor route and transition timing stay unchanged.
       'sitting-room': { position: [-1.32022071, 1.38613379, -2.11374307], target: [0.04, 1.22, -4.45], fovVerticalDeg: 75,
         source: 'Approved rear-room-profile-e composition, 10 cm pullback. True arch/sea/palm. Static camera clearance 7.87 cm; native transition/HUD review required.' },
+      // T2+ CANDIDATE, NOT ACTIVE: the only lens volume in the existing room (CPU search over decoded GLB, LOS-checked)
+      // that frames seated girl + chair + front arched window + door at once in 586x1266 portrait. Needs fov 92 > CAMERA_FIXED.maxFov 75
+      // (pose would be rejected) and is a high back-wall angle (pitch -38), not a 3/4 side shot. Lead decision pending.
+      'corner-all-four': { position: [0.3, 2.35, -4.95], target: [0.8430, 0.8108, -3.0563], fovVerticalDeg: 92,
+        source: 'T2+ 运镜bot 2026-10-11 homesearch2 best (clearance 0.27 m, girl 45% H, door 12/20 + window 12 samples visible). Requires maxFov change.' },
     } as Record<HomePoseSource, PoseEntry | null>,
   },
   /** Debug frameCheck limits (NDC). Follow-up: tighten minY to -0.5 once Oi moves the nav buttons to the bottom 25%. */
@@ -99,10 +104,14 @@ export const TRANSITION_CAMERA = Object.freeze({
   enabled: true,
   version: 'T2-T3a-2026-10-11',
   keys: {
+    ST1:{position:[-1.1,1.75,-2.9],targetHeight:1.05,fovVerticalDeg:72},
+    R1:{position:[-0.533,1.6,0.822],targetHeight:1.0,fovVerticalDeg:73},
+    R2:{position:[-0.37,1.5,-0.1],targetHeight:1.0,fovVerticalDeg:73},
+    R3:{position:[-0.34,1.52,-1.0],targetHeight:1.0,fovVerticalDeg:70},
     G:{position:[-1.137,1.795,-3.121],targetHeight:1.08,fovVerticalDeg:71.9},
-    D0:{position:[-1.954,1.823,-3.567],targetHeight:0.8,fovVerticalDeg:67.2},
+    D0:{position:[-1.934,1.82,-3.55],targetHeight:0.8,fovVerticalDeg:67.2},
     D1:{position:[-1.786,1.799,-3.503],targetHeight:1.137,fovVerticalDeg:71.5},
-    D2:{position:[-1.212,1.635,-3.08],targetHeight:0.91,fovVerticalDeg:71.8},
+    D2:{position:[-1.212,1.665,-3.08],targetHeight:0.91,fovVerticalDeg:71.8},
     D3:{position:[-1.135,1.7,-2.675],targetHeight:1.141,fovVerticalDeg:71},
     D4:{position:[-1.214,1.694,-2.307],targetHeight:1.024,fovVerticalDeg:68},
     X1:{position:[-0.647,1.498,-1.448],targetHeight:0.978,fovVerticalDeg:69.2},
@@ -111,9 +120,9 @@ export const TRANSITION_CAMERA = Object.freeze({
     I1:{position:[0.174,1.15,0.115],targetHeight:1.064,fovVerticalDeg:55},
     T2:{position:[0.226,1.152,-0.256],targetHeight:0.806,fovVerticalDeg:60.2},
     OR:{position:[-0.287,1.537,-1.584],targetHeight:1,fovVerticalDeg:70.1},
-    C1:{position:[0.1,1.549,-1.251],targetHeight:0.966,fovVerticalDeg:67.8},
-    C2:{position:[0.628,1.61,-1.409],targetHeight:0.983,fovVerticalDeg:63.5},
-    C3:{position:[1.13,1.557,-1.621],targetHeight:0.977,fovVerticalDeg:62.6},
+    C1:{position:[-0.053,1.549,-1.353],targetHeight:0.966,fovVerticalDeg:67.8},
+    C2:{position:[0.154,1.884,-1.411],targetHeight:0.945,fovVerticalDeg:67.3},
+    C3:{position:[0.842,1.696,-1.721],targetHeight:1.007,fovVerticalDeg:68.8},
     IR:{position:[1.338,1.532,-1.515],targetHeight:0.933,fovVerticalDeg:72},
     S1:{position:[1.89,1.562,-1.926],targetHeight:1.044,fovVerticalDeg:70.5},
     S2:{position:[1.864,1.588,-2.044],targetHeight:0.98,fovVerticalDeg:69.3},
@@ -125,11 +134,30 @@ export const TRANSITION_CAMERA = Object.freeze({
   /** Ease windows are fractions of the move's duration (C2 remap, see CameraPose.remapProgress). */
   tracks: {
     homeToDoor: { interpolation: 'pchip', easeIn: .3, easeOut: .3 },
+    standTurn: { interpolation: 'pchip', easeIn: .35, easeOut: .12 },
     toDoor: { interpolation: 'pchip', easeIn: .15, easeOut: .15 },
-    outbound: { interpolation: 'pchip', easeIn: .08, easeOut: .15 },
-    inbound: { interpolation: 'pchip', easeIn: .1, easeOut: .08 },
+    outbound: { interpolation: 'pchip', easeIn: .08, easeOut: .2 },
+    inbound: { interpolation: 'pchip', easeIn: .35, easeOut: .08 },
     toSeat: { interpolation: 'pchip', easeIn: .2, easeOut: .2 },
   },
-  /** Interior lighting weight (1 = room rig, 0 = exterior) over walk progress, smoothstep. */
+  /** T5 room-light weight w over walk progress (linear rig blend, 2462ce4): ~0 well before restore() on the island,
+   *  back to 1 before the door closes. Driven by WorldFlowCore.roomLightRamp from the camera segment's walk. */
   lighting: { toIsland: { from: 1, to: 0, start: 0, end: .5 }, toThreshold: { from: 0, to: 1, start: .45, end: 1 } },
+  /** T2+ stand-up + turn: ONE move cameraHome -> (dolly back to medium, at fraction `mid` of stand+turn) -> D0. */
+  standTurn: { mid: .5, key: 'ST1' },
+  /** T2+ exterior rail: lens beside the walk at `distance` m on `side` of the walk tangent (+1 right / -1 left; outbound
+   *  seaward = -1), `lead` m ahead along the tangent, `height` m above the root; target `look` m ahead at targetHeight
+   *  (look > 0 keeps her on the trailing third line). Keys are generated by FirstsliceRoutes.railPose at each progress. */
+  /** T2+ crossing-out end key (rail form on outCrossing at progress 1): behind her in the doorway. */
+  crossOutEnd: { progress: 1, side: -1, distance: 0.649, height: 1.6, lead: -2.25, look: 0.399, targetHeight: 1, fovVerticalDeg: 72 } as RailKey,
+  railOut: [{ progress: 0.15, side: -1, distance: 0.994, height: 2.173, lead: -1.319, look: 0.063, targetHeight: 1.001, fovVerticalDeg: 61.591 }, { progress: 0.3, side: -1, distance: 3.765, height: 2.634, lead: -0.641, look: 0.031, targetHeight: 1, fovVerticalDeg: 58 }, { progress: 0.354933, side: -1, distance: 4.246, height: 3.19, lead: -0.103, look: 0.079, targetHeight: 1, fovVerticalDeg: 49.636 }] as RailKey[],
+  railIn: [{ progress: 0.42, side: 1, distance: 3.5, height: 2.78, lead: 1.723, look: 0.1, targetHeight: 1, fovVerticalDeg: 58 }] as RailKey[],
+  /** T2+ return door approach: absolute keys (TRANSITION_CAMERA.keys) at toThreshold progress, after railIn. */
+  railInDoor: [{ key: 'R1', progress: .6 }, { key: 'R2', progress: .72 }, { key: 'R3', progress: .86 }] as ReadonlyArray<{ key: string; progress: number }>,
+  /** T2+ crane: leaves the rail at toIsland progress startProgress and reaches cameraIsland `settleSeconds` after she
+   *  stops (spherical about her root: direction slerp, log-distance; target eases from her chest to the island target). */
+  crane: { startProgress: 0.354933, settleSeconds: 3.48131, steps: 5 },
+  /** T2+ return crane-down: cameraIsland -> rail by toThreshold progress endProgress; starts leadSeconds before her turn. */
+  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 1.2 },
 });
+export type RailKey = Readonly<{ progress: number; side: 1 | -1; distance: number; height: number; lead: number; look: number; targetHeight: number; fovVerticalDeg: number }>;

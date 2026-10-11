@@ -26,7 +26,10 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
   }
   // --- framing on every frame (stable home/island are approved compositions: checked against the physical screen)
   const perState={};let worst={m:1};const out=[];
-  F.forEach((f,i)=>{const m=K.framing(C,f);const stable=f.state==='home'||f.state==='island';
+  const hp0=cfg.cameraHome.position;
+  F.forEach((f,i)=>{const m=K.framing(C,f);const atHomePose=Math.hypot(f.cam.position[0]-hp0[0],f.cam.position[1]-hp0[1],f.cam.position[2]-hp0[2])<.25;
+    // approved stable compositions (and lens within 0.25 m of cameraHome, same radius as the clearance exception) are checked against the physical screen
+    const stable=f.state==='home'||f.state==='island'||atHomePose;
     const mm=m.behind?-1:Math.min(m.topMargin+(stable?K.SAFE.topFrac:0),m.bottomMargin+(stable?K.SAFE.bottomFrac:0),m.sideMargin+(stable?K.SAFE.sideFrac:0));
     const s=perState[f.state]||(perState[f.state]={frames:0,minMargin:1,outFrames:0});s.frames++;s.minMargin=Math.min(s.minMargin,+mm.toFixed(4));if(mm<0){s.outFrames++;out.push(i);}
     if(mm<worst.m)worst={m:+mm.toFixed(4),frame:i,t:+f.t.toFixed(3),state:f.state,hatTopPx:+m.hatTopPx.toFixed(1),feetPx:+m.feetPx.toFixed(1)};});
@@ -50,9 +53,42 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
         if(c.d<lim&&!near)near={frame:i,t:+f.t.toFixed(3),state:f.state,clearance:+c.d.toFixed(3),mesh:c.who};if(!atHome&&c.d<minClr.d)minClr={d:+c.d.toFixed(3),mesh:c.who,frame:i,state:f.state};
         const r=f.root;for(const [part,h] of [['head',1.6],['chest',1.0],['feet',.1]]){const hit=I.occluded(p,[r[0],r[1]+h,r[2]]);if(hit)occl.push({frame:i,t:+f.t.toFixed(3),state:f.state,part,mesh:hit});}});
       check('collision:lens-clearance',!near,{firstViolation:near,minOutsideHome:minClr,limits:{clearanceM:LIMITS.clearanceM,homeM:LIMITS.homeClearanceM},glb:geo.sha.slice(0,16),decoder:geo.decoder});
+      // T2+ room camera: every home variant lens must be INSIDE the room, no cutaway: up/down rays hit ceiling/floor and
+      // >= 12 of 16 horizontal rays hit room/tower geometry within 12 m (window/door openings may take <= 25% of the
+      // horizon), plus wall clearance >= homeClearanceM. Active variant gates; others reported.
+      {const V=env.M.RegionCameraData.REGION_CAMERA,room=/^env_(interior|lighthouse)/;const res={};
+        for(const [name,v] of Object.entries(V.home.variants)){if(!v)continue;const p=v.position;let open=[];
+          const dirs=Array.from({length:16},(_,k)=>[Math.sin(k*Math.PI/8),0,Math.cos(k*Math.PI/8)]);
+          for(const d of dirs){const hit=I.occluded(p,[p[0]+d[0]*12,p[1],p[2]+d[2]*12]);if(!hit||!room.test(hit))open.push(hit||'open');}
+          const up=I.occluded(p,[p[0],p[1]+12,p[2]]),down=I.occluded(p,[p[0],p[1]-12,p[2]]),closed=!!up&&room.test(up)&&!!down&&room.test(down);
+          const c=I.clearance(p);res[name]={inside:closed&&open.length<=4,openRays:open.length,openThrough:[...new Set(open)],ceilingFloor:closed,clearanceM:+c.d.toFixed(3),nearest:c.who,fov:v.fovVerticalDeg,fovInContract:v.fovVerticalDeg<=75};}
+        const active=res[V.homePoseSource];check('room-camera-inside',!!active&&active.inside&&active.clearanceM>=LIMITS.homeClearanceM,{active:V.homePoseSource,variants:res});}
       const head=occl.filter(o=>o.part==='head');
       check('collision:line-of-sight',head.length===0,{headOccludedSamples:head.length,anyOccludedSamples:occl.length,first:occl.slice(0,6),byState:occl.reduce((a,o)=>(a[o.state+':'+o.part]=(a[o.state+':'+o.part]||0)+1,a),{})});}}
+  // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
+  {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
+    for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}
+    const out=F.filter(f=>f.state==='crossing-out'),preRestore=out.length?out[out.length-1].weight:null;
+    check('lighting-monotone',!bad&&preRestore!==null&&preRestore<=1e-6,{firstReversal:bad,weightLastOutboundFrame:preRestore});}
+  // --- crane marks (audio ramps): crane-start precedes settled:island; report progress/seconds
+  {const ev=run.cameraEvents||[],cs=ev.find(e=>e.kind==='crane-start'),si=ev.find(e=>e.kind==='settled'&&e.place==='island'),sh=ev.find(e=>e.kind==='settled'&&e.place==='home');
+    const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:null;
+    check('crane-marks',!!cs&&!!si&&cs.frame<si.frame&&!!sh,{craneStart:cs&&{t:+cs.t.toFixed(3),sinceCrossingOut:+(cs.t-t0).toFixed(3),toIslandProgress:cs.progress,predictedSeconds:+cs.seconds.toFixed(3)},
+      settledIsland:si&&{t:+si.t.toFixed(3),sinceCrossingOut:+(si.t-t0).toFixed(3)},craneSeconds:cs&&si?+(si.t-cs.t).toFixed(3):null,settledHome:sh&&{t:+sh.t.toFixed(3)}});}
+  // --- rail band: lens-to-girl horizontal distance while on the outdoor rail (toIsland before crane-start, toThreshold rail span)
+  {const cs=(run.cameraEvents||[]).find(e=>e.kind==='crane-start');const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]);
+    const TC=env.M.RegionCameraData.TRANSITION_CAMERA,firstRail=TC.railOut.find(k=>k.distance>=3.5),walkS=env.W.pathDuration(cfg.toIsland,cfg.speed);
+    // rail span = from the first rail key (distance >= 3.5 m) to crane-start; the doorway swing-out before it is excluded
+    const t1=cs&&firstRail?cs.t-(cs.progress-firstRail.progress)*walkS:Infinity;const railOut=cs?F.filter(f=>f.state==='crossing-out'&&f.t>=t1&&f.t<=cs.t):[];const ds=railOut.map(d);
+    check('rail-distance-band',ds.length>0&&Math.min(...ds)>=3.4&&Math.max(...ds)<=5.1,{railSeconds:+(ds.length*dt).toFixed(2),outbound:ds.length?{min:+Math.min(...ds).toFixed(2),max:+Math.max(...ds).toFixed(2)}:null,band:[3.5,5]});}
   const timeline=run.states.map(s=>({t:+(s.frame*dt).toFixed(3),state:s.state}));
+  // --- T2+ leave from a dragged room view (door-facing, RoomLook extreme): ONE continuous move, no cut, in frame after rejoin
+  if(!args.includes('--no-drag')){const env2=S.create(),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
+    const from={position:[...h.position],target:[h.position[0]+Math.sin(yaw)*2.5,h.position[1],h.position[2]+Math.cos(yaw)*2.5],fovVerticalDeg:h.fovVerticalDeg};
+    const r2=await S.run(env2,{script:[['leaveHome',{from}]]}),F2=r2.frames,k2=K.kinematics(C,F2,r2.dt);let cut2=null,maxW=0,maxDw2=0;
+    for(const k of k2){const turn=k.w*r2.dt,move=k.v*r2.dt;maxW=Math.max(maxW,turn);maxDw2=Math.max(maxDw2,Math.abs(k.dw||0));if((turn>LIMITS.cutTurnDeg||move>LIMITS.cutMoveM)&&!cut2)cut2={frame:k.i,turnDeg:+turn.toFixed(2)};}
+    const first=F2.find(f=>f.state==='standing');const rel=F2.filter(f=>f.state==='turning-out'||f.state==='walking-out').map(f=>K.framing(C,f)).map(m=>Math.min(m.topMargin,m.bottomMargin,m.sideMargin));
+    check('drag-rejoin-continuous',!cut2&&maxDw2<=LIMITS.maxAngAccel&&rel.every(m=>m>=0)&&r2.results[0].result.ok,{from:'door-facing view at cameraHome',cut:cut2,maxTurnPerFrameDeg:+maxW.toFixed(3),maxAngAccelDegS2:+maxDw2.toFixed(1),minMarginAfterStand:+Math.min(...rel).toFixed(4),firstStandingFrame:first?.frame});}
   const report={ok:checks.every(c=>c.ok),frames:F.length,fps:1/dt,timeline,checks,limits:LIMITS,safeArea:K.SAFE,screen:K.SCREEN,
     scope:'CPU simulation of real flow/routes/tracks; native rendering (materials, shaders, frame pacing) is out of scope.'};
   if(jsonOut)fs.writeFileSync(jsonOut,JSON.stringify(report,null,1));

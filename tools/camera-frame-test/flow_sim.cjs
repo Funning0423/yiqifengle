@@ -19,13 +19,17 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   const world={weight:1,layers:null,door:0,events:[]};
   const log=(kind,data)=>world.events.push({frame,kind,data});
   const lease={
-    setLayers(l){world.layers={...l};log('layers',{...l});},
+    // Mirrors GGbot T5 RoomLightingRig: interior view on -> weight 1, off -> 0; writes ignored while off.
+    setLayers(l){const was=!!world.layers?.interior;world.layers={...l};if(l.interior!==was)world.weight=l.interior?1:0;log('layers',{...l});},
     setDoor(a){world.door=a;},
     setCamera(p){C.applyCameraPose(cam,C.fromLookAt(p,cam.fov),'sim.setCamera');log('setCamera',null);},
     animateDoor:(from,to,seconds,t)=>runJob(seconds,t,p=>{world.door=from+(to-from)*p;}),
     animateCamera:(path,seconds,t,options)=>{const tr=C.createCameraTrack(cam,path,'sim.animateCamera',options);log('track',{keys:path.length,seconds,options:options||null});return runJob(seconds,t,tr.tick);},
-    setInteriorWeight(w){world.weight=Math.max(0,Math.min(1,w));log('weight',w);},
-    animateInteriorWeight:(ramp,seconds,t)=>runJob(seconds,t,p=>{world.weight=Math.max(0,Math.min(1,C.rampWeight(ramp,p)));}),
+    // T5 133018c contract: clamp 0..1, effective only with the interior view on (else false / get 0); linear cancellable blend.
+    setRoomLightWeight(w){if(!world.layers?.interior||!Number.isFinite(w))return false;world.weight=Math.max(0,Math.min(1,w));log('weight',w);return true;},
+    getRoomLightWeight:()=>world.layers?.interior?world.weight:0,
+    blendRoomLight:(from,to,seconds,t)=>runJob(seconds,t,p=>{if(world.layers?.interior)world.weight=Math.max(0,Math.min(1,from+(to-from)*p));}),
+    wait:(seconds,t)=>runJob(seconds,t,()=>{}),
     cancelTransient(){for(const j of Array.from(jobs)){j.off();j.reject(new W.Cancelled());}jobs.clear();},
     assertStaticWorld(){},dispose(){},
   };
@@ -48,8 +52,10 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   const tick=async()=>{await new Promise(r=>setImmediate(r));};
   if(!(await flow.load()).ok)throw Error('load failed');
   const results=[];
-  for(const op of script){
-    let done=false,result=null;const pr=flow[op]().then(r=>{done=true;result=r;});
+  const cameraEvents=[];flow.onCameraEvent(e=>cameraEvents.push({frame,t:frame*dt,...e}));
+  // script entries: 'op' or ['op', arg] (e.g. ['leaveHome',{from:pose}] = leave from a dragged room view)
+  for(const entry of script){const [op,arg]=Array.isArray(entry)?entry:[entry];
+    let done=false,result=null;const pr=flow[op](arg).then(r=>{done=true;result=r;});
     await tick();frames.push({...snap(),op});
     let guard=0;
     while(!done){frame++;ch.advance(dt);for(const j of Array.from(jobs)){if(!jobs.has(j))continue;j.elapsed+=Math.min(dt,.1);try{j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){jobs.delete(j);j.off();j.resolve();}}catch(e){jobs.delete(j);j.off();j.reject(e);}}
@@ -58,6 +64,6 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     // hold a few stable frames after arrival (camera must not move)
     for(let k=0;k<10;k++){frame++;await tick();frames.push({...snap(),op:op+':hold'});}
   }
-  return {frames,states,results,events:world.events,dt};
+  return {frames,states,results,events:world.events,cameraEvents,dt};
 }
 module.exports={create,run};

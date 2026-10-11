@@ -108,6 +108,8 @@ export function remapProgress(p: number, o?: TrackOptions): number {
   if (b > 0 && x > 1 - b) { const u = (x - (1 - b)) / b; return Math.min(1, s * (2 * a / 3 + (1 - a - b)) + s * b * (u - u * u * u / 3)); }
   return s * (2 * a / 3 + (x - a));
 }
+/** Time fraction at which the eased track reaches key progress k (remapProgress is monotone; bisection). */
+export function invertProgress(k: number, o?: TrackOptions): number { let lo = 0, hi = 1; for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (remapProgress(m, o) < k) lo = m; else hi = m; } return (lo + hi) / 2; }
 /** Fritsch-Carlson monotone cubic tangents for knots t (strictly increasing) and values y. */
 function pchipTangents(t: readonly number[], y: readonly number[]): number[] {
   const n = t.length, h: number[] = [], d: number[] = [], m: number[] = new Array(n).fill(0);
@@ -149,7 +151,10 @@ export function createPathSampler(path: readonly LookAtPose[], progress: readonl
     if (q >= 1) return fromLookAt(path[path.length - 1], fallbackFov);
     if (q <= 0) return fromLookAt(path[0], fallbackFov);
     const v = cache.channels.map(ch => hermite(t, ch.y, ch.m, q));
-    return fromLookAt({ position: [v[0], v[1], v[2]], target: [v[3], v[4], v[5]], fovVerticalDeg: v[6] });
+    // pchip is monotone, so fov stays inside the key range; clamp only removes float rounding (75.00000000000001 at a
+    // 75-degree key would be rejected by the pose guard and abort the track).
+    const fy = cache.channels[6].y, fov = Math.min(Math.max(v[6], Math.min(...fy)), Math.max(...fy));
+    return fromLookAt({ position: [v[0], v[1], v[2]], target: [v[3], v[4], v[5]], fovVerticalDeg: fov });
   };
 }
 /** T2 lighting: smoothstep ramp of a 0..1 weight over [start,end] of walk progress (C1, monotone, exact endpoints). */
