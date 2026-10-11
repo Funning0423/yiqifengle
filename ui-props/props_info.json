@@ -1,14 +1,14 @@
 {
  "ui_signpost": {
   "tris": 808,
-  "verts": 440,
+  "verts": 428,
   "bbox_m": [
    2.471,
    0.365,
    1.875
   ],
-  "glb_bytes": 6464,
-  "preview_glb_bytes": 39336,
+  "glb_bytes": 7500,
+  "preview_glb_bytes": 40344,
   "text_quad_local": [
    [
     -0.4845,

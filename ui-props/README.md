@@ -30,7 +30,7 @@ python3 src/mockup.py                                          # 合成 mockup-p
 ## 网格
 | 道具 | 三角面 | 包围盒 (m, x·y·z, Blender Z 向上) | GLB (Draco) |
 |---|---|---|---|
-| ui_signpost 继续旅程木牌 | 808 | 2.47 × 0.37 × 1.88 | 6.3 KB |
+| ui_signpost 继续旅程木牌（含子节点 lamp_glass 12 面） | 808 | 2.47 × 0.37 × 1.88 | 7.3 KB |
 | ui_satchel 行囊 | 696 | 0.86 × 0.52 × 0.92 | 5.0 KB |
 | ui_notebook 旅程册 | 584 | 0.67 × 0.32 × 0.89 | 4.8 KB |
 | ui_compass 设置 | 532 | 0.84 × 0.29 × 1.05 | 5.2 KB |
@@ -38,3 +38,25 @@ python3 src/mockup.py                                          # 合成 mockup-p
 碰撞：道具都是实心块状，直接用包围盒即可，没有单独导出 `<prop>_collider`。
 
 木牌上的"继续旅程"在游戏里用 UI Label 渲染；文字面板正面在模型局部坐标里的四角见 `props_info.json` 的 `text_quad_local`。
+
+## 木牌灯笼：白天灭、夜里亮（给 GGbot 接线）
+- `ui_signpost.glb` 现在是两个节点：根节点 `ui_signpost`（M_env_palette）+ 子节点 **`lamp_glass`**（灯笼玻璃，独立材质 **`M_signpost_lamp`**）。
+- 导出默认 = 白天关灯：`M_signpost_lamp` baseColor #c9d2cd（不发光的烟灰玻璃），roughness 0.35，emissive 0。
+- 夜里开灯两种做法，任选一种：
+  1. 改材质：`lamp_glass` 的 MeshRenderer 材质 emissive 设为 #ffde99（强度约 1–2，可配合夜里的 bloom）；白天再设回黑色。
+  2. 换材质：夜里把 `lamp_glass` 的材质换成共享的 `M_env_palette`。它的 UV 就落在调色板发光行（第 13 行 x182 #ffde99），会自动发光，不用新资源；白天换回 `M_signpost_lamp`。
+- 建议挂在 `RoomLightingRig` / 昼夜状态变化的回调里切换；需要光晕可再挂一个暖色点光（#ffd17f）只在夜里启用。
+- 夜景预览：`renders/ui_signpost_night.png`（只预览灯光效果，没放文字）。
+
+## 海滩道具 beach-props/（棕榈树 + 小动物）
+`blender -b --factory-startup -P src/build_beach.py -- $PWD`；渲染 `BLEND=beach-props/beach_props.blend RDIR=beach-props/renders ELEV=28 blender -b -P src/render_props.py -- $PWD 1024 128`。
+同样只用 M_env_palette 一个材质、Draco、不内嵌贴图；原点在底面（棕榈树原点 = 树干底部中心）。
+
+| 模型 | 三角面 | 尺寸 m (x·y·z) | GLB (Draco) | 用到的色块 |
+|---|---|---|---|---|
+| beach_palm_tall 高棕榈 | 672 | 4.20 × 4.09 × 4.87 | 5.7 KB | 叶 row0 x160/x110，树干 row5 x110/x70，椰子 row8 x60 |
+| beach_palm_short 矮棕榈 | 643 | 2.74 × 2.71 × 3.21 | 5.6 KB | 同上（叶用浅绿 row0 x200） |
+| beach_crab 小螃蟹 | 580 | 0.52 × 0.44 × 0.33 | 5.3 KB | row6 x150/x200，眼 row14 x20 |
+| beach_gull 海鸥 | 568 | 0.19 × 0.59 × 0.39 | 4.6 KB | 白 row4 x250，灰 row15 x250，翼尖 row14 x120，嘴脚 row6 x232 |
+| beach_turtle 小海龟 | 658 | 0.57 × 0.71 × 0.20 | 4.9 KB | 壳 row11 x70/x140，皮 row11 x200 |
+五个合计约 26 KB。

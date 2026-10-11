@@ -1,0 +1,57 @@
+{
+ "beach_palm_tall": {
+  "tris": 672,
+  "verts": 430,
+  "bbox_m": [
+   4.201,
+   4.091,
+   4.867
+  ],
+  "glb_bytes": 5880,
+  "preview_glb_bytes": 32632
+ },
+ "beach_palm_short": {
+  "tris": 643,
+  "verts": 407,
+  "bbox_m": [
+   2.742,
+   2.711,
+   3.212
+  ],
+  "glb_bytes": 5768,
+  "preview_glb_bytes": 31568
+ },
+ "beach_crab": {
+  "tris": 580,
+  "verts": 324,
+  "bbox_m": [
+   0.515,
+   0.435,
+   0.329
+  ],
+  "glb_bytes": 5380,
+  "preview_glb_bytes": 28752
+ },
+ "beach_gull": {
+  "tris": 568,
+  "verts": 312,
+  "bbox_m": [
+   0.193,
+   0.591,
+   0.385
+  ],
+  "glb_bytes": 4748,
+  "preview_glb_bytes": 24840
+ },
+ "beach_turtle": {
+  "tris": 658,
+  "verts": 355,
+  "bbox_m": [
+   0.57,
+   0.71,
+   0.198
+  ],
+  "glb_bytes": 5020,
+  "preview_glb_bytes": 25608
+ }
+}

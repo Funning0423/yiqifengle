@@ -39,8 +39,24 @@ def make_mat():
     return m
 MAT = make_mat()
 
+# Signpost lantern glass: its own material + its own child node so the game can toggle day/night.
+# Day (default, as exported): unlit pale glass, no emission.  Night: either set this material's
+# emissive to #ffde99, or simply rebind the node to M_env_palette - its UVs sit on the emissive
+# palette swatch (row 13, x182 #ffde99), so the shared palette makes it glow with no new asset.
+LAMP_DAY = (0xc9/255, 0xd2/255, 0xcd/255)   # #c9d2cd unlit smoky glass (off)
+def srgb2lin(c): return c/12.92 if c<=0.04045 else ((c+0.055)/1.055)**2.4
+def make_lamp_mat():
+    m = bpy.data.materials.new('M_signpost_lamp'); m.use_nodes = True
+    b = m.node_tree.nodes['Principled BSDF']
+    b.inputs['Base Color'].default_value = tuple(srgb2lin(c) for c in LAMP_DAY)+(1,)
+    b.inputs['Roughness'].default_value = 0.35; b.inputs['Metallic'].default_value = 0.0
+    b.inputs['Emission Color'].default_value = (srgb2lin(1.0), srgb2lin(0xde/255), srgb2lin(0x99/255), 1)
+    b.inputs['Emission Strength'].default_value = 0.0   # OFF in daytime
+    return m
+MAT_LAMP = make_lamp_mat()
+
 # ---------- helpers ----------
-def finish(bm, name, swatch, bevel=0.0, seg=1, angle=35, smooth=True):
+def finish(bm, name, swatch, bevel=0.0, seg=1, angle=35, smooth=True, mat=None):
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     ob = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(ob)
     if bevel > 0:
@@ -54,7 +70,7 @@ def finish(bm, name, swatch, bevel=0.0, seg=1, angle=35, smooth=True):
     if not me.uv_layers: me.uv_layers.new(name='UVMap')
     uv = me.uv_layers[0]; u = SW[swatch]
     for l in uv.data: l.uv = u
-    me.materials.clear(); me.materials.append(MAT)
+    me.materials.clear(); me.materials.append(mat or MAT)
     return ob
 
 def prism(profile, depth, axis='Y'):
@@ -151,7 +167,7 @@ def signpost():
     P.append(finish(xform(cyl(0.045,0.045,0.025,6),(lx,ly,1.50),[('X',90)]),'ring','darkwood'))
     P.append(finish(xform(cyl(0.20,0.04,0.14,6),(lx,ly,1.405)),'cap','darkwood',0.015))
     P.append(finish(xform(cyl(0.18,0.18,0.04,6),(lx,ly,1.32)),'topplate','darkwood',0.012))
-    P.append(finish(xform(cyl(0.145,0.145,0.34,6),(lx,ly,1.13)),'glass','glow'))
+    P.append(finish(xform(cyl(0.145,0.145,0.34,6),(lx,ly,1.13)),'glass','glow',mat=MAT_LAMP))
     for k in range(6):
         a=math.radians(60*k)
         P.append(finish(xform(box(0.034,0.034,0.34),(lx+0.15*math.cos(a),ly+0.15*math.sin(a),1.13),[('Z',60*k)]),'bar','darkwood'))
@@ -239,6 +255,19 @@ for ob in props:
     ob.data.transform(Matrix.Translation((-cx,-cy,-mz)))
     sh=ob.get('shift',[0,0,0]); ob['shift']=[sh[0]-cx,sh[1]-cy,sh[2]-mz]
 
+# split the lantern glass into its own child node 'lamp_glass' (material M_signpost_lamp)
+sp=props[0]
+bpy.ops.object.select_all(action='DESELECT'); sp.select_set(True); bpy.context.view_layer.objects.active=sp
+bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='DESELECT')
+sp.active_material_index=[m.name for m in sp.data.materials].index('M_signpost_lamp')
+bpy.ops.object.material_slot_select(); bpy.ops.mesh.separate(type='SELECTED'); bpy.ops.object.mode_set(mode='OBJECT')
+lamp=[o for o in bpy.context.selected_objects if o is not sp][0]
+lamp.name='lamp_glass'; lamp.data.name='lamp_glass'
+for o,keep in ((sp,'M_env_palette'),(lamp,'M_signpost_lamp')):
+    i=[m.name for m in o.data.materials].index(keep)
+    for p in o.data.polygons: p.material_index=0
+    o.data.materials.clear(); o.data.materials.append(bpy.data.materials[keep])
+lamp.parent=sp; lamp.location=(0,0,0); lamp.matrix_parent_inverse.identity()
 import json
 info={}
 os.makedirs(os.path.join(OUT,'glb'),exist_ok=True)
@@ -247,6 +276,7 @@ for ob in props:
     vs=[v.co for v in me.vertices]
     dims=[max(c[i] for c in vs)-min(c[i] for c in vs) for i in range(3)]
     bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True); bpy.context.view_layer.objects.active=ob
+    for ch in ob.children: ch.select_set(True)
     loc=ob.location.copy(); ob.location=(0,0,0)
     common=dict(export_format='GLB',use_selection=True,export_apply=True,export_materials='EXPORT',
         export_texcoords=True,export_normals=True,export_yup=True,export_cameras=False,export_lights=False,
@@ -262,7 +292,9 @@ for ob in props:
     p2=os.path.join(OUT,'glb-preview',ob.name+'.glb')
     bpy.ops.export_scene.gltf(filepath=p2,export_image_format='AUTO',export_draco_mesh_compression_enable=False,**common)
     ob.location=loc
-    info[ob.name]={'tris':len(me.loop_triangles),'verts':len(me.vertices),'bbox_m':[round(d,3) for d in dims],'glb_bytes':os.path.getsize(p),'preview_glb_bytes':os.path.getsize(p2)}
+    tris=len(me.loop_triangles)
+    for ch in ob.children: ch.data.calc_loop_triangles(); tris+=len(ch.data.loop_triangles)
+    info[ob.name]={'tris':tris,'verts':len(me.vertices),'bbox_m':[round(d,3) for d in dims],'glb_bytes':os.path.getsize(p),'preview_glb_bytes':os.path.getsize(p2)}
 sh=props[0]['shift']; info['ui_signpost']['text_quad_local']=[[round(a+b,4) for a,b in zip(q,sh)] for q in TEXT_QUAD]
 json.dump(info,open(os.path.join(OUT,'props_info.json'),'w'),indent=1)
 print(json.dumps(info,indent=1))

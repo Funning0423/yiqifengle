@@ -64,6 +64,34 @@ def tag(base, cx, top, text, size):
     d.rounded_rectangle([cx-w/2,top,cx+w/2,top+h],radius=h/2,fill=CREAM+(255,),outline=TAGEDGE+(255,),width=max(2,size//10))
     d.text((cx-tw/2-bb[0], top+py-bb[1]), text, font=f, fill=DARK+(255,))
 
+
+# ---------- beach props (palms + animals) ----------
+BI=json.load(open(os.path.join(D,'beach-props','beach_props_info.json')))
+def beach(name):
+    im=Image.open(os.path.join(D,'beach-props','renders',name+'.png')).convert('RGBA')
+    ortho=max(BI[name]['bbox_m'])*1.12+0.05
+    return im, im.width/ortho          # image, render px per metre
+def foot(im):
+    a=im.getchannel('A'); bb=a.getbbox(); y1=bb[3]
+    band=a.crop((0,int(y1-(y1-bb[1])*0.03)-1,im.width,y1)); bx=band.getbbox()
+    return ((bx[0]+bx[2])/2, y1)
+def shadow(base, cx, cy, w, h, a=80, blur=0.25, col=(96,84,48)):
+    lay=Image.new('RGBA',base.size,(0,0,0,0)); ImageDraw.Draw(lay).ellipse([cx-w/2,cy-h/2,cx+w/2,cy+h/2],fill=col+(a,))
+    base.alpha_composite(lay.filter(ImageFilter.GaussianBlur(max(1.5,h*blur))))
+def put(base, name, x, y, pxm, flip=False, canopy=False):
+    """place a beach prop with its foot at (x,y); pxm = mockup px per metre at that depth."""
+    im,rpm=beach(name); k=pxm/rpm
+    im=im.resize((max(1,int(im.width*k)),max(1,int(im.height*k))),Image.LANCZOS)
+    if flip: im=im.transpose(Image.FLIP_LEFT_RIGHT)
+    bb=im.getchannel('A').getbbox(); im=im.crop(bb)
+    fx,fy=foot(im); w=im.width; h=im.height
+    if canopy:   # crown shadow falls back-right on the sand (sun upper-left-front)
+        shadow(base, x+w*0.30, y-h*0.05, w*0.75, h*0.16, a=55, blur=0.35)
+        shadow(base, x+w*0.12, y-h*0.01, w*0.30, h*0.035, a=70, blur=0.3)
+    else:
+        shadow(base, x+w*0.10, y-h*0.03, w*1.05, max(4,w*0.30), a=95, blur=0.22)
+    base.alpha_composite(im,(int(x-fx),int(y-fy)+1))
+
 sign,_=signpost_with_text()
 sign.save(os.path.join(D,'renders','ui_signpost_with_text.png'))
 props=[trim(Image.open(os.path.join(D,'renders',n+'.png')).convert('RGBA')) for n in ('ui_satchel','ui_notebook','ui_compass')]
@@ -72,19 +100,32 @@ labels=['行囊','旅程册','设置']
 # ---- portrait 946x2048 ----
 P=Image.open(POR).convert('RGBA').resize((946,2048),Image.LANCZOS)
 W,H=P.size
-sw_=W*0.48; place(P,sign,W/2,H*0.70+sign.height*sw_/sign.width/2,sw_,water=False)
+# beach (sand band y~1230-1450): back row first so nearer things overlap correctly
+put(P,'beach_palm_short',800,1300,66,canopy=True)
+put(P,'beach_palm_tall',255,1318,64,canopy=True)
+put(P,'beach_gull',400,1268,112)
+put(P,'beach_gull',458,1292,112,flip=True)
+put(P,'beach_crab',655,1330,118)
+put(P,'beach_turtle',535,1398,112)
+# signpost moved to the RIGHT, standing in the shallows below the beach so the sand stays clear
+sw_=W*0.36; place(P,sign,W*0.79,1668,sw_,water=True)
 for i,(pr,lb) in enumerate(zip(props,labels)):
-    ph=W*0.165; pw=min(pr.width*ph/pr.height, W*0.2); ph=pr.height*pw/pr.width
-    cx=W*(0.2+0.3*i); by=H*0.84+ph/2
+    ph=W*0.150; pw=min(pr.width*ph/pr.height, W*0.18); ph=pr.height*pw/pr.width
+    cx=W*(0.2+0.3*i); by=H*0.885+ph/2
     place(P,pr,cx,by,pw)
-    tag(P,cx,by+22,lb,36)
+    tag(P,cx,by+20,lb,34)
 P.convert('RGB').save(os.path.join(D,'mockup-portrait.png'))
 
 # ---- landscape ----
 L=Image.open(LAN).convert('RGBA')
 if L.width<1920: L=L.resize((1920,int(L.height*1920/L.width)),Image.LANCZOS)
 W,H=L.size
-sw_=W*0.24; place(L,sign,W*0.16,H*0.62+sign.height*sw_/sign.width/2,sw_,water=False)
+put(L,'beach_palm_short',455,872,62,canopy=True)
+put(L,'beach_palm_short',1150,905,52,flip=True,canopy=True)
+put(L,'beach_gull',560,955,100,flip=True)
+put(L,'beach_turtle',790,975,98)
+put(L,'beach_crab',1010,945,100)
+sw_=W*0.22; place(L,sign,W*0.845,H*0.70,sw_,water=True)
 for i,(pr,lb) in enumerate(zip(props,labels)):
     ph=W*0.075; pw=min(pr.width*ph/pr.height, W*0.09)
     cx=W*(0.70+0.105*i); by=H*0.86
