@@ -65,6 +65,11 @@ r oab-hidden GB_DOOR_VISIBLE=hidden node "$out/int-base.mjs"
 r oab-drag GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-base.mjs"
 r oab-camhook GB_CAMERA_HOOK=1 node "$out/int-base.mjs"
 r touch-noT1 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-base.mjs"
+r caps-webgl1 GB_CAPS=webgl1 node "$out/int-base.mjs"
+r caps-throw GB_CAPS=throw node "$out/int-base.mjs"
+r caps-nodevice GB_CAPS=nodevice node "$out/int-base.mjs"
+r caps-apron-scene GB_CAPS_APRON=scene node "$out/int-base.mjs"
+r caps-apron-driver GB_CAPS_APRON=driver node "$out/int-base.mjs"
 if GB_QUERY='?autoplay=off' node "$out/int-base.mjs" >"$out/off.log" 2>&1; then echo "FAIL: autoplay=off still ran"; exit 1; fi
 grep -q 'GB_MARK autoplay-disabled 0' "$out/off.log" && echo "PASS autoplay=off: nothing armed, no observers"
 if [ -n "$t1" ]; then
@@ -110,6 +115,8 @@ if [ "${GB_LOOSE:-1}" != 0 ]; then
   r loose-oab-visible GB_DOOR_VISIBLE=visible node "$out/int-base-loose.mjs"
   r loose-oab-drag GB_DOOR_VISIBLE=reveal-by-drag GB_QUERY='?autoplay=out-and-back&gbDoor=drag' node "$out/int-base-loose.mjs"
   r loose-oab-boot-child GB_BOOT_ON=child node "$out/int-base-loose.mjs"
+  r loose-caps-webgl1 GB_CAPS=webgl1 node "$out/int-base-loose.mjs"
+  r loose-caps-throw GB_CAPS=throw GB_CAPS_APRON=scene node "$out/int-base-loose.mjs"
   r loose-touch-noT1 GB_QUERY='?autoplay=touch&gbScenario=t1' node "$out/touch-base-loose.mjs"
   if [ -n "${GB_INT_DIR:-}" ]; then r loose-combo-touch GB_COMBO=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; r loose-combo-muted GB_COMBO=1 GB_COMBO_MUTED=1 GB_QUERY='?autoplay=combo' node "$out/int-combo-loose.mjs"; fi
   for f in "$out"/loose-*.js; do if grep -nE '\[\]\.concat\((this\.down|[a-zA-Z_.]*(Map|Set)\b)' "$f"; then echo "FAIL: loose output concat()s a Map/Set: $f"; exit 1; fi; done

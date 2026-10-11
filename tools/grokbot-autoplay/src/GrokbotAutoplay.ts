@@ -91,6 +91,43 @@ class TouchBackend {
  releaseAll(){Array.from(this.down).forEach(([id,p])=>this.inject('cancel',id-1000,p));}
 }
 
+/** ---------- device:caps (texture-based morph targets need float/vertex textures; see docs/walk-driver.md §8) ---------- */
+const CAPS_TIMEOUT_MS=20000;
+/** cc gfx.API / gfx.Format.RGBA32F / gfx.FormatFeatureBit.SAMPLED_TEXTURE as in Cocos Creator 3.8.8 (engine cc.d.ts). */
+const GFX_API_NAMES=['UNKNOWN','GLES2','GLES3','METAL','VULKAN','NVN','WEBGL','WEBGL2','WEBGPU'];
+const GFX_RGBA32F=44,GFX_SAMPLED_TEXTURE=2;
+const APRON_NODE='LOD0_G2_APRON';
+function capTry(f:()=>any):any{try{return f();}catch{return undefined;}}
+function capTok(v:any):string{if(v===undefined||v===null||v==='')return '-';return String(v).replace(/\s+/g,'_').slice(0,96);}
+function capBool(v:any):string{return v===undefined||v===null?'-':(v?'1':'0');}
+function gfxDevice():any{return capTry(()=>(director as any).root.device)||capTry(()=>G.cc.deviceManager.gfxDevice)||null;}
+function deviceCapsFields():string{const dev=gfxDevice();const api=capTry(()=>dev.gfxAPI);const apiName=typeof api==='number'?(GFX_API_NAMES[api]||String(api)):'-';
+ let gl:any=capTry(()=>dev.gl)||null,glSource=gl?'device':'-';
+ // Fallback: ask the game canvas for the context of the type the device already created (returns that same context, creates nothing new).
+ if(!gl&&(api===6||api===7)){gl=capTry(()=>(game as any).canvas.getContext(api===7?'webgl2':'webgl'))||null;if(gl)glSource='canvas';}
+ const glVersion=capTry(()=>gl.getParameter(gl.VERSION));
+ let webgl='-';if(api===7)webgl='2';else if(api===6)webgl='1';else if(typeof glVersion==='string')webgl=/WebGL 2/i.test(glVersion)?'2':/WebGL 1/i.test(glVersion)?'1':'-';
+ const exts:any=gl?capTry(()=>gl.getSupportedExtensions()):null;const has=(n:string)=>Array.isArray(exts)?(exts.indexOf(n)>=0?'1':'0'):'-';
+ const caps:any=capTry(()=>dev.capabilities)||{};const pick=(k:string,pname:number)=>{const v=capTry(()=>caps[k]);if(typeof v==='number')return v;return capTry(()=>gl.getParameter(pname));};
+ const rgba32f=capTry(()=>typeof dev.getFormatFeatures==='function'?((dev.getFormatFeatures(GFX_RGBA32F)&GFX_SAMPLED_TEXTURE)?1:0):undefined);
+ let renderer=capTry(()=>dev.renderer),vendor=capTry(()=>dev.vendor),unR:any,unV:any;
+ if(!renderer)renderer=capTry(()=>gl.getParameter(gl.RENDERER));if(!vendor)vendor=capTry(()=>gl.getParameter(gl.VENDOR));
+ const dbg=Array.isArray(exts)&&exts.indexOf('WEBGL_debug_renderer_info')>=0?capTry(()=>gl.getExtension('WEBGL_debug_renderer_info')):null;
+ if(dbg){unR=capTry(()=>gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL));unV=capTry(()=>gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL));}
+ const wx=G.wx;let si:any=capTry(()=>wx.getSystemInfoSync());if(!si||!si.platform){const di=capTry(()=>wx.getDeviceInfo())||{},ab=capTry(()=>wx.getAppBaseInfo())||{};si={platform:di.platform,model:di.model,system:di.system,brand:di.brand,benchmarkLevel:di.benchmarkLevel,SDKVersion:ab.SDKVersion,pixelRatio:capTry(()=>wx.getWindowInfo().pixelRatio)};}
+ return `gfxAPI=${typeof api==='number'?api:'-'}(${apiName}) webgl=${webgl} glSource=${glSource} OES_texture_float=${has('OES_texture_float')} OES_texture_half_float=${has('OES_texture_half_float')} rgba32fSampled=${capBool(rgba32f)}`+
+  ` maxVertexTextureUnits=${capTok(pick('maxVertexTextureUnits',0x8B4C))} maxTextureSize=${capTok(pick('maxTextureSize',0x0D33))} maxVertexUniformVectors=${capTok(pick('maxVertexUniformVectors',0x8DFB))}`+
+  ` platform=${capTok(si&&si.platform)} model=${capTok(si&&si.model)} system=${capTok(si&&si.system)} SDKVersion=${capTok(si&&si.SDKVersion)} brand=${capTok(si&&si.brand)} benchmarkLevel=${capTok(si&&si.benchmarkLevel)} pixelRatio=${capTok(si&&si.pixelRatio)}`+
+  ` ${apronFields()} glVersion=${capTok(glVersion)} renderer=${capTok(renderer)} vendor=${capTok(vendor)} unmaskedRenderer=${capTok(unR)} unmaskedVendor=${capTok(unV)}`;}
+/** Apron morph: the renderer itself (scene node LOD0_G2_APRON, cc.SkinnedMeshRenderer/cc.MeshRenderer) + the walk driver's binding status
+ *  (__worldIntegration.morph(), work/GGbot-morph; '-' before it is merged). apronMorphTargets=null = no morph data on the mesh. */
+function apronFields():string{const w=G.__worldIntegration;const d:any=w&&typeof w.morph==='function'?capTry(()=>w.morph()):null;
+ let r:any=null;const s:any=capTry(()=>director.getScene());
+ if(s){const q:any[]=[s];let seen=0;while(q.length&&seen<20000&&!r){const n=q.shift();seen++;if(n&&n.name===APRON_NODE)r=capTry(()=>n.getComponent('cc.SkinnedMeshRenderer'))||capTry(()=>n.getComponent('cc.MeshRenderer'))||null;const k=n&&n.children;if(k)for(let i=0;i<k.length;i++)q.push(k[i]);}}
+ const subs=r?capTry(()=>r.mesh.struct.morph.subMeshMorphs):undefined;let counts='null';
+ if(Array.isArray(subs)&&subs.length){const c:number[]=[];for(let i=0;i<subs.length;i++)c.push(subs[i]&&subs[i].targets?subs[i].targets.length:0);counts=c.join(',');}
+ return `apronRenderer=${r?'found':s?'missing':'-'} apronMorphEnabled=${r?capBool(capTry(()=>r.enableMorph!==false)):'-'} apronMorphTargets=${counts} apronDriver=${d?capTok(d.status):'-'}${d&&d.reason?' apronDriverReason='+capTok(d.reason):''}`;}
+
 /** ---------- read-only observers ---------- */
 class Observers {
  private bgmPlaying:boolean|null=null;private audioHooked=false;private cheerHooked=false;private flowHooked:any=null;private settleHookFor:any=null;private settleHookAvailable=false;
@@ -99,7 +136,11 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.hookUnlock();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.hookUnlock();this.deviceCaps();}
+ /** device:caps once: when the boot is ready (apron renderer bound, __worldIntegration.morph available) or 20 s after install. */
+ private capsDone=false;
+ private deviceCaps(){if(this.capsDone)return;const ready=this.ctx.ready(this.ctx.findBoot());if(!ready&&now()-this.ctx.t0<CAPS_TIMEOUT_MS)return;this.capsDone=true;
+  let extra='';try{extra=deviceCapsFields()+(ready?'':' worldReady=0');}catch(e){extra='error='+capTok(String(e));}this.ctx.mark('device:caps',extra);}
  /** Walk driver (GGbot work/GGbot-walk): __worldIntegration.onFoot / onApronLift. Absent = not merged = no mark. */
  private motionFor:any=null;private motionOff:Array<()=>void>=[];
  private hookMotion(){const w=G.__worldIntegration;if(!w||w===this.motionFor||typeof w.onFoot!=='function')return;for(let i=0;i<this.motionOff.length;i++){try{this.motionOff[i]();}catch{}}this.motionOff=[];this.motionFor=w;const ctx=this.ctx;

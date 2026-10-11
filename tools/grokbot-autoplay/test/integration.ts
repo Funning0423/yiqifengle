@@ -1,9 +1,14 @@
 /** out-and-back end-to-end + observers (audio/app/segments/camera-settled). */
-import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerTextHost,engine} from './harness';
+import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerTextHost,engine,scene} from './harness';
+import {Node} from 'cc';
 const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));process.exit(1);};
 (async()=>{
  const ap=()=>(globalThis as any).__GB_AUTOPLAY;
  const U=process.env.GB_UNLOCK||'';let wxTouched=false;
+ // device:caps apron sources: GB_CAPS_APRON=scene (a LOD0_G2_APRON node with a skinned renderer, 2 morph targets, nested under the girl) | driver (__worldIntegration.morph())
+ const CA=process.env.GB_CAPS_APRON||'';
+ if(CA==='scene'){const girl=new Node('B_PASS2G_CURSOR');scene.addChild(girl);const ap:any=new Node('LOD0_G2_APRON');girl.addChild(ap);ap._c.set('cc.SkinnedMeshRenderer',{enableMorph:true,mesh:{struct:{morph:{subMeshMorphs:[{targets:[{},{}]}]}}}});}
+ if(CA==='driver')(globalThis as any).__worldIntegration={morph:()=>({status:'too-few-targets',reason:'need 2 targets, sub-meshes have 1'})};
  // GB_UNLOCK_WXTOUCH: a raw platform touch on a blank room spot BEFORE autoplay taps the door (gbStart=4000), through the REAL prelude.
  await run(240,()=>ap()&&(ap().phase()==='done'||ap().phase()==='failed'),()=>{if(!process.env.GB_UNLOCK_WXTOUCH||wxTouched)return;  const st=flow.snapshot().state;if(st!=='home'||!names().includes('world-ready')||!(globalThis as any).__gbTouch?.emit)return;const b:any=(globalThis as any).__GB_AUTOPLAY;if(!b)return;wxTouched=true;
   const t={identifier:7,clientX:40,clientY:120,pageX:40,pageY:120,force:1};const G:any=globalThis;G.__gbTouch.emit('onTouchStart',{type:'touchstart',touches:[t],changedTouches:[t],timeStamp:Date.now()});G.__gbTouch.emit('onTouchEnd',{type:'touchend',touches:[],changedTouches:[t],timeStamp:Date.now()});});
@@ -58,6 +63,15 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
   if(!((A as any).gestures>=1))fail('notifyUserGesture never reached GameAudio');
   console.error('audio:unlock '+ul[0].slice(ul[0].indexOf('source='))+' | snapshot '+JSON.stringify(snap));}
  else if(N.includes('audio:unlock'))fail('audio:unlock without AudioUnlock/gesture');
+ {const cl=L.filter(l=>l.includes(' device:caps '));if(cl.length!==1)fail('device:caps count '+cl.length);const c=cl[0];
+  const CAPS:Record<string,RegExp>={webgl2:/ gfxAPI=7\(WEBGL2\) webgl=2 glSource=device OES_texture_float=0 OES_texture_half_float=0 rgba32fSampled=1 maxVertexTextureUnits=16 maxTextureSize=8192 maxVertexUniformVectors=1024 platform=devtools model=iPhone_15 system=iOS_17.0 SDKVersion=3.5.8 brand=devtools benchmarkLevel=- pixelRatio=3 apron.* glVersion=WebGL_2.0_\(OpenGL_ES_3.0_Chromium\) renderer=Apple_M4_GPU vendor=Apple unmaskedRenderer=Apple_M4_GPU unmaskedVendor=Apple_Inc.$/,
+   webgl1:/ gfxAPI=6\(WEBGL\) webgl=1 glSource=canvas OES_texture_float=0 OES_texture_half_float=1 rgba32fSampled=0 maxVertexTextureUnits=0 maxTextureSize=4096 maxVertexUniformVectors=256 platform=devtools .* renderer=WebKit_WebGL vendor=WebKit unmaskedRenderer=- unmaskedVendor=-$/,
+   throw:/ gfxAPI=-\(-\) webgl=- glSource=- OES_texture_float=- OES_texture_half_float=- rgba32fSampled=- maxVertexTextureUnits=- maxTextureSize=- maxVertexUniformVectors=- platform=devtools .* renderer=- vendor=- unmaskedRenderer=- unmaskedVendor=-$/,
+   nodevice:/ gfxAPI=-\(-\) webgl=- glSource=- .* maxTextureSize=- .* renderer=- vendor=-/};
+  const APRON:Record<string,RegExp>={'':/ apronRenderer=missing apronMorphEnabled=- apronMorphTargets=null apronDriver=- glVersion/,scene:/ apronRenderer=found apronMorphEnabled=1 apronMorphTargets=2 apronDriver=- glVersion/,driver:/ apronRenderer=missing apronMorphEnabled=- apronMorphTargets=null apronDriver=too-few-targets apronDriverReason=need_2_targets,_sub-meshes_have_1 glVersion/};
+  const mode=process.env.GB_CAPS||'webgl2';if(!CAPS[mode].test(c))fail('device:caps fields ('+mode+') '+c);if(!APRON[CA].test(c))fail('device:caps apron ('+(CA||'none')+') '+c);
+  if(/ error=| worldReady=0/.test(c))fail('device:caps error/early '+c);if(N.indexOf('device:caps')>N.indexOf('tap-door'))fail('device:caps after the door tap');
+  console.error('device:caps '+c.slice(c.indexOf('gfxAPI=')));}
  void flow;void engine;
  console.error(`PASS integration out-and-back${U?' audio:unlock source='+U+' before island, playback pending->playing before island':''} door=${env.door} t1=${env.t1||'-'} cameraHook=${env.cameraHook}`);
 })().catch(e=>fail(String(e?.stack||e)));

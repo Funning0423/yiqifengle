@@ -1,7 +1,7 @@
 /** T0 GB_MARK registry (GGbot): the ONE place mark names live. Engine-independent. Debug/test-build only.
  * Line format: GB_MARK <name> <ms since autoplay installed> wall=<local ISO+offset> epoch=<ms> frame=<n> state=<WorldFlow state|-> [k=v ...]
  * To add a mark: append an entry here (pattern may use one or more '*'), then call ctx.mark(name). Unregistered names still log, tagged unregistered=1. */
-export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui'|'combo'|'anim';
+export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui'|'combo'|'anim'|'device';
 export type MarkDef={pattern:string;group:MarkGroup;desc:string};
 export const MARKS:MarkDef[]=[
  {pattern:'autoplay-installed',group:'autoplay',desc:'glue armed; mode, touch backend, log file'},
@@ -67,6 +67,7 @@ export const MARKS:MarkDef[]=[
  {pattern:'anim:foot',group:'anim',desc:'walk driver heel strike (FlowReferenceStandin.onFoot via __worldIntegration.onFoot; phase crossings of the distance-driven walk clock): event=foot:R|foot:L bone=foot.R|foot.L body=L|R (body side; bone L = body R) clip phase=<0..1> cycle=<n> pos=<x>,<z>'},
  {pattern:'anim:apron-lift',group:'anim',desc:'walk driver onApronLift (__worldIntegration.onApronLift): strength=full (wind crossed the apron_lift threshold upward, at the clip lift frame) | soft (idle gust) dur=<s>'},
  {pattern:'anim:hooked',group:'anim',desc:'walk driver subscriptions installed; source=__worldIntegration (absent before the walk driver is merged)'},
+ {pattern:'device:caps',group:'device',desc:'ONCE, when the world is ready (or 20 s after install): gfxAPI=<n>(<cc gfx.API name>) webgl=1|2|- glSource=device|canvas|- OES_texture_float OES_texture_half_float (1|0|-, from getSupportedExtensions; WebGL2 has float textures in core) rgba32fSampled (device.getFormatFeatures(RGBA32F)&SAMPLED_TEXTURE) maxVertexTextureUnits maxTextureSize maxVertexUniformVectors (device.capabilities, else gl.getParameter) | wx.getSystemInfoSync: platform model system SDKVersion brand benchmarkLevel pixelRatio | apronRenderer=found|missing|- apronMorphEnabled=1|0|- apronMorphTargets=<per sub-mesh, e.g. 2>|null apronDriver=<__worldIntegration.morph().status>|- | glVersion renderer vendor unmaskedRenderer unmaskedVendor (WEBGL_debug_renderer_info, if exposed). Values: whitespace -> _, max 96 chars, - = unavailable. Every probe guarded: a failing probe gives -, never an exception'},
  {pattern:'combo:armed',group:'combo',desc:'autoplay=combo runner created; enter=level|none, clears, gapMs, path=feed'},
  {pattern:'combo:skip-walk',group:'combo',desc:'combo:here (enter=none) or already in a level: no door/island/level walk'},
  {pattern:'combo:enter-level',group:'combo',desc:"level entered through the real UI path; via=mainline-button-touch(<backend>)@x,y or WorldIntegrationBoot.invoke(composition.enterMainline) (same action the '继续旅程' WarmButton runs)"},
