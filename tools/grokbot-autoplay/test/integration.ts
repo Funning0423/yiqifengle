@@ -1,11 +1,11 @@
 /** out-and-back end-to-end + observers (audio/app/segments/camera-settled). */
-import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,engine} from './harness';
+import {run,marks,names,calls,states,env,flow,game,Game,FakeGameAudio,FakeCheerTextHost,engine} from './harness';
 const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));process.exit(1);};
 (async()=>{
  const ap=()=>(globalThis as any).__GB_AUTOPLAY;
  await run(240,()=>ap()&&(ap().phase()==='done'||ap().phase()==='failed'));
  // after the autoplay: observers must keep logging (manual play by Voice bot)
- const A:any=FakeGameAudio.instance;A.onBoardFrame({kind:'action'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});A.onRender('result.saved',true);A.onChestResult({newlyGrantedRewards:[1]});A.onClaimResult({ok:true});A.setMusic('audio_bgm/bgm_main');
+ const A:any=FakeGameAudio.instance;const T6=new FakeCheerTextHost();A.onBoardFrame({kind:'action'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});A.onBoardFrame({kind:'clear'});T6.show(0,{kind:'clear',wave:{removed:[{index:0}]}});T6.show(1,{kind:'clear',wave:{removed:[]}});T6.show(0,undefined);A.onRender('result.saved',true);A.onChestResult({newlyGrantedRewards:[1]});A.onClaimResult({ok:true});A.setMusic('audio_bgm/bgm_main');
  A.setMusicVolume(0.5);A.loopSource.playing=true;A.loopSource.currentTime=47.9;await run(0.1,()=>false);A.loopSource.currentTime=0.05;await run(0.05,()=>false);A.setMuted(true);A.play('sfx_ui_click',0.8);A.setMuted(false);(game as any).emit(Game.EVENT_HIDE);A.loopSource.playing=false;await run(0.1,()=>false);(game as any).emit(Game.EVENT_SHOW);(globalThis as any).__wxHide?.();(globalThis as any).__wxShow?.();
  const L=marks(),N=names();console.error(L.join('\n'));
  if(ap().phase()!=='done')fail('phase '+ap().phase());
@@ -24,6 +24,7 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
  if(ms('camera-settled:island')<ms('state:island'))fail('settle before island');
  for(const n of ['audio:hooked','audio:combo-reset','audio:clear','audio:level-complete','audio:chest','audio:bgm-set','audio:bgm-playing','audio:bgm-stopped','app:hide','app:show','app:wx-hide','app:wx-show'])if(!N.includes(n))fail('missing '+n);
  if(!L.some(l=>l.includes('audio:clear')&&l.includes('wave=3 tier=combo_2')))fail('combo tier');
+ const C=L.filter(l=>l.includes(' ui:cheer-text '));if(C.length!==3||!/tier=0 word=Great! decision=show source=clear x=-96 y=84 replaced=-1/.test(C[0])||!/tier=1 .*decision=replace source=center .*replaced=0/.test(C[1])||!/tier=0 .*decision=skip/.test(C[2]))fail('ui:cheer-text '+C.join(' | '));
  if(!L.some(l=>l.includes('audio:chest')&&l.includes('source=chest'))||!L.some(l=>l.includes('audio:chest')&&l.includes('source=claim')))fail('chest source');
  if(JSON.stringify(A.played)!==JSON.stringify(['sfx_match_normal','sfx_combo_1','sfx_combo_2','sfx_level_clear','sfx_chest_open','sfx_chest_open','sfx_ui_click']))fail('audio behaviour changed '+A.played);
  if(!L.some(l=>/audio:sfx .*name=sfx_combo_1 accepted=1 clip=sfx_combo_1 vol=1 effVol=1 loop=0 dur=0.8/.test(l)))fail('sfx detail');

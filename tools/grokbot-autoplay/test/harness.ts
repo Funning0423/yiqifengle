@@ -79,6 +79,9 @@ export class FakeGameAudio{static instance:FakeGameAudio|null=null;cascade=0;mut
  play(n:string,v=1){this.played.push(n);if(this.muted)return;const src={volume:v,loop:false,clip:{name:n,duration:0.8},duration:0.8};this.sfxVoices.set(src,{source:src,name:n});}
  setMusicVolume(v:number){this.musicVolume=v;this.loopSource.volume=v;} setMuted(m:boolean){this.muted=m;} onBoardFrame(v:any){if(v?.kind==='action'){this.cascade=0;return;}if(v?.kind==='clear'){this.cascade++;this.play(this.cascade<=1?'sfx_match_normal':this.cascade===2?'sfx_combo_1':this.cascade===3?'sfx_combo_2':'sfx_combo_3');}}
  onRender(state:string,won:boolean){if(state.startsWith('result.')&&won)this.play('sfx_level_clear');} onChestResult(r:any){if(r?.newlyGrantedRewards?.length>0)this.play('sfx_chest_open');} onClaimResult(r:any){if(r?.ok&&!r.duplicate)this.play('sfx_chest_open');} setMusic(p:string){this.musicPath=p;}}
+/** Stand-in for T6 CheerTextHost: show() returns the same result shape as the real one. */
+export class FakeCheerTextHost{active=-1;show(level:number,visual?:any){const d=level>this.active?(this.active<0?'show':'replace'):'skip';const rep=d==='replace'?this.active:-1;if(d!=='skip')this.active=level;const c=visual?.wave?.removed?.length?'clear':'center';return {tier:level,word:['Great!','Excellent!','Amazing!','Unbelievable!'][level],decision:d,source:c,x:c==='clear'?-96:0,y:c==='clear'?84:-60,replaced:rep};}}
+if(!process.env.GB_NO_T6)(js as any)._register('CheerTextHost',FakeCheerTextHost);
 (js as any)._register('GameAudio',FakeGameAudio);FakeGameAudio.instance=new FakeGameAudio();
 const flush=async()=>{for(let i=0;i<6;i++)await new Promise(r=>setImmediate(r));};
 let started=false,frames=0;

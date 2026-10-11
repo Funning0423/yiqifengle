@@ -12,6 +12,7 @@
 | `src/GrokbotAutoplaySequencer.ts` | 出门→海岛→回屋的纯状态机，外加启动参数解析（不依赖 cc） |
 | `src/GrokbotTouchScenarios.ts` | 场景格式、T1 预设、场景执行器、导出 automation_game_action 命令（不依赖 cc） |
 | `src/GrokbotMarks.ts` | **GB_MARK 名字的唯一登记表**。新增打点只往这里加一行；没登记的名字照样输出，但会带 `unregistered=1` |
+| | `ui:cheer-text`（T6 飘字）：只有工程里有 `CheerTextHost` 时才会出现，包住它的 `show()` 记下档位、结果（show/replace/skip/no-board）、位置来源（clear/center）、坐标。 |
 | `src/*.meta` | 固定 uuid（92fca7bf / 59ace17b / 24830118 / 16cf1f79，目录 d370c13f） |
 | `prelude/gb-touch-prelude.js` | 只用于自动演示构建：`inject_prelude.sh` 把它加到 game.js 最前面，记下所有 wx.onTouch* 监听，回放合成的原始触摸 |
 | `install.sh` / `uninstall.sh` | 前置 SHA 校验（`prereq-allowlist.txt`）。不跟随符号链接，失败就整体撤回；卸载前核对 manifest |

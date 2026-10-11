@@ -1,7 +1,7 @@
 /** T0 GB_MARK registry (GGbot): the ONE place mark names live. Engine-independent. Debug/test-build only.
  * Line format: GB_MARK <name> <ms since autoplay installed> wall=<local ISO+offset> epoch=<ms> frame=<n> state=<WorldFlow state|-> [k=v ...]
  * To add a mark: append an entry here (pattern may use one or more '*'), then call ctx.mark(name). Unregistered names still log, tagged unregistered=1. */
-export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch';
+export type MarkGroup='autoplay'|'state'|'camera'|'audio'|'app'|'touch'|'ui';
 export type MarkDef={pattern:string;group:MarkGroup;desc:string};
 export const MARKS:MarkDef[]=[
  {pattern:'autoplay-installed',group:'autoplay',desc:'glue armed; mode, touch backend, log file'},
@@ -33,6 +33,7 @@ export const MARKS:MarkDef[]=[
  {pattern:'audio:combo-reset',group:'audio',desc:'player action resets cascade'},
  {pattern:'audio:level-complete',group:'audio',desc:'sfx_level_clear requested'},
  {pattern:'audio:chest',group:'audio',desc:'sfx_chest_open; source=chest|claim|other'},
+ {pattern:'ui:cheer-text',group:'ui',desc:'T6 floating cheer text (only if CheerTextHost exists): tier word decision=show|replace|skip|no-board source=clear|center x y replaced'},
  {pattern:'audio:bgm-set',group:'audio',desc:'GameAudio.setMusic(path)'},
  {pattern:'audio:bgm-playing',group:'audio',desc:'BGM loop source became playing; clip, vol, musicVolume, effVol, loop, pos, dur'},
  {pattern:'audio:bgm-loop-seam',group:'audio',desc:'BGM currentTime wrapped (loop seam): before, after, dur'},

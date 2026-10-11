@@ -86,13 +86,13 @@ class TouchBackend {
 
 /** ---------- read-only observers ---------- */
 class Observers {
- private bgmPlaying:boolean|null=null;private audioHooked=false;private flowHooked:any=null;private settleHookFor:any=null;private settleHookAvailable=false;
+ private bgmPlaying:boolean|null=null;private audioHooked=false;private cheerHooked=false;private flowHooked:any=null;private settleHookFor:any=null;private settleHookAvailable=false;
  private craneHookFor:any=null;private craneReported=false;private settle:{place:string;since:number;last:number[]|null;still:number;done:boolean}|null=null;private lastState:string|null=null;private reportedNoHook=false;
  constructor(private ctx:Ctx){
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.pollBgm();this.hookFlow();this.cameraSettle();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();}
  /** Wrap GameAudio prototype methods: call the original unchanged, then log. No gameplay path is altered. */
  private hookAudio(){if(this.audioHooked)return;const C:any=js.getClassByName('GameAudio');if(!C?.prototype?.play)return;this.audioHooked=true;const P=C.prototype,ctx=this.ctx;let source='';
   const wrap=(name:string,after:(self:any,args:any[],before:any)=>void,before?:(self:any,args:any[])=>any)=>{const orig=P[name];if(typeof orig!=='function')return;P[name]=function(this:any,...args:any[]){const b=before?.(this,args);const r=orig.apply(this,args);try{after(this,args,b);}catch{}return r;};};
@@ -110,6 +110,9 @@ class Observers {
   ctx.mark('audio:hooked','class=GameAudio');}
  /** BGM: playing/stopped transitions with clip/volume/loop/position, and loop seams (currentTime wraps backwards). */
  private bgmPos:number|null=null;
+ /** T6: wrap CheerTextHost.prototype.show (returns what it did); absent class = T6 not installed = no mark. */
+ private hookCheerText(){if(this.cheerHooked)return;const C:any=js.getClassByName('CheerTextHost');if(typeof C?.prototype?.show!=='function')return;this.cheerHooked=true;const P=C.prototype,orig=P.show,ctx=this.ctx;
+  P.show=function(this:any,...a:any[]){const r=orig.apply(this,a);try{ctx.mark('ui:cheer-text',`tier=${r?.tier} word=${r?.word} decision=${r?.decision} source=${r?.source} x=${r?.x} y=${r?.y} replaced=${r?.replaced}`);}catch{}return r;};}
  private pollBgm(){const C:any=js.getClassByName('GameAudio');const a=C?.instance;let playing:boolean|null=null;const src=a?.loopSource;try{playing=a?!!src?.playing:null;}catch{}
   if(playing!==this.bgmPlaying){if(playing===true)this.ctx.mark('audio:bgm-playing',`path=${a?.musicPath??'-'} `+bgmInfo(a));else if(playing===false&&this.bgmPlaying===true)this.ctx.mark('audio:bgm-stopped',bgmInfo(a));this.bgmPlaying=playing;this.bgmPos=null;}
   if(playing){let pos=NaN;try{pos=Number(src.currentTime);}catch{}if(Number.isFinite(pos)){if(this.bgmPos!==null&&pos+0.25<this.bgmPos)this.ctx.mark('audio:bgm-loop-seam',`before=${fmt(this.bgmPos)} after=${fmt(pos)} `+bgmInfo(a));this.bgmPos=pos;}}}
