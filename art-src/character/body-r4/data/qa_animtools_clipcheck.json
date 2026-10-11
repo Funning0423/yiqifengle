@@ -1,5 +1,5 @@
 {
- "tool": "anim-tools \u89d2\u8272\u52a8\u753bbot/walk-v2/walk_clipcheck.py (sub 2), base_* = runtime GLB before this round",
+ "tool": "anim-tools \u89d2\u8272\u52a8\u753bbot/walk-v2/walk_clipcheck.py (sub 2) on body-r4 TEST GLBs; base_* = runtime GLB before this round (reference)",
  "clips": {
   "base_door_reach": {
    "total_vertex_hits": {
@@ -110,6 +110,67 @@
     "tri_arm_any": 0,
     "tri_leg_dress_margin": 0,
     "tri_leg_apron_margin": 0,
+    "tri_leg_back_panel": 0,
+    "tri_leg_back_panel_margin": 0
+   },
+   "worst_frame": {
+    "leg_out_dress": 0.0,
+    "leg_out_apron": 0.0,
+    "dress_out_apron": 0.0,
+    "apron_in_dress": 0.0,
+    "arm_in_dress": 0.0,
+    "arm_in_apron": 0.0,
+    "arm_in_torso": 0.0
+   }
+  },
+  "base_sit_hold": {
+   "total_vertex_hits": {
+    "leg_out_dress": 10720,
+    "leg_out_apron": 6480,
+    "dress_out_apron": 20960,
+    "apron_in_dress": 8640,
+    "arm_in_dress": 4160,
+    "arm_in_apron": 6480,
+    "arm_in_torso": 3600
+   },
+   "max_depth_mm": {
+    "leg_out_dress": 69.9,
+    "leg_out_apron": 55.6,
+    "dress_out_apron": 391.4,
+    "apron_in_dress": 48.2,
+    "arm_in_dress": 48.1,
+    "arm_in_apron": 50.0,
+    "arm_in_torso": 21.8
+   },
+   "min_clearance": {
+    "clear_leg_dress_mm": {
+     "min": 0.0,
+     "frame": 0.0
+    },
+    "clear_leg_apron_mm": {
+     "min": 1.4,
+     "frame": 0.0
+    },
+    "clear_arm_cloth_mm": {
+     "min": 0.1,
+     "frame": 0.0
+    },
+    "clear_arm_torso_mm": {
+     "min": 0.3,
+     "frame": 0.0
+    },
+    "clear_legfoot_back_mm": {
+     "min": 9000.0,
+     "frame": 0.0
+    }
+   },
+   "tri_overlap_total": {
+    "tri_leg_dress": 17440,
+    "tri_leg_apron": 9760,
+    "tri_dress_apron_new": 0,
+    "tri_arm_any": 41360,
+    "tri_leg_dress_margin": 18400,
+    "tri_leg_apron_margin": 10400,
     "tri_leg_back_panel": 0,
     "tri_leg_back_panel_margin": 0
    },
