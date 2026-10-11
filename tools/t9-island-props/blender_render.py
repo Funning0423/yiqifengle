@@ -35,6 +35,19 @@ for k,fl in enumerate(cfg.get('flats',[])):  # procedural sign water: world posi
     em.inputs[0].default_value=tuple(fl['rgb'])+(1,); em.inputs[1].default_value=fl.get('strength',1.0)
     nt.links.new(at.outputs['Alpha'],mul.inputs[0]); nt.links.new(mul.outputs[0],mx.inputs[0]); nt.links.new(tr.outputs[0],mx.inputs[1]); nt.links.new(em.outputs[0],mx.inputs[2]); nt.links.new(mx.outputs[0],out.inputs[0])
     ob.data.materials.append(m)
+for k,pl in enumerate(cfg.get('pointLights',[])):  # T9n lamp light; light linking limits it to the listed props (= Cocos Light.visibility)
+    ld=bpy.data.lights.new('pl%d'%k,'POINT'); ld.energy=pl['energy']; ld.color=tuple(pl['rgb']); ld.shadow_soft_size=pl.get('radius',.1)
+    try: ld.use_custom_distance=True; ld.cutoff_distance=pl['range']
+    except Exception: pass
+    lo=bpy.data.objects.new('pl%d'%k,ld); sc.collection.objects.link(lo); lo.location=cc2bl(pl['pos'])
+    if pl.get('only'):
+        col=bpy.data.collections.new('lit%d'%k)
+        for o in bpy.data.objects:
+            r=o
+            while r.parent: r=r.parent
+            if r.name==pl['only'] and o.type=='MESH': col.objects.link(o)
+        try: lo.light_linking.receiver_collection=col
+        except Exception as e: print('light linking unavailable',e)
 for ch in cfg.get('chars',[]):
     objs=imp(ch['glb']); roots=[o for o in objs if o.parent is None]
     E=bpy.data.objects.new('char',None); sc.collection.objects.link(E)

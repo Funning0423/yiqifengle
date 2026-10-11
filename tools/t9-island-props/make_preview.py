@@ -6,7 +6,7 @@ palette embedded come from work/grokbot 0f28044 ui-props/*glb-preview*, same geo
 import json, os, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFont
 H=os.path.dirname(os.path.abspath(__file__)); ROOT=os.path.abspath(os.path.join(H,'..','..'))
-args=sys.argv[1:]; out=args[0]; night='--night' in args
+args=sys.argv[1:]; out=args[0]; night='--night' in args; before='--before' in args  # --before = T9 0ec1701 look (no lamp light, day tags at night)
 size=args[args.index('--size')+1] if '--size' in args else '390x844'; W,Hh=map(int,size.split('x'))
 samples=int(args[args.index('--samples')+1]) if '--samples' in args else 32
 SC=1.5 if W<Hh else 1.0  # 390x844 CSS -> 586x1266 evidence pixels
@@ -36,7 +36,11 @@ def flat(mesh,scale,lift,rgb,alpha,strength=1.0,cxshift=0.0):
 W_=S['water']; L_SEA=-0.92; flats=[flat(L['water']['shadow'],S['scale'],W_['ripple']['lift']*0.5,hexrgb(W_['shadow']['color']),W_['shadow']['nightAlpha' if night else 'alpha'],0.6)]
 for k,r in enumerate(L['water']['ripples']):
     sc_=S['scale']*r['scale']; flats.append(flat(L['water']['ring'],sc_,W_['ripple']['lift'],hexrgb(W_['ripple']['nightColor' if night else 'color']),(W_['ripple']['nightAlpha' if night else 'alpha'])*r['alpha'],1.0,W_['centerX']*S['scale']*(1-r['scale'])))
-scene=dict(island=R+'combined_visual_m.glb',hide=['_night_v22','env_interior','character_height','floor_skirt'] if not night else ['env_interior','character_height','floor_skirt','sky_dome'],
+pointLights=[]
+if night and not before:
+    LL=S['lampLight']; pointLights.append(dict(pos=L['lampLightWorld'],rgb=hexrgb(LL['color']),energy=60*LL['luminanceScale'],range=LL['range']*S['scale'],radius=LL['size']*S['scale'],only='signpost'))
+    RF=LL['reflection']; flats.append(flat(L['lampReflection']['mesh'],S['scale'],RF['lift'],hexrgb(RF['color']),RF['alpha'],1.2,RF['x']*S['scale']))
+scene=dict(island=R+'combined_visual_m.glb',pointLights=pointLights,hide=['_night_v22','env_interior','character_height','floor_skirt'] if not night else ['env_interior','character_height','floor_skirt','sky_dome'],
   props=props,flats=flats,chars=[dict(glb=R+'character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',pos=[-2.1135,0,5.2814],yaw=0)],
   camera=dict(pos=pose['position'],target=pose['target'],fov=pose['fovVerticalDeg']),res=[RW,RH],out=os.path.join(tmp,'raw.png'),samples=samples,
   sun=0.9 if night else 3.2,world=(0.05,0.08,0.18,1) if night else (0.55,0.7,0.8,1),worldStrength=0.5 if night else 0.9)
@@ -55,12 +59,14 @@ def proj(p):
     v=np.array(p,float)-P; z=v@f; t=math.tan(math.radians(pose['fovVerticalDeg'])/2)
     return ((v@r)/(z*t*RW/RH)+1)/2*RW, (1-(v@u)/(z*t))/2*RH, z
 cx,cy,z=proj(tc); pxm=RH/(2*z*math.tan(math.radians(pose['fovVerticalDeg'])/2)); panelW=S['text']['widthM']*S['scale']*pxm*0.9*math.cos(math.radians(S['yawDeg']+21))
-f=font(panelW/4.6); bb=d.textbbox((0,0),'继续旅程',font=f); d.text((cx-(bb[2]-bb[0])/2-bb[0],cy-(bb[3]-bb[1])/2-bb[1]),'继续旅程',font=f,fill=(99,63,33,255))
+def hx(h): h=h.lstrip('#'); return tuple(int(h[i:i+2],16) for i in (0,2,4))+((int(h[6:8],16),) if len(h)>6 else (255,))
+TC=L['tags']['night' if night and not before else 'day']
+f=font(panelW/4.6); bb=d.textbbox((0,0),'继续旅程',font=f); d.text((cx-(bb[2]-bb[0])/2-bb[0],cy-(bb[3]-bb[1])/2-bb[1]),'继续旅程',font=f,fill=hx(S['text']['nightColor'] if night and not before else S['text']['color']))
 # tags (same numbers as IslandJourneyOverlay.layoutProps)
 for b in L['buttons']:
     t=b['slot']['tag']; x0,y0=ui2px(t['x']-t['width']/2,t['y']+t['height']/2); x1,y1=ui2px(t['x']+t['width']/2,t['y']-t['height']/2)
-    r=(y1-y0)/2; d.rounded_rectangle([x0,y0+2*SC,x1,y1+2*SC],radius=r,fill=(20,50,60,90)); d.rounded_rectangle([x0,y0,x1,y1],radius=r,fill=(248,242,226,255),outline=(149,103,55,255),width=max(2,int(t['fontSize']*SC/10)))
-    f=font(t['fontSize']*SC); bb=d.textbbox((0,0),b['label'],font=f); d.text(((x0+x1)/2-(bb[2]-bb[0])/2-bb[0],(y0+y1)/2-(bb[3]-bb[1])/2-bb[1]),b['label'],font=f,fill=(99,63,33,255))
+    r=(y1-y0)/2; d.rounded_rectangle([x0,y0+2*SC,x1,y1+2*SC],radius=r,fill=hx(TC['shadow'])); d.rounded_rectangle([x0,y0,x1,y1],radius=r,fill=hx(TC['fill']),outline=hx(TC['edge']),width=max(2,int(t['fontSize']*SC/10)))
+    f=font(t['fontSize']*SC); bb=d.textbbox((0,0),b['label'],font=f); d.text(((x0+x1)/2-(bb[2]-bb[0])/2-bb[0],(y0+y1)/2-(bb[3]-bb[1])/2-bb[1]),b['label'],font=f,fill=hx(TC['text']))
 def outline(rect,col):
     x0,y0=ui2px(rect['x']-rect['width']/2,rect['y']+rect['height']/2); x1,y1=ui2px(rect['x']+rect['width']/2,rect['y']-rect['height']/2); d.rectangle([x0,y0,x1,y1],outline=col,width=1)
 clean=im.copy()

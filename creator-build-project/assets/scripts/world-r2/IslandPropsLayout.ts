@@ -37,7 +37,13 @@ export const ISLAND_PROPS = Object.freeze({
     /** Local AABB of the GLB (origin = bottom centre, front = +Z). */
     boxMin: [-1.235, 0, -0.183] as V3, boxMax: [1.235, 1.875, 0.183] as V3,
     /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face. */
-    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21' },
+    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#3a220f' },
+    /** Night-only warm lamp light (T9n). A real SphereLight just in front of lamp_glass (sign-local metres), restricted by
+     * Light.visibility to the sign's own layer so only the sign (2 renderers) gets the forward-add pass; range/size are
+     * sign-local and scale with the sign. luminanceScale multiplies the engine default luminance (HDR/LDR-safe, same
+     * rule as RoomLightingRig's lamp) and the night weight. reflection = faint additive warm pool on the sea under it. */
+    lampLight: { local: [-0.78, 1.12, 0.42] as V3, color: '#ffc47a', range: 2.6, size: 0.06, luminanceScale: 1.6, layerBit: 0,
+      reflection: { x: -0.75, rx: 0.5, rz: 0.22, color: '#ffb766', alpha: 0.2, lift: 0.02 } },
   },
   palms: [
     { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
@@ -49,7 +55,11 @@ export const ISLAND_PROPS = Object.freeze({
     settings: { prefab: 'ui_compass', label: '设置', heightM: 1.051, widthM: 0.84 },
   } as Readonly<Record<PropRole, Readonly<{ prefab: string; label: string; heightM: number; widthM: number }>>>,
   /** Cream rounded tag under each screen prop (mockup.py tag(): palette plaster / wood / dark wood). */
-  tag: { fill: '#f8f2e2', edge: '#956737', text: '#633f21', shadow: '#14323c5a' },
+  tag: { fill: '#f8f2e2', edge: '#956737', text: '#633f21', shadow: '#14323c5a',
+    /** T9n night end (same weight as the 3D props): darker warm grey card, deeper brown text/edge; >= 4.5:1 along the blend. */
+    nightFill: '#9a8f7f', nightEdge: '#5e4128', nightText: '#2b1b0c', nightShadow: '#0a1a205a' },
+  /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
+  nightFadeS: 0.5,
   notAdded: {
     beach_gull: 'island already has env_anim_seagull_01 (+ env_anim_seagull_fly_01/02_v22)',
     beach_crab: 'island already has env_anim_crab_01 + env_anim_hermit_crab_v22',
@@ -172,3 +182,36 @@ export function signpostHitUi(pose: CameraPose, width: number, height: number): 
   for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
   return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
 }
+
+/* ---------- T9n night look (engine-free) ---------- */
+const hexRgba = (h: string): number[] => { const x = h.replace('#', ''); const v = [0, 2, 4, 6].map(i => i < x.length ? parseInt(x.slice(i, i + 2), 16) : 255); return v; };
+const toHex = (v: number[], alpha: boolean) => '#' + v.slice(0, alpha ? 4 : 3).map(c => Math.round(Math.max(0, Math.min(255, c))).toString(16).padStart(2, '0')).join('');
+/** Linear sRGB-byte mix of two #rrggbb[aa] colours (t clamped to 0..1). */
+export function mixHex(a: string, b: string, t: number): string {
+  const k = Math.max(0, Math.min(1, t)), A = hexRgba(a), B = hexRgba(b), alpha = a.length > 7 || b.length > 7;
+  return toHex(A.map((c, i) => c + (B[i] - c) * k), alpha);
+}
+/** WCAG 2 relative-luminance contrast ratio of two opaque colours. */
+export function contrastRatio(a: string, b: string): number {
+  const L = (h: string) => { const [r, g, bl] = hexRgba(h).map(c => { const v = c / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * bl; };
+  const x = L(a), y = L(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+/** Bottom-row tag colours at night weight w (0 = day, 1 = night). */
+export function tagColorsAt(w: number) {
+  const T = ISLAND_PROPS.tag;
+  return { fill: mixHex(T.fill, T.nightFill, w), edge: mixHex(T.edge, T.nightEdge, w), text: mixHex(T.text, T.nightText, w), shadow: mixHex(T.shadow, T.nightShadow, w) };
+}
+/** Night weight step: linear approach to target (0/1) over ISLAND_PROPS.nightFadeS; dt clamped like the T2 entrance. */
+export function approachNight(current: number, night: boolean, dt: number): number {
+  const target = night ? 1 : 0, step = Math.max(0, Math.min(dt, 0.1)) / ISLAND_PROPS.nightFadeS;
+  return current < target ? Math.min(target, current + step) : Math.max(target, current - step);
+}
+/** Lamp light state at night weight w: smoothstep so the light eases in/out (no pop at either end). */
+export function lampLightAt(w: number): { enabled: boolean; scale: number } {
+  const k = Math.max(0, Math.min(1, w)), e = k * k * (3 - 2 * k);
+  return { enabled: e > 0, scale: ISLAND_PROPS.signpost.lampLight.luminanceScale * e };
+}
+/** Shared night weight of the island props (published by IslandProps each frame; read by IslandJourneyOverlay tags). */
+let propNight = 0;
+export function setPropNightWeight(w: number) { propNight = Number.isFinite(w) ? Math.max(0, Math.min(1, w)) : 0; }
+export function propNightWeight(): number { return propNight; }

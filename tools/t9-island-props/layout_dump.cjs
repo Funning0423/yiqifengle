@@ -13,5 +13,7 @@ const S=P.signpost;
 const WW=S.water,water={shadow:L.softEllipse(WW.centerX,WW.shadow.rx,WW.shadow.rz),ring:L.softRing(WW.centerX,WW.ripple.rx,WW.ripple.rz,WW.ripple.band),ripples:[L.rippleAt(0.9,0),L.rippleAt(0.9,1)]};
 const out={frame:{width:w,height:h},pose:{source:R.REGION_CAMERA.islandPoseSource,...R.islandPoseEntry()},
   signpost:{...S,screenBase:ndc(S.position),rectUi:L.signpostRectUi(pose,w,h),hitUi:L.signpostHitUi(pose,w,h),textCenterWorld:L.propCorners({position:S.position,yawDeg:S.yawDeg,scale:S.scale},S.text.center,S.text.center)[0]},
+  lampLightWorld:L.propCorners({position:S.position,yawDeg:S.yawDeg,scale:S.scale},S.lampLight.local,S.lampLight.local)[0],
+  lampReflection:{mesh:L.softEllipse(0,S.lampLight.reflection.rx,S.lampLight.reflection.rz)},tags:{day:L.tagColorsAt(0),night:L.tagColorsAt(1)},
   water,palms:P.palms.map(p=>({...p,screenBase:ndc(p.position)})),buttons};
 console.log(JSON.stringify(out,null,1));
