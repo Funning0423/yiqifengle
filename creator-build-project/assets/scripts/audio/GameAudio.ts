@@ -38,7 +38,8 @@ const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
-  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable';
+  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
+  | 'sfx_amb_gull_1' | 'sfx_amb_gull_2' | 'sfx_amb_gull_3';
 
 /** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
 const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
@@ -624,6 +625,11 @@ export class GameAudio extends Component {
     if (playingLevel >= level) return;
     for (const v of Array.from(this.sfxVoices.values())) if (CHEERS.indexOf(v.name) >= 0) this.retireSfx(v.source);
     this.play(CHEERS[level]);
+  }
+
+  /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */
+  canPlayAmbience(): boolean {
+    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
   }
 
   onButton() { this.play('sfx_ui_click', 0.8); }
