@@ -51,9 +51,11 @@ const mkUnlock=(entry,file)=>{const c=mk(entry,file,...base);c.plugins=[{name:'u
  b.onResolve({filter:/^\.\/GameAudio$/},a=>a.importer.endsWith('AudioUnlock.ts')?{path:path.join(here,'gameaudio-unlock-stub.mjs')}:undefined);}},...c.plugins];return c;};
 if(unlockDir){jobs.push(esbuild.build(mkUnlock('integration.ts','int-unlock.mjs')));if(LOOSE)jobs.push(esbuild.build(loose(mkUnlock('integration.ts','int-unlock.mjs'))));}
 if(intDir)jobs.push(esbuild.build(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
+/** bgm job (GameAudio v0.4+): same REAL int sources; skipped by the shell part when the int GameAudio has no assetManager/bundle arg. */
+if(intDir)jobs.push(esbuild.build(mkCombo('integration-bgm.ts','int-bgm.mjs',path.join(intDir,'creator-build-project/assets/scripts'))));
 if(LOOSE){jobs.push(esbuild.build(loose(mk('sequencer.test.ts','sequencer.mjs',...base))),esbuild.build(loose(mk('touch.test.ts','touchunit.mjs',...base))),esbuild.build(loose(mk('combo.test.ts','combounit.mjs',...base))),
   esbuild.build(loose(mk('integration.ts','int-base.mjs',...base))),esbuild.build(loose(mk('integration-touch.ts','touch-base.mjs',...base))));
- if(intDir)jobs.push(esbuild.build(loose(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts')))));}
+ if(intDir)jobs.push(esbuild.build(loose(mkCombo('integration-combo.ts','int-combo.mjs',path.join(intDir,'creator-build-project/assets/scripts')))),esbuild.build(loose(mkCombo('integration-bgm.ts','int-bgm.mjs',path.join(intDir,'creator-build-project/assets/scripts')))));}
 Promise.all(jobs).catch(e=>{console.error(e);process.exit(1);});
 JS
 r(){ local name="$1"; shift; if env "$@" > "$out/$name.log" 2>&1; then tail -1 "$out/$name.log"; else echo "FAILED: $name"; grep -m3 "^FAIL" "$out/$name.log"; exit 1; fi; }
@@ -97,6 +99,7 @@ if [ -n "${GB_INT_DIR:-}" ]; then
   r combo-muted GB_COMBO=1 GB_COMBO_MUTED=1 GB_QUERY='?autoplay=combo' node "$out/int-combo.mjs"
   r combo-macro-here-noboard GB_COMBO=1 GB_EXPECT='text=0:no-board,1:no-board,2:no-board,3:no-board .*sfxOk=1 textOk=0' GROKBOT_MACRO='combo:here' node -e "globalThis.GROKBOT_AUTOPLAY='combo:here';import('$out/int-combo.mjs')"
   r combo-noT6 GB_COMBO=1 GB_NO_T6=1 GB_EXPECT='text=absent' GB_QUERY='?autoplay=combo' node "$out/int-combo.mjs"
+  if grep -q 'assetManager' "$IS/audio/GameAudio.ts"; then r bgm-crossfade GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"; [ "${GB_LOOSE:-1}" != 0 ] && r loose-bgm-crossfade GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; else echo "SKIP bgm crossfade (GameAudio before v0.4)"; fi
 else echo "SKIP combo integration (set GB_INT_DIR=<int/v1 checkout> to run against the real GameAudio/CheerText)"; fi
 if [ -n "${GB_UNLOCK_DIR:-}" ]; then
   US="$GB_UNLOCK_DIR/creator-build-project/assets/scripts"

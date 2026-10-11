@@ -46,4 +46,6 @@ export class AudioSource extends Component{constructor(){super();this.clip=null;
  static EventType={STARTED:'started',ENDED:'ended'}; static AudioState={INIT:0,PLAYING:1,PAUSED:2,STOPPED:3}; static maxAudioChannel=10;}
 export class BitmapFont{constructor(cfg){this.fntConfig=cfg||null;} addRef(){return this;} decRef(){return this;}}
 export const resources={loads:[],dirs:[],load(path,type,cb){this.loads.push({path,type,cb});},loadDir(path,type,cb){this.dirs.push({path,type,cb});}};
+/** GameAudio v0.4 setMusic(path,bundle): fake asset bundles (loadBundle/getBundle), loads recorded like resources.load. */
+export const assetManager={bundles:new Map(),bundleLoads:[],getBundle(n){return this.bundles.get(n)||null;},loadBundle(n,cb){this.bundleLoads.push({name:n,cb});}};
 const store=new Map();export const sys={localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>{store.set(k,String(v));},removeItem:k=>{store.delete(k);}}};
