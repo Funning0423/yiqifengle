@@ -63,3 +63,11 @@ strict f8f5fdc381572929ee6f40e226e86fa90ac410a88c63d101269999ce97c00a30 WorldInt
 # Voice bot A4 ambience (work/Voice-bot-a4v4 2fdc6cc on int/v1 0f54339; == work/Voice-bot-windseam f410a1d). GameAudio verified
 #  `git show 2fdc6cc:.../audio/GameAudio.ts | sha256sum` = 1a7b8027..8190. Observe-only, append only.
 observe 1a7b80278cc804db2573cf61b64fb6db7a75f1f6faf49b4c6016df18e18d8190 audio/GameAudio.ts              Voice bot A4 (work/Voice-bot-a4v4 2fdc6cc, == f410a1d)
+# int/v1 f0f3a13 (= merge of T9 0ec1701 onto cd34101 which already had 运镜bot wind API ff5a2e8 + A4 2fdc6cc).
+# WorldFlowComponent verified `git show f0f3a13:.../world-r1/WorldFlowComponent.ts | sha256sum` = 99cb29e4..1bd82
+# (from ff5a2e8 wind stub: getWindStrength/onWindStrength; flow + onCameraSettled/onCraneStart unchanged). Observe-only.
+# Voice bot A5v3 (work/Voice-bot-a5v3 3a966c1 on f0f3a13). GameAudio verified
+# `git show 3a966c1:.../audio/GameAudio.ts | sha256sum` = 6a1a2f94..1b4f. Observe-only, append only.
+# AudioBridge at 3a966c1 == 45fc0889 (already listed from A5 6307433). Boot at f0f3a13/3a966c1 == f8f5fdc3 (listed).
+observe 99cb29e452c53813cc339846f9f401ac0a58a7dbcb982bc1681a4dc37ed1bd82 world-r1/WorldFlowComponent.ts   int/v1 f0f3a13 (运镜bot wind API ff5a2e8)
+observe 6a1a2f94a8fdaa85bb4d70b1ff7634b3c26fe785cdded70c263325446b291b4f audio/GameAudio.ts              Voice bot A5v3 (work/Voice-bot-a5v3 3a966c1)
