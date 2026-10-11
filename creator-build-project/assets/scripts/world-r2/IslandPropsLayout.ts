@@ -37,12 +37,12 @@ export const ISLAND_PROPS = Object.freeze({
     /** Local AABB of the GLB (origin = bottom centre, front = +Z). */
     boxMin: [-1.235, 0, -0.183] as V3, boxMax: [1.235, 1.875, 0.183] as V3,
     /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face. */
-    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#5a3519' },
+    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#3a220f' },
     /** Night-only warm lamp light (T9n). A real SphereLight just in front of lamp_glass (sign-local metres), restricted by
      * Light.visibility to the sign's own layer so only the sign (2 renderers) gets the forward-add pass; range/size are
      * sign-local and scale with the sign. luminanceScale multiplies the engine default luminance (HDR/LDR-safe, same
      * rule as RoomLightingRig's lamp) and the night weight. reflection = faint additive warm pool on the sea under it. */
-    lampLight: { local: [-0.78, 1.12, 0.42] as V3, color: '#ffc47a', range: 2.1, size: 0.06, luminanceScale: 1.6, layerBit: 0,
+    lampLight: { local: [-0.78, 1.12, 0.42] as V3, color: '#ffc47a', range: 2.6, size: 0.06, luminanceScale: 1.6, layerBit: 0,
       reflection: { x: -0.75, rx: 0.5, rz: 0.22, color: '#ffb766', alpha: 0.2, lift: 0.02 } },
   },
   palms: [
