@@ -15,7 +15,7 @@
 
 - 监听一直保留，不注销。GameAudio 还没建好时调用会被忽略；起播 10 秒没确认时，后面的触摸会重试。`wx.offTouch*` 一律不调：低版本基础库调不带参数的 off，会把引擎自己的触摸监听一起删掉。
 - 只读接口：`AudioUnlock.snapshot()`、`AudioUnlock.onUnlock(cb)`、`globalThis.__audioUnlock`。T0 用它们打 `GB_MARK audio:unlock`。
-- 解锁后在屋里能听到的只有 BGM（`audio_bgm/bgm_main`，音量 0.4）。海浪和海鸥跟着室外权重走，屋里是 0；风声跟着风力走，屋里也是 0。所以这几样在屋里保持无声，出门后才进来。
+- 解锁后在屋里能听到的只有 BGM（小岛曲 `audio_bgm_island` 分包里的 `audio/bgm_main`，音量 0.4；Voice bot v0.5 起，房间可操作后才加载，起播后 1.5 s 淡入；解锁早于分包下载完成时，下载完成后自动起播）。海浪和海鸥跟着室外权重走，屋里是 0；风声跟着风力走，屋里也是 0。所以这几样在屋里保持无声，出门后才进来。
 
 ## 测试
 `node tools/audio-unlock/test_audio_unlock.cjs`（需要 Node 22）。跑的是真实的 AudioUnlock、GameAudio、RoomExploreOverlay、AmbienceAudio 和 WindAudio，触摸路由按 Cocos 的规则模拟：平台层先收到，UI 节点命中就吞掉，只有没吞掉的才进全局 input。

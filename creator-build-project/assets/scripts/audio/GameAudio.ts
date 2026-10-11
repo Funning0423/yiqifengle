@@ -41,6 +41,13 @@
 //   c) 切场景（setMusic 换曲且当前正在播）：旧声源先继续播，新曲确认在播后 SCENE_XFADE_S 等功率交叉；加载失败/超时则旧曲淡出。
 //   d) 静音 / 挂起 / 音量 0 / setMusic(null) / 销毁：交叉用的额外声源立即停掉销毁，只保留 loopSource（原有的解锁、重试、冷却规则不变）。
 //   loopSource 始终是“当前主声源”，T0 的 bgmInfo / pollBgm 照旧读它；musicDiagnostics() 增加 bundle / crossfade 字段。
+// v0.5（Voice bot，包体）：
+//   a) 小岛 BGM 挪出 resources，放进独立小分包 audio_bgm_island（DEFAULT_BGM_BUNDLE，设置与 region_skycity 相同）。
+//      GameAudio.onLoad 不再自己加载默认 BGM（启动 / 加载页不碰音乐）；由 SceneMusic 在房间可操作后 setMusic(..., { fadeIn: true })。
+//   b) setMusic 第三个参数 opts.fadeIn：这一曲第一次真正起播时从 0 等功率淡入 ROOM_FADE_IN_S（1.5 s）。
+//   c) 解锁与加载谁先谁后都行：手势状态（gestureSeen）一直记着，分包晚到时 loaded 回调里直接起播，不需要再摸一次。
+//   d) “音乐真正开始”的时刻：GameAudio.onMusicStart(cb) / globalThis.__gameAudioMusic.onMusicStart(cb)，
+//      loopSource 第一次确认 playing 时发一次（每次 setMusic 一次；切后台回来的恢复记 first=false）。
 import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
 const { ccclass } = _decorator;
 
@@ -65,8 +72,12 @@ const UI_TAP_VOLUME = 0.65;
 export type SuspendReason = 'hidden' | 'interrupted';
 
 const SFX_DIR = 'audio_sfx';
-// One explicit default; callers can select another resources-relative track with setMusic().
-export const DEFAULT_BGM_PATH = 'audio_bgm/bgm_main';
+// One explicit default (island BGM), in its own small subpackage bundle; loaded by SceneMusic once the room is interactive.
+export const DEFAULT_BGM_PATH = 'audio/bgm_main';
+export const DEFAULT_BGM_BUNDLE = 'audio_bgm_island';
+/** v0.5：进房第一次起播的淡入时长 */
+export const ROOM_FADE_IN_S = 1.5;
+export type MusicStartInfo = { path: string | null; bundle: string | null; at: number; first: boolean; fadeIn: boolean; requestedAt: number; loadedAt: number | null };
 const MUSIC_VOLUME_KEY = 'qfl.audio.musicVolume';
 const MUTE_KEY = 'qfl.audio.muted';   // 正式 key。R6 实测用的是隔离 key 'dot-audio-r1-test-20261009:muted'，那份测试存档不迁移。
 const MIN_GAP_MS = 60;        // 同一个音效 60 ms 内只播一次，防止同帧多次触发叠成爆音
@@ -136,6 +147,16 @@ export class GameAudio extends Component {
   private sceneSwitchAt = 0;
   private sceneFadeAt: number | null = null;
   private sceneFadeIn = false;
+  /** v0.5：淡入 / 交叉的时长（切场景 SCENE_XFADE_S；进房淡入 ROOM_FADE_IN_S） */
+  private sceneFadeS = SCENE_XFADE_S;
+  /** v0.5：“真正开始”事件。startEmittedGen = 已为哪一次 setMusic 发过 first 事件 */
+  private startEmittedGen = 0;
+  private musicRequestedAt = 0;
+  private musicLoadedAt: number | null = null;
+  private musicFadeInRequested = false;
+  private lastStart: MusicStartInfo | null = null;
+  /** v0.5：loopSource.play() 已发出、还没报过“真正开始” */
+  private startPending = false;
   /** currentTime 外推基准 */
   private posCt = NaN;
   private posAt = 0;
@@ -267,7 +288,8 @@ export class GameAudio extends Component {
     input.on(Input.EventType.TOUCH_END, this.onGesture, this);
     input.on(Input.EventType.MOUSE_UP, this.onGesture, this);
     input.on(Input.EventType.KEY_DOWN, this.onGesture, this);
-    this.setMusic(cur && cur !== this ? cur.musicPath : DEFAULT_BGM_PATH, cur && cur !== this ? cur.musicBundle : null);
+    // v0.5：不再自动加载默认 BGM。交接时沿用旧实例的曲目；否则等 SceneMusic 在房间可操作后 setMusic。
+    if (cur && cur !== this && cur.musicPath) this.setMusic(cur.musicPath, cur.musicBundle);
     // 资源加载失败不影响游戏：没加载到的音效 play() 时直接跳过
     const loadedSfx = (err: any, list: AudioClip[]) => {
       if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
@@ -466,7 +488,9 @@ export class GameAudio extends Component {
     if (!this.loopRequested) return;
     if (this.loopSource.playing) {
       this.loopPendingSince = null; this.musicError = null;
-      this.loopRecoveries = 0; this.loopNextReplacementAt = 0; return;
+      this.loopRecoveries = 0; this.loopNextReplacementAt = 0;
+      if (this.startPending) { this.startPending = false; this.emitMusicStart(); }
+      return;
     }
     if (this.loopPendingSince === null) this.loopPendingSince = GameAudio.now();
     if (GameAudio.now() - this.loopPendingSince >= LOOP_START_TIMEOUT_MS) {
@@ -506,6 +530,7 @@ export class GameAudio extends Component {
       this.loopRequested = true; this.loopPendingSince = GameAudio.now();
       this.posCt = NaN;
       this.applyMusicGains();
+      this.startPending = true;
       this.loopSource.play();
       this.musicError = null;
       this.observeLoopRequest();
@@ -519,7 +544,7 @@ export class GameAudio extends Component {
   /** Explicit path without extension, relative to `bundle` (null/omitted = resources, the original behaviour).
    * null path intentionally stops music. A missing asset is an observable error, never a successful silent fallback.
    * v0.4: while the current track is audibly playing, a different track crossfades in (SCENE_XFADE_S) once it is confirmed playing. */
-  setMusic(path: string | null, bundle?: string | null) {
+  setMusic(path: string | null, bundle?: string | null, opts?: { fadeIn?: boolean } | null) {
     if (!GameAudio.usable(this) || GameAudio.instance !== this) return;
     const bundleName = bundle ? String(bundle) : null;
     if (path === this.musicPath && bundleName === this.musicBundle && (this.musicStatus === 'loading' || this.musicStatus === 'ready')) {
@@ -548,6 +573,14 @@ export class GameAudio extends Component {
     this.musicPath = path; this.musicBundle = path ? bundleName : null; this.musicError = null;
     this.musicStatus = path ? 'loading' : 'idle';
     this.posCt = NaN;
+    this.startPending = false;
+    this.musicRequestedAt = GameAudio.now(); this.musicLoadedAt = null;
+    // v0.5 进房淡入：只在没有旧曲在播（不是切场景交叉）时生效；第一次确认在播后开始 ROOM_FADE_IN_S 的等功率淡入。
+    this.musicFadeInRequested = !!(path && opts && opts.fadeIn && !crossfade);
+    if (this.musicFadeInRequested) { this.sceneFadeIn = true; this.sceneFadeAt = null; this.sceneFadeS = ROOM_FADE_IN_S; }
+    else if (crossfade) this.sceneFadeS = SCENE_XFADE_S;
+    else { this.sceneFadeIn = false; this.sceneFadeAt = null; this.sceneFadeS = SCENE_XFADE_S; }
+    this.applyMusicGains();
     if (!path) return;
     const where = bundleName || 'resources';
     const loaded = (err: any, clip: AudioClip) => {
@@ -557,7 +590,7 @@ export class GameAudio extends Component {
         this.musicError = `Missing/unloadable BGM ${where}/${path}: ${String(err || 'empty clip')}`;
         console.warn('[GameAudio]', this.musicError); return;
       }
-      clip.addRef(); this.musicClip = clip;
+      clip.addRef(); this.musicClip = clip; this.musicLoadedAt = GameAudio.now();
       this.loopSource.clip = clip; this.loopSource.loop = true; this.applyMusicGains();
       this.musicStatus = 'ready'; this.resumeLoopIfAllowed();
     };
@@ -586,7 +619,7 @@ export class GameAudio extends Component {
   }
   private static eqIn(t: number) { return Math.sin(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
   private static eqOut(t: number) { return Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2); }
-  private sceneT() { return this.sceneFadeAt === null ? 0 : (GameAudio.now() - this.sceneFadeAt) / (SCENE_XFADE_S * 1000); }
+  private sceneT() { return this.sceneFadeAt === null ? 0 : (GameAudio.now() - this.sceneFadeAt) / (this.sceneFadeS * 1000); }
   private loopT() { return this.loopXfadeAt === null ? 0 : (GameAudio.now() - this.loopXfadeAt) / (LOOP_XFADE_S * 1000); }
   /** WindAudio, every frame: smoothed wind strength s (0..1; 0 when wind is silent / not allowed). Ducks the BGM up to WIND_DUCK_DB. */
   setWindDuck(s: number) {
@@ -631,7 +664,9 @@ export class GameAudio extends Component {
   private retireMusicExtras() {
     this.retireLoopPartner();
     this.retireFadeOut();
-    this.sceneFadeIn = false;
+    // v0.5：进房淡入还没开始过（首次起播前被静音 / 切后台挡住）就保留，起播时照样淡入；其他情况恢复原行为。
+    const keepRoomFade = this.musicFadeInRequested && this.startEmittedGen !== this.musicGeneration;
+    this.sceneFadeIn = keepRoomFade; this.sceneFadeS = keepRoomFade ? ROOM_FADE_IN_S : SCENE_XFADE_S;
     this.applyMusicGains();
   }
   private clipDuration(source: AudioSource): number {
@@ -714,8 +749,31 @@ export class GameAudio extends Component {
       loopCrossfade: { partner: !!this.loopPartner, fading: this.loopXfadeAt !== null, completed: this.loopXfades,
         paddingS: MP3_PADDING_S, xfadeS: LOOP_XFADE_S },
       windDuck: { target: +this.windDuckTarget.toFixed(3), value: +this.windDuck.toFixed(3), gain: +this.windDuckGain().toFixed(3), maxDb: WIND_DUCK_DB },
-      sceneCrossfade: { fadingOut: !!this.fadeOutSource, started: this.sceneFadeAt !== null, fadeIn: this.sceneFadeIn, xfadeS: SCENE_XFADE_S },
+      sceneCrossfade: { fadingOut: !!this.fadeOutSource, started: this.sceneFadeAt !== null, fadeIn: this.sceneFadeIn, xfadeS: this.sceneFadeS },
+      lastStart: this.lastStart ? { path: this.lastStart.path, bundle: this.lastStart.bundle, at: this.lastStart.at, first: this.lastStart.first,
+        fadeIn: this.lastStart.fadeIn, requestedAt: this.lastStart.requestedAt, loadedAt: this.lastStart.loadedAt } : null,
       audibleVerified: false };
+  }
+
+  // ---------- v0.5 “音乐真正开始” ----------
+  private static musicStartListeners: Array<(info: MusicStartInfo) => void> = [];
+  /** 订阅“BGM 真正开始”：loopSource 第一次确认 playing 的那一帧（每次 setMusic 一次 first=true；挂起 / 静音后恢复 first=false）。
+   *  只说明播放器在播，不代表设备上真的听得到。返回取消订阅函数。 */
+  static onMusicStart(listener: (info: MusicStartInfo) => void): () => void {
+    if (typeof listener !== 'function') return () => {};
+    GameAudio.musicStartListeners.push(listener);
+    return () => { GameAudio.musicStartListeners = GameAudio.musicStartListeners.filter(l => l !== listener); };
+  }
+  private emitMusicStart() {
+    const first = this.startEmittedGen !== this.musicGeneration;
+    this.startEmittedGen = this.musicGeneration;
+    const info: MusicStartInfo = { path: this.musicPath, bundle: this.musicBundle, at: GameAudio.now(), first,
+      fadeIn: first && this.musicFadeInRequested, requestedAt: this.musicRequestedAt, loadedAt: this.musicLoadedAt };
+    this.lastStart = info;
+    try { console.info('[GameAudio] music started', JSON.stringify({ path: info.path, bundle: info.bundle, first: info.first, fadeIn: info.fadeIn,
+      loadMs: info.loadedAt === null ? null : info.loadedAt - info.requestedAt })); } catch (e) { /* ignore */ }
+    const list = GameAudio.musicStartListeners.slice();
+    for (let i = 0; i < list.length; i++) { try { list[i](info); } catch (e) { console.warn('[GameAudio] music start listener failed', e); } }
   }
   /** 打断开始：已有生效的打断时是重复 Begin，忽略；否则开新的一代 */
   private staleExpired() { return this.staleGen !== 0 && GameAudio.now() - this.staleSince > GameAudio.staleEndWindowMs; }
@@ -861,3 +919,11 @@ export class GameAudio extends Component {
 }
 
 declare const wx: any;
+
+// v0.5：T0 / 日志用的只读出口（audio:unlock 之后记录 BGM 真正开始的时刻）
+try {
+  (globalThis as any).__gameAudioMusic = {
+    onMusicStart: (cb: (info: MusicStartInfo) => void) => GameAudio.onMusicStart(cb),
+    lastStart: () => { const a: any = GameAudio.instance; try { return a ? a.musicDiagnostics().lastStart : null; } catch (e) { return null; } },
+  };
+} catch (e) { /* globalThis unavailable: listeners still work via GameAudio.onMusicStart */ }
