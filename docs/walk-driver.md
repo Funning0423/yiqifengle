@@ -97,7 +97,8 @@
   - `'full'`：风力第一次往上越过阈值（出门那段，运镜bot 的风在 14.5 s 左右到 0.95）。有 `apron_lift` 片段时，在片段的 `lift_time_s` 那一帧发，`durationSec = settle − lift`；没有片段时立刻发，`durationSec` 用 meta 的值或 1.2 s。
   - `'soft'`：`apronGust(durationSec=4)`（适配器 / `__worldIntegration.apronGust`），或 `wind.idleGust` 自动触发。走路时不触发。
   - Voice bot 的 `WindAudio` 会自己订阅适配器的 `onApronLift`；只有在 `__voiceWind.snapshot().hooks` 为 0（没订上）时，驱动才直接调 `__voiceWind.notifyApronLift`，不会响两次。T0 打点 `GB_MARK anim:apron-lift`。
-- `__worldIntegration.motion()`：驱动状态（片段、相位、淡化、层权重、风、朝向、notes）。
+- `__worldIntegration.motion()`：驱动状态（片段、相位、淡化、层权重、风、朝向、notes，以及 `morph`）。
+- `__worldIntegration.morph()`：围裙形变目标的绑定状态和最近写入的权重，见 §8。
 
 ## 6. 本地验证
 
@@ -110,6 +111,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 它跑的是真实的 `FlowReferenceStandin` + `AnimRig` + 真实 `WorldFlow`/路线（60 fps），glb 动画在 JS 里求值（`glb_rig.cjs`），输出 JSON：
 滑步（不同速度下脚掌平放区间脚踝的世界位移，新旧时钟对比）、两处衔接的相位连续、转向速度、walkProgress、onFoot 左右和时间、apron 触发、风效层叠加检查（`skirtAngleVsWalkOnlyMaxDeg`、`nonMaskedMaxDeg`、`additiveErrorMaxDeg`）。
+形变目标的测试也在这里（`morph:` 开头的几项：淡化连续、只在变化时写、找不到网格不写、无片段时的曲线时间轴、序号映射、烘焙模式）。
 要检查你自己的风片段：把 `wind_flutter_loop` / `apron_lift` 放进 glb，在测试里去掉合成层（`makeCharacter({layers:true})` 会追加合成层），或者直接看 `__worldIntegration.motion()`。
 
 ## 7. 已知限制 / 给其他人的说明
@@ -117,3 +119,77 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 - 拐角处的脚：身体朝向在转，着地脚跟着绕根节点转，世界里会有几厘米位移（模拟里 24° 拐角最大约 39 mm；直线 ≤3 mm）。根节点必须严格在路径上（镜头约定），所以这里没有用脚做支点；旧代码是一帧跳 20–41°，现在分摊到约 0.2–0.3 s。
 - 运镜bot：`toThreshold` 第一段只有 3 mm 且方向和后面相反，WorldFlowCore 里回程转身用的是“第一个距离 >1e-6 的点”，所以她先转到 32°，起步时需要再转 166°。驱动在这种情况下按旧行为直接对齐（`WALK_YAW_SNAP_DEG`）。建议回程转身目标改成“第一个距离 ≥0.05 m 的点”，这样转身就是一次到位的 161°（可以用 `walk_turn_180`）。
 - 姿势混合模式（非烘焙）的成本：每帧采样 1 个片段（无淡化、无风）到最多 4 个（淡化中 + 两个风效层），再对约 34 个节点做 slerp。JS 模拟里一次片段求值约 20 µs；Cocos 求值器同一量级，加上 34 个关节的世界矩阵和蒙皮上传。只有一个角色，预计手机上 ≤1 ms/帧，**未在真机测**。烘焙贴图不再使用（省内存）。如果关节数超过 Cocos 的 uniform 上限（30），会改用实时关节贴图，仍然可用。真机上不理想时把 `CHARACTER_POSE_BLEND` 改成 `false` 即可回到烘焙路径。
+
+## 8. 围裙形变目标（morph / blend shape）
+
+围裙 `LOD0_G2_APRON` 带 2 个形变目标：**0 = 掀起时的 S 形卷边（`curl`）**，**1 = 风吹的小抖动（`flutter`）**。
+权重**只由驱动写**：每帧写完骨骼姿势后，算出每个目标的权重，调 `SkinnedMeshRenderer.setWeight(weight, subMeshIndex, shapeIndex)`。
+**动画片段里不要放形变轨道**：烘焙模式根本不播形变轨道；非烘焙模式下 AnimRig 每帧要采样好几个片段（淡化的两个 + 风效层），
+最后采样的那个会覆盖前面的，交叉淡化时权重会跳。代码：`CharacterMotion.ts` 的 `morphWeights` / `MorphDriver`，
+`FlowReferenceStandin.render()` 里在 `rig.apply(plan)` 之后调用。
+
+### 8.1 `anim_meta.json` 字段
+
+```jsonc
+{
+  "clips": {
+    "apron_lift": {
+      "lift_time_s": 0.37, "settle_time_s": 1.4,
+      "morph": {
+        "mesh": "LOD0_G2_APRON",                       // 可省略，默认 LOD0_G2_APRON
+        "curves": {
+          "curl":    [[0,0],[0.37,1],[1.2,0.3],[1.6,0]] // [片段秒数, 权重]，分段线性，权重夹在 0..1
+        }
+      }
+    },
+    "wind_flutter_loop": {"morph": {"curves": {"flutter": [[0,0.2],[1,0.8],[2,0.2]]}}},
+    "walk_loop":         {"morph": {"curves": {"curl": [[0,0.1],[1.133,0.1]]}}}   // 任何片段都可以带，按需
+  },
+  "wind": {
+    "windToMorphFlutter": [[0,0],[0.5,0.3],[1,0.6]]  // 可选：风力 -> flutter 权重（和 windToFlutter 一样的写法）
+  },
+  "morphTargets": {"curl": 0, "flutter": 1}           // 可选：目标名 -> 形变目标序号；默认就是这个。也可写成 "morph": {"targets": {...}, "mesh": "..."}
+}
+```
+
+- 曲线时间是**片段自己的秒数**（循环片段取循环内时间）。anim_meta 的 `duration_s` 和片段实际长度不一致时，曲线时间和事件一样等比缩放。
+- 目标名就是 `morphTargets` 里的键；曲线里写了不在 `morphTargets` 里的名字会被忽略。
+- 一个角色只绑一个形变网格：`morph.mesh`（顶层）> 第一个写了 `morph.mesh` 的片段 > 默认值。片段写了别的网格名会在 `motion().notes` 里记一条，曲线仍然作用在绑定的网格上。
+
+### 8.2 每帧权重怎么算（和姿势同一套权重）
+
+| 部分 | 算法 |
+|---|---|
+| 底层 | `曲线(当前片段, 当前时间) × (1 − 淡化) + 曲线(淡出片段, 它的时间) × 淡化`，淡化权重就是姿势交叉淡化用的那个（0.2 s）。没写曲线的片段算 0，所以切到 idle 时卷边会跟着姿势在 0.2 s 内淡掉，不会跳。 |
+| 风效层 | 对每个层（`wind_flutter_loop`、`apron_lift`）加上 `层权重 × 曲线(层片段, 层时间)`。`apron_lift` 层权重 1，从风力越过阈值那一刻的第 0 帧开始；`wind_flutter_loop` 层权重 = `windToFlutter(风力)`。 |
+| 合计 | 底层 + 风效层，再夹到 0..1。 |
+| `flutter` 额外规则 | 写了 `windToMorphFlutter` 时：`flutter = max(上面的合计, windToMorphFlutter(风))`。用 **max 不用加**：片段曲线和风力映射同时写也不会叠成两倍；只写其中一个就完全等于那一个。风 = `max(风力, 待机软风包络)`，和 `windToFlutter` 用的是同一个输入。 |
+
+- 曲线建议**首尾都是 0**（尤其 `apron_lift` 的第 0 帧和最后一帧），否则层开始/结束那一帧会有台阶。
+- glb 里还没有 `apron_lift` 片段时：`onApronLift` 照旧在越过阈值时立刻发（不变），但 `apron_lift.morph.curves` 仍会从那一刻按自己的时间轴播完（时长 = 曲线最后一个关键帧），方便先只用形变做原型。
+- 烘焙模式（`CHARACTER_POSE_BLEND=false`）同样生效：骨骼是硬切，形变权重仍按上表的淡化权重平滑过渡。
+- **只在变化时写**：某个目标和上一次写入的值相差 > 1e-3（`MORPH_EPS`），或刚好到 0 / 1 时，才调 `setWeight`；绑定后的第一帧会写一次把状态对齐。网格有多个子网格时，写到每个形变目标数够用的子网格上。
+
+### 8.3 找不到网格时
+
+按节点名（优先）或网格名找 `LOD0_G2_APRON` 的 MeshRenderer（SkinnedMeshRenderer 也是 MeshRenderer）。下列情况**什么都不写**，只记状态，走路/事件照常：
+
+| `morph().status` | 意思 |
+|---|---|
+| `ok` | 已绑定；`subMeshes` 是会写的子网格，`weights` 是最近一帧的权重，`setWeightCalls` 是累计调用次数 |
+| `not-found` | 角色下面没有叫这个名字的 MeshRenderer |
+| `morph-disabled` | `enableMorph=false` |
+| `no-morph` | 网格没有形变数据（现在 int/v1 的 glb 就是这个状态） |
+| `too-few-targets` | 形变目标数 < 需要的数（默认要 2 个；`targetCounts` 给出每个子网格的实际数） |
+| `error` / `unbound` | 运行中出错（附 `reason`）/ 还没绑定角色 |
+
+查看：`__worldIntegration.morph()`，或 `__worldIntegration.motion().morph`。T0 启动时的 `GB_MARK device:caps` 也会带上 `apronMorph=` 状态和目标数。
+
+### 8.4 Blender 导出（给 角色建模bot / 角色动画bot）
+
+- 导出 glTF 时：**Shape Keys 开**；**Shape Key Normals 关**、**Shape Key Tangents 关**（只要位置差，包体最小，也和角色 `Tangents=Exclude` 一致）；**Shape Key Animations 关**（形变不进片段，见上）。
+- **Apply Modifiers 开**，但要确认形状键能跟着导出（带形状键的网格上不要留会改顶点数的修改器，先应用掉）。
+- 形状键顺序就是目标序号：`Basis` 之后第 1 个 = 序号 0（`curl`），第 2 个 = 序号 1（`flutter`）。名字建议就叫 `curl`、`flutter`，`morph().targetNames` 会显示出来方便核对。
+- 只做 1 个目标时 Cocos 的形变变体编号会有问题，所以原型直接做 2 个；不够 2 个时驱动报 `too-few-targets` 并且不写。
+- Cocos 导入：在 glb 的导入设置里把 **Morph Normals 设为 Exclude**（和 Tangents 一样，设完在 `.meta` 里核对实际写进去的数值，不要靠猜）。
+- **未在真机测**：形变走贴图（WebGL1 上要 `OES_texture_float` 才用 RGBA32F，否则退到 RGBA8）。T0 的 `GB_MARK device:caps` 会记设备能力，原型出来后在 Mac 开发者工具、iOS 微信和低端安卓上分别看。

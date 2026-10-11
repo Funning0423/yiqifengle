@@ -30,6 +30,13 @@ export const DEFAULT_WIND_TO_FLUTTER:ReadonlyArray<readonly [number,number]>=[[0
 /** Default mask for the wind layers (name globs, '*' = any). */
 export const DEFAULT_WIND_MASK:ReadonlyArray<string>=['skirt*','apron*','hair*'];
 export const DEFAULT_NATIVE_SPEED=0.7;
+/** Morph targets (blend shapes) are driven HERE, never by animation-clip morph tracks (baked mode does not play them; the
+ *  non-baked AnimRig samples several clips per frame, so the last-sampled clip would win and crossfades would jump).
+ *  Default mesh (glTF node == mesh name in the character glb) and target index mapping; anim_meta may override both. */
+export const DEFAULT_MORPH_MESH='LOD0_G2_APRON';
+export const DEFAULT_MORPH_TARGETS:{readonly [name:string]:number}={curl:0,flutter:1};
+/** setWeight is called only when a target weight moved by more than this since the last write (or reached exactly 0 / 1). */
+export const MORPH_EPS=1e-3;
 /** Agreed clip role names (all optional except the ones the old flow already required). */
 export const CLIP_ROLES={walk:'walk_loop',walkStart:'walk_start',stopL:'walk_stop_bodyL',stopR:'walk_stop_bodyR',turn90L:'walk_turn_90_bodyL',turn90R:'walk_turn_90_bodyR',turn180:'walk_turn_180',idle:'idle_breathing_loop',sitHold:'sit_hold',sitDown:'sit_down',standUp:'stand_up',doorReach:'door_reach',flutter:'wind_flutter_loop',apronLift:'apron_lift'} as const;
 export type Body='L'|'R';
@@ -41,9 +48,14 @@ export type ClipMeta={duration?:number;nativeSpeed?:number;loop?:boolean;events:
   /** apron_lift: lift frame and settle frame (s). */
   liftTime?:number;settleTime?:number;
   /** layer clips: blend mode + mask (bone names / globs) + additive reference time (default 0 = first frame). */
-  layerMode?:LayerMode;mask?:string[];referenceTime?:number};
+  layerMode?:LayerMode;mask?:string[];referenceTime?:number;
+  /** Morph weight curves keyed by target name, time in CLIP seconds: [[t,w],...] (piecewise linear, w clamped 0..1). */
+  morph?:{mesh?:string;curves:MorphCurves}};
+export type MorphCurves={[target:string]:Array<[number,number]>};
 export type MotionConfig={clips:{[name:string]:ClipMeta};windToFlutter:ReadonlyArray<readonly [number,number]>;apronLiftThreshold:number;windMask:ReadonlyArray<string>;
-  idleGust:{minS:number;maxS:number;durationS:number}|null;source:string};
+  idleGust:{minS:number;maxS:number;durationS:number}|null;source:string;
+  /** Morph: bound mesh (node or mesh name), target name -> morph target index, optional wind -> flutter weight mapping. */
+  morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null};
 export type FootEvent={event:string;bone:string;body:Body;clip:string;phase:number;time:number;cycle:number;pos:[number,number,number]|null};
 
 const num=(v:any):number|undefined=>typeof v==='number'&&isFinite(v)?v:undefined;
@@ -62,12 +74,21 @@ function parseClip(c:any):ClipMeta {const duration=num(c.cycle_duration_s)??num(
     settleTime:num(lift.settle_time_s)??num(lift.settleTime)??(num(lift.settle_frame)!==undefined&&num(c.fps)?lift.settle_frame/c.fps:undefined),
     layerMode:(layer.mode||c.layer_mode)==='override'?'override':(layer.mode||c.layer_mode)==='additive'?'additive':undefined,
     mask:Array.isArray(layer.mask)?layer.mask.map(String):Array.isArray(c.mask)?c.mask.map(String):undefined,
-    referenceTime:num(layer.reference_time_s)??num(c.reference_time_s)};}
+    referenceTime:num(layer.reference_time_s)??num(c.reference_time_s),morph:parseMorph(c.morph)};}
+function curvePoints(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||!v.length)return null;const out:Array<[number,number]>=[];
+  for(let i=0;i<v.length;i++){const p=v[i];if(!Array.isArray(p)||num(p[0])===undefined||num(p[1])===undefined)return null;out.push([p[0],Math.max(0,Math.min(1,p[1]))]);}
+  out.sort((a,b)=>a[0]-b[0]);return out;}
+function parseMorph(m:any):{mesh?:string;curves:MorphCurves}|undefined {if(!m||typeof m!=='object')return undefined;const src=m.curves||{};const curves:MorphCurves={};let n=0;
+  for(const k in src){if(!Object.prototype.hasOwnProperty.call(src,k))continue;const pts=curvePoints(src[k]);if(pts){curves[k]=pts;n++;}}
+  return n||typeof m.mesh==='string'?{mesh:typeof m.mesh==='string'?m.mesh:undefined,curves}:undefined;}
+/** Last key time over all curves (s); 0 when none. */
+export function morphCurveEnd(m:{curves:MorphCurves}|undefined):number {let e=0;if(!m)return 0;for(const k in m.curves){if(!Object.prototype.hasOwnProperty.call(m.curves,k))continue;const c=m.curves[k];if(c.length&&c[c.length-1][0]>e)e=c[c.length-1][0];}return e;}
 function points(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||v.length<2)return null;const out:Array<[number,number]>=[];
   for(let i=0;i<v.length;i++){const p=v[i];if(!Array.isArray(p)||num(p[0])===undefined||num(p[1])===undefined)return null;out.push([p[0],Math.max(0,Math.min(1,p[1]))]);}
   out.sort((a,b)=>a[0]-b[0]);return out;}
 /** Built-in defaults = walk-v1 contract expressed in cycle fractions, so the old 1.0 s walk_loop keeps working. */
-export function defaultMotionConfig():MotionConfig {return {clips:{walk_loop:{nativeSpeed:DEFAULT_NATIVE_SPEED,loop:true,events:[]}},windToFlutter:DEFAULT_WIND_TO_FLUTTER,apronLiftThreshold:APRON_LIFT_THRESHOLD,windMask:DEFAULT_WIND_MASK,idleGust:null,source:'defaults'};}
+export function defaultMotionConfig():MotionConfig {return {clips:{walk_loop:{nativeSpeed:DEFAULT_NATIVE_SPEED,loop:true,events:[]}},windToFlutter:DEFAULT_WIND_TO_FLUTTER,apronLiftThreshold:APRON_LIFT_THRESHOLD,windMask:DEFAULT_WIND_MASK,idleGust:null,source:'defaults',
+  morphMesh:DEFAULT_MORPH_MESH,morphTargets:{curl:DEFAULT_MORPH_TARGETS.curl,flutter:DEFAULT_MORPH_TARGETS.flutter},windToMorphFlutter:null};}
 /** Tolerant anim_meta.json reader (schema anim_meta/v1 field names + camelCase aliases). Unknown/invalid -> defaults. */
 export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionConfig();if(!json||typeof json!=='object')return cfg;cfg.source=String(json.schema||'anim_meta');
   const clips=json.clips||{};for(const name in clips){if(!Object.prototype.hasOwnProperty.call(clips,name)||!clips[name])continue;cfg.clips[name]=parseClip(clips[name]);}
@@ -75,6 +96,11 @@ export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionCon
   const th=num(w.apronLiftThreshold)??num(json.apronLiftThreshold);if(th!==undefined&&th>0&&th<=1)cfg.apronLiftThreshold=th;
   const mask=w.mask||json.windMask;if(Array.isArray(mask)&&mask.length)cfg.windMask=mask.map(String);
   const g=w.idleGust||json.idleGust;if(g&&num(g.min_s??g.minS)!==undefined)cfg.idleGust={minS:num(g.min_s??g.minS)!,maxS:num(g.max_s??g.maxS)??num(g.min_s??g.minS)!,durationS:num(g.duration_s??g.durationS)??4};
+  // morph: wind.windToMorphFlutter | windToMorphFlutter; morphTargets | morph.targets; mesh = morph.mesh | first clip morph.mesh | default
+  const mw=points(w.windToMorphFlutter||json.windToMorphFlutter);if(mw)cfg.windToMorphFlutter=mw;
+  const top=json.morph&&typeof json.morph==='object'?json.morph:{};const mt=json.morphTargets||top.targets;
+  if(mt&&typeof mt==='object'){const t:{[name:string]:number}={};let n=0;for(const k in mt){if(!Object.prototype.hasOwnProperty.call(mt,k))continue;const i=num(mt[k]);if(i!==undefined&&i>=0&&Math.floor(i)===i){t[k]=i;n++;}}if(n)cfg.morphTargets=t;}
+  let mesh=typeof top.mesh==='string'?top.mesh:'';if(!mesh)for(const name in cfg.clips){const m=cfg.clips[name].morph;if(m&&m.mesh){mesh=m.mesh;break;}}if(mesh)cfg.morphMesh=mesh;
   return cfg;}
 export function piecewise(pts:ReadonlyArray<readonly [number,number]>,x:number):number {const n=pts.length;if(!n)return 0;if(x<=pts[0][0])return pts[0][1];if(x>=pts[n-1][0])return pts[n-1][1];
   for(let i=1;i<n;i++){const a=pts[i-1],b=pts[i];if(x<=b[0]){const u=b[0]>a[0]?(x-a[0])/(b[0]-a[0]):1;return a[1]+(b[1]-a[1])*u;}}return pts[n-1][1];}
@@ -137,14 +163,16 @@ export function jointAngleDeg(a:Float64Array,b:Float64Array,i:number):number {co
 export interface ClipInfo {has(name:string):boolean;duration(name:string):number}
 type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:number;duration:number;endedReported:boolean};
 export type PlanLayer={clip:string;time:number;weight:number;mode:LayerMode;mask:ReadonlyArray<string>;referenceTime:number};
-export type Plan={base:{clip:string;time:number;loop:boolean}|null;out:{clip:string;time:number;weight:number}|null;layers:PlanLayer[]};
+/** morph: every layer the morph curves read (same clip/time/weight as `layers`, plus a curve-only apron_lift timeline when the
+ *  glb has no apron_lift clip yet but anim_meta has its morph curves). */
+export type Plan={base:{clip:string;time:number;loop:boolean}|null;out:{clip:string;time:number;weight:number}|null;layers:PlanLayer[];morph:{clip:string;time:number;weight:number}[]};
 export type TickResult={foot:{def:MotionEventDef;cycle:number;abs:number;clip:string;duration:number}[];ended:string|null;apronLift:{durationSec:number}|null};
 /** Engine-free scheduler. Base clip time advances by distance (Δs / native_speed) for clips with a native speed (walk_loop,
  *  or any clip whose anim_meta has native_speed_mps), by time otherwise. Foot events come from phase crossings here,
  *  never from Cocos clip events. Outgoing clip of a crossfade keeps its own clock (distance clips freeze when not moving). */
 export class MotionClock {
   base:Track|null=null;out:Track|null=null;fadeT=0;fadeS=0;wind=0;flutterAbs=0;
-  apron:{abs:number;lift:number;settle:number;duration:number;emitted:boolean}|null=null;gust:{t:number;d:number}|null=null;
+  apron:{abs:number;lift:number;settle:number;duration:number;emitted:boolean;virtual?:boolean}|null=null;gust:{t:number;d:number}|null=null;
   readonly trigger:UpwardTrigger;
   /** Notes for diagnostics (e.g. anim_meta duration != clip duration -> events rescaled to the clip). */
   readonly notes:string[]=[];
@@ -152,10 +180,12 @@ export class MotionClock {
     const clips:{[name:string]:ClipMeta}={};for(const name in cfg.clips)if(Object.prototype.hasOwnProperty.call(cfg.clips,name)){const m=cfg.clips[name],d=info.has(name)?info.duration(name):0;let events=m.events;
       // The clip (its .meta split) is the source of truth for length; anim_meta event times are rescaled when they disagree.
       if(d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration;events=events.map(e=>({time:e.time*k,name:e.name,bone:e.bone,body:e.body}));this.notes.push(name+': anim_meta '+m.duration.toFixed(4)+'s != clip '+d.toFixed(4)+'s, events rescaled');}
-      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime};}
+      let morph=m.morph;if(morph&&d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration,cv:MorphCurves={};for(const t in morph.curves)if(Object.prototype.hasOwnProperty.call(morph.curves,t))cv[t]=morph.curves[t].map(p=>[p[0]*k,p[1]] as [number,number]);morph={mesh:morph.mesh,curves:cv};}
+      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph};}
     const w=clips[CLIP_ROLES.walk],wd=info.has(CLIP_ROLES.walk)?info.duration(CLIP_ROLES.walk):0;
     if(w&&!w.events.length&&wd>0){w.events=[{time:0,name:'foot:R',bone:'foot.R',body:'L'},{time:wd/2,name:'foot:L',bone:'foot.L',body:'R'}];this.notes.push('walk_loop: default foot events (no anim_meta events)');}
-    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source};}
+    for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&mm.mesh!==cfg.morphMesh)this.notes.push(name+': morph.mesh '+mm.mesh+' != bound mesh '+cfg.morphMesh+' (one morph mesh per character; curves still applied to the bound mesh)');}
+    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter};}
   meta(name:string):ClipMeta|null {return this.cfg.clips[name]||null;}
   private track(name:string,loop:boolean,time:number):Track {const m=this.meta(name),d=this.info.duration(name);const ns=m&&m.nativeSpeed!==undefined?m.nativeSpeed:name===CLIP_ROLES.walk?DEFAULT_NATIVE_SPEED:0;
     return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false};}
@@ -179,18 +209,24 @@ export class MotionClock {
     return res;}
   /** Starts apron_lift from frame 0; the onApronLift event is emitted when the clip reaches its lift frame. */
   private startApron():{durationSec:number}|null {const name=CLIP_ROLES.apronLift,m=this.meta(name);
-    if(!this.info.has(name)){const lift=m&&m.liftTime!==undefined?m.liftTime:0,settle=m&&m.settleTime!==undefined?m.settleTime:lift+DEFAULT_APRON_LIFT_S;this.apron=null;return {durationSec:Math.max(.05,settle-lift)};}
+    if(!this.info.has(name)){const lift=m&&m.liftTime!==undefined?m.liftTime:0,settle=m&&m.settleTime!==undefined?m.settleTime:lift+DEFAULT_APRON_LIFT_S;
+      // no clip: onApronLift fires now (unchanged); morph curves (if any) still run on a curve-only timeline from t=0
+      const end=morphCurveEnd(m&&m.morph);this.apron=end>0?{abs:0,lift,settle,duration:end,emitted:true,virtual:true}:null;return {durationSec:Math.max(.05,settle-lift)};}
     const d=this.info.duration(name);const lift=Math.max(0,Math.min(d,m&&m.liftTime!==undefined?m.liftTime:0));const settle=Math.max(lift,Math.min(d,m&&m.settleTime!==undefined?m.settleTime:d));
     this.apron={abs:0,lift,settle,duration:d,emitted:false};
     if(lift<=0){this.apron.emitted=true;return {durationSec:Math.max(.05,settle-lift)};}return null;}
   startGust(durationSec:number){this.gust={t:0,d:durationSec>0?durationSec:4};}
-  flutterWeight():number {const g=this.gust?gustEnvelope(this.gust.t,this.gust.d):0;return piecewise(this.cfg.windToFlutter,Math.max(this.wind,g));}
+  /** Wind drive 0..1 = max(wind strength, soft idle-gust envelope): input of windToFlutter and windToMorphFlutter. */
+  windDrive():number {const g=this.gust?gustEnvelope(this.gust.t,this.gust.d):0;return Math.max(this.wind,g);}
+  flutterWeight():number {return piecewise(this.cfg.windToFlutter,this.windDrive());}
   plan():Plan {const b=this.base,o=this.out;const layers:PlanLayer[]=[];
     const layer=(name:string,time:number,weight:number)=>{if(!(weight>1e-4)||!this.info.has(name))return;const m=this.meta(name);
       layers.push({clip:name,time,weight:weight>1?1:weight,mode:m&&m.layerMode?m.layerMode:'additive',mask:m&&m.mask&&m.mask.length?m.mask:this.cfg.windMask,referenceTime:m&&m.referenceTime!==undefined?m.referenceTime:0});};
     const fd=this.info.has(CLIP_ROLES.flutter)?this.info.duration(CLIP_ROLES.flutter):0;if(fd>0)layer(CLIP_ROLES.flutter,this.flutterAbs%fd,this.flutterWeight());
     if(this.apron)layer(CLIP_ROLES.apronLift,Math.min(this.apron.abs,this.apron.duration),1);
-    return {base:b?{clip:b.clip,time:this.localTime(b),loop:b.loop}:null,out:o&&this.fadeS>0?{clip:o.clip,time:this.localTime(o),weight:Math.max(0,1-this.fadeT/this.fadeS)}:null,layers};}
+    const morph:{clip:string;time:number;weight:number}[]=[];for(let i=0;i<layers.length;i++)morph.push({clip:layers[i].clip,time:layers[i].time,weight:layers[i].weight});
+    if(this.apron&&this.apron.virtual)morph.push({clip:CLIP_ROLES.apronLift,time:Math.min(this.apron.abs,this.apron.duration),weight:1});
+    return {base:b?{clip:b.clip,time:this.localTime(b),loop:b.loop}:null,out:o&&this.fadeS>0?{clip:o.clip,time:this.localTime(o),weight:Math.max(0,1-this.fadeT/this.fadeS)}:null,layers,morph};}
   /** Current base phase (for diagnostics / stop-clip choice). */
   phase(){const b=this.base;if(!b)return null;const t=this.localTime(b);return {clip:b.clip,time:t,phase:t/b.duration,cycle:Math.floor(b.abs/b.duration),abs:b.abs};}
   planted():Body|null {const b=this.base,m=b&&this.meta(b.clip);return b&&m?plantedBody(m.events,this.localTime(b)):null;}
@@ -202,3 +238,52 @@ export function stopRole(info:ClipInfo,planted:Body|null):string|null {if(!plant
  *  turning to her left -> bodyL, the inside foot pivots); otherwise / missing clip -> null (idle + controller yaw). */
 export function turnRole(info:ClipInfo,deltaRad:number):string|null {const a=Math.abs(deltaRad)*180/Math.PI;
   if(a>=135)return info.has(CLIP_ROLES.turn180)?CLIP_ROLES.turn180:null;if(a>=45){const r=deltaRad>0?CLIP_ROLES.turn90L:CLIP_ROLES.turn90R;return info.has(r)?r:null;}return null;}
+
+/* ---------------- morph targets (blend shapes) ---------------- */
+function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number {const m=cfg.clips[clip];const c=m&&m.morph&&m.morph.curves[target];return c&&c.length?piecewise(c,time):0;}
+/** Per-target weights for this frame, the same blend as the pose:
+ *   base  = curve(base clip, base time) x (1 - fade) + curve(outgoing clip, its time) x fade        (crossfade weights)
+ *   layer = sum over layers (wind_flutter_loop, apron_lift) of layerWeight x curve(layer clip, layer time)
+ *   clip  = base + layer;  a clip without a curve for that target contributes 0.
+ *   flutter only: w = max(clip, windToMorphFlutter(windDrive))  -- MAX, not sum, so a flutter curve authored in
+ *   wind_flutter_loop AND a wind mapping never double up; with only one of them it is exactly that one.
+ *   Every result clamped 0..1. Targets = keys of cfg.morphTargets. */
+export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[target:string]:number}):{[target:string]:number} {const res=out||{};const b=plan.base,o=plan.out;
+  for(const t in cfg.morphTargets){if(!Object.prototype.hasOwnProperty.call(cfg.morphTargets,t))continue;let w=0;
+    if(b){const fo=o?o.weight:0;w=curveAt(cfg,b.clip,t,b.time)*(1-fo);if(o)w+=curveAt(cfg,o.clip,t,o.time)*fo;}
+    const ls=plan.morph||[];for(let i=0;i<ls.length;i++)w+=ls[i].weight*curveAt(cfg,ls[i].clip,t,ls[i].time);
+    if(t==='flutter'&&cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>w)w=ww;}
+    res[t]=w>0?(w<1?w:1):0;}
+  return res;}
+/** Structural subset of Cocos MeshRenderer / SkinnedMeshRenderer (3.8.8: setWeight(weight, subMeshIndex, shapeIndex)). */
+export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void};
+export type MorphStatus='unbound'|'ok'|'not-found'|'morph-disabled'|'no-morph'|'too-few-targets'|'error';
+const meshName=(r:any):string=>{let n='';try{n=String(r&&r.mesh&&r.mesh.name||'');}catch{n='';}return n.replace(/\.mesh$/,'');};
+/** Binds one renderer by node name (first) or mesh name and writes target weights only when they change (> MORPH_EPS, or
+ *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame. */
+export class MorphDriver {
+  status:MorphStatus='unbound';reason='';renderer:MorphRendererLike|null=null;node='';meshName='';subMeshes:number[]=[];targetCounts:number[]=[];targetNames:string[]|null=null;
+  readonly need:number;readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
+  constructor(public mesh:string,public targets:{[name:string]:number}){let need=0;for(const t in targets)if(Object.prototype.hasOwnProperty.call(targets,t)&&targets[t]+1>need)need=targets[t]+1;this.need=need;}
+  bind(renderers:ReadonlyArray<any>|null|undefined):MorphStatus {this.renderer=null;this.subMeshes=[];this.targetCounts=[];this.targetNames=null;this.reason='';
+    try{let r:any=null;const list=renderers||[];
+      for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&x.node&&x.node.name===this.mesh)r=x;}
+      for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&meshName(x)===this.mesh)r=x;}
+      if(!r){this.status='not-found';this.reason='no MeshRenderer on a node / mesh named '+this.mesh;return this.status;}
+      this.node=String(r.node&&r.node.name||'');this.meshName=meshName(r);
+      if(typeof r.setWeight!=='function'){this.status='error';this.reason='renderer has no setWeight';return this.status;}
+      if(r.enableMorph===false){this.status='morph-disabled';this.reason='MeshRenderer.enableMorph=false';return this.status;}
+      const morph=r.mesh&&r.mesh.struct&&r.mesh.struct.morph;const subs=morph&&morph.subMeshMorphs;
+      if(!subs||!subs.length){this.status='no-morph';this.reason='mesh has no morph targets';return this.status;}
+      if(Array.isArray(morph.targetNames))this.targetNames=morph.targetNames.map(String);
+      for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
+      if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
+      this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
+  /** Writes weights (target name -> 0..1) to every bound sub-mesh. Returns the number of setWeight calls made. */
+  apply(w:{[target:string]:number}):number {const r=this.renderer;if(!r||this.status!=='ok')return 0;let n=0;
+    for(const t in this.targets){if(!Object.prototype.hasOwnProperty.call(this.targets,t))continue;const v=w[t]!==undefined?w[t]:0;this.weights[t]=v;const prev=this.last[t];
+      if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
+      try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
+    this.calls+=n;return n;}
+  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
+}

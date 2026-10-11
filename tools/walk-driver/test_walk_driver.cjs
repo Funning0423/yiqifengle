@@ -16,7 +16,7 @@ const motion={};vm.runInNewContext(tx(fs.readFileSync(path.join(S,'CharacterMoti
 const bootSrc=fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8');
 const classText=bootSrc.slice(bootSrc.indexOf('/** Explicit flow-reference stand-in.'),bootSrc.indexOf("@ccclass('WorldIntegrationBoot')"));
 const fakeGlobal={};
-const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},pointOnPath:W.pointOnPath,exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:fakeGlobal};
+const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Cancelled,AnimationClip:{WrapMode:{Loop:2,Normal:1}},SkeletalAnimation:function(){},MeshRenderer:function MeshRenderer(){},pointOnPath:W.pointOnPath,exports:{},console,Date,Math,Number,Float64Array,Error,Promise,globalThis:fakeGlobal};
 vm.runInNewContext(tx(classText+'\nexports.Standin=FlowReferenceStandin;'),ctx);const Standin=ctx.exports.Standin;
 const pick=()=>{for(const p of [process.env.WALK_GLB,'/workspace/yiqifengle/previews/角色动画bot/walk-v1/chr_b_r5g2_walk-v1_TEST.glb','/workspace/yiqifengle/previews/角色动画bot/walk-v2/chr_b_r5g2_walk-v2_TEST.glb',path.join(ROOT,'creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')])if(p&&fs.existsSync(p))return p;throw Error('no walk glb');};
 const GLB=pick();const metaPath=path.join(path.dirname(GLB),'anim_meta.json');const META=fs.existsSync(metaPath)?JSON.parse(fs.readFileSync(metaPath,'utf8')):null;
@@ -35,7 +35,7 @@ function makeCharacter(opts={}){const rig=G.loadRig(GLB);const clipDefs=[];for(c
   const anim={node:rig.root,clips:clipDefs,useBakedAnimation:true,getState(n){if(states.has(n))return states.get(n);const c=clipDefs.find(x=>x.name===n);return c?this.createState(c,n):null;},
     createState(c,n){const st={clip:c,time:0,playing:false,setTime(t){this.time=t;},sample(){samples.count++;c.apply(this.time);},stop(){this.playing=false;},pause(){},play(){this.playing=true;}};states.set(n,st);return st;},play(n){this.getState(n).play();}};
   const node={active:true,worldPosition:{x:0,y:0,z:0},yaw:0,setWorldPosition(x,y,z){this.worldPosition={x,y,z};},setRotationFromEuler(a,b,c){this.yaw=b*Math.PI/180;},destroy(){}};
-  const s=new Standin(node);s.setAnimMeta(opts.meta===undefined?META:opts.meta);s.bindVisual({getComponent:()=>anim,getComponentInChildren:()=>null});return {s,rig,anim,node,samples};}
+  const s=new Standin(node);s.setAnimMeta(opts.meta===undefined?META:opts.meta);const visual={getComponent:()=>anim,getComponentInChildren:()=>null};if(opts.renderers)visual.getComponentsInChildren=C=>{assert.equal(C,ctx.MeshRenderer);return opts.renderers;};s.bindVisual(visual);return {s,rig,anim,node,samples};}
 const foot=(c,name)=>G.worldOf(c.rig.byName(name),[c.node.worldPosition.x,c.node.worldPosition.y,c.node.worldPosition.z],c.node.yaw).pos;
 /** Foot-flat windows (cycle fractions) from anim_meta phases; default walk-v1 values. Ankle must stay put in world here. */
 const phases=META?.clips?.walk_loop?.phases_fraction_of_cycle||{'foot.R':{foot_flat:.1,heel_off:.4},'foot.L':{foot_flat:.6,heel_off:.9}};
@@ -134,6 +134,68 @@ async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRo
   for(let i=0;i<200;i++){c.s.advance(1/60);await flush();}await wp;
   check('baked fallback (CHARACTER_POSE_BLEND=false): play+pause one clip, hard cut, foot events + walkProgress still work',()=>{assert.equal(c.anim.useBakedAnimation,true);assert(c.plays.includes('walk_loop'));assert(c.states.get('walk_loop').paused);
    assert(fe.length>=4);assert.equal(c.s.walkProgress(),null);return {plays:c.plays,footEvents:fe.length};});}
+ /* ---------- apron morph targets (MorphDriver + morphWeights; docs/walk-driver.md §8) ---------- */
+ const mockRenderer=(name,counts=[2],o={})=>({node:{name},mesh:o.noStruct?{name}:{name:name,struct:o.noMorph?{}:{morph:{subMeshMorphs:counts.map(n=>({attributes:['a_position'],targets:new Array(n).fill(0).map(()=>({displacements:[]}))})),targetNames:['curl','flutter']}}},
+  enableMorph:o.enableMorph!==false,calls:[],w:{},setWeight(w,sub,shape){this.calls.push([w,sub,shape]);this.w[sub+':'+shape]=w;}});
+ const MCURL_WALK=0.6;
+ const morphMeta=(extra={})=>{const m=JSON.parse(JSON.stringify(META||{clips:{}}));m.clips=m.clips||{};
+  m.clips.walk_loop=Object.assign({},m.clips.walk_loop||{},{morph:{mesh:'LOD0_G2_APRON',curves:{curl:[[0,MCURL_WALK],[5,MCURL_WALK]]}}});
+  m.clips.apron_lift=Object.assign({},m.clips.apron_lift||{},{lift_time_s:.37,settle_time_s:1.4,morph:{mesh:'LOD0_G2_APRON',curves:{curl:[[0,0],[.37,1],[1.2,.3],[1.6,0]]}}});
+  m.clips.wind_flutter_loop=Object.assign({},m.clips.wind_flutter_loop||{},{morph:{curves:{flutter:[[0,.2],[1,.8],[2,.2]]}}});
+  m.wind=Object.assign({},m.wind||{},{windToMorphFlutter:[[0,0],[1,.5]]});return Object.assign(m,extra);};
+ const lastW=(r,shape)=>{let v;for(const c of r.calls)if(c[2]===shape)v=c[0];return v;};
+ const maxStep=arr=>{let m=0,at=-1;for(let i=1;i<arr.length;i++){const d=Math.abs(arr[i]-arr[i-1]);if(d>m){m=d;at=i;}}return {m,at};};
+ // 1) crossfade continuity: idle -> walk_loop (curl 0.6) -> idle, 0.2 s crossfades, no jumps; final 0 written exactly
+ {const r=mockRenderer('LOD0_G2_APRON');const c=makeCharacter({meta:morphMeta(),renderers:[mockRenderer('LOD0_G2_BODY',[0]),r]});c.s.setWindSource(()=>0);c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});
+  for(let i=0;i<30;i++)c.s.advance(1/60);const curl=[],fades=[];const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,2]],duration:2/0.7},new Token());
+  for(let i=0;i<260;i++){c.s.advance(1/60);await flush();const d=c.s.diagnostics();curl.push(d.motion.morph.weights.curl);if(d.motion.fade)fades.push(d.motion.morph.weights.curl);}await wp;
+  check('morph: crossfade continuity idle->walk->idle (curl follows the 0.2 s pose crossfade, no jump), exact 0 at the end',()=>{const st=maxStep(curl),bound=MCURL_WALK/(motion.CROSSFADE_S*60)+0.005;
+   assert.equal(c.s.diagnostics().motion.morph.status,'ok');assert(Math.max(...curl)>MCURL_WALK-1e-9,'walk curl reached');assert(st.m<=bound,'jump '+st.m+' at frame '+st.at+' bound '+bound);
+   const mid=fades.filter(v=>v>.05&&v<MCURL_WALK-.05);assert(mid.length>=6,'intermediate fade values '+mid.length);assert.equal(curl[curl.length-1],0);assert.equal(lastW(r,0),0);
+   return {maxStepPerFrame:+st.m.toFixed(4),bound:+bound.toFixed(4),fadeFrames:fades.length,intermediate:mid.length,setWeightCalls:r.calls.length};});
+  // 2) only-when-changed: steady idle -> zero calls; every call is a >1e-3 change (or an exact 0/1 endpoint)
+  const before=r.calls.length;for(let i=0;i<120;i++)c.s.advance(1/60);
+  check('morph: setWeight only when a weight changed by >1e-3 (steady idle = 0 calls; first frame establishes 0)',()=>{assert.equal(r.calls.length,before,'calls during steady idle');
+   const last={};for(const [w,sub,shape] of r.calls){const p=last[shape];if(p!==undefined)assert(Math.abs(w-p)>motion.MORPH_EPS||((w===0||w===1)&&w!==p),'redundant call '+w+' after '+p);last[shape]=w;}
+   const first=r.calls.slice(0,2).map(x=>x.join(':'));assert.deepEqual(first,['0:0:0','0:0:1']);return {calls:r.calls.length,framesSimulated:30+260+120,steadyIdleCalls:r.calls.length-before};});}
+ // 3) layers: wind ramp 0->1 (apron_lift synthetic clip 1.6 s + wind_flutter_loop 2 s): curl from apron_lift curve, flutter = max(layer x curve, windToMorphFlutter)
+ {const r=mockRenderer('LOD0_G2_APRON');const c=makeCharacter({layers:true,meta:morphMeta(),renderers:[r]});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});let wind=0,tt=0,cross=-1,below=0;const cu=[],fl=[],ev=[];
+  c.s.setWindSource(()=>wind);c.s.onApronLift((st,d)=>ev.push(tt));for(let i=0;i<240;i++){tt=i/60;wind=Math.min(1,i/100);c.s.advance(1/60);const d=c.s.diagnostics().motion;if(cross<0&&d.apron)cross=tt;cu.push(d.morph.weights.curl);fl.push(d.morph.weights.flutter);
+   const wm=motion.piecewise([[0,0],[1,.5]],d.wind);if(d.morph.weights.flutter<wm-1e-9)below++;}
+  check('morph: apron_lift curl curve on its layer timeline + flutter = max(flutter-layer curve, windToMorphFlutter), continuous',()=>{const peak=cu.indexOf(Math.max(...cu));assert(Math.max(...cu)>.97,'curl peak '+Math.max(...cu));
+   assert(Math.abs(peak/60-(cross+.37))<.04,'curl peak at lift frame '+peak/60+' vs '+(cross+.37));assert(Math.abs(ev[0]-(cross+.37))<.04,'onApronLift at lift');
+   const sc=maxStep(cu),sf=maxStep(fl);assert(sc.m<.06&&sf.m<.06,'jumps '+sc.m+' '+sf.m);assert(Math.max(...fl)>.5,'flutter layer curve dominates the wind map at high wind');assert.equal(below,0,'frames with flutter < windToMorphFlutter(wind)');
+   return {crossT:+cross.toFixed(3),curlPeakT:+(peak/60).toFixed(3),curlMaxStep:+sc.m.toFixed(4),flutterMaxStep:+sf.m.toFixed(4),flutterMax:+Math.max(...fl).toFixed(3),calls:r.calls.length};});}
+ // 4) missing mesh / no morph / too few targets / morph disabled: nothing written, status recorded, driver unaffected
+ {const cases=[['not-found',[mockRenderer('LOD0_G2_BODY')]],['no-morph',[mockRenderer('LOD0_G2_APRON',[2],{noMorph:true})]],['too-few-targets',[mockRenderer('LOD0_G2_APRON',[1])]],['morph-disabled',[mockRenderer('LOD0_G2_APRON',[2],{enableMorph:false})]],['not-found',null]];const out=[];
+  for(const [want,rs] of cases){const c=makeCharacter({meta:morphMeta(),renderers:rs||undefined});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});const fe=[];c.s.onFoot(e=>fe.push(e));
+   const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,1.5]],duration:1.5/0.7},new Token());for(let i=0;i<160;i++){c.s.advance(1/60);await flush();}await wp;const md=c.s.diagnostics().motion.morph;
+   out.push({want,status:md.status,reason:md.reason,calls:(rs||[]).reduce((a,x)=>a+x.calls.length,0),feet:fe.length,targetCounts:md.targetCounts});}
+  check('morph: missing mesh / no morph / 1 target (<2 needed) / enableMorph=false -> no setWeight, status in diagnostics, walk unaffected',()=>{for(const o of out){assert.equal(o.status,o.want,JSON.stringify(o));assert.equal(o.calls,0,JSON.stringify(o));assert(o.feet>=3);}return out;});}
+ // 5) curve-only apron timeline (glb has no apron_lift clip): onApronLift immediate (unchanged), curl still rises to 1 at +0.37 s
+ {const r=mockRenderer('LOD0_G2_APRON');const c=makeCharacter({meta:morphMeta(),renderers:[r]});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});let wind=0,tt=0;const cu=[],ev=[];c.s.setWindSource(()=>wind);c.s.onApronLift(()=>ev.push(tt));
+  for(let i=0;i<240;i++){tt=i/60;wind=Math.min(1,i/100);c.s.advance(1/60);cu.push(c.s.diagnostics().motion.morph.weights.curl);}
+  check('morph: no apron_lift clip -> curve-only timeline from the crossing (curl peak +0.37 s), onApronLift still immediate',()=>{assert(!c.rig.clips.apron_lift);assert.equal(ev.length,1);const peak=cu.indexOf(Math.max(...cu));
+   assert(Math.max(...cu)>.97);assert(Math.abs(peak/60-(ev[0]+.37))<.04,peak/60+' vs '+ev[0]);assert.equal(cu[cu.length-1],0);return {emitT:+ev[0].toFixed(3),curlPeakT:+(peak/60).toFixed(3)};});}
+ // 6) target index mapping + several sub-meshes
+ {const r=mockRenderer('LOD0_G2_APRON',[3,0,2]);const c=makeCharacter({meta:morphMeta({morphTargets:{curl:1,flutter:0}}),renderers:[r]});c.s.setWindSource(()=>0);c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});
+  const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,1]],duration:1/0.7},new Token());for(let i=0;i<40;i++){c.s.advance(1/60);await flush();}
+  check('morph: morphTargets {curl:1,flutter:0} remaps shape indices; written to every sub-mesh with enough targets (counts 3,0,2 -> 0,2)',()=>{const md=c.s.diagnostics().motion.morph;assert.equal(JSON.stringify(md.subMeshes),'[0,2]');
+   assert(Math.abs(r.w['0:1']-MCURL_WALK)<1e-9&&Math.abs(r.w['2:1']-MCURL_WALK)<1e-9,JSON.stringify(r.w));assert.equal(r.w['0:0'],0);assert(!r.calls.some(x=>x[1]===1));return {subMeshes:JSON.parse(JSON.stringify(md.subMeshes)),w:JSON.parse(JSON.stringify(r.w))};});
+  c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,1],yawRad:0});await wp.catch(()=>{});}
+ // 7) baked path (CHARACTER_POSE_BLEND=false): same weights written after the hard-cut pose
+ {const ctx3={...ctx,CHARACTER_POSE_BLEND:false,exports:{}};vm.runInNewContext(tx(classText+'\nexports.Standin=FlowReferenceStandin;'),ctx3);
+  const rig=G.loadRig(GLB);const clipDefs=Object.keys(rig.clips).map(k=>({name:k,duration:rig.clips[k].duration,apply:t=>G.applyClip(rig.clips[k],t)}));const states=new Map();
+  const anim={node:rig.root,clips:clipDefs,useBakedAnimation:false,getState(n){if(states.has(n))return states.get(n);const cd=clipDefs.find(x=>x.name===n);if(!cd)return null;const st={time:0,setTime(t){this.time=t;},sample(){cd.apply(this.time);},stop(){},pause(){this.paused=true;},play(){}};states.set(n,st);return st;},createState(cd,n){return this.getState(n);},play(n){this.getState(n).play();}};
+  const node={active:true,worldPosition:{x:0,y:0,z:0},yaw:0,setWorldPosition(x,y,z){this.worldPosition={x,y,z};},setRotationFromEuler(a,b){this.yaw=b*Math.PI/180;},destroy(){}};
+  const r=mockRenderer('LOD0_G2_APRON');const s=new ctx3.exports.Standin(node);s.setAnimMeta(morphMeta());s.bindVisual({getComponent:()=>anim,getComponentInChildren:()=>null,getComponentsInChildren:()=>[r]});s.setWindSource(()=>0);
+  s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});const curl=[];const wp=s.perform({kind:'walk',path:[[0,0,0],[0,0,2]],duration:2/0.7},new Token());for(let i=0;i<240;i++){s.advance(1/60);await flush();curl.push(s.diagnostics().motion.morph.weights.curl);}await wp;
+  check('morph: baked path (CHARACTER_POSE_BLEND=false) drives the same weights (curl during walk, fade back to 0)',()=>{assert.equal(anim.useBakedAnimation,true);assert.equal(s.diagnostics().motion.morph.status,'ok');assert(Math.abs(Math.max(...curl)-MCURL_WALK)<1e-9);
+   assert.equal(lastW(r,0),0);const st=maxStep(curl);assert(st.m<=MCURL_WALK/(motion.CROSSFADE_S*60)+.005,'jump '+st.m);return {maxStep:+st.m.toFixed(4),calls:r.calls.length};});}
+ check('morph: anim_meta parsing (clip morph curves, windToMorphFlutter, morphTargets, morph.mesh) + defaults',()=>{const d=motion.defaultMotionConfig();assert.equal(d.morphMesh,'LOD0_G2_APRON');assert.equal(JSON.stringify(d.morphTargets),'{"curl":0,"flutter":1}');assert.equal(d.windToMorphFlutter,null);
+  const c2=motion.parseAnimMeta({morph:{mesh:'X_APRON',targets:{curl:2,flutter:3}},clips:{apron_lift:{morph:{curves:{curl:[[1,2],[0,0]],bad:[[0,'x']]}}}},wind:{windToMorphFlutter:[[0,0],[1,.4]]}});
+  assert.equal(c2.morphMesh,'X_APRON');assert.equal(JSON.stringify(c2.morphTargets),'{"curl":2,"flutter":3}');assert.equal(JSON.stringify(c2.clips.apron_lift.morph.curves.curl),'[[0,0],[1,1]]');assert(!c2.clips.apron_lift.morph.curves.bad);assert.equal(motion.piecewise(c2.windToMorphFlutter,1),.4);
+  const c3=motion.parseAnimMeta({clips:{apron_lift:{morph:{mesh:'Y',curves:{curl:[[0,0],[1,1]]}}}}});assert.equal(c3.morphMesh,'Y');return {ok:true};});
  const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
  console.log(JSON.stringify(report,null,1));if(failed.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1;});
