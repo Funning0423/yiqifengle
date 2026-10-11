@@ -266,6 +266,11 @@ export class WorldFlowComponent extends Component {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
         setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();},
+        // T5 room-light API (contract: render/RoomLightingRig.ts header). setLayers(interior) lands on w=1, setLayers(!interior) on w=0;
+        // only these calls produce intermediate w. blendRoomLight is a cancellable job like animateDoor/animateCamera.
+        setRoomLightWeight:(w:number)=>this.setRoomLightWeight(w),
+        getRoomLightWeight:()=>this.getRoomLightWeight(),
+        blendRoomLight:(from,to,seconds,t)=>this.run(seconds,t,p=>{this.roomLighting?.setRoomLightWeight(from+(to-from)*p);}),
         setDoor,setCamera,assertStaticWorld,
         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
@@ -303,7 +308,7 @@ export class WorldFlowComponent extends Component {
         const a=typeof window!=='undefined'&&window.innerHeight>0?window.innerWidth/window.innerHeight:.46;
         return {...frameCheck(last,a,characterBox([c.root[0],c.root[1],c.root[2]],c.heightM,c.halfWidthM),REGION_CAMERA.frameLimits),note:'LOG ONLY: last written pose + fixed box; not camera readback, not skinned bounds, not occlusion/HUD acceptance'};},
     };
-    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null};
+    (globalThis as any).__worldDayNight={owner:this,snapshot:()=>self.dayNightSnapshot(),set:(mode:DayNightMode)=>self.setDayNight(mode,true),toggle:()=>self.toggleDayNight(),roomLighting:()=>self.roomLighting?.diagnostics()??null,roomLightWeight:()=>self.getRoomLightWeight()};
   }
   update(dt:number):void {
     if(!this.flow||this.disposed||this.safetyFailure)return;
@@ -324,6 +329,10 @@ export class WorldFlowComponent extends Component {
     }
     if(Date.now()-this.lastDiagnosticAt>=5000)this.reportRuntime('tick');
   }
+  /** T5 passthrough: see RoomLightingRig.setRoomLightWeight. false when no rig / not in an interior view. */
+  setRoomLightWeight(weight:number):boolean {return !!this.roomLighting?.setRoomLightWeight(weight);}
+  /** T5 read-only, poll per frame (no events): current w in [0,1]; 0 when no rig / not in an interior view. */
+  getRoomLightWeight():number {return this.roomLighting?this.roomLighting.getRoomLightWeight():0;}
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure)this.roomLighting?.advance(dt);}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.clock.showEvents++;if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);this.flow?.show();this.reportRuntime('show');}

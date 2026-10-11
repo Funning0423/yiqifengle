@@ -58,6 +58,11 @@ export interface WorldLease {
   /** T2 optional: drive the weight with the SAME job clock as the walk/camera of identical duration. */
   animateInteriorWeight?(ramp:WeightRamp,seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
+  /** T5 room-light API (optional; owner GGbot; contract in render/RoomLightingRig.ts + docs/T5-material-swap.md "API").
+   * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
+  setRoomLightWeight?(weight:number):boolean;
+  getRoomLightWeight?():number;
+  blendRoomLight?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   assertStaticWorld():void;
   dispose():void;
 }
