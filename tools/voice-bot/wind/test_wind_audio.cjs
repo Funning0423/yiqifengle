@@ -27,7 +27,7 @@ function env(opts = {}) {
   if (opts.noHook) delete flow.onApronLift;
   const audioNode = new Node();
   const gulls = []; let now = 0;
-  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, play(n, v) { gulls.push({ t: +now.toFixed(3), n, v }); } }, ensure() { return this.instance; } };
+  const GameAudio = { instance: { can: true, canPlayAmbience() { return this.can; }, node: audioNode, plays: [], play(n, v) { this.plays.push({ t: +now.toFixed(3), n, v }); }, ducks: [], setWindDuck(x) { this.ducks.push(x); } }, ensure() { return this.instance; } };
   const scene = { getComponentInChildren(n) { return n === 'WorldFlowComponent' ? flow : null; } };
   const cc = { _decorator: { ccclass: () => (C) => C }, Component, AudioSource, AudioClip: class {},
     isValid: (o) => !!o && o.valid !== false && o.destroyed !== true,
@@ -37,12 +37,15 @@ function env(opts = {}) {
   const load = (file, code, extra) => { const m = new Module(file); m.filename = file; m.paths = []; const o = m.require.bind(m);
     m.require = (id) => id === 'cc' ? cc : id === './GameAudio' ? { GameAudio } : extra && extra[id] ? extra[id] : o(id); m._compile(code, file); return m.exports; };
   const amb = load(AMB, ambJs);
+  // gulls now play through AmbienceAudio's own L/R voices (stereo pan); record them from the 'start' events
+  amb.AmbienceAudio.onGullCall(e => { if (e.phase === 'start') gulls.push({ t: +now.toFixed(3), n: e.clip, v: e.vol }); });
   const mod = load(SRC, js, { './AmbienceAudio': amb });
   amb.AmbienceAudio.windExit = 0;
   if (!opts.withAmbience) onceCbs.splice(0, 1);       // only WindAudio unless asked
   onceCbs.forEach(cb => cb());
   const w = audioNode.getComponent(mod.WindAudio), a = audioNode.getComponent(amb.AmbienceAudio);
-  const sources = () => audioNode.comps.filter(c => c instanceof AudioSource && c !== (a && a.src));
+  const gullSrc = c => !!a && a.voices.some(v => v.l === c || v.r === c);
+  const sources = () => audioNode.comps.filter(c => c instanceof AudioSource && c !== (a && a.src) && !gullSrc(c));
   const run = (sec, dt = 1 / 60) => { for (let t = 0; t < sec - 1e-9; t += dt) { now += dt; w.update(dt); if (a) a.update(dt); } };
   return { mod, amb, w, a, flow, GameAudio, sources, run, loads, unsubbed, gulls, now: () => now };
 }
@@ -116,6 +119,13 @@ function env(opts = {}) {
   ok(e.mod.WindAudio.instance === null && global.__voiceWind === undefined, 'destroy -> static/global cleared');
   e.mod.WindAudio.notifyApronLift('full', 1); ok(true, 'notify after destroy is a no-op');
 }
+// ---- BGM wind duck feed: WindAudio passes its smoothed s to GameAudio.setWindDuck every frame; 0 when not allowed / destroyed
+{ const e = env(); const G = e.GameAudio.instance; e.flow.wind = 1; e.run(2);
+  ok(G.ducks.length > 100 && near(G.ducks[G.ducks.length - 1], e.w.s, 1e-9) && e.w.s > 0.99, 'setWindDuck(s) every frame with the smoothed wind (s -> 1)', { n: G.ducks.length, last: G.ducks[G.ducks.length - 1] });
+  G.can = false; e.run(0.1); ok(G.ducks[G.ducks.length - 1] === 0, 'not allowed (muted / hidden) -> setWindDuck(0)');
+  G.can = true; e.run(1); e.w.onDestroy(); ok(G.ducks[G.ducks.length - 1] === 0, 'destroy -> setWindDuck(0)');
+  const o = env(); delete o.GameAudio.instance.setWindDuck; o.flow.wind = 1; let threw = false; try { o.run(1); } catch (x) { threw = true; } ok(!threw, 'GameAudio without setWindDuck (older build / stub): no-op');
+}
 // ---- exit sequence: waves floor + gull triggers (AmbienceAudio + WindAudio together), gull v6 rules ----
 const ramp = (e, from, to, sec, key = 'wind') => { const n = Math.round(sec * 60); for (let i = 1; i <= n; i++) { e.flow[key] = from + (to - from) * i / n; e.run(1 / 60); } };
 const gaps = (g) => g.slice(1).map((x, i) => +(x.t - g[i].t).toFixed(3));
@@ -140,33 +150,40 @@ const gaps = (g) => g.slice(1).map((x, i) => +(x.t - g[i].t).toFixed(3));
   ramp(e, 0.05, 0.8, 4); const g2 = e.gulls.slice(3).filter(x => x.n === A.distant[0].clip && near(x.v, 0.3));
   ok(g2.length === 1, 'wind below 0.1 resets -> next exit plays the distant gull again', e.gulls.slice(3));
 }
-// REAL timeline (运镜bot 138bca5 flow_sim, 60 fps): wind + room-light weight per frame, apron lift 14.82 (GGbot), crane 15.483
-{ const TL = JSON.parse(fs.readFileSync(path.join(__dirname, 'exit138_timeline.json'), 'utf8'));
+// REAL timelines (flow_sim, 60 fps): wind + room-light weight per frame. 138bca5: lift 14.82, crane 15.483.
+// 50c0227 (int/v1 38b005f): lift ~14.87 (walk driver; lift_time_s 0.37) / 14.93 (timeline note), crane 15.567.
+// Rule (item 5): same-distance gap 2.5 s, near<->far 1.2 s -> near gull at onApronLift + 0.4 s, inside the frontal hold, before onCraneStart;
+// distant 0.4 kept (>= 1.2 s before), 0.7 merged (same distance), crane gull dropped (same distance as the near one, maxLate 0).
+for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.json', 14.87], ['exit50c_timeline.json', 14.93]]) {
+  const TL = JSON.parse(fs.readFileSync(path.join(__dirname, file), 'utf8')); const LIFT = lift === null ? TL.events.apronLift : lift, CRANE = TL.events.craneStart;
+  const tag = 'real ' + file.replace('_timeline.json', '') + ' lift ' + LIFT + ': ';
   const e = env({ withAmbience: true }); const A = e.amb.EXIT_AUDIO; e.a.gullIn = 1e9;   // no random gull at t<9 (she is indoors anyway)
   let flapDone = false, craneDone = false, wavesAtSill = null, wavesAt12 = null;
   for (const [t, wind, weight, layers] of TL.frames) {
     e.flow.wind = wind; e.flow.w = weight; e.flow.visible = layers > 0;
-    if (!flapDone && t >= TL.events.apronLift) { flapDone = true; e.flow.listeners[0]('full', 0.8); }
-    if (!craneDone && t >= TL.events.craneStart) { craneDone = true; e.flow.cranes[0]({ segment: 'toIsland', progress: .538, seconds: 5.95 }); }
+    if (!flapDone && t >= LIFT) { flapDone = true; e.flow.listeners[0]('full', 0.8); }
+    if (!craneDone && t >= CRANE) { craneDone = true; e.flow.cranes[0]({ segment: 'toIsland', progress: .538, seconds: 5.95 }); }
     e.run(1 / 60);
     if (wavesAtSill === null && t >= 11) wavesAtSill = e.a.src.playing ? e.a.src.volume : 0;
     if (wavesAt12 === null && t >= 13.5) wavesAt12 = e.a.src.volume;
   }
   const t0 = e.now() - TL.frames.length / 60;   // harness clock -> seconds from leaveHome
-  const G = e.gulls.map(x => ({ ...x, t: +(x.t - t0).toFixed(2) }));
-  ok(wavesAtSill > 0.002 && wavesAtSill < 0.02 && wavesAt12 > 0.15, 'real: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s (w ramp + floor)', { at11: +wavesAtSill.toFixed(4), at13_5: +wavesAt12.toFixed(4) });
-  ok(G.length === 2, 'real: exactly two gulls over the exit (0.7 merged, crane gull skipped)', G);
-  ok(G[0] && G[0].n === A.distant[0].clip && near(G[0].v, 0.3) && G[0].t > 13 && G[0].t < 13.6, 'real: one distant gull at the 0.4 crossing (~13.3 s)', G[0]);
-  ok(!G.some(x => x.n === A.distant[1].clip), 'real: 0.7 crossing (~0.6 s later) merged into the first');
-  ok(G[1] && G[1].n === A.nearClip && near(G[1].v, 0.5) && G[1].t >= G[0].t + 2.5 - 0.02 && G[1].t <= TL.events.apronLift + 0.4 + 4, 'real: near gull after apron lift, waits for the 2.5 s gap', { near: G[1], fromFlap: G[1] && +(G[1].t - TL.events.apronLift).toFixed(2) });
-  ok(gaps(G).every(x => x >= 2.5 - 0.02), 'real: all gull gaps >= 2.5 s', gaps(G));
+  const G = e.gulls.map(x => ({ ...x, t: +(x.t - t0).toFixed(3) }));
+  ok(wavesAtSill > 0.002 && wavesAtSill < 0.02 && wavesAt12 > 0.15, tag + 'waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s', { at11: +wavesAtSill.toFixed(4), at13_5: +wavesAt12.toFixed(4) });
+  ok(G.length === 2, tag + 'exactly two gulls (distant 0.4 + near; 0.7 merged, crane gull dropped by the same-distance gap)', G);
+  ok(G[0] && G[0].n === A.distant[0].clip && near(G[0].v, 0.3) && G[0].t > 13.7 && G[0].t < 14.2, tag + 'distant gull 0.5 s after the 0.4 crossing (~14.0 s)', G[0]);
+  ok(!G.some(x => x.n === A.distant[1].clip), tag + '0.7 crossing merged into the first (far-far 2.5 s)');
+  const nr = G[1]; const fromLift = nr ? +(nr.t - LIFT).toFixed(3) : null;
+  ok(nr && nr.n === A.nearClip && near(nr.v, 0.5) && fromLift >= 0.4 - 1e-6 && fromLift <= 0.4 + 2 / 60 + 1e-6, tag + 'near gull at onApronLift + 0.4 s (within a frame)', { near: nr, fromLift });
+  ok(nr && nr.t < CRANE, tag + 'near gull starts before onCraneStart (inside the frontal hold)', { near: nr && nr.t, crane: CRANE, margin: nr && +(CRANE - nr.t).toFixed(3) });
+  ok(nr && nr.t - G[0].t >= 1.2 - 1e-6, tag + 'near-far gap >= 1.2 s', gaps(G));
 }
 // crane gull: plays 1.5 s after onCraneStart when >= 2.5 s since last gull; skipped otherwise (no wait)
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1.2); e.gulls.length = 0; e.a.gullIn = 1e9;
   e.flow.cranes[0]({ segment: 'toIsland', progress: .5, seconds: 3 }); const t0 = e.now(); e.run(2);
   ok(e.gulls.length === 1 && e.gulls[0].n === 'sfx_amb_gull_1' && near(e.gulls[0].t - t0, 1.5, 0.04) && near(e.gulls[0].v, 0.6), 'crane gull 1.5 s after onCraneStart (gap free) at 0.6', e.gulls);
-  e.run(0.5); e.flow.cranes[0]({}); e.run(5);
-  ok(e.gulls.length === 1, 'crane gull 2.0 s after the previous one -> skipped, not delayed', e.gulls);
+  e.run(0.2); e.flow.cranes[0]({}); e.run(5);   // due 2.2 s after the previous gull (decided at onCraneStart)
+  ok(e.gulls.length === 1, 'crane gull due 2.2 s after the previous one -> skipped, not delayed', e.gulls);
 }
 // near gull waits for the gap but is dropped if it would be > nearMaxLateS late
 { const e = env({ withAmbience: true }); e.flow.w = 0; e.run(1); e.gulls.length = 0; e.a.gullIn = 1e9;
