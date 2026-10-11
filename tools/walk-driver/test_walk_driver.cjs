@@ -28,14 +28,14 @@ const FLUTTER_AMP=20;
 function syntheticLayer(rig,name,duration,fn){return {name,duration,apply(t){for(const n of rig.nodes){const a=fn(n.name,t);if(a===null)continue;const r=rig.rest[rig.nodes.indexOf(n)].r;const h=a*Math.PI/360,d=[Math.sin(h),0,0,Math.cos(h)];const q=G.qmul([r.x,r.y,r.z,r.w],d);n.setRotation(q[0],q[1],q[2],q[3]);}
   // non-masked bones the layer clip also animates (Cocos samples whole clips): they must NOT leak through the mask
   const th=rig.byName('thigh.L');if(th)th.setRotation(Math.sin(.26),0,0,Math.cos(.26));}};}
-function makeCharacter(opts={}){const rig=G.loadRig(GLB);const clipDefs=[];for(const k of Object.keys(rig.clips))clipDefs.push({name:k,duration:rig.clips[k].duration,apply:t=>G.applyClip(rig.clips[k],t)});
+function makeCharacter(opts={}){const rig=G.loadRig(opts.glb||GLB);const clipDefs=[];for(const k of Object.keys(rig.clips))clipDefs.push({name:k,duration:rig.clips[k].duration,apply:t=>G.applyClip(rig.clips[k],t)});
   if(opts.layers){clipDefs.push(syntheticLayer(rig,'wind_flutter_loop',2,(n,t)=>/^(skirt|apron|hair)/.test(n)?FLUTTER_AMP*Math.sin(2*Math.PI*t/2):null));
     clipDefs.push(syntheticLayer(rig,'apron_lift',1.6,(n,t)=>/^skirt\.front/.test(n)?40*Math.sin(Math.PI*Math.min(1,t/1.6)):null));}
   const states=new Map();const samples={count:0};
   const anim={node:rig.root,clips:clipDefs,useBakedAnimation:true,getState(n){if(states.has(n))return states.get(n);const c=clipDefs.find(x=>x.name===n);return c?this.createState(c,n):null;},
     createState(c,n){const st={clip:c,time:0,playing:false,setTime(t){this.time=t;},sample(){samples.count++;c.apply(this.time);},stop(){this.playing=false;},pause(){},play(){this.playing=true;}};states.set(n,st);return st;},play(n){this.getState(n).play();}};
   const node={active:true,worldPosition:{x:0,y:0,z:0},yaw:0,setWorldPosition(x,y,z){this.worldPosition={x,y,z};},setRotationFromEuler(a,b,c){this.yaw=b*Math.PI/180;},destroy(){}};
-  const s=new Standin(node);s.setAnimMeta(opts.meta===undefined?META:opts.meta);const visual={getComponent:()=>anim,getComponentInChildren:()=>null};if(opts.renderers)visual.getComponentsInChildren=C=>{assert.equal(C,ctx.MeshRenderer);return opts.renderers;};s.bindVisual(visual);return {s,rig,anim,node,samples};}
+  const s=new Standin(node);s.setAnimMeta(opts.meta===undefined?META:opts.meta);if(opts.restAhead)s.setWalkRestAhead(opts.restAhead);const visual={getComponent:()=>anim,getComponentInChildren:()=>null};if(opts.renderers)visual.getComponentsInChildren=C=>{assert.equal(C,ctx.MeshRenderer);return opts.renderers;};s.bindVisual(visual);return {s,rig,anim,node,samples};}
 const foot=(c,name)=>G.worldOf(c.rig.byName(name),[c.node.worldPosition.x,c.node.worldPosition.y,c.node.worldPosition.z],c.node.yaw).pos;
 /** Foot-flat windows (cycle fractions) from anim_meta phases; default walk-v1 values. Ankle must stay put in world here. */
 const phases=META?.clips?.walk_loop?.phases_fraction_of_cycle||{'foot.R':{foot_flat:.1,heel_off:.4},'foot.L':{foot_flat:.6,heel_off:.9}};
@@ -50,8 +50,8 @@ async function straight(speed,mode){const c=makeCharacter();c.s.cancelAndReset({
   if(mode==='time'){const clip=c.rig.clips.walk_loop;let t=0,e=0;c.node.setRotationFromEuler(0,0,0);while(e<dur){e=Math.min(dur,e+1/60);t+=1/60;c.node.setWorldPosition(0,0,L*e/dur);G.applyClip(clip,t%clip.duration);
     const f=(t%clip.duration)/clip.duration;c.s.diagnostics=()=>({clip:'walk_loop',motion:{phase:f,fade:null}});tr.frame(c,'time');}return tr;}
   const p=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,L]],duration:dur},new Token());for(let i=0;i<1e4;i++){c.s.advance(1/60);tr.frame(c,'dist');await flush();if(c.s.walkProgress()===null)break;}await p;return tr;}
-async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRoutes(M.FirstsliceFacts.FIRSTSLICE,M.CharacterReference.CHARACTER_REFERENCE);
-  const c=makeCharacter({layers:true});const jobs=new Set();let frame=0,state='',t=0;const dt=1/60;
+async function flowRun(windMode,copts){const cfg=M.FirstsliceRoutes.createFirstsliceRoutes(M.FirstsliceFacts.FIRSTSLICE,M.CharacterReference.CHARACTER_REFERENCE);
+  const c=makeCharacter(Object.assign({layers:true},copts&&copts.character||{},copts&&copts.predicate?{restAhead:motion.restAheadFromRoutes(cfg)}:{}));if(copts&&copts.onCharacter)copts.onCharacter(c);const jobs=new Set();let frame=0,state='',t=0;const dt=1/60;
   const runJob=(seconds,token,tick)=>{token.check();if(!(seconds>0)){tick(1);return Promise.resolve();}return new Promise((resolve,reject)=>{const job={elapsed:0,seconds,tick,resolve,reject};job.off=token.onCancel(()=>{jobs.delete(job);reject(new W.Cancelled());});jobs.add(job);tick(0);});};
   const lease={setLayers(){},setDoor(){},setCamera(){},animateDoor:(f,to,s,tk)=>runJob(s,tk,()=>{}),animateCamera:(p,s,tk,o,prog,onSample)=>{const follow=prog&&M.CameraPose.createProgressFollower?M.CameraPose.createProgressFollower(s):null;return runJob(s,tk,v=>{const e=follow?follow(v,prog()):v;if(onSample)onSample(e);});},
     setRoomLightWeight(){return true;},getRoomLightWeight:()=>0,blendRoomLight:(a,b,s,tk)=>runJob(s,tk,()=>{}),wait:(s,tk)=>runJob(s,tk,()=>{}),cancelTransient(){for(const j of [...jobs]){j.off();j.reject(new W.Cancelled());}jobs.clear();},assertStaticWorld(){},dispose(){}};
@@ -62,10 +62,12 @@ async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRo
   const feet=[],apron=[],rec=[];c.s.onFoot(e=>feet.push({t,state,...e}));c.s.onApronLift((s,d)=>apron.push({t,state,strength:s,durationSec:d,wind:c.s.diagnostics().motion.wind}));
   const tr=slideTracker();
   for(const op of ['leaveHome','returnHome']){let done=false;if(op==='leaveHome')tLeave=t;const pr=flow[op]().then(r=>{done=true;return r;});await flush();
-   while(!done){frame++;t+=dt;c.s.advance(dt);for(const j of [...jobs]){if(!jobs.has(j))continue;j.elapsed+=dt;j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){jobs.delete(j);j.off();j.resolve();}}
+   while(!done){frame++;t+=dt;c.s.advance(dt);if(copts&&copts.frame)copts.frame(c,state,t);for(const j of [...jobs]){if(!jobs.has(j))continue;j.elapsed+=dt;j.tick(Math.min(1,j.elapsed/j.seconds));if(j.elapsed>=j.seconds){jobs.delete(j);j.off();j.resolve();}}
     await flush();await flush();const d=c.s.diagnostics();rec.push({frame,t,state,clip:d.clip,phase:d.motion.phase,abs:c.s.clock&&c.s.clock.base?c.s.clock.base.abs:null,yaw:c.node.yaw,pos:[c.node.worldPosition.x,c.node.worldPosition.z],wp:c.s.walkProgress(),action:d.action,fade:d.motion.fade,layers:d.motion.layers,wind:d.motion.wind});tr.frame(c,state+'@'+t.toFixed(2));if(frame>60*120)throw Error('flow stuck');}
    const r=await pr;assert(r.ok,op+' '+JSON.stringify(r));for(let k=0;k<30;k++){frame++;t+=dt;c.s.advance(dt);await flush();}}
   return {c,rec,feet,apron,tr,cfg,realWind,events:c.s.diagnostics().events};}
+require('./test_locomotion.cjs').install({check,makeCharacter,flowRun,foot,Token,flush,motion,M,G,assert,fs,path,ctx,tx,classText,deg,wrap});
+const locomotionTests=()=>require('./test_locomotion.cjs').run();
 (async()=>{
  const runs={};
  for(const speed of [0.45,0.7,1.0]){runs['dist'+speed]=await straight(speed,'dist');runs['time'+speed]=await straight(speed,'time');}
@@ -196,6 +198,7 @@ async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRo
   const c2=motion.parseAnimMeta({morph:{mesh:'X_APRON',targets:{curl:2,flutter:3}},clips:{apron_lift:{morph:{curves:{curl:[[1,2],[0,0]],bad:[[0,'x']]}}}},wind:{windToMorphFlutter:[[0,0],[1,.4]]}});
   assert.equal(c2.morphMesh,'X_APRON');assert.equal(JSON.stringify(c2.morphTargets),'{"curl":2,"flutter":3}');assert.equal(JSON.stringify(c2.clips.apron_lift.morph.curves.curl),'[[0,0],[1,1]]');assert(!c2.clips.apron_lift.morph.curves.bad);assert.equal(motion.piecewise(c2.windToMorphFlutter,1),.4);
   const c3=motion.parseAnimMeta({clips:{apron_lift:{morph:{mesh:'Y',curves:{curl:[[0,0],[1,1]]}}}}});assert.equal(c3.morphMesh,'Y');return {ok:true};});
+ await locomotionTests();
  const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
  console.log(JSON.stringify(report,null,1));if(failed.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1;});

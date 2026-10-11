@@ -195,3 +195,56 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 - 只做 1 个目标时 Cocos 的形变变体编号会有问题，所以原型直接做 2 个；不够 2 个时驱动报 `too-few-targets` 并且不写。
 - Cocos 导入：在 glb 的导入设置里把 **Morph Normals 设为 Exclude**（和 Tangents 一样，设完在 `.meta` 里核对实际写进去的数值，不要靠猜）。
 - **未在真机测**：形变走贴图（WebGL1 上要 `OES_texture_float` 才用 RGBA32F，否则退到 RGBA8）。T0 的 `GB_MARK device:caps` 会记设备能力，原型出来后在 Mac 开发者工具、iOS 微信和低端安卓上分别看。
+
+## 9. locomotion-v1：根节点曲线、停步/转身变体、脚步去重（GGbot work/GGbot-locomotion）
+
+预览：`previews/角色动画bot/locomotion-v1/`（`walk_start`、`walk_stop_body{L,R}`、`walk_turn_180`）。和预览的逐条对照见 `work/GGbot-locomotion-review.md`。
+
+### 9.1 新读的 `anim_meta.json` 字段
+
+| 字段 | 位置 | 驱动怎么用 |
+|---|---|---|
+| `root_motion.forward_m / lateral_m / yaw_deg` | 片段 | `[[t_s, 累计量], …]`，片段秒，线性插值。`forward_m` = 根节点沿路径走的距离；`lateral_m` = 她左边为 +（Cocos 本地 +X），停步 settle 时那一步；`yaw_deg` 只用来判断转身方向。`root_motion` 是字符串（walk_loop 现在就是）时忽略。 |
+| `events[].type` | 事件 | `heel_strike` / `settle`…，原样放进 `onFoot` 的 `FootEvent.type`（Voice bot 可以给 settle 放轻声）。 |
+| `events[].entry_contact` | 事件 | `true` = 这次着地就是切入那一刻 walk_loop 已经发过的那次着地，**不再发**（见 9.5）。 |
+| `handoff.crossfade_s` / `entry.crossfade_s` | 片段 | 这次切换的淡化秒数；没有就用 `CROSSFADE_S`。`0` = 硬切（片段第 0 帧和上一片段那一帧是同一姿势）。 |
+| `entry.walk_time_s` | 停步 | 从 walk_loop 的这个片段时间（一次脚跟着地）切进停步。没有就用 walk_loop 里同一身体脚的 `foot:` 事件时间。 |
+| `turn_deg` | 转身 | 转身方向（正 = 她的左边），没有就看 `yaw_deg` 曲线终值。 |
+
+### 9.2 什么时候停（rest look-ahead）
+
+停步要在路径**最后** `forward_m` 那一段里走完（0.226 m），所以驱动要事先知道这次走路结束后会不会停。
+`setWalkRestAhead(fn)`：`fn(path)` = 这段路走完后、停下之前还要走多少米。`0` = 这段结束就停（规划停步）；`>0` = 后面还连着走（不停，但会用步幅微调把相位往最终停步那一下引）；`null` = 不知道（不规划，旧行为）。
+走路动作自己带 `stopAtEnd: boolean` 时以它为准。Boot 用 `restAheadFromRoutes(routes)`，按 WorldFlow 里真实的停顿分组（`REST_CHAINS`）：
+`toDoor` | `outCrossing → toIsland` | `toThreshold → inCrossing` | `toSeat`。`inCrossing` 结束后会停（WorldFlowCore：“stop inside, THEN close, THEN approach seat”，关门时原地等）。
+
+### 9.3 一次走路的根节点轨迹（`planWalk`，时长不变）
+
+时长 D 仍然是 WorldFlow 给的 `walkDuration`。`[0, start.T]` 根节点跟 `walk_start.forward_m`（从静止起步时）；`[D−stop.T, D]` 跟停步的 `forward_m`，终点正好是 L；中间巡航吃掉剩下的距离和时间（在衔接处有 `PROFILE_RAMP_S` 的速度过渡，速度连续）。walk_loop 仍然按距离推进相位。
+
+- **停步入口正好落在脚跟着地上。** 两个变体相差半步，选需要相位偏移更小的那个；偏移靠把整段巡航的步幅轻微拉伸（`rate`）来消化，`|rate−1| ≤ STOP_WARP_MAX = 0.05`。依据：拉伸 w 时，每只着地脚会漂 `|1−1/w| × 0.7 m/s × 平放支撑时间`（脚跟着地到脚跟离地 = 0.37 个周期 = 0.42 s，取自 anim_meta `phases_fraction_of_cycle`），到 0.05 时约 15 mm，等于驱动“不滑步”的上限。
+- **拉伸不够时**：拉伸封顶在 0.05，入口仍然精确落在脚跟着地上，剩下的差值用缩放停步的 `forward_m` 来补（终点仍然精确）。`|scale−1| ≤ STOP_SCALE_MAX = 0.06`，依据：停步大约有 0.25 m 是单脚着地走的，15 mm / 0.25 m。
+- 还不行，或者巡航速度会超出 `CRUISE_RATIO_MIN..MAX = 0.75..1.3 × native`（步频变化超过 ±25–30% 太明显），先放弃停步，再放弃起步，最后退回旧的匀速 L·t/D。原因写在 `motion.walkPlan.notes`。
+- 规划失败但这段确实停了（`stop-unplanned` 事件）：以前的做法，walk_loop → idle 淡化。**这时会滑 6–13 cm**（实测），见 9.6。
+- 诊断：`__worldIntegration.motion().walkPlan = {L, D, rest, aheadM, start, stop, warp, stopScale, cruiseMps, notes}`；`stopRoot`（停步结束后 lateral 那一步）；`lastFoot`、`footDeduped`。
+- `walkProfileExtraSeconds(cfg, fromRest, toRest)`：要让巡航保持 native 速度，`walkDuration` 还需要加多少秒（给路线/镜头的负责人用；驱动自己不改时长）。
+
+### 9.4 180° 转身 L/R
+
+按名字找 `walk_turn_180_bodyL` / `walk_turn_180_bodyR`，同时兼容单个 `walk_turn_180`。方向看 `turn_deg` 的正负。45–135° 仍然用 `walk_turn_90_body{L,R}`（按转向一侧）。
+|转角| ≥ `TURN180_FREE_DEG = 170°` 时两个方向都行，由脚决定：`lastFoot` = 最后一次落地的身体脚（刚接重），选**先迈另一只脚**的变体，必要时绕另一边转（例如 +175° 改成 −185°）。低于 170° 方向由转角正负定。日志：`turn-choice` 事件。**定义需要 角色动画bot 确认。**
+
+### 9.5 一次着地只发一次脚步
+
+- 带 `entry_contact: true` 的事件不发（walk_loop 刚在同一时刻发过那次脚跟着地）。
+- 没有这个标记时：同一根脚骨在 `FOOT_DEDUPE_S = 0.1 s` 内又发一次着地，当作同一次着地丢掉（`foot-dedupe` 事件，`reason: same contact`）。
+- 片段切换时 `snapAbs` 让 walk_loop 正好停在那一下脚跟着地上（包含这一刻的事件），停步从第 0 帧开始。
+
+### 9.6 还没解决 / 需要别人定
+
+- **`inCrossing`（1.441 m / 2.059 s = L/0.7）后面会停，但时长里放不下停步**：没有起步、只有停步时，巡航要 0.961 m/s = 1.37 × native > 1.3，所以不规划停步，退回 walk_loop → idle（会滑）。`toThreshold` 已经在把相位往这次停步引了。解决办法（二选一，需要 Grok Bot / 运镜bot 定）：`inCrossing` 的 `walkDuration` 加 `walkProfileExtraSeconds(cfg,false,true) ≈ 0.34 s`（会动回程镜头时间线），或者接受这一次 37% 的步频提升（把 `CRUISE_RATIO_MAX` 改成 1.4）。
+- 有些长度两个变体都不可行（扫描里 3.0 m 和 3.4 m，D = L/0.7 + 余量）：退回 walk_loop → idle，滑 6–13 cm。现在的路线（toDoor 4.198、toIsland 4.384、toSeat 4.136）都能规划。
+- 时长契约：`toDoor`（起步+停步）巡航 0.87 m/s，`toSeat` 0.87 m/s（+24% 步频）。要保持 0.7 m/s，起步 +0.49 s、停步 +0.34 s（`walkProfileExtraSeconds`），属于 FirstsliceRoutes 的契约。
+- 这个 walk_loop 本身在 rate 1 时就有约 13–17 mm 的支撑脚漂移（脚跟着地时脚比地面慢：低位窗口里平均 0.667 m/s，地面 0.70），拉伸 > 1 会减小漂移，< 1 会加大。测试按“rate 1 基线 + 拉伸带来的漂移”判断。
+
+本地测试：`tools/walk-driver/test_locomotion.cjs`（由 `test_walk_driver.cjs` 加载；`LOCO_GLB=<glb>`，默认用预览；没有 GLB 时只跑合成曲线部分）。
