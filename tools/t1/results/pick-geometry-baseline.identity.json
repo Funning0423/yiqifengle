@@ -1,0 +1,162 @@
+{
+ "schema": "t1-lighthouse-pick-geometry/v1",
+ "input": {
+  "path": "combined_visual_m.glb",
+  "sha256": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b",
+  "bytes": 5020780
+ },
+ "decoder": {
+  "name": "draco3d",
+  "version": "1.5.7"
+ },
+ "scope": "QA-only fixture; NOT shipped; regenerate whenever GLB sha256 changes",
+ "nodes": [
+  {
+   "index": 90,
+   "name": "env_interior_shell",
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "primitives": [
+    {
+     "vertexCount": 8358,
+     "indexCount": 18756,
+     "min": [
+      -2.4544713497161865,
+      -0.03500000014901161,
+      -5.100647926330566
+     ],
+     "max": [
+      2.4544646739959717,
+      3.9500911235809326,
+      -0.007999897003173828
+     ],
+     "accessorMin": [
+      -2.4544713497161865,
+      -0.03500000014901161,
+      -5.100647926330566
+     ],
+     "accessorMax": [
+      2.4544646739959717,
+      3.9500911235809326,
+      -0.007999897003173828
+     ],
+     "positionsSHA256": "96a2e9799fcad74d5cd25794d28b5e4c877f63464bb1cb3c5aacffac472a3eea",
+     "indicesSHA256": "61f470c2cfe1a4e90380b18daac9be0ad8b18274c1b944eb290594cd3f029c35"
+    }
+   ]
+  },
+  {
+   "index": 97,
+   "name": "env_lighthouse_door",
+   "translation": [
+    0.7202203273773193,
+    0,
+    0
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "primitives": [
+    {
+     "vertexCount": 1712,
+     "indexCount": 2532,
+     "min": [
+      -1.4364407062530518,
+      0.009999990463256836,
+      -0.05586026608943939
+     ],
+     "max": [
+      0.0319899320602417,
+      2.3973474502563477,
+      0.1367829144001007
+     ],
+     "accessorMin": [
+      -1.4364407062530518,
+      0.009999990463256836,
+      -0.05586026608943939
+     ],
+     "accessorMax": [
+      0.03200000151991844,
+      2.3973474502563477,
+      0.1367887258529663
+     ],
+     "positionsSHA256": "b86104e2af84b92142ce40c590ad558577aa3d4bf82824b94d7818af492c10f5",
+     "indicesSHA256": "4684a87bdc453710e68d167a265103896205cb2f7da1017af57458f41f2eb956"
+    }
+   ]
+  },
+  {
+   "index": 98,
+   "name": "env_lighthouse_ext",
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "primitives": [
+    {
+     "vertexCount": 13034,
+     "indexCount": 23388,
+     "min": [
+      -2.698221206665039,
+      -0.15000000596046448,
+      -5.348942279815674
+     ],
+     "max": [
+      4.883378028869629,
+      8.933614730834961,
+      0.8892154693603516
+     ],
+     "accessorMin": [
+      -2.698221206665039,
+      -0.15000000596046448,
+      -5.348942279815674
+     ],
+     "accessorMax": [
+      4.883378028869629,
+      8.933614730834961,
+      0.8892154693603516
+     ],
+     "positionsSHA256": "79b5b6913d704be15735ed1fe65e4fae695bda7cc9b631a9029ad875ba63ae3d",
+     "indicesSHA256": "b7c96e5734b2e5c6f26b0ca90215048ef79eaaeec52de0bcd82820bba65fea3a"
+    }
+   ]
+  }
+ ],
+ "fullFixtureSHA256": "1b6b6a8d0da003ba8080c2406b9fc3eb1ff461c21a2960c78042a4a048565e93",
+ "fullFixtureBytes": 1560066,
+ "note": "完整夹具(含三角流)可由 tools/t1/decode_pick_geometry.cjs 确定性重建；两次运行 sha256 一致。未提交完整数据以免进生产/仓库膨胀。"
+}

@@ -1,0 +1,53 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "gridHits": 57,
+      "gridMisses": 768,
+      "actualAabbAirMisses": 32
+    },
+    {
+      "viewport": [
+        586,
+        1266
+      ],
+      "gridHits": 57,
+      "gridMisses": 768,
+      "actualAabbAirMisses": 32
+    },
+    {
+      "viewport": [
+        320,
+        568
+      ],
+      "gridHits": 47,
+      "gridMisses": 778,
+      "actualAabbAirMisses": 30
+    },
+    {
+      "viewport": [
+        844,
+        390
+      ],
+      "gridHits": 13,
+      "gridMisses": 812,
+      "actualAabbAirMisses": 11
+    },
+    {
+      "viewport": [
+        1170,
+        2532
+      ],
+      "gridHits": 57,
+      "gridMisses": 768,
+      "actualAabbAirMisses": 32
+    }
+  ],
+  "sourceSHA256": "d7be489e134dca868f303ce240404542c9fd68aa958ca4f7d39facc42f70da49",
+  "geometrySourceSHA256": "231e2987dcab28136fb38e495d85beaa45966fba7ac18aca1932ad6b6054de5b",
+  "scope": "Actual Cocos3.8.8 component Camera.screenPointToRay→renderer.Camera inverse VP→real rayModel/raySubMesh against3 actual decoded GLB triangle streams, door actual86.4deg world transform. Renderer model wrappers are CPU fixture; native imported meshes and OS event routing await device."
+}
