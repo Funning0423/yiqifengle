@@ -26,6 +26,8 @@ export class IslandProps {
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
   private entrance = 1; private fade: { r: MeshRenderer; i: number; m: Material }[] = []; private signText: UIOpacity | null = null; private view = { width: 0, height: 0 };
   private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
+  /** R3: the sign's water nodes (contact shadow + ripples) are deactivated with the sign at entrance 0 (not just alpha 0). */
+  private waterNodes: Node[] = [];
   constructor(parent: Node, private camera: Camera) {
     this.root = new Node('IslandUiProps'); parent.addChild(this.root); this.root.active = false;
   }
@@ -86,7 +88,7 @@ export class IslandProps {
       const mat = (hex: string, a: number) => { const m = new Material(); m.initialize({ effectName: 'builtin-unlit', technique: 3, defines: { USE_VERTEX_COLOR: true } }); const c = new Color(hex); c.a = Math.round(a * 255); m.setProperty('mainColor', c); return m; };
       const place = (name: string, mesh: Mesh, m: Material, lift: number) => {
         const n = new Node(name); n.layer = this.sign!.layer; this.root.addChild(n);
-        n.setPosition(S.position[0], ISLAND_PROPS.seaY + lift, S.position[2]); n.setRotationFromEuler(0, S.yawDeg, 0); n.setScale(S.scale, 1, S.scale);
+        n.setPosition(S.position[0], ISLAND_PROPS.seaY + lift, S.position[2]); n.setRotationFromEuler(0, S.yawDeg, 0); n.setScale(S.scale, 1, S.scale); this.waterNodes.push(n); n.active = this.entrance > 0;
         const r = n.addComponent(MeshRenderer); r.mesh = mesh; r.setMaterial(m, 0);
         r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; r.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF; return n; };
       this.water.shadow = mat(W.shadow.color, W.shadow.alpha);
@@ -109,7 +111,7 @@ export class IslandProps {
     });
     // T9n: lamp light + warm water pool + sign text colour follow the same night weight (smooth, no pop)
     const L = lampLightAt(w);
-    if (this.lampLight && isValid(this.lampLight, true)) { if (this.lampLight.enabled !== L.enabled) this.lampLight.enabled = L.enabled; this.lampLight.luminance = this.lampBase * L.scale * this.entrance; }
+    if (this.lampLight && isValid(this.lampLight, true)) { const on = L.enabled && this.entrance > 0; if (this.lampLight.enabled !== on) this.lampLight.enabled = on; this.lampLight.luminance = this.lampBase * L.scale * this.entrance; }
     if (this.glow && isValid(this.glow.node, true)) { const R = S.lampLight.reflection, c = new Color(R.color); const a = Math.round(R.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.glow.material.setProperty('mainColor', c); if (this.glow.node.active !== a > 0) this.glow.node.active = a > 0; }
     if (this.lampGlow && isValid(this.lampGlow.node, true)) { const G = S.lampGlass.glow, c = new Color(G.color); const a = Math.round(G.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.lampGlow.material.setProperty('mainColor', c); if (this.lampGlow.node.active !== a > 0) this.lampGlow.node.active = a > 0; }
     this.tickSea(w);
@@ -216,6 +218,9 @@ export class IslandProps {
    * metres at the sign so it rises out of the water. 0 < e < 1 fades via temporary transparent copies of the shared
    * materials (same effect, its "transparent" technique, alpha = e); e = 1 restores the shared materials (no lasting swap).
    * Water shadow/ripples follow the same alpha. e = 0 hides the sign.
+   * R3: e = 0 hides EVERYTHING of the signpost: board/posts/lamp/label (sign node), contact shadow + ripples (nodes
+   * deactivated), lamp SphereLight (disabled) and both additive glows (inactive at alpha 0). The night sea tint is NOT
+   * part of the sign (it follows the night weight while the exterior is visible and is restored on dispose).
    */
   setSignEntrance(e: number, risePx = 0) {
     const sign = this.sign; if (!this.ready || !sign || !isValid(sign, true)) return;
@@ -225,6 +230,9 @@ export class IslandProps {
     if (risePx > 0 && e < 1) { const pose = this.pose(), r = pose && this.view.height > 0 ? signpostRectUi(pose, this.view.width, this.view.height) : null; if (r && r.height > 0) rise = risePx * (S.boxMax[1] - S.boxMin[1]) * S.scale / r.height; }
     sign.setPosition(S.position[0], S.position[1] - rise, S.position[2]);
     if (sign.active !== e > 0) sign.active = e > 0;
+    for (const n of this.waterNodes) if (isValid(n, true) && n.active !== e > 0) n.active = e > 0;
+    if (e <= 0) { if (this.lampLight && isValid(this.lampLight, true) && this.lampLight.enabled) { this.lampLight.luminance = 0; this.lampLight.enabled = false; }
+      for (const g of [this.glow, this.lampGlow]) if (g && isValid(g.node, true) && g.node.active) g.node.active = false; }
     if (this.signText && isValid(this.signText, true)) this.signText.opacity = Math.round(255 * e);
     if (e >= 1 || e <= 0) { this.endFade(); return; }
     if (!this.fade.length) this.beginFade();
@@ -256,5 +264,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
 }

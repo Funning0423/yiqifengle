@@ -19,6 +19,8 @@ import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {validateSkycity} from './region/RegionValidation';
 const {ccclass,property}=_decorator;
+/** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
+const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
 /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
 
 /** Explicit flow-reference stand-in. The calibrated flag certifies only these reference coordinates,
@@ -299,17 +301,31 @@ export class WorldIntegrationBoot extends Component {
   * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
   * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
  private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
-  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.islandProps?.setSignEntrance(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
   this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
   if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
   const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
   if(this.islandEntrance>=1){this.islandEntrance=-1;if(this.propSign)this.signEntrance=0;}
  }
- /** T9: signpost visibility outside its entrance step: hidden while flying out (crossing-out) and while the buttons
-  * enter; shown at once on any other arrival (no entrance). */
- private gateSignEntrance(state:string){const p=this.islandProps;if(!p?.ready)return;
-  if(state==='crossing-out'||state==='island'&&this.islandEntrance>=0&&this.propSign){p.setSignEntrance(0);return;}
-  if(state!=='island')this.signEntrance=-1;if(this.signEntrance<0)p.setSignEntrance(1);
+ /** T9 + R3 (Mac r3: the board floated near the shore on the walk home, seen from behind, text mirrored): the signpost
+  * (board, lamp + its light/glows, label, water shadow/ripples; IslandProps.setSignEntrance) exists ONLY in island-idle.
+  * - Away states (the whole outbound/return path: crossing-out, walking-home incl. the crane, crossing-in, door, seat,
+  *   home...): hidden. Leaving island-idle with the sign on screen (return walk start) fades it out with the mirror of
+  *   the entrance (same 0.25 s, cubic, sinking the same 24 px); anything else snaps to 0 (the sign is not on screen).
+  * - island: hidden while the buttons enter, then the existing entrance step (applyIslandEntrance). It also (re)starts on
+  *   ANY arrival in island with the sign not fully shown (cancelled return, resume), so it never pops in.
+  * - level/skycity (+ their loading) and paused: unchanged (the island behind the board keeps its sign; no flicker on
+  *   a level round trip). */
+ private signShown=1;private signOut=-1;private signPrev='';
+ private setSign(e:number,risePx:number){this.signShown=e;this.islandProps?.setSignEntrance(e,risePx);}
+ private gateSignEntrance(state:string,dt=0){const p=this.islandProps,prev=this.signPrev;this.signPrev=state;if(!p?.ready)return;
+  if(SIGN_AWAY_STATES.indexOf(state)>=0){this.signEntrance=-1;
+   if(this.signShown<=0){this.signOut=-1;this.setSign(0,0);return;}
+   if(this.signOut<0){if(prev!=='island'){this.setSign(0,0);return;}this.signOut=1-Math.pow(1-this.signShown,1/3);}
+   this.signOut=Math.max(0,this.signOut-Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signOut,3);this.setSign(e,24*(1-e));if(this.signOut<=0)this.signOut=-1;return;}
+  this.signOut=-1;if(state!=='island')return;
+  if(this.islandEntrance>=0&&this.propSign){this.setSign(0,0);return;}
+  if(this.signEntrance<0&&this.signShown<1)this.signEntrance=1-Math.pow(1-this.signShown,1/3);
  }
  /** T9: drive the 3D props and, while the signpost is on screen, make the (invisible) mainline control its hit area. */
  private syncIslandProps(s:any,f:{width:number;height:number}){
@@ -330,7 +346,7 @@ export class WorldIntegrationBoot extends Component {
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  for(const [k,n]of Array.from(this.controls))n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume:k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state);
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
  if(b?.provider==='mainline-v33'&&board){const region=b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4));this.controls.get('regionReward')!.getComponentsInChildren(Label)[0].string=region?.claimed?'地区工具已领取':'领取地区工具';const chest=b.journey.chests?.find((x:any)=>x.level===b.active.level);this.controls.get('chest')!.getComponentsInChildren(Label)[0].string=chest?.opened?'本关宝箱已领取':'打开本关宝箱';this.placeResultButtons(board.hostLayout());}
  if(registered&&board){this.placeResultButtons(board.hostLayout(),['next','claim']);const owned=b.progress.claimedRegions.includes(b.active.region);this.controls.get('claim')!.getComponentsInChildren(Label)[0].string=owned?'地区印记已领取':'领取地区印记';}

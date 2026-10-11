@@ -6,7 +6,7 @@ const fs=require('fs'),path=require('path'),assert=require('assert/strict');
 const {load,SRC,typescript}=require('./load_ts.cjs');
 const M=load(['world-r1/CameraPose','world-r1/RegionCameraData','world-r2/IslandPropsLayout','world-r2/IslandPropTaps']);
 const C=M.CameraPose,L=M.IslandPropsLayout,T=M.IslandPropTaps,P=L.ISLAND_PROPS;
-const checks=[];const ok=(name,fn)=>{fn();checks.push(name);console.log('PASS',name);};
+let BootSign=null;const checks=[];const ok=(name,fn)=>{fn();checks.push(name);console.log('PASS',name);};
 const pose=C.fromLookAt(M.RegionCameraData.islandPoseEntry());
 const FRAMES=[[320,568],[375,667],[390,844],[402,874],[430,932],[568,320],[844,390]];
 const inside=(r,w,h,inset=0)=>r.x-r.width/2>=-w/2+inset&&r.x+r.width/2<=w/2-inset&&r.y-r.height/2>=-h/2+inset&&r.y+r.height/2<=h/2-inset;
@@ -115,19 +115,21 @@ ok('WorldIntegrationBoot wiring (source): mainline emits signpost press/confirm 
   assert(s.includes('onPropTap,'),'__worldIntegration.onPropTap for T0');
   assert(!/playSfx|AudioSource|GameAudio\.instance/.test(fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8')+fs.readFileSync(path.join(SRC,'world-r2/IslandPropTaps.ts'),'utf8')),'no sound played by T9');
 });
-ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTransitionHud, transpiled): buttons first (0.25 s, cubic ease-out, 24 px), mainline hit area never moved/scaled, then the signpost rises 24 px + fades in with the same duration/easing; hit area live only after; no entrance -> shown at once',()=>{
+ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTransitionHud, transpiled): buttons first (0.25 s, cubic ease-out, 24 px), mainline hit area never moved/scaled, then the signpost rises 24 px + fades in with the same duration/easing; hit area live only after; level round trip -> stays shown (no entrance, no flicker)',()=>{
   const src=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
   const grab=name=>{const i=src.indexOf(' private '+name+'(');assert(i>0,name);const j=src.indexOf('\n }\n',i);return src.slice(i,j+3).replace(' private ',' ');};
-  const cls='class B{'+['trackTransitionHud','applyIslandEntrance','gateSignEntrance'].map(grab).join('\n')+'}\nmodule.exports=B;';
-  const js=typescript().transpileModule(cls,{compilerOptions:{target:99,module:1}}).outputText;const mod={exports:{}};new Function('module','exports',js)(mod,mod.exports);const B=mod.exports;
+  const away=src.match(/\nconst SIGN_AWAY_STATES=(\[[^\]]*\]);/);assert(away,'SIGN_AWAY_STATES');
+  const fields=src.match(/\n private signShown=1;private signOut=-1;private signPrev='';\n/);assert(fields,'sign fields');
+  const cls='const SIGN_AWAY_STATES='+away[1]+';\nclass B{'+fields[0].replace(/private /g,'')+['trackTransitionHud','applyIslandEntrance','setSign','gateSignEntrance'].map(grab).join('\n')+'}\nmodule.exports=B;';
+  const js=typescript().transpileModule(cls,{compilerOptions:{target:99,module:1}}).outputText;const mod={exports:{}};new Function('module','exports',js)(mod,mod.exports);const B=mod.exports;BootSign=B;
   // the same constants as the T2 button entrance
-  assert(/Math\.max\(0,Math\.min\(dt,\.1\)\)\/\.25/.test(src)&&/1-Math\.pow\(1-this\.signEntrance,3\)/.test(src)&&/setSignEntrance\(e,24\*\(1-e\)\)/.test(src),'same duration/easing/slide');
+  assert(/Math\.max\(0,Math\.min\(dt,\.1\)\)\/\.25/.test(src)&&/1-Math\.pow\(1-this\.signEntrance,3\)/.test(src)&&/this\.setSign\(e,24\*\(1-e\)\)/.test(src),'same duration/easing/slide');
   const calls=[],moved=[],dockLog=[];
   const node=(name,log)=>({active:true,position:{x:0,y:0,z:0},setPosition(x,y,z){this.position={x,y,z};log&&log.push(['p',y]);},setScale(k){log&&log.push(['s',k]);}});
   const dock=node('dock',dockLog),mainline=node('mainline',moved);
   const b=Object.assign(new B(),{hudState:'',islandEntrance:-1,signEntrance:-1,propSign:true,islandProps:{ready:true,setSignEntrance:(e,r)=>calls.push([+e.toFixed(4),+(r||0).toFixed(3)])},
     canvas:{getChildByName:()=>({getChildByName:()=>dock})}});
-  const frame=(state,dt)=>{b.trackTransitionHud(state);if(state==='island')b.applyIslandEntrance(dt,mainline);b.gateSignEntrance(state);};
+  const frame=(state,dt)=>{b.trackTransitionHud(state);if(state==='island')b.applyIslandEntrance(dt,mainline);b.gateSignEntrance(state,dt);};
   frame('crossing-out',1/60);assert.deepEqual(calls.pop(),[0,0],'hidden while flying out');
   let t=0,firstSign=null,signDone=null;const live=[];
   for(let i=0;i<60;i++){const before=calls.length;frame('island',1/60);t+=1/60;const hitLive=!(b.islandEntrance>=0||b.signEntrance>=0);live.push(hitLive);
@@ -141,10 +143,44 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
   assert(Math.abs(anim[0][1]-24*(1-anim[0][0]))<5e-3,'rise = 24 px * (1-e)');
   const firstLive=live.indexOf(true);assert(firstLive>=0&&live.slice(firstLive).every(Boolean)&&Math.abs((firstLive+1)/60-signDone)<=2/60,'hit area live once the sign entrance ends');
   // arrival without entrance (e.g. back from a level) -> shown at once, hit area live
-  calls.length=0;b.hudState='level';b.islandEntrance=-1;b.signEntrance=-1;frame('island',1/60);assert.deepEqual(calls.pop(),[1,0]);assert(!(b.islandEntrance>=0||b.signEntrance>=0));
+  calls.length=0;for(const st of ['level-loading','level','island','skycity-loading','skycity','island','paused','island'])for(let i=0;i<10;i++)frame(st,1/60);
+  assert(calls.every(c=>c[0]===1),'level/skycity/paused round trip: sign untouched or shown');assert(!(b.islandEntrance>=0||b.signEntrance>=0));
   // flat-button fallback (no props): mainline gets the T2 entrance as before
   const b2=Object.assign(new B(),{hudState:'crossing-out',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:null,canvas:b.canvas});moved.length=0;b2.trackTransitionHud('island');b2.applyIslandEntrance(1/60,mainline);assert(moved.length===2,'flat mainline still animated');
   assert(/if\(sign&&\(this\.islandEntrance>=0\|\|this\.signEntrance>=0\)\)sign=\{x:sign\.x,y:sign\.y,width:0,height:0\};/.test(src),'zero-size hit area during the entrance');
+});
+ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): REAL Boot gate - the sign fades OUT (mirror of the entrance: 0.25 s, cubic, sinking 24 px) when the return walk starts, stays 0 on the whole return (walking-home incl. crane, crossing-in, door, seat, home) and the next leave (crossing-out), then buttons + entrance on arrival; a cancelled return fades back IN from where it was (no pop)',()=>{
+  const B=BootSign;assert(B,'previous check loaded the Boot gate');const calls=[];
+  const dock={position:{x:0,y:0,z:0},setPosition(){},setScale(){}};
+  const b=Object.assign(new B(),{hudState:'island',islandEntrance:-1,signEntrance:-1,propSign:true,signPrev:'island',islandProps:{ready:true,setSignEntrance:(e,r)=>calls.push([+e.toFixed(4),+(r||0).toFixed(3)])},canvas:{getChildByName:()=>({getChildByName:()=>dock})}});
+  const frame=(state,dt=1/60)=>{const n=calls.length;b.trackTransitionHud(state);if(state==='island')b.applyIslandEntrance(dt,null);b.gateSignEntrance(state,dt);return calls.slice(n);};
+  for(let i=0;i<5;i++)frame('island');assert.equal(b.signShown,1);
+  // return walk: fade out
+  const out=[];let t=0,zeroAt=null;for(let i=0;i<40;i++){const c=frame('walking-home');t+=1/60;out.push(...c);if(zeroAt===null&&c.some(x=>x[0]===0))zeroAt=t;}
+  assert(Math.abs(zeroAt-.25)<=2/60,'faded out at ~0.25 s: '+zeroAt);
+  const mid=out.filter(x=>x[0]>0&&x[0]<1);assert(mid.length>=10,'animated fade-out frames');for(let i=1;i<mid.length;i++)assert(mid[i][0]<mid[i-1][0]&&mid[i][1]>mid[i-1][1],'alpha down, sinks');
+  assert(Math.abs(mid[0][1]-24*(1-mid[0][0]))<5e-3,'sink = 24 px * (1-e)');
+  for(const st of ['walking-home','crossing-in','closing-door','walking-to-seat','sitting','home','standing','turning-out','walking-out','opening-door','crossing-out']){const c=[];for(let i=0;i<20;i++)c.push(...frame(st));assert(c.every(x=>x[0]===0),'hidden in '+st);assert.equal(b.signShown,0);}
+  // arrival: buttons first, sign stays 0, then the entrance to 1
+  const arr=[];for(let i=0;i<60;i++)arr.push(...frame('island'));const first=arr.findIndex(x=>x[0]>0);assert(first>=14,'sign waits for the buttons: '+first);
+  for(let i=first+1;i<arr.length;i++)assert(arr[i][0]>=arr[i-1][0],'entrance monotonic');assert.equal(arr[arr.length-1][0],1);assert.equal(b.signShown,1);
+  // cancelled return (walking-home -> island after 5 frames): fade back in from the current value, no pop to 0 or 1
+  for(let i=0;i<5;i++)frame('walking-home');const e0=b.signShown;assert(e0>0&&e0<1,'mid fade '+e0);
+  const back=[];for(let i=0;i<30;i++)back.push(...frame('island'));assert(back.length>0&&back[0][0]>=e0-1e-3&&back[0][0]<1,'resumes from '+e0+' not '+back[0][0]);
+  for(let i=1;i<back.length;i++)assert(back[i][0]>=back[i-1][0]);assert.equal(back[back.length-1][0],1);
+  // cold start at home (sign never on screen): snaps to 0, no fade
+  const c2=[];const b2=Object.assign(new B(),{hudState:'',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:{ready:true,setSignEntrance:e=>c2.push(e)},canvas:b.canvas});
+  b2.trackTransitionHud('home');b2.gateSignEntrance('home',1/60);assert.deepEqual(c2,[0]);
+});
+ok('R3: IslandProps.setSignEntrance(0) hides the whole sign set (sign node, water shadow + ripple NODES, lamp SphereLight, both additive glows); tickWater keeps the lamp light off at entrance 0; night sea tint is not tied to the sign',()=>{
+  const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/this\.waterNodes\.push\(n\); n\.active = this\.entrance > 0;/.test(src),'water nodes registered');
+  assert(/for \(const n of this\.waterNodes\) if \(isValid\(n, true\) && n\.active !== e > 0\) n\.active = e > 0;/.test(src),'water nodes follow the sign');
+  assert(/if \(e <= 0\) \{ if \(this\.lampLight && isValid\(this\.lampLight, true\) && this\.lampLight\.enabled\) \{ this\.lampLight\.luminance = 0; this\.lampLight\.enabled = false; \}/.test(src),'lamp light off at 0');
+  assert(/for \(const g of \[this\.glow, this\.lampGlow\]\) if \(g && isValid\(g\.node, true\) && g\.node\.active\) g\.node\.active = false;/.test(src),'glows off at 0');
+  assert(/const on = L\.enabled && this\.entrance > 0; if \(this\.lampLight\.enabled !== on\) this\.lampLight\.enabled = on;/.test(src),'tickWater keeps it off');
+  assert(/this\.tickSea\(w\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign');
+  assert(/if \(this\.root\.active !== o\.exterior\) this\.root\.active = o\.exterior;/.test(src),'whole prop root off when the exterior is not visible (nothing in the room)');
 });
 ok('T9n night tags: day = T9 cream colours, night = warm grey card + deeper brown text; contrast >= 4.5:1 at every step of the blend; night card about as dark as the 0.35 night light',()=>{
   const T=P.tag,d=L.tagColorsAt(0),n=L.tagColorsAt(1);

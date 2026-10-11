@@ -18,11 +18,11 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   const jobs=new Set(),actions=[];
   const runJob=(seconds,token,tick)=>{token.check();if(!Number.isFinite(seconds)||seconds<=0){tick(1);return Promise.resolve();}
     return new Promise((resolve,reject)=>{const job={elapsed:0,seconds,tick,resolve,reject,off:()=>{}};job.off=token.onCancel(()=>{jobs.delete(job);reject(new W.Cancelled());});jobs.add(job);try{tick(0);}catch(e){jobs.delete(job);job.off();reject(e);}});};
-  const world={weight:1,layers:null,door:0,events:[]};
+  const world={weight:1,key:0,layers:null,door:0,events:[]};
   const log=(kind,data)=>world.events.push({frame,kind,data});
   const lease={
     // Mirrors GGbot T5 RoomLightingRig: interior view on -> weight 1, off -> 0; writes ignored while off.
-    setLayers(l){const was=!!world.layers?.interior;world.layers={...l};if(l.interior!==was)world.weight=l.interior?1:0;log('layers',{...l});},
+    setLayers(l){const was=!!world.layers?.interior;world.layers={...l};if(l.interior!==was){world.weight=l.interior?1:0;world.key=0;}log('layers',{...l});},
     setDoor(a){world.door=a;},
     setCamera(p){C.applyCameraPose(cam,C.fromLookAt(p,cam.fov),'sim.setCamera');log('setCamera',null);},
     animateDoor:(from,to,seconds,t)=>runJob(seconds,t,p=>{world.door=from+(to-from)*p;}),
@@ -34,6 +34,9 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     setRoomLightWeight(w){if(!world.layers?.interior||!Number.isFinite(w))return false;world.weight=Math.max(0,Math.min(1,w));log('weight',w);return true;},
     getRoomLightWeight:()=>world.layers?.interior?world.weight:0,
     blendRoomLight:(from,to,seconds,t)=>runJob(seconds,t,p=>{if(world.layers?.interior)world.weight=Math.max(0,Math.min(1,from+(to-from)*p));}),
+    // R3 exterior key (RoomLightingRig: interior view only, reset to 0 whenever the interior view switches).
+    setExteriorKey(k){if(!world.layers?.interior||!Number.isFinite(k))return false;world.key=Math.max(0,Math.min(1,k));return true;},
+    blendExteriorKey:(from,to,seconds,t)=>runJob(seconds,t,p=>{if(world.layers?.interior)world.key=Math.max(0,Math.min(1,from+(to-from)*p));}),
     wait:(seconds,t)=>runJob(seconds,t,()=>{}),
     cancelTransient(){for(const j of Array.from(jobs)){j.off();j.reject(new W.Cancelled());}jobs.clear();},
     assertStaticWorld(){},dispose(){},
@@ -60,7 +63,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   const states=[];let frame=0,state='';
   const flow=new W.WorldFlow({config:cfg,mode:'motion',character:ch,levels:{enter:async()=>{throw Error('unused')}},loadWorld:async()=>lease,onChange:s=>{state=s.state;states.push({frame,state:s.state});log('state',s.state);}});
   const frames=[];
-  const snap=()=>({frame,t:frame*dt,state,cam:{position:[...cam.p],rotation:[...cam.q],fovVerticalDeg:cam.fov},root:[...ch.root],yaw:ch.yaw,weight:world.weight,layers:world.layers?{...world.layers}:null,door:world.door,wind:flow.getWindStrength()});
+  const snap=()=>({frame,t:frame*dt,state,cam:{position:[...cam.p],rotation:[...cam.q],fovVerticalDeg:cam.fov},root:[...ch.root],yaw:ch.yaw,weight:world.weight,key:world.key,layers:world.layers?{...world.layers}:null,door:world.door,wind:flow.getWindStrength()});
   const tick=async()=>{await new Promise(r=>setImmediate(r));};
   if(!(await flow.load()).ok)throw Error('load failed');
   const results=[];
