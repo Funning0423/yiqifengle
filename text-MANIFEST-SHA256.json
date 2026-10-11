@@ -446,8 +446,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 52493,
-    "sha256": "4312f25d02051d153a43a6a30d04f033313f9fa55a2f376082e0b2a1f702197b"
+    "bytes": 55572,
+    "sha256": "564c2b4a70e1e4b0cb2b94035df2aa60e8325636848ffca76f4d9efdd9c49ddc"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -606,8 +606,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 67013,
-    "sha256": "155e2aa4f1dd933a48c3396e3ef25769ca04fd0150bbbb7e2104d7bbed472115"
+    "bytes": 68545,
+    "sha256": "0c082c08866efb5d120b3eeb43865b4cb91a91ea8244833f56d1cb68eb4cd50c"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",

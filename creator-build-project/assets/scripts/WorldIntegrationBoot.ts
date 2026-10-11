@@ -11,7 +11,7 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
-import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopRole,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,
   planWalk,walkDistanceAt,stopCandidates,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
@@ -83,6 +83,9 @@ class FlowReferenceStandin implements CharacterAdapter {
   this.lastFootEmit={bone:def.bone,clip:f.clip,t:this.motionT};this.lastFoot=def.body;
   const p=this.node.worldPosition;const e:FootEvent={event:def.name,bone:def.bone,body:def.body,clip:f.clip,phase:def.time/f.duration,time:def.time,cycle:f.cycle,pos:[p.x,p.y,p.z],type:def.type||'heel_strike'};
   this.logEvent({kind:'foot',type:e.type,event:e.event,bone:e.bone,body:e.body,clip:e.clip,phase:e.phase,cycle:e.cycle,pos:[p.x,p.z]});const list=this.footListeners.slice();for(let i=0;i<list.length;i++){try{list[i](e);}catch(err){console.warn('onFoot listener failed',String(err));}}}
+ /** settle:* (stop clips: small step that brings the feet side by side, < 0.25 m): not a footstep, so not on onFoot
+  *  (anim_meta: onFoot is foot:* only). It is the last foot to land, so it counts for lastFoot (180 choice), and is logged. */
+ private noteSettle(f:any){const def=f.def;this.lastFoot=def.body;this.logEvent({kind:'settle',event:def.name,bone:def.bone,body:def.body,clip:f.clip,type:def.type||'settle'});}
  /** Delivered to onApronLift subscribers (Voice bot WindAudio subscribes to this adapter by itself). Fallback: direct
   *  globalThis.__voiceWind.notifyApronLift only while WindAudio reports no hooked subscriber (never both). */
  private emitApron(strength:'full'|'soft',durationSec:number){this.logEvent({kind:'apron-lift',strength,durationSec,wind:this.wind});const list=this.apronListeners.slice();
@@ -95,11 +98,13 @@ class FlowReferenceStandin implements CharacterAdapter {
  /** Walk-duration contract: distance fraction 0..1 of the CURRENT walk action (each segment from 0), null when not walking. */
  walkProgress():number|null {const j=this.job;if(!j||j.action.kind!=='walk'||!(j.duration>0))return null;const f=j.length>0?j.s/j.length:j.elapsed/j.duration;return f>0?(f<1?f:1):0;}
  private isWalkClip(name:string|undefined){return name===CLIP_ROLES.walk||name===CLIP_ROLES.walkStart||name===CLIP_ROLES.stopL||name===CLIP_ROLES.stopR;}
- /** Walk ended and no new walk followed within one frame (UNPLANNED stop: the walk was not known to end at rest): stop clip
-  *  for the planted body foot, else idle. A stop clip WITH a forward root curve would slide / overshoot the path end here, so
-  *  those settle to idle; old in-place stop clips (no root_motion) keep the old behaviour. Planned stops: see advance(). */
- private settleFromWalk(){const c=this.clock!;this.lastSpeed=0;const stop=stopRole(this.rig!,c.planted());const m=stop?c.meta(stop):null;
-  if(stop&&!(m&&m.root&&m.root.forward))this.playNamed(stop,false);else{if(stop)this.logEvent({kind:'stop-unplanned',clip:stop,plan:this.lastPlan});this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
+ private isStopClip(name:string|undefined){return name===CLIP_ROLES.stopL||name===CLIP_ROLES.stopR;}
+ /** Walk ended without a planned stop (the walk was not known to end at rest): the stop clip's tail (CharacterMotion.stopTail:
+  *  entered where its root travel ends, so no slide and no overshoot past the path end), crossfaded from the walk pose; no
+  *  stop clip -> idle. Runs after WALK_JOIN_GRACE_S with nothing queued, or right away when a turn follows (perform). */
+ private settleFromWalk(){const c=this.clock!;this.lastSpeed=0;const tail=stopTail(this.rig!,c.cfg,c.planted());this.stopRoot=null;
+  if(!tail){this.playNamed(CLIP_ROLES.idle,true,-1,true);return;}
+  if(tail.time>0)this.logEvent({kind:'stop-unplanned',clip:tail.clip,from:tail.time,plan:this.lastPlan});this.playNamed(tail.clip,false,-1,false,tail.time);}
  private startsWalkStart(cur:string|undefined){return cur!==CLIP_ROLES.walk&&cur!==CLIP_ROLES.walkStart&&cur!==CLIP_ROLES.stopL&&cur!==CLIP_ROLES.stopR&&this.rig!.has(CLIP_ROLES.walkStart);}
  /** Root travel plan for this walk (CharacterMotion.planWalk): walk_start / stop forward curves inside the fixed duration. */
  private planFor(action:any,L:number):WalkPlan {const c=this.clock!,cfg=c.cfg,cur=c.base?.clip,rig=this.rig!;const wm=c.meta(CLIP_ROLES.walk);
@@ -108,13 +113,13 @@ class FlowReferenceStandin implements CharacterAdapter {
   const plan=planWalk({L,D:action.duration,start:startCurve?{clip:CLIP_ROLES.walkStart,forward:startCurve,at:sm!.handoff&&sm!.handoff.at!==undefined?sm!.handoff.at:Math.max(0,sd-CROSSFADE_S),nextTime:sm!.handoff&&sm!.handoff.nextTime!==undefined?sm!.handoff.nextTime:0,crossfade:sm!.handoff&&sm!.handoff.crossfade!==undefined?sm!.handoff.crossfade:-1}:null,
    stops:ahead!==null&&cur!==CLIP_ROLES.walkStart?stopCandidates(rig,cfg):[],aheadM:ahead||0,walkCycle:rig.duration(CLIP_ROLES.walk),native:wm&&wm.nativeSpeed?wm.nativeSpeed:DEFAULT_NATIVE_SPEED,
    phase0:cur===CLIP_ROLES.walk&&c.base?c.localTime(c.base):null,v0:cur===CLIP_ROLES.walk&&this.lastSpeed>0?this.lastSpeed:null});
-  this.lastPlan={L:+L.toFixed(4),D:+action.duration.toFixed(4),rest,aheadM:ahead,start:!!plan.start,stop:plan.stop?plan.stop.clip:null,warp:+plan.rate.toFixed(5),stopScale:plan.stop?+plan.stop.scale.toFixed(5):null,cruiseMps:plan.cruise?+plan.cruise.vc.toFixed(4):+(L/action.duration).toFixed(4),notes:plan.notes.slice()};
+  this.lastPlan={L:+L.toFixed(4),D:+action.duration.toFixed(4),rest,aheadM:ahead,start:!!plan.start,startRate:plan.start?+plan.start.rate.toFixed(3):null,stop:plan.stop?plan.stop.clip:null,warp:+plan.rate.toFixed(5),stopScale:plan.stop?+plan.stop.scale.toFixed(5):null,cruiseMps:plan.cruise?+plan.cruise.vc.toFixed(4):+(L/action.duration).toFixed(4),notes:plan.notes.slice()};
   return plan;}
  private beginWalk(plan:WalkPlan):boolean {const c=this.clock!,cur=c.base?.clip;const continuing=this.pendingIdle||this.isWalkClip(cur);this.pendingIdle=false;this.stopRoot=null;
   if(cur===CLIP_ROLES.walk||cur===CLIP_ROLES.walkStart){if(cur===CLIP_ROLES.walk)c.setRate(plan.rate);return !continuing;} // phase continuity across back-to-back walks
   this.yaw.reset(this.yawRad);const sm=c.meta(CLIP_ROLES.walkStart);
   // walk_start with a forward curve only when the plan has room for it (else walk_loop: no slide); without a curve = old behaviour
-  if(this.startsWalkStart(cur)&&(plan.start||!(sm&&sm.root&&sm.root.forward)))this.playNamed(CLIP_ROLES.walkStart,false);else{this.playNamed(CLIP_ROLES.walk,true);c.setRate(plan.rate);}return !continuing;}
+  if(this.startsWalkStart(cur)&&(plan.start||!(sm&&sm.root&&sm.root.forward))){this.playNamed(CLIP_ROLES.walkStart,false);c.setRate(plan.start?plan.start.rate:1);}else{this.playNamed(CLIP_ROLES.walk,true);c.setRate(plan.rate);}return !continuing;}
  /** Root offset (her left, metres) of a stop clip's lateral_m curve at clip time t. */
  private stopLateral(t:number):number {const r=this.stopRoot;return r&&r.lateral?piecewise(r.lateral,t)-r.lateral[0][1]:0;}
  advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
@@ -138,10 +143,10 @@ class FlowReferenceStandin implements CharacterAdapter {
      if(j.fromRest&&before===0&&Math.abs(wrapAngle(target-this.yawRad))>WALK_YAW_SNAP_DEG*Math.PI/180){this.logEvent({kind:'yaw-snap',deg:wrapAngle(target-this.yawRad)*180/Math.PI});this.yaw.reset(target);this.setYaw(target);}
      else this.setYaw(this.yaw.step(target,j.elapsed-before));}
    }
-   else if(j.action.kind==='turn'){this.lastSpeed=0;this.setYaw(j.fromYaw+j.deltaYaw*p);this.yaw.reset(this.yawRad);}
+   else if(j.action.kind==='turn'){this.lastSpeed=0;let u=p;if(j.foldS>0){u=Math.min(1,j.elapsed/j.foldS);u=u*u*(3-2*u);}this.setYaw(j.fromYaw+j.deltaYaw*u);this.yaw.reset(this.yawRad);}
    else{const target=j.action.kind==='stand'?j.action.seat.standingControllerRoot:j.action.seat.seatedControllerRoot;this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));}
   }
-  else if(this.stopRoot&&c.base&&c.base.clip===this.stopRoot.clip){// walk resolved, stop clip still settling: rest of its root curves (lateral settle step)
+  if((!j||j.foldS>0)&&this.stopRoot&&c.base&&c.base.clip===this.stopRoot.clip){// walk resolved, stop clip still settling (also under a folded turn): rest of its root curves (lateral settle step)
    const r0=this.stopRoot,t=c.localTime(c.base),f=r0.scale*(piecewise(r0.forward,t)-r0.forward[0][1]-r0.S),lat=this.stopLateral(t),sy=Math.sin(r0.yaw),cy=Math.cos(r0.yaw);
    this.node.setWorldPosition(r0.end[0]+sy*f+cy*lat,r0.end[1],r0.end[2]+cy*f-sy*lat);}
   this.wind=this.readWind();let r;
@@ -151,18 +156,18 @@ class FlowReferenceStandin implements CharacterAdapter {
    const r1=c.tick(entry.dt1,entry.ds1,this.wind,snap);this.playNamed(st.clip,false,st.crossfade,false,0);const r2=c.tick(step-entry.dt1,null,this.wind);
    r={foot:r1.foot.concat(r2.foot),ended:r2.ended||r1.ended,apronLift:r1.apronLift||r2.apronLift};}
   else r=c.tick(step,ds,this.wind);
-  for(let i=0;i<r.foot.length;i++)if(r.foot[i].def.name.indexOf('foot:')===0)this.emitFoot(r.foot[i]);
+  for(let i=0;i<r.foot.length;i++){const def=r.foot[i].def;if(def.name.indexOf('foot:')===0)this.emitFoot(r.foot[i]);else if(def.type==='settle'||def.name.indexOf('settle:')===0)this.noteSettle(r.foot[i]);}
   if(r.apronLift)this.emitApron('full',r.apronLift.durationSec);
   const ph=c.phase();
   // walk_start handoff: next clip entered at next_time + the overshoot past at_s (phase stays locked to the root); handoff.crossfade_s honoured
   if(ph&&ph.clip===CLIP_ROLES.walkStart){const m=c.meta(CLIP_ROLES.walkStart),d=c.base!.duration,at=m?.handoff?.at??Math.max(0,d-CROSSFADE_S);
    if(ph.time>=at-1e-9){const next=m?.handoff?.next||CLIP_ROLES.walk;this.playNamed(next,true,m?.handoff?.crossfade??-1,false,(m?.handoff?.nextTime??0)+Math.max(0,ph.time-at));if(next===CLIP_ROLES.walk&&j&&j.plan)c.setRate(j.plan.rate);}}
-  else if(r.ended&&!this.job&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp){const hm=c.meta(r.ended);if(this.stopRoot&&this.stopRoot.clip===r.ended)this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,hm&&hm.handoff&&hm.handoff.crossfade!==undefined?hm.handoff.crossfade:-1,true);}
+  else if(r.ended&&(!this.job||this.job.foldS>0)&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp){const hm=c.meta(r.ended);if(this.stopRoot&&this.stopRoot.clip===r.ended)this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,hm&&hm.handoff&&hm.handoff.crossfade!==undefined?hm.handoff.crossfade:-1,true);}
   this.idleGustTick(step);
   this.render();
   if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
-   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else this.playNamed(CLIP_ROLES.idle,true,-1,true);
+   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
    j.resolve();}
  }
  private idleGustTick(step:number){const g=this.motionConfig.idleGust,c=this.clock!;if(!g||this.job||c.base?.clip!==CLIP_ROLES.idle||this.wind>0||c.gust){this.idleFor=0;return;}
@@ -187,11 +192,16 @@ class FlowReferenceStandin implements CharacterAdapter {
    else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;
     extra.plan=Number.isFinite(duration)&&duration>0?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
    else{// Start from where she actually faces (the walk's damped yaw may still trail the path end by a few degrees).
-    const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);this.pendingIdle=false;
-    this.lastSpeed=0;this.stopRoot=null;const ch=chooseTurn(this.rig!,this.clock!.cfg,extra.deltaYaw,this.lastFoot);extra.deltaYaw=ch.deltaRad;this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:ch.reason});
-    if(ch.role)this.playNamed(ch.role,false);else this.playNamed(CLIP_ROLES.idle,true,-1,true);duration=1.5;}
+    const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);
+    // the walk ended without a planned stop: the stop plays before the turn (r5: it was skipped whenever a task followed)
+    if(this.pendingIdle){this.pendingIdle=false;this.settleFromWalk();}
+    this.lastSpeed=0;const c=this.clock!,ch=chooseTurn(this.rig!,c.cfg,extra.deltaYaw,this.lastFoot);extra.deltaYaw=ch.deltaRad;duration=1.5;
+    // < 45 deg (no turn clip) while a stop clip is still settling: folded into the stop, never turned in place on idle
+    const b=c.base,left=b&&!ch.role&&this.isStopClip(b.clip)?b.duration-c.localTime(b):0;if(left>1e-3)extra.foldS=Math.min(duration,Math.max(TURN_FOLD_MIN_S,left));
+    this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:extra.foldS?'folded into '+b!.clip+' over '+extra.foldS.toFixed(3)+' s':ch.reason});
+    if(ch.role){this.stopRoot=null;this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
    if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
-  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
+  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
    j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});
  }
  cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}

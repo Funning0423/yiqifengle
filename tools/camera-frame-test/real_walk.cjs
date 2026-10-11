@@ -2,7 +2,9 @@
 /** --real-walk: GGbot's REAL walk driver (FlowReferenceStandin from WorldIntegrationBoot.ts + CharacterMotion.ts, walk GLB
  * evaluated by tools/walk-driver/glb_rig.cjs) as the flow_sim character, so camera tracks follow the driver's own
  * walkProgress() (distance-driven) and her root/yaw come from the driven node. Setup mirrors tools/walk-driver/test_walk_driver.cjs.
- * env WALK_GLB (default: the committed repo character GLB = walk_loop v2 since int/v1 c38c880). */
+ * env WALK_GLB (default: the committed repo character GLB = walk_loop v2 since int/v1 c38c880).
+ * env QF_REAL_WALK_REST=1: install the rest look-ahead from the routes like WorldIntegrationBoot does (planned stops at the
+ * door / island / seat); off by default. */
 const fs=require('fs'),path=require('path'),vm=require('vm');
 function create(M,W){const ROOT=path.resolve(__dirname,'..','..'),S=path.join(ROOT,'creator-build-project/assets/scripts');
   const ts=require(process.env.QF_TYPESCRIPT_MODULE||require('../qf-env.cjs').typescript()),G=require('../walk-driver/glb_rig.cjs');
@@ -17,6 +19,6 @@ function create(M,W){const ROOT=path.resolve(__dirname,'..','..'),S=path.join(RO
   const anim={node:rig.root,clips,useBakedAnimation:true,getState(n){if(states.has(n))return states.get(n);const c=clips.find(x=>x.name===n);return c?this.createState(c,n):null;},
     createState(c,n){const st={clip:c,time:0,playing:false,setTime(t){this.time=t;},sample(){c.apply(this.time);},stop(){this.playing=false;},pause(){},play(){this.playing=true;}};states.set(n,st);return st;},play(n){this.getState(n).play();}};
   const node={active:true,worldPosition:{x:0,y:0,z:0},yaw:0,setWorldPosition(x,y,z){this.worldPosition={x,y,z};},setRotationFromEuler(a,b,c){this.yaw=b*Math.PI/180;},destroy(){}};
-  const s=new ctx.exports.Standin(node);s.setAnimMeta(meta);s.bindVisual({getComponent:()=>anim,getComponentInChildren:()=>null});
+  const s=new ctx.exports.Standin(node);s.setAnimMeta(meta);if(process.env.QF_REAL_WALK_REST)s.setWalkRestAhead(motion.restAheadFromRoutes(M.FirstsliceRoutes.createFirstsliceRoutes(M.FirstsliceFacts.FIRSTSLICE,M.CharacterReference.CHARACTER_REFERENCE)));s.bindVisual({getComponent:()=>anim,getComponentInChildren:()=>null});
   return {standin:s,node,meta,clips:clips.reduce((o,c)=>(o[c.name]=c.duration,o),{}),glb:path.relative(path.join(ROOT,'..','..'),glb)};}
 module.exports={create};

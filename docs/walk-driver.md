@@ -217,6 +217,13 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 `setWalkRestAhead(fn)`：`fn(path)` = 这段路走完后、停下之前还要走多少米。`0` = 这段结束就停（规划停步）；`>0` = 后面还连着走（不停，但会用步幅微调把相位往最终停步那一下引）；`null` = 不知道（不规划，旧行为）。
 走路动作自己带 `stopAtEnd: boolean` 时以它为准。Boot 用 `restAheadFromRoutes(routes)`，按 WorldFlow 里真实的停顿分组（`REST_CHAINS`）：
 `toDoor` | `outCrossing → toIsland` | `toThreshold → inCrossing` | `toSeat`。`inCrossing` 结束后会停（WorldFlowCore：“stop inside, THEN close, THEN approach seat”，关门时原地等）。
+跟随回程（运镜bot 0b6202e，`cameraEntry.doorSeconds <= 0` 且有 `cameraTracks.inbound`）门口不停，`restChainsFor(routes)` 返回 `REST_CHAINS_FOLLOW`：
+`toDoor` | `outCrossing → toIsland` | `toThreshold → inCrossing → toSeat`。现在的路线就是这种，所以 `inCrossing` 不再是停顿点，`toThreshold` 的 aheadM = inCrossing + toSeat。
+
+**每次停顿前都先停步（r5 #5）。** 走路后面接转身、开门、坐下时，先把停步走完再做下一件事：
+- 规划好的停步（9.3）在走路最后一段就播完了。
+- 没规划上（`stop-unplanned` 事件）：`stopTail` 从停步片段的 settle 时刻（`forward_m` 不再变的时刻，约 0.667 s）切进去，用落地脚相同的那个变体，根节点不动（不滑、不冲过头），然后 idle。
+- 转角 < 45° 不在 idle 上原地转：合进正在播的停步片段里（`turn-choice` 的 reason = `folded into <clip> over X s`），yaw 用 smoothstep 在停步剩下的时间里转完（至少 `TURN_FOLD_MIN_S = 0.5 s`）。岛上到达后约 −25.7° 的那次就是这样。
 
 ### 9.3 一次走路的根节点轨迹（`planWalk`，时长不变）
 
@@ -224,8 +231,9 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 - **停步入口正好落在脚跟着地上。** 两个变体相差半步，选需要相位偏移更小的那个；偏移靠把整段巡航的步幅轻微拉伸（`rate`）来消化，`|rate−1| ≤ STOP_WARP_MAX = 0.05`。依据：拉伸 w 时，每只着地脚会漂 `|1−1/w| × 0.7 m/s × 平放支撑时间`（脚跟着地到脚跟离地 = 0.37 个周期 = 0.42 s，取自 anim_meta `phases_fraction_of_cycle`），到 0.05 时约 15 mm，等于驱动“不滑步”的上限。
 - **拉伸不够时**：拉伸封顶在 0.05，入口仍然精确落在脚跟着地上，剩下的差值用缩放停步的 `forward_m` 来补（终点仍然精确）。`|scale−1| ≤ STOP_SCALE_MAX = 0.06`，依据：停步大约有 0.25 m 是单脚着地走的，15 mm / 0.25 m。
+- **起步可以稍微快一点。** 起步时间放不下时（`outCrossing` 1.987 m / 2.839 s 从静止起步），`walk_start` 按 `START_RATE_STEP = 0.05` 一档档加快，最多 `START_RATE_MAX = 1.2`：片段时钟和根节点曲线一起乘这个倍率（`forward_m(t × rate)`），脚仍然锁地。`outCrossing` 用 ×1.1。倍率在 `walkPlan.startRate`，notes 里写 `walk_start x1.10 (at rate 1: …)`。
 - 还不行，或者巡航速度会超出 `CRUISE_RATIO_MIN..MAX = 0.75..1.3 × native`（步频变化超过 ±25–30% 太明显），先放弃停步，再放弃起步，最后退回旧的匀速 L·t/D。原因写在 `motion.walkPlan.notes`。
-- 规划失败但这段确实停了（`stop-unplanned` 事件）：以前的做法，walk_loop → idle 淡化。**这时会滑 6–13 cm**（实测），见 9.6。
+- 规划失败但这段确实停了（`stop-unplanned` 事件）：从停步片段的 settle 时刻切进去（见 9.2），根节点不动。以前是 walk_loop → idle 淡化，会滑 6–13 cm。
 - 诊断：`__worldIntegration.motion().walkPlan = {L, D, rest, aheadM, start, stop, warp, stopScale, cruiseMps, notes}`；`stopRoot`（停步结束后 lateral 那一步）；`lastFoot`、`footDeduped`。
 - `walkProfileExtraSeconds(cfg, fromRest, toRest)`：要让巡航保持 native 速度，`walkDuration` 还需要加多少秒（给路线/镜头的负责人用；驱动自己不改时长）。
 
@@ -233,18 +241,22 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 按名字找 `walk_turn_180_bodyL` / `walk_turn_180_bodyR`，同时兼容单个 `walk_turn_180`。方向看 `turn_deg` 的正负。45–135° 仍然用 `walk_turn_90_body{L,R}`（按转向一侧）。
 |转角| ≥ `TURN180_FREE_DEG = 170°` 时两个方向都行，由脚决定：`lastFoot` = 最后一次落地的身体脚（刚接重），选**先迈另一只脚**的变体，必要时绕另一边转（例如 +175° 改成 −185°）。低于 170° 方向由转角正负定。日志：`turn-choice` 事件。**定义需要 角色动画bot 确认。**
+d0760ce 的片段：`walk_turn_180`（+180，先迈左脚）和 `walk_turn_180_bodyR`（−180）。回程那次 −161.5° 低于 170°，按方向选 `walk_turn_180_bodyR`；+161.5° 用 `walk_turn_180`。±95° → `walk_turn_90_body{L,R}`（出门 +111.8°、坐下前 +95.8° 都是 bodyL；路线里没有向右 45–135° 的转身，所以 `walk_turn_90_bodyR` 只在测试里出现）。
 
 ### 9.5 一次着地只发一次脚步
 
 - 带 `entry_contact: true` 的事件不发（walk_loop 刚在同一时刻发过那次脚跟着地）。
 - 没有这个标记时：同一根脚骨在 `FOOT_DEDUPE_S = 0.1 s` 内又发一次着地，当作同一次着地丢掉（`foot-dedupe` 事件，`reason: same contact`）。
 - 片段切换时 `snapAbs` 让 walk_loop 正好停在那一下脚跟着地上（包含这一刻的事件），停步从第 0 帧开始。
+- 停步最后那一小步（< 0.25 m，d0760ce 起事件名 `settle:L` / `settle:R`，`type: settle`）**不发 `onFoot`**：只记一条 `settle` 事件（`{kind:'settle',event,bone,body,clip,type}`），并把 `lastFoot` 设成那只脚（转身选变体用）。要给它放轻声的话，Voice bot 从这条事件接。
 
 ### 9.6 还没解决 / 需要别人定
 
-- **`inCrossing`（1.441 m / 2.059 s = L/0.7）后面会停，但时长里放不下停步**：没有起步、只有停步时，巡航要 0.961 m/s = 1.37 × native > 1.3，所以不规划停步，退回 walk_loop → idle（会滑）。`toThreshold` 已经在把相位往这次停步引了。解决办法（二选一，需要 Grok Bot / 运镜bot 定）：`inCrossing` 的 `walkDuration` 加 `walkProfileExtraSeconds(cfg,false,true) ≈ 0.34 s`（会动回程镜头时间线），或者接受这一次 37% 的步频提升（把 `CRUISE_RATIO_MAX` 改成 1.4）。
-- 有些长度两个变体都不可行（扫描里 3.0 m 和 3.4 m，D = L/0.7 + 余量）：退回 walk_loop → idle，滑 6–13 cm。现在的路线（toDoor 4.198、toIsland 4.384、toSeat 4.136）都能规划。
+- **回程起步时镜头加速度超限（没解决，需要 运镜bot 定）。** `test_camera_frames.cjs --real-walk`：`linear-velocity-continuity` 20.65 m/s² > 15，t = 24.667 s，walking-home，就在 `toThreshold` 的 `walk_start` 刚开始时。int/v1 2f307b3 是 13.5（那时根节点匀速 0.7 m/s、脚在滑）。原因：回程是一整个镜头 span，她一开始走，`createProgressFollower` 就从时间进度切到距离进度；任何从静止起步的真实曲线，开头距离进度都按约 1 s/s 落后于时间进度（最多落后约 0.49 s），而这时降镜头正以约 14 m/s 移动，修正量换算成镜头加速度就超了。试过：`walk_start` ×1.2 只降到 19.86（落后的起始斜率不变）。只作诊断、没提交：follower `deadbandSeconds` 0.3 能让这一项过（14.95），但没装停顿预判时 `in-frame` 会坏；`tauSeconds` 0.5 会让开门时超限。可选方向：降镜头段起步时先按时间走、加大 dead band，或者路线时长加 `walkProfileExtraSeconds`。阈值没动。
+- `QF_REAL_WALK_REST=1`（`real_walk.cjs`，默认关）会像 Boot 一样装上停顿预判。这样跑除了上一条，还会多一项 `rail-distance-band`（outbound 最大 5.64–5.67 m > 5.5），来自 `outCrossing` 起步 / `toIsland` 停步的距离进度偏差。默认的 `--real-walk` 不装预判，所以从来没测到规划停步。
+- `composition`（“cameraToIsland must match the T2+ snapshot”）在 int/v1 2f307b3 上本来就失败，跟走路驱动无关。
+- 有些长度两个变体都不可行（扫描里 3.0 m 和 3.4 m，D = L/0.7 + 余量）：从停步片段的 settle 时刻收尾（不滑）。现在的路线（toDoor 4.198、toIsland 4.384、toSeat 4.136）都能规划。
 - 时长契约：`toDoor`（起步+停步）巡航 0.87 m/s，`toSeat` 0.87 m/s（+24% 步频）。要保持 0.7 m/s，起步 +0.49 s、停步 +0.34 s（`walkProfileExtraSeconds`），属于 FirstsliceRoutes 的契约。
 - 这个 walk_loop 本身在 rate 1 时就有约 13–17 mm 的支撑脚漂移（脚跟着地时脚比地面慢：低位窗口里平均 0.667 m/s，地面 0.70），拉伸 > 1 会减小漂移，< 1 会加大。测试按“rate 1 基线 + 拉伸带来的漂移”判断。
 
-本地测试：`tools/walk-driver/test_locomotion.cjs`（由 `test_walk_driver.cjs` 加载；`LOCO_GLB=<glb>`，默认用预览；没有 GLB 时只跑合成曲线部分）。
+本地测试：`tools/walk-driver/test_locomotion.cjs`（由 `test_walk_driver.cjs` 加载；`LOCO_GLB=<glb>`，默认用仓库里的角色 GLB 和 `anim_meta.json`；没有 GLB 时只跑合成曲线部分）。
