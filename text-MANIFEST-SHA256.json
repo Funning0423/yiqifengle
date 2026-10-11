@@ -611,8 +611,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 56224,
-    "sha256": "74a36704594fbb551338a1012afdfa58d27d44aaae06c36ffebaca8cb8186681"
+    "bytes": 56468,
+    "sha256": "0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1260,6 +1260,26 @@
     "sha256": "da06ba2e532a1fc81969b1365e509b2fd3907ecdfc3f882767d4dce286912e32"
   },
   {
+    "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts",
+    "bytes": 8203,
+    "sha256": "11320b14ad3887f9ccc0ad486f4b3c692175e1a66f805dc2a2e3cff15c121c1e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayer.ts.meta",
+    "bytes": 171,
+    "sha256": "af2a70471327178ac8eca3ed904cdcb7f90d7d0f3173c19e3763279578d5f46f"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts",
+    "bytes": 7112,
+    "sha256": "aa870b9c22a7bbd84b2171f80deba8e318a8f0d6bfae208c201d753ea716728d"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/ui/StartupLoadingLayout.ts.meta",
+    "bytes": 171,
+    "sha256": "2fba1d33bad96f87412ce3b8129a91075492cb793d110a2c314061d06ec0b6c5"
+  },
+  {
     "path": "creator-build-project/assets/scripts/ui/TactileToolButton.ts",
     "bytes": 6037,
     "sha256": "6bf5a527ea60d7c59f7144ac6a54df1a67ee9259bcf5f205263d78e45178df75"
@@ -1635,6 +1655,11 @@
     "sha256": "2d3d1d7b4cf73c33ee9307384060fa2dfae3ef4a632866b1715fb25c65f7b015"
   },
   {
+    "path": "creator-build-project/build-templates/wechatgame/first-screen.js",
+    "bytes": 10302,
+    "sha256": "5d8fc4a049b9027b157e19d30d266a7dd51848e0bb50bfb05a9359883c383458"
+  },
+  {
     "path": "creator-build-project/package.json",
     "bytes": 169,
     "sha256": "335361054996c3edaf808fdd494ed91feb38f01e56d17c874749546d7b47f942"
@@ -1816,8 +1841,8 @@
   },
   {
     "path": "tools/stage_named_build.py",
-    "bytes": 3129,
-    "sha256": "d911665e0a5fa7baa90bf901badd5a2d64079395bcf57c0bc9dfcf21139b7b51"
+    "bytes": 3064,
+    "sha256": "aba143b871a1cb06a3bd413ae0d61ba7bbe64d5e5c2aa3a54fddb9a8c86b79a9"
   },
   {
     "path": "tools/stage_root_animation_fix.py",
@@ -1991,8 +2016,8 @@
   },
   {
     "path": "tools/verify_native_loading.py",
-    "bytes": 1281,
-    "sha256": "9e3ea1be1ea567411c63e74e6d05b13ea6694d0aa28684e68ab50bc2ad22a2e3"
+    "bytes": 2424,
+    "sha256": "72d37eab46869fa0e7b989654f19f09bff924d591e3263f7e37faadda9dba632"
   },
   {
     "path": "tools/web-build-options.json",

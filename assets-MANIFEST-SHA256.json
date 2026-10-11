@@ -235,6 +235,36 @@
     "sha256": "b9a28d5fe213153366e13a6dfb68966883871901c52bcf8b88c05c2ad7cd94b8"
   },
   {
+    "path": "creator-build-project/build-templates/web-desktop/startup-art/bar_fill.png",
+    "bytes": 2870,
+    "sha256": "f71aaddfee42ed435f9c65be5500863da66bedf447fa0072875def144a00b312"
+  },
+  {
+    "path": "creator-build-project/build-templates/web-desktop/startup-art/first_screen_composite.jpg",
+    "bytes": 58207,
+    "sha256": "189508bc8a1c9ccce4cf6c106a0709371d9512a94d7852d9dc7fd1565456fb6a"
+  },
+  {
+    "path": "creator-build-project/build-templates/web-desktop/startup-art/pinwheel.png",
+    "bytes": 1563,
+    "sha256": "0d8025161ca79bd6e5e0417792b8ebddb8d9fae47d5273a6c5357c204b53c7fb"
+  },
+  {
+    "path": "creator-build-project/build-templates/wechatgame/startup-art/bar_fill.png",
+    "bytes": 2870,
+    "sha256": "f71aaddfee42ed435f9c65be5500863da66bedf447fa0072875def144a00b312"
+  },
+  {
+    "path": "creator-build-project/build-templates/wechatgame/startup-art/first_screen_composite.jpg",
+    "bytes": 58207,
+    "sha256": "189508bc8a1c9ccce4cf6c106a0709371d9512a94d7852d9dc7fd1565456fb6a"
+  },
+  {
+    "path": "creator-build-project/build-templates/wechatgame/startup-art/pinwheel.png",
+    "bytes": 1563,
+    "sha256": "0d8025161ca79bd6e5e0417792b8ebddb8d9fae47d5273a6c5357c204b53c7fb"
+  },
+  {
     "path": "tools/branding/game-title-temporary.png",
     "bytes": 13167,
     "sha256": "8944404779df82dc8a8dbf8bd1b30855caf3c0be8516be0926443a1882176a7d"
