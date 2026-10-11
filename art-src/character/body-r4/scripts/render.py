@@ -8,6 +8,7 @@ if GLB.endswith('.blend'):
     bpy.ops.wm.open_mainfile(filepath=GLB)
 else:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.context.scene.render.fps=30   # before import: the importer keys actions at the scene fps, clip/frame args are 30 fps frames
     bpy.ops.import_scene.gltf(filepath=GLB)
 sc=bpy.context.scene; sc.render.fps=30
 for o in list(bpy.data.objects):
