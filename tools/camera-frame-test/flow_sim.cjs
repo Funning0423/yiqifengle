@@ -10,7 +10,7 @@ const {load}=require('./load_ts.cjs');
 function create(opts={}){
   const M=load();const C=M.CameraPose,W=M.WorldFlowCore,R=M.FirstsliceRoutes,F=M.FirstsliceFacts,REF=M.CharacterReference;
   const cfg=R.createFirstsliceRoutes(F.FIRSTSLICE,REF.CHARACTER_REFERENCE,opts.walkDuration?{walkDuration:opts.walkDuration}:undefined);
-  return {M,C,W,cfg,REF,walkProfile:opts.walkProfile||null,reportWalkProgress:opts.reportWalkProgress!==false};
+  return {M,C,W,cfg,REF,walkProfile:opts.walkProfile||null,reportWalkProgress:opts.reportWalkProgress!==false,realWalk:!!opts.realWalk};
 }
 async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.0,sitSeconds=1.0}={}){
   const {C,W,cfg}=env;const dt=1/fps;
@@ -51,6 +51,12 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     cancelAndReset(pose){ch.job=null;ch.root=[...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot)];ch.yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad;},
     setVisible(){},dispose(){},
     walkProgress:env.reportWalkProgress?()=>{const j=ch.job;return j&&j.action.kind==='walk'?(j.distance??0):null;}:undefined};
+  // --real-walk: replace the sim character by GGbot's real walk driver (real_walk.cjs); root/yaw read from its node.
+  if(env.realWalk){const R=require('./real_walk.cjs').create(env.M,W),st=R.standin,n=R.node;env.realWalkGlb=R.glb;console.log('character: REAL walk driver (FlowReferenceStandin+CharacterMotion), walkProgress from the driver, GLB '+R.glb);
+    const real={get root(){return [n.worldPosition.x,n.worldPosition.y,n.worldPosition.z];},get yaw(){return n.yaw;},
+      advance:dt=>st.advance(dt),perform:(a,t)=>{actions.push(a);return st.perform(a,t);},cancelAndReset:p=>st.cancelAndReset(p),setVisible:v=>st.setVisible&&st.setVisible(v),dispose(){},
+      walkProgress:()=>st.walkProgress(),actionSeconds:st.actionSeconds?k=>st.actionSeconds(k):undefined,get calibrated(){return st.calibrated;},get coordinates(){return st.coordinates;}};
+    st.cancelAndReset({kind:'seated',seat:cfg.seat});Object.keys(ch).forEach(k=>{delete ch[k];});Object.defineProperties(ch,Object.getOwnPropertyDescriptors(real));}
   const states=[];let frame=0,state='';
   const flow=new W.WorldFlow({config:cfg,mode:'motion',character:ch,levels:{enter:async()=>{throw Error('unused')}},loadWorld:async()=>lease,onChange:s=>{state=s.state;states.push({frame,state:s.state});log('state',s.state);}});
   const frames=[];

@@ -28,6 +28,7 @@ const ramps=path=>{if(wp!=='chained')return [true,true];const n=nameOf(path);ret
 const profile=(q,T,path)=>{const [ri,ro]=ramps(path),r=Math.min(RAMP,T/2),ri_=ri?r:0,ro_=ro?r:0,vm=1/(T-(ri_+ro_)/2),t=q*T;
   if(t<ri_)return vm*t*t/(2*ri_);if(t>T-ro_){const u=T-t;return 1-vm*u*u/(2*ro_);}return vm*(t-ri_/2);};
 const envOpts=wp==='accel'||wp==='chained'?{walkDuration:p=>{const [ri,ro]=ramps(p);return pathLen(p)/V+RAMP*((ri?1:0)+(ro?1:0))/2;},walkProfile:profile,reportWalkProgress:!args.includes('--no-walk-progress')}:{};
+if(args.includes('--real-walk'))envOpts.realWalk=true;
 if(envOpts.walkDuration)console.log('walk profile: synthetic',wp,'(0.3 s linear accel/decel ramps, walkDuration = L/0.7 + ramp/2 per ramp), walkProgress reported:',envOpts.reportWalkProgress);
 const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAngAccel:360,maxLinAccel:15,maxWeightStep:.05,settleV:.05,settleW:.5};
 (async()=>{
