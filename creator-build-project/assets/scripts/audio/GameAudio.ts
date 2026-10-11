@@ -38,10 +38,19 @@ const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
   | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
-  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable';
+  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable'
+  | 'sfx_ui_bag' | 'sfx_ui_book' | 'sfx_ui_settings' | 'sfx_ui_signpost' | 'sfx_ui_confirm' | 'sfx_ui_back';
 
 /** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
 const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
+
+/** A5（Voice bot）：岛上 3D 道具点击音（Funning 选的 A 版）。press 播各自的音，confirm 统一播确认音。
+ *  文件峰值约 -2 dBFS，按 UI_TAP_VOLUME 播，比鼓励音 / 消除音轻一档。 */
+export type UiTapTarget = 'signpost' | 'bag' | 'book' | 'settings';
+const UI_PRESS: Record<UiTapTarget, SfxName> = {
+  bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_settings', signpost: 'sfx_ui_signpost',
+};
+const UI_TAP_VOLUME = 0.65;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
 export type SuspendReason = 'hidden' | 'interrupted';
@@ -627,6 +636,14 @@ export class GameAudio extends Component {
   }
 
   onButton() { this.play('sfx_ui_click', 0.8); }
+  /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。 */
+  onPropTap(target: UiTapTarget, phase: 'press' | 'confirm', info?: { blocked?: boolean } | null) {
+    if (info?.blocked) return;
+    if (phase === 'press') { const name = UI_PRESS[target]; if (name) this.play(name, UI_TAP_VOLUME); }
+    else if (phase === 'confirm') this.play('sfx_ui_confirm', UI_TAP_VOLUME);
+  }
+  /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
+  onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
   onToolTap() { this.play('sfx_ui_click', 0.8); }
 }
