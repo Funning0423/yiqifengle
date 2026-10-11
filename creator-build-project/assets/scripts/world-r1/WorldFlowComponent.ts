@@ -138,7 +138,7 @@ export class WorldFlowComponent extends Component {
   private readonly settledListeners=new Set<(place:'island'|'home')=>void>();
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
   private flowEventsOff:(()=>void)|null=null;
-  private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();
+  private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();private windOff:(()=>void)|null=null;
   /** T2+ hook (contract with GGbot T0): fires once per completed journey when the camera has reached cameraIsland /
    *  cameraHome with zero speed and the girl is still. Returns unsubscribe. No logging here. */
   onCameraSettled(listener:(place:'island'|'home')=>void):()=>void {this.settledListeners.add(listener);return ()=>{this.settledListeners.delete(listener);};}
@@ -147,11 +147,10 @@ export class WorldFlowComponent extends Component {
   onCraneStart(listener:(info:{segment:'toIsland';progress:number;seconds:number})=>void):()=>void {this.craneListeners.add(listener);return ()=>{this.craneListeners.delete(listener);};}
   /** T2+ wind strength 0..1 for the current frame (primary API; Voice bot + 角色动画bot poll it every frame). Clamped,
    *  0 when disposed / before the world exists / whenever the camera is settled (island idle = exactly 0).
-   *  INTERIM (work/运镜bot-wind-api): interface only, always 0; the outbound frontal swing drives it later with this
-   *  exact signature. */
+   *  Driven by WorldFlowCore's outbound frontal-swing wind channel (signature unchanged from work/运镜bot-wind-api). */
   getWindStrength():number {if(this.disposed)return 0;const v=this.windStrength;return v>0?(v<1?v:1):0;}
   /** T2+: subscribe to wind-strength changes (fired only when the value changes; same style as onCraneStart).
-   *  Returns an unsubscribe fn (idempotent). INTERIM: no emitter yet, so listeners are never called. */
+   *  Returns an unsubscribe fn (idempotent). Safe before the flow exists (attached when it is created). */
   onWindStrength(listener:(strength:number)=>void):()=>void {this.windListeners.add(listener);return ()=>{this.windListeners.delete(listener);};}
   private forwardCameraEvent(e:CameraEvent){
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
@@ -202,6 +201,7 @@ export class WorldFlowComponent extends Component {
     this.installCameraDebug();
     this.dayNightMode=localNight(new Date())?'night':'day';
     this.flow=new WorldFlow({config:createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE),mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
+    this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);
     return this.flow.load();
   }
@@ -322,9 +322,11 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
-        animateCamera:(path,seconds,t,options,progress)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
+        animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
-          if(!progress)return this.run(seconds,t,track.tick);const follow=createProgressFollower(seconds);return this.run(seconds,t,p=>track.tick(follow(p,progress())));},
+          // onSample (wind channel): eased key progress of each written sample.
+          const tick=(v:number)=>{const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
+          if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds);return this.run(seconds,t,p=>tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
@@ -407,7 +409,7 @@ export class WorldFlowComponent extends Component {
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
   onDestroy():void {
-    this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();this.windStrength=0;this.windListeners.clear();
+    this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.

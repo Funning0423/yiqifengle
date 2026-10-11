@@ -10,7 +10,7 @@
  *   lighting   interior weight continuous (per-frame step <= 0.05), 0 on island, 1 at home
  * Usage: node test_camera_frames.cjs [--json out.json] [--no-geometry]
  * Exit 0 = all checks pass. Engine-free: says nothing about shaders/materials/frame time (native capture needed). */
-const S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),fs=require('fs');
+const T9=require('./t9_props.cjs'),S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),fs=require('fs');
 const args=process.argv.slice(2),jsonOut=args.includes('--json')?args[args.indexOf('--json')+1]:null;
 // --walk-profile accel: synthetic walk-duration contract (what 角色动画bot will plug in): walkDuration = L/0.7 + 0.3 s and a
 // trapezoidal speed profile (0.3 s linear accel and decel); the sim character reports walkProgress() = distance fraction.
@@ -64,7 +64,9 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
   const island=F.filter(f=>f.state==='island'),home=F.filter(f=>f.state==='home');
   check('lighting-continuity',wStep<=LIMITS.maxWeightStep&&island.every(f=>f.weight===0)&&home.every(f=>f.weight===1),{maxWeightStepPerFrame:+wStep.toFixed(4),at:wAt,islandWeight:[...new Set(island.map(f=>f.weight))],homeWeight:[...new Set(home.map(f=>f.weight))]});
   // --- collision (decoded GLB)
-  if(!args.includes('--no-geometry')){const geo=await G.decode();
+  // T9 props (GGbot 1653f02 signpost + beach palms) are merged when the T9 worktree is present (T9_ROOT); reported either way.
+  if(!args.includes('--no-geometry')){const base=await G.decode(),geoT9=base&&!args.includes('--no-t9')?await T9.merged(base):null,geo=geoT9||base;
+    console.log('geometry: island GLB'+(geoT9?' + T9 props '+T9.T9_SHA+' ('+T9.dir()+')':' (T9 props NOT loaded)'));
     if(!geo)check('collision',false,{skipped:'draco3d not found: cd tools/camera-frame-test && npm i --no-save draco3d@1.5.7 (or set DRACO3D)'});
     else{const I=G.index(geo),hp=cfg.cameraHome.position;let minClr={d:1},occl=[],near=null;
       F.forEach((f,i)=>{if(i%2)return;const p=f.cam.position,atHome=Math.hypot(p[0]-hp[0],p[1]-hp[1],p[2]-hp[2])<.25,c=I.clearance(p);const lim=atHome?LIMITS.homeClearanceM:LIMITS.clearanceM;
@@ -81,8 +83,10 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
           const up=I.occluded(p,[p[0],p[1]+12,p[2]]),down=I.occluded(p,[p[0],p[1]-12,p[2]]),closed=!!up&&room.test(up)&&!!down&&room.test(down);
           const c=I.clearance(p);res[name]={inside:closed&&open.length<=4,openRays:open.length,openThrough:[...new Set(open)],ceilingFloor:closed,clearanceM:+c.d.toFixed(3),nearest:c.who,fov:v.fovVerticalDeg,fovInContract:v.fovVerticalDeg<=75};}
         const active=res[V.homePoseSource];check('room-camera-inside',!!active&&active.inside&&active.clearanceM>=LIMITS.homeClearanceM,{active:V.homePoseSource,variants:res});}
-      const head=occl.filter(o=>o.part==='head');
-      check('collision:line-of-sight',head.length===0,{headOccludedSamples:head.length,anyOccludedSamples:occl.length,first:occl.slice(0,6),byState:occl.reduce((a,o)=>(a[o.state+':'+o.part]=(a[o.state+':'+o.part]||0)+1,a),{})});}}
+      // head AND chest must be visible on every sample (palms, T9 props, island); feet reported only.
+      const head=occl.filter(o=>o.part==='head'),chest=occl.filter(o=>o.part==='chest'),hc=head.concat(chest);
+      check('collision:line-of-sight',hc.length===0,{headOccludedSamples:head.length,chestOccludedSamples:chest.length,anyOccludedSamples:occl.length,first:hc.slice(0,6),byMesh:hc.reduce((a,o)=>(a[o.state+':'+o.part+':'+o.mesh]=(a[o.state+':'+o.part+':'+o.mesh]||0)+1,a),{}),feetOccluded:occl.length-hc.length,t9Props:!!geoT9});
+      const palms=occl.filter(o=>/palm/.test(o.mesh)&&o.part!=='feet');check('occlusion:palms',palms.length===0,{headChestSamples:palms.length,byMesh:palms.reduce((a,o)=>(a[o.mesh]=(a[o.mesh]||0)+1,a),{}),sampling:'every 2nd frame'});}}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
     for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}
@@ -93,12 +97,30 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
     const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:null;
     check('crane-marks',!!cs&&!!si&&cs.frame<si.frame&&!!sh,{craneStart:cs&&{t:+cs.t.toFixed(3),sinceCrossingOut:+(cs.t-t0).toFixed(3),toIslandProgress:cs.progress,predictedSeconds:+cs.seconds.toFixed(3)},
       settledIsland:si&&{t:+si.t.toFixed(3),sinceCrossingOut:+(si.t-t0).toFixed(3)},craneSeconds:cs&&si?+(si.t-cs.t).toFixed(3):null,settledHome:sh&&{t:+sh.t.toFixed(3)}});}
-  // --- rail band: lens-to-girl horizontal distance while on the outdoor rail (toIsland before crane-start, toThreshold rail span)
+  // --- outbound frontal swing distance: lens-to-girl horizontal distance from the first side key (distance >= 2 m; the
+  // doorway-exit and near-behind keys before it follow her out of the door) to crane-start. Replaces the 3.5-5 m side
+  // rail band: never closer than 2.0 m (no crowding), never further than 5.5 m when the crane takes over.
   {const cs=(run.cameraEvents||[]).find(e=>e.kind==='crane-start');const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]);
-    const TC=env.M.RegionCameraData.TRANSITION_CAMERA,firstRail=TC.railOut.find(k=>k.distance>=3.5),walkS=env.W.pathDuration(cfg.toIsland,cfg.speed);
-    // rail span = from the first rail key (distance >= 3.5 m) to crane-start; the doorway swing-out before it is excluded
-    const t1=cs&&firstRail?cs.t-(cs.progress-firstRail.progress)*walkS:Infinity;const railOut=cs?F.filter(f=>f.state==='crossing-out'&&f.t>=t1&&f.t<=cs.t):[];const ds=railOut.map(d);
-    check('rail-distance-band',ds.length>0&&Math.min(...ds)>=3.4&&Math.max(...ds)<=5.1,{railSeconds:+(ds.length*dt).toFixed(2),outbound:ds.length?{min:+Math.min(...ds).toFixed(2),max:+Math.max(...ds).toFixed(2)}:null,band:[3.5,5]});}
+    const TC=env.M.RegionCameraData.TRANSITION_CAMERA,first=TC.railOut.find(k=>k.distance>=2),walkS=env.W.pathDuration(cfg.toIsland,cfg.speed);
+    const t1=cs&&first?cs.t-(cs.progress-first.progress)*walkS:Infinity;const railOut=cs?F.filter(f=>f.state==='crossing-out'&&f.t>=t1&&f.t<=cs.t):[];const ds=railOut.map(d);
+    check('rail-distance-band',ds.length>0&&Math.min(...ds)>=2.0&&Math.max(...ds)<=5.5,{swingSeconds:+(ds.length*dt).toFixed(2),outbound:ds.length?{min:+Math.min(...ds).toFixed(2),max:+Math.max(...ds).toFixed(2)}:null,band:[2.0,5.5]});}
+  // --- wind strength (WorldFlowComponent.getWindStrength): 0 indoors; rises monotonically to EXACTLY 1 at the frontal
+  // frame (camera in front of her); held; back to EXACTLY 0 at island settle and through island idle; per-frame step
+  // <= WIND_EPS; listener fired only on change.
+  {const WIND_EPS=.02,ev=run.cameraEvents||[],si=ev.find(e=>e.kind==='settled'&&e.place==='island'),xo=run.states.find(s=>s.state==='crossing-out');
+    const w=F.map(f=>f.wind||0),t0=xo?xo.frame:0;let maxStep=0,stepAt=null;for(let i=1;i<F.length;i++){const s2=Math.abs(w[i]-w[i-1]);if(s2>maxStep){maxStep=s2;stepAt={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}}
+    const peak=w.indexOf(1),pre=w.slice(t0,peak+1);let rev=null;for(let i=1;i<pre.length;i++)if(pre[i]<pre[i-1]-1e-12&&!rev)rev={frame:t0+i,t:+F[t0+i].t.toFixed(3)};
+    const before=F.slice(0,t0).every(f=>(f.wind||0)===0),after=si?F.slice(si.frame).every(f=>(f.wind||0)===0):false,lastOne=w.lastIndexOf(1);
+    const fr=peak>=0?F[peak]:null,frontDeg=f=>{const fx=Math.sin(f.yaw),fz=Math.cos(f.yaw),dx=f.cam.position[0]-f.root[0],dz=f.cam.position[2]-f.root[2],l=Math.hypot(dx,dz)||1;return Math.acos(Math.max(-1,Math.min(1,(fx*dx+fz*dz)/l)))*180/Math.PI;};
+    const door=F.slice(t0).find(f=>f.root[2]>=0),hold=peak>=0?F.slice(peak,lastOne+1):[],holdFront=hold.length?Math.max(...hold.map(frontDeg)):null;
+    const back=(()=>{let k=-1;for(let i=lastOne+1;i<F.length;i++)if(w[i]===0){k=i;break;}return k;})();
+    const wev=run.windEvents||[],dup=wev.some((e,i)=>i&&e.s===wev[i-1].s),sec=f=>f?+(f.t-F[t0].t).toFixed(3):null;
+    const timeline={secondsFromCrossingOut:{doorSill:sec(door),windAtDoor:door?+door.wind.toFixed(3):null,swingStart:null,frontal:sec(fr),holdEnd:lastOne>=0?sec(F[lastOne]):null,pauseSeconds:lastOne>=peak&&peak>=0?+((lastOne-peak)*dt).toFixed(3):null,backToZero:back>=0?sec(F[back]):null,islandSettle:si?+(si.t-F[t0].t).toFixed(3):null}};
+    check('wind-strength',before&&peak>t0&&!rev&&after&&maxStep<=WIND_EPS&&!dup&&back>=0&&si&&back<=si.frame,{peakFrame:peak,monotoneRise:!rev,firstReversal:rev,maxStepPerFrame:+maxStep.toFixed(4),eps:WIND_EPS,stepAt,zeroIndoors:before,zeroAfterIslandSettle:after,listenerEvents:wev.length,duplicateEvents:dup,...timeline});
+    // Voice bot AmbienceAudio (int/v1 e439b62) triggers seagulls on RISING crossings of 0.4 and 0.7: exactly once each per trip.
+    const rising=th=>{let n=0;for(let i=1;i<w.length;i++)if(w[i-1]<th&&w[i]>=th)n++;return n;};
+    check('wind-rising-crossings',rising(.4)===1&&rising(.7)===1,{'0.4':rising(.4),'0.7':rising(.7),expectedEach:1});
+    check('wind-frontal',!!fr&&frontDeg(fr)<=25&&holdFront!==null&&holdFront<=40,{frontalDegAtPeak:fr?+frontDeg(fr).toFixed(1):null,limit:25,maxDegDuringHold:holdFront===null?null:+holdFront.toFixed(1),holdLimit:40});}
   const timeline=run.states.map(s=>({t:+(s.frame*dt).toFixed(3),state:s.state}));
   // --- T2+ leave from a dragged room view (door-facing, RoomLook extreme): ONE continuous move, no cut, in frame after rejoin
   if(!args.includes('--no-drag')){const env2=S.create(envOpts),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
