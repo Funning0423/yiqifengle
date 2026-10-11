@@ -135,3 +135,28 @@ observe a27457a434e0878cd83f226b13dab1e26f66be3d82afba14c384acc88e3a7dab world-r
 #  WorldFlowComponent d122c71d, AudioBridge 45fc0889 ... unchanged, listed). 824ba6ab (pre-rebase 4c0ad2e/fbee3d5 on d637356)
 #  removed: never merged anywhere, only lived on the discarded tip. Observe-only.
 observe a8755ab98b9d5a05ec1f129bb7eab3471b523a8596c2f15c0d8049bc2867058f audio/GameAudio.ts              Voice bot scene BGM (work/Voice-bot-bgm aa48f1f/df34cf5/4a8c474 on int/v1 38b005f)
+# GGbot R3 fix (work/GGbot-r3fix 1c16c20 on int/v1 38b005f; merged into int/v1 as 6e9ce82): WorldIntegrationBoot gateSignEntrance/setSign
+#  (T9 signpost exists only in island-idle; fades out leaving island), WorldFlowCore exteriorKey ramp on the toThreshold walk
+#  (optional WorldLease.setExteriorKey/blendExteriorKey; restore() lands k=0), WorldFlowComponent wires setExteriorKey/blendExteriorKey +
+#  __worldDayNight.exteriorKey(). Verified `git show 1c16c20:<path> | sha256sum`: Boot 62f926d3..87de, Core f0a5cd9d..e21a, Component
+#  272a01dc..c0d5; on int/v1 6e9ce82 (with 运镜bot e3863fb return entry) Core = fa7655d1..7f50, Boot/Component same as 1c16c20.
+#  Glue reviewed: boot loadPhase/ready/composition/busy/invoke/roomExplore/islandJourney/islandHome/board/canvas/navLayout/
+#  loadingMask/loadingBackdrop/status unchanged; walk(path,cameras|null,token)/config paths and state order unchanged (closing-door
+#  is still a span segment; T0 harness lease now has wait()). Append only.
+strict  62f926d3ba171bcdc66fb4d5093bf5848450bdcfacfaeeadff261d4a741d87de WorldIntegrationBoot.ts          GGbot R3 fix 1c16c20 (int/v1 6e9ce82)
+observe f0a5cd9d02c2bb6e947f3a2a1ba2de7dfdfd85e0d922832ed7198f1f0002e21a world-r1/WorldFlowCore.ts         GGbot R3 fix 1c16c20 on 38b005f (without e3863fb)
+observe fa7655d12b35a1a96bea105006cd0da68e320e5eeeb9af640f12417e0dc77f50 world-r1/WorldFlowCore.ts         int/v1 6e9ce82 = 1c16c20 + 运镜bot e3863fb return entry
+observe 272a01dc2fc8d286013f2d5a15c09e2eff285a0080f5f0864afd5f3418cdc0d5 world-r1/WorldFlowComponent.ts   GGbot R3 fix 1c16c20 (int/v1 6e9ce82)
+# Voice bot audio pack (work/Voice-bot-pack 53f5999 on int/v1 f4cc0cb; merged as 8d2fe31, in 6e9ce82). GameAudio v0.5: no default BGM in
+#  onLoad (SceneMusic requests the island BGM from bundle audio_bgm_island once __worldLoading phase is ready), setMusic(path,bundle,
+#  {fadeIn}), static onMusicStart(cb) + __gameAudioMusic + musicDiagnostics().lastStart. Verified `git show 53f5999:.../audio/GameAudio.ts
+#  | sha256sum` = 011ce344..2d78 (== 6e9ce82). Glue reviewed: instance/play/onBoardFrame/onCheer/cascade/sfxVoices/reasons/muted/
+#  musicVolume/musicPath/loopSource/setMusic/setMusicVolume/setMuted/musicDiagnostics/onGesture unchanged in name and meaning (setMusic
+#  gained an optional 3rd arg; audio:bgm-set/bgm-playing now appear at room-ready, not at startup). New mark audio:bgm-start reads
+#  onMusicStart. Observe-only.
+observe 011ce344aa92cb85b96bb5ec25a0d3c36b0d8dfa82f1223e24fc0ff3e3b62d78 audio/GameAudio.ts              Voice bot audio pack 53f5999 (int/v1 8d2fe31/6e9ce82)
+# 场景特效bot island gulls (work/场景特效bot bfd5597 on int/v1 6e9ce82): WorldFlowComponent also disables the two authored orbiting gulls
+#  (12 renderers incl. wings) replaced by IslandAtmosphereFx fx_gull_N. Verified `git show bfd5597:.../world-r1/WorldFlowComponent.ts |
+#  sha256sum` = b96d4d93..b735. Glue reviewed: flow/walk/config paths, onCameraSettled/onCraneStart unchanged. 272a01dc kept (6e9ce82).
+#  Core fa7655d1, Boot 62f926d3, GameAudio 011ce344 unchanged at bfd5597 (listed). Observe-only.
+observe b96d4d93e5d2db8545ec8efa64bf218d86994bdef43e3e2106fc5a90fb65d735 world-r1/WorldFlowComponent.ts   场景特效bot gulls bfd5597 on int/v1 6e9ce82

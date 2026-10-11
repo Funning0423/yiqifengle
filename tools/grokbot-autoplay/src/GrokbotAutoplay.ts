@@ -137,7 +137,7 @@ class Observers {
   game.on(Game.EVENT_HIDE,()=>ctx.mark('app:hide','source=cc.game'));game.on(Game.EVENT_SHOW,()=>ctx.mark('app:show','source=cc.game'));
   try{G.wx?.onHide?.(()=>ctx.mark('app:wx-hide'));G.wx?.onShow?.(()=>ctx.mark('app:wx-show'));}catch{}
  }
- tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.hookUnlock();this.deviceCaps();}
+ tick(){this.hookAudio();this.hookCheerText();this.pollBgm();this.hookFlow();this.cameraSettle();this.hookPropTaps();this.hookMotion();this.trackRoomReady();this.hookUnlock();this.hookMusicStart();this.flushMusicStart();this.deviceCaps();}
  /** device:caps once: when the boot is ready (apron renderer bound, __worldIntegration.morph available) or 20 s after install. */
  private capsDone=false;
  private deviceCaps(){if(this.capsDone)return;const ready=this.ctx.ready(this.ctx.findBoot());if(!ready&&now()-this.ctx.t0<CAPS_TIMEOUT_MS)return;this.capsDone=true;
@@ -152,18 +152,54 @@ class Observers {
  /** Audio unlock (GGbot work/GGbot-audiounlock): AudioUnlock publishes __audioUnlock.onUnlock (replays if already unlocked).
   *  audio:unlock is logged ONCE. Without __audioUnlock (older builds) the first gestureSeen false->true is logged instead.
   *  audio:playback follows GameAudio.musicDiagnostics().playbackState (pending -> playing after the unlock). Read-only. */
- private unlockFor:any=null;private unlockDone=false;private unlockNoticed=false;private playback:string|null=null;
+ private unlockFor:any=null;private unlockAtT:number|null=null;private unlockDone=false;private unlockNoticed=false;private playback:string|null=null;
  private musicDiag(){const C:any=js.getClassByName('GameAudio');const a=C?.instance;if(!a||typeof a.musicDiagnostics!=='function')return null;try{return a.musicDiagnostics();}catch{return null;}}
  private unlockFields(d:any){return `gestureSeen=${d?(d.gestureSeen?1:0):'-'} status=${d?.status??'-'} playbackState=${d?.playbackState??'-'} playing=${d?(d.playing?1:0):'-'}`;}
  private hookUnlock(){const ctx=this.ctx,u=G.__audioUnlock;
   if(u&&u!==this.unlockFor&&typeof u.onUnlock==='function'){this.unlockFor=u;
-   try{let sync=true;u.onUnlock((info:any)=>{if(this.unlockDone)return;this.unlockDone=true;const at=Number(info?.at);
+   try{let sync=true;u.onUnlock((info:any)=>{if(this.unlockDone)return;this.unlockDone=true;const at=Number(info?.at);this.unlockAtT=Number.isFinite(at)?at:now();
      ctx.mark('audio:unlock',`source=${info?.source??'-'} event=${info?.event||'-'} ms=${Number.isFinite(at)?Math.round(at-ctx.t0):'-'} replay=${sync?1:0} via=__audioUnlock `+this.unlockFields(this.musicDiag()||info?.diagnostics));});sync=false;
     ctx.mark('audio:unlock-hook','status=subscribed');}catch(e){ctx.mark('audio:unlock-hook','status=subscribe-failed');}}
   const d=this.musicDiag();
   if(!u&&!this.unlockNoticed&&d){this.unlockNoticed=true;ctx.mark('audio:unlock-hook','status=unavailable using=gestureSeen-poll');}
-  if(!u&&!this.unlockDone&&d?.gestureSeen){this.unlockDone=true;ctx.mark('audio:unlock','source=unknown event=- ms=- replay=0 via=gestureSeen-poll '+this.unlockFields(d));}
+  if(!u&&!this.unlockDone&&d?.gestureSeen){this.unlockDone=true;this.unlockAtT=now();ctx.mark('audio:unlock','source=unknown event=- ms=- replay=0 via=gestureSeen-poll '+this.unlockFields(d));}
   const pb=d?String(d.playbackState):null;if(pb!==null&&pb!==this.playback){const from=this.playback;this.playback=pb;ctx.mark('audio:playback',`from=${from??'-'} to=${pb} gestureSeen=${d.gestureSeen?1:0} status=${d.status??'-'} path=${d.path??'-'}`);}}
+ /** BGM actually started (Voice bot GameAudio v0.5, work/Voice-bot-pack 53f5999): GameAudio.onMusicStart(cb) (static), else
+  *  globalThis.__gameAudioMusic.onMusicStart(cb). audio:bgm-start is logged ONCE, for the first event with first:true (re-fires after
+  *  background/unmute carry first:false and are ignored). If T0 subscribes after that start already happened, __gameAudioMusic.lastStart()
+  *  / musicDiagnostics().lastStart is replayed (replay=1). Absent API (GameAudio before v0.5) = no mark, nothing thrown.
+  *  The mark is emitted on the next T0 tick (after hookUnlock), so a same-frame unlock is already known; startMs is the start itself.
+  *  Clocks: info.at/requestedAt/loadedAt are GameAudio.now() (Date.now); T0/AudioUnlock use performance.now -> start mapped by
+  *  now()-(GameAudio.now()-info.at). Room ready = first T0 frame with __worldLoading.snapshot().phase==='ready' (SceneMusic's own
+  *  gate), else the boot's loadPhase ready (frame precision). Read-only. */
+ private roomReadyAt:number|null=null;private roomReadyVia='-';
+ private musicStartFor:any=null;private musicStartVia='';private bgmStartDone=false;private bgmStartPending:{info:any;startT:number;replay:boolean;via:string}|null=null;
+ private trackRoomReady(){if(this.roomReadyAt!==null)return;let via='';
+  try{const wl=G.__worldLoading;const sn=wl&&typeof wl.snapshot==='function'?wl.snapshot():null;if(sn&&sn.phase==='ready')via='__worldLoading';}catch(e){/* ignore */}
+  if(!via&&!G.__worldLoading){try{if(this.ctx.ready(this.ctx.findBoot()))via='boot.loadPhase';}catch(e){/* ignore */}}
+  if(via){this.roomReadyAt=now();this.roomReadyVia=via;}}
+ private hookMusicStart(){if(this.bgmStartDone||this.bgmStartPending)return;let C:any=null;try{C=js.getClassByName('GameAudio');}catch(e){C=null;}
+  let host:any=null,via='';
+  try{if(C&&typeof C.onMusicStart==='function'){host=C;via='GameAudio.onMusicStart';}
+   else{const g=G.__gameAudioMusic;if(g&&typeof g.onMusicStart==='function'){host=g;via='__gameAudioMusic.onMusicStart';}}}catch(e){host=null;}
+  if(!host||host===this.musicStartFor)return;this.musicStartFor=host;this.musicStartVia=via;
+  try{host.onMusicStart((info:any)=>{try{this.onMusicStart(info,false);}catch(e){/* ignore */}});this.ctx.mark('audio:bgm-start-hook','status=subscribed via='+via);}
+  catch(e){this.ctx.mark('audio:bgm-start-hook','status=subscribe-failed via='+via);return;}
+  let last:any=null;try{const g=G.__gameAudioMusic;last=g&&typeof g.lastStart==='function'?g.lastStart():null;}catch(e){last=null;}
+  if(!last){try{const a=C&&C.instance;const d=a&&typeof a.musicDiagnostics==='function'?a.musicDiagnostics():null;last=d?d.lastStart:null;}catch(e){last=null;}}
+  if(last&&last.first===true)this.onMusicStart(last,true);}
+ private onMusicStart(info:any,replay:boolean){if(this.bgmStartDone||this.bgmStartPending||!info||info.first!==true)return;
+  const t=now(),at=Number(info.at);let gaNow=NaN;try{const C:any=js.getClassByName('GameAudio');gaNow=Number(C&&typeof C.now==='function'?C.now():Date.now());}catch(e){gaNow=Date.now();}
+  const lag=gaNow-at,startT=Number.isFinite(lag)&&lag>=0&&lag<600000?t-lag:t; // replay lag; clock mismatch -> now
+  this.bgmStartPending={info:info,startT:startT,replay:replay,via:this.musicStartVia||'-'};}
+ private flushMusicStart(){const p=this.bgmStartPending;if(!p||this.bgmStartDone)return;this.bgmStartPending=null;this.bgmStartDone=true;
+  const num=(v:any)=>typeof v==='number'&&isFinite(v)?v:null;const i=p.info,at=num(i.at),req=num(i.requestedAt),ld=num(i.loadedAt);
+  const d=(a:number|null,b:number|null)=>a===null||b===null?'-':String(Math.round(b-a));
+  const reqT=req!==null&&at!==null?p.startT-(at-req):null;
+  this.ctx.mark('audio:bgm-start',`path=${capTok(i.path)} bundle=${capTok(i.bundle)} fadeIn=${i.fadeIn?1:0} startMs=${Math.round(p.startT-this.ctx.t0)}`+
+   ` unlockToStartMs=${d(this.unlockAtT,p.startT)} requestToLoadMs=${d(req,ld)} loadToStartMs=${d(ld,at)} requestToStartMs=${d(req,at)}`+
+   ` roomReadyToRequestMs=${d(this.roomReadyAt,reqT)} roomReadyToStartMs=${d(this.roomReadyAt,p.startT)} roomReadyVia=${this.roomReadyVia}`+
+   ` unlocked=${this.unlockAtT!==null?1:0} via=${p.via} replay=${p.replay?1:0}`);}
  /** T9: IslandPropTaps via the boot's QA object (__worldIntegration.onPropTap); real and injected taps alike. Absent = T9 not merged = no mark. */
  private propTapsFor:any=null;private propTapsOff:(()=>void)|null=null;
  private hookPropTaps(){const w=G.__worldIntegration;if(!w||w===this.propTapsFor||typeof w.onPropTap!=='function')return;this.propTapsOff?.();this.propTapsFor=w;const ctx=this.ctx;
@@ -179,7 +215,7 @@ class Observers {
    (self)=>{const set=new Set<any>();try{Array.from<any>(self.sfxVoices?.values?.()??[]).forEach(x=>set.add(x.source));}catch{}return set;});
   wrap('onBoardFrame',(self,[v])=>{if(v?.kind==='clear'){const c=self.cascade,tier=c<=1?'normal':c===2?'combo_1':c===3?'combo_2':'combo_3';ctx.mark('audio:clear',`wave=${c} tier=${tier}${v.gbSynthetic?' synthetic=1 token='+v.token:''}`);}else if(v?.kind==='action')ctx.mark('audio:combo-reset');});
   wrap('onChestResult',()=>{source='';},()=>{source='chest';});wrap('onClaimResult',()=>{source='';},()=>{source='claim';});
-  wrap('setMusic',(_s,[p])=>ctx.mark('audio:bgm-set','path='+p));
+  wrap('setMusic',(_s,a)=>ctx.mark('audio:bgm-set','path='+a[0]+(a.length>1?' bundle='+(a[1]||'-'):'')+(a[2]&&a[2].fadeIn?' fadeIn=1':'')));
   wrap('setMusicVolume',(self)=>ctx.mark('audio:bgm-volume',bgmInfo(self)));
   wrap('setMuted',(self)=>ctx.mark('audio:muted',`muted=${self.muted?1:0} `+bgmInfo(self)));
   ctx.mark('audio:hooked','class=GameAudio');}

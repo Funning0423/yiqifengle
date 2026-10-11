@@ -103,6 +103,15 @@ if [ -n "${GB_INT_DIR:-}" ]; then
   r combo-macro-here-noboard GB_COMBO=1 GB_EXPECT='text=0:no-board,1:no-board,2:no-board,3:no-board .*sfxOk=1 textOk=0' GROKBOT_MACRO='combo:here' node -e "globalThis.GROKBOT_AUTOPLAY='combo:here';import('$out/int-combo.mjs')"
   r combo-noT6 GB_COMBO=1 GB_NO_T6=1 GB_EXPECT='text=absent' GB_QUERY='?autoplay=combo' node "$out/int-combo.mjs"
   if grep -q 'assetManager' "$IS/audio/GameAudio.ts"; then r bgm-crossfade GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"; [ "${GB_LOOSE:-1}" != 0 ] && r loose-bgm-crossfade GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; else echo "SKIP bgm crossfade (GameAudio before v0.4)"; fi
+  # GameAudio v0.5 (Voice bot 53f5999): no BGM at startup, SceneMusic request at room-ready (audio_bgm_island bundle), audio:bgm-start (onMusicStart first:true)
+  if grep -q 'onMusicStart' "$IS/audio/GameAudio.ts"; then
+    r bgm-start-unlock-first GB_BGM_ORDER=unlock-first GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    r bgm-start-load-first GB_BGM_ORDER=load-first GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    r bgm-start-global-hook GB_BGM_HOOK=global GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    r bgm-start-late-replay GB_BGM_HOOK=late GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    r bgm-start-absent GB_BGM_HOOK=none GB_QUERY='?autoplay=observe' node "$out/int-bgm.mjs"
+    if [ "${GB_LOOSE:-1}" != 0 ]; then r loose-bgm-start-load-first GB_BGM_ORDER=load-first GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; r loose-bgm-start-absent GB_BGM_HOOK=none GB_QUERY='?autoplay=observe' node "$out/int-bgm-loose.mjs"; fi
+  else echo "SKIP bgm-start (GameAudio before v0.5: no onMusicStart)"; fi
 else echo "SKIP combo integration (set GB_INT_DIR=<int/v1 checkout> to run against the real GameAudio/CheerText)"; fi
 if [ -n "${GB_UNLOCK_DIR:-}" ]; then
   US="$GB_UNLOCK_DIR/creator-build-project/assets/scripts"

@@ -40,7 +40,9 @@ type Timer={at:number;resolve:()=>void};const timers:Timer[]=[];
 const after=(s:number,t:Cancellation)=>new Promise<void>((resolve,reject)=>{const tm={at:clock.ms+s*1000,resolve};timers.push(tm);t.onCancel(()=>{const i=timers.indexOf(tm);if(i>=0)timers.splice(i,1);reject(new Error('cancelled'));});});
 const cam={node:{worldPosition:{x:0,y:1.5,z:-2},worldRotation:{x:0,y:0,z:0,w:1}}};
 const moveCam=(s:number,t:Cancellation)=>{const end=clock.ms+s*1000;const step=()=>{if(clock.ms<end&&!t.cancelled){cam.node.worldPosition={x:Math.random(),y:1.5,z:-2};setImmediate(step);}};step();return after(s,t);};
-const lease:WorldLease={setLayers(){},setDoor(){},setCamera(){},animateDoor:(_a,_b,s,t)=>after(s,t),animateCamera:(_p,s,t)=>moveCam(s,t),cancelTransient(){},assertStaticWorld(){},dispose(){}};
+/* wait: WorldLease.wait (T2+ camera spans; 运镜bot e3863fb return entry times the closing-door segment with it -- without it the door
+ * segment resolves at once and state:closing-door is never observed) */
+const lease:WorldLease={setLayers(){},setDoor(){},setCamera(){},animateDoor:(_a,_b,s,t)=>after(s,t),animateCamera:(_p,s,t)=>moveCam(s,t),wait:(s,t)=>after(s,t),cancelTransient(){},assertStaticWorld(){},dispose(){}};
 class Char implements CharacterAdapter{readonly calibrated=true;readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot as any,seatedRoot:REF.seatedRoot as any,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
  job:{left:number;resolve:()=>void}|null=null;actions:string[]=[];
  advance(dt:number){if(!this.job)return;this.job.left-=dt;if(this.job.left<=0){const j=this.job;this.job=null;j.resolve();}}
