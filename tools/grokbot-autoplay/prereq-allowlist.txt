@@ -168,3 +168,5 @@ observe b96d4d93e5d2db8545ec8efa64bf218d86994bdef43e3e2106fc5a90fb65d735 world-r
 #  paths and state order (crossing-in, closing-door, walking-to-seat, sitting, home) unchanged. Append only.
 strict  74a36704594fbb551338a1012afdfa58d27d44aaae06c36ffebaca8cb8186681 WorldIntegrationBoot.ts          运镜bot 17eaaf5 (= r4 1908273: 6e9ce82+bfd5597+17eaaf5)
 observe 728b630b1e2a7f4eab25d8887d3ec5c749eb689a0a1bbe8d34e99a0be4af5bf8 world-r1/WorldFlowCore.ts         运镜bot 17eaaf5 (= r4 1908273: 6e9ce82+bfd5597+17eaaf5)
+# GGbot first screen (work/GGbot-firstscreen a7d9aa1 on 29690bb): loading layer handoff in WorldIntegrationBoot
+strict  0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f WorldIntegrationBoot.ts          GGbot first screen a7d9aa1
