@@ -61,6 +61,9 @@ for o in bpy.data.objects:
         if inp.is_linked: src = inp.links[0].from_socket; m.node_tree.links.new(src, mx.inputs[6])
         else: mx.inputs[6].default_value = tuple(inp.default_value)
         m.node_tree.links.new(mx.outputs[2], inp); SEA_MIX.append(mx)
+        if os.environ.get('FX_SEA_SPEC', '1') == '0':  # the preview sun's sea highlight is not in the game; off for moon-path reviews
+            for k in ('Specular IOR Level', 'Specular'):
+                if k in b.inputs: b.inputs[k].default_value = 0
 print('sea night tint nodes', len(SEA_MIX))
 G = cfg['geometry']; ADD = material('fx_add', True); BLEND = material('fx_blend', False)
 beam = mesh_obj('fx_lighthouse_beam', G['beam']); glow = mesh_obj('fx_lighthouse_glow', G['glow']); glint = mesh_obj('fx_lighthouse_seaglint', G['glint'])
@@ -68,7 +71,7 @@ for o in (beam, glow, glint): o.data.materials.append(ADD)
 beam.location = v(cfg['lamp']); glint.location = v([cfg['lamp'][0], cfg['seaY'], cfg['lamp'][2]])
 MOON = None
 if 'moon' in G:  # fx_moon / fx_moon_halo / fx_moonlight_band (IslandAtmosphereFx), additive like the beam
-    MOON = [mesh_obj('fx_moon_halo', G['halo']), mesh_obj('fx_moon', G['moon']), mesh_obj('fx_moonlight_band', G['band'])]
+    MOON = [mesh_obj('fx_moon_halo', G['halo']), mesh_obj('fx_moon', G['moon'])] + [mesh_obj('fx_moonlight_band_%d' % k, g) for k, g in enumerate(G.get('bands') or [G['band']])]
     for o in MOON: o.data.materials.append(ADD)
     MOON[0].location = MOON[1].location = v(cfg['moon']['pos']); MOON[0].scale = (cfg['moon']['halo'],) * 3; MOON[1].scale = (cfg['moon']['radius'],) * 3
 puffs = []
@@ -76,6 +79,7 @@ for i in range(len(cfg['frames'][0]['puffs'])):
     o = mesh_obj('fx_chimney_smoke_puff_%d' % i, G['puff%d' % (i % 2)]); o.data.materials.append(BLEND); puffs.append(o)
 # Gulls (frames[].gulls from dump_gull_frames.cjs): fx_gull_N = copies of the imported env_anim_seagull_fly_01_v22 body/wing
 # meshes (as GullFlock.ts does), wings parented at (-/+0.04, 0.03, 0); one palette copy multiplied by the night tint (frames[].tint).
+def srgb2lin(c): return [((x / 255) / 12.92 if x / 255 <= .04045 else (((x / 255) + .055) / 1.055) ** 2.4) for x in c]
 GULLS = []
 if 'gulls' in cfg['frames'][0]:
     src = {n: bpy.data.objects[n] for n in ('env_anim_seagull_fly_01_v22', 'env_anim_seagull_fly_01_v22_wing_L', 'env_anim_seagull_fly_01_v22_wing_R')}
@@ -86,6 +90,16 @@ if 'gulls' in cfg['frames'][0]:
         if inp.is_linked: gm.node_tree.links.new(inp.links[0].from_socket, mx.inputs[6])
         else: mx.inputs[6].default_value = tuple(inp.default_value)
         gm.node_tree.links.new(mx.outputs[2], inp); TINT = mx
+    WINGM = None
+    if 'wingL' in cfg.get('geometry', {}):
+        WINGM = bpy.data.materials.new('fx_gull_wing_unlit'); WINGM.use_nodes = True; nt = WINGM.node_tree; nt.nodes.clear(); WINGM.use_backface_culling = True
+        out = nt.nodes.new('ShaderNodeOutputMaterial'); vc = nt.nodes.new('ShaderNodeVertexColor'); vc.layer_name = 'fx'
+        ac = nt.nodes.new('ShaderNodeAttribute'); ac.attribute_type = 'OBJECT'; ac.attribute_name = 'fxc'
+        col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'; col.blend_type = 'MULTIPLY'; col.inputs['Factor'].default_value = 1
+        nt.links.new(ac.outputs['Color'], col.inputs[6]); nt.links.new(vc.outputs['Color'], col.inputs[7])
+        em = nt.nodes.new('ShaderNodeEmission'); nt.links.new(col.outputs[2], em.inputs['Color'])
+        geo = nt.nodes.new('ShaderNodeNewGeometry'); tr = nt.nodes.new('ShaderNodeBsdfTransparent'); mx = nt.nodes.new('ShaderNodeMixShader')
+        nt.links.new(geo.outputs['Backfacing'], mx.inputs[0]); nt.links.new(em.outputs[0], mx.inputs[1]); nt.links.new(tr.outputs[0], mx.inputs[2]); nt.links.new(mx.outputs[0], out.inputs[0])
     for i in range(len(cfg['frames'][0]['gulls'])):
         def part(name, key, parent, loc):
             ob = bpy.data.objects.new(name, src[key].data.copy()); sc.collection.objects.link(ob); ob.rotation_mode = 'QUATERNION'
@@ -93,7 +107,13 @@ if 'gulls' in cfg['frames'][0]:
             if parent: ob.parent = parent; ob.location = v(loc)
             return ob
         body = part('fx_gull_%d' % i, 'env_anim_seagull_fly_01_v22', None, None)
-        GULLS.append((body, part('fx_gull_%d_wing_L' % i, 'env_anim_seagull_fly_01_v22_wing_L', body, [-.04, .03, 0]), part('fx_gull_%d_wing_R' % i, 'env_anim_seagull_fly_01_v22_wing_R', body, [.04, .03, 0])))
+        if WINGM:  # GullFlock.ts wings: own two-sided cambered mesh on builtin-unlit vertex colour (cull back like Cocos)
+            wl = mesh_obj('fx_gull_%d_wing_L' % i, cfg['geometry']['wingL']); wr = mesh_obj('fx_gull_%d_wing_R' % i, cfg['geometry']['wingR'])
+            for o, x in ((wl, -.04), (wr, .04)): o.data.materials.append(WINGM); o.parent = body; o.location = v([x, .03, 0])
+            for o in (wl, wr):  # Cocos LDR: vertex colours are display (sRGB) values; Blender attributes are linear
+                for d in o.data.color_attributes['fx'].data: c = d.color; d.color = tuple(srgb2lin([255 * c[0], 255 * c[1], 255 * c[2]])) + (1,)
+            GULLS.append((body, wl, wr))
+        else: GULLS.append((body, part('fx_gull_%d_wing_L' % i, 'env_anim_seagull_fly_01_v22_wing_L', body, [-.04, .03, 0]), part('fx_gull_%d_wing_R' % i, 'env_anim_seagull_fly_01_v22_wing_R', body, [.04, .03, 0])))
 c = cfg['camera']; cam = bpy.data.cameras.new('cam'); cam.sensor_fit = 'VERTICAL'; cam.angle_y = math.radians(c['fov']); cam.clip_start = .05; cam.clip_end = 1000
 co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
 p = v(c['pos']); t = v(c['target']); co.location = p; co.rotation_euler = (t - p).to_track_quat('-Z', 'Y').to_euler()
@@ -102,7 +122,8 @@ so.rotation_euler = (math.radians(50), 0, math.radians(-35)); sun.angle = math.r
 w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True; bg = w.node_tree.nodes['Background']
 ENGINE = os.environ.get('FX_ENGINE', 'CYCLES')  # software-GL EEVEE drops the palette texture on this box (black patches)
 if ENGINE == 'CYCLES':
-    sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = SAMPLES; sc.cycles.use_denoising = True
+    sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = SAMPLES; sc.cycles.use_denoising = os.environ.get('FX_DENOISE', '1') == '1'  # 0: keep tiny glints crisp
+    if os.environ.get('FX_DENOISE', '1') != '1': sc.cycles.sample_clamp_direct = 1.5; sc.cycles.sample_clamp_indirect = .5
     sc.cycles.max_bounces = 4; sc.cycles.transparent_max_bounces = 16
 else: sc.render.engine = 'BLENDER_EEVEE_NEXT'
 sc.eevee.taa_render_samples = SAMPLES
@@ -111,7 +132,6 @@ for attr, val in (('use_raytracing', False), ('use_gtao', False), ('use_shadows'
     except Exception as e: print('eevee option', attr, e)
 sc.render.resolution_x, sc.render.resolution_y = RX, RY; sc.view_settings.view_transform = 'Standard'
 def lerp(x, y, k): return tuple(x[i] + (y[i] - x[i]) * k for i in range(len(x)))
-def srgb2lin(c): return [((x / 255) / 12.92 if x / 255 <= .04045 else (((x / 255) + .055) / 1.055) ** 2.4) for x in c]
 COL = {k: srgb2lin(cfg['colors'][k]) for k in ('beam', 'glow', 'glint', 'moon', 'halo', 'band') if k in cfg['colors']}
 def setfx(o, a, rgb):
     o['fxa'] = float(a); o['fxc'] = list(rgb); o.hide_render = a <= 1 / 255
@@ -130,9 +150,11 @@ for k, f in enumerate(cfg['frames']):
     glow.location = v(f['glow']['pos']); glow.rotation_quaternion = q(f['glow']['rot']); s = f['glow']['scale']; glow.scale = (s, s, s); setfx(glow, f['glow']['alpha'], COL['glow'])
     glint.rotation_quaternion = q(f['glint']['rot']); setfx(glint, f['glint']['alpha'], COL['glint'])
     if MOON and 'moon' in f:
-        hm, mo, bd = MOON; mo.rotation_quaternion = hm.rotation_quaternion = q(f['moon']['rot'])
+        hm, mo = MOON[0], MOON[1]; mo.rotation_quaternion = hm.rotation_quaternion = q(f['moon']['rot'])
         setfx(mo, f['moon']['alpha'], COL['moon']); setfx(hm, f['moon']['halo'], COL['halo'])
-        bd.location = v(f['band']['pos']); bd.rotation_quaternion = q(f['band']['rot']); s = f['band']['scale']; bd.scale = (s, s, 1); setfx(bd, f['band']['alpha'], COL['band'])
+        la = f['band'].get('layers') or [f['band']['alpha']]
+        for j, bd in enumerate(MOON[2:]):
+            bd.location = v(f['band']['pos']); bd.rotation_quaternion = q(f['band']['rot']); s = f['band']['scale']; bd.scale = (s, s, 1); setfx(bd, la[j % len(la)], COL['band'])
     for o, pf in zip(puffs, f['puffs']):
         o.location = v(pf['pos']); o.rotation_quaternion = q(pf['rot']); sx, sy, sz = pf['scale']; o.scale = (sx, sz, sy); setfx(o, pf['alpha'], srgb2lin(pf['color']))
     if 'camera' in f:
@@ -143,5 +165,8 @@ for k, f in enumerate(cfg['frames']):
         body.location = v(g['pos']); body.rotation_quaternion = q(g['rot']); body.scale = (g['size'],) * 3
         wl.rotation_quaternion = q(g['wl']); wr.rotation_quaternion = q(g['wr']); wl.scale = wr.scale = (g['ws'], 1, 1)
     if GULLS and TINT: TINT.inputs[7].default_value = tuple(f.get('tint', [1, 1, 1])) + (1,)
+    if GULLS and WINGM:
+        wt = srgb2lin([255 * min(1, c) for c in f.get('wingTint', [1, 1, 1])])
+        for _, wl, wr in GULLS: wl['fxc'] = wr['fxc'] = list(wt)
     sc.render.filepath = os.path.join(OUT, 'f%05d.png' % k); bpy.ops.render.render(write_still=True)
 print('DONE', OUT)

@@ -6,7 +6,7 @@
  *  - screen brightness after the near-camera fades: a 18x38 ray grid per frame integrates the additive light
  *    (beam core+mist profile, glow disc, sea glint, moon disc + halo, moonlight band; luminance of their colours x alpha) and the smoke coverage
  *    (alpha-blend opacity). Reported: max frame-to-frame jump of the screen mean and of any single ray.
- * Moon/band: camera distance to the moon and to the band's near end, and their per-frame alpha steps, are reported too.
+ * Moon/glitter path: the real glitter meshes (bandGeometry per layer, barycentric alpha) with the per-layer twinkle; camera distance to the moon and to the band's near end, and their per-frame alpha steps, are reported too.
  * The beam phase in game is arbitrary (FX clock), so every frame is evaluated for 8 beam phases.
  * Analytic profiles = the mesh vertex-alpha formulas (no mist hash, no Cocos rasterisation). Not a render.
  * Usage: node tools/scene-fx/test_camera_track_fx.cjs [--json out.json] */
@@ -23,13 +23,20 @@ const qrot=(q,v)=>{const [x,y,z,w]=q,ix=w*v[0]+y*v[2]-z*v[1],iy=w*v[1]+z*v[0]-x*
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],len=a=>Math.sqrt(dot(a,a));
 const lum=c=>(.2126*c[0]+.7152*c[1]+.0722*c[2])/255;
 const GX=18,GY=38,aspect=T.aspect||586/1266,PH=8;
+// Moonlight glitter = the real bandGeometry(k) meshes (5 verts / 4 tris per sparkle, alpha at the centre vertex), bucketed by
+// local z; a ray's sea hit is interpolated barycentrically inside any sparkle triangle it falls in, times that layer's alpha.
+const GLIT=[];for(let k=0;k<X.band.layers;k++){const g=F.bandGeometry(k),P=g.positions,C=g.colors,I=g.indices,tris=[];
+  for(let i=0;i<I.length;i+=3){const v=[I[i],I[i+1],I[i+2]].map(j=>[P[j*3],P[j*3+2],C[j*4+3]]);tris.push({v,z0:Math.min(v[0][1],v[1][1],v[2][1]),z1:Math.max(v[0][1],v[1][1],v[2][1])});}
+  const B={};for(const t of tris)for(let b=Math.floor(t.z0);b<=Math.floor(t.z1);b++)(B[b]=B[b]||[]).push(t);GLIT.push(B);}
+function glitterAt(k,x,z){const L=GLIT[k][Math.floor(z)];if(!L)return 0;let s=0;for(const t of L){const [a,b,c]=t.v,d=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(d)<1e-12)continue;
+  const w0=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(z-c[1]))/d,w1=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(z-c[1]))/d,w2=1-w0-w1;if(w0>=0&&w1>=0&&w2>=0)s+=w0*a[2]+w1*b[2]+w2*c[2];}return s;}
 function hitPlane(o,d,p,n){const den=dot(d,n);if(Math.abs(den)<1e-6)return null;const t=dot(sub(p,o),n)/den;return t>0.05?t:null;}
 function screen(cam,q,fov,t){
   const b=F.beamState(t,cam,1),puffs=F.smokePuffs(t,1,1,1,cam),L=X.lamp,tanY=Math.tan(fov*Math.PI/360),tanX=tanY*aspect;
   const side=qrot(b.rotation,[1,0,0]),nrm=qrot(b.rotation,[0,1,0]),ax=b.dir,gn=qrot(b.glowRotation,[0,0,1]),gx=qrot(b.glowRotation,[1,0,0]),gy=qrot(b.glowRotation,[0,1,0]);
   const h=qrot(b.glintRotation,[0,0,1]),hx=qrot(b.glintRotation,[1,0,0]),G=X.glint,glintO=[L[0],X.seaY,L[2]];
   const m=F.moonState(t,cam,1),M=X.moon,B=X.band,mn=sub(cam,M.pos),mnl=len(mn),mN=[mn[0]/mnl,mn[1]/mnl,mn[2]/mnl],mx=qrot(m.moonRotation,[1,0,0]),my=qrot(m.moonRotation,[0,1,0]);
-  const bz=qrot(m.bandRotation,[0,0,1]),bx=qrot(m.bandRotation,[1,0,0]),bO=m.bandPos,bS=m.bandScale,lnR=Math.log(B.endM/B.startM);
+  const bz=qrot(m.bandRotation,[0,0,1]),bx=qrot(m.bandRotation,[1,0,0]),bO=m.bandPos,bS=m.bandScale;
   const light=new Float32Array(GX*GY),smoke=new Float32Array(GX*GY);
   for(let j=0;j<GY;j++)for(let i=0;i<GX;i++){const sx=((i+.5)/GX*2-1)*tanX,sy=((j+.5)/GY*2-1)*tanY,d0=qrot(q,[sx,sy,-1]),l0=len(d0),d=[d0[0]/l0,d0[1]/l0,d0[2]/l0];let add=0,cov=0;
     if(b.alpha>0){const tt=hitPlane(cam,d,L,nrm);if(tt!==null){const p=sub([cam[0]+d[0]*tt,cam[1]+d[1]*tt,cam[2]+d[2]*tt],L),u=dot(p,ax)/X.beam.lengthM,x=dot(p,side);
@@ -40,14 +47,13 @@ function screen(cam,q,fov,t){
       if(u>=0&&u<=1){const w=G.w0+(G.w1-G.w0)*u,v=x/w;add+=b.glintAlpha*F.smoothstep(0,.15,u)*Math.pow(1-u,1.3)*.71*(Math.abs(v)<1?Math.exp(-2.4*v*v):0)*lum(X.glint.color);}}}
     if(m.moonAlpha>0||m.haloAlpha>0){const tt=hitPlane(cam,d,M.pos,mN);if(tt!==null){const p=sub([cam[0]+d[0]*tt,cam[1]+d[1]*tt,cam[2]+d[2]*tt],M.pos),rm=Math.hypot(dot(p,mx),dot(p,my));
       const r1=rm/M.radiusM,r2=rm/M.haloRadiusM;add+=m.moonAlpha*(r1<.9?1:r1<1?(1-r1)/.1:0)*lum(M.color)+m.haloAlpha*(r2<.2?1-.5*r2/.2:r2<1?.5*(1-(r2-.2)/.8):0)*lum(M.haloColor);}}
-    if(m.bandAlpha>0){const tt=hitPlane(cam,d,bO,[0,1,0]);if(tt!==null){const p=sub([cam[0]+d[0]*tt,cam[1]+d[1]*tt,cam[2]+d[2]*tt],bO),z=dot(p,bz)/bS,x=dot(p,bx)/bS;
-      if(z>=B.startM&&z<=B.endM){const u=Math.log(z/B.startM)/lnR,w=B.w0+(B.w1-B.w0)*(z-B.startM)/(B.endM-B.startM),v=x/w;
-        add+=m.bandAlpha*F.smoothstep(0,.25,u)*(1-F.smoothstep(.92,1,u))*(.35+.65*u)*.6*(Math.abs(v)<1?Math.exp(-2.2*v*v):0)*lum(B.color);}}}
+    if(m.bandAlpha>0&&bS>0){const tt=hitPlane(cam,d,bO,[0,1,0]);if(tt!==null){const p=sub([cam[0]+d[0]*tt,cam[1]+d[1]*tt,cam[2]+d[2]*tt],bO),z=dot(p,bz)/bS,x=dot(p,bx)/bS;
+      if(z>=X.band.startM*.5&&z<=X.band.endM*1.05)for(let k=0;k<GLIT.length;k++)if(m.bandLayerAlpha[k]>0)add+=m.bandLayerAlpha[k]*glitterAt(k,x,z)*lum(X.band.color);}}
     for(const pf of puffs){if(pf.alpha<=0)continue;const n=sub(cam,pf.position),nl=len(n),nn=[n[0]/nl,n[1]/nl,n[2]/nl],tt=hitPlane(cam,d,pf.position,nn);if(tt===null)continue;
       const p=sub([cam[0]+d[0]*tt,cam[1]+d[1]*tt,cam[2]+d[2]*tt],pf.position),rr=len(p)/pf.scale[0];const pr=rr<.5?1-.2*rr/.5:rr<1?.8*(1-(rr-.5)/.5):0;cov=1-(1-cov)*(1-pf.alpha*pr);}
     light[j*GX+i]=add;smoke[j*GX+i]=cov;}
   const near=F.beamCameraFade(b.dir,cam),inSmoke=puffs.some(pf=>len(sub(cam,pf.position))<pf.scale[0]);
-  return {light,smoke,inCone:near.inside,inSmoke,beamAlpha:b.alpha,glowAlpha:b.glowAlpha,glintAlpha:b.glintAlpha,moonAlpha:m.moonAlpha,bandAlpha:m.bandAlpha,moonCamM:m.moonCamM,bandNearM:m.bandNearM,puffFade:puffs.map(pf=>pf.cameraFade)};
+  return {light,smoke,inCone:near.inside,inSmoke,beamAlpha:b.alpha,glowAlpha:b.glowAlpha,glintAlpha:b.glintAlpha,moonAlpha:m.moonAlpha,bandAlpha:Math.max(...m.bandLayerAlpha),moonCamM:m.moonCamM,bandNearM:m.bandNearM,puffFade:puffs.map(pf=>pf.cameraFade)};
 }
 function run(label,frames){const res={label,frames:frames.length,beamPhases:PH,framesInsideCone:0,samplesInsideCone:0,framesInsideSmoke:0,maxMeanLightJump:0,maxRayLightJump:0,maxMeanSmokeJump:0,maxRaySmokeJump:0,maxMeanLight:0,maxBeamAlphaInsideCone:0,maxBeamAlphaStep:0,maxGlowAlphaStep:0,maxGlintAlphaStep:0,maxPuffFadeStep:0,maxMoonAlphaStep:0,maxBandAlphaStep:0,minMoonCamM:1e9,minBandNearM:1e9,worstAt:null};
   for(let k=0;k<PH;k++){let prev=null;const insideFrames=new Set();

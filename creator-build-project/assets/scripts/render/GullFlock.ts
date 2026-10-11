@@ -1,16 +1,17 @@
-import { Node, Scene, MeshRenderer, Material, Color, Camera, Mesh, isValid } from 'cc';
-import { GullFlock as Flock, GULL_FX } from './GullFlockCore';
+import { Node, Scene, MeshRenderer, Material, Color, Camera, Mesh, Vec3, EffectAsset, utils, isValid } from 'cc';
+import { GullFlock as Flock, GULL_FX, wingGeometry, wingTint } from './GullFlockCore';
 import type { GullCam, GullCallEvent } from './GullFlockCore';
 import type { V3 } from './IslandAtmosphereFxCore';
 /** cc wrapper for GullFlockCore: fx_gull_N nodes (body + fx_gull_N_wing_L/R) under IslandAtmosphereFx, sharing the island's own
  * env_anim_seagull_fly_01_v22 meshes (no new mesh, no texture). One material copy of the gulls' M_env_palette carries the night
- * tint (the palette itself is never edited). No colliders, not in lighthouseTargets: gulls never take a tap.
+ * tint (the palette itself is never edited). Wings: own cambered two-sided wing meshes (wingGeometry) on builtin-unlit vertex colour
+ * (white-grey underside, grey top), tinted by wingTint(night); fallback to the GLB wing planes if builtin-unlit is missing. No colliders, not in lighthouseTargets: gulls never take a tap.
  * Gull calls: defensive probe of __worldIntegration.onGullCall / requestGullCall / gullClock (Voice bot AmbienceAudio, fbee3d5);
  * absent = the flock keeps its own random flights. */
 type GullNodes = { node: Node; wingL: Node; wingR: Node; shown: boolean };
 const HERO = 'FLOW_REFERENCE_PLACEHOLDER_NOT_B';
 export class GullFlock {
-  private root: Node | null = null; private gulls: GullNodes[] = []; private material: Material | null = null; private base: Color | null = null; private tintKey = '';
+  private root: Node | null = null; private gulls: GullNodes[] = []; private material: Material | null = null; private base: Color | null = null; private tintKey = ''; private wingMat: Material | null = null; private wingMeshes: Mesh[] = []; private wingKey = '';
   private flock: Flock | null = null; private scene: Scene; private hero: Node | null = null;
   private wi: any = null; private subscribedFn: any = null; private off: (() => void) | null = null; private exterior = false;
   constructor(scene: Scene, parent: Node) {
@@ -23,11 +24,18 @@ export class GullFlock {
     catch (e) { mat = null; console.warn('[SCENE_FX] gull material copy failed; gulls use the shared palette without night tint', String(e)); }
     this.material = mat; const use = mat || shared;
     const root = new Node('fx_gulls'); parent.addChild(root); this.root = root;
-    const part = (p: Node, name: string, mesh: Mesh | null, x: number, y: number) => { const n = new Node(name); p.addChild(n); n.setPosition(x, y, 0);
-      const r = n.addComponent(MeshRenderer); r.mesh = mesh; if (use) r.setMaterial(use, 0); r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; return n; };
+    let wingL: Mesh | null = wl.mesh, wingR: Mesh | null = wr.mesh, wmat: Material | null = null;
+    try { if (EffectAsset.get('builtin-unlit')) { const mk = (side: number) => { const g = wingGeometry(side); const m = utils.createMesh({ positions: g.positions, colors: g.colors, indices: g.indices,
+        minPos: new Vec3(g.min[0], g.min[1], g.min[2]), maxPos: new Vec3(g.max[0], g.max[1], g.max[2]) }); this.wingMeshes.push(m); return m; };
+      wmat = new Material(); wmat.initialize({ effectName: 'builtin-unlit', technique: 0, defines: { USE_VERTEX_COLOR: true } }); wmat.setProperty('mainColor', new Color(255, 255, 255, 255));
+      wingL = mk(-1); wingR = mk(1); } }
+    catch (e) { wmat = null; wingL = wl.mesh; wingR = wr.mesh; console.warn('[SCENE_FX] fx gull wings fall back to the GLB wing planes', String(e)); }
+    this.wingMat = wmat;
+    const part = (p: Node, name: string, mesh: Mesh | null, x: number, y: number, m?: Material | null) => { const n = new Node(name); p.addChild(n); n.setPosition(x, y, 0);
+      const r = n.addComponent(MeshRenderer); r.mesh = mesh; const mm = m || use; if (mm) r.setMaterial(mm, 0); r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; return n; };
     for (let i = 0; i < GULL_FX.count; i++) { const n = new Node('fx_gull_' + i); root.addChild(n); n.active = false;
       part(n, 'fx_gull_' + i + '_body', body.mesh, 0, 0);
-      this.gulls.push({ node: n, wingL: part(n, 'fx_gull_' + i + '_wing_L', wl.mesh, -.04, .03), wingR: part(n, 'fx_gull_' + i + '_wing_R', wr.mesh, .04, .03), shown: false }); }
+      this.gulls.push({ node: n, wingL: part(n, 'fx_gull_' + i + '_wing_L', wingL, -.04, .03, wmat), wingR: part(n, 'fx_gull_' + i + '_wing_R', wingR, .04, .03, wmat), shown: false }); }
     this.flock = new Flock((Date.now() & 0x7fffffff) ^ 0x5eed);
   }
   setView(exterior: boolean) { this.exterior = exterior; if (this.flock) this.flock.setView(exterior); if (!exterior) this.hide(); }
@@ -61,11 +69,13 @@ export class GullFlock {
       g.wingL.setScale(s.wingScaleX, 1, 1); g.wingR.setScale(s.wingScaleX, 1, 1); }
     if (this.material && this.base) { const t = Flock.tint(night), b = this.base, r = Math.round(b.r * t[0]), gg = Math.round(b.g * t[1]), bl = Math.round(b.b * t[2]), key = r + ',' + gg + ',' + bl;
       if (key !== this.tintKey) { this.tintKey = key; try { this.material.setProperty('mainColor', new Color(r, gg, bl, b.a)); } catch (e) { this.base = null; } } }
+    if (this.wingMat) { const t = wingTint(night), r = Math.round(255 * Math.min(1, t[0])), gg = Math.round(255 * Math.min(1, t[1])), bl = Math.round(255 * Math.min(1, t[2])), key = r + ',' + gg + ',' + bl;
+      if (key !== this.wingKey) { this.wingKey = key; try { this.wingMat.setProperty('mainColor', new Color(r, gg, bl, 255)); } catch (e) { this.wingMat = null; } } }
   }
   diagnostics() { const f = this.flock; return f ? { subscribed: !!this.off, stats: f.stats, nearLog: f.nearLog.slice(-8), shown: this.gulls.map(g => g.shown) } : null; }
   dispose() {
     if (this.off) { try { this.off(); } catch (e) { /* stale */ } this.off = null; }
-    if (this.root && isValid(this.root, true)) this.root.destroy(); if (this.material) this.material.destroy();
-    this.root = null; this.material = null; this.gulls = []; this.flock = null;
+    if (this.root && isValid(this.root, true)) this.root.destroy(); if (this.material) this.material.destroy(); if (this.wingMat) this.wingMat.destroy(); for (let i = 0; i < this.wingMeshes.length; i++) this.wingMeshes[i].destroy();
+    this.root = null; this.material = null; this.wingMat = null; this.wingMeshes = []; this.gulls = []; this.flock = null;
   }
 }

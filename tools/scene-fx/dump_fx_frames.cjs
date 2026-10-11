@@ -15,8 +15,8 @@ for(let i=0;i<n;i++){const s=i/ +fps,t=+t0+s,night=s>=+nightAt;w=first?(night?1:
   const wr=String(wind||'0').split('-').map(Number),wv=wr.length>1?wr[0]+(wr[1]-wr[0])*i/Math.max(1,n-1):wr[0];
   const light=F.lightFromNight(w),b=F.beamState(t,cam,light),p=F.smokePuffs(t,wv,w,1,cam),m=F.moonState(t,cam,light);
   frames.push({t,night:w,wind:wv,beam:{rot:b.rotation,alpha:b.alpha,flash:b.flash},glow:{pos:b.glowPos,rot:b.glowRotation,scale:b.glowScale,alpha:b.glowAlpha},glint:{rot:b.glintRotation,alpha:b.glintAlpha},
-    moon:{rot:m.moonRotation,alpha:m.moonAlpha,halo:m.haloAlpha},band:{pos:m.bandPos,rot:m.bandRotation,scale:m.bandScale,alpha:m.bandAlpha},
+    moon:{rot:m.moonRotation,alpha:m.moonAlpha,halo:m.haloAlpha},band:{pos:m.bandPos,rot:m.bandRotation,scale:m.bandScale,alpha:m.bandAlpha,layers:m.bandLayerAlpha},
     puffs:p.map(q=>({pos:q.position,rot:q.rotation,scale:q.scale,color:q.color,alpha:q.alpha,mesh:0}))});}
 fs.writeFileSync(out,JSON.stringify({camera:{pos:cam,target,fov:+fov},fps:+fps,lamp:X.lamp,seaY:X.seaY,colors:{beam:X.beam.color,glow:X.glow.color,glint:X.glint.color,moon:X.moon.color,halo:X.moon.haloColor,band:X.band.color},moon:{pos:X.moon.pos,radius:X.moon.radiusM,halo:X.moon.haloRadiusM},
-  geometry:{beam:geo(F.beamGeometry()),glow:geo(F.discGeometry(18,.32,.55,0,0,900)),glint:geo(F.glintGeometry()),puff0:geo(F.discGeometry(14,.5,.8,.26,.22,11)),puff1:geo(F.discGeometry(14,.5,.8,.3,.22,37)),moon:geo(F.discGeometry(28,.9,1,0,.14,0)),halo:geo(F.discGeometry(24,.2,.5,0,0,0)),band:geo(F.bandGeometry())},frames}));
+  geometry:{beam:geo(F.beamGeometry()),glow:geo(F.discGeometry(18,.32,.55,0,0,900)),glint:geo(F.glintGeometry()),puff0:geo(F.discGeometry(14,.5,.8,.26,.22,11)),puff1:geo(F.discGeometry(14,.5,.8,.3,.22,37)),moon:geo(F.discGeometry(28,.9,1,0,.14,0)),halo:geo(F.discGeometry(24,.2,.5,0,0,0)),band:geo(F.bandGeometry(0)),bands:Array.from({length:X.band.layers||1},(_,k)=>geo(F.bandGeometry(k)))},frames}));
 const fl=frames.map(f=>f.beam.flash);console.log('frames',n,'maxFlash',Math.max(...fl).toFixed(3),'at',frames[fl.indexOf(Math.max(...fl))].t.toFixed(2));
