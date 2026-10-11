@@ -50,6 +50,8 @@ export interface WorldLease {
   animateDoor(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   animateCamera(path:readonly Pose[],seconds:number,token:Cancellation):Promise<void>;
   cancelTransient():void;
+  /** T5 (optional): blend global lighting between island (0) and room (1) photometry; geometry layers unchanged. */
+  blendRoomLight?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   assertStaticWorld():void;
   dispose():void;
 }
@@ -151,6 +153,11 @@ export class WorldFlow {
     this.mode=mode;this.restore();this.emit(this.snapshot());return {ok:true};
   }
   private async action(action:Action,token:Cancellation):Promise<void> {token.check();await token.wait(this.character!.perform(action,token));token.check();}
+  /** T5: optional lighting blend over the same duration as the walk on `path`. Older adapters: resolved no-op. */
+  private blendLight(from:number,to:number,path:readonly Vec[],token:Cancellation):Promise<void> {
+    const blend=this.world?.blendRoomLight;if(!blend)return Promise.resolve();
+    const p=blend.call(this.world,from,to,pathDuration(path,this.config.speed),token);p.catch(()=>{});return p;
+  }
   private async walk(path:readonly Vec[],cameras:readonly Pose[],token:Cancellation):Promise<void> {
     const duration=pathDuration(path,this.config.speed);
     // Both tracks use the same duration. Character adapter owns world displacement.
@@ -171,7 +178,10 @@ export class WorldFlow {
       this.change('opening-door');await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
       this.world!.setLayers(BOTH);this.change('crossing-out');
       await this.walk(c.outCrossing,c.cameraCrossOut??[c.cameraInside,c.cameraOutside],t);
+      // T5: fade room photometry to the island set across the whole exterior walk, so restore() below is a no-op visually.
+      const light=this.blendLight(1,0,c.toIsland,t);
       await this.walk(c.toIsland,c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]),t);
+      await t.wait(light);t.check();
       this.stable='island';this.restore();this.change('island');
     });
   }
@@ -206,7 +216,10 @@ export class WorldFlow {
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
       const c=this.config;this.world!.setLayers(BOTH);
+      // T5: start from the island set (same frame as setLayers) and reach room photometry at the threshold.
+      const light=this.blendLight(0,1,c.toThreshold,t);
       await this.walk(c.toThreshold,c.cameraToThreshold??[c.cameraIsland,c.cameraOutside],t);
+      await t.wait(light);t.check();
       this.change('crossing-in');await this.walk(c.inCrossing,c.cameraCrossIn??[c.cameraOutside,c.cameraInside],t);
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();

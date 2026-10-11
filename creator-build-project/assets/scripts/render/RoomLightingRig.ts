@@ -102,6 +102,17 @@ export class RoomLightingRig {
   private notices: string[] = [];
   private delta = new Quat();
   private rotation = new Quat();
+  // T5: 0 = island (scene-authored) photometry, 1 = room photometry. Only meaningful while interior.
+  private roomWeight = 0;
+  private interiorRotation = new Quat();
+  private blendRotation = new Quat();
+  private islandIllum = 0;
+  private islandColor = new Color(255, 255, 255, 255);
+  private blendColor = new Color();
+  private blendSky = new Vec4();
+  private blendGround = new Vec4();
+  private roomSky = new Vec4();
+  private roomGround = new Vec4();
   private sunDayColor = new Color('#fff4de');
   private sunNightColor = new Color('#aebde6');
   private skyDayColor = new Color('#b4c8dd');
@@ -322,27 +333,64 @@ export class RoomLightingRig {
     if (!s || !saved || !isValid(s, true) || !live(s.node) || !isValid(this.scene, true)) return;
     if (interior) {
       const g = this.scene.globals;
+      // T5: the owner (applyDayNight) has just written the island photometry for the current
+      // day/night mode; keep it as the weight-0 end of the blend.
+      this.islandIllum = s.illuminance; this.islandColor.set(s.color);
       if (changed) {
         g.shadows.type = renderer.scene.ShadowType.ShadowMap;
         g.shadows.shadowMapSize = ROOM_LIGHTING.shadowMapSize; g.shadows.enabled = true;
         // Window-normal sunlight reaches the visible floor beyond the tea table.
         s.node.setWorldPosition(.8, 6.6, -7); s.node.lookAt(new Vec3(-.4, .6, -2));
+        this.interiorRotation.set(s.node.rotation);
         s.shadowEnabled = true; s.enableCSM = false; s.shadowFixedArea = true;
         s.shadowNear = .1; s.shadowFar = ROOM_LIGHTING.shadowFar; s.shadowOrthoSize = ROOM_LIGHTING.shadowOrthoSize;
         s.shadowPcf = renderer.scene.PCFType.SOFT_2X; s.shadowBias = .0001; s.shadowNormalBias = .015;
+        this.roomWeight = 1;
       }
-      s.illuminance = saved.illuminance * (night ? ROOM_LIGHTING.moonlightScale : ROOM_LIGHTING.daylightScale);
-      s.color = night ? this.sunNightColor : this.sunDayColor;
-      // Main-light and ambient intensity enter the same camera UBO units in both HDR and LDR.
-      // Derive the fill from that calibrated main-light baseline rather than assuming that the
-      // separately serialized ambient LDR value is an HDR lux value or that it shares its scale.
-      g.ambient.skyIllum = saved.illuminance * (night ? ROOM_LIGHTING.ambientToMainNight : ROOM_LIGHTING.ambientToMainDay);
-      g.ambient.skyLightingColor = night ? this.skyNightColor : this.skyDayColor;
-      g.ambient.groundLightingColor = night ? this.groundNightColor : this.groundDayColor;
-      // Official shadow shader mixes occlusion toward 1 by (1 - saturation). Keep real
-      // shadows, but leave a nonzero direct-light floor in the deepest indoor occlusion.
-      s.shadowSaturation = night ? ROOM_LIGHTING.shadowSaturationNight : ROOM_LIGHTING.shadowSaturationDay;
-    } else if (changed) this.restoreSun(false);
+      this.applyRoomWeight();
+    } else if (changed) { this.roomWeight = 0; this.restoreSun(false); }
+  }
+
+  /** T5: blend the global sun/ambient/shadow-strength between island (0) and room (1) photometry.
+   * Geometry layers are untouched. Returns false (no-op) unless the room view is active. */
+  setRoomLightWeight(weight: number): boolean {
+    if (this.disposed || !this.interior || !Number.isFinite(weight)) return false;
+    this.roomWeight = Math.min(1, Math.max(0, weight));
+    return this.applyRoomWeight();
+  }
+
+  private applyRoomWeight(): boolean {
+    const s = this.sun, saved = this.sunState;
+    if (!s || !saved || !isValid(s, true) || !live(s.node) || !isValid(this.scene, true)) return false;
+    const g = this.scene.globals, night = this.night, w = this.roomWeight;
+    const roomIllum = saved.illuminance * (night ? ROOM_LIGHTING.moonlightScale : ROOM_LIGHTING.daylightScale);
+    const roomColor = night ? this.sunNightColor : this.sunDayColor;
+    const roomAmbient = saved.illuminance * (night ? ROOM_LIGHTING.ambientToMainNight : ROOM_LIGHTING.ambientToMainDay);
+    const roomSat = night ? ROOM_LIGHTING.shadowSaturationNight : ROOM_LIGHTING.shadowSaturationDay;
+    const skyC = night ? this.skyNightColor : this.skyDayColor, groundC = night ? this.groundNightColor : this.groundDayColor;
+    if (w >= 1) {
+      // Exactly the pre-T5 room values (same setters), so home/indoor look is byte-for-byte unchanged.
+      s.node.setRotation(this.interiorRotation);
+      s.illuminance = roomIllum; s.color = roomColor;
+      g.ambient.skyIllum = roomAmbient;
+      g.ambient.skyLightingColor = skyC; g.ambient.groundLightingColor = groundC;
+      s.shadowSaturation = roomSat;
+      return true;
+    }
+    Quat.slerp(this.blendRotation, saved.rotation, this.interiorRotation, w); s.node.setRotation(this.blendRotation);
+    s.illuminance = this.islandIllum + (roomIllum - this.islandIllum) * w;
+    Color.lerp(this.blendColor, this.islandColor, roomColor, w); s.color = this.blendColor;
+    g.ambient.skyIllum = this.ambientIllum + (roomAmbient - this.ambientIllum) * w;
+    if (this.ambientSkyColor && this.ambientGroundColor) {
+      // Color setters store r/255..a/255 as the raw Vec4; lerp in that same space.
+      this.roomSky.set(skyC.r / 255, skyC.g / 255, skyC.b / 255, skyC.a / 255);
+      this.roomGround.set(groundC.r / 255, groundC.g / 255, groundC.b / 255, groundC.a / 255);
+      Vec4.lerp(this.blendSky, this.ambientSkyColor, this.roomSky, w); g.ambient.skyColor = this.blendSky;
+      Vec4.lerp(this.blendGround, this.ambientGroundColor, this.roomGround, w); g.ambient.groundAlbedo = this.blendGround;
+    }
+    // Saturation 0 = occlusion mixed fully back to lit: room shadows fade out instead of popping.
+    s.shadowSaturation = roomSat * w;
+    return true;
   }
 
   setPaused(paused: boolean): void { if (!this.disposed) { this.paused = paused; if (paused) this.accumulator = 0; } }
