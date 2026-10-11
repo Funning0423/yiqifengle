@@ -105,3 +105,9 @@ observe f3fe306486a272b6d60007f4a03497607825edd1fc5f919266296f6328dac6c4 world-r
 #  busy/invoke/board/islandJourney/roomExplore/canvas/navLayout, button(), paintNavigation, __worldIntegration.onPropTap/onFoot/
 #  onApronLift unchanged. WorldFlowCore/WorldFlowComponent unchanged (f3fe3064 / 4e9022bd, listed). Append only.
 strict fcce49fc336da86f5ebce641243aa45dd2838e94013548c121a5c7ac26b86e5d WorldIntegrationBoot.ts            int/v1 d637356 + GGbot apron morph (work/GGbot-morph 779b49a)
+# 运镜bot doorway-clean (4be7adf on int/v1 d637356): WorldFlowCore door drifts to 45 deg after she walks out
+#  (smoothstep on the camera span), holds on the island, reopens on the walk home; door leaf in lens-near checks.
+#  Verified `git show 4be7adf:.../world-r1/WorldFlowCore.ts | sha256sum` = 45e2c94c..611c. Glue reviewed:
+#  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged (doorDrift rides the
+#  existing onSample wind channel). WorldFlowComponent 4e9022bd + Boot a4f2254d unchanged (listed). Observe-only, append only.
+observe 45e2c94c42c83ad85a00acaf1d38f4031828637b8a1e7a671cf3ea822932611c world-r1/WorldFlowCore.ts         运镜bot doorway-clean 4be7adf on int/v1 d637356
