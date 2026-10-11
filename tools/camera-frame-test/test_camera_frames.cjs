@@ -94,10 +94,26 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
         const R={},hits=[];const add=(k,s,f,i)=>{const b=R[k]||(R[k]={frames:0,nearPropFrames:0,nearPropRays:0,nearArchFrames:0,maxCoverWithin2_5m:0,maxPropCoverWithin2_5m:0,meshes:{}});b.frames++;
           if(s.nearProps){b.nearPropFrames++;b.nearPropRays+=s.nearProps;if(hits.length<8)hits.push({frame:i,t:f?+f.t.toFixed(3):null,phase:k,near:s.near});}if(s.nearArch)b.nearArchFrames++;
           b.maxCoverWithin2_5m=Math.max(b.maxCoverWithin2_5m,+s.cover.toFixed(3));b.maxPropCoverWithin2_5m=Math.max(b.maxPropCoverWithin2_5m,+s.coverProps.toFixed(3));for(const m in s.near)b.meshes[m]=(b.meshes[m]||0)+1;};
-        F.forEach((f,i)=>add(ph(f),LR.sample(C,I,f.cam,K.SCREEN.aspect),f,i));
-        add('islandIdlePose',LR.sample(C,I,C.fromLookAt(cfg.cameraIsland,cfg.cameraIsland.fovVerticalDeg),K.SCREEN.aspect),null,-1);
+        // the door leaf is dynamic (not in the GLB ray index): tested analytically at its per-frame angle (lens_rays.doorQuad)
+        let leafMin={d:9},leafBad=null;F.forEach((f,i)=>{const q=LR.doorQuad(f.door,cfg.openDeg);add(ph(f),LR.sample(C,I,f.cam,K.SCREEN.aspect,[q]),f,i);
+          const ld=LR.quadDist(f.cam.position,q);if(ld<leafMin.d)leafMin={d:+ld.toFixed(3),frame:i,t:+f.t.toFixed(3),state:f.state,door:+f.door.toFixed(2)};if(ld<LIMITS.clearanceM&&!leafBad)leafBad=leafMin;});
+        check('collision:door-leaf-clearance',!leafBad,{minLensToLeafM:leafMin,limitM:LIMITS.clearanceM,note:'lens vs the posed door leaf quad, every frame'});
+        {const q=LR.doorQuad(cfg.doorDrift?cfg.doorDrift.islandDeg:cfg.openDeg,cfg.openDeg);add('islandIdlePose',LR.sample(C,I,C.fromLookAt(cfg.cameraIsland,cfg.cameraIsland.fovVerticalDeg),K.SCREEN.aspect,[q]),null,-1);}
         check('collision:lens-near-geometry',hits.length===0,{nearM:LR.NEAR_M,coverM:LR.COVER_M,grid:LR.COLS+'x'+LR.ROWS,sampling:'every frame',archExempt:String(LR.ARCH),firstHits:hits,phases:R});}
       const palms=occl.filter(o=>/palm/.test(o.mesh)&&o.part!=='feet');check('occlusion:palms',palms.length===0,{headChestSamples:palms.length,byMesh:palms.reduce((a,o)=>(a[o.mesh]=(a[o.mesh]||0)+1,a),{}),sampling:'every 2nd frame'});}}
+  // --- T2+ doorway-clean door drift (RegionCameraData doorDrift): open on every crossing frame, islandDeg on the island,
+  // smooth (excluding the original linear opening-door / closing-door animations), and whenever the leaf is NOT fully open
+  // the lens keeps >= 1.0 m (lens near limit) and she keeps >= 0.35 m from the posed leaf quad (lens_rays.doorQuad).
+  {const dd=cfg.doorDrift,open=cfg.openDeg,lin=st=>st==='opening-door'||st==='closing-door';
+    let maxStep=0,maxAcc=0,minLens={d:9},minHer=9;
+    for(let i=2;i<F.length;i++){const f=F[i],d=f.door;
+      if(!lin(f.state)&&!lin(F[i-1].state)&&!lin(F[i-2].state)){maxStep=Math.max(maxStep,Math.abs(d-F[i-1].door));maxAcc=Math.max(maxAcc,Math.abs((d-F[i-1].door)-(F[i-1].door-F[i-2].door)));}
+      if(d<open-1e-6&&d>1e-6&&!lin(f.state)){const q=LR.doorQuad(d,open),l=LR.quadDist(f.cam.position,q);if(l<minLens.d)minLens={d:+l.toFixed(3),t:+f.t.toFixed(3),state:f.state,door:+d.toFixed(1)};
+        minHer=Math.min(minHer,LR.quadDist([f.root[0],Math.min(1.0,LR.DOOR.height),f.root[2]],q));}}
+    const isl=F.filter(f=>f.state==='island').map(f=>f.door),ci=F.filter(f=>f.state==='crossing-in').map(f=>f.door);
+    const xoNear=F.filter(f=>f.state==='crossing-out'&&Math.hypot(f.root[0],f.root[2])<1.2).map(f=>f.door);
+    const ok=!dd||(isl.length>0&&isl.every(v=>Math.abs(v-dd.islandDeg)<1e-6)&&ci.every(v=>v===open)&&xoNear.every(v=>v===open)&&maxStep<=1.0&&maxAcc<=0.05&&minLens.d>=LR.NEAR_M&&minHer>=0.35);
+    check('door-drift',ok,dd?{islandDeg:dd.islandDeg,openDeg:open,islandDoor:Array.from(new Set(isl)),crossingInAllOpen:ci.every(v=>v===open),openWhileNearDoorOut:xoNear.every(v=>v===open),maxDegPerFrame:+maxStep.toFixed(3),maxDegPerFrame2:+maxAcc.toFixed(4),minLensToLeafWhileNotOpen:minLens,minHerToLeafM:+minHer.toFixed(3)}:{disabled:true});}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
     for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}

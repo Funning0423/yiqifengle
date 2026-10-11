@@ -795,6 +795,13 @@
    ]
   ]
  },
+ "doorDrift": {
+  "islandDeg": 45,
+  "closeAfter": 1.2,
+  "closeSeconds": 2.6,
+  "openBefore": 4.1,
+  "openSeconds": 2.4
+ },
  "flow": {
   "actions": [
    {

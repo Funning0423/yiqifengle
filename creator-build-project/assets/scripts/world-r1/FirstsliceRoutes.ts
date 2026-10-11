@@ -132,6 +132,7 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       cameraTracks:TRANSITION_CAMERA.tracks as RouteConfig['cameraTracks'],
       interiorLighting:TRANSITION_CAMERA.lighting,
       // T2+ wind channel: keys in outbound-span key progress (crossing-out walk + toIsland walk + settle, all from walkDuration).
+      ...(railOn&&T.doorDrift?{doorDrift:{...T.doorDrift}}:{}),
       ...(railOn&&T.windOut?{wind:{outbound:(()=>{const W=T.windOut,a=walkS(outCrossing),b=walkS(toIsland),tot=a+b+T.crane.settleSeconds;
         const f=T.railOut.filter(k=>k.frontal);if(f.length!==1)throw Error('railOut needs exactly one frontal key');
         const fp=f[0].progress,he=T.crane.startProgress;if(!(W.swingStart<fp&&fp<he))throw Error('wind: swingStart < frontal < crane.startProgress');

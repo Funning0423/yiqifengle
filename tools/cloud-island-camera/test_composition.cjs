@@ -5,7 +5,7 @@ function api(baseline){const cache={};function load(name){if(cache[name])return 
 const old=api(true),now=api(false),plain=x=>JSON.parse(JSON.stringify(x));
 // T2+ (运镜bot) owns these route keys; they are frozen against the committed T2+ snapshot instead of the pre-T2 baseline.
 // Every other key is still frozen against the baseline. Regenerate deliberately with --update-t2plus-snapshot.
-const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','crane','cameraToSeat','cameraTracks','interiorLighting','wind'];
+const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','crane','cameraToSeat','cameraTracks','interiorLighting','wind','doorDrift'];
 const t2Snap=path.join(__dirname,'routes.t2plus.snapshot.json');
 if(process.argv.includes('--update-t2plus-snapshot'))fs.writeFileSync(t2Snap,JSON.stringify(Object.fromEntries(T2PLUS_KEYS.map(k=>[k,plain(now.cfg[k])])),null,1)+'\n');
 const t2=JSON.parse(fs.readFileSync(t2Snap,'utf8'));assert.deepEqual(Object.keys(t2).filter(k=>k!=='flow').sort(),[...T2PLUS_KEYS].sort(),'T2+ snapshot key set');

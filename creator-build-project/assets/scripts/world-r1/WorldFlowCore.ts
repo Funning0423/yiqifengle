@@ -104,6 +104,10 @@ export interface RouteConfig {
    *  startSeconds: crane-start mark time from the start of crossing-out (precomputed by the route builder from the eased
    *  outbound track; WorldFlowCore stays free of CameraPose value imports). */
   crane?:Readonly<{startProgress:number;settleSeconds:number;returnLeadSeconds?:number;startSeconds?:number}>;
+  /** T2+ doorway-clean (island views): the door drifts from openDeg to islandDeg while she walks out (closeAfter s into
+   *  toIsland, over closeSeconds), stays there on the island (restore), and reopens to openDeg during toThreshold
+   *  (finishing openBefore s before crossing-in, over openSeconds). Smoothstep, sampled with the camera span (no job, no pop). */
+  doorDrift?:Readonly<{islandDeg:number;closeAfter:number;closeSeconds:number;openBefore:number;openSeconds:number}>;
   /** T3a: authored seat approach. Omitted = original [cameraInside,cameraHome]. Must end exactly on cameraHome. */
   cameraToSeat?:readonly Pose[];
   /** T2: interior-light weight ramps on the exterior walks (walk progress). Omitted = old on/off switching. */
@@ -202,7 +206,7 @@ export class WorldFlow {
   private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
   private restore():void {
     this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
-    if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.config.openDeg);
+    if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.islandDoorDeg());
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
@@ -276,14 +280,15 @@ export class WorldFlow {
   /** T2+: ONE camera track over consecutive timed segments (walks, stand/turn, holds). Each segment's keys carry their
    *  own 0..1 progress; they are re-timed onto the span clock and a key at the same instant as the previous one is
    *  dropped (shared junction key). Characters/lighting run segment by segment on the same job clock. */
-  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>):Promise<void> {
+  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>,door?:ReadonlyArray<readonly [number,number]>):Promise<void> {
     const keys=spanCameraKeys(segments),total=segments.reduce((a,x)=>a+x.seconds,0);
     let camera:Promise<void>=Promise.resolve();
     // Camera progress follows the character's travelled distance inside walk segments (keys are placed by path progress),
     // time elsewhere (stand/turn/hold) and whenever the adapter reports nothing.
     const cur={start:0,seconds:0,walk:false};
     const byDistance=()=>{if(!cur.walk||!(total>0))return null;const f=this.walkFraction();return f===null?null:(cur.start+f*cur.seconds)/total;};
-    const onSample=wind&&wind.length?(e:number)=>{if(!token.cancelled)this.setWind(windAt(wind,e));}:undefined;
+    const hasWind=!!(wind&&wind.length),hasDoor=!!(door&&door.length);
+    const onSample=hasWind||hasDoor?(e:number)=>{if(token.cancelled)return;if(hasWind)this.setWind(windAt(wind!,e));if(hasDoor)this.world!.setDoor(windAt(door!,e));}:undefined;
     if(this.mode==='motion'){camera=onSample?this.world!.animateCamera(keys,total,token,track,byDistance,onSample):this.world!.animateCamera(keys,total,token,track,byDistance);
       if(mark&&mark.seconds>=0&&mark.seconds<=total&&this.world!.wait){const seconds=mark.seconds;
         this.world!.wait(seconds,token).then(()=>{if(!token.cancelled)this.cameraEvent({kind:'crane-start',segment:'toIsland',progress:mark.progress,seconds});},()=>{});}}
@@ -296,6 +301,10 @@ export class WorldFlow {
     if(!this.world!.wait){console.warn('WorldLease.wait missing; camera span timing degrades');return Promise.resolve();}
     return token.wait(this.world!.wait(seconds,token));
   }
+  private islandDoorDeg():number {const d=this.config.doorDrift;return d?Math.max(0,Math.min(this.config.openDeg,d.islandDeg)):this.config.openDeg;}
+  /** Door keys [span progress, deg] for doorDrift: from deg `a` to `b` over [t0, t0+dur] seconds of a span of `total` s. */
+  private doorKeys(total:number,t0:number,dur:number,a:number,b:number):ReadonlyArray<readonly [number,number]>|undefined {
+    if(!(total>0)||a===b)return undefined;const p0=Math.max(0,Math.min(1,t0/total)),p1=Math.max(p0+1e-6,Math.min(1,(t0+dur)/total));return [[0,a],[p0,a],[p1,b],[1,b]];}
   private walkSegment(path:readonly Vec[],cameras:readonly Pose[],state?:State):SpanSegment {return {seconds:this.walkSeconds(path),cameras,state,walk:true,run:t=>this.walk(path,null,t)};}
   /** Shared walk-duration contract: RouteConfig.walkDuration (FirstsliceRoutes.walkDuration) or constant speed. */
   private walkSeconds(path:readonly Vec[]):number {const d=this.config.walkDuration?.(path);return typeof d==='number'&&Number.isFinite(d)&&d>0?d:pathDuration(path,this.config.speed);}
@@ -332,7 +341,8 @@ export class WorldFlow {
             if(turnNeeded){await this.action({kind:'turn',controllerRoot:end,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk);await this.waitSeconds(settle-turnS,tk);}
             else await this.waitSeconds(settle,tk);}});}
         const cs=c.crane?.startSeconds;
-        await this.span(segs,t,c.cameraTracks.outbound,c.crane&&cs!==undefined?{name:'crane-start',progress:c.crane.startProgress,seconds:cs}:undefined,c.wind?.outbound);
+        const dd=c.doorDrift,total=segs.reduce((x,g)=>x+g.seconds,0),door=dd?this.doorKeys(total,segs[0].seconds+dd.closeAfter,dd.closeSeconds,c.openDeg,this.islandDoorDeg()):undefined;
+        await this.span(segs,t,c.cameraTracks.outbound,c.crane&&cs!==undefined?{name:'crane-start',progress:c.crane.startProgress,seconds:cs}:undefined,c.wind?.outbound,door);
       }
       else{await this.walk(c.outCrossing,crossOut,t);await this.walk(c.toIsland,toIsland,t);}
       // Weight is already 0 here and the camera is exactly cameraIsland with zero speed: restore() changes nothing visible.
@@ -385,9 +395,12 @@ export class WorldFlow {
           segs.push({seconds:turnS,cameras:lead>0?[]:[{...toThreshold[0],progress:0}],run:tk=>this.action({kind:'turn',controllerRoot:a,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk)});
           walkKeys=toThreshold.slice(1);}
         segs.push(this.walkSegment(c.toThreshold,walkKeys),this.walkSegment(c.inCrossing,crossIn,'crossing-in'));
-        await this.span(segs,t,c.cameraTracks.inbound);
+        const dd=c.doorDrift,total=segs.reduce((x,g)=>x+g.seconds,0),ci=total-segs[segs.length-1].seconds;
+        const door=dd&&this.mode==='motion'?this.doorKeys(total,ci-dd.openBefore-dd.openSeconds,dd.openSeconds,this.islandDoorDeg(),c.openDeg):undefined;
+        if(dd&&!door)this.world!.setDoor(c.openDeg);
+        await this.span(segs,t,c.cameraTracks.inbound,undefined,undefined,door);
       }
-      else{await this.walk(c.toThreshold,toThreshold,t);
+      else{if(c.doorDrift)this.world!.setDoor(c.openDeg);await this.walk(c.toThreshold,toThreshold,t);
         this.change('crossing-in');await this.walk(c.inCrossing,crossIn,t);}
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();
