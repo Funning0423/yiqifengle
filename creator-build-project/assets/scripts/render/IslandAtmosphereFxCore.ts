@@ -35,7 +35,7 @@ export const ISLAND_FX = {
     color: [255, 226, 170] as V3, nearInnerM: 1.0, nearOuterM: 3.0, flashNearM: 5, flashFullM: 12 },
   /** Independent additive overlay on top of the sea (sea material/night params untouched). Only while the beam sweeps
    * toward the camera side (facing^power), restrained: the sea gets darker at night, this must not paint it white. */
-  glint: { startM: 9, endM: 42, w0: 0.7, w1: 4.2, alphaNight: 0.13, facingPower: 6, color: [255, 222, 168] as V3 },
+  glint: { startM: 9, endM: 42, w0: 0.7, w1: 4.2, alphaNight: 0.09, facingPower: 6, color: [255, 222, 168] as V3 },
   smoke: {
     count: 7, lifeS: 7.5, riseM: 2.6, r0: 0.17, r1: 0.95,
     leanDir: [0.99, 0, -0.14] as V3, // authored v22 smoke drifted +X / slightly -Z
