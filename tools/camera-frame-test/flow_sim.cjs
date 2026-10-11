@@ -15,7 +15,7 @@ function create(opts={}){
 async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.0,sitSeconds=1.0}={}){
   const {C,W,cfg}=env;const dt=1/fps;
   const cam={fov:55,p:[0,0,0],q:[0,0,0,1],node:{setWorldPosition(x,y,z){cam.p=[x,y,z]},setWorldRotation(x,y,z,w){cam.q=[x,y,z,w]}}};
-  const jobs=new Set();
+  const jobs=new Set(),actions=[];
   const runJob=(seconds,token,tick)=>{token.check();if(!Number.isFinite(seconds)||seconds<=0){tick(1);return Promise.resolve();}
     return new Promise((resolve,reject)=>{const job={elapsed:0,seconds,tick,resolve,reject,off:()=>{}};job.off=token.onCancel(()=>{jobs.delete(job);reject(new W.Cancelled());});jobs.add(job);try{tick(0);}catch(e){jobs.delete(job);job.off();reject(e);}});};
   const world={weight:1,layers:null,door:0,events:[]};
@@ -45,7 +45,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
       else if(a.kind==='turn')ch.yaw=a.fromYawRad+Math.atan2(Math.sin(a.toYawRad-a.fromYawRad),Math.cos(a.toYawRad-a.fromYawRad))*p;
       else{const target=a.kind==='stand'?a.seat.standingControllerRoot:a.seat.seatedControllerRoot;ch.root=j.from.map((x,i)=>x+(target[i]-x)*p);}
       if(j.elapsed>=j.duration){ch.job=null;j.off();j.resolve();}},
-    perform(action,token){token.check();if(action.kind==='sit'){const d=Math.atan2(Math.sin(action.seat.yawRad-ch.yaw),Math.cos(action.seat.yawRad-ch.yaw));if(Math.abs(d)>.001)return ch.perform({kind:'turn',controllerRoot:action.seat.standingControllerRoot,fromYawRad:ch.yaw,toYawRad:ch.yaw+d,direction:'left'},token).then(()=>ch.perform(action,token));}
+    perform(action,token){token.check();actions.push(action);if(action.kind==='sit'){const d=Math.atan2(Math.sin(action.seat.yawRad-ch.yaw),Math.cos(action.seat.yawRad-ch.yaw));if(Math.abs(d)>.001)return ch.perform({kind:'turn',controllerRoot:action.seat.standingControllerRoot,fromYawRad:ch.yaw,toYawRad:ch.yaw+d,direction:'left'},token).then(()=>ch.perform(action,token));}
       const duration=action.kind==='stand'?standSeconds:action.kind==='sit'?sitSeconds:action.kind==='walk'?action.duration:1.5;
       return new Promise((resolve,reject)=>{const j={action,duration,from:[...ch.root],elapsed:0,resolve,reject,off:()=>{}};ch.job=j;j.off=token.onCancel(()=>{if(ch.job===j)ch.job=null;reject(new W.Cancelled());});});},
     cancelAndReset(pose){ch.job=null;ch.root=[...(pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot)];ch.yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad;},
@@ -71,6 +71,6 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     // hold a few stable frames after arrival (camera must not move)
     for(let k=0;k<10;k++){frame++;await tick();frames.push({...snap(),op:op+':hold'});}
   }
-  return {frames,states,results,events:world.events,cameraEvents,windEvents,dt};
+  return {frames,states,results,events:world.events,cameraEvents,windEvents,actions,dt};
 }
 module.exports={create,run};

@@ -157,8 +157,12 @@ export const TRANSITION_CAMERA = Object.freeze({
   railOut: [{ progress: 0.05, side: -1, distance: 0.51, height: 1.863, lead: -1.628, look: 0.272, targetHeight: 0.955, fovVerticalDeg: 66.938 },
     { progress: 0.123, side: -1, distance: 1.19, height: 2.473, lead: -1.081, look: -0.021, targetHeight: 0.962, fovVerticalDeg: 64.664 },
     { progress: 0.238, side: -1, distance: 2.834, height: 2.841, lead: 0.496, look: -0.018, targetHeight: 1.233, fovVerticalDeg: 55.845 },
-    { progress: 0.408, side: -1, distance: 0.828, height: 1.984, lead: 3.142, look: 0.093, targetHeight: 1.191, fovVerticalDeg: 52.77, frontal: true },
-    { progress: 0.538, side: -1, distance: 2.022, height: 1.884, lead: 4.782, look: -0.104, targetHeight: 1.146, fovVerticalDeg: 48.738 }] as RailKey[],
+    { progress: 0.43, side: -1, distance: 0.91, height: 2.95, lead: 3.404, look: -0.204, targetHeight: 1.227, fovVerticalDeg: 49.868, frontal: true },
+    { progress: 0.553, side: -1, distance: 2.022, height: 2.152, lead: 4.805, look: -0.315, targetHeight: 1.186, fovVerticalDeg: 50.929 }] as RailKey[],
+  /** Lens-clearance reroute (Mac round 2 / lens_rays.cjs): the frontal + hold-end keys were raised so the lens no longer passes
+   *  0.47 m from the ~2 m shrub in env_island_props_merged (x -4.4..-3.25, z 2.4..3.9) during the hold. Previous values:
+   *  frontal { progress 0.408, distance 0.828, height 1.984, lead 3.142, look 0.093, targetHeight 1.191, fov 52.77 },
+   *  hold end { progress 0.538, distance 2.022, height 1.884, lead 4.782, look -0.104, targetHeight 1.146, fov 48.738 }, crane.startProgress 0.538. */
   /** Pre-swing side rail (rollback: copy into railOut, crane.startProgress 0.354933, settleSeconds 3.48131, crossOutEnd
    *  { distance 0.649, height 1.6, lead -2.25, look 0.399, targetHeight 1, fov 72 }). */
   railOutSide: [{ progress: 0.15, side: -1, distance: 0.994, height: 2.173, lead: -1.319, look: 0.063, targetHeight: 1.001, fovVerticalDeg: 61.591 }, { progress: 0.3, side: -1, distance: 3.765, height: 2.634, lead: -0.641, look: 0.031, targetHeight: 1, fovVerticalDeg: 58 }, { progress: 0.354933, side: -1, distance: 4.246, height: 3.19, lead: -0.103, look: 0.079, targetHeight: 1, fovVerticalDeg: 49.636 }] as RailKey[],
@@ -171,7 +175,7 @@ export const TRANSITION_CAMERA = Object.freeze({
   railInDoor: [{ key: 'R1', progress: .6 }, { key: 'R2', progress: .72 }, { key: 'R3', progress: .86 }] as ReadonlyArray<{ key: string; progress: number }>,
   /** T2+ crane: leaves the rail at toIsland progress startProgress and reaches cameraIsland `settleSeconds` after she
    *  stops (spherical about her root: direction slerp, log-distance; target eases from her chest to the island target). */
-  crane: { startProgress: 0.538, settleSeconds: 2.992, steps: 5 },
+  crane: { startProgress: 0.553, settleSeconds: 2.992, steps: 5 },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held -> rises from toIsland progress swingStart to exactly 1 at the
    *  frontal railOut key -> held to crane.startProgress -> eases to exactly 0 when the camera settles on cameraIsland.

@@ -126,6 +126,14 @@ const NONE:Layers={interior:false,exterior:false,door:false,backdrop:false};
 export const layerStates={HOME,ISLAND,BOTH,NONE};
 export const distance=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 export function pathDuration(path:readonly Vec[],speed:number):number {return path.slice(1).reduce((sum,p,i)=>sum+distance(path[i],p),0)/speed;}
+/** Heading (yaw, +Z forward, atan2(dx,dz)) of a path at its start - toward the first point at least minDist (0.05 m, horizontal)
+ *  from path[0] - or, atEnd, at its end - from the last point at least minDist before the end. Tiny lead-in/out segments
+ *  (toThreshold's first segment is 3 mm and points backward) therefore never set a turn target. Falls back to the farthest point. */
+export const HEADING_MIN_DIST=0.05;
+export function pathHeading(path:readonly Vec[],atEnd=false,minDist=HEADING_MIN_DIST):number {
+  const n=path.length;if(n<2)return 0;const o=atEnd?path[n-1]:path[0];let best=o,bd=0;
+  for(let k=1;k<n;k++){const p=atEnd?path[n-1-k]:path[k],d=Math.hypot(p[0]-o[0],p[2]-o[2]);if(d>bd){bd=d;best=p;}if(d>=minDist){best=p;break;}}
+  return atEnd?Math.atan2(o[0]-best[0],o[2]-best[2]):Math.atan2(best[0]-o[0],best[2]-o[2]);}
 export function interpolate(a:Vec,b:Vec,t:number):Vec {return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
 /** Arclength interpolation, rather than equal-time interpolation of uneven source samples. */
 export function pointOnPath(path:readonly Vec[],t:number):Vec {
@@ -299,7 +307,7 @@ export class WorldFlow {
   async leaveHome(options?:{from?:Pose}):Promise<Result> {
     const fail=this.blocked('home',true);if(fail)return fail;
     return this.operate('standing',async t=>{
-      const c=this.config,turn:Action={kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:Math.atan2(c.toDoor[1][0]-c.toDoor[0][0],c.toDoor[1][2]-c.toDoor[0][2]),direction:'left'};
+      const c=this.config,turn:Action={kind:'turn',controllerRoot:c.seat.standingControllerRoot,fromYawRad:c.seat.yawRad,toYawRad:pathHeading(c.toDoor),direction:'left'};
       if(this.mode==='motion'&&c.cameraStandTurn&&c.cameraTracks?.standTurn){
         const stand=this.character?.actionSeconds?.('stand'),standS=stand&&stand>0&&Number.isFinite(stand)?stand:1.0,turnS=this.turnSeconds();
         const from=options?.from,lead=from?rejoinSeconds(from,c.cameraHome):0,segs:SpanSegment[]=[];
@@ -316,9 +324,9 @@ export class WorldFlow {
       this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);this.change('crossing-out');
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
-        const end=c.toIsland[c.toIsland.length-1],prev=c.toIsland[c.toIsland.length-2]??end,settle=c.crane?.settleSeconds??0;
+        const end=c.toIsland[c.toIsland.length-1],settle=c.crane?.settleSeconds??0;
         const segs:SpanSegment[]=[this.walkSegment(c.outCrossing,crossOut),this.walkSegment(c.toIsland,settle>0?toIsland.slice(0,-1):toIsland)];
-        if(settle>0){const fromYaw=Math.atan2(end[0]-prev[0],end[2]-prev[2]),toYaw=c.islandYawRad??0,turnS=this.turnSeconds();
+        if(settle>0){const fromYaw=pathHeading(c.toIsland,true),toYaw=c.islandYawRad??0,turnS=this.turnSeconds();
           const turnNeeded=Math.abs(Math.atan2(Math.sin(toYaw-fromYaw),Math.cos(toYaw-fromYaw)))>.01&&turnS<=settle;
           segs.push({seconds:settle,cameras:[{...toIsland[toIsland.length-1],progress:1}],run:async tk=>{
             if(turnNeeded){await this.action({kind:'turn',controllerRoot:end,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk);await this.waitSeconds(settle-turnS,tk);}
@@ -368,7 +376,7 @@ export class WorldFlow {
       if(c.cameraTracks?.inbound){
         // T2+: she first turns from islandYaw onto the path (the original snapped ~160 deg on the first walk frame);
         // the crane-down starts with the turn, so camera and girl start together.
-        const a=c.toThreshold[0],b=c.toThreshold.find(p=>Math.hypot(p[0]-a[0],p[2]-a[2])>1e-6)??a,fromYaw=c.islandYawRad??0,toYaw=Math.atan2(b[0]-a[0],b[2]-a[2]),turnS=this.turnSeconds();
+        const a=c.toThreshold[0],fromYaw=c.islandYawRad??0,toYaw=pathHeading(c.toThreshold),turnS=this.turnSeconds();
         const segs:SpanSegment[]=[];let walkKeys=toThreshold;const lead=c.crane?.returnLeadSeconds??0;
         if(lead>0){segs.push({seconds:lead,cameras:[{...toThreshold[0],progress:0}],run:tk=>this.waitSeconds(lead,tk)});walkKeys=toThreshold.slice(1);}
         if(c.crane&&Math.abs(Math.atan2(Math.sin(toYaw-fromYaw),Math.cos(toYaw-fromYaw)))>.01){

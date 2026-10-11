@@ -10,7 +10,7 @@
  *   lighting   interior weight continuous (per-frame step <= 0.05), 0 on island, 1 at home
  * Usage: node test_camera_frames.cjs [--json out.json] [--no-geometry]
  * Exit 0 = all checks pass. Engine-free: says nothing about shaders/materials/frame time (native capture needed). */
-const T9=require('./t9_props.cjs'),S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),fs=require('fs');
+const T9=require('./t9_props.cjs'),S=require('./flow_sim.cjs'),K=require('./metrics.cjs'),G=require('./glb_geometry.cjs'),LR=require('./lens_rays.cjs'),fs=require('fs');
 const args=process.argv.slice(2),jsonOut=args.includes('--json')?args[args.indexOf('--json')+1]:null;
 // --walk-profile accel: synthetic walk-duration contract (what 角色动画bot will plug in): walkDuration = L/0.7 + 0.3 s and a
 // trapezoidal speed profile (0.3 s linear accel and decel); the sim character reports walkProgress() = distance fraction.
@@ -86,6 +86,16 @@ const LIMITS={clearanceM:.15,homeClearanceM:.07,cutTurnDeg:15,cutMoveM:.5,maxAng
       // head AND chest must be visible on every sample (palms, T9 props, island); feet reported only.
       const head=occl.filter(o=>o.part==='head'),chest=occl.filter(o=>o.part==='chest'),hc=head.concat(chest);
       check('collision:line-of-sight',hc.length===0,{headOccludedSamples:head.length,chestOccludedSamples:chest.length,anyOccludedSamples:occl.length,first:hc.slice(0,6),byMesh:hc.reduce((a,o)=>(a[o.state+':'+o.part+':'+o.mesh]=(a[o.state+':'+o.part+':'+o.mesh]||0)+1,a),{}),feetOccluded:occl.length-hc.length,t9Props:!!geoT9});
+      // Lens coverage (Mac round 2, f0f3a13: palm trunk swept across the LENS): 16x32 frustum rays every frame; any ray hitting
+      // non-architecture geometry (props, palms, fences, bushes, T9) within LR.NEAR_M (1.0 m) fails. Room/tower architecture is
+      // reported only (the lens lives in the room and crosses the door frame; covered by lens-clearance). Coverage within 2.5 m reported.
+      {const ph=f=>f.state==='crossing-out'?'outbound':f.state==='island'?'islandIdle':f.state==='walking-home'||f.state==='crossing-in'?'return':'interior';
+        const R={},hits=[];const add=(k,s,f,i)=>{const b=R[k]||(R[k]={frames:0,nearPropFrames:0,nearPropRays:0,nearArchFrames:0,maxCoverWithin2_5m:0,maxPropCoverWithin2_5m:0,meshes:{}});b.frames++;
+          if(s.nearProps){b.nearPropFrames++;b.nearPropRays+=s.nearProps;if(hits.length<8)hits.push({frame:i,t:f?+f.t.toFixed(3):null,phase:k,near:s.near});}if(s.nearArch)b.nearArchFrames++;
+          b.maxCoverWithin2_5m=Math.max(b.maxCoverWithin2_5m,+s.cover.toFixed(3));b.maxPropCoverWithin2_5m=Math.max(b.maxPropCoverWithin2_5m,+s.coverProps.toFixed(3));for(const m in s.near)b.meshes[m]=(b.meshes[m]||0)+1;};
+        F.forEach((f,i)=>add(ph(f),LR.sample(C,I,f.cam,K.SCREEN.aspect),f,i));
+        add('islandIdlePose',LR.sample(C,I,C.fromLookAt(cfg.cameraIsland,cfg.cameraIsland.fovVerticalDeg),K.SCREEN.aspect),null,-1);
+        check('collision:lens-near-geometry',hits.length===0,{nearM:LR.NEAR_M,coverM:LR.COVER_M,grid:LR.COLS+'x'+LR.ROWS,sampling:'every frame',archExempt:String(LR.ARCH),firstHits:hits,phases:R});}
       const palms=occl.filter(o=>/palm/.test(o.mesh)&&o.part!=='feet');check('occlusion:palms',palms.length===0,{headChestSamples:palms.length,byMesh:palms.reduce((a,o)=>(a[o.mesh]=(a[o.mesh]||0)+1,a),{}),sampling:'every 2nd frame'});}}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
