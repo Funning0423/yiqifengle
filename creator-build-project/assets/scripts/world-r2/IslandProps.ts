@@ -1,6 +1,6 @@
-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
+import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import type { CameraPose } from '../world-r1/CameraPose';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 
 /**
@@ -18,7 +18,9 @@ export class IslandProps {
   private ready_ = false; private failure: string | null = null; private disposed = false;
   private palette: Material | null = null; private lamp: MeshRenderer | null = null; private lampDay: Material | null = null; private night: boolean | null = null;
   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>();
-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0 };
+  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0 };
+  /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
+  private nightW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
   private entrance = 1; private fade: { r: MeshRenderer; i: number; m: Material }[] = []; private signText: UIOpacity | null = null; private view = { width: 0, height: 0 };
   private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
@@ -46,6 +48,7 @@ export class IslandProps {
       for (const role of PROP_ROLES) { const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, ISLAND_PROPS.seaY, 0], 0, 1); n.active = false; this.buttons.set(role, n); }
       this.addSignText(this.sign);
       this.addSignWater();
+      this.addLampLight();
       if (!this.lamp) console.warn('[T9_PROPS] lamp_glass renderer missing; lamp stays as imported');
       this.ready_ = true; return true;
     } catch (e) { this.failure = String(e); console.warn('[T9_PROPS] props unavailable, flat buttons stay', this.failure); return false; }
@@ -68,7 +71,7 @@ export class IslandProps {
       n.addComponent(RenderRoot2D); const t = n.addComponent(UITransform); t.setContentSize(T.widthM * px * 0.9, T.heightM * px * 0.8);
       const l = n.addComponent(Label); l.string = T.string; l.fontSize = 104; l.lineHeight = 112; l.isBold = true; l.color = new Color(T.color);
       l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER; l.overflow = Label.Overflow.SHRINK;
-      this.signText = n.addComponent(UIOpacity); this.stats.label = 'render-root-2d';
+      this.signText = n.addComponent(UIOpacity); this.signLabel = l; this.stats.label = 'render-root-2d';
     } catch (e) { this.stats.label = 'failed:' + String(e); console.warn('[T9_PROPS] sign text unavailable', String(e)); }
   }
   /** Contact shadow + two ripple rings at the sign posts. Procedural meshes (vertex alpha) + builtin-unlit technique 3
@@ -91,17 +94,49 @@ export class IslandProps {
       this.stats.water = 'procedural';
     } catch (e) { this.stats.water = 'failed:' + String(e); console.warn('[T9_PROPS] sign water unavailable', String(e)); }
   }
-  private tickWater(night: boolean) {
-    const S = ISLAND_PROPS.signpost, W = S.water.ripple, t = game.totalTime / 1000;
-    if (this.water.shadow) { const c = new Color(S.water.shadow.color); c.a = Math.round((night ? S.water.shadow.nightAlpha : S.water.shadow.alpha) * this.entrance * 255); this.water.shadow.setProperty('mainColor', c); }
+  private tickWater(w: number) {
+    const S = ISLAND_PROPS.signpost, W = S.water.ripple, t = game.totalTime / 1000, mix = (a: number, b: number) => a + (b - a) * w;
+    if (this.water.shadow) { const c = new Color(S.water.shadow.color); c.a = Math.round(mix(S.water.shadow.alpha, S.water.shadow.nightAlpha) * this.entrance * 255); this.water.shadow.setProperty('mainColor', c); }
     this.water.ripples.forEach((r, k) => {
-      if (!isValid(r.node, true)) return; const a = rippleAt(t, k), c = new Color(night ? W.nightColor : W.color);
+      if (!isValid(r.node, true)) return; const a = rippleAt(t, k), c = new Color(mixHex(W.color, W.nightColor, w));
       // grow around the centre between the posts (mesh is centred at centerX)
       const cx = S.water.centerX * S.scale, yaw = S.yawDeg * Math.PI / 180, dx = cx * (1 - a.scale);
       r.node.setPosition(S.position[0] + dx * Math.cos(yaw), ISLAND_PROPS.seaY + W.lift, S.position[2] - dx * Math.sin(yaw));
       r.node.setScale(S.scale * a.scale, 1, S.scale * a.scale);
-      c.a = Math.round((night ? W.nightAlpha : W.alpha) * a.alpha * this.entrance * 255); r.material.setProperty('mainColor', c);
+      c.a = Math.round(mix(W.alpha, W.nightAlpha) * a.alpha * this.entrance * 255); r.material.setProperty('mainColor', c);
     });
+    // T9n: lamp light + warm water pool + sign text colour follow the same night weight (smooth, no pop)
+    const L = lampLightAt(w);
+    if (this.lampLight && isValid(this.lampLight, true)) { if (this.lampLight.enabled !== L.enabled) this.lampLight.enabled = L.enabled; this.lampLight.luminance = this.lampBase * L.scale * this.entrance; }
+    if (this.glow && isValid(this.glow.node, true)) { const R = S.lampLight.reflection, c = new Color(R.color); const a = Math.round(R.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.glow.material.setProperty('mainColor', c); if (this.glow.node.active !== a > 0) this.glow.node.active = a > 0; }
+    if (this.signLabel && isValid(this.signLabel, true)) this.signLabel.color = new Color(mixHex(S.text.color, S.text.nightColor, w));
+  }
+  /** T9n: warm SphereLight next to lamp_glass, night only. Light.visibility = the sign's own layer bit (a user layer the
+   * world camera already renders and nothing else uses), so the forward-add pass touches only the sign's 2 renderers
+   * (island, sea, palms, buttons are not lit by it). Skipped (lamp keeps its emissive glow only) when the camera does
+   * not render that layer. Plus a faint additive warm pool on the sea (procedural, builtin-unlit "add"). */
+  private addLampLight() {
+    const S = ISLAND_PROPS.signpost, LL = S.lampLight, sign = this.sign!, layer = 1 << LL.layerBit;
+    try {
+      if (!this.camera || (this.camera.visibility & layer) === 0) { this.stats.lampLight = 'skipped:camera-layer'; }
+      else {
+        const walk = (n: Node) => { n.layer = layer; for (const c of n.children) walk(c); }; walk(sign);
+        const n = new Node('SignLampLight'); n.layer = layer; sign.addChild(n); n.setPosition(LL.local[0], LL.local[1], LL.local[2]);
+        const l = n.addComponent(SphereLight); l.color = new Color(LL.color); l.size = LL.size * S.scale; l.range = LL.range * S.scale; l.visibility = layer;
+        this.lampBase = l.luminance; l.luminance = 0; l.enabled = false; this.lampLight = l; this.stats.lampLight = 'sphere-light';
+      }
+    } catch (e) { this.lampLight = null; this.stats.lampLight = 'failed:' + String(e); console.warn('[T9_PROPS] lamp light unavailable', String(e)); }
+    try {
+      const fx = EffectAsset.get('builtin-unlit'); const tech = fx ? fx.techniques.findIndex(t => t.name === 'add') : -1; if (tech < 0) return;
+      const R = LL.reflection, g = softEllipse(0, R.rx, R.rz), mesh = utils.createMesh({ positions: g.positions, normals: g.normals, colors: g.colors, indices: g.indices }, undefined, { calculateBounds: true });
+      this.water.meshes.push(mesh);
+      const m = new Material(); m.initialize({ effectName: 'builtin-unlit', technique: tech, defines: { USE_VERTEX_COLOR: true } }); const c = new Color(R.color); c.a = 0; m.setProperty('mainColor', c);
+      const yaw = S.yawDeg * Math.PI / 180, x = R.x * S.scale;
+      const n = new Node('SignLampReflection'); n.layer = this.root.layer; this.root.addChild(n);
+      n.setPosition(S.position[0] + x * Math.cos(yaw), ISLAND_PROPS.seaY + R.lift, S.position[2] - x * Math.sin(yaw)); n.setRotationFromEuler(0, S.yawDeg, 0); n.setScale(S.scale, 1, S.scale);
+      const r = n.addComponent(MeshRenderer); r.mesh = mesh; r.setMaterial(m, 0); r.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF; r.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
+      n.active = false; this.glow = { node: n, material: m };
+    } catch (e) { this.glow = null; console.warn('[T9_PROPS] lamp reflection unavailable', String(e)); }
   }
   /** Current world-camera pose (read-only; camera is written by CameraPose.applyCameraPose only). */
   pose(): CameraPose | null {
@@ -114,11 +149,17 @@ export class IslandProps {
     if (!this.ready || !isValid(this.root, true)) return;
     if (this.root.active !== o.exterior) this.root.active = o.exterior;
     this.view.width = o.width; this.view.height = o.height;
-    if (this.night !== o.night) {
-      this.night = o.night;
-      if (this.lamp && isValid(this.lamp, true) && !this.fade.length) { const m = o.night ? this.palette : this.lampDay; if (m) { this.lamp.setSharedMaterial(m, 0); this.stats.lampSwaps++; } }
+    const now = game.totalTime / 1000, first = this.lastTime < 0, dt = first ? 0 : now - this.lastTime; this.lastTime = now;
+    // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS
+    this.nightW = first ? (o.night ? 1 : 0) : approachNight(this.nightW, o.night, dt);
+    this.stats.nightWeight = +this.nightW.toFixed(3); setPropNightWeight(this.nightW);
+    // lamp glass day/night material: swapped at the middle of the fade (light is half up), not at the switch instant
+    const lampNight = this.nightW >= 0.5;
+    if (this.night !== lampNight) {
+      this.night = lampNight;
+      if (this.lamp && isValid(this.lamp, true) && !this.fade.length) { const m = lampNight ? this.palette : this.lampDay; if (m) { this.lamp.setSharedMaterial(m, 0); this.stats.lampSwaps++; } }
     }
-    if (o.exterior) this.tickWater(o.night);
+    if (o.exterior) this.tickWater(this.nightW);
     const pose = o.buttons && o.exterior ? this.pose() : null;
     const slots = pose && o.width > 0 && o.height > 0 ? propButtonLayout(o.width, o.height).slots : [];
     for (const role of PROP_ROLES) {
@@ -177,5 +218,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; this.endFade(); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); }
+  dispose() { if (this.disposed) return; this.endFade(); this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); }
 }

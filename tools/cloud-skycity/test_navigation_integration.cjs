@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:H.warm.warmButtonGraphics});// T9: the overlay and the Boot import the prop layout + IslandPropTaps (engine-free real sources); IslandProps itself
 // (3D host) is a stub that never becomes ready here, so this test keeps covering the flat-button path.
 const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
-const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout'],camPose);
+const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout','propNightWeight','tagColorsAt','setPropNightWeight'],camPose);
 const propTaps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap','setPropTapLook']);
 class UIOpacity{constructor(){this.opacity=255;}}
 const {IslandJourneyOverlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:H.warm.warmButton,...skin,...propLayout,emitPropTap:propTaps.emitPropTap,UIOpacity});

@@ -83,7 +83,7 @@ ok('IslandPropTaps: subscribe/unsubscribe, info flags, listener errors isolated'
 const H=require('../cloud-ui/harness.cjs')(),{Node,UITransform,Label,warm}=H;
 const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:warm.warmButtonGraphics});
 const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
-const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout'],camPose);
+const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout','propNightWeight','tagColorsAt','setPropNightWeight'],camPose);
 const taps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap','setPropTapLook']);
 class UIOpacity{constructor(){this.opacity=255;}}
 const {IslandJourneyOverlay:Overlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:warm.warmButton,...skin,...propLayout,emitPropTap:taps.emitPropTap,UIOpacity});
@@ -145,5 +145,41 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
   // flat-button fallback (no props): mainline gets the T2 entrance as before
   const b2=Object.assign(new B(),{hudState:'crossing-out',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:null,canvas:b.canvas});moved.length=0;b2.trackTransitionHud('island');b2.applyIslandEntrance(1/60,mainline);assert(moved.length===2,'flat mainline still animated');
   assert(/if\(sign&&\(this\.islandEntrance>=0\|\|this\.signEntrance>=0\)\)sign=\{x:sign\.x,y:sign\.y,width:0,height:0\};/.test(src),'zero-size hit area during the entrance');
+});
+ok('T9n night tags: day = T9 cream colours, night = warm grey card + deeper brown text; contrast >= 4.5:1 at every step of the blend; night card about as dark as the 0.35 night light',()=>{
+  const T=P.tag,d=L.tagColorsAt(0),n=L.tagColorsAt(1);
+  assert.deepEqual([d.fill,d.edge,d.text],[T.fill,T.edge,T.text]);assert.deepEqual([n.fill,n.edge,n.text],[T.nightFill,T.nightEdge,T.nightText]);
+  let min=99;for(let i=0;i<=100;i++){const c=L.tagColorsAt(i/100),r=L.contrastRatio(c.text,c.fill);min=Math.min(min,r);}
+  assert(L.contrastRatio(d.text,d.fill)>=4.5&&L.contrastRatio(n.text,n.fill)>=4.5&&min>=4.5,'contrast day '+L.contrastRatio(d.text,d.fill).toFixed(2)+' night '+L.contrastRatio(n.text,n.fill).toFixed(2)+' min '+min.toFixed(2));
+  const lum=h=>(L.contrastRatio(h,'#000000')*0.05)-0.05;const k=lum(n.fill)/lum(d.fill);assert(k>0.2&&k<0.5,'night card luminance ratio '+k.toFixed(2));
+  assert.equal(L.mixHex('#000000','#ffffff',0.5),'#808080');
+});
+ok('T9n night weight: switch fades over nightFadeS (0.5 s), monotone, both ways; lamp light off at day, smoothstep in (0 slope at both ends), full = luminanceScale',()=>{
+  let w=0,steps=0;const seq=[];while(w<1&&steps<200){w=L.approachNight(w,true,1/60);seq.push(w);steps++;}
+  assert(Math.abs(steps/60-P.nightFadeS)<=2/60,'fade '+steps/60);for(let i=1;i<seq.length;i++)assert(seq[i]>seq[i-1]);
+  let b=1,back=0;while(b>0&&back<200){b=L.approachNight(b,false,1/60);back++;}assert.equal(back,steps);
+  assert.equal(L.approachNight(0.3,true,5),0.3+0.1/P.nightFadeS,'dt clamped to 0.1 s');
+  const off=L.lampLightAt(0),on=L.lampLightAt(1);assert(!off.enabled&&off.scale===0);assert(on.enabled&&on.scale===P.signpost.lampLight.luminanceScale);
+  const e=1e-3;assert(L.lampLightAt(e).scale<on.scale*1e-5&&on.scale-L.lampLightAt(1-e).scale<on.scale*1e-5,'eases at both ends (no pop)');
+  for(let i=1;i<=100;i++)assert(L.lampLightAt(i/100).scale>=L.lampLightAt((i-1)/100).scale);
+  L.setPropNightWeight(2);assert.equal(L.propNightWeight(),1);L.setPropNightWeight(NaN);assert.equal(L.propNightWeight(),0);
+});
+ok('T9n overlay tags follow the props night weight (real overlay): day colours, repaint to night colours after setPropNightWeight(1)+sync, intermediate weight mixes, back to day',()=>{
+  const {o}=setup();o.setPropMode(true);const col=()=>o.tags.map(t=>{const c=t.getComponentInChildren(Label).color;return String(c.hex??(c.toHEX?c.toHEX('#rrggbb'):c)).replace('#','').slice(0,6).toLowerCase();});
+  const hex=h=>h.replace('#','').slice(0,6).toLowerCase();
+  propLayout.setPropNightWeight(0);o.sync(390,844,true);assert.deepEqual(col(),Array(3).fill(hex(P.tag.text)));
+  propLayout.setPropNightWeight(1);o.sync(390,844,true);assert.deepEqual(col(),Array(3).fill(hex(P.tag.nightText)));
+  propLayout.setPropNightWeight(.5);o.sync(390,844,true);assert.deepEqual(col(),Array(3).fill(hex(L.tagColorsAt(.5).text)));
+  propLayout.setPropNightWeight(.505);o.sync(390,844,true);assert.deepEqual(col(),Array(3).fill(hex(L.tagColorsAt(.5).text)),'sub-2% step: no repaint');
+  propLayout.setPropNightWeight(0);o.sync(390,844,true);assert.deepEqual(col(),Array(3).fill(hex(P.tag.text)));o.dispose();
+});
+ok('T9n lamp light wiring (source): night-only SphereLight on the sign layer only (Light.visibility), camera-layer guard, follows lampLightAt(night weight); warm additive water pool; sign text colour by weight; lamp glass swap at mid-fade; no global material / RoomLightingRig / Boot change',()=>{
+  const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/addComponent\(SphereLight\)/.test(src)&&/l\.visibility = layer/.test(src)&&/\(this\.camera\.visibility & layer\) === 0/.test(src));
+  assert(/const L = lampLightAt\(w\)/.test(src)&&/this\.lampLight\.luminance = this\.lampBase \* L\.scale \* this\.entrance/.test(src));
+  assert(/findIndex\(t => t\.name === 'add'\)/.test(src)&&/SignLampReflection/.test(src));
+  assert(/mixHex\(S\.text\.color, S\.text\.nightColor, w\)/.test(src)&&/const lampNight = this\.nightW >= 0\.5/.test(src));
+  assert(!/import[^\n]*RoomLightingRig|setRoomLightWeight|mainLight|\.sharedMaterial\.setProperty|palette!?\.setProperty/.test(src),'no global light/material writes');
+  const lay=P.signpost.lampLight;assert(lay.layerBit>=0&&lay.layerBit<20,'user layer');assert(((1820327937>>>lay.layerBit)&1)===1,'world camera (scene _visibility 1820327937) renders the sign layer');
 });
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');
