@@ -1,0 +1,186 @@
+[
+ {
+  "file": "piece_strawberry.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 9583,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "piece_leaf.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 9034,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "piece_blueberry.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 10792,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "piece_flower.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 11203,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "piece_acorn.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 10848,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "piece_shell.png",
+  "group": "棋子",
+  "w": 192,
+  "h": 192,
+  "bytes": 11479,
+  "note": "192², 171 px/格单位；焦点调色"
+ },
+ {
+  "file": "special_line_h.png",
+  "group": "特殊块",
+  "w": 308,
+  "h": 308,
+  "bytes": 4211,
+  "note": "308², 与棋子同比例、同中心"
+ },
+ {
+  "file": "special_line_v.png",
+  "group": "特殊块",
+  "w": 308,
+  "h": 308,
+  "bytes": 4470,
+  "note": "308², 与棋子同比例、同中心"
+ },
+ {
+  "file": "special_bomb.png",
+  "group": "特殊块",
+  "w": 308,
+  "h": 308,
+  "bytes": 10729,
+  "note": "308², 与棋子同比例、同中心"
+ },
+ {
+  "file": "obstacle_moss.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 10732,
+  "note": "160², 与格子同比例、同中心"
+ },
+ {
+  "file": "obstacle_roots.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 6927,
+  "note": "160², 与格子同比例、同中心"
+ },
+ {
+  "file": "obstacle_shell_2.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 8504,
+  "note": "160², 与格子同比例、同中心"
+ },
+ {
+  "file": "obstacle_shell_1.png",
+  "group": "障碍",
+  "w": 160,
+  "h": 160,
+  "bytes": 9722,
+  "note": "160², 与格子同比例、同中心"
+ },
+ {
+  "file": "tile_a.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 5404,
+  "note": "160²"
+ },
+ {
+  "file": "tile_b.png",
+  "group": "格子底座",
+  "w": 160,
+  "h": 160,
+  "bytes": 5912,
+  "note": "160²"
+ },
+ {
+  "file": "tray_frame.png",
+  "group": "托盘",
+  "w": 681,
+  "h": 723,
+  "bytes": 88104,
+  "note": "750 设计宽下 1:1；格距 82px"
+ },
+ {
+  "file": "icon_moves.png",
+  "group": "托盘/HUD",
+  "w": 65,
+  "h": 103,
+  "bytes": 4314,
+  "note": ""
+ },
+ {
+  "file": "hud_pause.png",
+  "group": "HUD",
+  "w": 126,
+  "h": 128,
+  "bytes": 7466,
+  "note": ""
+ },
+ {
+  "file": "hud_levelplate.png",
+  "group": "HUD",
+  "w": 411,
+  "h": 129,
+  "bytes": 13837,
+  "note": "可九宫格拉伸"
+ },
+ {
+  "file": "tool_starlight.png",
+  "group": "道具",
+  "w": 192,
+  "h": 192,
+  "bytes": 9755,
+  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+ },
+ {
+  "file": "tool_windbell.png",
+  "group": "道具",
+  "w": 192,
+  "h": 192,
+  "bytes": 9320,
+  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+ },
+ {
+  "file": "tool_tidebottle.png",
+  "group": "道具",
+  "w": 192,
+  "h": 192,
+  "bytes": 9376,
+  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+ },
+ {
+  "file": "bg_island_board.jpg",
+  "group": "背景",
+  "w": 750,
+  "h": 1624,
+  "bytes": 23276,
+  "note": "v2 更虚更淡；JPG q70 渐进"
+ }
+]

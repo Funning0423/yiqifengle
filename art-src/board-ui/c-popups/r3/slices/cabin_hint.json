@@ -1,0 +1,56 @@
+{
+ "rows": [
+  {
+   "file": "cabin_bubble.png",
+   "w": 116,
+   "h": 138,
+   "bytes": 4241,
+   "note": "月亮图标气泡（含柔影），显示 1:1 @750 设计宽；尾巴朝左下指向小屋"
+  },
+  {
+   "file": "cabin_glow.png",
+   "w": 96,
+   "h": 96,
+   "bytes": 1602,
+   "note": "窗户 / 门口暖光：叠加用柔光斑（Sprite 用 additive / screen 混合），每个窗口一个，按窗口大小缩放"
+  }
+ ],
+ "windows": {
+  "dormer": [
+   438,
+   652,
+   456,
+   676
+  ],
+  "front": [
+   472,
+   737,
+   502,
+   772
+  ]
+ },
+ "bubble_center": [
+  548,
+  588
+ ],
+ "curve": {
+  "fade_in": 0.4,
+  "breaths": [
+   {
+    "up": 0.7,
+    "down": 0.9
+   },
+   {
+    "up": 0.7,
+    "down": 0.9
+   },
+   {
+    "up": 0.7,
+    "down": 0.9
+   }
+  ],
+  "rest": 0.25,
+  "total": 5.200000000000001,
+  "ease": "easeInOutSine"
+ }
+}

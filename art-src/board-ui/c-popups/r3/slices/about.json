@@ -1,0 +1,33 @@
+{
+ "rows": [
+  {
+   "file": "title_关于.png",
+   "w": 95,
+   "h": 48,
+   "bytes": 1755,
+   "note": "标题木牌上的烘焙标题（霞鹜文楷 46 px）"
+  },
+  {
+   "file": "about_gamename.png",
+   "w": 251,
+   "h": 59,
+   "bytes": 4503,
+   "note": "游戏名（霞鹜文楷 56 px）"
+  }
+ ],
+ "version_label": "v0.1 · 构建 <git 短 SHA>（BuildInfo.ts 注入）",
+ "licenses": [
+  [
+   "霞鹜文楷 LXGW WenKai",
+   "SIL OFL 1.1"
+  ],
+  [
+   "Fredoka",
+   "SIL OFL 1.1"
+  ],
+  [
+   "Babel 辅助代码",
+   "MIT"
+  ]
+ ]
+}

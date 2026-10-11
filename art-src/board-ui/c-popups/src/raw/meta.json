@@ -1,0 +1,434 @@
+{
+ "panel_frame": {
+  "kind": "frame",
+  "cam": [
+   90,
+   0,
+   6.4,
+   640,
+   640,
+   0.2
+  ],
+  "tris": 2616
+ },
+ "title_plank": {
+  "kind": "plank",
+  "cam": [
+   6,
+   0,
+   3.3,
+   660,
+   300,
+   0.06
+  ],
+  "tris": 668
+ },
+ "btn_primary": {
+  "kind": "button",
+  "cam": [
+   16,
+   0,
+   3.24,
+   648,
+   210,
+   0.0
+  ],
+  "tris": 664
+ },
+ "btn_secondary": {
+  "kind": "button",
+  "cam": [
+   16,
+   0,
+   3.24,
+   648,
+   210,
+   0.0
+  ],
+  "tris": 664
+ },
+ "btn_close": {
+  "kind": "ui",
+  "cam": [
+   14,
+   18,
+   1.25,
+   160,
+   160,
+   0.5
+  ],
+  "tris": 528
+ },
+ "tile_restart": {
+  "kind": "tile",
+  "cam": [
+   38,
+   0,
+   1.25,
+   224,
+   224,
+   0.42
+  ],
+  "tris": 704
+ },
+ "tile_bag": {
+  "kind": "tile",
+  "cam": [
+   38,
+   0,
+   1.25,
+   224,
+   224,
+   0.42
+  ],
+  "tris": 1008
+ },
+ "tile_settings": {
+  "kind": "tile",
+  "cam": [
+   38,
+   0,
+   1.25,
+   224,
+   224,
+   0.42
+  ],
+  "tris": 844
+ },
+ "icon_music": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 400
+ },
+ "icon_sfx": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 724
+ },
+ "icon_vibe": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 616
+ },
+ "icon_sun": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 372
+ },
+ "icon_moon": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 428
+ },
+ "icon_motion": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 112
+ },
+ "icon_home": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 334
+ },
+ "icon_about": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 584
+ },
+ "icon_play": {
+  "kind": "icon",
+  "cam": [
+   22,
+   0,
+   1.0,
+   160,
+   160,
+   0.4
+  ],
+  "tris": 80
+ },
+ "toggle_on": {
+  "kind": "toggle",
+  "cam": [
+   18,
+   0,
+   1.5,
+   240,
+   140,
+   0.0
+  ],
+  "tris": 552
+ },
+ "toggle_off": {
+  "kind": "toggle",
+  "cam": [
+   18,
+   0,
+   1.5,
+   240,
+   140,
+   0.0
+  ],
+  "tris": 552
+ },
+ "toggle_knob": {
+  "kind": "toggle",
+  "cam": [
+   18,
+   0,
+   1.5,
+   240,
+   140,
+   0.0
+  ],
+  "tris": 272
+ },
+ "star_full": {
+  "kind": "star",
+  "cam": [
+   26,
+   0,
+   1.1,
+   200,
+   200,
+   0.5
+  ],
+  "tris": 158
+ },
+ "star_empty": {
+  "kind": "star",
+  "cam": [
+   26,
+   0,
+   1.1,
+   200,
+   200,
+   0.5
+  ],
+  "tris": 158
+ },
+ "reward_seal_tide": {
+  "kind": "seal",
+  "cam": [
+   22,
+   0,
+   1.3,
+   224,
+   240,
+   0.56
+  ],
+  "tris": 1096
+ },
+ "reward_seal_meadow": {
+  "kind": "seal",
+  "cam": [
+   22,
+   0,
+   1.3,
+   224,
+   240,
+   0.56
+  ],
+  "tris": 1272
+ },
+ "reward_seal_sky": {
+  "kind": "seal",
+  "cam": [
+   22,
+   0,
+   1.3,
+   224,
+   240,
+   0.56
+  ],
+  "tris": 1004
+ },
+ "chest_body": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_open": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_open_closeup": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f00": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f03": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f06": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f09": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f12": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_anim_f15": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 3556
+ },
+ "chest_current_closed": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 0
+ },
+ "chest_current_open": {
+  "kind": "chest",
+  "cam": [
+   40,
+   -24,
+   3.1,
+   640,
+   680,
+   0.85
+  ],
+  "tris": 0
+ }
+}
