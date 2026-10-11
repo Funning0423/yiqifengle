@@ -1156,6 +1156,7 @@
     }
   },
   "userData": {
+    "tangents": 1,
     "imageMetas": [
       {
         "name": "tex_sky_palette_256",

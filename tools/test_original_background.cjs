@@ -8,7 +8,8 @@ const root=path.resolve(__dirname,'../creator-build-project/assets');
 const output=path.resolve(process.env.QF_BACKGROUND_OUTPUT||path.join(__dirname,'../evidence/static-background'));fs.mkdirSync(output,{recursive:true});
 const original=fs.readFileSync(path.join(root,'scripts/world-r2/OriginalLevelEnvironment.ts'),'utf8').replace(/export \{[^}]+\};/,'globalThis.Original={LevelEnvironment,MAIN,COAST};Object.assign(globalThis,Original);');
 let provider=fs.readFileSync(path.join(root,'scripts/world-r2/OriginalLevelBackground.ts'),'utf8').replace(/^import .*;\n/gm,'').replace(/export /g,'').replace(/^@ccclass\(.*\)\n/gm,'');provider=stripTypeScriptTypes(provider,{mode:'transform'})+'\nglobalThis.Provider={createOriginalLevelBackground,originalMainlineLevel,createBackgroundCanvas};';
-const assets={};for(const [name,file] of Object.entries({botanical:'background_foliage/botanical-props.png',cloud:'background_foliage/painted-cloud.png',grass:'background_ground/painted-grass.png'}))assets[name]='data:image/png;base64,'+fs.readFileSync(path.join(root,'bundles',file)).toString('base64');
+// T8: botanical-props.png and background_ground/painted-grass.png were deleted (static background retired; no runtime loader). Only art still in the tree is loaded.
+const assets={};for(const [name,file] of Object.entries({cloud:'background_foliage/painted-cloud.png'}))assets[name]='data:image/png;base64,'+fs.readFileSync(path.join(root,'bundles',file)).toString('base64');
 (async()=>{
  const browser=await chromium.launch({headless:true,executablePath:process.env.QF_CHROMIUM_EXECUTABLE||'/usr/bin/chromium',args:['--no-sandbox']});
  try{const page=await browser.newPage({viewport:{width:402,height:844}});await page.setContent('<style>html,body{margin:0}canvas{width:100vw;height:100vh;display:block}</style>');
