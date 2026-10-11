@@ -228,6 +228,42 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  high/out so the descent's peak acceleration is <= 14.4 m/s^2 also with the accel/chained walk profiles).
    *  Generated (rollback: delete positions): [-3.38,11.04,3.89], [-2.56,7.34,1.33], [-1.96,4.36,0.24]. */
   craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861, positions: [[-3.1, 11.6, 2.6], [-1.7, 7.8, -0.3], [-1.75, 4.4, 0]] as Array<[number, number, number]> },
+  /** Mac r4 return FOLLOW (Funning 2026-10-11: "从外面回到灯塔的时候，镜头就一直跟随着人就好了，等他坐下的时候再把机位回归到最初
+   *  进入游戏的那个机位" + "人从外面回到房间的时候画面不能一亮一暗"). Replaces railIn/railInDoor/entry.keys (the lens no longer backs
+   *  into the room ahead of her, overtakes her at the right wall and swings back): when enabled the route builder generates
+   *  - crane-down: cameraIsland -> the follow rig at toThreshold progress craneEnd (spherical about her root, craneSteps keys);
+   *  - follow rig: the lens trails her OWN path `distance` m behind her (so it goes through the doorway where she did, never
+   *    beside or ahead of her), `height` m up; target = her root + targetHeight, `look` m ahead along her path. Path smoothed
+   *    over `smoothing` m (no kinks at path vertices); keys every keySpacing m of her walk. out/in values blend (smoothstep)
+   *    over her arclength [blend[0], blend[1]] m around the point where SHE crosses the door plane;
+   *  - she does not stop at the entrance any more (entry.doorSeconds 0): the leaf closes behind the lens (smoothstep over
+   *    doorClose.seconds, starting when the LENS is doorClose.lensInside m inside the door plane: door-drift >= 1.0 m rule),
+   *    layers go HOME when it is shut;
+   *  - room light: the unchanged T5 walk ramps (interiorLighting.toThreshold / crossIn, linear in her walk) take w 0 -> 1
+   *    from roomLight.before m short of the door plane to the end of her crossing, and the R3 exterior key is not run
+   *    (cameraEntry.noExteriorKey: the lens sees her back, lit by the authored sun). Measured (Blender, same rig state):
+   *    the old k swing gave -0.15 then +0.09 mean brightness on the walk home; now the doorway passage stays within 0.03;
+   *  - sit: one move from the last follow key to cameraHome over turn + the runtime sit_down settle (actionSettleSeconds).
+   *  Rollback: enabled=false (entry.keys one-move entry of 17eaaf5 comes back unchanged). */
+  returnFollow: {
+    enabled: true,
+    craneEnd: 0.4,
+    craneSteps: 4,
+    out: { distance: 2.3, height: 1.95, targetHeight: 0.86, look: 0, fovVerticalDeg: 60 },
+    in: { distance: 1.9, height: 1.85, targetHeight: 0.87, look: 0, fovVerticalDeg: 66 },
+    blend: [-1.2, 1.4] as [number, number],
+    keySpacing: 0.25,
+    smoothing: 0.6,
+    /** room light w ramps (T5 walk ramps, linear in her walk) from `before` m short of the door plane to the end of her
+     *  crossing; the exterior key is not run (cameraEntry.noExteriorKey). */
+    roomLight: { before: 2.5 },
+    doorClose: { lensInside: 1.05, seconds: 2.4 },
+    /** the lens eases to rest over her last `settle` m (C1 soft stop, it stops settle/2 m short of pure trailing). */
+    settle: 1.2,
+    /** time-domain ease of the whole return move (s): crane start from rest / landing on cameraHome. */
+    easeInSeconds: 4.0,
+    easeOutSeconds: 1.2,
+  },
 });
 export type EntryKey = Readonly<{ seg: 'cross' | 'door' | 'seat' | 'sit'; progress: number; position: [number, number, number]; targetHeight: number; fovVerticalDeg: number }>;
 export type RailKey = Readonly<{ progress: number; side: 1 | -1; distance: number; height: number; lead: number; look: number; targetHeight: number; fovVerticalDeg: number; frontal?: boolean }>;

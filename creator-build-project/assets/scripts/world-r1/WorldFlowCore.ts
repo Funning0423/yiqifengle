@@ -119,7 +119,19 @@ export interface RouteConfig {
    *  the sit, ending exactly on cameraHome - continuing the inbound span (no stop at the threshold or for the door). Key
    *  progress per list: cross/seat = walk progress, door/sit = time fraction of that segment; sit ends with cameraHome.
    *  remapProgress (route builder, CameraPose) places these keys on the span clock. Omitted = original stop/close/toSeat. */
-  cameraEntry?:Readonly<{cross:readonly Pose[];door:readonly Pose[];seat:readonly Pose[];sit:readonly Pose[];doorSeconds:number;doorCloseFraction:number}>;
+  cameraEntry?:Readonly<{cross:readonly Pose[];door:readonly Pose[];seat:readonly Pose[];sit:readonly Pose[];doorSeconds:number;doorCloseFraction:number;
+    /** Mac r4 follow (RegionCameraData returnFollow). doorSeconds <= 0: she does not stop at the entrance; the leaf closes
+     *  (smoothstep, doorClose.seconds of the span clock; may run on into the sit) from toSeat walk progress doorClose.from,
+     *  behind the lens, and the layers go HOME once it is shut. */
+    doorClose?:Readonly<{from:number;seconds:number}>;
+    /** Follow mode: the lens stays behind her (it sees her back, lit by the authored sun), so the R3 exterior key (mirrored
+     *  sun for a frontal lens, exteriorKey.toThreshold) is not run on the walk home; its mid-swing grazing sun was the dark
+     *  dip of the r3 return. Room light w keeps the unchanged T5 path (interiorLighting ramps on the walks). */
+    noExteriorKey?:boolean;
+    /** Re-place EVERY key (not only those after the doorway key) with remapProgress, so each key is reached when she is at it. */
+    remapAll?:boolean;
+    /** Ease of the whole move in seconds (start from rest / landing on cameraHome); omitted = derived from cameraTracks.inbound. */
+    easeInSeconds?:number;easeOutSeconds?:number}>;
   remapProgress?:(p:number,o?:TrackOptions)=>number;
   /** T3a: authored seat approach. Omitted = original [cameraInside,cameraHome]. Must end exactly on cameraHome. */
   cameraToSeat?:readonly Pose[];
@@ -287,7 +299,7 @@ export class WorldFlow {
       : Promise.resolve(this.world!.setCamera(cameras[cameras.length-1]));
     // T2: lighting rides the same job clock and duration as the walk; the camera may ease, lighting follows walk progress.
     const lighting=light&&this.world!.blendRoomLight?this.roomLightRamp(light,duration,token):Promise.resolve();
-    const k=path===this.config.toThreshold?this.config.exteriorKey?.toThreshold:undefined,key=k&&this.world!.blendExteriorKey?this.exteriorKeyRamp(k,duration,token):lighting; // no key: await lighting twice (harmless)
+    const k=path===this.config.toThreshold&&!this.config.cameraEntry?.noExteriorKey?this.config.exteriorKey?.toThreshold:undefined,key=k&&this.world!.blendExteriorKey?this.exteriorKeyRamp(k,duration,token):lighting; // no key: await lighting twice (harmless)
     await token.wait(Promise.all([this.action({kind:'walk',path,duration},token), camera, lighting, key]).then(()=>{}));token.check();
   }
   /** T2+ drives T5 w from the walk's (= camera segment's) progress: hold `from` until ramp.start, then the rig's linear
@@ -306,15 +318,17 @@ export class WorldFlow {
   /** T2+: ONE camera track over consecutive timed segments (walks, stand/turn, holds). Each segment's keys carry their
    *  own 0..1 progress; they are re-timed onto the span clock and a key at the same instant as the previous one is
    *  dropped (shared junction key). Characters/lighting run segment by segment on the same job clock. */
-  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>,door?:ReadonlyArray<readonly [number,number]>,keyMap?:(keys:Pose[])=>Pose[]):Promise<void> {
+  /** extra (Mac r4): onDoorShut runs once when the door channel first reaches 0 at or after key progress shutAfter. */
+  private async span(segments:readonly SpanSegment[],token:Cancellation,track:TrackOptions,mark?:{name:'crane-start';progress:number;seconds:number},wind?:ReadonlyArray<readonly [number,number]>,door?:ReadonlyArray<readonly [number,number]>,keyMap?:(keys:Pose[])=>Pose[],extra?:{onDoorShut?:()=>void;shutAfter?:number}):Promise<void> {
     const raw=spanCameraKeys(segments),keys=keyMap?keyMap(raw):raw,total=segments.reduce((a,x)=>a+x.seconds,0);
     let camera:Promise<void>=Promise.resolve();
     // Camera progress follows the character's travelled distance inside walk segments (keys are placed by path progress),
     // time elsewhere (stand/turn/hold) and whenever the adapter reports nothing.
     const cur={start:0,seconds:0,walk:false};
     const byDistance=()=>{if(!cur.walk||!(total>0))return null;const f=this.walkFraction();return f===null?null:(cur.start+f*cur.seconds)/total;};
-    const hasWind=!!(wind&&wind.length),hasDoor=!!(door&&door.length);
-    const onSample=hasWind||hasDoor?(e:number)=>{if(token.cancelled)return;if(hasWind)this.setWind(windAt(wind!,e));if(hasDoor)this.world!.setDoor(windAt(door!,e));}:undefined;
+    const hasWind=!!(wind&&wind.length),hasDoor=!!(door&&door.length),shutCb=extra?.onDoorShut,shutAfter=extra?.shutAfter??0;let shut=false;
+    const onSample=hasWind||hasDoor?(e:number)=>{if(token.cancelled)return;if(hasWind)this.setWind(windAt(wind!,e));
+      if(hasDoor){const d=windAt(door!,e);this.world!.setDoor(d);if(shutCb&&!shut&&e>=shutAfter&&d<=1e-9){shut=true;shutCb();}}}:undefined;
     if(this.mode==='motion'){camera=onSample?this.world!.animateCamera(keys,total,token,track,byDistance,onSample):this.world!.animateCamera(keys,total,token,track,byDistance);
       if(mark&&mark.seconds>=0&&mark.seconds<=total&&this.world!.wait){const seconds=mark.seconds;
         this.world!.wait(seconds,token).then(()=>{if(!token.cancelled)this.cameraEvent({kind:'crane-start',segment:'toIsland',progress:mark.progress,seconds});},()=>{});}}
@@ -451,25 +465,32 @@ export class WorldFlow {
     // adapter reports no clip at all (perform() then fails anyway).
     const sitClip=this.character?.actionSeconds?.('sit'),clipOk=!!sitClip&&sitClip>0&&Number.isFinite(sitClip),settle=clipOk?this.character?.actionSettleSeconds?.('sit'):undefined;
     const sitS=this.turnSeconds()+(clipOk?(settle!==undefined&&settle>0&&settle<=sitClip!?settle:sitClip!):1.0);
-    const tIn=segs.reduce((x,g)=>x+g.seconds,0),crossS=this.walkSeconds(c.inCrossing),doorS=E.doorSeconds>0?E.doorSeconds:1;
-    segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'),
-      {seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();}},
-      this.walkSegment(c.toSeat,E.seat,'walking-to-seat'),
+    const tIn=segs.reduce((x,g)=>x+g.seconds,0),crossS=this.walkSeconds(c.inCrossing),seatS=this.walkSeconds(c.toSeat);
+    // Mac r4 follow: doorSeconds <= 0 = no stop at the entrance (the leaf closes behind the lens during toSeat).
+    const stop=!(E.doorSeconds<=0),doorS=stop?(E.doorSeconds>0?E.doorSeconds:1):0;
+    segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'));
+    if(stop)segs.push({seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();}});
+    segs.push(this.walkSegment(c.toSeat,E.seat,'walking-to-seat'),
       {seconds:sitS,cameras:E.sit,state:'sitting',run:tk=>this.action({kind:'sit',seat:c.seat},tk)});
-    const total=segs.reduce((x,g)=>x+g.seconds,0),a=Math.max(0,o.easeIn??0),b=Math.max(0,o.easeOut??0),a2=a*(tIn+crossS)/total,b2=Math.max(0,Math.min(.5,a+b-a2));
-    const track:TrackOptions={...o,easeIn:a2,easeOut:b2},rm=c.remapProgress,at=(s:number)=>rm?rm(Math.max(0,Math.min(1,s/total)),track):s/total;
-    const p0=tIn/total,keyMap=(keys:Pose[]):Pose[]=>{if(!rm)return keys;
+    const total=segs.reduce((x,g)=>x+g.seconds,0),a=Math.max(0,o.easeIn??0),b=Math.max(0,o.easeOut??0);
+    let a2=a*(tIn+crossS)/total,b2=Math.max(0,Math.min(.5,a+b-a2));
+    if(E.easeInSeconds!==undefined||E.easeOutSeconds!==undefined){a2=Math.max(0,Math.min(.5,(E.easeInSeconds??0)/total));b2=Math.max(0,Math.min(.5,(E.easeOutSeconds??0)/total));}
+    const track:TrackOptions={...o,easeIn:a2,easeOut:b2},rm=c.remapProgress,at=(s:number)=>rm?rm(Math.max(0,Math.min(1,s/total)),track):Math.max(0,Math.min(1,s/total));
+    const p0=E.remapAll?0:tIn/total,keyMap=(keys:Pose[]):Pose[]=>{if(!rm)return keys;
       const out=keys.map(k=>{const p=(k as any).progress as number;return p>p0+1e-9&&p<1?{...k,progress:rm(p,track)}:k;});
       for(let i=1;i<out.length;i++)if(!(((out[i] as any).progress as number)>((out[i-1] as any).progress as number))){console.warn('entry keys not monotone after retime; using span clock');return keys;}
       return out;};
-    // Door channel (key progress): drift reopen (doorDrift, island part) then the close during the door segment.
-    // the close starts 0.1 of the door segment after she stops (key-progress clock vs state change: never during crossing-in)
-    const open=c.openDeg,from=dd?this.islandDoorDeg():open,d0=tIn+crossS+.1*doorS,d1=tIn+crossS+doorS*Math.max(.2,Math.min(1,E.doorCloseFraction||1));
-    const door:Array<readonly [number,number]>=[[0,from]];
+    const seat0=tIn+crossS+doorS,clamp01=(v:number)=>Math.max(0,Math.min(1,v));
+    // Door channel (key progress): drift reopen (doorDrift, island part) then the close.
+    const open=c.openDeg,from=dd?this.islandDoorDeg():open,door:Array<readonly [number,number]>=[[0,from]];
     if(dd&&from!==open){const r1=tIn-dd.openBefore,r0=r1-dd.openSeconds;door.push([Math.max(0,r0/total),from],[Math.max(1e-6,r1/total),open]);}
-    door.push([at(d0),open],[at(d1),0],[1,0]);
+    let shutAfter=1;
+    if(stop){// the close starts 0.1 of the door segment after she stops (key-progress clock vs state change: never during crossing-in)
+      const d0=tIn+crossS+.1*doorS,d1=tIn+crossS+doorS*Math.max(.2,Math.min(1,E.doorCloseFraction||1));door.push([at(d0),open],[at(d1),0],[1,0]);}
+    else{const dc=E.doorClose??{from:.7,seconds:2.4},c0=seat0+clamp01(dc.from)*seatS,s0=at(c0),s1=at(Math.min(total,c0+Math.max(.1,dc.seconds)));shutAfter=s0;door.push([s0,open],[s1,0],[1,0]);}
     for(let i=1;i<door.length;i++)if(!(door[i][0]>door[i-1][0]))door[i]=[door[i-1][0]+1e-6,door[i][1]];
-    await this.span(segs,t,track,undefined,undefined,door,keyMap);
+    // Room light w: unchanged T5 path (walk ramps interiorLighting.toThreshold / crossIn on the walk clock, see the route builder).
+    await this.span(segs,t,track,undefined,undefined,door,keyMap,{onDoorShut:stop?undefined:()=>this.homeLayers(),shutAfter});
     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
   }
   advance(seconds:number):void {

@@ -265,7 +265,8 @@ await test('E1 T2+ segment driver: w monotone per segment, <=0.006/frame, endpoi
     if(op==='leaveHome')assert.ok(d<=1e-12,`outbound w rose at frame ${S[i].frame} (${S[i].state})`);else assert.ok(d>=-1e-12,`return w fell at frame ${S[i].frame} (${S[i].state})`);}}
   metrics['T2+maxDeltaWPerFrame']=worst;assert.ok(worst<=.006,'per-frame dw '+worst);
   // the ramp really comes from Core's segment driver (not a jump at restore)
-  assert.ok(writes.some(q=>q.kind==='blend'&&q.a===1&&q.b===0)&&writes.some(q=>q.kind==='blend'&&q.a===0&&q.b===1),'toIsland 1->0 and toThreshold 0->1 blends');
+  // (运镜bot Mac r4 return follow: the return ramp may be split over toThreshold 0->x and crossIn x->1, one slope)
+  assert.ok(writes.some(q=>q.kind==='blend'&&q.a===1&&q.b===0)&&writes.some(q=>q.kind==='blend'&&q.a===0&&q.b>0)&&writes.some(q=>q.kind==='blend'&&q.a<1&&q.b===1),'toIsland 1->0 and return 0->1 blends');
   // restore() at island arrival: ISLAND layers then set(0) in the same sync step, and w was already 0 (nothing visible changes)
   const iIsl=writes.findIndex(q=>q.kind==='layers'&&!q.l.interior&&q.l.exterior);assert.ok(iIsl>0);const next=writes[iIsl+1];
   assert.equal(next.kind,'set');assert.equal(next.v,0);assert.equal(next.frame,writes[iIsl].frame);
