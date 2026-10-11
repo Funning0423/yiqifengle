@@ -9,5 +9,5 @@ W2="${W2:-$CHAR_ROOT/_deps/walk-v2/chr_b_r5g2_walk-v2_TEST.glb}"
 V12_REF="${V12_REF:-$CHAR_ROOT/reference/character-ankle-balanced-v12.jpg}"
 # 草坡电影截图不进仓库（见 handoff 文档“参考图”一节）；留空时对比图自动去掉“参考图”列
 FILM_REF="${FILM_REF:-}"
-HUNYUAN_GLB="${HUNYUAN_GLB:-/workspace/yiqifengle/previews/grokbot/hunyuan-head/hunyuan_head_v31.glb}"
+HUNYUAN_GLB="${HUNYUAN_GLB:-/tmp/hy/hunyuan_head_v31.glb}"   # git cat-file -p origin/assets/hunyuan-head:art-src/character/hunyuan/hunyuan_head_v31.glb > /tmp/hy/hunyuan_head_v31.glb
 export CHAR_ROOT REPO_ROOT BLENDER E60 W2 V12_REF FILM_REF HUNYUAN_GLB
