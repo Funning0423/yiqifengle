@@ -41,3 +41,17 @@ strict 35ae7272540e48fddc168168eaf17b967ef957f3e757fe8a44ccc0cf50726424 WorldInt
 #  T9 + GGbot HUD (post-t2) not merged yet: its Boot SHA will need its own exact entry. Exact SHAs only; nothing widened.
 strict 49f52fb01d650ff50d412dd0fee03f4050edae23db4d8b625133e8f4327dcbcc WorldIntegrationBoot.ts            int/v1 5d66c30 + T9 380891d
 strict f8d007678718f8af959ad2fe1bfc46a7b929539a46e6ad074a2aa6087b2f4ee0 world-r2/IslandJourneyOverlay.ts   int/v1 5d66c30 + T9 380891d
+# 运镜bot-int 4bead5a (T2+ 17844e5 on int/v1 5d66c30; int/v1 will fast-forward to it) + GGbot post-T2 rebased onto it (work/GGbot-post-t2 0f54339:
+#  top status bar REMOVED, HUD wiring dropped). Glue reviewed: Boot fields read by T0 unchanged (4bead5a Boot vs 932570a = ES5 Array.from
+#  only; 0f54339 only touches the status plate + trackTransitionHud); WorldFlowComponent.flow + onCameraSettled/onCraneStart signatures
+#  identical to 7f2b623; WorldFlowCore.walk(path,cameras|null,token)/config unchanged (adds walkDuration/walkProgress contract only).
+strict 4146a91780b4b0d341b81395e46c3cd29c24c28aa2d5b6d151770a8282c5627a WorldIntegrationBoot.ts            运镜bot-int 4bead5a (== int/v1 after FF)
+strict 7d8c256b8bc23644bce1e5acfa5f40c93ae34256361bce3c611f24d80eabcede WorldIntegrationBoot.ts            4bead5a + GGbot status bar removed (work/GGbot-post-t2 0f54339)
+observe 9718cc85ae2a3923d8a047ec2af55e74dce434253abd4ec4a67a62b8e7dbbd05 world-r1/WorldFlowComponent.ts   运镜bot-int 4bead5a (== 0f54339)
+observe 0190d013f9aa5c57c7ce4bf0cac016659e8af3ee21897a475f651f8e93ff0037 world-r1/WorldFlowCore.ts         运镜bot-int 4bead5a (== 0f54339)
+# Voice bot A5 UI tap SFX (work/Voice-bot-a5 6307433 on T9 380891d). GameAudio: additive only (onPropTap/onUiBack, new SfxNames);
+#  instance/play/loopSource/setMusic*/setMuted unchanged. AudioBridge is NOT read by T0 glue; tracked observe-only so a change is visible:
+#  217de92b = every tree so far (baseline 1ef9f1d .. 5d66c30 / 380891d / 4bead5a / 0f54339), 45fc0889 = A5 (subscribes T9 onPropTap).
+observe c099b77ffdac78776188d96e1af582572d47c294945be49801d9e1a60f215ecb audio/GameAudio.ts              Voice bot A5 (work/Voice-bot-a5 6307433)
+observe 217de92be0624eac15e196b0688c6b83bba1240380b0d1104543b4d835e232ea audio/AudioBridge.ts            baseline 1ef9f1d .. int/v1 5d66c30, T9 380891d, 4bead5a, 0f54339
+observe 45fc088912d5374fafc61ca13c052a93bcd23571df0c72c180a79121eecde032 audio/AudioBridge.ts            Voice bot A5 (work/Voice-bot-a5 6307433)
