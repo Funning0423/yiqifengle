@@ -37,7 +37,11 @@ import { _decorator, Component, Node, AudioSource, AudioClip, resources, directo
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
-  | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear';
+  | 'sfx_chest_open' | 'sfx_ui_click' | 'sfx_level_clear'
+  | 'sfx_cheer_1_great' | 'sfx_cheer_2_excellent' | 'sfx_cheer_3_amazing' | 'sfx_cheer_4_unbelievable';
+
+/** A2（Voice bot）：连击鼓励音，第 2/3/4/5+ 波各一档，配合文字飘字。同一时间只保留一条，更高档顶掉正在播的低档。 */
+const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_cheer_3_amazing', 'sfx_cheer_4_unbelievable'];
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
 export type SuspendReason = 'hidden' | 'interrupted';
@@ -571,6 +575,11 @@ export class GameAudio extends Component {
         : this.cascade === 2 ? 'sfx_combo_1'
         : this.cascade === 3 ? 'sfx_combo_2' : 'sfx_combo_3';
       this.play(name);
+      if (this.cascade >= 2) {
+        const level = Math.min(this.cascade - 2, CHEERS.length - 1);
+        GameAudio.emitCheer(level, visual);  // 飘字跟这里走，静音时也照样出字
+        this.playCheer(level);
+      }
       return;
     }
     // 'drop'（下落）、'shuffle'（洗牌）、'tool'（地区道具）暂时没有音效，见对照表
@@ -592,6 +601,30 @@ export class GameAudio extends Component {
   onChestResult(r: any) { if (r?.newlyGrantedRewards?.length > 0) this.play('sfx_chest_open'); }
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
+
+  /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable；visual 是触发这一档的那一帧 kind==='clear'
+   *  原始 visual 对象（和 onBoardFrame 收到的同一个），消除格子的位置从里面取。返回取消订阅函数。
+   *  在连击判定的同一处触发，与鼓励音档位一致；静音、切后台时声音不播，但事件照发。 */
+  private static cheerListeners: Array<(level: number, visual?: any) => void> = [];
+  static onCheer(listener: (level: number, visual?: any) => void): () => void {
+    GameAudio.cheerListeners.push(listener);
+    return () => { GameAudio.cheerListeners = GameAudio.cheerListeners.filter(l => l !== listener); };
+  }
+  private static emitCheer(level: number, visual?: any) {
+    for (const l of GameAudio.cheerListeners.slice()) {
+      try { l(level, visual); } catch (e) { console.warn('[GameAudio] cheer listener failed (gameplay unaffected)', e); }
+    }
+  }
+
+  /** 鼓励音：已有更高或同档在播就不重复；低档在播时先停掉再播高档，避免几条念词叠在一起听不清 */
+  private playCheer(level: number) {
+    if (!GameAudio.usable(this) || this.muted || this.reasons.size > 0) return;
+    let playingLevel = -1;
+    for (const v of this.sfxVoices.values()) playingLevel = Math.max(playingLevel, CHEERS.indexOf(v.name));
+    if (playingLevel >= level) return;
+    for (const v of Array.from(this.sfxVoices.values())) if (CHEERS.indexOf(v.name) >= 0) this.retireSfx(v.source);
+    this.play(CHEERS[level]);
+  }
 
   onButton() { this.play('sfx_ui_click', 0.8); }
   /** 道具槽只点不拖时：挂在 endToolDrag() 里 !d.moved 的分支（审稿 E） */
