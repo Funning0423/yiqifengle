@@ -143,6 +143,12 @@ export const TRANSITION_CAMERA = Object.freeze({
   /** T5 room-light weight w over walk progress (linear rig blend, 2462ce4): ~0 well before restore() on the island,
    *  back to 1 before the door closes. Driven by WorldFlowCore.roomLightRamp from the camera segment's walk. */
   lighting: { toIsland: { from: 1, to: 0, start: 0, end: .5 }, toThreshold: { from: 0, to: 1, start: .45, end: 1 } },
+  /** R3 (GGbot, Mac r3 "回家时女孩全黑"): exterior key k over toThreshold walk progress (RoomLightingRig "R3 exterior key").
+   *  The authored sun lights +Z faces; walking home she faces -Z, towards the lens, and was lit by ambient only until the w
+   *  ramp. k mirrors the sun's yaw across the house axis (same elevation/illuminance) while the crane looks DOWN on her
+   *  (walk progress .02-.22 = pitch about -40 to -78 deg; she faces the lens from ~.26), so the swing never plays on a
+   *  frontal view. Rollback: delete this entry (authored sun until the w ramp, the r3 look). */
+  exteriorKey: { toThreshold: { from: 0, to: 1, start: .02, end: .22 } },
   /** T2+ stand-up + turn: ONE move cameraHome -> (dolly back to medium, at fraction `mid` of stand+turn) -> D0. */
   standTurn: { mid: .5, key: 'ST1' },
   /** T2+ exterior rail: lens beside the walk at `distance` m on `side` of the walk tangent (+1 right / -1 left; outbound

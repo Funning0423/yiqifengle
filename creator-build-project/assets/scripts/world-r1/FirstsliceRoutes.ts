@@ -131,6 +131,7 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       cameraToSeat:[{...insideReturn,progress:0},key('S1',toSeat,.14),key('S2',toSeat,.28),key('S3',toSeat,.42),key('S4',toSeat,.57),key('S5',toSeat,.71),key('S6',toSeat,.86),{...cameraHome,progress:1}],
       cameraTracks:TRANSITION_CAMERA.tracks as RouteConfig['cameraTracks'],
       interiorLighting:TRANSITION_CAMERA.lighting,
+      exteriorKey:TRANSITION_CAMERA.exteriorKey,
       // T2+ wind channel: keys in outbound-span key progress (crossing-out walk + toIsland walk + settle, all from walkDuration).
       ...(railOn&&T.doorDrift?{doorDrift:{...T.doorDrift}}:{}),
       ...(railOn&&T.windOut?{wind:{outbound:(()=>{const W=T.windOut,a=walkS(outCrossing),b=walkS(toIsland),tot=a+b+T.crane.settleSeconds;

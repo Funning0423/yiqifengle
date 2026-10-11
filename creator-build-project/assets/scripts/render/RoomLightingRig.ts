@@ -23,6 +23,12 @@ import { Node, Scene, DirectionalLight, SpotLight, MeshRenderer, SkeletalAnimati
  *   light, call setLayers(BOTH) then setRoomLightWeight(0) in the same synchronous step (no frame between).
  * - Idempotent: the same w always produces the same writes; nothing accumulates.
  * - Without a driver, BOTH keeps w=1 until restore(ISLAND) sets 0: the original one-frame jump remains.
+ * - R3 exterior key (setExteriorKey(k), k in [0,1], same validity rules as w): the w=0 end of the blend uses the
+ *   authored sun yawed about world +Y by k x (its mirror across the house axis, i.e. z -> -z): same elevation, same
+ *   illuminance/colour/ambient, so ground/sea/roofs (upward faces) keep their exact brightness; only vertical faces swap
+ *   lit sides. The authored island sun lights faces turned to +Z (the sea side the island camera sees); on the walk home
+ *   the girl faces -Z towards the camera and was lit by ambient only (Mac r3: near-black ~2 s until the w ramp turned
+ *   the sun). k only shapes the w<1 blend (w=1 is the exact room light); setView() entering/leaving resets k := 0.
  * - hasRoomLight(): true while the rig is alive (not disposed). w=0 is "outdoors" ONLY when hasRoomLight() is true
  *   AND the world is visible: WorldFlowComponent.isWorldVisible() is false under levels/skycity/hidden/needs-resume
  *   (restore() -> setLayers(NONE); the island world stays loaded, rig alive, w=0). Consumer pattern:
@@ -69,6 +75,16 @@ function pathFrom(root: Node, child: Node): string | null {
   const parts: string[] = []; let n: Node | null = child;
   while (n && n !== root) { parts.push(n.name); n = n.parent; }
   return n === root ? parts.reverse().join('/') : null;
+}
+
+/** R3 pure: the authored sun rotation yawed about world +Y so its travel direction (local -Z) is mirrored across the
+ * house axis (z -> -z); elevation and x unchanged. Plain quaternion math (no engine helpers). */
+export function mirroredKey(q: { x: number; y: number; z: number; w: number }): Quat {
+  // d = q * (0,0,-1)
+  const dx = -2 * (q.x * q.z + q.w * q.y), dz = -(1 - 2 * (q.x * q.x + q.y * q.y));
+  const a = Math.atan2(dx, -dz) - Math.atan2(dx, dz), c = Math.cos(a / 2), s = Math.sin(a / 2);
+  // (0, s, 0, c) * q  (world-space yaw applied after q)
+  return new Quat(c * q.x + s * q.z, c * q.y + s * q.w, c * q.z - s * q.x, c * q.w - s * q.y);
 }
 
 /** Pure one-time alpha rasterization. No external image, network, particle simulation or shader dependency. */
@@ -144,6 +160,10 @@ export class RoomLightingRig {
   private groundDayColor = new Color('#9c856d');
   private skyNightColor = new Color('#8898ba');
   private groundNightColor = new Color('#79634f');
+  // R3: exterior key (0 = authored island sun, 1 = mirrored across the house axis); keyRotation fixed at construction.
+  private exteriorKey = 0;
+  private keyRotation: Quat | null = null;
+  private keyedIsland = new Quat();
 
   constructor(private scene: Scene, private model: Node, character: Node | null) {
     try {
@@ -155,6 +175,7 @@ export class RoomLightingRig {
           shadowNormalBias: s.shadowNormalBias, shadowSaturation: s.shadowSaturation, shadowFixedArea: s.shadowFixedArea,
           shadowNear: s.shadowNear, shadowFar: s.shadowFar, shadowOrthoSize: s.shadowOrthoSize,
           csmLevel: s.csmLevel, illuminance: s.illuminance, color: s.color.clone() };
+        this.keyRotation = mirroredKey(this.sunState.rotation);
         const g = scene.globals;
         this.sceneShadow = { enabled: g.shadows.enabled, type: g.shadows.type, size: g.shadows.shadowMapSize };
         this.ambientIllum = g.ambient.skyIllum;
@@ -351,7 +372,7 @@ export class RoomLightingRig {
     if (this.disposed) return;
     const changed = interior !== this.interior;
     this.interior = interior; this.backdrop = backdrop; this.night = night;
-    if (changed) this.roomWeight = interior ? 1 : 0;
+    if (changed) { this.roomWeight = interior ? 1 : 0; this.exteriorKey = 0; }
     if (live(this.root)) this.root.active = interior;
     this.applyLampState(night);
     for (let i = 0; i < this.steam.length; i++) if (live(this.steam[i].node)) this.steam[i].node.active = interior;
@@ -383,6 +404,16 @@ export class RoomLightingRig {
     return this.applyRoomWeight();
   }
 
+  /** R3 API: exterior key k (see contract). Interior view only (BOTH on the walks); false otherwise / non-finite. */
+  setExteriorKey(k: number): boolean {
+    if (this.disposed || !this.interior || typeof k !== 'number' || !isFinite(k)) return false;
+    this.exteriorKey = Math.min(1, Math.max(0, k));
+    return this.applyRoomWeight();
+  }
+
+  /** R3 API (read-only): current k; 0 outside an interior view and after dispose. */
+  getExteriorKey(): number { return this.disposed || !this.interior ? 0 : this.exteriorKey; }
+
   /** T5 API (read-only, poll per frame; no events): current w in [0,1]. 0 outside an interior view and after dispose. */
   getRoomLightWeight(): number { return this.disposed || !this.interior ? 0 : this.roomWeight; }
 
@@ -407,7 +438,8 @@ export class RoomLightingRig {
       s.shadowSaturation = roomSat;
       return true;
     }
-    Quat.slerp(this.blendRotation, saved.rotation, this.interiorRotation, w); s.node.setRotation(this.blendRotation);
+    const k = this.exteriorKey, island = k > 0 && this.keyRotation ? Quat.slerp(this.keyedIsland, saved.rotation, this.keyRotation, k) : saved.rotation;
+    Quat.slerp(this.blendRotation, island, this.interiorRotation, w); s.node.setRotation(this.blendRotation);
     s.illuminance = this.islandIllum + (roomIllum - this.islandIllum) * w;
     Color.lerp(this.blendColor, this.islandColor, roomColor, w); s.color = this.blendColor;
     g.ambient.skyIllum = this.ambientIllum + (roomAmbient - this.ambientIllum) * w;
@@ -489,7 +521,7 @@ export class RoomLightingRig {
   diagnostics() {
     return { disposed: this.disposed, interior: this.interior, backdrop: this.backdrop, paused: this.paused,
       night: this.night, time: this.time, updates: this.updates, shadowSize: this.interior ? ROOM_LIGHTING.shadowMapSize : this.sceneShadow?.size,
-      roomSunShadow: !!(this.interior && this.sun?.shadowEnabled), lampBinding: this.lampBinding,
+      roomSunShadow: !!(this.interior && this.sun?.shadowEnabled), lampBinding: this.lampBinding, roomWeight: this.getRoomLightWeight(), exteriorKey: this.getExteriorKey(),
       photometry: { sunIlluminance: this.sun?.illuminance ?? null, shadowSaturation: this.sun?.shadowSaturation ?? null,
         ambientSkyIllum: isValid(this.scene, true) ? this.scene.globals.ambient.skyIllum : null,
         lampLuminance: this.lamp?.luminance ?? null, exposureChanged: false },

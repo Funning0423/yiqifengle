@@ -76,6 +76,9 @@ export interface WorldLease {
   hasRoomLight?():boolean;
   isWorldVisible?():boolean;
   blendRoomLight?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
+  /** R3 exterior key (optional; owner GGbot; contract in render/RoomLightingRig.ts "R3 exterior key"). */
+  setExteriorKey?(k:number):boolean;
+  blendExteriorKey?(from:number,to:number,seconds:number,token:Cancellation):Promise<void>;
   assertStaticWorld():void;
   dispose():void;
 }
@@ -116,6 +119,11 @@ export interface RouteConfig {
   /** T2+ wind strength channel on the outbound span: [span key progress, strength 0..1] keys, smoothstep between keys
    *  (C1, no overshoot); evaluated at the camera track's eased progress, so it follows the camera (and distance). */
   wind?:Readonly<{outbound?:ReadonlyArray<readonly [number,number]>}>;
+  /** R3 exterior key ramp (WorldLease.blendExteriorKey, RoomLightingRig "R3 exterior key"): on the toThreshold walk, k
+   *  holds `from` until walk progress `start`, then blends linearly to `to` by `end` (same job clock and duration as the
+   *  walk, like interiorLighting). Placed on the crane-down while the lens looks down on her, before it turns to her
+   *  front. restore() lands on k=0. Omitted = authored sun only (Mac r3: she walks home lit by ambient only). */
+  exteriorKey?:Readonly<{toThreshold?:WeightRamp}>;
   /** Shared walk-duration contract (FirstsliceRoutes.walkDuration); absent = pathDuration(path,speed). */
   walkDuration?:(path:readonly Vec[])=>number;
   /** 0007 v1.2: character yaw at the island landing point (exit_path_17), from the pose data table. Default 0. */
@@ -211,6 +219,7 @@ export class WorldFlow {
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
+    this.world.setExteriorKey?.(0); // R3: no keyed sun outside a walk
     if(this.characterReady())this.character!.cancelAndReset(this.pose());this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
     if(this.visit){if(this.stable==='skycity'&&!this.hidden&&!this.needsResume)this.visit.show();else this.visit.hide();}
   }
@@ -268,7 +277,8 @@ export class WorldFlow {
       : Promise.resolve(this.world!.setCamera(cameras[cameras.length-1]));
     // T2: lighting rides the same job clock and duration as the walk; the camera may ease, lighting follows walk progress.
     const lighting=light&&this.world!.blendRoomLight?this.roomLightRamp(light,duration,token):Promise.resolve();
-    await token.wait(Promise.all([this.action({kind:'walk',path,duration},token), camera, lighting]).then(()=>{}));token.check();
+    const k=path===this.config.toThreshold?this.config.exteriorKey?.toThreshold:undefined,key=k&&this.world!.blendExteriorKey?this.exteriorKeyRamp(k,duration,token):lighting; // no key: await lighting twice (harmless)
+    await token.wait(Promise.all([this.action({kind:'walk',path,duration},token), camera, lighting, key]).then(()=>{}));token.check();
   }
   /** T2+ drives T5 w from the walk's (= camera segment's) progress: hold `from` until ramp.start, then the rig's linear
    *  cancellable blend to `to` by ramp.end (monotone, no step; Voice bot polls getRoomLightWeight every frame). */
@@ -276,6 +286,12 @@ export class WorldFlow {
     const s=Math.max(0,Math.min(1,r.start)),e=Math.max(s,Math.min(1,r.end));
     await this.waitSeconds(s*duration,token);token.check();
     if(e>s)await token.wait(this.world!.blendRoomLight!(r.from,r.to,(e-s)*duration,token));else this.world!.setRoomLightWeight?.(r.to);
+  }
+  /** R3: exterior key k on the walk clock (hold `from` until start, linear to `to` by end). */
+  private exteriorKeyRamp(r:WeightRamp,duration:number,token:Cancellation):Promise<void> {
+    const s=Math.max(0,Math.min(1,r.start)),e=Math.max(s,Math.min(1,r.end));this.world!.setExteriorKey?.(r.from);
+    return this.waitSeconds(s*duration,token).then(()=>{token.check();
+      if(e>s)return token.wait(this.world!.blendExteriorKey!(r.from,r.to,(e-s)*duration,token)).then(()=>{});this.world!.setExteriorKey?.(r.to);});
   }
   /** T2+: ONE camera track over consecutive timed segments (walks, stand/turn, holds). Each segment's keys carry their
    *  own 0..1 progress; they are re-timed onto the span clock and a key at the same instant as the previous one is
