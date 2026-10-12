@@ -1,5 +1,5 @@
 import type { RouteConfig, Vec, Pose } from './WorldFlowCore';
-import { pointOnPath, pathDuration } from './WorldFlowCore';
+import { pointOnPath, pathDuration, spanCameraKeys } from './WorldFlowCore';
 import { islandPoseEntry, homePoseEntry, characterPoseEntry, REGION_CAMERA, INTERIOR_CAMERA_CLEARANCE, TRANSITION_CAMERA } from './RegionCameraData';
 import type { RailKey } from './RegionCameraData';
 import { assertAuthoredPose, invertProgress, remapProgress } from './CameraPose';
@@ -27,6 +27,106 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
   const ta=[a.target[0]-ra[0]+root[0],a.target[1]-ra[1]+root[1],a.target[2]-ra[2]+root[2]];
   return {position:[root[0]+d[0]*L,root[1]+d[1]*L,root[2]+d[2]*L],target:[ta[0]+(b.target[0]-ta[0])*w,ta[1]+(b.target[1]-ta[1])*w,ta[2]+(b.target[2]-ta[2])*w],
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
+}
+type PaceOpts=Readonly<{sampleMetres:number;craneRampSeconds:number}>;
+type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
+/** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
+function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
+  const n=points.length,pt=(i:number)=>points[Math.max(0,Math.min(n-1,i))];
+  return (i,u)=>{const P0=pt(i-1),P1=pt(i),P2=pt(i+1),P3=pt(i+2);
+    const tj=(a:Vec,b:Vec)=>{const d=Math.sqrt(Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]));return d<1e-6?1e-4:d;};
+    const t0=0,t1=t0+tj(P0,P1),t2=t1+tj(P1,P2),t3=t2+tj(P2,P3),t=t1+(t2-t1)*u;
+    const mix=(A:Vec,B:Vec,ta:number,tb:number):Vec=>[(A[0]*(tb-t)+B[0]*(t-ta))/(tb-ta),(A[1]*(tb-t)+B[1]*(t-ta))/(tb-ta),(A[2]*(tb-t)+B[2]*(t-ta))/(tb-ta)];
+    const A1=mix(P0,P1,t0,t1),A2=mix(P1,P2,t1,t2),A3=mix(P2,P3,t2,t3);
+    return mix(mix(A1,A2,t0,t2),mix(A2,A3,t1,t3),t1,t2);};
+}
+/** Scalar Fritsch-Carlson pchip. Same end conditions as CameraPose; used to keep outbound arc-speed continuous. */
+function pchipScalar(t:readonly number[],y:readonly number[]):(x:number)=>number{
+  const n=t.length,h:number[]=[],d:number[]=[],m=new Array<number>(n).fill(0);
+  for(let i=0;i<n-1;i++){h.push(t[i+1]-t[i]);d.push((y[i+1]-y[i])/h[i]);}
+  if(n<2)return ()=>y[0]??0;
+  if(n===2)m[0]=m[1]=d[0];
+  else{for(let i=1;i<n-1;i++){if(d[i-1]===0||d[i]===0||Math.sign(d[i-1])!==Math.sign(d[i]))m[i]=0;
+    else{const w1=2*h[i]+h[i-1],w2=h[i]+2*h[i-1];m[i]=(w1+w2)/(w1/d[i-1]+w2/d[i]);}}
+    const end=(h0:number,h1:number,d0:number,d1:number)=>{let v=((2*h0+h1)*d0-h0*d1)/(h0+h1);if(Math.sign(v)!==Math.sign(d0))v=0;else if(Math.sign(d0)!==Math.sign(d1)&&Math.abs(v)>Math.abs(3*d0))v=3*d0;return v;};
+    m[0]=end(h[0],h[1],d[0],d[1]);m[n-1]=end(h[n-2],h[n-3],d[n-2],d[n-3]);}
+  return x=>{if(x<=t[0])return y[0];if(x>=t[n-1])return y[n-1];let i=0;while(i<n-2&&x>t[i+1])i++;
+    const hh=t[i+1]-t[i],u=(x-t[i])/hh,u2=u*u,u3=u2*u;
+    return (2*u3-3*u2+1)*y[i]+(u3-2*u2+u)*hh*m[i]+(-2*u3+3*u2)*y[i+1]+(u3-u2)*hh*m[i+1];};
+}
+/**
+ * Outbound lens along a centripetal spline through the authored span knots (crossing, railOut, equal-u crane steps,
+ * cameraIsland). pchip on the five rail poses zeroed the reversing axis at the swing (~4.9 → ~2 → ~4.9 m/s); the spline
+ * does not, and arc-length samples between those knots keep each knot on its walk progress (frontal pose, wind, crane
+ * mark). From the crane knot the same spline is retimed with a smoothstep off the rail speed, then the track ease-out
+ * settles it — the old one-segment settle climbed ~3 → ~12 m/s. Zoom is not that spline: a 1-D centripetal curve kinks
+ * the fov rate at each rail knot (~−15 → ~−8 deg/s in one frame). Fov is a scalar pchip of the knot fovs against span
+ * progress, so the rate stays continuous and every knot keeps its authored fov. She does not wait.
+ */
+function paceOutbound(opts:PaceOpts,span:readonly Pose[],cut:Readonly<{qCrossEnd:number;qCrane:number;qWalkEnd:number;frontalQ:number}>,track:Readonly<{easeIn?:number;easeOut?:number}>,totalSeconds:number,island:Pose):{cross:Pose[];toIsland:Pose[];settle:Pose[];frontalProgress:number}{
+  const qOf=(k:Pose)=>k.progress??0;
+  if(span.length<6||Math.abs(qOf(span[0]))>1e-9||Math.abs(qOf(span[span.length-1])-1)>1e-9)throw Error('outbound pace: span keys');
+  const posAt=centripetal(span.map(k=>k.position)),tgtAt=centripetal(span.map(k=>k.target));
+  const fovOfQ=pchipScalar(span.map(qOf),span.map(k=>k.fovVerticalDeg??50));
+  const per=24,pts:{pose:Look;s:number;knot:number}[]=[];let sAcc=0;
+  const at=(i:number,u:number,knot:number):Look=>{if(knot>=0)return span[knot];
+    return {position:posAt(i,u),target:tgtAt(i,u),fovVerticalDeg:fovOfQ(qOf(span[i])+(qOf(span[i+1])-qOf(span[i]))*u)};};
+  for(let i=0;i<span.length-1;i++)for(let j=0;j<=per;j++){if(j===0&&i>0)continue;const u=j/per,knot=j===0?i:j===per?i+1:-1,pose=at(i,u,knot);
+    if(pts.length){const p=pts[pts.length-1].pose.position,q=pose.position;sAcc+=Math.hypot(q[0]-p[0],q[1]-p[1],q[2]-p[2]);}
+    pts.push({pose,s:sAcc,knot});}
+  const knotS=span.map((_,i)=>{const p=pts.find(x=>x.knot===i);if(!p)throw Error('outbound pace: knot arc');return p.s;});
+  const poseAtS=(s:number):Look=>{if(s<=0)return pts[0].pose;if(s>=sAcc)return pts[pts.length-1].pose;let lo=0,hi=pts.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(pts[m].s<s)lo=m;else hi=m;}
+    const a=pts[lo],b=pts[hi],u=(s-a.s)/((b.s-a.s)||1);
+    if(a.knot>=0&&u<1e-4)return a.pose;if(b.knot>=0&&u>1-1e-4)return b.pose;
+    const pa=a.pose.position,pb=b.pose.position,ta=a.pose.target,tb=b.pose.target;
+    return {position:[pa[0]+(pb[0]-pa[0])*u,pa[1]+(pb[1]-pa[1])*u,pa[2]+(pb[2]-pa[2])*u],target:[ta[0]+(tb[0]-ta[0])*u,ta[1]+(tb[1]-ta[1])*u,ta[2]+(tb[2]-ta[2])*u],
+      fovVerticalDeg:(a.pose.fovVerticalDeg??50)+((b.pose.fovVerticalDeg??50)-(a.pose.fovVerticalDeg??50))*u};};
+  const posed=(src:Look,progress:number):Pose=>({position:[src.position[0],src.position[1],src.position[2]],target:[src.target[0],src.target[1],src.target[2]],
+    fovVerticalDeg:Math.min(74.9,Math.max(30.1,src.fovVerticalDeg??50)),progress});
+  let ic=0;for(let i=0;i<span.length;i++)if(qOf(span[i])<=cut.qCrane+1e-8)ic=i;
+  if(ic<2||Math.abs(qOf(span[ic])-cut.qCrane)>1e-4)throw Error('outbound pace: crane key missing');
+  const step=Math.max(.05,opts.sampleMetres),out:Pose[]=[];
+  const withFov=(src:Look,q:number):Look=>({position:src.position,target:src.target,fovVerticalDeg:fovOfQ(q)});
+  const push=(src:Look,q:number)=>{if(out.length&&q<=(out[out.length-1].progress??0)+1e-6)return;out.push(posed(withFov(src,q),q));};
+  // Arc vs span-progress through the knots up to the crane. All slopes are positive, so this pchip keeps d(arc)/dq
+  // continuous and non-zero: a per-interval constant speed stepped at each knot, and the runtime pchip then spiked.
+  const qK=span.slice(0,ic+1).map(qOf),SK=knotS.slice(0,ic+1),SOfQ=pchipScalar(qK,SK);
+  push(span[0],0);
+  for(let i=0;i<ic;i++){let q=qK[i];
+    while(q<qK[i+1]){const target=SOfQ(q)+step;if(target>=SK[i+1]-step*.35)break;
+      let a=q,b=qK[i+1];for(let k=0;k<24;k++){const m=(a+b)/2;if(SOfQ(m)<target)a=m;else b=m;}
+      const nq=(a+b)/2;if(!(nq>q+1e-5&&nq<qK[i+1]-1e-5))break;q=nq;push(poseAtS(SOfQ(q)),q);}
+    push(span[i+1],qK[i+1]);}
+  const q0=qK[ic],sStart=knotS[ic],L=knotS[span.length-1]-sStart,D=1-q0;
+  const C0=Math.max(1e-3,(SOfQ(q0)-SOfQ(q0-1e-4))/1e-4);
+  const slope=(remapProgress(.5,track)-remapProgress(.4,track))/.1;
+  let qr=opts.craneRampSeconds*slope/totalSeconds;qr=Math.min(Math.max(qr,.02),D*.7);
+  const Cc=C0+(L-C0*D)/(D-.5*qr);
+  if(!(C0>0&&Cc>0&&L>0&&Number.isFinite(Cc)))throw Error('outbound pace: crane speed');
+  const sFromQ=(q:number)=>{const x=q-q0;if(x<=0)return 0;if(q>=1)return L;
+    if(x<qr){const u=x/qr;return C0*x+(Cc-C0)*qr*(u*u*u-.5*u*u*u*u);}
+    return C0*qr+(Cc-C0)*qr*.5+Cc*(x-qr);};
+  const qFromS=(s:number)=>{if(s<=0)return q0;if(s>=L-1e-9)return 1;let lo=q0,hi=1;for(let k=0;k<48;k++){const m=(lo+hi)/2;if(sFromQ(m)<s)lo=m;else hi=m;}return (lo+hi)/2;};
+  const nC=Math.max(1,Math.ceil(L/step));
+  for(let j=1;j<=nC;j++){const s=L*j/nC;push(j===nC?island:poseAtS(sStart+s),j===nC?1:qFromS(s));}
+  const {qCrossEnd,qWalkEnd,frontalQ}=cut;
+  if(!(qCrossEnd>0&&qCrossEnd<q0&&q0<qWalkEnd&&qWalkEnd<1))throw Error('outbound pace: segment cuts');
+  const near=(q:number)=>{let best=out[0],e=1e9;for(const k of out){const d=Math.abs((k.progress??0)-q);if(d<e){e=d;best=k;}}if(e>1e-3)throw Error('outbound pace: missing boundary');return best;};
+  const door=near(qCrossEnd),bound=withFov(poseAtS(sStart+sFromQ(qWalkEnd)),qWalkEnd);
+  const locC=(q:number)=>q/qCrossEnd,locI=(q:number)=>(q-qCrossEnd)/(qWalkEnd-qCrossEnd),locS=(q:number)=>(q-qWalkEnd)/(1-qWalkEnd);
+  const cross:Pose[]=out.filter(k=>(k.progress??0)<qCrossEnd-1e-6).map(k=>({...k,progress:locC(k.progress!)}));
+  cross.push({...door,progress:1});
+  const toIsland:Pose[]=[{...door,progress:0}];
+  for(const k of out){const q=k.progress!;if(q>qCrossEnd+1e-6&&q<qWalkEnd-2e-4)toIsland.push({...k,progress:locI(q)});}
+  toIsland.push(posed(bound,1));
+  const settle:Pose[]=[posed(bound,0)];
+  for(const k of out){const q=k.progress!;if(q>qWalkEnd+2e-4&&q<1-1e-6)settle.push({...k,progress:locS(q)});}
+  settle.push({position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:island.fovVerticalDeg,progress:1});
+  const mono=(name:string,keys:Pose[])=>{for(let i=1;i<keys.length;i++)if(!((keys[i].progress??0)>(keys[i-1].progress??0)))throw Error('outbound pace: '+name+' keys not increasing');};
+  mono('cross',cross);mono('toIsland',toIsland);mono('settle',settle);
+  const frontalProgress=locI(frontalQ);
+  if(!(frontalProgress>0&&frontalProgress<locI(q0)-1e-4))throw Error('outbound pace: frontal key must stay before the crane');
+  return {cross,toIsland,settle,frontalProgress};
 }
 /** Mac r4 pure: return FOLLOW rig (RegionCameraData returnFollow). `route` = her whole return walk (toThreshold + inCrossing +
  *  toSeat, joined); s = her arclength on it. The lens trails her own path (smoothed over `smoothing` m; before the start it
@@ -126,11 +226,16 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     // T2+: crossing-out ends on a lens just behind her in the doorway (generated, not the old in-room 'O' key).
     const inside=D[4],outside=railOn?railPose(outCrossing,{...T.crossOutEnd,progress:1}):key('O',outCrossing,1),insideReturn=key('IR',inCrossing,1),outsideReturn=key('OR',toThreshold,1);
     const walkS=walkDurationFn; // shared walk-duration contract (see walkDuration)
-    const outboundRail=():Pose[]=>{const cs=T.crane.startProgress,rail=T.railOut.filter(k=>k.progress<=cs).map(k=>railPose(toIsland,k));
+    const crossOutPoses:Pose[]=[{...inside,progress:0},key('X1',outCrossing,.35),key('X2',outCrossing,.55),{...outside,progress:1}];
+    const outboundPaced=railOn?(()=>{const cs=T.crane.startProgress,rail=T.railOut.filter(k=>k.progress<=cs).map(k=>railPose(toIsland,k));
       const start=rail[rail.length-1];if(!start||Math.abs(start.progress!-cs)>1e-9)throw Error('railOut must end on crane.startProgress');
-      const w=walkS(toIsland),total=(1-cs)*w+T.crane.settleSeconds,ra=pointOnPath(toIsland,cs),rb=toIsland[toIsland.length-1],keys:Pose[]=[];
-      for(let i=1;i<=T.crane.steps;i++){const p=cs+(1-cs)*i/T.crane.steps;keys.push(cranePose(start,ra,cameraIsland,rb,pointOnPath(toIsland,p),(p-cs)*w/total,p));}
-      return [{...outside,progress:0},...rail,...keys,{...cameraIsland,progress:1}];};
+      const fr=T.railOut.find(k=>k.frontal&&k.progress<=cs);if(!fr)throw Error('railOut needs a frontal key before the crane');
+      const pace=T.crane.pace;if(!pace)throw Error('outbound crane pace missing');
+      const a=walkS(outCrossing),b=walkS(toIsland),settleS=T.crane.settleSeconds,tot=a+b+settleS,ra=pointOnPath(toIsland,cs),rb=toIsland[toIsland.length-1],crane:Pose[]=[];
+      for(let i=1;i<=T.crane.steps;i++){const p=cs+(1-cs)*i/T.crane.steps;crane.push(cranePose(start,ra,cameraIsland,rb,pointOnPath(toIsland,p),(p-cs)*b/tot,p));}
+      const original:Pose[]=[{...outside,progress:0},...rail,...crane,{...cameraIsland,progress:1}];
+      const span=spanCameraKeys([{seconds:a,cameras:crossOutPoses},{seconds:b,cameras:original.slice(0,-1)},{seconds:settleS,cameras:[{...cameraIsland,progress:1}]}]);
+      return paceOutbound(pace,span,{qCrossEnd:a/tot,qCrane:(a+cs*b)/tot,qWalkEnd:(a+b)/tot,frontalQ:(a+fr.progress*b)/tot},T.tracks.outbound,tot,cameraIsland);})():null;
     const inboundRail=():Pose[]=>{const ce=T.craneDown.endProgress,rail=T.railIn.map(k=>railPose(toThreshold,k)),end=rail[0];
       if(!end||Math.abs(end.progress!-ce)>1e-9)throw Error('railIn must start on craneDown.endProgress');
       const w=walkS(toThreshold),turn=1.5+T.craneDown.leadSeconds,total=turn+ce*w,ra=pointOnPath(toThreshold,ce),rb=toThreshold[0],keys:Pose[]=[];
@@ -174,12 +279,12 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     return {
       cameraToDoor:D,cameraInside:inside,
       cameraHomeToDoor:[{...cameraHome,progress:0},at('G',.5,reference.standingRoot),{...D[0],progress:1}],
-      cameraCrossOut:[{...inside,progress:0},key('X1',outCrossing,.35),key('X2',outCrossing,.55),{...outside,progress:1}],
-      cameraToIsland:railOn?outboundRail():[{...outside,progress:0},key('I1',toIsland,.4),follow(toIsland,.65,[-6.3,6.3,3],60),{...cameraIsland,progress:1}],
+      cameraCrossOut:outboundPaced?outboundPaced.cross:crossOutPoses,
+      cameraToIsland:outboundPaced?outboundPaced.toIsland:[{...outside,progress:0},key('I1',toIsland,.4),follow(toIsland,.65,[-6.3,6.3,3],60),{...cameraIsland,progress:1}],
       cameraToThreshold:follow?follow.cameraToThreshold:railOn?inboundRail():[{...cameraIsland,progress:0},follow(toThreshold,.35,[-6.3,6.3,3],60),key('T2',toThreshold,.6),{...outsideReturn,progress:1}],
       ...(TRANSITION_CAMERA.standTurn&&K[TRANSITION_CAMERA.standTurn.key]?{cameraStandTurn:[{...cameraHome,progress:0},
         at(TRANSITION_CAMERA.standTurn.key,TRANSITION_CAMERA.standTurn.mid,reference.standingRoot),{...D[0],progress:1}]}:{}),
-      ...(railOn?{crane:{startProgress:T.crane.startProgress,settleSeconds:T.crane.settleSeconds,returnLeadSeconds:T.craneDown.leadSeconds,
+      ...(outboundPaced?{cameraSettle:outboundPaced.settle,crane:{startProgress:T.crane.startProgress,settleSeconds:T.crane.settleSeconds,returnLeadSeconds:T.craneDown.leadSeconds,
         // crane-start mark: outbound span = crossing-out walk + toIsland walk + settle (all known here); eased track time of the key.
         startSeconds:(()=>{const a=walkS(outCrossing),b=walkS(toIsland),total=a+b+T.crane.settleSeconds;return total*invertProgress((a+T.crane.startProgress*b)/total,T.tracks.outbound as any);})()}}:{}),
       cameraCrossIn:[{...outsideReturn,progress:0},key('C1',inCrossing,.3),key('C2',inCrossing,.55),key('C3',inCrossing,.8),{...insideReturn,progress:1}],
@@ -199,7 +304,8 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       ...(railOn&&T.doorDrift?{doorDrift:{...T.doorDrift}}:{}),
       ...(railOn&&T.windOut?{wind:{outbound:(()=>{const W=T.windOut,a=walkS(outCrossing),b=walkS(toIsland),tot=a+b+T.crane.settleSeconds;
         const f=T.railOut.filter(k=>k.frontal);if(f.length!==1)throw Error('railOut needs exactly one frontal key');
-        const fp=f[0].progress,he=T.crane.startProgress;if(!(W.swingStart<fp&&fp<he))throw Error('wind: swingStart < frontal < crane.startProgress');
+        // Frontal knot stays on its walk progress (paceOutbound only resamples between knots), so wind is 1 exactly on that pose.
+        const fp=outboundPaced!.frontalProgress,he=T.crane.startProgress;if(!(W.swingStart<fp&&fp<he))throw Error('wind: swingStart < frontal < crane.startProgress');
         const out=(q:number)=>q*a/tot,isl=(p:number)=>(a+p*b)/tot;
         const keys:Array<readonly [number,number]>=[[0,0],[out(W.doorProgress),W.base],[isl(W.swingStart),W.base],[isl(fp),1],[isl(he),1],[1,0]];
         for(let i=1;i<keys.length;i++)if(!(keys[i][0]>keys[i-1][0]))throw Error('wind keys must increase');return keys;})()}}:{}),
