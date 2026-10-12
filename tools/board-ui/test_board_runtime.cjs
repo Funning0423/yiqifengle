@@ -169,6 +169,42 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert(Math.abs(knobX() + rail / 2) < 1e-6, 'knob stays at zero and does not snap back');
     H.tap(inPopup(b, 'SettingsPanel', 'SfxToggle')); assert(H.audioLog.includes('sfx:true'), 'sfx toggle still mutes');
   });
+  await ok('info plate: goals, divider, moves icon and count stay inside hud_levelplate; title stays on the top row', async () => {
+    const fit = async (width, height, goals, counts, moves) => {
+      const b = await board({ width, height }), { u } = b;
+      const { measure } = b.H.load('ui/PopupKit');
+      b.s.active.name = '浆果野餐'; b.s.active.level = 2; b.s.active.moves = moves;
+      b.s.active.goalOrder = goals; b.s.active.goals = Object.fromEntries(goals.map((key, i) => [key, counts[i]]));
+      b.render();
+      const plate = u.plateSprite.node.getComponent(b.H.cc.UITransform), half = plate.width / 2, left = -half + 15, right = half - 19;
+      const inside = (x, what) => assert(x >= left - 0.6 && x <= right + 0.6, `${what} ${x.toFixed(1)} outside beige ${left.toFixed(1)}..${right.toFixed(1)} @${width}x${height}`);
+      u.goalNodes.forEach((n, i) => {
+        if (!n.active) return;
+        const art = n.getChildByName('GoalPieceArt').getComponent(b.H.cc.UITransform);
+        inside(n.position.x + art.node.position.x - art.width / 2, 'goal icon ' + i);
+        const lab = u.goalLabels[i];
+        inside(n.position.x + lab.node.position.x + measure(lab.string, lab.fontSize), 'goal count ' + i);
+        assert(n.position.y < 0, 'goals stay on the lower row');
+      });
+      inside(u.plateDivider.node.position.x, 'divider');
+      const mv = u.targets.moves, icon = u.movesIcon.node.getComponent(b.H.cc.UITransform);
+      inside(mv.position.x + icon.node.position.x - icon.width / 2, 'moves icon');
+      inside(mv.position.x + icon.node.position.x + icon.width / 2, 'moves icon right');
+      inside(mv.position.x + u.moves.node.position.x + measure(u.moves.string, u.moves.fontSize), 'moves');
+      assert(u.titleLabel.node.position.y > 0, 'title stays on the upper row');
+      assert.equal(u.plateSprite.type, b.H.cc.Sprite.Type.SLICED);
+      assert(plate.width + 0.01 >= 411, 'sliced plate is never narrower than the source art');
+      return plate.width;
+    };
+    const one = await fit(390, 844, ['type0'], [20], 20);
+    assert.equal(Math.round(one), 411, 'one goal keeps the native plate width');
+    const picnic = await fit(390, 844, ['type2', 'type4', 'lines'], [12, 12, 1], 28);
+    assert(picnic > 411, '03 浆果野餐 stretches the sliced plate so 28 stays on the beige');
+    await fit(320, 568, ['type2', 'type4', 'lines'], [12, 12, 1], 29);
+    await fit(390, 844, ['moss', 'roots', 'type0', 'type3'], [13, 9, 18, 18], 42);
+    await fit(320, 568, ['moss', 'roots', 'type0', 'type3'], [13, 9, 18, 18], 42);
+    await fit(568, 320, ['moss', 'roots', 'type0', 'type3'], [13, 9, 18, 18], 42);
+  });
   await ok('teardown: onDestroy clears popups and host; later updates are inert', async () => {
     const b = await board(), { H, u } = b; H.tap(u.pause); u.onDestroy(); assert.deepEqual(u.popups.names(), []); u.update(1); u.onDestroy();
   });

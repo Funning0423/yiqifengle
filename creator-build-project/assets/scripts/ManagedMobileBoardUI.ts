@@ -376,22 +376,65 @@ export class ManagedMobileBoardUI extends Component {
     this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2 });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
   }
-  /** Info plate: row 1 level title (the only place the name appears), row 2 goal pieces + counts | hourglass + moves. */
+  /** Info plate: row 1 level title (the only place the name appears), row 2 goal pieces + counts | hourglass + moves.
+   *  hud_levelplate is a 411×129 sliced sprite; the beige fill ends 15 px in from the left and 19 px in from the right,
+   *  and those caps do not stretch. A wide goal row used to push the moves past that fill, so the center slice grows
+   *  until the row fits. On a narrow phone, or in the landscape column, the plate cannot grow and the row scales down. */
   private layoutPlate() {
-    const g = this.geo; if (!g) return; const d = { w: this.root.getComponent(UITransform)!.width, h: this.root.getComponent(UITransform)!.height };
-    const s = g.plate.width / 411, wpx = g.plate.width / s, hpx = 129;
+    const g = this.geo; if (!g) return;
+    const root = this.root.getComponent(UITransform)!, d = { w: root.width, h: root.height };
+    const native = 411, hpx = 129, beigeL = 15, beigeR = 19, pad = 12;
+    const keys = this.goalKeys.slice(0, 4);
+    const s = g.plate.width / native;
+    const maxVisual = d.w > d.h ? g.plate.width : Math.max(g.plate.width, d.w - 24);
+    const maxWpx = Math.max(native, maxVisual / s);
+    const movesStr = this.moves.string || '00';
+    const countStr = (i: number) => this.goalLabels[i]?.string || '0';
+    const row = (wpx: number, k: number) => {
+      const icon = 50 * k, font = 32 * k, gap = 18 * k, labelGap = 2 * k, after = 14 * k, lead = 14 * k, labelX = 30 * k;
+      const start = -wpx * 0.40; let x = start;
+      const movesTw = measure(movesStr, font), movesW = labelX + 12 * k + movesTw;
+      const divX = wpx / 2 - 34 * k - movesW - gap;
+      const placed: { key: string; x: number; big: number; tw: number }[] = [];
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i], tw = measure(countStr(i), font), big = /^type/.test(key) ? icon : icon * 0.86;
+        placed.push({ key, x, big, tw }); x += big + labelGap + tw + gap;
+      }
+      const end = Math.max(x - gap + after, start);
+      const limitR = wpx / 2 - beigeR - pad, limitL = -wpx / 2 + beigeL + pad;
+      const maxDx = limitR - lead - labelX - movesTw;
+      const dx = Math.min(Math.max(end, divX), maxDx);
+      const textRight = dx + lead + labelX + movesTw;
+      const fits = end + lead + labelX + movesTw <= limitR + 0.05 && (placed.length === 0 || placed[0].x >= limitL - 0.05);
+      return { font, labelGap, lead, labelX, placed, dx, limitL, limitR, textRight, fits, k };
+    };
+    let wpx = native, lay = row(wpx, 1);
+    if (!lay.fits) {
+      let lo = native, hi = maxWpx;
+      for (let n = 0; n < 18; n++) { const mid = (lo + hi) / 2; if (row(mid, 1).fits) hi = mid; else lo = mid; }
+      if (row(hi, 1).fits) { wpx = hi; lay = row(wpx, 1); }
+      else {
+        wpx = maxWpx; let best = 0.5, loK = 0.5, hiK = 1;
+        for (let n = 0; n < 18; n++) { const mid = (loK + hiK) / 2; if (row(wpx, mid).fits) { best = mid; loK = mid; } else hiK = mid; }
+        lay = row(wpx, best);
+      }
+    }
     this.plate.setPosition(g.plate.x - d.w / 2, d.h / 2 - g.plate.y - 3, 0); this.plate.setScale(s, s, 1); this.place(this.plateSprite.node, 0, 0, wpx, hpx);
-    const keys = this.goalKeys.slice(0, 4), icon = 50; let x = -wpx * 0.40;
-    const movesW = 30 + 12 + measure(this.moves.string || '00', 32), divX = wpx / 2 - 34 - movesW - 18;
+    const k = lay.k;
     this.goalNodes.forEach((n, i) => {
-      n.active = i < keys.length; if (!n.active) return;
-      const key = keys[i], label = this.goalLabels[i], tw = measure(label.string || '0', 32), art = n.getChildByName('GoalPieceArt')!.getComponent(Sprite)!;
-      this.setFrame(art, goalArt(key)); const big = /^type/.test(key) ? icon : icon * 0.86; this.place(art.node, big / 2, 0, big, big);
-      label.node.setPosition(big + 2, 2, 0); n.setPosition(x, -21, 0); x += big + 2 + tw + 18;
+      const p = lay.placed[i]; n.active = !!p; if (!p) return;
+      const label = this.goalLabels[i], art = n.getChildByName('GoalPieceArt')!.getComponent(Sprite)!;
+      this.setFrame(art, goalArt(p.key)); this.place(art.node, p.big / 2, 0, p.big, p.big);
+      label.fontSize = lay.font; label.lineHeight = Math.round(lay.font * 1.4);
+      label.node.setPosition(p.big + lay.labelGap, 2 * k, 0); n.setPosition(p.x, -21, 0);
     });
-    const end = Math.max(x - 18 + 14, -wpx * 0.40), dx = Math.max(end, divX);
-    this.plateDivider.node.setPosition(dx, -21, 0); this.plateDivider.clear(); const k = 1 - 0.4 * this.tint.weight(); this.plateDivider.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), 255); this.plateDivider.lineWidth = 3; this.plateDivider.moveTo(0, -18); this.plateDivider.lineTo(0, 18); this.plateDivider.stroke();
-    const mv = this.targets.moves; mv.setPosition(dx + 14, -21, 0); this.place(this.movesIcon.node, 11, 0, 21, 33); this.moves.node.setPosition(30, 2, 0);
+    this.plateDivider.node.setPosition(lay.dx, -21, 0); this.plateDivider.clear();
+    const night = 1 - 0.4 * this.tint.weight();
+    this.plateDivider.strokeColor = new Color(Math.round(196 * night), Math.round(166 * night), Math.round(120 * night), 255);
+    this.plateDivider.lineWidth = 3; const half = 18 * k; this.plateDivider.moveTo(0, -half); this.plateDivider.lineTo(0, half); this.plateDivider.stroke();
+    const mv = this.targets.moves; mv.setPosition(lay.dx + lay.lead, -21, 0);
+    this.place(this.movesIcon.node, 11 * k, 0, 21 * k, 33 * k);
+    this.moves.fontSize = lay.font; this.moves.lineHeight = Math.round(lay.font * 1.4); this.moves.node.setPosition(lay.labelX, 2 * k, 0);
     this.titleLabel.node.getComponent(UITransform)!.setContentSize(wpx - 40, 40); this.titleLabel.overflow = Label.Overflow.SHRINK;
   }
   private measureLayout() {
