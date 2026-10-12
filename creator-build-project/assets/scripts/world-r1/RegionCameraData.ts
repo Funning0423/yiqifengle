@@ -136,7 +136,7 @@ export const TRANSITION_CAMERA = Object.freeze({
     homeToDoor: { interpolation: 'pchip', easeIn: .3, easeOut: .3 },
     standTurn: { interpolation: 'pchip', easeIn: .35, easeOut: .12 },
     toDoor: { interpolation: 'pchip', easeIn: .15, easeOut: .15 },
-    outbound: { interpolation: 'pchip', easeIn: .08, easeOut: .2 },
+    outbound: { interpolation: 'pchip', easeIn: .02, easeOut: .055 },
     inbound: { interpolation: 'pchip', easeIn: .35, easeOut: .08 },
     toSeat: { interpolation: 'pchip', easeIn: .2, easeOut: .2 },
   },
@@ -179,12 +179,16 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  seaward bearing in front of her, radial grows the distance, climb raises the lens, all on that one curve.
    *  handle / lead are the cubic that continues that same arc to cameraIsland. Rotation, dolly-back and the
    *  lift overlap on that arc. blendMetres stays as a non-negative tune (the portal tangents are fixed).
-   *  paceOutbound samples it by arc length, smoothsteps off the doorway speed for rampSeconds, then holds one cruise;
-   *  the outbound ease-out still ends at rest. frontalDeg: wind reaches 1 the first time the lens is within this many
+   *  paceOutbound plays that arc at one cruise matched to the doorway follow (arc length linear in the
+   *  span progress after the door). settleSeconds is long enough that the cruise stays near the doorway
+   *  speed: the turn does not accelerate from about 1.2 m/s to a sprint. rampSeconds is kept on the pace
+   *  object and is not a playback ramp. Outbound ease-in is a short leave from rest before the door;
+   *  ease-out is only the landing brake, onto cameraIsland near height 15.5.
+   *  frontalDeg: wind reaches 1 the first time the lens is within this many
    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
-  crane: { settleSeconds: 2.992,
-    pace: { sampleMetres: 0.08, rampSeconds: 1.15,
-      depart: { blendMetres: 0.5, aimDeg: 14, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
+  crane: { settleSeconds: 40,
+    pace: { sampleMetres: 0.05, rampSeconds: 1.15,
+      depart: { blendMetres: 0.5, aimDeg: 14, radial: 1.55, climb: 1.9, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36 } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when

@@ -221,7 +221,8 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   // --- exit arc: after the doorway, rotation (behind → in front), dolly-back and crane lift are one move at one speed.
   // The old rail band (stay within 5.5 m until a later crane-start) encoded "swing, then dolly, then lift". This check
   // fails that sequence: during the swing the lens must already be rising and already moving away, and cruise speed
-  // must not jump once she is in front.
+  // must not jump once she is in front. The cruise matches the doorway follow (about 1.2 m/s), so a half-second
+  // cannot be required to gain 0.7 m of distance; the landing brake near height 15.5 is allowed to slow down.
   {const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]),y=f=>f.cam.position[1];
     const front=f=>{const fx=Math.sin(f.yaw),fz=Math.cos(f.yaw),dx=f.cam.position[0]-f.root[0],dz=f.cam.position[2]-f.root[2],l=Math.hypot(dx,dz)||1;return Math.acos(Math.max(-1,Math.min(1,(fx*dx+fz*dz)/l)))*180/Math.PI;};
     const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:0;
@@ -239,7 +240,8 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
     const vSwing=med(swing),vAfter=med(after),ratio=vSwing&&vAfter?vAfter/vSwing:Infinity;
     let riseOk=exit.length>0,riseAt=null;const tA=tDoor+1.2,tB=tEase-.15;
     if(exit.length)for(let t=tA;t+0.5<=tB+1e-6;t+=0.5){const fa=exit.reduce((p,f)=>Math.abs(f.t-t)<Math.abs(p.t-t)?f:p),fb=exit.reduce((p,f)=>Math.abs(f.t-(t+.5))<Math.abs(p.t-(t+.5))?f:p);
-      if(y(fb)-y(fa)<.4||d(fb)-d(fa)<.7){riseOk=false;if(!riseAt)riseAt={t:+t.toFixed(2),dH:+(y(fb)-y(fa)).toFixed(2),dD:+(d(fb)-d(fa)).toFixed(2)};}}
+      if(y(fa)>=14.2)continue;const step=Math.hypot(fb.cam.position[0]-fa.cam.position[0],fb.cam.position[1]-fa.cam.position[1],fb.cam.position[2]-fa.cam.position[2]);
+      if(y(fb)-y(fa)<-.02||d(fb)-d(fa)<-.25||step<.45){riseOk=false;if(!riseAt)riseAt={t:+t.toFixed(2),dH:+(y(fb)-y(fa)).toFixed(2),dD:+(d(fb)-d(fa)).toFixed(2),step:+step.toFixed(2)};}}
     const cruise=[];for(let i=0;i<exit.length;i++){const f=exit[i];if(f.t>=tDoor+1.3&&f.t<tEase){const v=vOf(f);if(v!==null)cruise.push(v);}}
     const cMin=cruise.length?Math.min(...cruise):0,cMax=cruise.length?Math.max(...cruise):0,flat=cMin>0&&cMax/cMin<=1.25;
     const ok=!!(a150&&a30&&a30.t>a150.t&&dH>=3&&dD>=4&&vSwing&&vAfter&&ratio<=1.25&&ratio>=1/1.25&&riseOk&&flat);
