@@ -8,7 +8,7 @@ const R3_EXTERIOR_KEY={toThreshold:{from:0,to:1,start:.02,end:.22}};{const raw=a
 const old=api(true),now=api(false),plain=x=>JSON.parse(JSON.stringify(x));
 // T2+ (运镜bot) owns these route keys; they are frozen against the committed T2+ snapshot instead of the pre-T2 baseline.
 // Every other key is still frozen against the baseline. Regenerate deliberately with --update-t2plus-snapshot.
-const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','crane','cameraToSeat','cameraTracks','interiorLighting','wind','doorDrift','cameraEntry'];
+const T2PLUS_KEYS=['cameraHomeToDoor','cameraToDoor','cameraInside','cameraCrossOut','cameraCrossIn','cameraToIsland','cameraToThreshold','cameraStandTurn','cameraSettle','crane','cameraToSeat','cameraTracks','interiorLighting','wind','doorDrift','cameraEntry'];
 // T2+ function-valued route keys (not JSON-snapshotable): checked for presence only.
 const T2PLUS_FN=['remapProgress'];
 const t2Snap=path.join(__dirname,'routes.t2plus.snapshot.json');

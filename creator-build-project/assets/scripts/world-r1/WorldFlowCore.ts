@@ -106,10 +106,10 @@ export interface RouteConfig {
   /** T2+: ONE camera move over stand-up + turn (progress over that move; first key should be cameraHome). With
    *  cameraTracks.standTurn it replaces the static stand + 1 s homeToDoor + static turn of the original. */
   cameraStandTurn?:readonly Pose[];
-  /** T2+: outbound crane. Without cameraSettle, cameraToIsland's LAST key (cameraIsland) is reached `settleSeconds`
-   *  after she stops. With cameraSettle, that climb is keyed on the settle clock (last key = cameraIsland) and
-   *  cameraToIsland ends on the pose at the moment she stops. startProgress = toIsland walk progress of the crane's first key.
-   *  returnLeadSeconds: the return crane-down starts this long before she turns/walks (mirror of settleSeconds).
+  /** T2+: outbound crane mark. Crossing-out, toIsland, and the settle are one camera curve (yaw, retreat, and rise
+   *  together); cameraSettle's last key is cameraIsland. startProgress is the toIsland walk progress of the crane-start
+   *  mark, where the wind hold ends, not the moment the rise begins. settleSeconds is the hold after she stops.
+   *  returnLeadSeconds: the return crane-down starts this long before she turns/walks.
    *  startSeconds: crane-start mark time from the start of crossing-out (precomputed by the route builder from the eased
    *  outbound track; WorldFlowCore stays free of CameraPose value imports). */
   crane?:Readonly<{startProgress:number;settleSeconds:number;returnLeadSeconds?:number;startSeconds?:number}>;
