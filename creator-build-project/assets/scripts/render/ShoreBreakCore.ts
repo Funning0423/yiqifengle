@@ -1,9 +1,11 @@
 /**
  * Shore swell (engine-free). The authored env_sea_surface stays the only sea: its vertices heave and its
- * wavelet UVs drift on the amb_waves_loop clock (8.064 s, crashes near 2.369 s and 6.300 s). White water is
- * one thin lip along the beach, present only while that crest is actually on the sand, then it runs back
- * down and disappears. Between the two beats the lip is gone (no sheet left hanging over a still sea).
- * Night is a mainColor multiply of that same lip (the existing foam tint), not a second mesh or a second sea.
+ * wavelet UVs drift on the amb_waves_loop clock (8.064 s, crashes near 2.369 s and 6.300 s). Daytime blue
+ * is the mesh COLOR_0 (RGB floats), not mainColor and not the shared M_env_sea. A dynamic copy must keep
+ * that color (alpha 1). White water is one thin lip along the beach, present only while that crest is
+ * actually on the sand, then it runs back down and disappears. Between the two beats the lip is gone
+ * (no sheet left hanging over a still sea). Night is a mainColor multiply of that same lip (the existing
+ * foam tint), not a second mesh or a second sea. The sea material's mainColor is never written here.
  * The beach lip draws with the exterior layer (open door and island). A faint far lip draws with the backdrop
  * so the rear window sees the same beat. Nothing is emitted inside the house footprint.
  * tools/scene-fx/test_shore_break.cjs
@@ -176,6 +178,26 @@ export function farWashAlpha(foamA: number): number {
 export function seaUvShift(time: number): { u: number; v: number } {
   const w = wrapLoop(time) / SHORE.loopS * TAU;
   return { u: Math.sin(w) * SHORE.uvDrift, v: Math.sin(w * 2) * SHORE.uvDrift * 0.7 };
+}
+/**
+ * COLOR_0 → RGBA floats for a dynamic mesh. env_sea_surface stores the daytime blue as RGB (3 floats).
+ * builtin-standard multiplies albedo by a_color; a missing color attribute is (0,0,0,1), so the sea draws black.
+ * RGB gets alpha 1 (the glTF w default). Byte colors (BYTES_PER_ELEMENT 1) are scaled from 0..255.
+ * Returns null when the stream is too short — the caller must leave the authored mesh in place.
+ */
+export function seaAlbedoColors(src: ArrayLike<number> | null, count: number, bytesPerElement: number): Float32Array | null {
+  if (!src || !(count > 0) || src.length < count * 3) return null;
+  const comps = src.length >= count * 4 ? 4 : 3;
+  const scale = bytesPerElement === 1 ? 1 / 255 : 1;
+  const out = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    const s = i * comps, d = i * 4;
+    out[d] = src[s] * scale;
+    out[d + 1] = src[s + 1] * scale;
+    out[d + 2] = src[s + 2] * scale;
+    out[d + 3] = comps === 4 ? src[s + 3] * scale : 1;
+  }
+  return out;
 }
 
 function shoreRadiusRaw(deg: number): number {

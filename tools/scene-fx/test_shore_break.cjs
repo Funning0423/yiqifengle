@@ -121,6 +121,15 @@ function layersOf() {
   // v is two cycles per loop, so the two hits (half a loop apart) share v. u is one cycle, so it has flipped.
   check('sea-keeps-moving-between-beats', quietPhase.foamA === 0 && quietMax > 0.01 && quietMax < S.ripple + S.heave + 0.02 && Math.abs(uvA.u - uvB.u) > 0.05 && Math.abs(uv0.u) < 1e-9 && Math.abs(uvA.u) < S.uvDrift + 1e-9, { quietMax: +quietMax.toFixed(3), uvA: uvA, uvB: uvB });
 
+  // Daytime blue is COLOR_0 RGB on env_sea_surface (wavelet texture is nearly white). RGB must become RGBA with alpha 1.
+  // Dropping it leaves a_color at 0, and builtin-standard multiplies the sea to black while the vertices still heave.
+  const rgbSea = [0.3045, 0.7404, 0.8833, 0.3633, 0.8028, 0.898, 0.4673, 0.9134, 0.924];
+  const albedo = C.seaAlbedoColors(rgbSea, 3, 4), albedo5 = C5.seaAlbedoColors(rgbSea, 3, 4);
+  let cdiff = 0;
+  if (albedo && albedo5 && albedo.length === albedo5.length) for (let i = 0; i < albedo.length; i++) cdiff = Math.max(cdiff, Math.abs(albedo[i] - albedo5[i]));
+  const bytes = C.seaAlbedoColors([77, 189, 225], 1, 1);
+  check('vertex-color-is-the-blue', !!albedo && albedo.length === 12 && Math.abs(albedo[0] - 0.3045) < 1e-6 && albedo[3] === 1 && albedo[7] === 1 && albedo[11] === 1 && Math.abs(albedo[8] - 0.4673) < 1e-6 && cdiff < 1e-9 && !!bytes && Math.abs(bytes[0] - 77 / 255) < 1e-6 && bytes[3] === 1 && C.seaAlbedoColors(rgbSea, 4, 4) === null && C.seaAlbedoColors(null, 1, 4) === null, { a: albedo && albedo[3], cdiff: cdiff });
+
   const homeL = C.washVisible(false, true, 1), isleL = C.washVisible(true, true, 1), noneL = C.washVisible(false, false, 1), quietL = C.washVisible(true, true, 0), doorL = C.washVisible(true, true, 0.5);
   check('home-far-only', homeL.shore === false && homeL.far === true && isleL.shore === true && isleL.far === true && doorL.shore === true && noneL.shore === false && noneL.far === false && quietL.shore === false && quietL.far === false, { homeL: homeL, isleL: isleL, noneL: noneL, quietL: quietL });
 
@@ -169,8 +178,10 @@ function layersOf() {
   check('playhead-on-ambience', /static wavePlayhead\(/.test(amb) && amb.includes('wi.wavePlayhead = AmbienceAudio.wavePlayhead') && amb.includes('src.currentTime') && amb.includes('amb_waves_loop'));
   const coreSrc = fs.readFileSync(path.join(scripts, 'render/ShoreBreakCore.ts'), 'utf8');
   const mainSets = wrap.match(/setProperty\('mainColor'/g) || [];
+  const meshAt = wrap.indexOf('mr.mesh = dynamic'), guardAt = wrap.indexOf('if (!colors)');
   // Two foam mainColor writes (init alpha 0, then place). The sea material is never written.
-  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('createDynamicMesh') && wrap.includes('updateSubMesh') && wrap.includes('foamMultiply') && wrap.includes('seaHeight') && wrap.includes('tilingOffset') && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length });
+  // Vertex colour is copied before the mesh swap. Without it the heaving sea draws black.
+  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('createDynamicMesh') && wrap.includes('updateSubMesh') && wrap.includes('foamMultiply') && wrap.includes('seaHeight') && wrap.includes('tilingOffset') && wrap.includes('seaAlbedoColors') && wrap.includes('ATTR_COLOR') && wrap.includes('colors: s.colors') && wrap.includes('ny = 1') && guardAt >= 0 && meshAt > guardAt && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && !/length < count \* 4/.test(coreSrc) && coreSrc.includes('seaAlbedoColors') && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length, guardAt: guardAt, meshAt: meshAt });
 
   let codeBytes = 0;
   for (const f of ['render/ShoreBreak.ts', 'render/ShoreBreak.ts.meta', 'render/ShoreBreakCore.ts', 'render/ShoreBreakCore.ts.meta']) codeBytes += fs.statSync(path.join(scripts, f)).size;
