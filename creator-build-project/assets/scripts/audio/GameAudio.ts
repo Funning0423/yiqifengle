@@ -150,6 +150,8 @@ export class GameAudio extends Component {
   /** v0.4 切场景交叉：正在淡出的旧曲声源；sceneFadeAt = 交叉开始时刻；sceneFadeIn = 新 loopSource 需要从 0 淡入 */
   private fadeOutSource: AudioSource | null = null;
   private fadeOutFrom = 1;
+  /** musicVolume at the moment fadeOutFrom was captured, so a later slider move scales that voice without dropping the wind-duck ratio baked into fadeOutFrom. */
+  private fadeOutAtVolume = 1;
   private sceneSwitchAt = 0;
   private sceneFadeAt: number | null = null;
   private sceneFadeIn = false;
@@ -579,6 +581,7 @@ export class GameAudio extends Component {
       this.retireLoopPartner();
       this.retireFadeOut();
       this.fadeOutSource = this.loopSource; this.fadeOutFrom = this.fadeOutSource.volume;
+      this.fadeOutAtVolume = this.musicVolume > 1e-4 ? this.musicVolume : 1;
       this.loopSource = this.createLoopSource();
       this.loopNeedsReplacement = false;
       this.sceneSwitchAt = GameAudio.now(); this.sceneFadeAt = null; this.sceneFadeIn = true;
@@ -655,15 +658,18 @@ export class GameAudio extends Component {
     this.windDuck += (this.windDuckTarget - this.windDuck) * (1 - Math.exp(-dt / WIND_DUCK_TAU_S));
     if (Math.abs(this.windDuck - this.windDuckTarget) < 1e-4) this.windDuck = this.windDuckTarget;
   }
-  /** All music gains in one place: musicVolume x wind duck x scene fade-in x loop crossfade. */
+  /** All music gains in one place: musicVolume x wind duck x scene fade-in x loop crossfade.
+   *  The wind duck stays a ratio on the player's level (up to -4 dB); it does not replace the slider.
+   *  Waves and wind read getMusicVolume() and scale their own design curves by it. */
   private applyMusicGains() {
     const v = this.musicVolume * this.windDuckGain();
     const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
     const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
     const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
+    const musicScale = this.fadeOutAtVolume > 1e-4 ? this.musicVolume / this.fadeOutAtVolume : 1;
     try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
     try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
-    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
   }
   private retireMusicSource(source: AudioSource | null) {
     if (!source) return;

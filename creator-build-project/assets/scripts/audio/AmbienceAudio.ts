@@ -1,5 +1,7 @@
 // AmbienceAudio.ts — A4（Voice bot）：室外海浪循环 + 随机海鸥。
 // 音量跟着 WorldFlowComponent.getRoomLightWeight() 走：w=0（海岛光）满音量，w=1（室内）静音，和光照用同一条曲线。
+// 玩家音乐滑条（GameAudio.getMusicVolume，0..1）乘在这条曲线外面：0 立刻无声，1 就是现在的满音量。
+// 出门时海浪让风的比例（waveWindDuck）留在曲线里，不跟滑条对掉。
 // 只读轮询，不改任何游戏状态；找不到 WorldFlowComponent 或接口时按"室内"处理，保持无声。
 // 静音 / 切后台 / 来电 / 还没有用户手势时，一律跟随 GameAudio.canPlayAmbience() 暂停。
 // 出门起风（WindAudio 每帧通过 AmbienceAudio.setWindExit(s) 报平滑后的 getWindStrength()）：
@@ -14,6 +16,14 @@
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio, SfxName } from './GameAudio';
 const { ccclass } = _decorator;
+
+/** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+function musicBed(): number {
+  const audio: any = GameAudio.instance;
+  if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+  const value = Number(audio.getMusicVolume());
+  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
+}
 
 const WAVES_PATH = 'audio_amb/amb_waves_loop';
 const WAVES_MAX_VOL = 0.55;
@@ -404,11 +414,14 @@ export class AmbienceAudio extends Component {
     const target = allowed && outdoor >= 0 ? Math.max(outdoor * WAVES_MAX_VOL, floor) * duck : 0;
     const k = Math.min(1, dt * SMOOTH_PER_S);
     this.vol += (target - this.vol) * k;
-    if (!allowed || this.vol < 0.002) {
+    if (!allowed) this.vol = 0;
+    // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
+    const heard = this.vol * musicBed();
+    if (!allowed || heard < 0.002) {
+      try { src.volume = 0; } catch { /* ignore */ }
       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
-      if (!allowed) this.vol = 0;
     } else {
-      src.volume = this.vol;
+      src.volume = heard;
       if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置

@@ -156,6 +156,16 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
   w.step(0.8);
   ok(old.destroyed && near(a.loopSource.volume, v, 1e-9) && w.live().length === 1 && !a.musicDiagnostics().sceneCrossfade.fadingOut, 'after 1.5 s: old voice retired, new at full volume');
 }
+{ const { w } = loopWorld({}); const a = w.a, old = a.loopSource; const v = a.musicDiagnostics().volume;
+  w.step(1); a.setMusic('audio/bgm_skycity', 'region_skycity');
+  const b = w.mkBundle('region_skycity'); w.bundleLoads[0].cb(null, b); b.loads[0].cb(null, w.clip('bgm_skycity', 72));
+  w.step(1 / 60);
+  const before = old.volume;
+  a.setMusicVolume(v * 0.5);
+  ok(near(old.volume, before * 0.5, 1e-3) && near(a.musicDiagnostics().volume, v * 0.5, 1e-9), 'scene crossfade: the outgoing voice follows the music slider and keeps the captured wind-duck ratio', { before, after: old.volume });
+  a.setMusicVolume(0);
+  ok(!old.playing && !a.loopSource.playing, 'music slider 0 silences both voices of a scene crossfade');
+}
 { const { w } = loopWorld({}); const a = w.a, old = a.loopSource;
   a.setMusic('audio/bgm_meadow', 'region_meadow'); w.bundleLoads[0].cb(new Error('no region_meadow'), null);
   w.step(0.75); ok(old.volume < a.musicDiagnostics().volume * 0.8 && old.volume > 0, 'new track fails to load: old track fades out instead of cutting', old.volume);
