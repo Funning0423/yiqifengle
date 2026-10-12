@@ -272,7 +272,7 @@
       "name": "env_anim_seagull_01.mesh",
       "userData": {
         "gltfIndex": 3,
-        "triangleCount": 600
+        "triangleCount": 606
       },
       "ver": "1.1.1",
       "imported": true,
@@ -326,7 +326,7 @@
       "name": "env_anim_seagull_fly_01_v22.mesh",
       "userData": {
         "gltfIndex": 6,
-        "triangleCount": 28
+        "triangleCount": 34
       },
       "ver": "1.1.1",
       "imported": true,
@@ -380,7 +380,7 @@
       "name": "env_anim_seagull_fly_02_v22.mesh",
       "userData": {
         "gltfIndex": 9,
-        "triangleCount": 28
+        "triangleCount": 34
       },
       "ver": "1.1.1",
       "imported": true,
