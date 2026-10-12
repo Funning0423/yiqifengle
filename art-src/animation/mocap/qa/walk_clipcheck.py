@@ -2,6 +2,8 @@
 # Method (normal-independent): from each test vertex cast a horizontal ray toward the body axis (hips x,y at the vertex height).
 #   leg vertex OUTSIDE dress/apron  <=> ray hits that cloth before reaching the axis (depth = hit distance).
 #   arm vertex INSIDE dress/torso   <=> ray AWAY from the axis hits that surface within 5 cm.
+#   arm_in_torso_dyn (added for the mocap task): arm_in_torso without the arm vertices already inside at rest and without the
+#   sleeve seam band (< 10 cm from the shoulder joint), i.e. elbows / forearms / hands entering the torso.
 import bpy, sys, json, math
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -48,13 +50,24 @@ def bvh_of(o, polyfilter=None):
     ps = [list(p.vertices) for p in me.polygons if polyfilter is None or all(i in polyfilter for i in p.vertices)]
     eo.to_mesh_clear(); return BVHTree.FromPolygons(vs, ps), vs
 res = dict(frames=[], method='horizontal ray to/away from body axis; depth = distance outside', tol_mm=TOL * 1000)
-worst = dict(leg_out_dress=0, leg_out_apron=0, dress_out_apron=0, apron_in_dress=0, arm_in_dress=0, arm_in_apron=0, arm_in_torso=0)
+worst = dict(leg_out_dress=0, leg_out_apron=0, dress_out_apron=0, apron_in_dress=0, arm_in_dress=0, arm_in_apron=0, arm_in_torso=0, arm_in_torso_dyn=0)
 counts = {k: 0 for k in worst}
 # rest-pose dress/apron triangle contacts (layers sewn together at the waist band) are excluded from the layer check
 sc.frame_set(0); arm.animation_data.action = None
 for pb in arm.pose.bones: pb.matrix_basis.identity()
 bpy.context.view_layer.update()
 REST_DA = set(bvh_of(dress)[0].overlap(bvh_of(apron)[0]))
+# arm vertices already inside the torso at the rest pose, and the sleeve seam band (< 10 cm from the shoulder joint at rest,
+# pressed into the bodice by any hanging-arm pose) -> arm_in_torso_dyn skips them
+_tB0, _bv0 = bvh_of(body, CHEST); _h0 = (arm.matrix_world @ arm.pose.bones['hips'].matrix).translation
+def _inside0(p):
+    d = Vector((p.x - _h0.x, p.y - _h0.y, 0)); L = d.length
+    if L < 1e-4: return False
+    hit = _tB0.ray_cast(p, d / L, 0.05); return hit[0] is not None and hit[3] > TOL
+_sh0 = {sd: arm.matrix_world @ arm.pose.bones['upper_arm.' + sd].head for sd in 'LR'}
+SEAM = set(k for k in ARM if (_bv0[k] - _sh0[dom(body.data.vertices[k])[-1]]).length < 0.10)
+REST_ARM_TORSO = set(k for k in ARM if _inside0(_bv0[k])) | SEAM
+ARM_DYN = [k for k in ARM if k not in REST_ARM_TORSO]
 arm.animation_data.action = bpy.data.actions[CLIP]
 tri_tot = {}; tri_frames = {}
 for i in range(NF * SUB):
@@ -93,7 +106,7 @@ for i in range(NF * SUB):
         return hit[3] if hit[0] is not None and hit[3] > TOL else 0
     for key, verts, fn, tree in (('leg_out_dress', [bv[k] for k in LEG], outside, tD), ('leg_out_apron', [bv[k] for k in LEG], outside, tA),
                                  ('dress_out_apron', dv, outside, tA), ('apron_in_dress', av, inside, tD), ('arm_in_dress', [bv[k] for k in ARM], inside, tD), ('arm_in_apron', [bv[k] for k in ARM], inside, tA),
-                                 ('arm_in_torso', [bv[k] for k in ARM], inside, tB)):
+                                 ('arm_in_torso', [bv[k] for k in ARM], inside, tB), ('arm_in_torso_dyn', [bv[k] for k in ARM_DYN], inside, tB)):
         ds = [fn(p, tree) for p in verts]; n = sum(1 for x in ds if x > 0); m = max(ds)
         rec[key] = [n, round(m * 1000, 1)]
         if m > 0:
@@ -120,6 +133,6 @@ for key in worst:
 res['tri_overlap_total'] = tri_tot; res['tri_overlap_frames'] = tri_frames; res['rest_dress_apron_pairs'] = len(REST_DA)
 res['tri_margin_mm'] = INFL * 1000
 vals = [r['clear_legfoot_back_mm'] for r in res['frames']]; res['min_clearance']['clear_legfoot_back_mm'] = dict(min=min(vals), frame=res['frames'][vals.index(min(vals))]['f'])
-res['n_test_verts'] = dict(leg=len(LEG), arm=len(ARM), dress=len(dress.data.vertices))
+res['n_test_verts'] = dict(leg=len(LEG), arm=len(ARM), dress=len(dress.data.vertices), arm_skipped_for_dyn=len(REST_ARM_TORSO))
 print('CLIP', json.dumps(dict(total=counts, max_mm=res['max_depth_mm'], min_clear=res['min_clearance'], tri=tri_tot, tri_frames={k: v[:12] for k, v in tri_frames.items()}, rest_da=len(REST_DA))))
 json.dump(res, open(OUT, 'w'), indent=1)

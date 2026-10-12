@@ -1,4 +1,5 @@
-# QA of the exported character GLB with the 角色动画bot tool chain (copied here unchanged except loco_qa's walk length):
+# QA of the exported character GLB with the 角色动画bot tool chain (copied here unchanged except loco_qa's walk length and
+# walk_clipcheck's extra arm_in_torso_dyn count):
 #   loco_qa.py        feet slide (planted sole vertices, world space via root_motion), knees, hand-off residuals
 #   walk_clipcheck.py leg-vs-dress/apron and arm-vs-cloth/torso ray test (CLIP_MARGIN = 6 mm), clearances
 #   walk_qa_arms.py   elbow / arm pose numbers
