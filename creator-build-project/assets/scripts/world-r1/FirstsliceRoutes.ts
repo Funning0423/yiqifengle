@@ -28,7 +28,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
   return {position:[root[0]+d[0]*L,root[1]+d[1]*L,root[2]+d[2]*L],target:[ta[0]+(b.target[0]-ta[0])*w,ta[1]+(b.target[1]-ta[1])*w,ta[2]+(b.target[2]-ta[2])*w],
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
 }
-type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;depart:Readonly<{blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number}>;
+type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -58,9 +58,9 @@ function pchipScalar(t:readonly number[],y:readonly number[]):(x:number)=>number
  * One outbound arc from the doorway pose to cameraIsland. Rotation (behind her → in front), dolly-back and the crane
  * lift share that arc. The orbit around her crosses the lighthouse wall, so the first metres are a doorway portal:
  * out through the opening, up over the open leaf, then a quintic blend onto that orbit once the orbit is outside.
- * One cubic then carries the same arc-length clock to the island. After the doorway the arc length is linear in
- * the span progress, so the turn holds one cruise matched to the doorway follow; the track ease-out is the landing
- * brake. The orbit is baked against her position on that same progress. Fov eases along that same arc.
+ * One cubic then carries the same arc-length clock to the island. After the doorway a short smoothstep leaves the
+ * follow speed and the turn holds one cruise (cruiseMps); the track ease-out is only the landing brake. The orbit
+ * is baked against her position on that same progress. Fov eases along that same arc.
  * Wind is 1 at the first frontal sample and stays 1 only while she is still in front. She does not wait.
  */
 function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd:number;qWalkEnd:number}>,track:Readonly<{easeIn?:number;easeOut?:number}>,totalSeconds:number,island:Pose,actorAt:(q:number)=>{root:Vec;yaw:number}):{cross:Pose[];toIsland:Pose[];settle:Pose[];frontalQ:number;holdQ:number;frontalWalk:number;frontalSeconds:number}{
@@ -101,18 +101,24 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   const back=doorAtS(Math.max(0,sAcc-.05)).position,tdx=P0[0]-back[0],tdy=P0[1]-back[1],tdz=P0[2]-back[2],tl=Math.hypot(tdx,tdy,tdz)||1;
   const Tdir:Vec=[tdx/tl,tdy/tl,tdz/tl];
   const D=1-qCrossEnd,C0=Math.max(1e-3,(SOfQ(qCrossEnd)-SOfQ(qCrossEnd-1e-4))/1e-4);
-  // Flat cruise: bake the orbit on the same progress the arc is played at (arc length linear after the door).
-  // Her root at arc length s is the root at that progress, so the lens does not orbit a stale doorway pose.
-  // The orbit still crosses the lighthouse jamb, so the fillet aims at that orbit shifted through the doorway
-  // and the shift fades once the orbit is outside. rampSeconds is not a playback ramp.
-  let arcPts:Vec[]=[],arcS:number[]=[0],arcL=0;
+  // Cruise is an arc-length clock, not the doorway follow. A short smoothstep leaves that follow speed, then
+  // ds/dq stays at Cc so the turn and the lift hold one speed. Ease-out (on the track) is the only later brake.
+  // Her root at arc length s is the root at the progress that clock will actually play.
+  const slope=(remapProgress(.5,track)-remapProgress(.4,track))/.1;
+  const cruise=opts.cruiseMps;
+  if(!(typeof cruise==='number'&&cruise>=6&&cruise<=8&&opts.rampSeconds>0.4&&opts.rampSeconds<1.05))throw Error('outbound pace: cruise target');
+  let qr=opts.rampSeconds*slope/totalSeconds;qr=Math.min(Math.max(qr,.012),D*.28);
   const aimBear=dep.aimDeg*Math.PI/180,doorActor=actorAt(qCrossEnd);
   const r0=Math.max(1.95,Math.hypot(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]));
   const bear0=Math.atan2(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]);
   let bear1=-aimBear;while(bear1>bear0-.05)bear1-=Math.PI*2;
-  let prevL=Math.max(1,C0*D);
+  let arcPts:Vec[]=[],arcS:number[]=[0],arcL=0,Cc=cruise*totalSeconds/slope;
+  arcL=Math.max(1,Cc*D-(Cc-C0)*qr*.5);
+  const sAt=(q:number,L:number,C:number)=>{const x=q-qCrossEnd;if(x<=0)return 0;if(q>=1)return L;
+    if(x<qr){const u=x/qr;return C0*x+(C-C0)*qr*(u*u*u-.5*u*u*u*u);}return C0*qr+(C-C0)*qr*.5+C*(x-qr);};
+  const qAtS=(s:number,L:number,C:number)=>{if(s<=0)return qCrossEnd;if(s>=L-1e-9)return 1;let lo=qCrossEnd,hi=1;for(let k=0;k<40;k++){const m=(lo+hi)/2;if(sAt(m,L,C)<s)lo=m;else hi=m;}return (lo+hi)/2;};
   for(let pass=0;pass<4;pass++){
-    const qAt=(s:number)=>Math.min(1,qCrossEnd+Math.min(1,Math.max(0,s/(prevL||1)))*D);
+    const qAt=(s:number)=>qAtS(s,arcL,Cc);
     const slot=(tau:number,sNow:number):Vec=>{const h=actorAt(qAt(sNow)).root;
       const t=Math.max(0,Math.min(1,tau/dep.seconds)),uB=1-(1-t)*(1-t),bear=bear0+(bear1-bear0)*uB,rad=r0+dep.radial*tau;
       const uH=t<=.62?0:Math.min(1,(t-.62)/.38),integ=uH-.7*(uH*uH*uH-.5*uH*uH*uH*uH);
@@ -123,12 +129,12 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
       const y=yDoor+(yLin-yDoor)*up;
       // The raw orbit still crosses the jamb. Shift it seaward, up, and out, and blend onto that
       // shifted orbit with the fillet that leaves along the door tangent.
-      // Horizontal shift holds through the doorway. The extra lift fades only as the climb
-      // replaces it, so the flat cruise clears the leaf and the height does not drop.
+      // Horizontal shift holds through the doorway. The extra lift fades on its own so the climb
+      // passes under the gull orbit instead of rising into the swept wings.
       const hFade=1-sm5(Math.max(0,Math.min(1,(tau-1.6)/2)));
-      const vFade=1-sm5(Math.max(0,Math.min(1,(tau-.55)/1.15)));
-      const orbit:Vec=[h[0]+Math.sin(bear)*rad-1.05*hFade,y+1.6*vFade,h[2]+Math.cos(bear)*rad+.5*hFade];
-      const k=sm5(Math.min(1,tau/.4)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35,P0[2]+Tdir[2]*tau*1.35];
+      const vFade=1-sm5(Math.max(0,Math.min(1,(tau-.4)/2.6)));
+      const orbit:Vec=[h[0]+Math.sin(bear)*rad-1.05*hFade,y+1.05*vFade,h[2]+Math.cos(bear)*rad+.5*hFade];
+      const k=sm5(Math.min(1,tau/1.6)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35,P0[2]+Tdir[2]*tau*1.35];
       return [ray[0]*(1-k)+orbit[0]*k,ray[1]*(1-k)+orbit[1]*k,ray[2]*(1-k)+orbit[2]*k];};
     const pts:Vec[]=[slot(0,0)];let pos:Vec=[pts[0][0],pts[0][1],pts[0][2]],tau=0,tang:Vec=[Tdir[0],Tdir[1],Tdir[2]],sNow=0;
     const stepS=.02;
@@ -144,31 +150,35 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     const Pend=pts[pts.length-1];
     const P1c:Vec=[Pend[0]+tang[0]*dep.handle,Pend[1]+tang[1]*dep.handle,Pend[2]+tang[2]*dep.handle];
     const P2c:Vec=[Pend[0]+(P3[0]-Pend[0])*dep.lead[0],Pend[1]+(P3[1]-Pend[1])*dep.lead[1],Pend[2]+(P3[2]-Pend[2])*dep.lead[2]];
+    // Landing controls stay between the fillet end and the island, and in order, so this cubic cannot
+    // dip or rise past cameraIsland. A concave suffix there fails the island pull at world load.
+    const y0=Pend[1],y3=P3[1];
+    if(y3>=y0){P1c[1]=Math.max(y0,Math.min(y3,P1c[1]));P2c[1]=Math.max(P1c[1],Math.min(y3,P2c[1]));}
+    else{P1c[1]=Math.min(y0,Math.max(y3,P1c[1]));P2c[1]=Math.min(P1c[1],Math.max(y3,P2c[1]));}
     const bez=(g:number):Vec=>{const u=1-g,b0=u*u*u,b1=3*u*u*g,b2=3*u*g*g,b3=g*g*g;
       return [b0*Pend[0]+b1*P1c[0]+b2*P2c[0]+b3*P3[0],b0*Pend[1]+b1*P1c[1]+b2*P2c[1]+b3*P3[1],b0*Pend[2]+b1*P1c[2]+b2*P2c[2]+b3*P3[2]];};
     for(let i=1;i<=240;i++)pts.push(bez(i/240));
     const ss:number[]=[0];let L=0;for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i];L+=Math.hypot(q[0]-p[0],q[1]-p[1],q[2]-p[2]);ss.push(L);}
-    arcPts=pts;arcS=ss;arcL=L;prevL=L;
+    arcPts=pts;arcS=ss;arcL=L;Cc=(L-C0*qr*.5)/Math.max(1e-4,D-.5*qr);
   }
-  if(!(C0>0&&arcL>0&&Number.isFinite(arcL)))throw Error('outbound pace: cruise speed');
+  const played=Cc*slope/totalSeconds;
+  if(!(C0>0&&Cc>C0&&arcL>0&&Number.isFinite(played)))throw Error('outbound pace: cruise speed');
+  if(Math.abs(played-cruise)>0.45)throw Error('outbound pace: cruise '+played.toFixed(2)+' m/s, want '+cruise+' (arc '+arcL.toFixed(1)+' m, span '+totalSeconds.toFixed(2)+' s)');
   const posFromS=(s:number):Vec=>{if(s<=0)return arcPts[0];if(s>=arcL)return arcPts[arcPts.length-1];
     let lo=0,hi=arcS.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(arcS[m]<s)lo=m;else hi=m;}
     const u=(s-arcS[lo])/((arcS[hi]-arcS[lo])||1),pa=arcPts[lo],pb=arcPts[hi];
     return [pa[0]+(pb[0]-pa[0])*u,pa[1]+(pb[1]-pa[1])*u,pa[2]+(pb[2]-pa[2])*u];};
-  // Flat cruise on the exit arc: arc length is linear in the span progress left after the doorway.
-  // The doorway follow keeps its own speed; settleSeconds is chosen so this cruise matches it.
-  const sFromQ=(q:number)=>{const x=q-qCrossEnd;if(x<=0)return 0;if(q>=1)return arcL;return arcL*x/D;};
+  // Short ramp off the doorway derivative, then one ds/dq. Ease-out is what slows the landing, not this clock.
+  const sFromQ=(q:number)=>sAt(q,arcL,Cc);
   const doorT=door[door.length-1].target,f0=door[door.length-1].fovVerticalDeg??50,f1=island.fovVerticalDeg??42;
   const lookAt=(s:number,q:number):Look=>{
     const g=Math.max(0,Math.min(1,s/(arcL||1)));
     if(g>=1-1e-9)return {position:[P3[0],P3[1],P3[2]],target:[island.target[0],island.target[1],island.target[2]],fovVerticalDeg:f1};
-    const root=actorAt(q).root,position=posFromS(s),chest:Vec=[root[0],root[1]+opts.chest,root[2]],toC=sm(Math.min(1,s/1.4));
-    // Hand off the door target over the first 1.4 m. That used to be a fraction of the arc; at a flat
-    // doorway cruise those metres are where she is still in the opening, so she stays in frame.
-    // Early on she is close and beside the lens: bias toward the lens keeps the near shoulder in,
-    // and a sideways bias keeps her off the portrait edge.
-    const vx=position[0]-root[0],vz=position[2]-root[2],vl=Math.hypot(vx,vz)||1,near=1-sm(Math.min(1,Math.max(0,s-0.5)/1.6));
-    const aim:Vec=[chest[0]+vx/vl*.35*near+vz/vl*.15*near,chest[1]+.06*near,chest[2]+vz/vl*.35*near-vx/vl*.15*near];
+    const root=actorAt(q).root,position=posFromS(s),chest:Vec=[root[0],root[1]+opts.chest,root[2]],toC=sm(Math.min(1,g/.12));
+    // Hand the door target off across the first part of the arc. Early on she is close and beside the lens:
+    // bias toward the lens keeps the near shoulder in, and a sideways bias keeps her off the portrait edge.
+    const vx=position[0]-root[0],vz=position[2]-root[2],vl=Math.hypot(vx,vz)||1,near=1-sm(Math.min(1,Math.max(0,g-.02)/.08));
+    const aim:Vec=[chest[0]+vx/vl*.28*near+vz/vl*.22*near,chest[1]+.06*near,chest[2]+vz/vl*.28*near-vx/vl*.22*near];
     const mid:Vec=[doorT[0]+(aim[0]-doorT[0])*toC,doorT[1]+(aim[1]-doorT[1])*toC,doorT[2]+(aim[2]-doorT[2])*toC];
     const toI=sm((g-.78)/.22),it=island.target;
     return {position,target:[mid[0]+(it[0]-mid[0])*toI,mid[1]+(it[1]-mid[1])*toI,mid[2]+(it[2]-mid[2])*toI],fovVerticalDeg:f0+(f1-f0)*Math.pow(g,1.15)};};

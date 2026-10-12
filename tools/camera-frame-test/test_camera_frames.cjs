@@ -224,11 +224,9 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
     const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:null;
     check('crane-marks',!!cs&&!!si&&cs.frame<si.frame&&!!sh,{craneStart:cs&&{t:+cs.t.toFixed(3),sinceCrossingOut:+(cs.t-t0).toFixed(3),toIslandProgress:cs.progress,predictedSeconds:+cs.seconds.toFixed(3)},
       settledIsland:si&&{t:+si.t.toFixed(3),sinceCrossingOut:+(si.t-t0).toFixed(3)},craneSeconds:cs&&si?+(si.t-cs.t).toFixed(3):null,settledHome:sh&&{t:+sh.t.toFixed(3)}});}
-  // --- exit arc: after the doorway, rotation (behind → in front), dolly-back and crane lift are one move at one speed.
-  // The old rail band (stay within 5.5 m until a later crane-start) encoded "swing, then dolly, then lift". This check
-  // fails that sequence: during the swing the lens must already be rising and already moving away, and cruise speed
-  // must not jump once she is in front. The cruise matches the doorway follow (about 1.2 m/s), so a half-second
-  // cannot be required to gain 0.7 m of distance; the landing brake near height 15.5 is allowed to slow down.
+  // --- exit arc: after the doorway, rotation (behind → in front), dolly-back and crane lift are one move.
+  // The cruise after a short ramp is about 7 m/s (not the doorway follow). The landing brake near height 15.5 may slow.
+  // A one-second run from about 1.4 m/s up to 9 is a failed ramp: acceleration stays short, then the turn holds one speed.
   {const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]),y=f=>f.cam.position[1];
     const front=f=>{const fx=Math.sin(f.yaw),fz=Math.cos(f.yaw),dx=f.cam.position[0]-f.root[0],dz=f.cam.position[2]-f.root[2],l=Math.hypot(dx,dz)||1;return Math.acos(Math.max(-1,Math.min(1,(fx*dx+fz*dz)/l)))*180/Math.PI;};
     const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:0;
@@ -249,11 +247,17 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
       if(y(fa)>=14.2)continue;const step=Math.hypot(fb.cam.position[0]-fa.cam.position[0],fb.cam.position[1]-fa.cam.position[1],fb.cam.position[2]-fa.cam.position[2]);
       if(y(fb)-y(fa)<-.02||d(fb)-d(fa)<-.25||step<.45){riseOk=false;if(!riseAt)riseAt={t:+t.toFixed(2),dH:+(y(fb)-y(fa)).toFixed(2),dD:+(d(fb)-d(fa)).toFixed(2),step:+step.toFixed(2)};}}
     const cruise=[];for(let i=0;i<exit.length;i++){const f=exit[i];if(f.t>=tDoor+1.3&&f.t<tEase){const v=vOf(f);if(v!==null)cruise.push(v);}}
-    const cMin=cruise.length?Math.min(...cruise):0,cMax=cruise.length?Math.max(...cruise):0,flat=cMin>0&&cMax/cMin<=1.25;
-    const ok=!!(a150&&a30&&a30.t>a150.t&&dH>=3&&dD>=4&&vSwing&&vAfter&&ratio<=1.25&&ratio>=1/1.25&&riseOk&&flat);
+    const cMin=cruise.length?Math.min(...cruise):0,cMax=cruise.length?Math.max(...cruise):0,flat=cMin>0&&cMax/cMin<=1.25&&cMin>=6.2&&cMax<=7.8;
+    const turnVs=[];if(a150&&a30)for(const f of exit){if(f.t+1e-9<a150.t||f.t>a30.t+1e-9)continue;const v=vOf(f);if(v!==null)turnVs.push(v);}
+    const turnMin=turnVs.length?Math.min(...turnVs):0,turnMax=turnVs.length?Math.max(...turnVs):0,turnSec=a150&&a30?a30.t-a150.t:0;
+    let rush=null;for(let i=0;i<exit.length&&!rush;i++){const f=exit[i],win=[];for(const g of exit){if(g.t<f.t||g.t>=f.t+1)continue;const v=vOf(g);if(v!==null)win.push(v);}if(win.length<20)continue;const lo=Math.min(...win),hi=Math.max(...win);if(lo<=1.6&&hi>=8.5)rush={t:+f.t.toFixed(2),lo:+lo.toFixed(2),hi:+hi.toFixed(2)};}
+    const gear=turnMin>=6.2&&turnMax<=7.8&&turnMax/turnMin<=1.2&&turnSec>1.2&&turnSec<6;
+    const ok=!!(a150&&a30&&a30.t>a150.t&&dH>=3&&dD>=4&&vSwing&&vAfter&&ratio<=1.25&&ratio>=1/1.25&&riseOk&&flat&&gear&&!rush);
+    const turnPace={seconds:+turnSec.toFixed(3),minMps:+turnMin.toFixed(3),maxMps:+turnMax.toFixed(3)};
+    console.log('turn-segment',JSON.stringify(turnPace));
     check('exit-overlap',ok,{swing:{from:a150?+a150.t.toFixed(2):null,to:a30?+a30.t.toFixed(2):null,dHeight:+dH.toFixed(2),dDistance:+dD.toFixed(2),need:{dHeight:3,dDistance:4}},
-      speed:{duringSwing:vSwing&&+vSwing.toFixed(2),afterFacing:vAfter&&+vAfter.toFixed(2),ratio:+(Number.isFinite(ratio)?ratio:0).toFixed(2),limit:[1/1.25,1.25],cruise:[+cMin.toFixed(2),+cMax.toFixed(2)],cruiseRatioLimit:1.25},
-      steadyRise:riseOk,firstFlat:riseAt});}
+      speed:{duringSwing:vSwing&&+vSwing.toFixed(2),afterFacing:vAfter&&+vAfter.toFixed(2),ratio:+(Number.isFinite(ratio)?ratio:0).toFixed(2),limit:[1/1.25,1.25],cruise:[+cMin.toFixed(2),+cMax.toFixed(2)],cruiseRatioLimit:1.25,cruiseBand:[6.2,7.8]},
+      turn:turnPace,rush,steadyRise:riseOk,firstFlat:riseAt});}
   // --- wind strength (WorldFlowComponent.getWindStrength): 0 indoors; rises monotonically to EXACTLY 1 at the frontal
   // frame (camera in front of her); held; back to EXACTLY 0 at island settle and through island idle; per-frame step
   // <= WIND_EPS; listener fired only on change.
