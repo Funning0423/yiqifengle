@@ -49,16 +49,22 @@ export function createNativeWorldLevelAdapter(options:{
       });
       const ui=root.addComponent(NativeBoardUI);
       if(typeof (ui as any).initializeManaged!=='function')throw Error('Apply NativeBoardUI managed-mode patch before use');
+      // Hold touches until WorldFlow reveals, after the shot and a finger-ready board. Test boards leave this unset.
+      (ui as any).deferPresentation=true;
       (ui as any).initializeManaged(options.fixture,session.binding,background.frame,()=>background.diagnostics());token.check();
       // These existing local dialogs do not change the controller's run state.
       // Observe their active event once, so original boardTime also freezes for bag/restart dialogs.
       const canvasRoot=root.getChildByName?.('NativeBoardCanvas');
       for(const name of ['Backpack','RetryConfirm']){const panel=canvasRoot?.getChildByName(name);if(panel){modalNodes.push(panel);panel.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED,syncPaused);}}
       syncPaused();
+      const reveal=()=>{if(disposed)return;root.active=true;background.setVisible(true);const present=(ui as any).presentForPlay;if(typeof present==='function')present.call(ui);};
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
         hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
-        resume:()=>session!.resume() as Result,dispose};
-      ownedLease=lease;root.active=true;background.setVisible(true);active=lease;options.onSession?.(session);return lease;
+        resume:()=>session!.resume() as Result,dispose,
+        whenPlayable:()=>typeof (ui as any).whenInteractive==='function'?(ui as any).whenInteractive():Promise.resolve(),
+        reveal};
+      // Host stays inactive so the island shot is what the player sees. setVisible keeps the background lease armed.
+      ownedLease=lease;background.setVisible(true);active=lease;options.onSession?.(session);return lease;
     }catch(e){dispose();throw e;}finally{entering=false;}
   }};
 }

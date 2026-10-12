@@ -24,7 +24,7 @@ export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? 
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>();
   initializeManaged(fixture: any, binding: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void, backgroundStatus?: () => LevelBackgroundStatus) {
-    if (this.managed || this.root) throw Error('Already initialized'); this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
+    if (this.managed || this.root) throw Error('Already initialized'); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
   }
   managedViewVersion() { return 'mobile-managed-v2-board-ui'; }
   diagnostics() {
@@ -51,6 +51,10 @@ export class ManagedMobileBoardUI extends Component {
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {};
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
   private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null;
+  /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
+  deferPresentation = false;
+  /** Managed entry keeps the board off-screen until the island shot ends and a finger can land. Standalone boards start presented. */
+  private presented = true; private readyWait: (() => void) | null = null;
   /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
   private boardWasHidden = false; private returnPause = false;
   private hide = () => { this.selected = -1; this.host?.hide(); }; private show = () => this.host?.show();
@@ -73,7 +77,7 @@ export class ManagedMobileBoardUI extends Component {
       this.under.push(this.tint.sprite(this.sprite(this.layers.Under, 'board/special_bomb', 'Pinwheel-' + i), 'ui'));
       const n = this.box('Tile-' + i, this.grid, 0, 0, 50, 50);
       this.tint.sprite(this.sprite(n, PIECE_KEYS[0], 'ProjectPieceArt'), 'ui');
-      n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (this.modalOpen() || this.snapshot?.state !== 'run.ready' || this.snapshot?.readOnly) return; const p = e.getUILocation(); this.dragStart = { index: i, pointer: e.getID(), point: { x: p.x, y: p.y }, x: p.x, y: p.y }; }, this);
+      n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (!this.presented || this.modalOpen() || this.snapshot?.state !== 'run.ready' || this.snapshot?.readOnly) return; const p = e.getUILocation(); this.dragStart = { index: i, pointer: e.getID(), point: { x: p.x, y: p.y }, x: p.x, y: p.y }; }, this);
       n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.dragStart; if (!d || d.index !== i) return; const p = e.getUILocation(), dx = p.x - d.point.x, dy = p.y - d.point.y; d.x = p.x; d.y = p.y; if (!d.consumed && Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(18, this.cell * .35)) return; if (!d.consumed) { this.armedTool = null; if (this.paintToolTray) this.paintToolTray(); } d.consumed = true; const j = i + (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : (dy > 0 ? -7 : 7)); d.aim = j >= 0 && j < 49 && Math.abs(i % 7 - j % 7) + Math.abs(Math.floor(i / 7) - Math.floor(j / 7)) === 1 ? j : -1; if (this.followPiece) this.followPiece(); }, this);
       n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { const d = this.dragStart; this.dragStart = null; if (e && d && d.index === i) GameAudio.notifyUserGesture(); if (!d || d.index !== i) return; if (this.releasePiece) { this.releasePiece(i, d, e); return; } if (d.consumed) { if (typeof d.aim === 'number' && d.aim >= 0) this.swap(i, d.aim); return; } this.tap(i); }, this);
       n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { const d = this.dragStart; if (d && e && typeof e.getID === 'function' && d.pointer !== e.getID()) return; this.dragStart = null; if (this.hidePieceGhost) this.hidePieceGhost(); this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this); this.cells.push(n);
@@ -134,7 +138,7 @@ export class ManagedMobileBoardUI extends Component {
   private place(n: Node, x: number, y: number, w: number, h = w) { n.setPosition(x, y, 0); n.getComponent(UITransform)!.setContentSize(w, h); }
   private pressable(node: Node, face: Node, tap: () => void, sound: 'button' | 'back' | 'tool' = 'button') {
     let down = false;
-    node.on(Node.EventType.TOUCH_START, (e: EventTouch) => { e.propagationStopped = true; this.input(); if (this.modalOpen()) return; down = true; face.setPosition(0, -3, 0); }, this);
+    node.on(Node.EventType.TOUCH_START, (e: EventTouch) => { e.propagationStopped = true; this.input(); if (!this.presented || this.modalOpen()) return; down = true; face.setPosition(0, -3, 0); }, this);
     node.on(Node.EventType.TOUCH_CANCEL, () => { down = false; face.setPosition(0, 0, 0); }, this);
     node.on(Node.EventType.TOUCH_END, (e: EventTouch) => { e.propagationStopped = true; const was = down; down = false; face.setPosition(0, 0, 0); if (!was || this.modalOpen()) return; GameAudio.notifyUserGesture(); playSound(sound); tap(); }, this);
   }
@@ -144,7 +148,27 @@ export class ManagedMobileBoardUI extends Component {
   private toolCatalog(): ManagedTool[] { return this.managed?.tools?.() || managedTools(this.snapshot); }
   private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = []; for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); } return out; }
   private toolVersion() { const a = this.snapshot?.active; return `${a?.attemptId || a?.stageId}:${a?.actions?.length ?? a?.turn ?? 0}:${a?.version ?? 0}`; }
-  private canUseTools() { return !this.modalOpen() && this.snapshot?.state === 'run.ready' && !this.snapshot?.readOnly; }
+  private canUseTools() { return this.presented && !this.modalOpen() && this.snapshot?.state === 'run.ready' && !this.snapshot?.readOnly; }
+  /** run.ready can take a finger. A settled pause, result or readonly screen is the real screen too — not a half board. */
+  private entryShowable(s = this.snapshot) {
+    if (!s || !this.geo || this.cells.length !== 49) return false;
+    if (s.state === 'run.ready' && !s.readOnly) return true;
+    if (s.readOnly || s.state === 'error.readonly' || s.state === 'run.unsaved' || s.state === 'run.paused' || s.state === 'book.ready' || s.state === 'stage.detail') return true;
+    return typeof s.state === 'string' && s.state.indexOf('result.') === 0;
+  }
+  private wakeEntry() { if (!this.readyWait || !this.entryShowable()) return; const go = this.readyWait; this.readyWait = null; go(); }
+  /** Board art is on the pieces, then the session is run.ready (or a settled screen). Does not add time after that. */
+  whenInteractive(): Promise<void> {
+    const art = BoardArt.shared(), loaded = art.loaded('board') ? Promise.resolve(true) : art.load('board');
+    return loaded.then(() => new Promise<void>(resolve => {
+      if (this.disposing) { resolve(); return; }
+      const done = () => { this.readyWait = null; resolve(); };
+      if (this.entryShowable()) { done(); return; }
+      this.readyWait = done;
+    }));
+  }
+  /** Called once the enter shot has finished and whenInteractive has resolved. Lays the cells out while the host is active. */
+  presentForPlay() { this.presented = true; if (!this.disposing && this.root && isValid(this.root, true)) this.layout(); }
   private cancelToolInput() { this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
   private syncToolBar() {
@@ -392,7 +416,7 @@ export class ManagedMobileBoardUI extends Component {
   private coldReload() { const before = this.controller.snapshot(); this.host.dispose(); this.bind(); return { before: before.state, after: this.controller.snapshot().state }; }
   private command(name: string, ...args: any[]) { this.cancelToolInput(); this.paintToolTray(); this.selected = -1; this.dragStart = null; const r = this.managed?.intercept?.(name, ...args) ?? this.host.command(name, ...args); if (r && r.ok === false) this.say('暂不可操作 · ' + r.reason); return r; }
   private swap(a: number, b: number) {
-    if (this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return;
+    if (!this.presented || this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return;
     this.selected = -1; const p = this.host.command('previewAction', ['swap', a, b]);
     if (!p.ok) { this.paint(); this.shake(a, b); return; }
     const c = this.host.command('commitAction', p.token); if (!c.ok) this.say('行动未提交 · ' + c.reason);
@@ -403,7 +427,7 @@ export class ManagedMobileBoardUI extends Component {
     for (const i of [a, b]) { const n = this.cells[i]?.getChildByName('ProjectPieceArt'); if (!n) continue; const p = n.position.clone(); Tween.stopAllByTarget(n); tween(n).to(.05, { position: new Vec3(p.x - 4, p.y, 0) }).to(.07, { position: new Vec3(p.x + 4, p.y, 0) }).to(.07, { position: new Vec3(p.x - 2, p.y, 0) }).to(.05, { position: p }).start(); }
   }
   private tap(i: number) {
-    if (this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return; if (this.armedTool) { this.useToolAt(this.armedTool, i); return; } if (this.selected < 0) { this.selected = i; this.paint(); return; }
+    if (!this.presented || this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return; if (this.armedTool) { this.useToolAt(this.armedTool, i); return; } if (this.selected < 0) { this.selected = i; this.paint(); return; }
     const a = this.selected; if (a === i) { if (this.managed && this.snapshot.active?.board[i]?.special) this.managed.submit(['activate', i]); this.selected = -1; this.paint(); return; }
     if (Math.abs(a % 7 - i % 7) + Math.abs(Math.floor(a / 7) - Math.floor(i / 7)) === 1) this.swap(a, i); else { this.selected = i; this.paint(); }
   }
@@ -438,7 +462,7 @@ export class ManagedMobileBoardUI extends Component {
     this.paint();
     if (book) this.paintBook(s); else this.clearChildren(this.stagePanel);
     if (result) this.paintResult(s); else if (this.resultKey) { this.resultKey = ''; this.closeResult(); }
-    this.watchClaims(s);
+    this.watchClaims(s); this.wakeEntry();
   }
   private clearChildren(n: Node) { for (const child of [...n.children]) { child.removeFromParent(); child.destroy(); } }
   private paintBook(s: any) {
@@ -614,7 +638,7 @@ export class ManagedMobileBoardUI extends Component {
   }
   private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {
-    if (this.disposing) return; this.disposing = true;
+    if (this.disposing) return; this.disposing = true; if (this.readyWait) { const go = this.readyWait; this.readyWait = null; go(); }
     this.cancelAnimations(); this.backgroundFrame = undefined; this.backgroundStatus = undefined; this.artOff?.(); this.artOff = null;
     game.off(Game.EVENT_HIDE, this.hide); game.off(Game.EVENT_SHOW, this.show); view.off('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.removeEventListener('resize', this.resize);
     try { this.popups?.clear(); this.host?.dispose(); } finally { this.tint.clear(); if (!this.managed) delete (globalThis as any).__nativeBoard; }

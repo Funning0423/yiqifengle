@@ -9,12 +9,12 @@ import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { SkyNightTexture } from '../render/SkyNightTexture';
-import { WorldFlow, Cancellation, Cancelled } from './WorldFlowCore';
+import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
 import { createFirstsliceRoutes } from './FirstsliceRoutes';
-import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate } from './CameraPose';
+import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, CAMERA_FIXED } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
@@ -254,6 +254,17 @@ export class WorldFlowComponent extends Component {
   /** Settled island only: the exit arc is finished (state is island) and no camera job is writing. */
   private islandView(){const s=this.flow?.snapshot();return !!s&&s.state==='island'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&this.jobs.size===0;}
   private pullIsland(dy:number,scale:number):boolean {const rail=this.islandRail;if(!rail||!this.islandView()||!this.worldCamera)return false;const before=rail.fraction();if(!rail.nudge(dy,scale))return false;if(applyCameraPose(this.worldCamera,rail.pose(),'island.pull'))return true;rail.restore(before);return false;}
+  /** Enter-level push from the camera as it stands (wide shot or a pull). Same look direction, a short dolly and a tighter fov.
+   *  The exit arc is not read or written. */
+  private enterLevelLook():Pose[]|null {
+    const camera=this.worldCamera;if(!camera||!isValid(camera.node,true))return null;
+    const n=camera.node,p=n.worldPosition,q=n.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]),fl=Math.hypot(f[0],f[1],f[2]);
+    if(!(fl>1e-4)||!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.z)||!Number.isFinite(camera.fov))return null;
+    const fx=f[0]/fl,fy=f[1]/fl,fz=f[2]/fl,reach=40,step=2.6;
+    const target:[number,number,number]=[p.x+fx*reach,p.y+fy*reach,p.z+fz*reach];
+    const clamp=(fov:number)=>Math.min(CAMERA_FIXED.maxFov,Math.max(CAMERA_FIXED.minFov,fov));
+    return [{position:[p.x,p.y,p.z],target,fovVerticalDeg:clamp(camera.fov)},{position:[p.x+fx*step,p.y+fy*step,p.z+fz*step],target,fovVerticalDeg:clamp(camera.fov-6)}];
+  }
   private cancelRoomLook(){const changed=this.roomLook.moved()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
   /** Rejoin the existing authored opening from the same origin before character motion starts.
    * Only user-look adds this bounded horizon-locked settle; untouched default view follows the old track exactly. */
@@ -366,6 +377,13 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
+        playEnterLevel:(token)=>{
+          // Push in from the live island camera (including a finger pull). Not the exit arc.
+          let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
+          if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
+          const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
+          return this.run(ENTER_LEVEL_SHOT_S,token,p=>{track.tick(p);});
+        },
         animateCamera:(path,seconds,t,options,progress,onSample)=>{const track=createCameraTrack(camera,path,'world.animateCamera',options);
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
           // onSample (wind channel): eased key progress of each written sample.
