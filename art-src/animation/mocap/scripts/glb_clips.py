@@ -4,7 +4,12 @@
 # - per channel greedy key reduction: start from the end keys, insert the original frame with the worst error until the
 #   slerp (rotation) / lerp (translation) reconstruction is within tolerance at every frame and half frame
 # - rotations of all 28 joints are written; translation only for root/hips (other joints keep their rest translation);
-#   scale channels are omitted (rest scale), exactly like locomotion-v1
+#   scale channels are omitted (rest scale), exactly like locomotion-v1.  A clip dict may name extra joints in 't_joints' /
+#   's_joints' (with 'S' [n,J,3]): those get translation / scale channels too, and every other clip in the GLB that does
+#   not animate them gets constant rest channels (one key) - the runtime pose blend only writes the channels a clip has, so a joint
+#   would otherwise keep the last translation / scale of the clip played before
+# - optional 'skirt_tol_mult': per-frame multiplier [n] of the skirt joint tolerances (all their channels), or
+#   {joint name: [n]} for single joints
 # - inputs (key times) are shared between channels with identical key sets; identical outputs are shared too
 import hashlib
 import numpy as np
@@ -23,7 +28,8 @@ def recon(t, v, gi, tq, rot):
     return RG.slerp(a, b, u) if rot else a + (b - a) * u
 
 
-def reduce_keys(t, v, rot, tol):
+def reduce_keys(t, v, rot, tol, mult=None):
+    """mult: optional per-frame tolerance multiplier [n] (tighter where the pose matters more)."""
     n = len(t)
     if n < 3:
         return np.arange(n)
@@ -31,13 +37,14 @@ def reduce_keys(t, v, rot, tol):
     if spread < (1e-3 if rot else 1e-6):
         return np.array([0, n - 1])
     tq = np.linspace(t[0], t[-1], (n - 1) * 2 + 1)
+    tolq = tol * (np.interp(tq, t, mult) if mult is not None else np.ones(len(tq)))
     ref = recon(t, v, np.arange(n), tq, rot)
     sel = {0, n - 1}
     while True:
         gi = np.array(sorted(sel))
         r = recon(t, v, gi, tq, rot)
-        e = qang(r, ref) if rot else np.abs(r - ref).max(-1)
-        if e.max() <= tol or len(gi) == n:
+        e = (qang(r, ref) if rot else np.abs(r - ref).max(-1)) / tolq
+        if e.max() <= 1.0 or len(gi) == n:
             return gi
         fq = int(np.argmax(e)) / 2.0
         added = False
@@ -59,6 +66,8 @@ def tol_for(name, base_tol):
         return base_tol['leg']
     if b.startswith('skirt'):
         return base_tol['skirt']
+    if b == 'hand' and 'hand' in base_tol:
+        return base_tol['hand']
     if b in ('head', 'upper_arm', 'forearm', 'hand'):
         return base_tol.get('distal', base_tol['other'])
     return base_tol['other']
@@ -162,7 +171,9 @@ def write(base_glb, out_glb, clips, tol=None, extras_note=None):
         return cache[key]
     report = {}
     jn = rig.joint_nodes
+    base_tol = tol
     for name, c in clips.items():
+        tol = dict(base_tol, **c.get('tol', {}))         # per clip override
         Q = RG.qnorm(np.asarray(c['Q'], float))
         T = np.asarray(c['T'], float)
         if c.get('loop'):        # loops: n frames -> n+1 keys, last == first, clip length = n / fps
@@ -176,8 +187,13 @@ def write(base_glb, out_glb, clips, tol=None, extras_note=None):
                     Q[i, j] = -Q[i, j]
         samplers, channels = [], []
         nkeys = 0
+        sm = c.get('skirt_tol_mult')           # per-frame multiplier of the skirt tolerances
+        if sm is not None and not isinstance(sm, dict):
+            sm = {nm: sm for nm in rig.names if nm.startswith('skirt')}
+        sm = {nm: np.concatenate([m, m[:1]]) if c.get('loop') else np.asarray(m) for nm, m in (sm or {}).items()}
         for j, nm in enumerate(rig.names):
-            gi = reduce_keys(t, Q[:, j], True, tol_for(nm, tol))
+            mult = sm.get(nm)
+            gi = reduce_keys(t, Q[:, j], True, tol_for(nm, tol), mult)
             nkeys += len(gi)
             ii = add(t[gi].reshape(-1, 1), 'SCALAR', True)
             oi = add(Q[gi, j], 'VEC4')
@@ -190,12 +206,43 @@ def write(base_glb, out_glb, clips, tol=None, extras_note=None):
                 oi = add(T[gi, j], 'VEC3')
                 samplers.append(dict(input=ii, output=oi, interpolation='LINEAR'))
                 channels.append(dict(sampler=len(samplers) - 1, target=dict(node=jn[j], path='translation')))
+            extra = [p for p, k in (('translation', 't_joints'), ('scale', 's_joints')) if nm in c.get(k, ())]
+            if extra:
+                S = np.asarray(c['S'], float)
+                if c.get('loop'):
+                    S = np.concatenate([S, S[:1]])
+                for path, V, tl in (('translation', T, tol.get('trans_skirt', tol['trans_m'])), ('scale', S, tol.get('scale', 0.002))):
+                    if path not in extra:
+                        continue
+                    gi = reduce_keys(t, V[:, j], False, tl, mult)
+                    nkeys += len(gi)
+                    ii = add(t[gi].reshape(-1, 1), 'SCALAR', True)
+                    oi = add(V[gi, j], 'VEC3')
+                    samplers.append(dict(input=ii, output=oi, interpolation='LINEAR'))
+                    channels.append(dict(sampler=len(samplers) - 1, target=dict(node=jn[j], path=path)))
         an = dict(name=name, channels=channels, samplers=samplers)
         if name in names:
             J['animations'][names[name]] = an
         else:
             J['animations'].append(an)
         report[name] = dict(frames=n, keys=nkeys)
+    ts = sorted(set((nm, p) for c in clips.values() for p, k in (('translation', 't_joints'), ('scale', 's_joints'))
+                    for nm in c.get(k, ())))
+    if ts:
+        t0 = add(np.zeros((1, 1)), 'SCALAR', True)
+        added = 0
+        for an in J['animations']:
+            if an['name'] in clips:
+                continue
+            have = set((ch['target']['node'], ch['target']['path']) for ch in an['channels'])
+            for nm, path in ts:
+                j = rig.idx[nm]
+                v = rig.rest_t[j] if path == 'translation' else rig.rest_s[j]
+                if (jn[j], path) not in have:
+                    an['samplers'].append(dict(input=t0, output=add(np.asarray(v).reshape(1, 3), 'VEC3'), interpolation='LINEAR'))
+                    an['channels'].append(dict(sampler=len(an['samplers']) - 1, target=dict(node=jn[j], path=path)))
+                    added += 1
+        report['rest_ts_channels'] = added
     J['bufferViews'].append(dict(buffer=0, byteOffset=len(newB), byteLength=len(blob)))
     newB.extend(blob)
     if extras_note:
