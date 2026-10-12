@@ -36,8 +36,10 @@ export const ISLAND_PROPS = Object.freeze({
       ripple: { rx: 1.05, rz: 0.36, band: 0.1, color: '#f4fbff', alpha: 0.75, nightColor: '#a9c4dc', nightAlpha: 0.30, periodS: 2.6, grow: 0.45, lift: 0.015 } },
     /** Local AABB of the GLB (origin = bottom centre, front = +Z). */
     boxMin: [-1.235, 0, -0.183] as V3, boxMax: [1.235, 1.875, 0.183] as V3,
-    /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face. */
-    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#3a220f' },
+    /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face.
+     *  Day ink stays #633f21 on the plaster panel. Night ink is cream: the panel is a lit mesh and the
+     *  sun drops to 0.35, but this label is unlit, so a darker brown sinks into the board. */
+    text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#fff6e2' },
     /** Night-only warm lamp light (T9n). A real SphereLight just in front of lamp_glass (sign-local metres), restricted by
      * Light.visibility to the sign's own layer so only the sign (2 renderers) gets the forward-add pass; range/size are
      * sign-local and scale with the sign. luminanceScale multiplies the engine default luminance (HDR/LDR-safe, same

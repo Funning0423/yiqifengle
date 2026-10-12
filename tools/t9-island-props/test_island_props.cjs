@@ -181,6 +181,15 @@ ok('R3: IslandProps.setSignEntrance(0) hides the whole sign set (sign node, wate
   assert(/this\.tickSea\(w\);/.test(src)&&!/tickSea\([^)]*entrance/.test(src),'sea tint independent of the sign');
   assert(/if \(this\.root\.active !== o\.exterior\) this\.root\.active = o\.exterior;/.test(src),'whole prop root off when the exterior is not visible (nothing in the room)');
 });
+ok('night sign text: day ink stays #633f21; night ink is cream and clears the dimmed plaster panel (>= 4.5:1 at 0.35 and 0.45 of the face)',()=>{
+  const S=P.signpost.text, face='#f8f2e2';
+  assert.equal(S.color,'#633f21','day sign unchanged');
+  assert.equal(S.nightColor,'#fff6e2');
+  // Face albedo is the plaster swatch. Night sun is DayNightContract lightScale 0.35; the label does not dim with it.
+  for(const k of [0.35,0.45]){const panel=L.mixHex(face,'#000000',1-k),r=L.contrastRatio(S.nightColor,panel);assert(r>=4.5,'night '+k+' '+r.toFixed(2)+' on '+panel);}
+  assert(L.contrastRatio(S.color,face)>=4.5,'day contrast');
+  assert(L.contrastRatio('#3a220f',L.mixHex(face,'#000000',0.65))<3,'the old darker brown was the unreadable one');
+});
 ok('T9n night tags: day = T9 cream colours, night = warm grey card + deeper brown text; contrast >= 4.5:1 at every step of the blend; night card about as dark as the 0.35 night light',()=>{
   const T=P.tag,d=L.tagColorsAt(0),n=L.tagColorsAt(1);
   assert.deepEqual([d.fill,d.edge,d.text],[T.fill,T.edge,T.text]);assert.deepEqual([n.fill,n.edge,n.text],[T.nightFill,T.nightEdge,T.nightText]);
