@@ -30,6 +30,34 @@ export const DEFAULT_WIND_TO_FLUTTER:ReadonlyArray<readonly [number,number]>=[[0
 /** Default mask for the wind layers (name globs, '*' = any). */
 export const DEFAULT_WIND_MASK:ReadonlyArray<string>=['skirt*','apron*','hair*'];
 export const DEFAULT_NATIVE_SPEED=0.7;
+/** locomotion-v1 (root_motion curves, docs/walk-driver.md §9). Within a walk of FIXED duration (WorldFlow walkDuration) the
+ *  root follows walk_start's forward_m curve from rest and walk_stop_body{L,R}'s forward_m curve into the end; the cruise in
+ *  between takes the remaining distance/time (speed ramps of PROFILE_RAMP_S at the clip joins). */
+export const PROFILE_RAMP_S=0.4;
+/** Cruise speed / native speed must stay within these, else the stop (then the start) curve is dropped for that walk. */
+export const CRUISE_RATIO_MIN=0.75;export const CRUISE_RATIO_MAX=1.3;
+/** Shortest cruise (m) between the start handoff and the stop entry. */
+export const MIN_CRUISE_M=0.3;
+/** walk_start may be played up to this much faster (clip clock and its forward_m curve together: feet stay locked, cadence
+ *  +20% at most, inside CRUISE_RATIO_MAX) when a short walk from rest has no room for it at rate 1 (e.g. outCrossing
+ *  1.99 m / 2.84 s). Tried in START_RATE_STEP steps, smallest rate first. */
+export const START_RATE_MAX=1.2;export const START_RATE_STEP=0.05;
+/** A turn below 45 deg (no turn clip) that starts while a stop clip is still settling keeps that clip and finishes its yaw
+ *  (smoothstep) by the stop clip's end, at least over this many seconds; she never turns in place on the idle loop then. */
+export const TURN_FOLD_MIN_S=0.5;
+/** The stop must begin ON a walk_loop heel strike (clip frame 0 == walk_loop there). The phase at the stop entry is set by
+ *  stretching the walk_loop clock over the whole cruise by at most this fraction. Slide budget: a warp w makes each planted
+ *  foot drift |1-1/w| x native x flat stance; flat stance = heel strike..heel off = 0.37 cycle (anim_meta
+ *  phases_fraction_of_cycle) = 0.42 s -> 15 mm (the walk driver's no-slide bound) at |w-1| = 0.05. */
+export const STOP_WARP_MAX=0.05;
+/** When the warp alone cannot reach the heel strike, the warp is clamped to STOP_WARP_MAX and the stop clip's forward_m
+ *  curve is scaled to cover the rest (entry still exactly ON the heel strike, end exactly at L). Slide budget: the stop
+ *  covers ~0.25 m with a planted foot, 15 mm -> |scale-1| <= 0.06. Beyond -> no planned stop (fallback). */
+export const STOP_SCALE_MAX=0.06;
+/** |turn| >= this: direction is free (both ways within 20 deg), the 180 variant is picked by the foot (chooseTurn). */
+export const TURN180_FREE_DEG=170;
+/** A foot event of the same bone within this many seconds of the previous one on ANOTHER clip is the same contact. */
+export const FOOT_DEDUPE_S=0.1;
 /** Morph targets (blend shapes) are driven HERE, never by animation-clip morph tracks (baked mode does not play them; the
  *  non-baked AnimRig samples several clips per frame, so the last-sampled clip would win and crossfades would jump).
  *  Default mesh (glTF node == mesh name in the character glb) and target index mapping; anim_meta may override both. */
@@ -40,11 +68,17 @@ export const MORPH_EPS=1e-3;
 /** Agreed clip role names (all optional except the ones the old flow already required). */
 export const CLIP_ROLES={walk:'walk_loop',walkStart:'walk_start',stopL:'walk_stop_bodyL',stopR:'walk_stop_bodyR',turn90L:'walk_turn_90_bodyL',turn90R:'walk_turn_90_bodyR',turn180:'walk_turn_180',idle:'idle_breathing_loop',sitHold:'sit_hold',sitDown:'sit_down',standUp:'stand_up',doorReach:'door_reach',flutter:'wind_flutter_loop',apronLift:'apron_lift'} as const;
 export type Body='L'|'R';
-export type MotionEventDef={time:number;name:string;body:Body;bone:string};
+/** type: 'heel_strike' (default) | 'settle' (small settling step, softer). entryContact: the contact that triggered this
+ *  clip and was already emitted by the previous clip (stop clips, t=0) - never emitted again. */
+export type MotionEventDef={time:number;name:string;body:Body;bone:string;type?:string;entryContact?:boolean};
+/** Root motion curves in CLIP seconds, cumulative values (anim_meta root_motion.{forward_m,lateral_m,yaw_deg}). */
+export type RootMotion={forward?:Array<[number,number]>;lateral?:Array<[number,number]>;yaw?:Array<[number,number]>};
 export type LayerMode='additive'|'override';
 export type ClipMeta={duration?:number;nativeSpeed?:number;loop?:boolean;events:MotionEventDef[];
   /** walk_start: switch to `next` (default walk_loop) at clip time `at` (default duration-CROSSFADE_S), entering it at `nextTime` (default 0). */
-  handoff?:{next?:string;at?:number;nextTime?:number};
+  handoff?:{next?:string;at?:number;nextTime?:number;crossfade?:number};
+  /** locomotion-v1: root motion curves; stop clips: entry from walk_loop at the heel strike walkTime (s) of body; turns: turn_deg. */
+  root?:RootMotion;entry?:{from?:string;atEvent?:string;body?:Body;walkTime?:number;crossfade?:number};turnDeg?:number;
   /** apron_lift: lift frame and settle frame (s). */
   liftTime?:number;settleTime?:number;
   /** layer clips: blend mode + mask (bone names / globs) + additive reference time (default 0 = first frame). */
@@ -56,7 +90,7 @@ export type MotionConfig={clips:{[name:string]:ClipMeta};windToFlutter:ReadonlyA
   idleGust:{minS:number;maxS:number;durationS:number}|null;source:string;
   /** Morph: bound mesh (node or mesh name), target name -> morph target index, optional wind -> flutter weight mapping. */
   morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null};
-export type FootEvent={event:string;bone:string;body:Body;clip:string;phase:number;time:number;cycle:number;pos:[number,number,number]|null};
+export type FootEvent={event:string;bone:string;body:Body;clip:string;phase:number;time:number;cycle:number;pos:[number,number,number]|null;type:string};
 
 const num=(v:any):number|undefined=>typeof v==='number'&&isFinite(v)?v:undefined;
 /** Body side from an event: explicit `body` wins; else bone-name inference (bone L = body R, 角色动画bot rig note). */
@@ -64,17 +98,36 @@ export function eventBody(e:any):Body {const b=e&&e.body;if(b==='L'||b==='R')ret
   return /[.:_]L$/i.test(bone)||/left/i.test(bone)?'R':'L';}
 function parseEvents(list:any,duration:number|undefined):MotionEventDef[] {const out:MotionEventDef[]=[];if(!Array.isArray(list))return out;
   for(let i=0;i<list.length;i++){const e=list[i];if(!e)continue;let t=num(e.time_s);if(t===undefined)t=num(e.time);if(t===undefined&&num(e.phase)!==undefined&&duration)t=e.phase*duration;if(t===undefined)continue;
-    const name=String(e.name||'');const bone=String(e.bone||(name.indexOf(':')>0?'foot.'+name.split(':')[1]:''));out.push({time:t,name,bone,body:eventBody(e)});}
+    const name=String(e.name||'');const bone=String(e.bone||(name.indexOf(':')>0?'foot.'+name.split(':')[1]:''));const d:MotionEventDef={time:t,name,bone,body:eventBody(e)};
+    if(typeof e.type==='string')d.type=e.type;if(e.entry_contact===true||e.entryContact===true)d.entryContact=true;out.push(d);}
   out.sort((a,b)=>a.time-b.time);return out;}
 function parseClip(c:any):ClipMeta {const duration=num(c.cycle_duration_s)??num(c.duration_s)??num(c.duration);
-  const h=c.handoff||{};const lift=c.apron_lift||c;const layer=c.layer||{};
+  const h=c.handoff||{};const lift=c.apron_lift||c;const layer=c.layer||{};const en=c.entry&&typeof c.entry==='object'?c.entry:null;
   return {duration,nativeSpeed:num(c.native_speed_mps)??num(c.nativeSpeed),loop:typeof c.loop==='boolean'?c.loop:undefined,events:parseEvents(c.events,duration),
-    handoff:c.handoff?{next:typeof h.next==='string'?h.next:undefined,at:num(h.at_s)??num(h.at),nextTime:num(h.next_time_s)??num(h.nextTime)}:undefined,
+    handoff:c.handoff?{next:typeof h.next==='string'?h.next:undefined,at:num(h.at_s)??num(h.at),nextTime:num(h.next_time_s)??num(h.nextTime),crossfade:num(h.crossfade_s)??num(h.crossfade)}:undefined,
+    root:parseRoot(c.root_motion),turnDeg:num(c.turn_deg)??num(c.turnDeg),
+    entry:en?{from:typeof en.from==='string'?en.from:undefined,atEvent:typeof en.at_event==='string'?en.at_event:undefined,body:en.body==='L'||en.body==='R'?en.body:undefined,
+      walkTime:num(en.walk_time_s)??num(en.walkTime),crossfade:num(en.crossfade_s)??num(en.crossfade)}:undefined,
     liftTime:num(lift.lift_time_s)??num(lift.liftTime)??(num(lift.lift_frame)!==undefined&&num(c.fps)?lift.lift_frame/c.fps:undefined),
     settleTime:num(lift.settle_time_s)??num(lift.settleTime)??(num(lift.settle_frame)!==undefined&&num(c.fps)?lift.settle_frame/c.fps:undefined),
     layerMode:(layer.mode||c.layer_mode)==='override'?'override':(layer.mode||c.layer_mode)==='additive'?'additive':undefined,
     mask:Array.isArray(layer.mask)?layer.mask.map(String):Array.isArray(c.mask)?c.mask.map(String):undefined,
     referenceTime:num(layer.reference_time_s)??num(c.reference_time_s),morph:parseMorph(c.morph)};}
+/** [[t,v],...] with finite numbers, sorted by t, values NOT clamped (root motion); null when absent / malformed / < 2 keys. */
+function rawCurve(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||v.length<2)return null;const out:Array<[number,number]>=[];
+  for(let i=0;i<v.length;i++){const p=v[i];if(!Array.isArray(p)||num(p[0])===undefined||num(p[1])===undefined)return null;out.push([p[0],p[1]]);}
+  out.sort((a,b)=>a[0]-b[0]);return out;}
+/** anim_meta root_motion: object {forward_m, lateral_m, yaw_deg} (camelCase forward/lateral/yaw also read). walk_loop's
+ *  string value ("none (root bone static)...") and anything malformed = no root motion. */
+function parseRoot(r:any):RootMotion|undefined {if(!r||typeof r!=='object'||Array.isArray(r))return undefined;const out:RootMotion={};let n=0;
+  const f=rawCurve(r.forward_m||r.forward),l=rawCurve(r.lateral_m||r.lateral),y=rawCurve(r.yaw_deg||r.yaw);if(f){out.forward=f;n++;}if(l){out.lateral=l;n++;}if(y){out.yaw=y;n++;}return n?out:undefined;}
+const scaleCurve=(c:Array<[number,number]>|undefined,k:number):Array<[number,number]>|undefined=>c?c.map(p=>[p[0]*k,p[1]] as [number,number]):undefined;
+/** First key time at which the curve has reached its final value (end of the root's travel; e.g. stop forward 0.646 s). */
+export function curveSettleTime(c:ReadonlyArray<readonly [number,number]>):number {const n=c.length;if(!n)return 0;const v=c[n-1][1];
+  for(let i=0;i<n;i++)if(Math.abs(c[i][1]-v)<1e-6){let all=true;for(let j=i;j<n;j++)if(Math.abs(c[j][1]-v)>=1e-6){all=false;break;}if(all)return c[i][0];}return c[n-1][0];}
+/** Slope (units/s) of the curve over its key segment containing t (one-sided at the ends). */
+export function curveSlope(c:ReadonlyArray<readonly [number,number]>,t:number):number {const n=c.length;if(n<2)return 0;let i=1;while(i<n-1&&c[i][0]<t-1e-9)i++;
+  if(t>=c[n-1][0]-1e-9)i=n-1;const a=c[i-1],b=c[i];return b[0]>a[0]?(b[1]-a[1])/(b[0]-a[0]):0;}
 function curvePoints(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||!v.length)return null;const out:Array<[number,number]>=[];
   for(let i=0;i<v.length;i++){const p=v[i];if(!Array.isArray(p)||num(p[0])===undefined||num(p[1])===undefined)return null;out.push([p[0],Math.max(0,Math.min(1,p[1]))]);}
   out.sort((a,b)=>a[0]-b[0]);return out;}
@@ -161,7 +214,8 @@ export function jointAngleDeg(a:Float64Array,b:Float64Array,i:number):number {co
 
 /* ---------------- clip clock: which clips, at what time, with which weights ---------------- */
 export interface ClipInfo {has(name:string):boolean;duration(name:string):number}
-type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:number;duration:number;endedReported:boolean};
+/** rate: distance clips advance rate x ds / nativeSpeed (1 = locked to the ground; != 1 only for the stop-entry stride warp). */
+type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:number;duration:number;endedReported:boolean;rate:number};
 export type PlanLayer={clip:string;time:number;weight:number;mode:LayerMode;mask:ReadonlyArray<string>;referenceTime:number};
 /** morph: every layer the morph curves read (same clip/time/weight as `layers`, plus a curve-only apron_lift timeline when the
  *  glb has no apron_lift clip yet but anim_meta has its morph curves). */
@@ -179,16 +233,21 @@ export class MotionClock {
   constructor(public cfg:MotionConfig,public info:ClipInfo,public crossfadeS=CROSSFADE_S){this.trigger=new UpwardTrigger(cfg.apronLiftThreshold);
     const clips:{[name:string]:ClipMeta}={};for(const name in cfg.clips)if(Object.prototype.hasOwnProperty.call(cfg.clips,name)){const m=cfg.clips[name],d=info.has(name)?info.duration(name):0;let events=m.events;
       // The clip (its .meta split) is the source of truth for length; anim_meta event times are rescaled when they disagree.
-      if(d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration;events=events.map(e=>({time:e.time*k,name:e.name,bone:e.bone,body:e.body}));this.notes.push(name+': anim_meta '+m.duration.toFixed(4)+'s != clip '+d.toFixed(4)+'s, events rescaled');}
+      let root=m.root;
+      if(d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration;events=events.map(e=>{const x:MotionEventDef={time:e.time*k,name:e.name,bone:e.bone,body:e.body};if(e.type)x.type=e.type;if(e.entryContact)x.entryContact=true;return x;});
+        if(root)root={forward:scaleCurve(root.forward,k),lateral:scaleCurve(root.lateral,k),yaw:scaleCurve(root.yaw,k)};
+        this.notes.push(name+': anim_meta '+m.duration.toFixed(4)+'s != clip '+d.toFixed(4)+'s, events'+(root?' + root_motion':'')+' rescaled');}
       let morph=m.morph;if(morph&&d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration,cv:MorphCurves={};for(const t in morph.curves)if(Object.prototype.hasOwnProperty.call(morph.curves,t))cv[t]=morph.curves[t].map(p=>[p[0]*k,p[1]] as [number,number]);morph={mesh:morph.mesh,curves:cv};}
-      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph};}
+      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph,root,entry:m.entry,turnDeg:m.turnDeg};}
     const w=clips[CLIP_ROLES.walk],wd=info.has(CLIP_ROLES.walk)?info.duration(CLIP_ROLES.walk):0;
     if(w&&!w.events.length&&wd>0){w.events=[{time:0,name:'foot:R',bone:'foot.R',body:'L'},{time:wd/2,name:'foot:L',bone:'foot.L',body:'R'}];this.notes.push('walk_loop: default foot events (no anim_meta events)');}
     for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&mm.mesh!==cfg.morphMesh)this.notes.push(name+': morph.mesh '+mm.mesh+' != bound mesh '+cfg.morphMesh+' (one morph mesh per character; curves still applied to the bound mesh)');}
     this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter};}
   meta(name:string):ClipMeta|null {return this.cfg.clips[name]||null;}
   private track(name:string,loop:boolean,time:number):Track {const m=this.meta(name),d=this.info.duration(name);const ns=m&&m.nativeSpeed!==undefined?m.nativeSpeed:name===CLIP_ROLES.walk?DEFAULT_NATIVE_SPEED:0;
-    return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false};}
+    return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false,rate:1};}
+  /** Stride warp of the base distance clip (walk_loop, see STOP_WARP_MAX) or clock rate of a time clip (walk_start, START_RATE_MAX). */
+  setRate(rate:number){if(this.base)this.base.rate=rate>0&&isFinite(rate)?rate:1;}
   /** keep=true: same clip already base -> nothing changes (phase continuity). fade<0: use crossfadeS. Returns true when switched. */
   play(name:string,loop:boolean,opts?:{fade?:number;time?:number;keep?:boolean}):boolean {const o=opts||{};
     if(o.keep!==false&&this.base&&this.base.clip===name&&this.base.loop===loop)return false;
@@ -197,11 +256,12 @@ export class MotionClock {
     this.base=this.track(name,loop,o.time||0);return true;}
   localTime(t:Track):number {return t.loop?((t.abs%t.duration)+t.duration)%t.duration:Math.min(t.abs,t.duration);}
   /** ds: metres travelled this frame along the walk (null = not walking -> distance clips hold their phase). */
-  tick(dt:number,ds:number|null,wind:number):TickResult {const res:TickResult={foot:[],ended:null,apronLift:null};const b=this.base;
-    if(b){const prev=b.abs;b.abs+=b.distance?(ds!==null&&ds>0?ds/b.nativeSpeed:0):dt;const m=this.meta(b.clip);
+  /** snapAbs: set the base clock to exactly this absolute time (stop entry lands ON the heel strike; events crossed inclusive). */
+  tick(dt:number,ds:number|null,wind:number,snapAbs?:number):TickResult {const res:TickResult={foot:[],ended:null,apronLift:null};const b=this.base;
+    if(b){const prev=b.abs;if(snapAbs!==undefined&&snapAbs>=prev)b.abs=snapAbs;else b.abs+=b.distance?(ds!==null&&ds>0?ds/b.nativeSpeed*b.rate:0):dt*b.rate;const m=this.meta(b.clip);
       if(m&&m.events.length){const ev=crossedEvents(m.events,prev,b.abs,b.duration,b.loop);for(let i=0;i<ev.length;i++)res.foot.push({def:ev[i].def,cycle:ev[i].cycle,abs:ev[i].abs,clip:b.clip,duration:b.duration});}
       if(!b.loop&&b.abs>=b.duration&&!b.endedReported){b.endedReported=true;res.ended=b.clip;}}
-    if(this.out){const o=this.out;o.abs+=o.distance?(ds!==null&&ds>0?ds/o.nativeSpeed:0):dt;this.fadeT+=dt;if(this.fadeT>=this.fadeS)this.out=null;}
+    if(this.out){const o=this.out;o.abs+=o.distance?(ds!==null&&ds>0?ds/o.nativeSpeed*o.rate:0):dt*o.rate;this.fadeT+=dt;if(this.fadeT>=this.fadeS)this.out=null;}
     this.wind=wind>0?(wind<1?wind:1):0;this.flutterAbs+=dt;
     if(this.gust){this.gust.t+=dt;if(this.gust.t>=this.gust.d)this.gust=null;}
     if(this.trigger.update(this.wind))res.apronLift=this.startApron();
@@ -234,10 +294,135 @@ export class MotionClock {
 }
 /** Stop-clip role for the planted body foot (null when that clip does not exist). */
 export function stopRole(info:ClipInfo,planted:Body|null):string|null {if(!planted)return null;const r=planted==='L'?CLIP_ROLES.stopL:CLIP_ROLES.stopR;return info.has(r)?r:null;}
+/** Unplanned stop (the walk was not known to end at rest): a stop clip with a forward_m curve is entered at the end of its
+ *  root travel (curveSettleTime), so the root does not move: no slide, no overshoot past the path end. The variant is the
+ *  one whose planted body foot at that time is the walk's planted foot (the crossfade moves the free foot only).
+ *  In-place stop clips (no forward curve): stopRole, from frame 0 (old behaviour). null = no stop clip -> idle. */
+export function stopTail(info:ClipInfo,cfg:MotionConfig,planted:Body|null):{clip:string;time:number}|null {if(!planted)return null;
+  const names=[CLIP_ROLES.stopL,CLIP_ROLES.stopR];
+  for(let i=0;i<names.length;i++){const n=names[i];if(!info.has(n))continue;const m=cfg.clips[n],f=m&&m.root&&m.root.forward;
+    if(!f){if(n===stopRole(info,planted))return {clip:n,time:0};continue;}
+    const t=Math.min(curveSettleTime(f),info.duration(n));if(plantedBody(m!.events,t)===planted)return {clip:n,time:t};}
+  return null;}
 /** In-place turn role: |delta| >= 135 deg -> walk_turn_180; >= 45 deg -> walk_turn_90_body{L|R} by turn side (positive yaw =
  *  turning to her left -> bodyL, the inside foot pivots); otherwise / missing clip -> null (idle + controller yaw). */
 export function turnRole(info:ClipInfo,deltaRad:number):string|null {const a=Math.abs(deltaRad)*180/Math.PI;
   if(a>=135)return info.has(CLIP_ROLES.turn180)?CLIP_ROLES.turn180:null;if(a>=45){const r=deltaRad>0?CLIP_ROLES.turn90L:CLIP_ROLES.turn90R;return info.has(r)?r:null;}return null;}
+/** 180 variants (docs/walk-driver.md §9.4). Names: walk_turn_180_bodyL / walk_turn_180_bodyR (planned) and the single
+ *  walk_turn_180 (locomotion-v1 preview, authored to her left). Side = sign of anim_meta turn_deg (or the yaw_deg curve end),
+ *  default + for bodyL / plain, - for bodyR. */
+export const TURN180_VARIANTS=['walk_turn_180_bodyL','walk_turn_180_bodyR',CLIP_ROLES.turn180];
+function firstFootBody(m:ClipMeta|null):Body|null {if(!m)return null;for(let i=0;i<m.events.length;i++)if(/^foot:/.test(m.events[i].name))return m.events[i].body;return null;}
+function clipTurnSide(name:string,m:ClipMeta|null):number {const d=m&&m.turnDeg!==undefined?m.turnDeg:m&&m.root&&m.root.yaw&&m.root.yaw.length?m.root.yaw[m.root.yaw.length-1][1]:undefined;
+  if(d!==undefined&&d!==0)return d>0?1:-1;return /bodyR$/.test(name)?-1:1;}
+/** Turn clip + the yaw the controller actually turns (may go the long way round inside the free window).
+ *  45..135 deg: walk_turn_90_body{L|R} by side (unchanged). >= 135: a 180 variant on the turn side; when |turn| >=
+ *  TURN180_FREE_DEG either way is fine, so the foot decides: lastFoot = body of the last foot that landed (it just took the
+ *  weight), pick the variant whose FIRST step is the other (free) foot, and turn that variant's way. */
+export function chooseTurn(info:ClipInfo,cfg:MotionConfig,deltaRad:number,lastFoot:Body|null):{role:string|null;deltaRad:number;reason:string} {
+  const a=Math.abs(deltaRad)*180/Math.PI;if(a<135)return {role:turnRole(info,deltaRad),deltaRad,reason:a>=45?'turn90 by side':'small turn'};
+  const want=deltaRad>=0?1:-1;const cands:{name:string;side:number;first:Body|null}[]=[];
+  for(let i=0;i<TURN180_VARIANTS.length;i++){const n=TURN180_VARIANTS[i];if(info.has(n)){const m=cfg.clips[n]||null;cands.push({name:n,side:clipTurnSide(n,m),first:firstFootBody(m)});}}
+  if(!cands.length)return {role:null,deltaRad,reason:'no 180 clip'};
+  if(a>=TURN180_FREE_DEG&&lastFoot){let best:{name:string;side:number;first:Body|null}|null=null;
+    for(let i=0;i<cands.length;i++){const c=cands[i];if(c.first&&c.first!==lastFoot&&(!best||(best.side!==want&&c.side===want)))best=c;}
+    if(best){const d=best.side===want?deltaRad:deltaRad-want*2*Math.PI;return {role:best.name,deltaRad:d,reason:'free 180: last foot '+lastFoot+' -> first step '+best.first+(best.side===want?'':' (other way round)')};}}
+  for(let i=0;i<cands.length;i++)if(cands[i].side===want)return {role:cands[i].name,deltaRad,reason:'180 by side'};
+  return {role:cands[0].name,deltaRad,reason:'180: no variant for this side, '+cands[0].name+' used with the controller yaw'};}
+
+/* ---------------- locomotion-v1 walk profile (root_motion curves inside a fixed-duration walk) ---------------- */
+export type StopCandidate={clip:string;entryTime:number;body:Body;forward:Array<[number,number]>;lateral:Array<[number,number]>|null;S:number;T:number;v1:number;crossfade:number};
+export type WalkPlan={L:number;D:number;
+  /** rate: walk_start clock rate (1 = authored; up to START_RATE_MAX): T = at / rate, root = forward_m(t x rate). */
+  start:{clip:string;T:number;S:number;forward:Array<[number,number]>;nextTime:number;crossfade:number;v0:number;rate:number}|null;
+  stop:(StopCandidate&{sEntry:number;tEntry:number;warp:number;phaseShiftS:number;scale:number})|null;
+  cruise:{t0:number;t1:number;s0:number;s1:number;v0:number;v1:number;vc:number;r0:number;r1:number}|null;
+  linear:boolean;rate:number;notes:string[]};
+/** Stop variants usable for a planned stop: walk_stop_body{L,R} with a forward_m curve and an entry walk time
+ *  (entry.walk_time_s, else the walk_loop heel strike of that body). */
+export function stopCandidates(info:ClipInfo,cfg:MotionConfig):StopCandidate[] {const out:StopCandidate[]=[];const walk=cfg.clips[CLIP_ROLES.walk];const names=[CLIP_ROLES.stopL,CLIP_ROLES.stopR];
+  for(let i=0;i<names.length;i++){const n=names[i],m=cfg.clips[n];if(!m||!info.has(n)||!m.root||!m.root.forward)continue;const body:Body=n===CLIP_ROLES.stopL?'L':'R';
+    let e=m.entry&&m.entry.walkTime!==undefined?m.entry.walkTime:undefined;if(e===undefined&&walk){for(let k=0;k<walk.events.length;k++)if(walk.events[k].body===body&&/^foot:/.test(walk.events[k].name)){e=walk.events[k].time;break;}}
+    if(e===undefined)continue;const f=m.root.forward,S=f[f.length-1][1]-f[0][1];if(!(S>0))continue;
+    out.push({clip:n,entryTime:e,body,forward:f,lateral:m.root.lateral||null,S,T:curveSettleTime(f),v1:curveSlope(f,0),crossfade:m.entry&&m.entry.crossfade!==undefined?m.entry.crossfade:0});}
+  return out;}
+/** Root travel for one walk action of length L and fixed duration D (WorldFlow walkDuration):
+ *   [0, start.T]        walk_start forward_m(t)                       (from rest, walk_start clip with a forward curve)
+ *   [start.T, D-stop.T] cruise: ramps v0 -> vc -> v1 (PROFILE_RAMP_S), vc = remaining distance / remaining time
+ *   [D-stop.T, D]       L - stop.S + stop forward_m(t - tEntry)        (walk ends at rest, stop clip with a forward curve)
+ *  The stop variant is the one whose entry heel strike needs the smallest walk_loop phase shift at the entry distance;
+ *  the shift is spread over the cruise as a stride warp (rate) <= STOP_WARP_MAX. Infeasible -> drop stop, then start.
+ *  No start/stop and no speed change = linear (exactly the old L*t/D). */
+export function planWalk(o:{L:number;D:number;start:{clip:string;forward:Array<[number,number]>;at:number;nextTime:number;crossfade:number}|null;
+  stops:StopCandidate[];walkCycle:number;native:number;phase0:number|null;v0:number|null;
+  /** metres still to walk AFTER this walk before the rest (continuous chain, e.g. outCrossing -> toIsland). > 0: no stop in
+   *  this walk, but the stride warp already steers the phase toward the stop entry of the last walk. 0 / null: none. */
+  aheadM?:number}):WalkPlan {
+  const notes:string[]=[];const L=o.L,D=o.D,ns=o.native>0?o.native:DEFAULT_NATIVE_SPEED,C=o.walkCycle>0?o.walkCycle:1;
+  const lin:WalkPlan={L,D,start:null,stop:null,cruise:null,linear:true,rate:1,notes};if(!(L>0)||!(D>0))return lin;
+  const tryPlan=(useStart:boolean,useStop:boolean,k:number):WalkPlan|string=>{
+    let t0=0,s0=0,v0=o.v0!==null&&o.v0>0?o.v0:L/D,start:WalkPlan['start']=null,ph0=o.phase0!==null?o.phase0:0;
+    if(useStart&&o.start){const f=o.start.forward,at=Math.max(0,o.start.at),S=piecewise(f,at)-f[0][1];start={clip:o.start.clip,T:at/k,S,forward:f,nextTime:o.start.nextTime,crossfade:o.start.crossfade,v0:curveSlope(f,at)*k,rate:k};t0=start.T;s0=S;v0=start.v0;ph0=o.start.nextTime;}
+    let t1=D,s1=L,v1=v0,stop:WalkPlan['stop']=null;const ahead=o.aheadM&&o.aheadM>0?o.aheadM:0;let steer=1,steerNote='';
+    if(useStop&&o.stops.length){let best:WalkPlan['stop']=null;
+      let bestCost=Infinity,worst='';
+      for(let i=0;i<o.stops.length;i++){const c=o.stops[i],sE=L+ahead-c.S,tE=D-c.T,dist=sE-s0;if(!(dist>0))continue;const u=ph0+dist/ns;let d=((c.entryTime-u)%C+C)%C;if(d>C/2)d-=C;
+        const need=1+d/(dist/ns);let warp=need,scale=1,sEntry=sE;
+        // clip time to the entry heel strike = dist/ns + d; with the warp clamped it is reached at a shifted distance,
+        // the stop curve is scaled to end exactly at L (steering walks only clamp: the last walk re-plans from its phase)
+        if(Math.abs(need-1)>STOP_WARP_MAX){warp=1+(need>1?STOP_WARP_MAX:-STOP_WARP_MAX);if(!ahead){sEntry=s0+(dist/ns+d)*ns/warp;scale=(L-sEntry)/c.S;}}
+        if(Math.abs(scale-1)>STOP_SCALE_MAX||!(sEntry>s0)){worst=c.clip+' warp '+(need-1).toFixed(4)+' > '+STOP_WARP_MAX+' and stop scale '+scale.toFixed(4);continue;}
+        const cost=Math.abs(warp-1)+Math.abs(scale-1)*10;
+        if(cost<bestCost){bestCost=cost;best={clip:c.clip,entryTime:c.entryTime,body:c.body,forward:c.forward,lateral:c.lateral,S:c.S,T:c.T,v1:c.v1*scale,crossfade:c.crossfade,sEntry,tEntry:tE,warp,phaseShiftS:d,scale};}}
+      if(!best)return worst?'stop: stride warp + stop scale out of budget ('+worst+')':'stop: no room';
+      if(ahead>0){steer=best.warp;steerNote='steering phase to '+best.clip+' '+ahead.toFixed(3)+' m ahead'+(Math.abs(best.warp-1)>=STOP_WARP_MAX-1e-12?' (warp clamped)':'');}
+      else{stop=best;t1=best.tEntry;s1=best.sEntry;v1=best.v1;if(best.scale!==1)notes.push('stop '+best.clip+' forward scaled x'+best.scale.toFixed(4)+' (warp clamped)');}}
+    const T=t1-t0,Db=s1-s0;if(!(T>0)||Db<(start||stop?MIN_CRUISE_M:0))return 'cruise too short ('+Db.toFixed(3)+' m / '+T.toFixed(3)+' s)';
+    const rampIn=Math.abs(v0-Db/T)>1e-3,rampOut=!!stop;let r=Math.min(PROFILE_RAMP_S,T/3);const r0=rampIn?r:0,r1=rampOut?r:0;
+    const den=T-r0/2-r1/2;const vc=(Db-v0*r0/2-v1*r1/2)/den;if(!(den>0)||!(vc>0))return 'cruise infeasible';
+    if((start||stop)&&(vc/ns<CRUISE_RATIO_MIN||vc/ns>CRUISE_RATIO_MAX))return 'cruise '+vc.toFixed(3)+' m/s outside '+CRUISE_RATIO_MIN+'..'+CRUISE_RATIO_MAX+' x native';
+    const linear=!start&&!stop&&!rampIn;if(steerNote)notes.push(steerNote);
+    return {L,D,start,stop,cruise:linear?null:{t0,t1,s0,s1,v0,v1,vc,r0,r1},linear,rate:stop?stop.warp:steer,notes};};
+  const order:Array<[boolean,boolean]>=[[true,true],[true,false],[false,true],[false,false]];const rates=[1];
+  for(let n=1;1+n*START_RATE_STEP<=START_RATE_MAX+1e-9;n++)rates.push(1+n*START_RATE_STEP);
+  for(let i=0;i<order.length;i++){if(order[i][0]&&!o.start||order[i][1]&&!o.stops.length)continue;const ks=order[i][0]?rates:[1];let first='';
+    for(let q=0;q<ks.length;q++){const r=tryPlan(order[i][0],order[i][1],ks[q]);
+      if(typeof r!=='string'){if(ks[q]!==1)notes.push('walk_start x'+ks[q].toFixed(2)+' (at rate 1: '+first+')');return r;}if(!q)first=r;}
+    notes.push(first);}
+  return lin;}
+/** Distance along the path at walk time t (0..D) for a plan. */
+export function walkDistanceAt(p:WalkPlan,t:number):number {const D=p.D,L=p.L;if(t<=0)return 0;if(t>=D)return L;if(p.linear)return L*t/D;
+  if(p.start&&t<=p.start.T)return piecewise(p.start.forward,t*p.start.rate)-p.start.forward[0][1];
+  if(p.stop&&t>=p.stop.tEntry)return Math.min(L,p.stop.sEntry+p.stop.scale*(piecewise(p.stop.forward,t-p.stop.tEntry)-p.stop.forward[0][1]));
+  const c=p.cruise;if(!c)return L*t/D;const T=c.t1-c.t0,tau=t-c.t0;
+  if(tau<c.r0)return c.s0+c.v0*tau+(c.vc-c.v0)*tau*tau/(2*c.r0);
+  if(tau<=T-c.r1)return c.s0+(c.v0+c.vc)/2*c.r0+c.vc*(tau-c.r0);
+  const u=T-tau;return c.s1-(c.v1*u+(c.vc-c.v1)*u*u/(2*c.r1));}
+/** Seconds walkDuration would need on top of L/native so the cruise stays at native speed (start / stop curve slower than
+ *  native). For the route owner (FirstsliceRoutes WALK-DURATION CONTRACT); the driver itself does not change durations. */
+export function walkProfileExtraSeconds(cfg:MotionConfig,startsFromRest:boolean,endsAtRest:boolean,native=DEFAULT_NATIVE_SPEED):number {let x=0;
+  const st=cfg.clips[CLIP_ROLES.walkStart];if(startsFromRest&&st&&st.root&&st.root.forward){const f=st.root.forward,at=st.handoff&&st.handoff.at!==undefined?st.handoff.at:f[f.length-1][0];x+=at-(piecewise(f,at)-f[0][1])/native;}
+  const sp=cfg.clips[CLIP_ROLES.stopL]||cfg.clips[CLIP_ROLES.stopR];if(endsAtRest&&sp&&sp.root&&sp.root.forward){const f=sp.root.forward,T=curveSettleTime(f);x+=T-(f[f.length-1][1]-f[0][1])/native;}
+  return x;}
+/** Where she rests in WorldFlow (WorldFlowCore.returnHome/leaveHome): after toDoor (opening-door), toIsland (island),
+ *  inCrossing ('stop inside, THEN close, THEN approach seat': closing-door waits in place; not on the follow return, see
+ *  REST_CHAINS_FOLLOW) and toSeat (sit).
+ *  outCrossing -> toIsland and toThreshold -> inCrossing are each one continuous walk split for camera bookkeeping. */
+export const REST_CHAINS:ReadonlyArray<ReadonlyArray<string>>=[['toDoor'],['outCrossing','toIsland'],['toThreshold','inCrossing'],['toSeat']];
+/** Follow return (运镜bot 0b6202e, RouteConfig.cameraEntry.doorSeconds <= 0, WorldFlowCore.entrySpan): she walks through the
+ *  doorway without stopping (the leaf closes behind the lens during toSeat): toThreshold -> inCrossing -> toSeat is one walk. */
+export const REST_CHAINS_FOLLOW:ReadonlyArray<ReadonlyArray<string>>=[['toDoor'],['outCrossing','toIsland'],['toThreshold','inCrossing','toSeat']];
+/** Rest chains WorldFlow will actually run for these routes (motion mode). */
+export function restChainsFor(routes:any):ReadonlyArray<ReadonlyArray<string>> {const e=routes&&routes.cameraEntry;
+  return e&&routes.cameraTracks&&routes.cameraTracks.inbound&&typeof e.doorSeconds==='number'&&e.doorSeconds<=0?REST_CHAINS_FOLLOW:REST_CHAINS;}
+const pathLength=(p:ReadonlyArray<ReadonlyArray<number>>)=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return L;};
+/** Rest look-ahead from route data: for a path equal (same key count, first and last point) to a route of a chain, the metres
+ *  that follow it in that chain before she rests (0 = this walk ends at rest; null = unknown path -> no stop planned). */
+export function restAheadFromRoutes(routes:any,chains?:ReadonlyArray<ReadonlyArray<string>>):(path:ReadonlyArray<ReadonlyArray<number>>)=>number|null {const list=chains||restChainsFor(routes);const known:{p:ReadonlyArray<ReadonlyArray<number>>;ahead:number}[]=[];
+  for(let i=0;i<list.length;i++){const ch=list[i];let ok=true;const ps:ReadonlyArray<ReadonlyArray<number>>[]=[];for(let k=0;k<ch.length;k++){const p=routes&&routes[ch[k]];if(!Array.isArray(p)||p.length<2){ok=false;break;}ps.push(p);}if(!ok)continue;
+    for(let k=0;k<ps.length;k++){let a=0;for(let m=k+1;m<ps.length;m++)a+=pathLength(ps[m]);known.push({p:ps[k],ahead:a});}}
+  const same=(a:ReadonlyArray<number>,b:ReadonlyArray<number>)=>Math.abs(a[0]-b[0])<1e-4&&Math.abs(a[1]-b[1])<1e-4&&Math.abs(a[2]-b[2])<1e-4;
+  return path=>{if(!path||path.length<2)return null;for(let i=0;i<known.length;i++){const q=known[i].p;if(q.length===path.length&&same(q[0],path[0])&&same(q[q.length-1],path[path.length-1]))return known[i].ahead;}return null;};}
 
 /* ---------------- morph targets (blend shapes) ---------------- */
 function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number {const m=cfg.clips[clip];const c=m&&m.morph&&m.morph.curves[target];return c&&c.length?piecewise(c,time):0;}
