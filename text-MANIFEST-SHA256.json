@@ -1041,8 +1041,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts",
-    "bytes": 30561,
-    "sha256": "094e076d2f819d7aff9883f606dc9f1ac0474bb313ac0feffdf19bcc8a0205f1"
+    "bytes": 31152,
+    "sha256": "0bfc2edcbdd7d15933e22b3afc7fecb9f2f1296e9d9f66e26af676e2dcaa16e5"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts.meta",
@@ -1630,6 +1630,26 @@
     "sha256": "2e1e41565bce5f704fb3a6471a7bd32fd33546aee5fb77d7615e234428998e79"
   },
   {
+    "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts",
+    "bytes": 8031,
+    "sha256": "3919a06625b9b95fa0983a4910a96fd2caca391b6a13365ee8266f4a545167c0"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts.meta",
+    "bytes": 171,
+    "sha256": "610bec835d5c3c8645aad1b248e7c071d4e7e8da8ce56971d9044fca1de39419"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts",
+    "bytes": 14249,
+    "sha256": "d66a79b4de63297cefbc55a1570890c461b677cafac38f87a7579017992130a6"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts.meta",
+    "bytes": 171,
+    "sha256": "300e9c9e755088c327d3a356a3ee567036dc070b6e21f079ded13aa6d2a4eafa"
+  },
+  {
     "path": "creator-build-project/assets/scripts/render/SkyNightTexture.ts",
     "bytes": 11617,
     "sha256": "5f15271b93f99955907db3b90d6b91feb71a2f2a698b25c6ceab430034511ec5"
@@ -1881,8 +1901,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 48314,
-    "sha256": "2293f59d838553c86a1ca7218d4f30d03b9993702fd70ad12c97d0cf3384207f"
+    "bytes": 48770,
+    "sha256": "7da85754141266c2040cc040987113a8817a834ecafe152a6292f7094eb80842"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
