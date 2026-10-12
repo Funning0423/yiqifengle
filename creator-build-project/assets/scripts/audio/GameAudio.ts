@@ -62,13 +62,16 @@ const CHEERS: SfxName[] = ['sfx_cheer_1_great', 'sfx_cheer_2_excellent', 'sfx_ch
 
 /** A5（Voice bot）：岛上 3D 道具点击音。press 播各自的音，confirm 统一播确认音；设置没有专用音，播通用点击 sfx_ui_click。
  *  ui-soft 柔和版（Funning 选定）：行囊 / 旅程册 / 路牌 / 通用点击是 Kenney CC0 录音，确认 / 返回是自制毛毡槌两音，
- *  见 docs/audio-credits.md。响度已做在文件里（约 -21 ~ -22 LUFS，峰值 -5 ~ -13 dBFS），所以 UI_TAP_VOLUME = 1，
- *  游戏里和 Funning 试听的电平一致；鼓励音文件约 -10 LUFS、音量 1，UI 音仍比鼓励音低约 11 dB。 */
+ *  见 docs/audio-credits.md。2026-10-12 用 ffmpeg 把六个文件的积分响度收到约 -21.5 LUFS、真峰值不超过 -1 dBTP
+ *  （bag / book / click / signpost 加了轻微限幅），所以 UI_TAP_VOLUME 仍是 1。
+ *  鼓励音文件积分响度约 -12.0 ~ -13.6 LUFS、音量 1，按钮音仍比鼓励音低约 8 dB（至少 6 dB）。
+ *  同一次点击会先 press 再 confirm（实测相隔 6–13 ms）。按下音已经播出后，150 ms 内不再叠确认音。 */
 export type UiTapTarget = 'signpost' | 'bag' | 'book' | 'settings';
 const UI_PRESS: Record<UiTapTarget, SfxName> = {
   bag: 'sfx_ui_bag', book: 'sfx_ui_book', settings: 'sfx_ui_click', signpost: 'sfx_ui_signpost',
 };
 const UI_TAP_VOLUME = 1;
+const UI_CONFIRM_AFTER_PRESS_MS = 150;
 
 /** 挂起原因：hidden = 切后台；interrupted = 来电/其他 App/系统抢走音频 */
 export type SuspendReason = 'hidden' | 'interrupted';
@@ -187,6 +190,9 @@ export class GameAudio extends Component {
   private muted = false;
   private reasons = new Set<SuspendReason>();  // 挂起原因集合；为空 = 正常
   private cascade = 0;                         // 本次操作里第几波消除（0 = 还没消）
+  /** 最近一次真正播出的道具按下音：同目标在 UI_CONFIRM_AFTER_PRESS_MS 内不再叠 confirm */
+  private uiPressTarget = '';
+  private uiPressAt = -1e9;
   private prevState: string | undefined;       // 上一次 render 的 state；undefined = 还没有基准
   // wx 回调要用同一个函数引用才能 off，所以存成字段
   private readonly wxOnHide = () => this.suspend('hidden');
@@ -908,11 +914,21 @@ export class GameAudio extends Component {
   }
 
   onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }
-  /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。 */
+  /** A5：T9 onPropTap 的回调（由 AudioBridge 订阅）。blocked 时什么都不播；静音 / 挂起由 play() 统一挡住。
+   *  按下音已经播出时，同一目标 150 ms 内的 confirm 丢掉（点一次道具不再叠两声）。没播成按下音、已满 150 ms，
+   *  或另一个目标，confirm 照播。 */
   onPropTap(target: UiTapTarget, phase: 'press' | 'confirm', info?: { blocked?: boolean } | null) {
     if (info?.blocked) return;
-    if (phase === 'press') { const name = UI_PRESS[target]; if (name) this.play(name, UI_TAP_VOLUME); }
-    else if (phase === 'confirm') this.play('sfx_ui_confirm', UI_TAP_VOLUME);
+    if (phase === 'press') {
+      const name = UI_PRESS[target];
+      if (!name) return;
+      const t = GameAudio.now();
+      this.play(name, UI_TAP_VOLUME);
+      if (this.lastPlay.get(name) === t) { this.uiPressTarget = target; this.uiPressAt = t; }
+    } else if (phase === 'confirm') {
+      if (this.uiPressTarget === target && GameAudio.now() - this.uiPressAt < UI_CONFIRM_AFTER_PRESS_MS) return;
+      this.play('sfx_ui_confirm', UI_TAP_VOLUME);
+    }
   }
   /** A5：关闭面板 / 返回上一页（目前是岛上旅程册弹层的 × 和“返回章节”，由 AudioBridge 按节点名接入） */
   onUiBack() { this.play('sfx_ui_back', UI_TAP_VOLUME); }

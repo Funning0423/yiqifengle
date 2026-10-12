@@ -29,7 +29,8 @@ function harness() {
   sfxLoads[0](null, NAMES.map(n => clip('sfx_ui_' + n)));
   const played = () => [...a.sfxVoices.values()].map(v => [v.name, v.source.volume]);
   const reset = () => { for (const s of [...a.sfxVoices.keys()]) a.retireSfx(s); t += 1000; };
-  return { a, game, played, reset };
+  const advance = ms => { t += ms; };
+  return { a, game, played, reset, advance };
 }
 
 test('press plays the target sound, confirm plays sfx_ui_confirm, at UI volume below cheers', () => {
@@ -52,6 +53,54 @@ test('muted and suspended (hidden) drop UI tap sounds like every other SFX', () 
   h.a.muted = true; h.a.onPropTap('bag', 'press', { blocked: false }); h.a.onUiBack(); assert.deepEqual(h.played(), []);
   h.a.muted = false; h.game.emit('hide'); h.a.onPropTap('bag', 'confirm', { blocked: false }); assert.deepEqual(h.played(), []);
   h.game.emit('show'); h.a.onPropTap('bag', 'press', { blocked: false }); assert.deepEqual(h.played(), [['sfx_ui_bag', 1]]);
+});
+test('same click skips confirm for 150 ms after a press that actually played', () => {
+  const h = harness();
+  assert.match(src, /UI_CONFIRM_AFTER_PRESS_MS = 150/);
+  for (const [target, n] of [['bag', 'bag'], ['book', 'book'], ['settings', 'click'], ['signpost', 'signpost']]) {
+    h.a.onPropTap(target, 'press', { blocked: false });
+    h.advance(6);
+    h.a.onPropTap(target, 'confirm', { blocked: false });
+    assert.deepEqual(h.played(), [['sfx_ui_' + n, 1]], target + ' +6 ms');
+    h.advance(143); // 149 ms after the press
+    h.a.onPropTap(target, 'confirm', { blocked: false });
+    assert.deepEqual(h.played(), [['sfx_ui_' + n, 1]], target + ' +149 ms');
+    h.advance(1); // 150 ms: confirm is allowed again
+    h.a.onPropTap(target, 'confirm', { blocked: false });
+    assert.deepEqual(h.played().map(x => x[0]), ['sfx_ui_' + n, 'sfx_ui_confirm'], target + ' +150 ms');
+    h.reset();
+  }
+  h.a.onPropTap('book', 'confirm', { blocked: false });
+  assert.deepEqual(h.played(), [['sfx_ui_confirm', 1]], 'confirm with no press still plays');
+  h.reset();
+  h.a.onPropTap('bag', 'press', { blocked: false });
+  h.advance(10);
+  h.a.onPropTap('book', 'confirm', { blocked: false });
+  assert.deepEqual(h.played().map(x => x[0]), ['sfx_ui_bag', 'sfx_ui_confirm'], 'other target is not the same click');
+  h.reset();
+  h.a.onPropTap('signpost', 'press', { blocked: true });
+  h.advance(8);
+  h.a.onPropTap('signpost', 'confirm', { blocked: false });
+  assert.deepEqual(h.played(), [['sfx_ui_confirm', 1]], 'blocked press did not play, so confirm is not skipped');
+  h.reset();
+  h.a.muted = true;
+  h.a.onPropTap('settings', 'press', { blocked: false });
+  h.a.muted = false;
+  h.advance(6);
+  h.a.onPropTap('settings', 'confirm', { blocked: false });
+  assert.deepEqual(h.played(), [['sfx_ui_confirm', 1]], 'muted press did not play, so confirm is not skipped');
+  h.reset();
+  h.a.onButton();
+  h.advance(10);
+  h.a.onPropTap('settings', 'confirm', { blocked: false });
+  assert.deepEqual(h.played().map(x => x[0]), ['sfx_ui_click', 'sfx_ui_confirm'], 'generic click does not arm the confirm skip');
+  h.reset();
+  h.a.onPropTap('bag', 'press', { blocked: false });
+  h.advance(30);
+  h.a.onPropTap('bag', 'press', { blocked: false }); // inside the 60 ms same-sfx gap: does not play, does not refresh
+  h.advance(130); // 160 ms after the press that played
+  h.a.onPropTap('bag', 'confirm', { blocked: false });
+  assert.deepEqual(h.played().map(x => x[0]), ['sfx_ui_bag', 'sfx_ui_confirm'], 'a throttled press does not extend the skip');
 });
 test('onUiBack plays sfx_ui_back; generic onButton / onToolTap play the soft click at UI volume 1', () => {
   const h = harness(); h.a.onUiBack(); assert.deepEqual(h.played(), [['sfx_ui_back', 1]]); h.reset();

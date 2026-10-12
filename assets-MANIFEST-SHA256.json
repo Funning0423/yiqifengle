@@ -181,33 +181,33 @@
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_back.mp3",
-    "bytes": 4771,
-    "sha256": "8b6f5b5e9b6dc3bb6ba245b71f576c05ca480cdc99b74677901b6b476ff67396"
+    "bytes": 4772,
+    "sha256": "cd1d38a1eaf20674a4327d3dc6c9039f3bb3f2bd55b6fdf0771a5b592b144ddd"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_bag.mp3",
-    "bytes": 4144,
-    "sha256": "fc657528fca343a40ce80714047787e8e3d032e9868d039190fcad4e6af47e9e"
+    "bytes": 4145,
+    "sha256": "6e1e9a44f63671516d3ef70481ee4a7961a89ea046cc6b7d026af7d741cbd889"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_book.mp3",
-    "bytes": 4144,
-    "sha256": "9a144081650aa458d783bfd9b00cc7662119f6227d2a76a1b4ef513753f4eab3"
+    "bytes": 4145,
+    "sha256": "7abf6bd49e077caa319659d16f1746fcc13f3fb0e1cd5bb24b38570ad6ab657f"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_click.mp3",
-    "bytes": 3204,
-    "sha256": "897d92b72ba4047ae97cc0c0aecd0bb9b2f2c760b8964056e712024f82a98b11"
+    "bytes": 3205,
+    "sha256": "c20e5db89ebe32800137dbf79937e1ef3c27b5616bc5982cea23ef9a7ccca415"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_confirm.mp3",
-    "bytes": 4771,
-    "sha256": "1aa092fe6c8584e842cb28a25114eba31e6c5c14a868d624c2688a68254e9324"
+    "bytes": 4772,
+    "sha256": "9d2f6511ecb0d317941be16c8fdfecf6c5f28df693c36e82a1f5cfe21fc9dfb5"
   },
   {
     "path": "creator-build-project/assets/resources/audio_sfx/sfx_ui_signpost.mp3",
-    "bytes": 3831,
-    "sha256": "711a2a76492d5122cdbea6bbe79eece418f8be0edf51fe5a187efc40a5c35962"
+    "bytes": 3832,
+    "sha256": "95f06da4f66c22ac5df582f96f25999627744d914ad3e3985298a25e992e36b2"
   },
   {
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",

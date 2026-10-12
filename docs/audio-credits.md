@@ -56,3 +56,23 @@ Level ≈ -21.4…-22.4 LUFS (max 100 ms K-weighted), peaks -7.2…-13.3 dBFS; i
 onButton / onToolTap (generic click), i.e. ≈ 11–13 dB below the cheers (≈ -9…-10 LUFS at volume 1).
 Rebuild script (box, not in repo): /workspace/yiqifengle/previews/Voice-bot/ui-soft-v3/make.py (candidates signpost_1, click_1,
 confirm_2, back_2).
+
+The two "level ≈" paragraphs above are the make.py targets (short-window K-weighted). Shipped bytes were quieter on
+EBU R128 integrated loudness (−25.6…−28.9 LUFS). On 2026-10-12 the six mp3s were renormalized in place (same MPEG-1
+Layer III, mono, 44.1 kHz, CBR 48 kbps, same duration, same `.meta` uuid): ffmpeg `volume` plus `alimiter`
+(limit −2 dB, attack 0.5 ms, release 50 ms) where a linear gain to −21.5 LUFS would pass −1 dBTP. UI_TAP_VOLUME stays 1.
+A press that actually played suppresses `sfx_ui_confirm` on the same target for 150 ms.
+
+Remeasured with ffmpeg 8.1 `ebur128=peak=true` (I / true peak) and `loudnorm` input (`input_i` / `input_tp`):
+
+| file | ebur128 I | ebur128 TP | loudnorm I | loudnorm TP |
+|---|---|---|---|---|
+| sfx_ui_back.mp3 | −21.5 LUFS | −7.7 dBTP | −21.50 | −7.69 |
+| sfx_ui_bag.mp3 | −21.5 LUFS | −2.2 dBTP | −21.55 | −2.20 |
+| sfx_ui_book.mp3 | −21.5 LUFS | −2.2 dBTP | −21.53 | −2.17 |
+| sfx_ui_click.mp3 | −21.5 LUFS | −2.4 dBTP | −21.55 | −2.44 |
+| sfx_ui_confirm.mp3 | −21.5 LUFS | −7.8 dBTP | −21.59 | −7.82 |
+| sfx_ui_signpost.mp3 | −21.5 LUFS | −2.5 dBTP | −21.55 | −2.50 |
+
+Six files total 24,871 bytes. Cheer files were not touched (ebur128 integrated −13.6 / −12.8 / −12.0 / −12.0 LUFS at
+volume 1), so the quietest cheer stays 7.9 dB above these taps.
