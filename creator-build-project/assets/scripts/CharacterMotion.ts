@@ -42,6 +42,9 @@ export const MIN_CRUISE_M=0.3;
  *  +20% at most, inside CRUISE_RATIO_MAX) when a short walk from rest has no room for it at rate 1 (e.g. outCrossing
  *  1.99 m / 2.84 s). Tried in START_RATE_STEP steps, smallest rate first. */
 export const START_RATE_MAX=1.2;export const START_RATE_STEP=0.05;
+/** Same for the planned stop clip (clock + forward_m / lateral_m together, START_RATE_STEP steps) when a walk that ends at
+ *  rest has no room for it at rate 1: the CMU stops take 1.47 s for 0.42-0.50 m (toDoor 4.20 m / 6.00 s from rest). */
+export const STOP_RATE_MAX=1.2;
 /** A turn below 45 deg (no turn clip) that starts while a stop clip is still settling keeps that clip and finishes its yaw
  *  (smoothstep) by the stop clip's end, at least over this many seconds; she never turns in place on the idle loop then. */
 export const TURN_FOLD_MIN_S=0.5;
@@ -337,7 +340,8 @@ export type StopCandidate={clip:string;entryTime:number;body:Body;forward:Array<
 export type WalkPlan={L:number;D:number;
   /** rate: walk_start clock rate (1 = authored; up to START_RATE_MAX): T = at / rate, root = forward_m(t x rate). */
   start:{clip:string;T:number;S:number;forward:Array<[number,number]>;nextTime:number;crossfade:number;v0:number;rate:number}|null;
-  stop:(StopCandidate&{sEntry:number;tEntry:number;warp:number;phaseShiftS:number;scale:number})|null;
+  /** rate: stop clip clock rate (1 = authored; up to STOP_RATE_MAX): root = forward_m((t - tEntry) x rate). T stays in clip seconds. */
+  stop:(StopCandidate&{sEntry:number;tEntry:number;warp:number;phaseShiftS:number;scale:number;rate:number})|null;
   cruise:{t0:number;t1:number;s0:number;s1:number;v0:number;v1:number;vc:number;r0:number;r1:number}|null;
   linear:boolean;rate:number;notes:string[]};
 /** Stop variants usable for a planned stop: walk_stop_body{L,R} with a forward_m curve and an entry walk time
@@ -362,20 +366,20 @@ export function planWalk(o:{L:number;D:number;start:{clip:string;forward:Array<[
   aheadM?:number}):WalkPlan {
   const notes:string[]=[];const L=o.L,D=o.D,ns=o.native>0?o.native:DEFAULT_NATIVE_SPEED,C=o.walkCycle>0?o.walkCycle:1;
   const lin:WalkPlan={L,D,start:null,stop:null,cruise:null,linear:true,rate:1,notes};if(!(L>0)||!(D>0))return lin;
-  const tryPlan=(useStart:boolean,useStop:boolean,k:number):WalkPlan|string=>{
+  const tryPlan=(useStart:boolean,useStop:boolean,k:number,kp:number):WalkPlan|string=>{
     let t0=0,s0=0,v0=o.v0!==null&&o.v0>0?o.v0:L/D,start:WalkPlan['start']=null,ph0=o.phase0!==null?o.phase0:0;
     if(useStart&&o.start){const f=o.start.forward,at=Math.max(0,o.start.at),S=piecewise(f,at)-f[0][1];start={clip:o.start.clip,T:at/k,S,forward:f,nextTime:o.start.nextTime,crossfade:o.start.crossfade,v0:curveSlope(f,at)*k,rate:k};t0=start.T;s0=S;v0=start.v0;ph0=o.start.nextTime;}
     let t1=D,s1=L,v1=v0,stop:WalkPlan['stop']=null;const ahead=o.aheadM&&o.aheadM>0?o.aheadM:0;let steer=1,steerNote='';
     if(useStop&&o.stops.length){let best:WalkPlan['stop']=null;
       let bestCost=Infinity,worst='';
-      for(let i=0;i<o.stops.length;i++){const c=o.stops[i],sE=L+ahead-c.S,tE=D-c.T,dist=sE-s0;if(!(dist>0))continue;const u=ph0+dist/ns;let d=((c.entryTime-u)%C+C)%C;if(d>C/2)d-=C;
+      for(let i=0;i<o.stops.length;i++){const c=o.stops[i],sE=L+ahead-c.S,tE=D-c.T/kp,dist=sE-s0;if(!(dist>0))continue;const u=ph0+dist/ns;let d=((c.entryTime-u)%C+C)%C;if(d>C/2)d-=C;
         const need=1+d/(dist/ns);let warp=need,scale=1,sEntry=sE;
         // clip time to the entry heel strike = dist/ns + d; with the warp clamped it is reached at a shifted distance,
         // the stop curve is scaled to end exactly at L (steering walks only clamp: the last walk re-plans from its phase)
         if(Math.abs(need-1)>STOP_WARP_MAX){warp=1+(need>1?STOP_WARP_MAX:-STOP_WARP_MAX);if(!ahead){sEntry=s0+(dist/ns+d)*ns/warp;scale=(L-sEntry)/c.S;}}
         if(Math.abs(scale-1)>STOP_SCALE_MAX||!(sEntry>s0)){worst=c.clip+' warp '+(need-1).toFixed(4)+' > '+STOP_WARP_MAX+' and stop scale '+scale.toFixed(4);continue;}
         const cost=Math.abs(warp-1)+Math.abs(scale-1)*10;
-        if(cost<bestCost){bestCost=cost;best={clip:c.clip,entryTime:c.entryTime,body:c.body,forward:c.forward,lateral:c.lateral,S:c.S,T:c.T,v1:c.v1*scale,crossfade:c.crossfade,sEntry,tEntry:tE,warp,phaseShiftS:d,scale};}}
+        if(cost<bestCost){bestCost=cost;best={clip:c.clip,entryTime:c.entryTime,body:c.body,forward:c.forward,lateral:c.lateral,S:c.S,T:c.T,v1:c.v1*scale*kp,crossfade:c.crossfade,sEntry,tEntry:tE,warp,phaseShiftS:d,scale,rate:kp};}}
       if(!best)return worst?'stop: stride warp + stop scale out of budget ('+worst+')':'stop: no room';
       if(ahead>0){steer=best.warp;steerNote='steering phase to '+best.clip+' '+ahead.toFixed(3)+' m ahead'+(Math.abs(best.warp-1)>=STOP_WARP_MAX-1e-12?' (warp clamped)':'');}
       else{stop=best;t1=best.tEntry;s1=best.sEntry;v1=best.v1;if(best.scale!==1)notes.push('stop '+best.clip+' forward scaled x'+best.scale.toFixed(4)+' (warp clamped)');}}
@@ -385,17 +389,27 @@ export function planWalk(o:{L:number;D:number;start:{clip:string;forward:Array<[
     if((start||stop)&&(vc/ns<CRUISE_RATIO_MIN||vc/ns>CRUISE_RATIO_MAX))return 'cruise '+vc.toFixed(3)+' m/s outside '+CRUISE_RATIO_MIN+'..'+CRUISE_RATIO_MAX+' x native';
     const linear=!start&&!stop&&!rampIn;if(steerNote)notes.push(steerNote);
     return {L,D,start,stop,cruise:linear?null:{t0,t1,s0,s1,v0,v1,vc,r0,r1},linear,rate:stop?stop.warp:steer,notes};};
-  const order:Array<[boolean,boolean]>=[[true,true],[true,false],[false,true],[false,false]];const rates=[1];
+  const order:Array<[boolean,boolean]>=[[true,true],[true,false],[false,true],[false,false]];const rates=[1],stopRates=[1];
   for(let n=1;1+n*START_RATE_STEP<=START_RATE_MAX+1e-9;n++)rates.push(1+n*START_RATE_STEP);
-  for(let i=0;i<order.length;i++){if(order[i][0]&&!o.start||order[i][1]&&!o.stops.length)continue;const ks=order[i][0]?rates:[1];let first='';
-    for(let q=0;q<ks.length;q++){const r=tryPlan(order[i][0],order[i][1],ks[q]);
-      if(typeof r!=='string'){if(ks[q]!==1)notes.push('walk_start x'+ks[q].toFixed(2)+' (at rate 1: '+first+')');return r;}if(!q)first=r;}
+  for(let n=1;1+n*START_RATE_STEP<=STOP_RATE_MAX+1e-9;n++)stopRates.push(1+n*START_RATE_STEP);
+  for(let i=0;i<order.length;i++){if(order[i][0]&&!o.start||order[i][1]&&!o.stops.length)continue;
+    // (start rate, stop rate) pairs, least speed-up first: smallest max rate, then smallest sum, then the start sped up first
+    const ks=order[i][0]?rates:[1],kps=order[i][1]&&!(o.aheadM&&o.aheadM>0)?stopRates:[1],pairs:Array<[number,number]>=[];
+    for(let a=0;a<ks.length;a++)for(let b=0;b<kps.length;b++)pairs.push([ks[a],kps[b]]);
+    pairs.sort((x,y)=>Math.max(x[0],x[1])-Math.max(y[0],y[1])||(x[0]+x[1])-(y[0]+y[1])||x[1]-y[1]);let first='';
+    for(let q=0;q<pairs.length;q++){const r=tryPlan(order[i][0],order[i][1],pairs[q][0],pairs[q][1]);
+      if(typeof r!=='string'){if(pairs[q][0]!==1)notes.push('walk_start x'+pairs[q][0].toFixed(2)+' (at rate 1: '+first+')');if(pairs[q][1]!==1)notes.push('stop x'+pairs[q][1].toFixed(2)+' (at rate 1: '+first+')');return r;}if(!q)first=r;}
     notes.push(first);}
   return lin;}
+/** Root offset (her left, m) of a stop clip's lateral_m curve at clip time t, minus its end value faded in with the forward
+ *  progress, so the stop ends ON the path end (the CMU stops end 14-21 mm aside: spread over their 0.42-0.50 m of travel). */
+export function stopLateralAt(lateral:ReadonlyArray<readonly [number,number]>|null,forward:ReadonlyArray<readonly [number,number]>,t:number):number {
+  if(!lateral||!lateral.length)return 0;const l=piecewise(lateral,t)-lateral[0][1],e=lateral[lateral.length-1][1]-lateral[0][1];
+  const f0=forward.length?forward[0][1]:0,S=forward.length?forward[forward.length-1][1]-f0:0,u=S>0?Math.max(0,Math.min(1,(piecewise(forward,t)-f0)/S)):1;return l-e*u;}
 /** Distance along the path at walk time t (0..D) for a plan. */
 export function walkDistanceAt(p:WalkPlan,t:number):number {const D=p.D,L=p.L;if(t<=0)return 0;if(t>=D)return L;if(p.linear)return L*t/D;
   if(p.start&&t<=p.start.T)return piecewise(p.start.forward,t*p.start.rate)-p.start.forward[0][1];
-  if(p.stop&&t>=p.stop.tEntry)return Math.min(L,p.stop.sEntry+p.stop.scale*(piecewise(p.stop.forward,t-p.stop.tEntry)-p.stop.forward[0][1]));
+  if(p.stop&&t>=p.stop.tEntry)return Math.min(L,p.stop.sEntry+p.stop.scale*(piecewise(p.stop.forward,(t-p.stop.tEntry)*p.stop.rate)-p.stop.forward[0][1]));
   const c=p.cruise;if(!c)return L*t/D;const T=c.t1-c.t0,tau=t-c.t0;
   if(tau<c.r0)return c.s0+c.v0*tau+(c.vc-c.v0)*tau*tau/(2*c.r0);
   if(tau<=T-c.r1)return c.s0+(c.v0+c.vc)/2*c.r0+c.vc*(tau-c.r0);

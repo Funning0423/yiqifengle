@@ -11,20 +11,26 @@ const CHAR=require('path').resolve(__dirname,'..','..','creator-build-project/as
 let H=null;function install(h){H=h;}
 const clone=o=>JSON.parse(JSON.stringify(o));
 function stripRoot(meta){const m=clone(meta);for(const k in m.clips)if(m.clips[k]&&typeof m.clips[k].root_motion==='object')delete m.clips[k].root_motion;return m;}
-/** Planted-ankle drift: per foot bone, stance = ankle world height within STANCE_MM of that bone's minimum over the run;
- *  drift = max horizontal distance from the window's first frame (mm). Windows shorter than 4 frames ignored. */
+/** Planted-sole drift: per foot, every shoe sole point (glb_rig solePoints) whose world height is within STANCE_MM of that
+ *  foot's lowest sole point over the run is in contact; drift = max horizontal distance from where the point touched down (mm).
+ *  Contacts shorter than 4 frames ignored. Not the ankle bone: the CMU mocap shoes roll heel -> toe through the whole stance,
+ *  so the ankle travels ~60-100 mm over a planted shoe (the hand-keyed clips held the foot flat). */
 const STANCE_MM=6;
-function slideOf(samples){const out={},byClip={};out.byClip=byClip;for(const bone of ['foot.L','foot.R']){const ys=samples.map(s=>s[bone][1]);const ymin=Math.min(...ys);let win=null,worst={mm:0,where:null},n=0;const all=[];
-  const close=()=>{if(win&&win.frames>=4){n++;all.push(win.max);const k=win.label.split('@')[0];byClip[k]=Math.max(byClip[k]||0,+win.max.toFixed(2));if(win.max>worst.mm)worst={mm:win.max,where:win.label};}win=null;};
-  for(const s of samples){const p=s[bone];if(p[1]<ymin+STANCE_MM/1000){if(!win)win={start:p,max:0,frames:0,label:s.label+'@'+s.t.toFixed(2)};win.frames++;win.max=Math.max(win.max,Math.hypot(p[0]-win.start[0],p[2]-win.start[2])*1000);}else close();}
-  close();out[bone]={worstMm:+worst.mm.toFixed(2),where:worst.where,windows:n};}
+const G=require('./glb_rig.cjs'),SOLES={};
+const solesOf=glb=>SOLES[glb]||(SOLES[glb]=G.solePoints(glb));
+function slideOf(samples){const out={},byClip={};out.byClip=byClip;for(const bone of ['foot.L','foot.R']){let ymin=Infinity;for(const s of samples)for(const p of s.soles[bone])ymin=Math.min(ymin,p[1]);
+  const n=samples.length?samples[0].soles[bone].length:0,open=new Array(n).fill(null);let worst={mm:0,where:null},windows=0;
+  const close=k=>{const w=open[k];open[k]=null;if(!w||w.frames<4)return;windows++;const c=w.label.split('@')[0];byClip[c]=Math.max(byClip[c]||0,+w.max.toFixed(2));if(w.max>worst.mm)worst={mm:w.max,where:w.label};};
+  for(const s of samples){const P=s.soles[bone];for(let k=0;k<n;k++){const p=P[k];if(p[1]<ymin+STANCE_MM/1000){if(!open[k])open[k]={start:p,max:0,frames:0,label:s.label+'@'+s.t.toFixed(2)};const w=open[k];w.frames++;w.max=Math.max(w.max,Math.hypot(p[0]-w.start[0],p[2]-w.start[2])*1000);}else close(k);}}
+  for(let k=0;k<n;k++)close(k);out[bone]={worstMm:+worst.mm.toFixed(2),where:worst.where,windows};}
   return out;}
 async function straightRun(meta,o){const {makeCharacter,Token,flush,foot}=H;const c=makeCharacter({glb:o.glb,meta});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});
+  const sole=solesOf(o.glb),soles=()=>{const p=[c.node.worldPosition.x,c.node.worldPosition.y,c.node.worldPosition.z],o2={};for(const b in sole)o2[b]=G.soleWorld(c.rig.byName(b),sole[b],p,c.node.yaw);return o2;};
   for(let i=0;i<20;i++)c.s.advance(1/60);const L=o.L,dur=o.dur||L/0.7;const fe=[],samples=[],clips=[];let t=0;c.s.onFoot(e=>fe.push(Object.assign({t},e)));
   const p=c.s.perform(Object.assign({kind:'walk',path:[[0,0,0],[0,0,L]],duration:dur},o.stopAtEnd===undefined?{}:{stopAtEnd:o.stopAtEnd}),new Token());let done=false;p.then(()=>{done=true;});
   const plan=c.s.diagnostics().motion.walkPlan;
   const hz=o.hz||60;for(let i=0;i<Math.ceil((dur+(o.tail||2))*hz);i++){t+=1/hz;c.s.advance(1/hz);await flush();const d=c.s.diagnostics();clips.push(d.clip);
-    samples.push({t,label:d.clip,'foot.L':foot(c,'foot.L'),'foot.R':foot(c,'foot.R'),z:c.node.worldPosition.z,x:c.node.worldPosition.x,wp:c.s.walkProgress(),done});}
+    samples.push({t,label:d.clip,'foot.L':foot(c,'foot.L'),'foot.R':foot(c,'foot.R'),soles:soles(),z:c.node.worldPosition.z,x:c.node.worldPosition.x,wp:c.s.walkProgress(),done});}
   await p;return {c,fe,samples,clips,plan,end:c.node.worldPosition,events:c.s.diagnostics().events,motion:c.s.diagnostics().motion};}
 async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flowRun,deg}=H;
   const glb=process.env.LOCO_GLB||CHAR+'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb',mp=require('path').join(require('path').dirname(glb),'anim_meta.json');
@@ -57,10 +63,15 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
       out.push({L,stop:p.stop.clip,warp:+(p.rate-1).toFixed(5),cruise:+p.cruise.vc.toFixed(4),maxSpeedStepPer240Hz:+maxStepV.toFixed(4)});}
     const lin=motion.planWalk({L:4,D:4/0.7,start:null,stops:[],walkCycle:1.133333,native:.7,phase0:.3,v0:null});assert(lin.linear);for(const t of [0.1,1,3.3])assert.equal(motion.walkDistanceAt(lin,t),4*t/(4/0.7));
     const short=motion.planWalk({L:1,D:1/0.7,start:{clip:'walk_start',forward:fwdStart,at:1.5,nextTime:.2,crossfade:0},stops,walkCycle:1.133333,native:.7,phase0:null,v0:null});assert(short.linear&&!short.start&&!short.stop,'1 m walk falls back');
-    // no allowance on a short walk: slow start + stop would need a cruise > 1.3 x native -> graceful fallback, never a bad plan
+    // no allowance: 3 m / 4.29 s fits start+stop only sped up (START_RATE_MAX / STOP_RATE_MAX, cruise in range);
+    // 2.5 m / 3.57 s needs a cruise > 1.3 x native even then -> graceful fallback, never a bad plan
     const tight=motion.planWalk({L:3,D:3/0.7,start:{clip:'walk_start',forward:fwdStart,at:1.5,nextTime:.2,crossfade:0},stops,walkCycle:1.133333,native:.7,phase0:null,v0:null});
-    assert(!(tight.start&&tight.stop),'3 m / 4.29 s cannot fit start+stop');assert(tight.notes.some(n=>/cruise .* outside/.test(n)),tight.notes.join(';'));
-    return {extraSeconds:+extra.toFixed(4),sweep:out,shortWalkNotes:short.notes,tightNotes:tight.notes};});
+    assert(tight.start&&tight.stop&&(tight.start.rate>1||tight.stop.rate>1),'3 m / 4.29 s: start+stop sped up '+tight.notes.join(';'));
+    assert(tight.start.rate<=motion.START_RATE_MAX+1e-9&&tight.stop.rate<=motion.STOP_RATE_MAX+1e-9&&tight.cruise.vc/0.7<=motion.CRUISE_RATIO_MAX+1e-9,JSON.stringify(tight.notes));
+    assert(Math.abs(motion.walkDistanceAt(tight,3/0.7)-3)<1e-9);
+    const tighter=motion.planWalk({L:2.5,D:2.5/0.7,start:{clip:'walk_start',forward:fwdStart,at:1.5,nextTime:.2,crossfade:0},stops,walkCycle:1.133333,native:.7,phase0:null,v0:null});
+    assert(!(tighter.start&&tighter.stop),'2.5 m / 3.57 s cannot fit start+stop');assert(tighter.notes.some(n=>/cruise .* outside/.test(n)),tighter.notes.join(';'));
+    return {extraSeconds:+extra.toFixed(4),sweep:out,shortWalkNotes:short.notes,tight:{startRate:tight.start.rate,stopRate:tight.stop.rate,notes:tight.notes},tighterNotes:tighter.notes};});
   // ---------- 180 L/R selection ----------
   check('loco: chooseTurn 180 L/R: side by sign below 170 deg; >=170 the free foot steps first (last landed L -> bodyR); single walk_turn_180 kept with the controller yaw',()=>{
     const mk=names=>({has:n=>names.indexOf(n)>=0,duration:()=>1.5});const cfg=motion.parseAnimMeta({clips:{walk_turn_180_bodyL:{turn_deg:180,events:[{name:'foot:R',bone:'foot.R',body:'L',time_s:.5}]},walk_turn_180_bodyR:{turn_deg:-180,events:[{name:'foot:L',bone:'foot.L',body:'R',time_s:.5}]},walk_turn_180:{turn_deg:180,events:[{name:'foot:R',bone:'foot.R',body:'L',time_s:.5}]}}});
@@ -124,7 +135,9 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
     const ic=plans.find(p=>p.state==='crossing-in'),tt=plans.find(p=>p.state==='walking-home');
     assert(ic&&ic.rest===false&&!ic.stop&&Math.abs(ic.aheadM-pathLen(cfg.toSeat))<1e-6,'inCrossing joins toSeat '+JSON.stringify(ic));
     assert(tt&&tt.rest===false&&!tt.stop&&Math.abs(tt.aheadM-pathLen(cfg.inCrossing)-pathLen(cfg.toSeat))<1e-6,'toThreshold steers toward the toSeat rest '+JSON.stringify(tt));
-    const near=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[2])<.3;assert.equal(stops.length,3,JSON.stringify({stops,plans}));
+    // a stop clip starts its forward travel S before the walk end (0.23 m hand-keyed, 0.42-0.50 m CMU)
+    const stopS=Math.max(...['walk_stop_bodyL','walk_stop_bodyR'].map(n=>{const f=META.clips[n].root_motion.forward_m;return f[f.length-1][1]-f[0][1];}));
+    const near=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[2])<stopS+.1;assert.equal(stops.length,3,JSON.stringify({stops,plans}));
     const where=stops.map(s=>Object.keys(ends).find(k=>near(s.root,ends[k][ends[k].length-1]))||'?');assert.deepEqual(where,['toDoor','toIsland','toSeat'],JSON.stringify(stops));
     for(const s of stops)assert(s.plan&&s.plan.rest&&s.plan.stop===s.clip,'stop planned in its walk '+JSON.stringify(s));
     const unplanned=allEv.filter(e=>e.kind==='stop-unplanned');assert.equal(unplanned.length,0,JSON.stringify(unplanned));assert(fr.tr.worst.mm<15,JSON.stringify(fr.tr.worst));
@@ -169,10 +182,11 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
      out[name]={tail:u[0].clip,fromS:+u[0].from.toFixed(4),clips,rootDriftM:drift};}
     return out;});}
   // walk_start rate: outCrossing (1.987 m / 2.839 s from rest at the door) cannot fit walk_start at rate 1 (cruise 1.43 x native)
-  // compared with the same clip at rate 1 (toDoor), both sampled at 240 Hz (at 60 Hz the stance-window maximum depends on where
-  // the samples fall: 10.1 vs 12.7 mm for the same clip); the clip's own stance drift is ~14 mm
+  // compared with the same clip at rate 1 (toDoor length with the walkProfileExtraSeconds allowance, so walk_start fits at rate 1
+  // with the CMU clips too), both sampled at 240 Hz (at 60 Hz the stance-window maximum depends on where the samples fall:
+  // 10.1 vs 12.7 mm for the same clip); the clip's own stance drift is ~14 mm
   {const oc=plans.find(p=>p.state==='crossing-out'),L=oc?oc.L:1.9872,D=oc?oc.D:2.8389;const ws=r=>slideOf(r.samples.filter(x=>x.label==='walk_start'));
-   const fast=await straightRun(META,{glb,L,dur:D,stopAtEnd:false,tail:.5,hz:240}),ref=await straightRun(META,{glb,L:4.198,dur:4.198/0.7,stopAtEnd:true,tail:.5,hz:240});
+   const fast=await straightRun(META,{glb,L,dur:D,stopAtEnd:false,tail:.5,hz:240}),ref=await straightRun(META,{glb,L:4.198,dur:4.198/0.7+motion.walkProfileExtraSeconds(motion.parseAnimMeta(META),true,true),stopAtEnd:true,tail:.5,hz:240});
    check('loco: walk_start sped up (<= START_RATE_MAX, cadence inside CRUISE_RATIO_MAX) when a walk from rest has no room at rate 1: outCrossing starts with walk_start; its stance drift <= the same clip at rate 1 (+1 mm) and < 15 mm',()=>{
     assert(oc&&oc.start===true&&oc.startRate>1&&oc.startRate<=motion.START_RATE_MAX+1e-9,JSON.stringify(oc));assert(oc.notes.some(n=>/^walk_start x/.test(n)),JSON.stringify(oc.notes));
     assert(fast.plan.start&&fast.plan.startRate===oc.startRate,JSON.stringify(fast.plan));assert(ref.plan.start&&ref.plan.startRate===1,JSON.stringify(ref.plan));

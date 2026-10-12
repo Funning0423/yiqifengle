@@ -5,9 +5,11 @@
 const fs=require('fs');
 function parseGlb(file){const b=fs.readFileSync(file);if(b.readUInt32LE(0)!==0x46546c67)throw Error('not a glb: '+file);
   let off=12,json=null,bin=null;while(off<b.length){const len=b.readUInt32LE(off),type=b.readUInt32LE(off+4),chunk=b.subarray(off+8,off+8+len);if(type===0x4e4f534a)json=JSON.parse(chunk.toString('utf8'));else if(type===0x004e4942)bin=chunk;off+=8+len;}
-  const comps={SCALAR:1,VEC3:3,VEC4:4,MAT4:16};
-  const acc=i=>{const a=json.accessors[i],v=json.bufferViews[a.bufferView],n=comps[a.type],out=new Float32Array(a.count*n),base=(v.byteOffset||0)+(a.byteOffset||0),stride=v.byteStride||n*4;
-    if(a.componentType!==5126)throw Error('only float accessors supported');for(let k=0;k<a.count;k++)for(let c=0;c<n;c++)out[k*n+c]=bin.readFloatLE(base+k*stride+c*4);return {data:out,n};};
+  const comps={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16};
+  const kinds={5126:[4,o=>bin.readFloatLE(o),1],5121:[1,o=>bin.readUInt8(o),255],5123:[2,o=>bin.readUInt16LE(o),65535]};
+  const acc=i=>{const a=json.accessors[i],v=json.bufferViews[a.bufferView],n=comps[a.type],out=new Float32Array(a.count*n),base=(v.byteOffset||0)+(a.byteOffset||0);
+    const kind=kinds[a.componentType];if(!kind)throw Error('accessor componentType '+a.componentType+' not supported');const [size,read,max]=kind,stride=v.byteStride||n*size,div=a.normalized?max:1;
+    for(let k=0;k<a.count;k++)for(let c=0;c<n;c++)out[k*n+c]=read(base+k*stride+c*size)/div;return {data:out,n};};
   return {json,acc};}
 function makeNode(name){return {name,children:[],parent:null,position:{x:0,y:0,z:0},rotation:{x:0,y:0,z:0,w:1},scale:{x:1,y:1,z:1},
   setPosition(x,y,z){this.position={x,y,z};},setRotation(x,y,z,w){this.rotation={x,y,z,w};},setScale(x,y,z){this.scale={x,y,z};}};}
@@ -29,5 +31,16 @@ const qrot=(q,v)=>{const p=qmul(qmul(q,[v[0],v[1],v[2],0]),[-q[0],-q[1],-q[2],q[
 /** World transform of a node: controller root (pos, yaw about +Y) * container * glTF chain. */
 function worldOf(node,ctrlPos,yawRad){const chain=[];for(let n=node;n&&n.name!=='SKELETON_CONTAINER';n=n.parent)chain.unshift(n);
   let P=[0,0,0],R=[0,0,0,1],S=[1,1,1];for(const n of chain){const lp=[n.position.x*S[0],n.position.y*S[1],n.position.z*S[2]];const rp=qrot(R,lp);P=[P[0]+rp[0],P[1]+rp[1],P[2]+rp[2]];R=qmul(R,[n.rotation.x,n.rotation.y,n.rotation.z,n.rotation.w]);S=[S[0]*n.scale.x,S[1]*n.scale.y,S[2]*n.scale.z];}
-  const yq=[0,Math.sin(yawRad/2),0,Math.cos(yawRad/2)],wp=qrot(yq,P);return {pos:[wp[0]+ctrlPos[0],wp[1]+ctrlPos[1],wp[2]+ctrlPos[2]],rot:qmul(yq,R)};}
-module.exports={loadRig,applyClip,worldOf,qmul,qrot,makeNode};
+  const yq=[0,Math.sin(yawRad/2),0,Math.cos(yawRad/2)],wp=qrot(yq,P);return {pos:[wp[0]+ctrlPos[0],wp[1]+ctrlPos[1],wp[2]+ctrlPos[2]],rot:qmul(yq,R),scale:S};}
+/** Shoe soles: per foot bone, the vertices skinned only to it (weight > 0.999) within bandM of their lowest bind-pose
+ *  height, in that bone's local space (inverse bind matrix x bind-pose position). The shoe is rigid on the foot bone. */
+function solePoints(file,bones=['foot.L','foot.R'],bandM=0.012){const {json,acc}=parseGlb(file);const skin=json.skins[0],ibm=acc(skin.inverseBindMatrices).data,names=skin.joints.map(i=>json.nodes[i].name);const out={};
+  for(const bone of bones){const j=names.indexOf(bone);if(j<0)throw Error('no joint '+bone);const m=ibm.subarray(j*16,j*16+16),pts=[];
+    for(const mesh of json.meshes)for(const p of mesh.primitives){if(p.attributes.JOINTS_0===undefined)continue;const P=acc(p.attributes.POSITION).data,J=acc(p.attributes.JOINTS_0).data,W=acc(p.attributes.WEIGHTS_0).data;
+      for(let k=0;k<P.length/3;k++){let w=0;for(let c=0;c<4;c++)if(J[k*4+c]===j)w+=W[k*4+c];if(w>0.999)pts.push([P[k*3],P[k*3+1],P[k*3+2]]);}}
+    if(!pts.length)throw Error('no vertices skinned only to '+bone);const ymin=Math.min(...pts.map(p=>p[1]));
+    out[bone]=pts.filter(p=>p[1]<ymin+bandM).map(p=>[m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]]);}
+  return out;}
+/** World positions of one foot's sole points (solePoints) under the current pose. */
+function soleWorld(node,points,ctrlPos,yawRad){const w=worldOf(node,ctrlPos,yawRad),S=w.scale;return points.map(p=>{const r=qrot(w.rot,[p[0]*S[0],p[1]*S[1],p[2]*S[2]]);return [w.pos[0]+r[0],w.pos[1]+r[1],w.pos[2]+r[2]];});}
+module.exports={loadRig,applyClip,worldOf,qmul,qrot,makeNode,solePoints,soleWorld};

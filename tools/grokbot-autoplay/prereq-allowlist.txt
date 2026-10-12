@@ -210,3 +210,7 @@ observe 2293f59d838553c86a1ca7218d4f30d03b9993702fd70ad12c97d0cf3384207f world-r
 observe 51cb93492db8ed50627789c92d1d4fbcddc9410c75ac2e6d31fc5abf0dde61e4 world-r1/WorldFlowCore.ts        int/v1 round-6 merge (r4fix f8cf6b0)
 observe 5c509e9ba41faad40cbe344b9c8acec8863da8c6f4e7d4c81454b4e6579358f9 audio/GameAudio.ts              int/v1 round-6 merge (ui-sfx f14d33f + board-ui 883dc9f)
 observe 61a48f6a6c1f587ef4ac3daa3c10b4b6d91a44dd5fc64f9ad4864c6ec11f2994 ManagedMobileBoardUI.ts          int/v1 round-6 merge (board-ui 883dc9f)
+# int/v1 round-6 walk driver fixes for the CMU mocap clips (GGbot): FlowReferenceStandin only (walk yaw aimed from the path
+#  point, stop clip rate + lateral end fade, stop clip end -> idle during the walk's last frame). Glue reviewed: Boot fields T0 reads
+#  and __worldLoading.motion() shape unchanged (lastPlan adds stopRate). Append only.
+strict  9971d4c3c4dd7dad0b6dea70ac7f981513ddc39b0060bbf1b3bc3a8fdf2834e9 WorldIntegrationBoot.ts          int/v1 round-6 walk driver (CMU stops)
