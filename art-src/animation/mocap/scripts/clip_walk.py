@@ -133,6 +133,10 @@ def build(n_cycles_plant=3, verbose=True):
     nxt = CB.tr_frame((Wp, hp), (m + 1) * n)
     resid = CB.pose_err(CB.tr_slice(mid, 0, 1), (({k: v[None] for k, v in nxt[0].items()}), nxt[1][None]))[0]
     mid = CB.close_loop(mid, nxt)
+    # After the plant: palms face the thighs, and her right knee (bone .L) uses a forward pole.
+    # Ankles and foot world rotations stay. Sit clips never call this.
+    mid = (AL.correct_walk_pose(cx, mid[0], mid[1], np.ones(len(mid[1]))), mid[1])
+    info['pose_correction'] = 'forearm twist toward the thigh; right knee (bone.L) forward pole'
     info['plant'] = {s: {k: v for k, v in pinfo[s].items() if k not in ('contacts', 'clamp_mask')} for s in 'LR'}
     info['loop_residual_after_plant_deg'] = round(float(resid), 3)
     info['released_contact_frames'] = int(released)
