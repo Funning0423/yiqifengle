@@ -149,7 +149,7 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
  const mockRenderer=(name,counts=[2],o={})=>({node:{name},mesh:o.noStruct?{name}:{name:name,struct:o.noMorph?{}:{morph:{subMeshMorphs:counts.map(n=>({attributes:['a_position'],targets:new Array(n).fill(0).map(()=>({displacements:[]}))})),targetNames:['curl','flutter']}}},
   enableMorph:o.enableMorph!==false,calls:[],w:{},setWeight(w,sub,shape){this.calls.push([w,sub,shape]);this.w[sub+':'+shape]=w;}});
  const MCURL_WALK=0.6;
- const morphMeta=(extra={})=>{const m=JSON.parse(JSON.stringify(META||{clips:{}}));m.clips=m.clips||{};
+ const morphMeta=(extra={})=>{const m=JSON.parse(JSON.stringify(META||{clips:{}}));m.clips=m.clips||{};delete m.morph;   // the real top-level morph maps the seated drape, not curl/flutter
   m.clips.walk_loop=Object.assign({},m.clips.walk_loop||{},{morph:{mesh:'LOD0_G2_APRON',curves:{curl:[[0,MCURL_WALK],[5,MCURL_WALK]]}}});
   // locomotion-v1: a walk from rest plays walk_start first (hard cut into walk_loop at 1.5 s: from 1.3 s it IS walk_loop) and
   // ends in a stop clip (hard cut out of walk_loop, hard cut into idle at its end), so they carry matching curl curves
@@ -211,6 +211,26 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
   const c2=motion.parseAnimMeta({morph:{mesh:'X_APRON',targets:{curl:2,flutter:3}},clips:{apron_lift:{morph:{curves:{curl:[[1,2],[0,0]],bad:[[0,'x']]}}}},wind:{windToMorphFlutter:[[0,0],[1,.4]]}});
   assert.equal(c2.morphMesh,'X_APRON');assert.equal(JSON.stringify(c2.morphTargets),'{"curl":2,"flutter":3}');assert.equal(JSON.stringify(c2.clips.apron_lift.morph.curves.curl),'[[0,0],[1,1]]');assert(!c2.clips.apron_lift.morph.curves.bad);assert.equal(motion.piecewise(c2.windToMorphFlutter,1),.4);
   const c3=motion.parseAnimMeta({clips:{apron_lift:{morph:{mesh:'Y',curves:{curl:[[0,0],[1,1]]}}}}});assert.equal(c3.morphMesh,'Y');return {ok:true};});
+ // 8) several morph meshes (anim_meta morph.meshes): one weight set, each mesh gets its own target indices; a missing mesh does not stop the others
+ {const ap=mockRenderer('LOD0_G2_APRON'),dr=mockRenderer('LOD0_G2_DRESS');const meta=morphMeta({morph:{mesh:'LOD0_G2_APRON',meshes:{LOD0_G2_APRON:{targets:{curl:0,sit_drape:1}},LOD0_G2_DRESS:{targets:{sit_drape:1,sit_drape_mid:0}},LOD0_G2_NONE:{targets:{sit_drape:0,x:1}}}}});
+  meta.clips.walk_loop.morph.curves.sit_drape=[[0,.4],[5,.4]];const c=makeCharacter({meta,renderers:[mockRenderer('LOD0_G2_BODY',[0]),ap,dr]});c.s.setWindSource(()=>0);c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});
+  const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,2]],duration:2/0.7},new Token());let mid=null;for(let i=0;i<260;i++){c.s.advance(1/60);await flush();if(i===150)mid={ap:Object.assign({},ap.w),dr:Object.assign({},dr.w)};}await wp;
+  check('morph: morph.meshes drives several meshes from one weight set (apron curl:0 sit_drape:1, dress sit_drape:1 sit_drape_mid:0), missing mesh reported, others ok',()=>{const md=c.s.diagnostics().motion.morph;
+   const d=c.s.morphDiagnostics?c.s.morphDiagnostics():null;assert(mid,'sampled');assert(Math.abs(mid.ap['0:0']-MCURL_WALK)<1e-9&&Math.abs(mid.ap['0:1']-.4)<1e-9,JSON.stringify(mid.ap));assert(Math.abs(mid.dr['0:1']-.4)<1e-9&&mid.dr['0:0']===0,JSON.stringify(mid.dr));
+   assert.equal(lastW(ap,1),0);assert.equal(lastW(dr,1),0);assert.equal(md.status,'ok');
+   if(d){assert.equal(d.status,'ok');assert.equal(d.meshes.length,3);assert.equal(JSON.stringify(d.meshes.map(m=>m.status)),'["ok","ok","not-found"]');}
+   return {apronMid:mid.ap,dressMid:mid.dr,meshes:d?d.meshes.map(m=>m.mesh+':'+m.status):null};});}
+ // 9) the real anim_meta (sit_drape on LOD0_G2_APRON + LOD0_G2_DRESS): seated = 1 on both; stand_up releases to 0 by release_time_s; sit_down reaches 1 at settle_time_s
+ if(META&&META.morph&&META.morph.meshes&&META.clips.sit_down&&META.clips.sit_down.morph){const ap=mockRenderer('LOD0_G2_APRON'),dr=mockRenderer('LOD0_G2_DRESS');const c=makeCharacter({renderers:[mockRenderer('LOD0_G2_BODY',[0]),ap,dr]});c.s.setWindSource(()=>0);
+  const seat={seatedControllerRoot:[0,0,0],standingControllerRoot:[0,0,.494],yawRad:0};c.s.cancelAndReset({kind:'seated',seat});for(let i=0;i<30;i++)c.s.advance(1/60);const held={ap:lastW(ap,0),dr:lastW(dr,0)};
+  const stand=[];let sp=c.s.perform({kind:'stand',seat},new Token());for(let i=0;i<90;i++){c.s.advance(1/60);await flush();stand.push(lastW(dr,0));}await sp;const stood={ap:lastW(ap,0),dr:lastW(dr,0)};
+  const sit=[];sp=c.s.perform({kind:'sit',seat},new Token());for(let i=0;i<90;i++){c.s.advance(1/60);await flush();sit.push(lastW(dr,0));}await sp;for(let i=0;i<30;i++)c.s.advance(1/60);const sat={ap:lastW(ap,0),dr:lastW(dr,0)};
+  const m=motion.parseAnimMeta(META);
+  check('morph: real anim_meta sit_drape: 1 while seated on apron + dress, stand_up -> 0, sit_down -> 1 (settle_time_s), continuous; settle_time_s + morph.meshes parsed',()=>{
+   assert.equal(JSON.stringify(m.morphMeshes.map(b=>b.mesh+':'+b.targets.sit_drape)),'["LOD0_G2_APRON:0","LOD0_G2_DRESS:0"]');assert(Math.abs(m.clips.sit_down.settleTime-META.clips.sit_down.morph.settle_time_s)<1e-9);
+   assert.equal(held.ap,1);assert.equal(held.dr,1);assert.equal(stood.ap,0);assert.equal(stood.dr,0);assert.equal(sat.ap,1);assert.equal(sat.dr,1);
+   const ss=maxStep(stand.filter(v=>v!==undefined)),st=maxStep(sit.filter(v=>v!==undefined));assert(ss.m<.06&&st.m<.06,'jumps '+ss.m+' '+st.m);
+   return {held,stood,sat,standMaxStep:+ss.m.toFixed(4),sitMaxStep:+st.m.toFixed(4),settleTime:m.clips.sit_down.settleTime};});}
  await locomotionTests();
  const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',failedKnownOnIntV1:failed.filter(r=>r.knownFailOnIntV1).length,failedOther:failed.filter(r=>!r.knownFailOnIntV1).length,glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
  console.log(JSON.stringify(report,null,1));if(failed.length)process.exitCode=1;

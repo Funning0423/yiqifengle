@@ -124,7 +124,9 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 ## 8. 围裙形变目标（morph / blend shape）
 
-围裙 `LOD0_G2_APRON` 带 2 个形变目标：**0 = 掀起时的 S 形卷边（`curl`）**，**1 = 风吹的小抖动（`flutter`）**。
+围裙 `LOD0_G2_APRON` 原计划带 2 个形变目标：**0 = 掀起时的 S 形卷边（`curl`）**，**1 = 风吹的小抖动（`flutter`）**（还没做进 glb）。
+现在 glb 里实际有的是**坐姿垂坠**（cloud-tasks/03-sit-drape.md）：围裙和黄裙 `LOD0_G2_DRESS` 各有 `sit_drape`（序号 0）和占位的 `sit_drape_mid`（序号 1，只动 1 个顶点，凑够 Cocos 需要的 2 个目标），
+映射写在 anim_meta 顶层 `morph.meshes`，见 8.1 / 8.5。
 权重**只由驱动写**：每帧写完骨骼姿势后，算出每个目标的权重，调 `SkinnedMeshRenderer.setWeight(weight, subMeshIndex, shapeIndex)`。
 **动画片段里不要放形变轨道**：烘焙模式根本不播形变轨道；非烘焙模式下 AnimRig 每帧要采样好几个片段（淡化的两个 + 风效层），
 最后采样的那个会覆盖前面的，交叉淡化时权重会跳。代码：`CharacterMotion.ts` 的 `morphWeights` / `MorphDriver`，
@@ -150,13 +152,21 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
   "wind": {
     "windToMorphFlutter": [[0,0],[0.5,0.3],[1,0.6]]  // 可选：风力 -> flutter 权重（和 windToFlutter 一样的写法）
   },
-  "morphTargets": {"curl": 0, "flutter": 1}           // 可选：目标名 -> 形变目标序号；默认就是这个。也可写成 "morph": {"targets": {...}, "mesh": "..."}
+  "morphTargets": {"curl": 0, "flutter": 1},          // 可选：目标名 -> 形变目标序号；默认就是这个。也可写成 "morph": {"targets": {...}, "mesh": "..."}
+  "morph": {                                           // 可选：几个形变网格，每个网格自己的 目标名 -> 序号
+    "mesh": "LOD0_G2_APRON",                           // 主网格（= 上面的 morph.mesh；__worldIntegration.morph() 顶层字段就是它的状态）
+    "meshes": {
+      "LOD0_G2_APRON": {"targets": {"sit_drape": 0, "sit_drape_mid": 1}},   // 主网格这一项优先于 morphTargets
+      "LOD0_G2_DRESS": {"targets": {"sit_drape": 0, "sit_drape_mid": 1}}    // 其他项替换内置的额外网格（默认就是这条黄裙）
+    }
+  }
 }
 ```
 
 - 曲线时间是**片段自己的秒数**（循环片段取循环内时间）。anim_meta 的 `duration_s` 和片段实际长度不一致时，曲线时间和事件一样等比缩放。
 - 目标名就是 `morphTargets` 里的键；曲线里写了不在 `morphTargets` 里的名字会被忽略。
-- 一个角色只绑一个形变网格：`morph.mesh`（顶层）> 第一个写了 `morph.mesh` 的片段 > 默认值。片段写了别的网格名会在 `motion().notes` 里记一条，曲线仍然作用在绑定的网格上。
+- 主形变网格：`morph.mesh`（顶层）> 第一个写了 `morph.mesh` 的片段 > 默认值。其他网格来自顶层 `morph.meshes`（没写时内置一条：`LOD0_G2_DRESS` = `{sit_drape:0, sit_drape_mid:1}`）。片段写了不在这些网格里的名字会在 `motion().notes` 里记一条，曲线仍然作用在绑定的网格上。
+- 权重按**目标名**算一次，所有网格共用：两个网格都有 `sit_drape` 时写的是同一个值，各自按自己的序号写。某个网格找不到 / 没有形变数据时只影响它自己，其他网格照常写。
 
 ### 8.2 每帧权重怎么算（和姿势同一套权重）
 
@@ -185,7 +195,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 | `too-few-targets` | 形变目标数 < 需要的数（默认要 2 个；`targetCounts` 给出每个子网格的实际数） |
 | `error` / `unbound` | 运行中出错（附 `reason`）/ 还没绑定角色 |
 
-查看：`__worldIntegration.morph()`，或 `__worldIntegration.motion().morph`。T0 启动时的 `GB_MARK device:caps` 也会带上 `apronMorph=` 状态和目标数。
+查看：`__worldIntegration.morph()`（顶层字段 = 主网格围裙的状态，`meshes` = 每个网格一项），或 `__worldIntegration.motion().morph`。T0 启动时的 `GB_MARK device:caps` 也会带上 `apronMorph=` 状态和目标数（只看围裙）。
 
 ### 8.4 Blender 导出（给 角色建模bot / 角色动画bot）
 
@@ -194,7 +204,18 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 - 形状键顺序就是目标序号：`Basis` 之后第 1 个 = 序号 0（`curl`），第 2 个 = 序号 1（`flutter`）。名字建议就叫 `curl`、`flutter`，`morph().targetNames` 会显示出来方便核对。
 - 只做 1 个目标时 Cocos 的形变变体编号会有问题，所以原型直接做 2 个；不够 2 个时驱动报 `too-few-targets` 并且不写。
 - Cocos 导入：在 glb 的导入设置里把 **Morph Normals 设为 Exclude**（和 Tangents 一样，设完在 `.meta` 里核对实际写进去的数值，不要靠猜）。
+- 坐姿垂坠的 glb 是脚本直接写的（`art-src/animation/sit-drape/scripts/build_glb.py`），不是 Blender 导出：只有 POSITION 差值，float32，**sparse accessor**（只存动了的顶点：uint16 下标 + xyz，每个 14 B），没有法线差值，所以 Morph Normals 没有东西可导；以后要加 `curl` / `flutter` 就排在序号 2、3，并改 anim_meta 的 `morph.meshes`。Cocos 3.8.8 读 sparse accessor 这一点要在 Mac 上导入时核对（`morph().status` 应为 `ok`，`targetCounts` 为 2）。
 - **未在真机测**：形变走贴图（WebGL1 上要 `OES_texture_float` 才用 RGBA32F，否则退到 RGBA8）。T0 的 `GB_MARK device:caps` 会记设备能力，原型出来后在 Mac 开发者工具、iOS 微信和低端安卓上分别看。
+
+### 8.5 坐姿垂坠（sit_drape）
+
+| 片段 | `sit_drape` 曲线 | 说明 |
+|---|---|---|
+| `sit_down` | `[[0,0],[0.2,0],[0.8667,1],[1.2,1]]` | 开始往下坐时从 0 起，`morph.settle_time_s` = 0.8667（髋部坐到底那一帧，和片段的 `settle_time_s` 一样）到 1 |
+| `sit_hold` | `[[0,1],[2,1]]` | 坐着一直是 1 |
+| `stand_up` | `[[0,1],[0.1333,1],[0.8667,0],[1.2667,0]]` | `morph.release_time_s` = 0.8667 时回到 0 |
+
+这三个片段里 10 根裙骨的旋转/平移也重新摆过（骨头的名字和层级不变），和形状键一起才是最终形状；sit_down → sit_hold 的 0.2 s 淡化和 sit_hold → stand_up 都是同一个权重 1，不会跳。生成和检查流程见 `art-src/animation/sit-drape/README.md`。
 
 ## 9. locomotion-v1：根节点曲线、停步/转身变体、脚步去重（GGbot work/GGbot-locomotion）
 

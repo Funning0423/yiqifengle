@@ -214,3 +214,6 @@ observe 61a48f6a6c1f587ef4ac3daa3c10b4b6d91a44dd5fc64f9ad4864c6ec11f2994 Managed
 #  point, stop clip rate + lateral end fade, stop clip end -> idle during the walk's last frame). Glue reviewed: Boot fields T0 reads
 #  and __worldLoading.motion() shape unchanged (lastPlan adds stopRate). Append only.
 strict  9971d4c3c4dd7dad0b6dea70ac7f981513ddc39b0060bbf1b3bc3a8fdf2834e9 WorldIntegrationBoot.ts          int/v1 round-6 walk driver (CMU stops)
+# sit-drape (cloud-tasks/03-sit-drape.md): one MorphDriver per anim_meta morph mesh (LOD0_G2_APRON + LOD0_G2_DRESS). Glue reviewed:
+#  Boot fields T0 reads unchanged; __worldIntegration.morph() keeps the apron driver's fields (status/reason/...) + meshes[]. Append only.
+strict  ce910326276e900e83ffe8ba3ae25fbf5b25822701159491bf5550ae122d7738 WorldIntegrationBoot.ts          sit-drape multi-mesh morph driver
