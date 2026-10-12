@@ -55,7 +55,13 @@ export type MorphCurves={[target:string]:Array<[number,number]>};
 export type MotionConfig={clips:{[name:string]:ClipMeta};windToFlutter:ReadonlyArray<readonly [number,number]>;apronLiftThreshold:number;windMask:ReadonlyArray<string>;
   idleGust:{minS:number;maxS:number;durationS:number}|null;source:string;
   /** Morph: bound mesh (node or mesh name), target name -> morph target index, optional wind -> flutter weight mapping. */
-  morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null};
+  morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null;
+  /** Every morph mesh to drive, [0] = morphMesh, all with the same per-name weights. Target index = the mesh's own target
+   *  names (glTF mesh.extras.targetNames) unless morphTargets was given explicitly; targets (null = morphTargets) is the
+   *  mapping used when the mesh carries no names. */
+  morphMeshes:Array<{mesh:string;targets:{[name:string]:number}|null}>;morphTargetsExplicit:boolean;
+  /** Target names whose weights are computed each frame (morphTargets, per-mesh targets, every clip curve). */
+  morphNames:string[]};
 export type FootEvent={event:string;bone:string;body:Body;clip:string;phase:number;time:number;cycle:number;pos:[number,number,number]|null};
 
 const num=(v:any):number|undefined=>typeof v==='number'&&isFinite(v)?v:undefined;
@@ -88,7 +94,8 @@ function points(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||v.leng
   out.sort((a,b)=>a[0]-b[0]);return out;}
 /** Built-in defaults = walk-v1 contract expressed in cycle fractions, so the old 1.0 s walk_loop keeps working. */
 export function defaultMotionConfig():MotionConfig {return {clips:{walk_loop:{nativeSpeed:DEFAULT_NATIVE_SPEED,loop:true,events:[]}},windToFlutter:DEFAULT_WIND_TO_FLUTTER,apronLiftThreshold:APRON_LIFT_THRESHOLD,windMask:DEFAULT_WIND_MASK,idleGust:null,source:'defaults',
-  morphMesh:DEFAULT_MORPH_MESH,morphTargets:{curl:DEFAULT_MORPH_TARGETS.curl,flutter:DEFAULT_MORPH_TARGETS.flutter},windToMorphFlutter:null};}
+  morphMesh:DEFAULT_MORPH_MESH,morphTargets:{curl:DEFAULT_MORPH_TARGETS.curl,flutter:DEFAULT_MORPH_TARGETS.flutter},windToMorphFlutter:null,
+  morphMeshes:[{mesh:DEFAULT_MORPH_MESH,targets:null}],morphTargetsExplicit:false,morphNames:['curl','flutter']};}
 /** Tolerant anim_meta.json reader (schema anim_meta/v1 field names + camelCase aliases). Unknown/invalid -> defaults. */
 export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionConfig();if(!json||typeof json!=='object')return cfg;cfg.source=String(json.schema||'anim_meta');
   const clips=json.clips||{};for(const name in clips){if(!Object.prototype.hasOwnProperty.call(clips,name)||!clips[name])continue;cfg.clips[name]=parseClip(clips[name]);}
@@ -99,9 +106,22 @@ export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionCon
   // morph: wind.windToMorphFlutter | windToMorphFlutter; morphTargets | morph.targets; mesh = morph.mesh | first clip morph.mesh | default
   const mw=points(w.windToMorphFlutter||json.windToMorphFlutter);if(mw)cfg.windToMorphFlutter=mw;
   const top=json.morph&&typeof json.morph==='object'?json.morph:{};const mt=json.morphTargets||top.targets;
-  if(mt&&typeof mt==='object'){const t:{[name:string]:number}={};let n=0;for(const k in mt){if(!Object.prototype.hasOwnProperty.call(mt,k))continue;const i=num(mt[k]);if(i!==undefined&&i>=0&&Math.floor(i)===i){t[k]=i;n++;}}if(n)cfg.morphTargets=t;}
+  const t0=targetMap(mt);if(t0){cfg.morphTargets=t0;cfg.morphTargetsExplicit=true;}
   let mesh=typeof top.mesh==='string'?top.mesh:'';if(!mesh)for(const name in cfg.clips){const m=cfg.clips[name].morph;if(m&&m.mesh){mesh=m.mesh;break;}}if(mesh)cfg.morphMesh=mesh;
+  // morph.meshes: more meshes driven by the same per-target weights, {name: {target: index} | null} or [name, ...]
+  cfg.morphMeshes=[{mesh:cfg.morphMesh,targets:null}];const ms=top.meshes;
+  const addMesh=(name:any,tg:any)=>{if(typeof name!=='string'||!name)return;const t=targetMap(tg&&typeof tg==='object'&&tg.targets?tg.targets:tg);
+    for(let i=0;i<cfg.morphMeshes.length;i++)if(cfg.morphMeshes[i].mesh===name){if(t)cfg.morphMeshes[i].targets=t;return;}cfg.morphMeshes.push({mesh:name,targets:t});};
+  if(Array.isArray(ms))for(let i=0;i<ms.length;i++)addMesh(ms[i],null);else if(ms&&typeof ms==='object')for(const k in ms)if(Object.prototype.hasOwnProperty.call(ms,k))addMesh(k,ms[k]);
+  cfg.morphNames=morphNameList(cfg);
   return cfg;}
+function targetMap(mt:any):{[name:string]:number}|null {if(!mt||typeof mt!=='object')return null;const t:{[name:string]:number}={};let n=0;
+  for(const k in mt){if(!Object.prototype.hasOwnProperty.call(mt,k))continue;const i=num(mt[k]);if(i!==undefined&&i>=0&&Math.floor(i)===i){t[k]=i;n++;}}return n?t:null;}
+/** morphTargets keys + per-mesh target keys + every clip curve name (stable order, no duplicates). */
+export function morphNameList(cfg:{clips:{[name:string]:ClipMeta};morphTargets:{[name:string]:number};morphMeshes?:Array<{targets:{[name:string]:number}|null}>}):string[] {const out:string[]=[];
+  const add=(o:any)=>{if(o)for(const k in o)if(Object.prototype.hasOwnProperty.call(o,k)&&out.indexOf(k)<0)out.push(k);};add(cfg.morphTargets);
+  const ms=cfg.morphMeshes||[];for(let i=0;i<ms.length;i++)add(ms[i].targets);
+  for(const name in cfg.clips)if(Object.prototype.hasOwnProperty.call(cfg.clips,name)){const m=cfg.clips[name].morph;if(m)add(m.curves);}return out;}
 export function piecewise(pts:ReadonlyArray<readonly [number,number]>,x:number):number {const n=pts.length;if(!n)return 0;if(x<=pts[0][0])return pts[0][1];if(x>=pts[n-1][0])return pts[n-1][1];
   for(let i=1;i<n;i++){const a=pts[i-1],b=pts[i];if(x<=b[0]){const u=b[0]>a[0]?(x-a[0])/(b[0]-a[0]):1;return a[1]+(b[1]-a[1])*u;}}return pts[n-1][1];}
 export function globMatch(patterns:ReadonlyArray<string>,name:string):boolean {for(let i=0;i<patterns.length;i++){const p=patterns[i];
@@ -184,8 +204,10 @@ export class MotionClock {
       clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph};}
     const w=clips[CLIP_ROLES.walk],wd=info.has(CLIP_ROLES.walk)?info.duration(CLIP_ROLES.walk):0;
     if(w&&!w.events.length&&wd>0){w.events=[{time:0,name:'foot:R',bone:'foot.R',body:'L'},{time:wd/2,name:'foot:L',bone:'foot.L',body:'R'}];this.notes.push('walk_loop: default foot events (no anim_meta events)');}
-    for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&mm.mesh!==cfg.morphMesh)this.notes.push(name+': morph.mesh '+mm.mesh+' != bound mesh '+cfg.morphMesh+' (one morph mesh per character; curves still applied to the bound mesh)');}
-    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter};}
+    const morphMeshes=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:[{mesh:cfg.morphMesh,targets:null}];
+    for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&!morphMeshes.some(e=>e.mesh===mm.mesh))this.notes.push(name+': morph.mesh '+mm.mesh+' is not a bound morph mesh ('+morphMeshes.map(e=>e.mesh).join(',')+'; curves still applied to them by target name)');}
+    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter,
+      morphMeshes,morphTargetsExplicit:!!cfg.morphTargetsExplicit,morphNames:morphNameList({clips,morphTargets:cfg.morphTargets,morphMeshes})};}
   meta(name:string):ClipMeta|null {return this.cfg.clips[name]||null;}
   private track(name:string,loop:boolean,time:number):Track {const m=this.meta(name),d=this.info.duration(name);const ns=m&&m.nativeSpeed!==undefined?m.nativeSpeed:name===CLIP_ROLES.walk?DEFAULT_NATIVE_SPEED:0;
     return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false};}
@@ -247,9 +269,11 @@ function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number 
  *   clip  = base + layer;  a clip without a curve for that target contributes 0.
  *   flutter only: w = max(clip, windToMorphFlutter(windDrive))  -- MAX, not sum, so a flutter curve authored in
  *   wind_flutter_loop AND a wind mapping never double up; with only one of them it is exactly that one.
- *   Every result clamped 0..1. Targets = keys of cfg.morphTargets. */
+ *   Every result clamped 0..1. Targets = cfg.morphNames (morphTargets, per-mesh targets, clip curve names); every bound
+ *   mesh picks the names it has. */
 export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[target:string]:number}):{[target:string]:number} {const res=out||{};const b=plan.base,o=plan.out;
-  for(const t in cfg.morphTargets){if(!Object.prototype.hasOwnProperty.call(cfg.morphTargets,t))continue;let w=0;
+  const names=cfg.morphNames||Object.keys(cfg.morphTargets);
+  for(let ti=0;ti<names.length;ti++){const t=names[ti];let w=0;
     if(b){const fo=o?o.weight:0;w=curveAt(cfg,b.clip,t,b.time)*(1-fo);if(o)w+=curveAt(cfg,o.clip,t,o.time)*fo;}
     const ls=plan.morph||[];for(let i=0;i<ls.length;i++)w+=ls[i].weight*curveAt(cfg,ls[i].clip,t,ls[i].time);
     if(t==='flutter'&&cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>w)w=ww;}
@@ -260,12 +284,14 @@ export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:
 export type MorphStatus='unbound'|'ok'|'not-found'|'morph-disabled'|'no-morph'|'too-few-targets'|'error';
 const meshName=(r:any):string=>{let n='';try{n=String(r&&r.mesh&&r.mesh.name||'');}catch{n='';}return n.replace(/\.mesh$/,'');};
 /** Binds one renderer by node name (first) or mesh name and writes target weights only when they change (> MORPH_EPS, or
- *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame. */
+ *  reaching exactly 0 / 1). Any problem = status + no-op; never throws into the frame.
+ *  byName: when the mesh carries target names (glTF mesh.extras.targetNames), target name -> index comes from them. */
 export class MorphDriver {
   status:MorphStatus='unbound';reason='';renderer:MorphRendererLike|null=null;node='';meshName='';subMeshes:number[]=[];targetCounts:number[]=[];targetNames:string[]|null=null;
-  readonly need:number;readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
-  constructor(public mesh:string,public targets:{[name:string]:number}){let need=0;for(const t in targets)if(Object.prototype.hasOwnProperty.call(targets,t)&&targets[t]+1>need)need=targets[t]+1;this.need=need;}
-  bind(renderers:ReadonlyArray<any>|null|undefined):MorphStatus {this.renderer=null;this.subMeshes=[];this.targetCounts=[];this.targetNames=null;this.reason='';
+  need=0;targets:{[name:string]:number}={};readonly last:{[target:string]:number}={};readonly weights:{[target:string]:number}={};calls=0;
+  constructor(public mesh:string,public configured:{[name:string]:number},public byName=false){this.setTargets(configured);}
+  private setTargets(t:{[name:string]:number}){this.targets=t;let need=0;for(const k in t)if(Object.prototype.hasOwnProperty.call(t,k)&&t[k]+1>need)need=t[k]+1;this.need=need;}
+  bind(renderers:ReadonlyArray<any>|null|undefined):MorphStatus {this.renderer=null;this.subMeshes=[];this.targetCounts=[];this.targetNames=null;this.reason='';this.setTargets(this.configured);
     try{let r:any=null;const list=renderers||[];
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&x.node&&x.node.name===this.mesh)r=x;}
       for(let i=0;i<list.length&&!r;i++){const x=list[i];if(x&&meshName(x)===this.mesh)r=x;}
@@ -276,6 +302,7 @@ export class MorphDriver {
       const morph=r.mesh&&r.mesh.struct&&r.mesh.struct.morph;const subs=morph&&morph.subMeshMorphs;
       if(!subs||!subs.length){this.status='no-morph';this.reason='mesh has no morph targets';return this.status;}
       if(Array.isArray(morph.targetNames))this.targetNames=morph.targetNames.map(String);
+      if(this.byName&&this.targetNames&&this.targetNames.length){const t:{[name:string]:number}={};for(let i=0;i<this.targetNames.length;i++)if(!(this.targetNames[i] in t))t[this.targetNames[i]]=i;this.setTargets(t);}
       for(let i=0;i<subs.length;i++){const n=subs[i]&&subs[i].targets?subs[i].targets.length:0;this.targetCounts.push(n);if(n>=this.need&&n>0)this.subMeshes.push(i);}
       if(!this.subMeshes.length){this.status='too-few-targets';this.reason='need '+this.need+' targets, sub-meshes have '+this.targetCounts.join(',');return this.status;}
       this.renderer=r;this.status='ok';return this.status;}catch(e){this.renderer=null;this.status='error';this.reason=String(e);return this.status;}}
@@ -285,5 +312,5 @@ export class MorphDriver {
       if(prev!==undefined&&!(Math.abs(v-prev)>MORPH_EPS)&&!((v===0||v===1)&&v!==prev))continue;
       try{for(let k=0;k<this.subMeshes.length;k++){r.setWeight(v,this.subMeshes[k],this.targets[t]);n++;}this.last[t]=v;}catch(e){this.status='error';this.reason=String(e);this.renderer=null;this.calls+=n;return n;}}
     this.calls+=n;return n;}
-  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
+  diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,byName:this.byName,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
 }

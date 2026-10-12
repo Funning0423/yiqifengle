@@ -141,7 +141,7 @@ async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRo
   check('baked fallback (CHARACTER_POSE_BLEND=false): play+pause one clip, hard cut, foot events + walkProgress still work',()=>{assert.equal(c.anim.useBakedAnimation,true);assert(c.plays.includes('walk_loop'));assert(c.states.get('walk_loop').paused);
    assert(fe.length>=minFootEvents(2),fe.length+' foot events, step '+STEP_M);assert.equal(c.s.walkProgress(),null);return {plays:c.plays,footEvents:fe.length,minFootEvents:minFootEvents(2)};});}
  /* ---------- apron morph targets (MorphDriver + morphWeights; docs/walk-driver.md §8) ---------- */
- const mockRenderer=(name,counts=[2],o={})=>({node:{name},mesh:o.noStruct?{name}:{name:name,struct:o.noMorph?{}:{morph:{subMeshMorphs:counts.map(n=>({attributes:['a_position'],targets:new Array(n).fill(0).map(()=>({displacements:[]}))})),targetNames:['curl','flutter']}}},
+ const mockRenderer=(name,counts=[2],o={})=>({node:{name},mesh:o.noStruct?{name}:{name:name,struct:o.noMorph?{}:{morph:{subMeshMorphs:counts.map(n=>({attributes:['a_position'],targets:new Array(n).fill(0).map(()=>({displacements:[]}))})),targetNames:o.names===undefined?['curl','flutter']:o.names||undefined}}},
   enableMorph:o.enableMorph!==false,calls:[],w:{},setWeight(w,sub,shape){this.calls.push([w,sub,shape]);this.w[sub+':'+shape]=w;}});
  const MCURL_WALK=0.6;
  const morphMeta=(extra={})=>{const m=JSON.parse(JSON.stringify(META||{clips:{}}));m.clips=m.clips||{};
@@ -198,6 +198,23 @@ async function flowRun(windMode){const cfg=M.FirstsliceRoutes.createFirstsliceRo
   s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});const curl=[];const wp=s.perform({kind:'walk',path:[[0,0,0],[0,0,2]],duration:2/0.7},new Token());for(let i=0;i<240;i++){s.advance(1/60);await flush();curl.push(s.diagnostics().motion.morph.weights.curl);}await wp;
   check('morph: baked path (CHARACTER_POSE_BLEND=false) drives the same weights (curl during walk, fade back to 0)',()=>{assert.equal(anim.useBakedAnimation,true);assert.equal(s.diagnostics().motion.morph.status,'ok');assert(Math.abs(Math.max(...curl)-MCURL_WALK)<1e-9);
    assert.equal(lastW(r,0),0);const st=maxStep(curl);assert(st.m<=MCURL_WALK/(motion.CROSSFADE_S*60)+.005,'jump '+st.m);return {maxStep:+st.m.toFixed(4),calls:r.calls.length};});}
+ // 8) several morph meshes (sit drape: apron by target name, dress by name + fallback index, bow tie without names = morph.meshes index)
+ {const sitMeta=()=>{const m=morphMeta();const d=n=>(META&&META.clips&&META.clips[n]&&META.clips[n].duration_s)||1;m.morph=Object.assign({},m.morph||{},{meshes:{LOD0_G2_DRESS:{sit_drape:0},LOD0_G2_BOW:{sit_drape:0}}});
+   for(const [n,c] of [['sit_down',[[0,0],[d('sit_down')*.8,1]]],['sit_hold',[[0,1],[d('sit_hold'),1]]],['stand_up',[[0,1],[d('stand_up')*.7,0]]]])m.clips[n]=Object.assign({},m.clips[n]||{},{morph:{mesh:'LOD0_G2_DRESS',curves:{sit_drape:c}}});return m;};
+  const ap=mockRenderer('LOD0_G2_APRON',[1],{names:['sit_drape']}),dr=mockRenderer('LOD0_G2_DRESS',[1],{names:['sit_drape']}),bw=mockRenderer('LOD0_G2_BOW',[1],{names:null});
+  const c=makeCharacter({meta:sitMeta(),renderers:[mockRenderer('LOD0_G2_BODY',[0]),ap,dr,bw]});c.s.setWindSource(()=>0);const seat={yawRad:0,standingControllerRoot:[0,0,0],seatedControllerRoot:[0,0,-.3]};
+  c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});for(let i=0;i<20;i++)c.s.advance(1/60);const w=[],same=[];
+  const rec=()=>{const md=c.s.diagnostics().motion.morph;w.push(md.weights.sit_drape);same.push(Math.max(Math.abs(ap.w['0:0']-dr.w['0:0']),Math.abs(dr.w['0:0']-bw.w['0:0'])));};
+  let p=c.s.perform({kind:'sit',seat},new Token());for(let i=0;i<400&&c.s.diagnostics().action;i++){c.s.advance(1/60);await flush();rec();}await p;for(let i=0;i<60;i++){c.s.advance(1/60);rec();}const seated=w[w.length-1];
+  p=c.s.perform({kind:'stand',seat},new Token());for(let i=0;i<400&&c.s.diagnostics().action;i++){c.s.advance(1/60);await flush();rec();}await p;for(let i=0;i<30;i++){c.s.advance(1/60);rec();}
+  check('morph: several meshes (apron/dress by target name, bow by morph.meshes index) get the same sit_drape weight: 0 -> 1 sitting, 1 held, -> 0 standing, continuous',()=>{const md=c.s.diagnostics().motion.morph;
+   assert.equal(JSON.stringify(md.meshes.map(m=>m.status)),'["ok","ok","ok"]',JSON.stringify(md.meshes));assert.equal(JSON.stringify(md.meshes.map(m=>m.targets)),'[{"sit_drape":0},{"sit_drape":0},{"sit_drape":0}]');
+   assert.equal(Math.max(...same),0,'meshes disagree');assert.equal(seated,1);assert.equal(w[w.length-1],0);assert.equal(bw.w['0:0'],0);const st=maxStep(w);assert(st.m<.08,'jump '+st.m+' at '+st.at);
+   assert(!ap.calls.some(x=>x[2]!==0),'apron written only at its sit_drape index');return {frames:w.length,maxStep:+st.m.toFixed(4),calls:[ap.calls.length,dr.calls.length,bw.calls.length]};});
+  check('morph: anim_meta morph.meshes parsing ({name: {target: index}} | [name]) + clip morph.mesh among them = no note',()=>{const a=motion.parseAnimMeta({morph:{mesh:'A',meshes:{B:{sit_drape:0},C:null}}});
+   assert.equal(JSON.stringify(a.morphMeshes),'[{"mesh":"A","targets":null},{"mesh":"B","targets":{"sit_drape":0}},{"mesh":"C","targets":null}]');assert.equal(a.morphTargetsExplicit,false);assert(a.morphNames.includes('sit_drape'));
+   const b=motion.parseAnimMeta({morph:{meshes:['LOD0_G2_DRESS','LOD0_G2_APRON']},morphTargets:{curl:1}});assert.equal(JSON.stringify(b.morphMeshes.map(e=>e.mesh)),'["LOD0_G2_APRON","LOD0_G2_DRESS"]');assert.equal(b.morphTargetsExplicit,true);
+   assert(!c.s.diagnostics().motion.notes.some(n=>/morph\.mesh/.test(n)),JSON.stringify(c.s.diagnostics().motion.notes));return {ok:true};});}
  check('morph: anim_meta parsing (clip morph curves, windToMorphFlutter, morphTargets, morph.mesh) + defaults',()=>{const d=motion.defaultMotionConfig();assert.equal(d.morphMesh,'LOD0_G2_APRON');assert.equal(JSON.stringify(d.morphTargets),'{"curl":0,"flutter":1}');assert.equal(d.windToMorphFlutter,null);
   const c2=motion.parseAnimMeta({morph:{mesh:'X_APRON',targets:{curl:2,flutter:3}},clips:{apron_lift:{morph:{curves:{curl:[[1,2],[0,0]],bad:[[0,'x']]}}}},wind:{windToMorphFlutter:[[0,0],[1,.4]]}});
   assert.equal(c2.morphMesh,'X_APRON');assert.equal(JSON.stringify(c2.morphTargets),'{"curl":2,"flutter":3}');assert.equal(JSON.stringify(c2.clips.apron_lift.morph.curves.curl),'[[0,0],[1,1]]');assert(!c2.clips.apron_lift.morph.curves.bad);assert.equal(motion.piecewise(c2.windToMorphFlutter,1),.4);
