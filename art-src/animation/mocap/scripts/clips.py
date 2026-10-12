@@ -108,8 +108,10 @@ def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arc
         if hips_lock is not None:
             w, ref = hips_lock
             h = h * (1 - w)[:, None] + ref * w[:, None]
+    Wp, sep = AL.separate_feet(cx, Wp, hp, C)
     out = {s: {k: v for k, v in info[s].items() if k != 'clamp_mask'} for s in info}
     out['released_contact_frames'] = int(trimmed)
+    out['swing_lift_mm'] = sep
     return (Wp, hp), out
 
 
@@ -568,7 +570,8 @@ def build_turn(name):
                          'walk_turn_180; walk_turn_180_bodyR is the right turn (-180).')
     info = dict(trial=sp['trial'], src_window_s=list(sp['t']), src_turn_deg=round(float(np.degrees(dlt)), 1),
                 yaw_scale=round(float(th / dlt), 4), plant=pinfo)
-    lock = [(w_in, 'idle_breathing_loop', np.zeros(N)), (w_out, 'idle_breathing_loop', np.zeros(N))]
+    # skirt curves hand off to idle faster than the pose blend: an early step (frames 2-8) must be able to lift the panels
+    lock = [(fade_out(N, 4), 'idle_breathing_loop', np.zeros(N)), (fade_in_end(N, 5), 'idle_breathing_loop', np.zeros(N))]
     return dict(name=name, track=track, world=tr, contacts=C, events=ev, loop=False, lock=lock, root=root, extra=extra,
                 info=info)
 

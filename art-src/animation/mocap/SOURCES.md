@@ -23,8 +23,8 @@ downloaded from `http://mocap.cs.cmu.edu/subjects/<NN>/<NN>.asf` and `.../<NN>_<
 | `walk_start` | 91_29 | NormalWalk (start from standing) | 2.75 – 4.43 | time ×1.15, starts at the idle pose, from 1.533 s identical to `walk_loop` |
 | `walk_stop_bodyR` | 91_29 | NormalWalk (stop before the turn) | 15.47 – 16.45 | time ×1.15, pelvis turn removed, 25 % of the sideways drift kept, small settle step, ends in the idle pose |
 | `walk_stop_bodyL` | 91_29 | same, mirrored | 15.47 – 16.45 | as above, mirrored left/right |
-| `walk_turn_180` | 91_29 | NormalWalk (turn to her left) | 8.25 – 9.75 | yaw scaled to exactly 180° (source 190°), drift removed, idle pose at both ends |
-| `walk_turn_180_bodyR` | 91_29 | NormalWalk (turn to her right) | 16.0 – 17.5 | yaw scaled to −180° (source −194°), as above |
+| `walk_turn_180` | 91_29 | NormalWalk (turn to her left) | 8.25 – 9.75 | yaw scaled to exactly 180° (source 190°), drift removed, idle pose at both ends, pivot shuffles turned into short steps |
+| `walk_turn_180_bodyR` | 91_29 | NormalWalk (turn to her right) | 16.0 – 17.5 | yaw scaled to −180° (source −194°), as above (the 1-frame pivot shuffle of her left foot became a 7-frame step) |
 | `walk_turn_90_bodyL` | 69_16 | "walking" / turn in place | 1.70 – 3.20 | yaw scaled to 90° (source 88°), idle pose at both ends |
 | `walk_turn_90_bodyR` | 69_18 | turn in place (opposite direction) | 1.10 – 2.70 | yaw scaled to −90° (source −87°), pivot foot turned into a step, idle pose at both ends |
 | `idle_breathing_loop` | 91_29 | NormalWalk (standing before the walk) | 0.30 – 2.10 | loop closed, knees straightened to ~7° on the weight leg (CMU standing knees ~27°) |
@@ -35,7 +35,8 @@ downloaded from `http://mocap.cs.cmu.edu/subjects/<NN>/<NN>.asf` and `.../<NN>_<
 
 All clips: rotation retarget onto the 28-joint rig (uniform scale = leg length ratio), ankles moved 4 cm outward along the
 pelvis axis (the CMU hip joints are much wider than ours; without this the feet land on one line and the legs cross), feet
-planted without slip on the shoe sole vertices, hips height fitted, skirt / apron panel and arm clearance solved per frame
+planted without slip on the shoe sole vertices (turns: every sole vertex held where it first touched; the stance heading
+of the shoe is eased through the swing so it never snaps at touch-down), hips height fitted, skirt / apron panel and arm clearance solved per frame
 (`scripts/skirt_solve.py`). Body-side convention: bone `.L` = her right.
 
 ## Rejected candidates

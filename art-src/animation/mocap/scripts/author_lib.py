@@ -334,6 +334,41 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
     return Wr, hips, info
 
 
+def separate_feet(ctx, Wr, hips, contacts, min_gap=0.012, cap=0.03, iters=3):
+    """a swinging shoe that passes the other one closer than min_gap (closest vertex pair) is lifted by a sin^2 bump over
+    its swing (zero at lift-off and landing, so planted frames are untouched).  The shoes are wider than the retargeted
+    step width, so seen from above they overlap and the swinging sole passes over the planted toe cap: only height
+    separates them.  Returns new (Wr, info)."""
+    rig = ctx.rig
+    n = len(hips)
+    fi = {s: rig.idx[LEGS[s][2]] for s in 'LR'}
+    info = {s: 0.0 for s in 'LR'}
+    for it in range(iters):
+        W = ctx.fk(Wr, hips)
+        V = {s: ctx.foot_verts(W, s) for s in 'LR'}
+        for s in 'LR':
+            o = 'R' if s == 'L' else 'L'
+            sw = ~np.asarray(contacts[s], bool)
+            push = np.zeros((n, 3))
+            for a, b in intervals(sw):
+                if a == 0 or b == n - 1:
+                    continue
+                k = np.arange(a, b + 1)
+                gap = np.array([np.sqrt(((V[s][f][:, None] - V[o][f][None]) ** 2).sum(-1)).min() for f in k])
+                need = np.maximum(0.0, min_gap - gap)
+                if need.max() <= 0:
+                    continue
+                win = np.sin(np.pi * (k - a + 1) / (b - a + 2)) ** 2
+                amp = min(cap, float((need / np.maximum(win, 0.05)).max()))
+                push[k, 1] = amp * win
+            if not push.any():
+                continue
+            A = W[:, fi[s], :3, 3] + push
+            Wr, _ = apply_leg_ik(ctx, Wr, hips, s, A, W[:, fi[s], :3, :3])
+            info[s] = max(info[s], float(np.linalg.norm(push, axis=1).max()))
+    return Wr, {s: round(v * 1000, 1) for s, v in info.items()}
+
+
 def trim_contacts(ctx, Wr, hips, contacts, knee_ref, periodic=False, drop=12.0, floor_deg=14.0, tail=0.45, keep=None,
                   clamp=None):
     """release a planted foot early where holding it would straighten the knee (toe-off pop): in the last `tail` part of a
