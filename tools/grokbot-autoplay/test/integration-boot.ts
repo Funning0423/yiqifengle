@@ -21,7 +21,7 @@ const G:any=globalThis;
   if(f===310){const b={load(p:string,_t:any,cb:any){bl.loads.push({p,cb});},loadDir(p:string,_t:any,cb:any){bl.dirs.push({p,cb});}};AM.bundles.set('region_island',b);AM.bundleLoads.find((x:any)=>x.name==='region_island').cb(null,b);}
   if(f===312){bundle.loadDir('',null,()=>{});}
   if(f===360){bl.dirs[0].cb(null,[{},{}]);B.status.string='正在准备角色与动画';bundle.loadDir('character',null,()=>{});bundle.load('character/anim_meta',null,()=>{});}
-  if(f===440){bl.dirs[1].cb(null,[{}]);bl.loads[0].cb(null,{});B.status.string='正在准备房间';}
+  if(f===440){bl.dirs[1].cb(null,[{}]);bl.loads[0].cb(null,{});if(bl.loads[1])bl.loads[1].cb(null,null);B.status.string='正在准备房间';}
   if(f===530)bd._c.set('cc.UIOpacity',{opacity:128});
   if(f===540){mask.active=false;bd.active=false;}});
  await run(1,()=>false); // fallback-velocity needs 10 still frames after home (autoplay stops at home-seated)

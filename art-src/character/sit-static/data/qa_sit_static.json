@@ -1,0 +1,110 @@
+{
+  "bones_character_y_up": {
+    "hips": [
+      0.0032,
+      0.4364,
+      -0.0345
+    ],
+    "chest": [
+      0.0019,
+      0.6677,
+      0.0133
+    ],
+    "head": [
+      0.0251,
+      0.8077,
+      0.034
+    ],
+    "hand.L": [
+      -0.0502,
+      0.4007,
+      0.1996
+    ],
+    "hand.R": [
+      0.007,
+      0.4247,
+      0.1628
+    ],
+    "foot.L": [
+      -0.0707,
+      0.0906,
+      0.4472
+    ],
+    "foot.R": [
+      0.0706,
+      0.0926,
+      0.501
+    ]
+  },
+  "parts": {
+    "LOD0_G2_BODY": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 640,
+      "tris": 920
+    },
+    "SitDressUpper": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 372,
+      "tris": 510
+    },
+    "LOD0_G2_BODY.001": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 2067,
+      "tris": 3380
+    },
+    "LOD0_G2_BODY.002": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 442,
+      "tris": 630
+    },
+    "LOD0_G2_BODY.003": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 291,
+      "tris": 367
+    },
+    "SitDress": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 224,
+      "tris": 384
+    },
+    "SitApron": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 58,
+      "tris": 72
+    },
+    "SitBow": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 40,
+      "tris": 36
+    },
+    "SitSleeve": {
+      "inside": 0,
+      "worst_m": 0.0,
+      "below_floor": 0,
+      "verts": 64,
+      "tris": 96
+    }
+  },
+  "triangles": 6395,
+  "alignment": {
+    "pelvis_y": 0.4364,
+    "sole_y": 0.0001
+  },
+  "glb_bytes": 181588
+}

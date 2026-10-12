@@ -540,6 +540,16 @@
     "sha256": "5e196fc0282afd14c07e5e7b2ac0b116d28e4374841ab092d754b9a155a9bbd8"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/sit-static.meta",
+    "bytes": 169,
+    "sha256": "1a4370b50defa31f07e30657a313e0a014a80d13a0cb9900c66a8e9966496881"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/sit-static/chr_sit_static.glb.meta",
+    "bytes": 187,
+    "sha256": "6fdff43f62308a0ed7eb7652c770065484f7014d64153070f4150e04862ad6ce"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/ui-props.meta",
     "bytes": 169,
     "sha256": "2ffaa2d2895d086f0eeb4c2eb7099ca63b0054db21ff63a8444c71253a2885e7"
@@ -961,8 +971,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
-    "bytes": 5660,
-    "sha256": "119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49"
+    "bytes": 6580,
+    "sha256": "5a57d8b680178dffffd3639f1f23dc050ee7459fb63e9b3ed25e616a31004e61"
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts.meta",
@@ -1001,8 +1011,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 68969,
-    "sha256": "ce910326276e900e83ffe8ba3ae25fbf5b25822701159491bf5550ae122d7738"
+    "bytes": 73857,
+    "sha256": "3f8d11ffea592ad92fcc31c77169f345620d44763a03f427ad47fa1529a909b9"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1816,8 +1826,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
-    "bytes": 23442,
-    "sha256": "0dbe50b8632a488c4e8bec4586c199b16e06dae2a821961b3dd1f4b310edcb48"
+    "bytes": 33259,
+    "sha256": "dc156b409881d4eeba399566c357e199d5a1c5c9dac8b5bbef0e3f107ccf2c50"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
@@ -1836,8 +1846,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
-    "bytes": 23879,
-    "sha256": "7cf2ee17fa620c476c65d0909b60a95c43b7140bc79f1f7a8541664b6376e9f4"
+    "bytes": 24582,
+    "sha256": "5b07ea0694679b29ce2c4d21ac5a791e2dca69225538ecd200e0bcdb68901e53"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
@@ -1855,9 +1865,19 @@
     "sha256": "53d7bcd9d90d996d9b27cfdfcec3ba526fa0413dd5993025845a8f651e6968d7"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r1/SitStaticSwap.ts",
+    "bytes": 1627,
+    "sha256": "289d17c13efca25135fbb0e2b91506ea77e50de3eb8673958c80f7e29a0b7904"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/SitStaticSwap.ts.meta",
+    "bytes": 171,
+    "sha256": "004fac9390e5ab8c9f190cc0c6cff3c382709be623437d9c7b8fd6d8ab0b488e"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 48314,
-    "sha256": "2293f59d838553c86a1ca7218d4f30d03b9993702fd70ad12c97d0cf3384207f"
+    "bytes": 48571,
+    "sha256": "cb7f4436d64c9ea86fef5007e0b6ee2348969b9c9e59b14e22dbdf59cfc1f74b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1866,8 +1886,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 49107,
-    "sha256": "51cb93492db8ed50627789c92d1d4fbcddc9410c75ac2e6d31fc5abf0dde61e4"
+    "bytes": 52775,
+    "sha256": "a962c81295742bda325e91e5207bb33160f4aef5e6b7aefa0aafedf5fbd7c84e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
