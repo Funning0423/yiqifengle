@@ -217,6 +217,8 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 这三个片段里 10 根裙骨的旋转/平移也重新摆过（骨头的名字和层级不变），和形状键一起才是最终形状；sit_down → sit_hold 的 0.2 s 淡化和 sit_hold → stand_up 都是同一个权重 1，不会跳。生成和检查流程见 `art-src/animation/sit-drape/README.md`。
 
+`sit_hold` 坐稳之后不再播髋部前后晃：整个 2 秒循环都是第 0 秒那一帧（裙骨也停在坐稳帧）。见 `art-src/animation/sit-still/README.md`。
+
 ## 9. locomotion-v1：根节点曲线、停步/转身变体、脚步去重（GGbot work/GGbot-locomotion）
 
 预览：`previews/角色动画bot/locomotion-v1/`（`walk_start`、`walk_stop_body{L,R}`、`walk_turn_180`）。和预览的逐条对照见 `work/GGbot-locomotion-review.md`。

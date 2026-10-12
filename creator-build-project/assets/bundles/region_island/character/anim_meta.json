@@ -125,7 +125,7 @@
    "duration_s": 2.0,
    "frames": 60,
    "fps": 30,
-   "keys": "383 keys, reduced per channel (see top-level compression), LINEAR",
+   "keys": "80 keys, 2 identical LINEAR keys per channel, held at frame 0",
    "cocos_meta_split": {
     "from_s": 0.0,
     "to_s": 2.0,
@@ -143,7 +143,8 @@
     ],
     "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
     "doc": "art-src/animation/mocap/SOURCES.md",
-    "hands": "wrists IK-placed on the thighs (CMU chair had armrests; ours has none)"
+    "hands": "wrists IK-placed on the thighs (CMU chair had armrests; ours has none)",
+    "hold": "sit_hold is frame 0 for the whole 2 s (cloud-tasks/RESULT-sit-still.md): the CMU hip rock is not played"
    },
    "morph": {
     "curves": {
@@ -2834,6 +2835,6 @@
     }
    }
   },
-  "note": "seated drape (cloud-tasks/03-sit-drape.md): sparse POSITION targets, weights driven by CharacterMotion.morphWeights; skirt bones of sit_down / sit_hold / stand_up re-posed with the same weight curve (art-src/animation/sit-drape)"
+  "note": "seated drape (cloud-tasks/03-sit-drape.md): sparse POSITION targets, weights driven by CharacterMotion.morphWeights; skirt bones of sit_down / sit_hold / stand_up re-posed with the same weight curve (art-src/animation/sit-drape). sit_hold holds frame 0, including those skirt bones (art-src/animation/sit-still)."
  }
 }
