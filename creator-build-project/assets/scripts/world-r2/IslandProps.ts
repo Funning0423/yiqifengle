@@ -1,6 +1,7 @@
 import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
-import type { CameraPose } from '../world-r1/CameraPose';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, seaAnchor, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
+import { islandPoseEntry } from '../world-r1/RegionCameraData';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 
 /**
@@ -17,7 +18,9 @@ export class IslandProps {
   readonly root: Node;
   private ready_ = false; private failure: string | null = null; private disposed = false;
   private palette: Material | null = null; private lamp: MeshRenderer | null = null; private lampDay: Material | null = null; private night: boolean | null = null;
-  private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>();
+  private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
+  /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
+  private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
   private nightW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
@@ -35,7 +38,7 @@ export class IslandProps {
   diagnostics() {
     const pose = this.pose();
     return { version: ISLAND_PROPS.version, ready: this.ready, failure: this.failure, night: this.night, active: this.root.isValid && this.root.active, ...this.stats,
-      buttons: Array.from(this.buttons).map(([k, n]) => ({ role: k, active: n.active, p: [n.worldPosition.x, n.worldPosition.y, n.worldPosition.z], s: n.scale.x })), cameraFov: pose?.fovVerticalDeg ?? null };
+      buttons: Array.from(this.buttons).map(([k, n]) => { const pivot = this.pivots.get(k) || n; return { role: k, active: pivot.active, p: [pivot.worldPosition.x, pivot.worldPosition.y, pivot.worldPosition.z], s: pivot.scale.x }; }), cameraFov: pose?.fovVerticalDeg ?? null };
   }
   async load(): Promise<boolean> {
     try {
@@ -49,7 +52,12 @@ export class IslandProps {
       const S = ISLAND_PROPS.signpost;
       this.sign = this.mount(get(S.prefab), S.position, S.yawDeg, S.scale);
       for (const p of ISLAND_PROPS.palms) this.palms.push(this.mount(get(p.prefab), p.position, p.yawDeg, p.scale));
-      for (const role of PROP_ROLES) { const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, ISLAND_PROPS.seaY, 0], 0, 1); n.active = false; this.buttons.set(role, n); }
+      for (const role of PROP_ROLES) {
+        const pivot = new Node('IslandPropPivot-' + role); this.root.addChild(pivot); pivot.active = false;
+        const n = this.mount(get(ISLAND_PROPS.buttons[role].prefab), [0, 0, 0], 0, 1);
+        n.removeFromParent(); pivot.addChild(n); n.setPosition(0, 0, 0); n.setScale(1, 1, 1); n.active = true;
+        this.pivots.set(role, pivot); this.buttons.set(role, n);
+      }
       this.addSignText(this.sign);
       this.addSignWater();
       this.addLampLight();
@@ -202,14 +210,19 @@ export class IslandProps {
     const pose = o.buttons && o.exterior ? this.pose() : null;
     const slots = pose && o.width > 0 && o.height > 0 ? propButtonLayout(o.width, o.height).slots : [];
     for (const role of PROP_ROLES) {
-      const n = this.buttons.get(role)!, slot = slots.find(s => s.role === role);
-      if (!pose || !slot) { if (n.active) n.active = false; continue; }
+      const n = this.buttons.get(role)!, pivot = this.pivots.get(role)!, slot = slots.find(s => s.role === role);
+      if (!pose || !slot) { if (pivot.active) pivot.active = false; continue; }
       // follow the flat dock's T2 entrance (slide + scale about the canvas centre) so the 3D buttons enter with it
       const k = o.dock?.k ?? 1, dy = o.dock?.dy ?? 0;
       const [sx, sy] = uiToScreen(slot.prop.x * k, slot.prop.bottom * k + dy, o.width, o.height);
-      const a = seaAnchor(pose, o.width / o.height, sx, sy, slot.prop.height * k, o.height, ISLAND_PROPS.buttons[role].heightM);
-      n.setWorldPosition(a.point[0], a.point[1], a.point[2]); n.setRotationFromEuler(0, a.yawDeg, 0); n.setScale(a.scale, a.scale, a.scale);
-      if (!n.active) n.active = true;
+      // Pull changes the world lens only. The pivot keeps this button at the settled wide shot's screen size;
+      // the cream label under it is a canvas tag (IslandJourneyOverlay) on the same slot, so it does not grow either.
+      const a = screenPropPose(pose, this.buttonRef, o.width / o.height, sx, sy, slot.prop.height * k, o.height, ISLAND_PROPS.buttons[role]);
+      pivot.setWorldPosition(a.point[0], a.point[1], a.point[2]);
+      pivot.setWorldRotation(a.pivotRotation[0], a.pivotRotation[1], a.pivotRotation[2], a.pivotRotation[3]);
+      pivot.setScale(a.pivotScale[0], a.pivotScale[1], a.pivotScale[2]);
+      n.setRotation(a.localRotation[0], a.localRotation[1], a.localRotation[2], a.localRotation[3]);
+      if (!pivot.active) pivot.active = true;
     }
   }
   /**
@@ -264,5 +277,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+  dispose() { if (this.disposed) return; this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
 }

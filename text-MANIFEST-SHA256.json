@@ -1996,8 +1996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
-    "bytes": 25212,
-    "sha256": "26809a496445b254c07dc73d9b4c35c0f11603fb84bb7b12727370f11b545829"
+    "bytes": 26348,
+    "sha256": "a169f3a6dbacdf854d98bb360ed314b2ad63ac2dcb967f63124c22ec97d1b43b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
@@ -2006,8 +2006,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 18796,
-    "sha256": "39e8c216566a4d359f34b89bdfcc9e54b9b3c2c6257a734b658aacdc24cad31d"
+    "bytes": 23914,
+    "sha256": "25f414a05437bd20b30112f849878cd51741a144712f2e3362024b0ce79f0e63"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
