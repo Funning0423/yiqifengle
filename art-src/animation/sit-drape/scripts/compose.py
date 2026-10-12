@@ -21,6 +21,7 @@ SEAT_BAND_Y, SEAT_BAND_LEG_M = 0.40, 0.0035
 BYTES_PER_V = 14
 WAIST_KEEP_Y = 1.0           # rest height: the dress waistband keeps its skinned place (no residual above)
 APRON_FOLLOW_TOP_Y = float(os.environ.get('SD_APRON_TOP', '1.25'))   # rest height: above it the apron keeps its own skinning
+WAIST_BAND_Y, APRON_BAND_M = 0.98, 0.004   # apron waistband: final outward pass against the final dress
 RES_FRAC = 0.6          # share of the vertex budget for the sim residual; the rest is for collision fixes
 
 
@@ -223,6 +224,66 @@ def tri_sample_push(X, F, sdf, margin, movable, iters=40, sub=4, near=0.06):
     return X, int(bad.sum())
 
 
+class HeightField:
+    """top of a set of triangle surfaces seen from above: query(P) -> (P.y - top, +y, near) like SurfaceSDF.query,
+    so tri_sample_push lifts vertically.  bridge > 0 takes the max over that x,z radius (a sheet spans a gap)."""
+
+    def __init__(self, surfaces, sub=4, r=0.008, bridge=0.0, below=0.06, above=0.03):
+        B = bary_grid(sub)
+        self.pts = np.concatenate([np.einsum('sk,fkc->fsc', B, V[F]).reshape(-1, 3) for V, F in surfaces])
+        self.tree = cKDTree(self.pts[:, [0, 2]])
+        self.r, self.bridge, self.below, self.above = r, bridge, below, above
+
+    def top(self, P):
+        h = np.full(len(P), -np.inf)
+        for i, nb in enumerate(self.tree.query_ball_point(P[:, [0, 2]], max(self.r, self.bridge))):
+            if nb:
+                ys = self.pts[nb, 1]
+                ok = (ys > P[i, 1] - self.below) & (ys < P[i, 1] + self.above)
+                if ok.any():
+                    h[i] = ys[ok].max()
+        return h
+
+    def query(self, P):
+        h = self.top(P)
+        s = np.where(np.isfinite(h), P[:, 1] - h, np.inf)
+        n = np.tile([0.0, 1.0, 0.0], (len(P), 1))
+        return s, n, np.where(np.isfinite(h), 0.0, np.inf)
+
+
+def drape_lap(c, W, mdA, PA, XA, dres, col, low):
+    """up-facing apron (the lap): start from its skinned sheet (keeps its width; following the dress pulls it into the gap
+    between the thighs), lay it on the bridged top of dress + thighs, then lift every triangle clear of them."""
+    mdD = c.md['DRESS']
+    FD = dres['rep'][mdD['F']]
+    body = c.md['BODY']
+    PB = c.skin('BODY', W)
+    legs = np.where(c.body_cls == 'legs')[0]
+    FL = body['F'][np.isin(body['F'], legs).all(1)]
+    surf = [(dres['Xn'], FD), (PB, FL)]
+    nrm = D.vertex_normals(PA, mdA['F'])
+    EA = D.edges_of(mdA['F'])
+    nA = len(PA)
+    nrm = laplace(nrm, EA, nA, 4)
+    up = np.clip((nrm[:, 1] / np.maximum(np.linalg.norm(nrm, axis=1), 1e-9) - 0.45) / 0.3, 0, 1) * low
+    gap = APRON_DRESS_M + 0.002
+    hb = HeightField(surf, bridge=0.035, below=0.08, above=0.08).top(PA)
+    tgt = PA.copy()
+    ok = np.isfinite(hb)
+    tgt[ok, 1] = hb[ok] + gap
+    w = up * ok
+    X = XA + w[:, None] * (tgt - XA)
+    X = XA + laplace(X - XA, EA, nA, 6, lam=0.5, fixed=~low)
+    hf = HeightField(surf, below=0.05, above=0.03)
+    lap = (up > 0) | (laplace(up[:, None], EA, nA, 2)[:, 0] > 0.05)
+    for rnd in range(4):
+        X, left = tri_sample_push(X, mdA['F'], hf, gap, lap & low, iters=15, near=1.0)
+        X = XA + laplace(X - XA, EA, nA, 2, lam=0.4, fixed=~low)
+    X, left = tri_sample_push(X, mdA['F'], hf, gap, lap & low, iters=30, near=1.0)
+    print('APRON lap drape: verts', int((up > 0).sum()), 'height violations left', left)
+    return X, lap
+
+
 def compose_apron(c, W, dres, col):
     """apron target from the shaped dress: rest offset to the dress, gap >= APRON_GAP_M."""
     mdA, mdD = c.md['APRON'], c.md['DRESS']
@@ -285,6 +346,12 @@ def compose_apron(c, W, dres, col):
         if not bad.any():
             break
         XA[bad] += nn[bad] * (APRON_DRESS_M - s[bad])[:, None]
+    if os.environ.get('SD_LAP', '1') == '1':
+        XA, lap = drape_lap(c, W, mdA, PA, XA, dres, col, low)
+        cap = col.hand_cap(XA, HAND_M)
+        over = lap & (XA[:, 1] > cap)
+        XA[over, 1] = cap[over]
+        print('APRON lap verts capped under the hands', int(over.sum()))
     s, nn, dd = dsdf.query(XA)
     print('APRON clearance to dress mm (near verts): min %.1f' % (s[dd < 0.03].min() * 1e3), col.violations(XA))
     return dict(PA=PA, XA=XA, blend=b)
@@ -309,19 +376,20 @@ def under_apron(c, XA, W):
     return f
 
 
-def finalize_apron(c, dres, XA):
-    """apron vs the FINAL dress (pass 2 moved it): triangle-level clearance, apron moves only, legs / chair kept."""
+def finalize_apron(c, dres, XA, PA):
+    """apron waistband vs the FINAL dress (pass 2 moved it): triangle-level clearance, only the band (rest y above
+    WAIST_BAND_Y, rigid on the hips) moves outward; the lap and the bib keep their place."""
     mdA, mdD = c.md['APRON'], c.md['DRESS']
     rep = dres['rep']
     rest_nodes, _ = node_mean(mdD['P'], rep, dres['n'])
-    low = mdA['P'][:, 1] < rest_nodes[:, 1].max()
-    dsdf = D.SurfaceSDF(dres['Xn'], rep[mdD['F']], sub=3)
-    col = dres['col']
+    band = (mdA['P'][:, 1] > WAIST_BAND_Y) & (mdA['P'][:, 1] < rest_nodes[:, 1].max())
+    dsdf = D.SurfaceSDF(dres['Xn'], rep[mdD['F']], sub=4)
+    EA = D.edges_of(mdA['F'])
     for rnd in range(4):
-        XA, left = tri_sample_push(XA, mdA['F'], dsdf, 0.004, low, iters=40, near=0.03)
-        XA = XA + np.where(low[:, None], col.push(XA, hand=-1.0), 0)
-    s, nn, dd = dsdf.query(XA)
-    print('APRON final: tri-sample dress violations left', left, 'vertex clearance min %.1f mm' % (s[(dd < 0.03) & low].min() * 1e3))
+        XA, left = tri_sample_push(XA, mdA['F'], dsdf, APRON_BAND_M, band, iters=30, sub=6, near=0.04)
+        XA = PA + laplace(XA - PA, EA, len(XA), 2, lam=0.4, fixed=~band)
+    XA, left = tri_sample_push(XA, mdA['F'], dsdf, APRON_BAND_M, band, iters=40, sub=6, near=0.04)
+    print('APRON band: tri-sample dress violations left', left, 'band verts', int(band.sum()))
     return XA
 
 
@@ -343,6 +411,7 @@ def main():
     # pass 2: apron fixed, the dress keeps clear of the apron TRIANGLES (they are long; vertex clearance is not enough)
     dres = compose_dress(c, W, sim['settled'], budget, col=dres['col'], extra=under_apron(c, ap['XA'], W))
     print('DRESS pass 2', dres['stats'])
+    ap['XA'] = finalize_apron(c, dres, ap['XA'], ap['PA'])
     rep = dres['rep']
     XD = dres['Xn'][rep]
     dD = to_bind(c, W, 'DRESS', XD - dres['P1'])
