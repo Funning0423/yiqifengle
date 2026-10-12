@@ -23,7 +23,8 @@ def recon(t, v, gi, tq, rot):
     return RG.slerp(a, b, u) if rot else a + (b - a) * u
 
 
-def reduce_keys(t, v, rot, tol):
+def reduce_keys(t, v, rot, tol, pin=()):
+    """pin: frames always keyed (start of a still tail, so the reduction cannot blend across it)."""
     n = len(t)
     if n < 3:
         return np.arange(n)
@@ -32,7 +33,7 @@ def reduce_keys(t, v, rot, tol):
         return np.array([0, n - 1])
     tq = np.linspace(t[0], t[-1], (n - 1) * 2 + 1)
     ref = recon(t, v, np.arange(n), tq, rot)
-    sel = {0, n - 1}
+    sel = {0, n - 1} | {int(p) for p in pin if 0 < p < n - 1}
     while True:
         gi = np.array(sorted(sel))
         r = recon(t, v, gi, tq, rot)
@@ -177,14 +178,14 @@ def write(base_glb, out_glb, clips, tol=None, extras_note=None):
         samplers, channels = [], []
         nkeys = 0
         for j, nm in enumerate(rig.names):
-            gi = reduce_keys(t, Q[:, j], True, tol_for(nm, tol))
+            gi = reduce_keys(t, Q[:, j], True, tol_for(nm, tol), c.get('pin', ()))
             nkeys += len(gi)
             ii = add(t[gi].reshape(-1, 1), 'SCALAR', True)
             oi = add(Q[gi, j], 'VEC4')
             samplers.append(dict(input=ii, output=oi, interpolation='LINEAR'))
             channels.append(dict(sampler=len(samplers) - 1, target=dict(node=jn[j], path='rotation')))
             if nm in ('root', 'hips'):
-                gi = reduce_keys(t, T[:, j], False, tol['trans_m'])
+                gi = reduce_keys(t, T[:, j], False, tol['trans_m'], c.get('pin', ()))
                 nkeys += len(gi)
                 ii = add(t[gi].reshape(-1, 1), 'SCALAR', True)
                 oi = add(T[gi, j], 'VEC3')
