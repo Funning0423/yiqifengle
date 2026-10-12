@@ -134,7 +134,10 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
       const hFade=1-sm5(Math.max(0,Math.min(1,(tau-1.6)/2)));
       const vFade=1-sm5(Math.max(0,Math.min(1,(tau-.4)/2.6)));
       const orbit:Vec=[h[0]+Math.sin(bear)*rad-1.05*hFade,y+1.05*vFade,h[2]+Math.cos(bear)*rad+.5*hFade];
-      const k=sm5(Math.min(1,tau/1.6)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35,P0[2]+Tdir[2]*tau*1.35];
+      // The blend is still mostly on the door ray when that ray meets the open leaf, so the ray
+      // itself rises over the leaf. The rise is a smootherstep (zero slope at the doorway).
+      const hop=1.32*sm5(Math.min(1,tau/1.05));
+      const k=sm5(Math.min(1,tau/1.6)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35+hop,P0[2]+Tdir[2]*tau*1.35];
       return [ray[0]*(1-k)+orbit[0]*k,ray[1]*(1-k)+orbit[1]*k,ray[2]*(1-k)+orbit[2]*k];};
     const pts:Vec[]=[slot(0,0)];let pos:Vec=[pts[0][0],pts[0][1],pts[0][2]],tau=0,tang:Vec=[Tdir[0],Tdir[1],Tdir[2]],sNow=0;
     const stepS=.02;
@@ -174,12 +177,14 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   const lookAt=(s:number,q:number):Look=>{
     const g=Math.max(0,Math.min(1,s/(arcL||1)));
     if(g>=1-1e-9)return {position:[P3[0],P3[1],P3[2]],target:[island.target[0],island.target[1],island.target[2]],fovVerticalDeg:f1};
-    const root=actorAt(q).root,position=posFromS(s),chest:Vec=[root[0],root[1]+opts.chest,root[2]],toC=sm(Math.min(1,g/.12));
-    // Hand the door target off across the first part of the arc. Early on she is close and beside the lens:
-    // bias toward the lens keeps the near shoulder in, and a sideways bias keeps her off the portrait edge.
-    const vx=position[0]-root[0],vz=position[2]-root[2],vl=Math.hypot(vx,vz)||1,near=1-sm(Math.min(1,Math.max(0,g-.02)/.08));
-    const aim:Vec=[chest[0]+vx/vl*.28*near+vz/vl*.22*near,chest[1]+.06*near,chest[2]+vz/vl*.28*near-vx/vl*.22*near];
-    const mid:Vec=[doorT[0]+(aim[0]-doorT[0])*toC,doorT[1]+(aim[1]-doorT[1])*toC,doorT[2]+(aim[2]-doorT[2])*toC];
+    const root=actorAt(q).root,position=posFromS(s),chest:Vec=[root[0],root[1]+opts.chest,root[2]],toC=sm(Math.min(1,g/.1));
+    // Hand the door target off across the first tenth of the arc. That handoff has barely started while the
+    // fillet swings, so a short smootherstep nudge yaws a few degrees with it and keeps her off the portrait
+    // edge. It is not a snap onto her chest.
+    const vx=position[0]-root[0],vz=position[2]-root[2],vl=Math.hypot(vx,vz)||1,near=1-sm(Math.min(1,Math.max(0,(g-.015)/.06)));
+    const aim:Vec=[chest[0]+vx/vl*.35*near+vz/vl*.4*near,chest[1]+.06*near,chest[2]+vz/vl*.35*near-vx/vl*.4*near];
+    const pull=sm5(Math.min(1,s/.96)),nudge=.045*pull;
+    const mid:Vec=[doorT[0]+(aim[0]-doorT[0])*toC+vz/vl*nudge,doorT[1]+(aim[1]-doorT[1])*toC,doorT[2]+(aim[2]-doorT[2])*toC-vx/vl*nudge];
     const toI=sm((g-.78)/.22),it=island.target;
     return {position,target:[mid[0]+(it[0]-mid[0])*toI,mid[1]+(it[1]-mid[1])*toI,mid[2]+(it[2]-mid[2])*toI],fovVerticalDeg:f0+(f1-f0)*Math.pow(g,1.15)};};
   const poseQ=(q:number):Look=>{if(q<=qCrossEnd)return doorAtS(SOfQ(q));if(q>=1-1e-9)return lookAt(arcL,1);return lookAt(sFromQ(q),q);};
