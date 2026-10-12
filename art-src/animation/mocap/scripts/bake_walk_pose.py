@@ -1,8 +1,11 @@
-# Patch the shipped character GLB's walk clips with correct_walk_pose.
-# The curves in that GLB were exported before the constraint existed, so this applies the full
-# twist + right-knee pole (arms and leg). export_clips.py already applies it on a from-scratch
-# rebuild — do not run this bake on that output (the palm check below refuses a second twist).
+# Patch the shipped character GLB's walk clips with the walk-pose constraint.
 #   python3 bake_walk_pose.py [--dry]
+# Two sources:
+#   * curves that have never had the palm twist: full correct_walk_pose (both forearms + her right knee).
+#   * the 2d02e1d bake, which aimed BOTH palms at medial+backward: her left (bone .R) already
+#     faces the skirt, her right (bone .L) still opens toward the camera. That case rolls only
+#     forearm.L from the legacy aim onto the thigh. It does not twist bone .R again and does
+#     not re-solve the knee. A third run is refused.
 # Sit clips, turns, idle, door_reach, and wind are copied verbatim. STANCE_MM is not touched.
 import hashlib
 import json
@@ -228,8 +231,9 @@ def update_anim_meta(rep, ab, tol):
         'keys reduced per channel (greedy; slerp / lerp error <= %.2f deg hips+legs, %.2f deg spine/chest/neck, %.2f deg '
         'head/arms/hands, %.2f deg skirt, root/hips translation %.1f mm), rest translations / scales omitted, float32, '
         'LINEAR; source mocap low-passed (gauss sigma %.0f frames at 120 fps) before retargeting. '
-        'walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: forearm twist toward the thigh and a forward pole '
-        'on her right knee (bone .L); ankles, foot world rotation, and the other clips are unchanged'
+        'walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: her left palm (bone .R) keeps the medial+backward '
+        'forearm twist; her right palm (bone .L) is rolled off that backward aim onto the thigh. Forward pole on her '
+        'right knee (bone .L). Ankles, foot world rotation, and the other clips are unchanged'
         % (tol['leg'], tol['other'], tol['distal'], tol['skirt'], tol['trans_m'] * 1000, CB.SOURCE_SMOOTH))
     for n in CLIPS:
         if n in am.get('clips', {}) and 'keys' in am['clips'][n]:
@@ -250,21 +254,49 @@ def main():
         'skirt.back.low', 'skirt.right', 'skirt.right.low']
     assert len(rig.names) == 28
     dense = {}
+    mode_legacy = False
     for name in CLIPS:
         Q, T, t = sample(rig, name)
         w = weight_for(name, len(Q))
         palms = palm_out(rig, ctx, Q, T)
         print(name, 'frames', len(Q), 'weight', [round(float(w[0]), 3), round(float(w[min(36, len(w) - 1)]), 3), round(float(w[-1]), 3)],
               'palmL', [round(float(palms['L']['out'].min()), 3), round(float(palms['L']['out'].max()), 3)],
+              'fwdL', [round(float(palms['L']['fwd'].min()), 3), round(float(palms['L']['fwd'].max()), 3)],
               'palmR', [round(float(palms['R']['out'].min()), 3), round(float(palms['R']['out'].max()), 3)],
+              'fwdR', [round(float(palms['R']['fwd'].min()), 3), round(float(palms['R']['fwd'].max()), 3)],
               'kneeL', round(float(knee_outward(rig, Q, T, 'L').max()), 2),
               'kneeR', round(float(knee_outward(rig, Q, T, 'R').max()), 2), flush=True)
-        Q2 = AL.locals_with_walk_pose(rig, ctx, Q, T, w, arms=True, leg=True)
+        # out < -0.90: that palm's normal already points at the thigh (medial), not outward.
+        medial = float(np.median(palms['L']['out'])) < -0.90 and float(np.median(palms['R']['out'])) < -0.90
+        if name == 'walk_loop':
+            # Her right palm still carries the legacy backward aim when its normal's Z is negative.
+            legacy_right = medial and float(np.median(palms['L']['fwd'])) < -0.10
+            if medial and not legacy_right:
+                raise SystemExit('right palm already faces the thigh; bake would roll bone .L twice')
+            mode_legacy = legacy_right
+        if mode_legacy:
+            # Already-baked clip: roll only forearm.L. Bone .R and the right knee stay.
+            Q2 = AL.migrate_right_palm(ctx, Q, T, w)
+        else:
+            Q2 = AL.locals_with_walk_pose(rig, ctx, Q, T, w, arms=True, leg=True)
         palms2 = palm_out(rig, ctx, Q2, T)
         ank = np.linalg.norm(joint_pos(rig, Q, T, 'foot.L') - joint_pos(rig, Q2, T, 'foot.L'), axis=1).max() * 1000
         wrist = max(np.linalg.norm(joint_pos(rig, Q, T, 'hand.' + s) - joint_pos(rig, Q2, T, 'hand.' + s), axis=1).max()
                     for s in 'LR') * 1000
-        foot_deg = max_bone_deg(rig, Q, T, Q2, T, ['foot.L', 'foot.R', 'thigh.R', 'shin.R', 'upper_arm.L', 'upper_arm.R'])
+        if mode_legacy:
+            # World pose of everything except the right arm. hand.L's local quat stays; its world
+            # pose follows forearm.L, so it is not in this list.
+            frozen = ['forearm.R', 'hand.R', 'upper_arm.L', 'upper_arm.R',
+                      'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R',
+                      'hips', 'spine', 'chest', 'neck', 'head']
+            foot_deg = max_bone_deg(rig, Q, T, Q2, T, frozen)
+            hand_local = bone_angle(
+                RG.q2m(Q[:, rig.idx['hand.L']]), RG.q2m(Q2[:, rig.idx['hand.L']])).max()
+            if foot_deg > 0.05 or hand_local > 0.05:
+                raise SystemExit('%s moved a bone other than forearm.L (world %s deg, hand.L local %s)'
+                                 % (name, round(foot_deg, 4), round(float(hand_local), 4)))
+        else:
+            foot_deg = max_bone_deg(rig, Q, T, Q2, T, ['foot.L', 'foot.R', 'thigh.R', 'shin.R', 'upper_arm.L', 'upper_arm.R'])
         print('  after palmL', [round(float(palms2['L']['out'].min()), 3), round(float(palms2['L']['out'].max()), 3)],
               'fwd', [round(float(palms2['L']['fwd'].min()), 3), round(float(palms2['L']['fwd'].max()), 3)],
               'palmR', [round(float(palms2['R']['out'].min()), 3), round(float(palms2['R']['out'].max()), 3)],
@@ -273,8 +305,6 @@ def main():
               'kneeR', round(float(knee_outward(rig, Q2, T, 'R').max()), 2),
               'ankle_mm', round(float(ank), 4), 'wrist_mm', round(float(wrist), 4),
               'untouched_deg', round(foot_deg, 4), flush=True)
-        if float(np.median(palms['L']['out'])) < -0.90 and float(np.median(palms['R']['out'])) < -0.90:
-            raise SystemExit('palms already face the thigh; bake would twist them twice')
         dense[name] = dict(fps=FPS, Q=Q2, T=T, loop=name in LOOP, Q0=Q, w=w)
     # cloth margin on the cycle, where the right knee actually moves
     body = rig.mesh_data('LOD0_G2_BODY')
@@ -324,8 +354,17 @@ def main():
     print('written walk_loop palmL', [round(float(palms['L']['out'].min()), 3), round(float(palms['L']['out'].max()), 3)],
           'palmR', [round(float(palms['R']['out'].min()), 3), round(float(palms['R']['out'].max()), 3)],
           'kneeL', round(kL, 2), 'kneeR', round(kR, 2), flush=True)
+    def vs_thigh(side):
+        """Degrees, same definition as walk_qa_arms: 0 = palm normal along ±X (the thigh), 90 = front/back."""
+        return np.degrees(np.arccos(np.clip(np.abs(palms[side]['out']), 0, 1)))
+    print('walk_loop palm_vs_thigh deg L', [round(float(vs_thigh('L').min()), 1), round(float(np.median(vs_thigh('L'))), 1), round(float(vs_thigh('L').max()), 1)],
+          'R', [round(float(vs_thigh('R').min()), 1), round(float(np.median(vs_thigh('R'))), 1), round(float(vs_thigh('R').max()), 1)],
+          'signed_out L', round(float(np.median(palms['L']['out'])), 3),
+          'R', round(float(np.median(palms['R']['out'])), 3), flush=True)
     if palms['L']['out'].max() > -0.85 or palms['R']['out'].max() > -0.85:
         raise SystemExit('palms still face outward after key reduction')
+    if float(np.median(palms['L']['fwd'])) < -0.08:
+        raise SystemExit('right palm still aims backward after key reduction')
     if kL > kR + 2.0:
         raise SystemExit('right knee still swings wider than the left')
     Qs, Ts, ts = grab(rig2, 'walk_start')
