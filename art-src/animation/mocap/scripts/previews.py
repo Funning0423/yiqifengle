@@ -49,11 +49,11 @@ def root_at(meta, clip, t):
     return interp(rm.get('lateral_m'), t), interp(rm.get('forward_m'), t), math.radians(interp(rm.get('yaw_deg'), t))
 
 
-def render(glb, frames, views, res, follow=True):
+def render(glb, frames, views, res, follow=True, cam_at=None):
     d = tempfile.mkdtemp(prefix='mocap_r_')
     seq = os.path.join(d, 'seq.json')
     with open(seq, 'w') as f:
-        json.dump(dict(frames=frames, follow=follow), f)
+        json.dump(dict(frames=frames, follow=follow, cam_at=cam_at), f)
     subprocess.run([BLENDER, '-b', '-P', os.path.join(HERE, 'render_seq.py'), '--', glb, seq, d, ','.join(views), str(res)],
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return d
@@ -89,11 +89,11 @@ def seq_sit(dur, down):
 def video(name, new_glb, old_glb, out, res=420):
     dn, do = durations(new_glb), durations(old_glb)
     if name == 'walk_loop':
-        sn, so, follow = seq_walk(dn), seq_walk(do), True
+        sn, so, follow, ca = seq_walk(dn), seq_walk(do), True, None
     else:
-        sn, so, follow = seq_sit(dn, name == 'sit_down'), seq_sit(do, name == 'sit_down'), False
-    rn = render(new_glb, sn, ['side', 'front'], res, follow)
-    ro = render(old_glb, so, ['side', 'front'], res, follow)
+        sn, so, follow, ca = seq_sit(dn, name == 'sit_down'), seq_sit(do, name == 'sit_down'), False, [0.0, -SEATED_BACK / 2]
+    rn = render(new_glb, sn, ['side', 'front'], res, follow, ca)
+    ro = render(old_glb, so, ['side', 'front'], res, follow, ca)
     n = max(len(sn), len(so))
     fd = tempfile.mkdtemp(prefix='mocap_v_')
     for i in range(n):

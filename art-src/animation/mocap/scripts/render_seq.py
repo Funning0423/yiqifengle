@@ -1,5 +1,6 @@
 # Preview renderer (Blender workbench, headless).  blender -b -P render_seq.py -- <glb> <seq.json> <outdir> [views] [res]
-# seq.json: {"frames": [[clip, t_s, x, z, yaw_rad], ...], "follow": true}
+# seq.json: {"frames": [[clip, t_s, x, z, yaw_rad], ...], "follow": true, "cam_at": [x, z]}
+#   follow=false: cameras stay on cam_at (default: the first frame's root).
 #   root pose per frame in glTF character space (x = her left, z = forward, yaw + = to her left), as the driver places her.
 # views: comma list of side,front,back,q34,top,fixed34 (default side,front).  Output: <outdir>/<view>_<i:04d>.png
 import bpy, sys, math, os, json
@@ -103,7 +104,8 @@ for i, (clip, t, x, z, yaw) in enumerate(FR):
     M.translation = Vector((x, -z, 0))
     rootobj.matrix_world = M
     sc.frame_set(int(math.floor(f)), subframe=f - math.floor(f))
-    p = Vector((x, -z, 0)) if S.get('follow', True) else Vector((R0[2], -R0[3], 0))
+    ca = S.get('cam_at') or [R0[2], R0[3]]
+    p = Vector((x, -z, 0)) if S.get('follow', True) else Vector((ca[0], -ca[1], 0))
     fy = S.get('cam_yaw', 0.0)
     Rz = Matrix.Rotation(fy, 4, 'Z')
     for v in VIEWS:
