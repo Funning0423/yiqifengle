@@ -104,6 +104,10 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   // Cruise is an arc-length clock, not the doorway follow. A short smoothstep leaves that follow speed, then
   // ds/dq stays at Cc so the turn and the lift hold one speed. Ease-out (on the track) is the only later brake.
   // Her root at arc length s is the root at the progress that clock will actually play.
+  // The game follows walk distance, not this span's time. The island stop is slower than the 0.7 m/s
+  // walkDuration, so the middle of that walk advances distance ~1.176× faster than time. cruiseMps is the
+  // speed on that distance clock. The constant-time playback is shallower by the same factor.
+  const distanceRate=1.176;
   const slope=(remapProgress(.5,track)-remapProgress(.4,track))/.1;
   const cruise=opts.cruiseMps;
   if(!(typeof cruise==='number'&&cruise>=6&&cruise<=8&&opts.rampSeconds>0.4&&opts.rampSeconds<1.05))throw Error('outbound pace: cruise target');
@@ -164,9 +168,9 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     const ss:number[]=[0];let L=0;for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i];L+=Math.hypot(q[0]-p[0],q[1]-p[1],q[2]-p[2]);ss.push(L);}
     arcPts=pts;arcS=ss;arcL=L;Cc=(L-C0*qr*.5)/Math.max(1e-4,D-.5*qr);
   }
-  const played=Cc*slope/totalSeconds;
+  const played=Cc*slope/totalSeconds,seen=played*distanceRate;
   if(!(C0>0&&Cc>C0&&arcL>0&&Number.isFinite(played)))throw Error('outbound pace: cruise speed');
-  if(Math.abs(played-cruise)>0.45)throw Error('outbound pace: cruise '+played.toFixed(2)+' m/s, want '+cruise+' (arc '+arcL.toFixed(1)+' m, span '+totalSeconds.toFixed(2)+' s)');
+  if(Math.abs(seen-cruise)>0.45)throw Error('outbound pace: cruise '+seen.toFixed(2)+' m/s on the walk clock, want '+cruise+' (time clock '+played.toFixed(2)+', arc '+arcL.toFixed(1)+' m, span '+totalSeconds.toFixed(2)+' s)');
   const posFromS=(s:number):Vec=>{if(s<=0)return arcPts[0];if(s>=arcL)return arcPts[arcPts.length-1];
     let lo=0,hi=arcS.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(arcS[m]<s)lo=m;else hi=m;}
     const u=(s-arcS[lo])/((arcS[hi]-arcS[lo])||1),pa=arcPts[lo],pb=arcPts[hi];

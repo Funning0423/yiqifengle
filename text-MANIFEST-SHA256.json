@@ -1861,8 +1861,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
-    "bytes": 41364,
-    "sha256": "421a11be80a2a88090192b83d7a57ed0fce85f7e9be6884cc39032c02a83d108"
+    "bytes": 41770,
+    "sha256": "cf8ba48924289cfd92907c1dcd3d2991b1a008a118183772a8b6f0022574b2d1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
@@ -1891,8 +1891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
-    "bytes": 24285,
-    "sha256": "d8cd3e3008df3fc7c329af77a7e79f12a6c92538f99e61238fc20803a16929b2"
+    "bytes": 24506,
+    "sha256": "2d47afb032988f9beb9247f700a50d19137a70b4e4c711cc2763bf3f075009b1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
