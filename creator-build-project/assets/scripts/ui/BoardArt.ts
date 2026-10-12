@@ -22,14 +22,24 @@ export function boardBackgroundFor(selection: { provider?: string; stageId?: str
   return BOARD_BACKGROUND;
 }
 export type ArtDir = 'board' | 'popup' | 'r2' | 'r3';
-/** Source-pixel insets [left, top, right, bottom] of the 9- / 3-slice pieces (c-popups sizes.json, r2 sizes.json). */
+/** Source-pixel insets [left, top, right, bottom] of the 9- / 3-slice pieces (c-popups sizes.json, r2 sizes.json).
+ *  Settings chrome and main buttons are stored at 3× the old texture grid; ART_PX tells artSprite to scale that
+ *  node back down so the border on screen stays the old design width. */
+export const ART_PX: Record<string, number> = {
+  'popup/panel_frame_9s': 3,
+  'popup/title_plank_3s': 3,
+  'popup/btn_primary_3s': 3,
+  'popup/btn_secondary_3s': 3,
+  'popup/toggle_on': 3,
+  'popup/toggle_off': 3,
+};
 export const SLICES: Record<string, readonly number[]> = {
-  'popup/panel_frame_9s': [92, 92, 92, 92],
-  'popup/title_plank_3s': [84, 0, 84, 0],
-  'popup/btn_primary_3s': [69, 0, 69, 0],
-  'popup/btn_secondary_3s': [69, 0, 69, 0],
-  'popup/toggle_on': [28, 0, 28, 0],
-  'popup/toggle_off': [28, 0, 28, 0],
+  'popup/panel_frame_9s': [276, 276, 276, 276],
+  'popup/title_plank_3s': [252, 0, 252, 0],
+  'popup/btn_primary_3s': [207, 0, 207, 0],
+  'popup/btn_secondary_3s': [207, 0, 207, 0],
+  'popup/toggle_on': [84, 0, 84, 0],
+  'popup/toggle_off': [84, 0, 84, 0],
   'r2/sign_plank_3s': [90, 0, 90, 0],
   'board/hud_levelplate': [64, 0, 64, 0],
 };
@@ -94,7 +104,9 @@ export class BoardArt {
   loaded(dir: ArtDir): boolean { return this.done.has(dir); }
   frame(key: string): SpriteFrame | null { return this.frames.get(key) || null; }
   size(key: string): { width: number; height: number } {
-    const f = this.frames.get(key); return f ? { width: f.originalSize.width, height: f.originalSize.height } : { width: 0, height: 0 };
+    const f = this.frames.get(key); if (!f) return { width: 0, height: 0 };
+    const px = ART_PX[key] || 1;
+    return { width: f.originalSize.width / px, height: f.originalSize.height / px };
   }
   /** Called after every directory load: lets views repaint once art lands. */
   onChange(cb: Waiter): () => void { this.waiters.push(cb); return () => { const i = this.waiters.indexOf(cb); if (i >= 0) this.waiters.splice(i, 1); }; }

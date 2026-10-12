@@ -4,6 +4,7 @@ HERE=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.dirna
 CP=os.path.abspath(sys.argv[1] if len(sys.argv)>1 else os.path.join(HERE,'../..')); sys.argv=[sys.argv[0],CP]
 from ui_kit import *
 import compose2 as C2
+import sharpen_slices as SH
 SL=os.path.join(CP,'r2','slices'); os.makedirs(SL,exist_ok=True)
 for f in os.listdir(SL): os.remove(os.path.join(SL,f))
 rows=[]
@@ -22,9 +23,15 @@ def compact(im,l,t,mid=16):
 src=C2.A2('sign_plank_clean'); sp=scaled(src,176/src.height); e=round(sp.width*0.16); save(compact(sp,e,0),'sign_plank_3s','旅程册',f'精简版（无钉）横幅章节牌，三宫格（横向）：左 {e} px / 右 {e} px（箭头）不拉伸；高 176，显示宽 544')
 for rid,lk,ph_ in (('tide',False,False),('meadow',False,True),('sky',False,True),('sky',True,True)):
     save(C2.region_window(rid,200,128,lk,ph_),'region_%s%s'%(rid,'_locked' if lk else ''),'旅程册',('地区之窗 200×128（含 4 px 窗沿）'+('；占位图' if ph_ else '；combined_visual_m.glb 实渲')+('；未解锁：去色 + 雾' if lk else '')))
-save(fitw(C2.A2('tool_starlight_hero'),400),'hero_starlight','首次获得','道具介绍大图 400 px（(b) v3.1 模型 720 px 重渲后缩）')
-for t in ('windbell','tidebottle'): save(fitw(C2.A2('tool_%s_hero'%t),400),'hero_'+t,'首次获得','同上（可选：先只放星光）')
-for t,cn in (('tidenet','潮汐网'),('sunseed','日光籽'),('starshears','星剪')): save(C2.A2('tool_'+t),'tool_'+t,'行囊',cn+'：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）')
+def _hero(name):
+    im=SH.hero_image(Image.open(os.path.join(C2.R2,name+'.png')).convert('RGBA'))
+    note='道具介绍大图 400 px（(b) v3.1 模型 720 px 重渲后缩）' if im.width==400 else '道具介绍大图 %d px（同一机位 1440 渲染后缩小，形状和颜色不变）'%im.width
+    return im,note
+im,note=_hero('tool_starlight_hero'); save(im,'hero_starlight','首次获得',note)
+for t in ('windbell','tidebottle'):
+    im,note=_hero('tool_%s_hero'%t); save(im,'hero_'+t,'首次获得','同上（可选：先只放星光）' if im.width==400 else note)
+for t,cn in (('tidenet','潮汐网'),('sunseed','日光籽'),('starshears','星剪')):
+    src=Image.open(os.path.join(C2.R2,'tool_'+t+'.png')).convert('RGBA'); save(SH.regional_image(src,'tool_'+t),'tool_'+t,'行囊',cn+'：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）')
 save(fith(C2.A2('icon_charm'),96),'icon_charm','行囊','装扮空状态的蝴蝶结（运行时半透明）')
 save(fith(C2.A2('icon_lock'),72),'icon_lock','结算','旅途回顾说明行 / 未解锁章节共用（显示 36–64 px）')
 save(fith(C2.A2('beacon_lighthouse'),96),'beacon_lighthouse','灯塔目标格','格子角上的小灯塔；HUD 目标图标用同一张缩小')

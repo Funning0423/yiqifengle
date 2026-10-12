@@ -96,18 +96,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_starlight.png",
-    "bytes": 9755,
-    "sha256": "75cdb5cbf11fbfbf3074729bf798a87ed640e0876f907c20b85dce31e4f47f01"
+    "bytes": 77660,
+    "sha256": "867b74ecb5b811ec9974aec4cef4474f911f5894e5ba04c71bde0a65f264d163"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_tidebottle.png",
-    "bytes": 9376,
-    "sha256": "f6f6d5655d7ad2f004f5db4e5acc8bb141631a3198d2b85379387c962f9db045"
+    "bytes": 77408,
+    "sha256": "d04c5fde4689c7645ee993139903637c27a96cf4146444cf34bfcc4dd242d5c1"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_windbell.png",
-    "bytes": 9320,
-    "sha256": "e12aa07a81f217084c2f4b5acf69f10dd25f1dc587186bfa1e0bb2b999c65d5f"
+    "bytes": 71989,
+    "sha256": "589ea4d6a8a0c75127f7d8ada104993fab99daf09cac2b2ea0a2797705b669d9"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tray_frame.png",
@@ -121,18 +121,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_close.png",
-    "bytes": 6128,
-    "sha256": "a256171791b0e8dd53c97cd480b0c41618727f55fba5fcd69941bf7077de5f69"
+    "bytes": 28266,
+    "sha256": "6f66b50a14e4808013e3450d3cca63790e3a6e9c2b70b920c0f750821066a907"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_primary_3s.png",
-    "bytes": 5328,
-    "sha256": "d80e89364948109df2e63b305e1f3662f9da84578ebd60d4e92ccc2fd9ed9311"
+    "bytes": 25753,
+    "sha256": "f7ae2ad3c70d21a14952de7f5c0248ce944cd8b02f0c5f7e0c55eda7b0a24e0b"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_secondary_3s.png",
-    "bytes": 5668,
-    "sha256": "caef8e394b1d98173db69ffe934fbfef8193f9dea05e09b97312b7dec7058573"
+    "bytes": 30351,
+    "sha256": "19ca67e7264d82199709556f9cf9d6ef190468e0ff3aee7f888ac90d84442e79"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/chest_closed.png",
@@ -146,8 +146,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_about.png",
-    "bytes": 3235,
-    "sha256": "c92eaa297d39cb16dc5edc23a18db72d83a3da551238afe613ef8f0a0a1a295b"
+    "bytes": 16906,
+    "sha256": "124f61a3eae84bc2ee65d606c186c7aa8ba9da8a1f3f2e37dd332d9483d0e5b8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_home.png",
@@ -156,18 +156,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_moon.png",
-    "bytes": 3753,
-    "sha256": "384cc5c58b510157ebac540032caac0d4ba30ea4726a8e61af80cef4c7fbb6a1"
+    "bytes": 14957,
+    "sha256": "e67141ab6f8e6a68d3e5a79ab632bde102ea2a48e1a0eac4ed106ded61de6a75"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_motion.png",
-    "bytes": 3394,
-    "sha256": "1311b770cd33ea78365631bf9d404de0e9b795973bbf320197e8e5a056ade2e6"
+    "bytes": 12217,
+    "sha256": "ed9dd69ffa1b5854e61e28566418c3c2363e0ac8be160162eed20879de64695b"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_music.png",
-    "bytes": 2484,
-    "sha256": "e5c08a415bde9498df825cbf31fbebcfefe5323926e5b270b02cf8e1201f70d8"
+    "bytes": 9226,
+    "sha256": "0295e09afbd5ceaf378d4a73bd03efddf1c668b3a20852319a88c00db0ef1198"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_play.png",
@@ -176,18 +176,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_sfx.png",
-    "bytes": 5570,
-    "sha256": "99b58d063e52fae100ce689a4d2455f193ab604dda3ad16d2e1cdbe540f5a68e"
+    "bytes": 23429,
+    "sha256": "4d45b9437d14759da856646b8ba5a30834f877103e0bc675acf9d11886c0fd63"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png",
-    "bytes": 3754,
-    "sha256": "3f5089086c510e52cb40a868786a68e89b312a110cef22f4542057a18e4751ea"
+    "bytes": 13049,
+    "sha256": "bbcbb50f30e93847d31e49980e2d6a8e0dd6b1f30e725ed0e67281b5e4185ff8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png",
-    "bytes": 9621,
-    "sha256": "df24a0178260fc5182aae8550e276a6f2138ed06905b9410bef3c250abd2268c"
+    "bytes": 54977,
+    "sha256": "1385ed393417282c2eab3882368dfcfb69ff52456494b23422c35f26012660a8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_meadow.png",
@@ -266,23 +266,23 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/title_plank_3s.png",
-    "bytes": 6558,
-    "sha256": "3ffcfa2f4e493d623922556034752d278d1b43493203006b8fdc3864dba5aec0"
+    "bytes": 43304,
+    "sha256": "bf9b253b71ef8c7584d3d46c451f9f15769411ad9b4d63806d6056fcc75e9268"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/toggle_knob.png",
-    "bytes": 1956,
-    "sha256": "ab4feb2d80d701e322531ffaacbaad5e3996e7a98d3bc58c9803524f6b1f943f"
+    "bytes": 6699,
+    "sha256": "b799ac97b092d0c7efbd5bd28dea8df8f92078e9d779b594ea82138eb24206dc"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/toggle_off.png",
-    "bytes": 2986,
-    "sha256": "f8af4e0f56961cbe3329e86b08235d1865ff052777ce4bb4922dc20caaf89e97"
+    "bytes": 15620,
+    "sha256": "37e3f66c38e561d74ab4756f30a3c2e8197b4f3e85f2976bbf6578b88c882850"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/toggle_on.png",
-    "bytes": 3225,
-    "sha256": "219060b2c7bcf11e338fce94351a5a1f9b3c22f56c36d829409b0949c045a998"
+    "bytes": 15650,
+    "sha256": "d37cdbb47d15e655d3b97c72c571f6e0612e8d72bf4499978f753cb32efa70a2"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/beacon_lighthouse.png",
@@ -311,18 +311,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/hero_starlight.png",
-    "bytes": 27628,
-    "sha256": "8e64a20a493d5c336862addf79c65d6e67273d0d0798398b7722eb4c84bd42b9"
+    "bytes": 185585,
+    "sha256": "314338091c81e8fca4ba3140d8155207679b32da1e5eace9230fa1a4d51044a2"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/hero_tidebottle.png",
-    "bytes": 26253,
-    "sha256": "1d0fce429293ae9060bec394f27fb0f67475183f337cd81a980662467949b355"
+    "bytes": 173863,
+    "sha256": "05c27bc8fbe6377daff1589cd0cca50d6bed969471eee338844ad71cc7a87de7"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/hero_windbell.png",
-    "bytes": 25359,
-    "sha256": "6570ca0d818333d52d4b1d38f901df1c66aea4e041db53185e4dda17a3d47f41"
+    "bytes": 167913,
+    "sha256": "4d98fd6507eac3fa410a4211751a7b1cb3c75aab975ac99c88383faa3d781d4b"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/icon_charm.png",
@@ -386,18 +386,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_starshears.png",
-    "bytes": 10729,
-    "sha256": "347503436dad8c0f0a48690bfc6f33dbc7985fb25deb25682dec2dd0ff3a6a5b"
+    "bytes": 83238,
+    "sha256": "c8d35efacf00fd4685c60feda00c09b21dd5e7a77f2438c131167cc903b38f47"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_sunseed.png",
-    "bytes": 11570,
-    "sha256": "3bce001f97c5e507b57645ac8058aab43f7b6d3d6720397332ce2804cd58b267"
+    "bytes": 90310,
+    "sha256": "9cc6f30c692298b99b6a061ac1c48da0afb1bb1c41d56025f85c62d25ec16cb0"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_tidenet.png",
-    "bytes": 11528,
-    "sha256": "09f1e18ddd6176c19d9b1cd4a86adbfcd440de29935e3cb1f0277cbdd6b27492"
+    "bytes": 97598,
+    "sha256": "d4a81efc16b52aca383d8e3541d649c52145235d3d7a9569cb89b84fd50bcf92"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r3/about_gamename.png",
