@@ -1,73 +1,64 @@
-# 地区奖励道具精修结果（潮汐网 / 日光籽 / 星剪）
+# 地区奖励道具剪影加圆（潮汐网 / 日光籽 / 星剪）
 
-范围：只重做 `tool_tidenet`、`tool_sunseed`、`tool_starshears` 三个模型并重渲。造型保持产品已确认的版本，只加细节。
-未改动：运行时、`creator-build-project/tools-original.png`、道具栏代码、角色/动画/坐裙/场景/其他道具/棋子、潮汐锚与棱镜位移。
-托盘、相机、聚焦光和调色板（`M_env_palette` / `finish()`）沿用原有设置。
+上一轮精修（草稿 PR #5）加了网眼、海螺、白纹和楔形刃，剪影仍然是多边形：圆环分段少，网线、白纹和挂绳是四边或五边管，太阳光线是扁三棱柱。`join()` 的平滑角是 35°，只能藏住大约 35° 以下的面，剪影网格本身还是多边形。
 
-## 改了哪些细节
+本轮不改造型、机位、焦点灯光和调色板，只把这些轮廓的分段加到 2.5 倍预览下看起来是圆的。圆来自网格，不是再把平滑角调低。
 
-### 潮汐网 `tool_tidenet`
-- 网圈改为圆整的 40 段圆环截面，不再是折线圈。
-- 网袋由 18 根经线加两个方向的螺旋纬线编织而成，网眼更细，整体向右后方自然下垂。网线在世界坐标里夹在托盘面之上，不穿托盘。
-- 网袋里有扇贝和海螺：扇贝是珊瑚色，带放射状肋纹和贝耳；海螺是青绿色，带螺旋纹和开口。
-- 红白浮子改为蛋形，用一根细绳系在网圈上。去掉了会像精灵球的赤道带。
-- 短柄是深色木头，带倒角，柄尾有圆形握把。
-- 网口朝向镜头，没有做成平面球拍的样子。
+木托仍是 16 段圆柱，和已定稿的星光、风语铃、潮汐瓶是同一只底座。
 
-### 日光籽 `tool_sunseed`
-- 种子是更顺滑的水滴形，白色纵纹贴着表面走向，尖端朝下插在小土堆里。
-- 土堆有颗粒起伏。
-- 弯曲的嫩芽加两片子叶。子叶有中脉，并略微上翘。
-- 身后的金色小太阳，圆盘更圆，三角光芒更细、长度一致。
+## 分段
 
-### 星剪 `tool_starshears`
-- 两片长刀刃呈 X 形张开，刀刃有厚度和斜面，亮刃线落在刃面上。
-- 两个金色大指环向外撇开，是正圆环。
-- 金色星形螺丝坐在枢轴上。
-- 一枚小星星挂饰挂在一片刀尖上。
-- 通过 `rest()` 让剪刀落在托盘上，没有悬空，也没有穿插。
+2.5 倍预览按 192 px、正交宽度 1.25 计算，大约 384 px/世界单位。大圆的弦长压到约 2.5 px。管截面至少 16 边（相邻面约 22.5°，低于 35°）。
 
-## 切图路径与字节数
-
-切图宽度仍为 154 px，体积在 10–12 KB 量级。
-
-| 道具 | 旧切图（git HEAD） | 新切图 | 旧 | 新 |
-|---|---|---|---|---|
-| 潮汐网 | `r2/slices/tool_tidenet.png` | 同路径 | 10595 B (154×133) | 11498 B (154×146) |
-| 日光籽 | `r2/slices/tool_sunseed.png` | 同路径 | 11443 B (154×190) | 11314 B (154×187) |
-| 星剪 | `r2/slices/tool_starshears.png` | 同路径 | 10203 B (154×170) | 10661 B (154×179) |
-
-`r2/slices/sizes.json`：行囊分组 39637 → 40869 B，总计 196786 → 198018 B。
-
-原始 192×192 渲染图：
-
-| 道具 | 旧 `src/round2/raw_v1/` | 新 `src/round2/raw/` |
+| 部位 | 上一轮（`raw_round3/`） | 本轮（`raw/`） |
 |---|---|---|
-| 潮汐网 | 42205 B | 48274 B |
-| 日光籽 | 49206 B | 48390 B |
-| 星剪 | 40367 B | 43209 B |
+| 潮汐网网圈 | 40 段 × 10 边管 | 280 段 × 24 边管 |
+| 网线 | 四边管 | 16 边圆管，袋面采样加密 |
+| 系绳 | 5 边管 | 16 边圆管 |
+| 浮漂 | 16 段 × 8 圈 | 72 段 × 20 圈 |
+| 短柄 / 握把 | 10 边管 / 14×9 球 | 24 边管 / 32×18 球 |
+| 海螺 | 18 段车削 | 96 段车削，唇口 64×16 |
+| 葵花籽 | 24 段，经线 26 | 144 段，经线 48 |
+| 白纹 | 四边管 | 16 边圆管 |
+| 太阳圆盘 | 40 段 | 224 段 |
+| 太阳金边 | 48 段 × 6 边管 | 224 段 × 20 边管 |
+| 光线 | 扁三棱柱 | 24 边截面的圆头水滴 |
+| 土堆 | 20 段 | 128 段 |
+| 星剪指环 | 40 段 × 14 边管 | 128 段 × 24 边管 |
+| 剪柄 | 12 边扁管 | 24 边扁管 |
+| 刃口亮线 / 挂链 | 四边管 / 五边管 | 12 边圆管 |
 
-旧版原图保存在 `src/round2/raw_v1/`，没有被覆盖。
+星光、风语铃、潮汐瓶的模型没有重渲。金星螺丝和小星光仍是星形。
+
+## 切图
+
+宽度仍是 154 px。pngquant `--quality 70-92`。
+
+| 道具 | 切图 | int/v1 | 本轮 |
+|---|---|---|---|
+| 潮汐网 | `r2/slices/tool_tidenet.png` | 154×133，10595 B | 154×146，11528 B |
+| 日光籽 | `r2/slices/tool_sunseed.png` | 154×190，11443 B | 154×187，11570 B |
+| 星剪 | `r2/slices/tool_starshears.png` | 154×170，10203 B | 154×179，10729 B |
+
+`r2/slices/sizes.json`：行囊组 39637 → 41223 B，合计 196786 → 198372 B。上一轮精修的三张切图是 11498 / 11314 / 10661 B，本轮只多了几百字节。
+
+原始 192×192 渲染在 `src/round2/raw/`。上一轮精修的原图留在 `src/round2/raw_round3/`，更早的一版在 `src/round2/raw_v1/`。
 
 ## 对比图
 
-- 三件新道具与星光/风语铃/潮汐瓶并排：`art-src/board-ui/c-popups/r2/region_tools_vs_board.png`
-- 每件道具新旧对比，含 1x 与 2.5x 以及灰度：`art-src/board-ui/c-popups/r2/region_tools_compare.png`
-- 行囊样图：`r2/bag_island.png`、`r2/bag_level.png`
-- 行囊新旧对比：`r2/compare/bag_tools_old_vs_new_island.jpg`、`r2/compare/bag_tools_old_vs_new_level.jpg`
+- `r2/region_tools_compare.png`：每件道具，上一轮精修 ↔ 本轮。每组是 1x（192 px）、放大 2.5x、灰度。
+- `r2/region_tools_vs_board.png`：已定稿的星光 / 风语铃 / 潮汐瓶，与上一轮、本轮的三件地区道具并排。上面一行是 1x，下面是 2.5x。
 
-## 备注
+## 没有改的
 
-- `bag_island` 的背景用 `b-board/slices/bg_island_board.jpg` 代替，因为原 C0 岛屿截图不在仓库里；`bag_level` 用已提交的 `board_final_tools.png`。
-- `src/popup_props.blend` 没有重新导出，只改了脚本和渲染图。
-- `sheets2.py` 里 T9 基线那几列依赖仓库外的素材，无法复现，所以另做了新旧行囊对比。
+- 星光、风语铃、潮汐瓶，以及 `b-board` 里的托盘和其他棋子。
+- `creator-build-project` 里的 `tools-original.png`。道具栏代码、运行时都没动。
+- 行囊全屏样张没有重新合成，也没有把这三张切图接进托盘。
 
 ## 复现
 
 ```
-blender -b --factory-startup -P art-src/board-ui/c-popups/src/build_popups.py -- /tmp/cpop 64
+blender -b --factory-startup -P art-src/board-ui/c-popups/src/build_popups.py -- /tmp/out 64 tool_tidenet,tool_sunseed,tool_starshears
 ```
 
-只渲这三件时，按 HANDOFF §4 传入逗号列表 `tool_tidenet,tool_sunseed,tool_starshears`。
-然后依次运行 `src/round2/region_tools.py`（调色、裁切、pngquant、更新 `sizes.json`、行囊样图）和 `src/round2/tools_compare.py`（对比图）。
-行囊样图的岛屿背景用环境变量 `ISLAND_IMG` 指定。
+把三张 `raw/tool_*.png` 拷回 `src/round2/raw/`，再跑 `python3 src/round2/tools_compare.py art-src/board-ui/c-popups`。切图是 `focus_grade` 之后裁到内容框，再用 pngquant `--quality 70-92 --speed 1`。

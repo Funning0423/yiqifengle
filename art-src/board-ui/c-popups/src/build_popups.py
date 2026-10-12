@@ -470,14 +470,14 @@ def conch(sc=1.0):
     def env(s): return 0.092*(s**0.75)*(1-0.26*max(0.0,(s-0.78)/0.22)**1.6)
     def rr(s,k=0.0): return env(s)*(1+0.13*s*math.cos(2*math.pi*2.6*s))+k
     ns=34; prof=[(rr(i/ns),0.17*(1-i/ns)) for i in range(ns+1)]
-    body=lathe_n(prof,18,'teal2',0.0)
+    body=lathe_n(prof,96,'teal2',0.0)
     sp=[]; 
     for i in range(0,41):
         s=0.10+0.88*i/40; ang=2*math.pi*2.6*s+0.5; r_=rr(s,0.0035)
         sp.append((r_*math.cos(ang),r_*math.sin(ang),0.17*(1-s)))
-    rib=finish(tube_into(bmesh.new(),sp,0.0095,5,rfn=lambda t:0.45+0.55*math.sin(math.pi*min(1,t*1.4+0.1))**0.6),'sprib','teal3')
-    R0=rr(1.0); mouth=finish(tube_into(bmesh.new(),[(R0*0.98*math.cos(a),R0*0.98*math.sin(a),0.0) for a in [2*math.pi*k/18 for k in range(18)]],0.011,6,closed=True),'lip','plaster')
-    inner=finish(lathe_bm([(0.0,-0.030),(R0*0.55,-0.020),(R0*0.92,0.0),(0.0,0.0)],18),'mouth','orange',0.0)
+    rib=finish(tube_into(bmesh.new(),sp,0.0095,16,rfn=lambda t:0.45+0.55*math.sin(math.pi*min(1,t*1.4+0.1))**0.6),'sprib','teal3')
+    R0=rr(1.0); mouth=finish(tube_into(bmesh.new(),[(R0*0.98*math.cos(a),R0*0.98*math.sin(a),0.0) for a in [2*math.pi*k/64 for k in range(64)]],0.011,16,closed=True),'lip','plaster')
+    inner=finish(lathe_bm([(0.0,-0.030),(R0*0.55,-0.020),(R0*0.92,0.0),(0.0,0.0)],48),'mouth','orange',0.0)
     ob=join([body,rib,mouth,inner],'conch_j',35); ob.data.transform(Matrix.Scale(sc,4)); return ob
 def lathe_bm(prof,seg):
     bm=bmesh.new(); rings=[]
@@ -486,28 +486,30 @@ def lathe_bm(prof,seg):
         for k in range(seg): k2=(k+1)%seg; bm.faces.new((rings[i][k],rings[i][k2],rings[i+1][k2],rings[i+1][k]))
     bmesh.ops.remove_doubles(bm,verts=bm.verts,dist=1e-5); bmesh.ops.recalc_face_normals(bm,faces=bm.faces); return bm
 def floatball(c,r=0.058):
-    # 浮漂 v3：圆滚的红白浮球（上红下白，16 段 × 8 圈），顶上白色小颈 + 深木小环
+    # 浮漂：红白球 72 段 × 20 圈，小颈 / 小环同样加密，2.5x 剪影是圆的
     def half(a0,a1,sw_):
-        prof=[(r*math.sin(math.radians(a)),r*1.18*math.cos(math.radians(a))) for a in [a0+(a1-a0)*i/8 for i in range(9)]]
-        return finish(lathe_bm(prof,16),'fb',sw_,0.0)
+        prof=[(r*math.sin(math.radians(a)),r*1.18*math.cos(math.radians(a))) for a in [a0+(a1-a0)*i/20 for i in range(21)]]
+        return finish(lathe_bm(prof,72),'fb',sw_,0.0)
     top=half(0,90,'red'); bot=half(90,180,'plaster')
-    neck=finish(lathe_bm([(0.0,r*1.10),(0.019,r*1.10),(0.021,r*1.30),(0.014,r*1.42),(0.0,r*1.42)],12),'neck','plaster',0.0)
-    eye=finish(tube_into(bmesh.new(),[(0.016*math.cos(a),0.0,r*1.46+0.016*math.sin(a)) for a in [2*math.pi*k/12 for k in range(12)]],0.0045,5,closed=True),'eye','darkwood')
-    pin=finish(lathe_bm([(0.0,-r*1.14),(0.012,-r*1.14),(0.015,-r*1.22),(0.0,-r*1.22)],10),'pin','darkwood',0.0)
+    neck=finish(lathe_bm([(0.0,r*1.10),(0.019,r*1.10),(0.021,r*1.30),(0.014,r*1.42),(0.0,r*1.42)],32),'neck','plaster',0.0)
+    eye=finish(tube_into(bmesh.new(),[(0.016*math.cos(a),0.0,r*1.46+0.016*math.sin(a)) for a in [2*math.pi*k/48 for k in range(48)]],0.0045,16,closed=True),'eye','darkwood')
+    pin=finish(lathe_bm([(0.0,-r*1.14),(0.012,-r*1.14),(0.015,-r*1.22),(0.0,-r*1.22)],24),'pin','darkwood',0.0)
     ob=join([top,bot,neck,eye,pin],'floatball',35); ob.data.transform(Matrix.Translation(c)); return ob
+# 剪影分段：2.5 倍预览 = 192px×2.5，正交宽 1.25，约 384 px/世界单位。
+# 大圆弦长压到约 2.5px；管截面至少 16 边（面夹角 ≤ 22.5°，低于 35° 平滑阈值）。
+# 不靠平滑着色把四边管和扁棱柱藏圆。木托仍是 16 段，和星光 / 风语铃 / 潮汐瓶同一只底座。
 def tool_tidenet():
-    # 潮汐网 v3：造型不变（短柄小抄网侧躺在木托上，网口朝镜头，网兜往右后方垂下），全部加细：
-    # 网圈改成 40 段圆环；网兜是 18 股×2 向的菱形网眼（细线 + 交点小结），收口处一个绳结，网兜压在木托上不穿底；
-    # 兜里一枚有放射棱的扇贝和一枚螺旋海螺；浮漂是红白圆球，细绳系在网圈上；柄带铁箍，末端圆把手，倒角。
+    # 潮汐网：造型不变。网圈 280 段 × 管截面 24 边；网线 16 边圆管（不再是四边管），沿袋面采样加密。
+    # 网兜仍是 18 股×2 向的菱形网眼。浮漂、海螺、柄、握把的旋转体也加密，剪影不再是多边形。
     FL=0.188; P=tcoaster('tn'); R=0.285; HR=0.023; hx=-0.08; hz=FL+R*0.961+HR+0.002
     M=Matrix.Translation((hx,-0.06,hz))@Rm(-42,'Z')@Rm(74,'X')
-    N=18; D=0.40; tw=1.40; ns=18
+    N=18; D=0.40; tw=1.40; ns=32
     def bagpt(t,phi):
         r=R*max(0.0,1-t**2.3)**0.55; p=M@Vector((r*math.cos(phi),r*math.sin(phi)-0.10*t**1.5,-D*t)); p.z=max(p.z,FL+0.005); return p
     nb=bmesh.new()
     for k in range(N):
         for sg in (1,-1):
-            tube_into(nb,cr([bagpt(i/ns,2*math.pi*k/N+sg*tw*i/ns) for i in range(ns+1)],2),0.0042,4,caps=False)
+            tube_into(nb,cr([bagpt(i/ns,2*math.pi*k/N+sg*tw*i/ns) for i in range(ns+1)],3),0.0042,16,caps=False)
     net=finish(nb,'net','acornl',0.0)
     kb=bmesh.new(); rows=int(N*tw/math.pi)
     for m in range(1,rows+1):
@@ -516,7 +518,7 @@ def tool_tidenet():
             bmesh.ops.create_icosphere(kb,subdivisions=1,radius=0.0068,matrix=Matrix.Translation(bagpt(t,2*math.pi*k/N+tw*t)))
     knots=finish(kb,'knots','acornl',0.0)
     ap=bagpt(1.0,0.0); apx=finish(xform(ico(0.022,2),tuple(ap),scale=(1,1,1.3)),'apex','darkwood',0.0)
-    hoop=finish(tube_into(bmesh.new(),[(R*math.cos(a),R*math.sin(a),0.0) for a in [2*math.pi*k/40 for k in range(40)]],HR,10,closed=True),'hoop','wood'); mx(hoop,M)
+    hoop=finish(tube_into(bmesh.new(),[(R*math.cos(a),R*math.sin(a),0.0) for a in [2*math.pi*k/280 for k in range(280)]],HR,24,closed=True),'hoop','wood'); mx(hoop,M)
     # 兜里的扇贝（斜靠着，铰口朝下）和海螺（躺着，壳口朝镜头），都落在木托面上
     sc=scallop(0.15,'coral'); mx(sc,Tm(hx-0.085,0.035,0.0)@Rm(-14,'Z')@Rm(8,'Y')@Rm(-52,'X')); rest([sc],FL+0.002)
     cn=conch(1.25); mx(cn,Tm(hx+0.115,-0.01,0.0)@Rm(14,'Z')@Rm(80,'Y')@Rm(34,'Z')); rest([cn],FL+0.006)
@@ -524,15 +526,15 @@ def tool_tidenet():
     a_f=math.radians(212); hp=M@Vector((R*math.cos(a_f),R*math.sin(a_f),0.0))
     fc=Vector((hp.x-0.075,hp.y-0.035,FL+0.062*1.22)); fb=floatball(tuple(fc),0.062)
     eye=fc+Vector((0,0,0.062*1.46))
-    cord=finish(tube_into(bmesh.new(),cr([tuple(eye+Vector((0,0,0.012))),tuple(eye+Vector((0.02,0.0,0.045))),tuple(hp.lerp(eye,0.3)+Vector((0,0,0.02))),tuple(hp)],4),0.0045,5),'cord','darkwood')
+    cord=finish(tube_into(bmesh.new(),cr([tuple(eye+Vector((0,0,0.012))),tuple(eye+Vector((0.02,0.0,0.045))),tuple(hp.lerp(eye,0.3)+Vector((0,0,0.02))),tuple(hp)],4),0.0045,16),'cord','darkwood')
     knot=finish(xform(ico(0.017,1),tuple(hp)),'cknot','darkwood')
     # 短柄：从网圈右前下方出来，铁箍 + 深木柄身（微弯，贴着木托）+ 圆把手
     ah=math.radians(-20); p0=M@Vector((R*math.cos(ah),R*math.sin(ah),0.0)); p3=Vector((0.395,-0.17,FL+0.05))
     p1=p0+(p0-Vector((hx,-0.06,hz))).normalized()*0.07; p2=Vector((0.28,-0.21,FL+0.03))
     hp_=cr([tuple(p0),tuple(p1),tuple(p2),tuple(p3)],8)
-    hd=finish(tube_into(bmesh.new(),hp_,0.027,10,rfn=lambda t:0.92+0.12*t),'handle','darkwood',0.006,2)
-    d0=(Vector(hp_[2])-p0).normalized(); fer=finish(aim(lathe_bm([(0.0,-0.02),(0.036,-0.02),(0.036,0.03),(0.0,0.03)],12),p0+d0*0.02,d0),'ferrule','wood',0.006,2)
-    d1=(p3-Vector(hp_[-3])).normalized(); grip=finish(xform(uvs(0.05,14,9),tuple(p3+d1*0.022)),'grip','acornl')
+    hd=finish(tube_into(bmesh.new(),hp_,0.027,24,rfn=lambda t:0.92+0.12*t),'handle','darkwood',0.006,2)
+    d0=(Vector(hp_[2])-p0).normalized(); fer=finish(aim(lathe_bm([(0.0,-0.02),(0.036,-0.02),(0.036,0.03),(0.0,0.03)],32),p0+d0*0.02,d0),'ferrule','wood',0.006,2)
+    d1=(p3-Vector(hp_[-3])).normalized(); grip=finish(xform(uvs(0.05,32,18),tuple(p3+d1*0.022)),'grip','acornl')
     return join(P+[net,knots,apx,hoop,sc,cn,fb,cord,knot,hd,fer,grip],'tool_tidenet',35)
 def cotyledon(L=0.17,W=0.052,sw_='leaf',rib='leafl'):
     # 子叶 v3：卵圆叶片（尖头），中脉处凹成一道浅沟、叶缘微微上翻、叶尖略往上卷；中脉上贴一根浅色细脉；叶片有厚度
@@ -540,52 +542,68 @@ def cotyledon(L=0.17,W=0.052,sw_='leaf',rib='leafl'):
         w=(v-0.5)*2; wd=W*math.sin(math.pi*u**0.72)**0.85
         return (L*u,w*wd,0.011*w*w*(0.4+u)+0.030*u**2.2)
     P=[finish(thicken(surf(f,10,6),0.009),'lf',sw_,0.002,1,40)]
-    P.append(finish(tube_into(bmesh.new(),[(L*u,0,0.0035+0.030*u**2.2) for u in (0.0,0.15,0.3,0.45,0.6,0.75,0.88)],0.0048,4,rfn=lambda t:1.0-0.55*t),'mid',rib))
+    P.append(finish(tube_into(bmesh.new(),[(L*u,0,0.0035+0.030*u**2.2) for u in (0.0,0.15,0.3,0.45,0.6,0.75,0.88)],0.0048,12,rfn=lambda t:1.0-0.55*t),'mid',rib))
     return join(P,'cotyledon',35)
 def mound():
     # 小土堆：圆顶，顶上一圈浅浅的环形凹口把籽尖围住，边缘略不规则；两粒小石子
     rnd=random.Random(11)
     prof=[(0.0,0.292),(0.045,0.296),(0.085,0.300),(0.125,0.286),(0.175,0.256),(0.225,0.218),(0.262,0.190),(0.270,0.184),(0.0,0.180)]
-    bm=lathe_bm([(r*0.84,z) for r,z in prof],20)
+    bm=lathe_bm([(r*0.84,z) for r,z in prof],128)
     for v in bm.verts:
         if v.co.z>0.19: a=math.atan2(v.co.y,v.co.x); k=1+0.035*math.sin(3*a+0.7)+0.02*math.sin(5*a); v.co.x*=k; v.co.y*=k; v.co.z+=0.008*math.sin(4*a+1.1)*min(1,math.hypot(v.co.x,v.co.y)/0.2)
     me=finish(bm,'mound','floor3',0.0)
     pb=[finish(xform(ico(0.026,1),(0.14,-0.11,0.205),scale=(1,0.9,0.6)),'pb','tan',0.0),finish(xform(ico(0.017,1),(-0.16,-0.09,0.200),scale=(1,1,0.65)),'pb','w5a',0.0)]
     return join([me]+pb,'mound_j',40)
+def sun_ray(length=0.118, half_w=0.024, sides=24, seg=20):
+    # 光线：侧视是余弦收到圆头的水滴，不是三角直边；截面是 24 边扁椭圆，不是扁棱柱。
+    bm=bmesh.new(); rings=[]
+    for i in range(seg):
+        t=i/seg; z=length*t
+        rw=max(half_w*(math.cos(t*math.pi/2)**0.55), 0.0015)
+        rd=max(rw*0.72, 0.0015)
+        rings.append([bm.verts.new((rw*math.cos(2*math.pi*k/sides), rd*math.sin(2*math.pi*k/sides), z)) for k in range(sides)])
+    tip=bm.verts.new((0,0,length))
+    for i in range(len(rings)-1):
+        for k in range(sides):
+            k2=(k+1)%sides; bm.faces.new((rings[i][k], rings[i][k2], rings[i+1][k2], rings[i+1][k]))
+    last=rings[-1]
+    for k in range(sides): bm.faces.new((last[(k+1)%sides], last[k], tip))
+    bm.faces.new(rings[0][::-1])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
 def tool_sunseed():
-    # 日光籽 v3：造型不变（深色葵花籽尖头朝下插在小土堆里，顶上弯芽 + 两片子叶，背后一枚金色小太阳），加细：
-    # 籽是 24 段泪滴旋转体（压扁成杏仁），白纹沿壳面按经线走、两头收细；子叶带中脉、略上翻；
-    # 太阳是圆润的厚圆盘 + 金边 + 16 根等长细光芒，立在一根小木桩上。
+    # 日光籽：造型不变。籽身 144 段泪滴旋转体（压扁成杏仁），白纹是 16 边圆管贴着壳面。
+    # 太阳圆盘 224 段，金边 224 段 × 20 边管；16 根光线是圆头水滴，不再是扁三棱柱。
     FL=0.188; P=tcoaster('ss')
     # --- 太阳
-    sun=[finish(xform(lathe_bm([(0.0,-0.020),(0.212,-0.020),(0.226,-0.012),(0.230,0.0),(0.226,0.012),(0.210,0.024),(0.180,0.030),(0.0,0.030)],40),(0,0,0),[('X',90)]),'disc','sun',0.0),
-         finish(xform(tube_into(bmesh.new(),[(0.150*math.cos(a),-0.029,0.150*math.sin(a)) for a in [2*math.pi*k/48 for k in range(48)]],0.0065,6,closed=True,flat=Vector((0,1,0))),(0,0,0)),'ring2','gold'),
-         finish(xform(tube_into(bmesh.new(),[(0.222*math.cos(a),0.0,0.222*math.sin(a)) for a in [2*math.pi*k/48 for k in range(48)]],0.011,6,closed=True,flat=Vector((0,1,0))),(0,0,0)),'rim','gold')]
+    sun=[finish(xform(lathe_bm([(0.0,-0.020),(0.212,-0.020),(0.226,-0.012),(0.230,0.0),(0.226,0.012),(0.210,0.024),(0.180,0.030),(0.0,0.030)],224),(0,0,0),[('X',90)]),'disc','sun',0.0),
+         finish(xform(tube_into(bmesh.new(),[(0.150*math.cos(a),-0.029,0.150*math.sin(a)) for a in [2*math.pi*k/160 for k in range(160)]],0.0065,16,closed=True,flat=Vector((0,1,0))),(0,0,0)),'ring2','gold'),
+         finish(xform(tube_into(bmesh.new(),[(0.222*math.cos(a),0.0,0.222*math.sin(a)) for a in [2*math.pi*k/224 for k in range(224)]],0.011,20,closed=True,flat=Vector((0,1,0))),(0,0,0)),'rim','gold')]
     for k in range(16):
-        a=math.radians(22.5*k); ry=prism([(-0.028,0.0),(0.028,0.0),(0.0,0.118)],0.024); xform(ry,(0,0,0),[('Y',90-math.degrees(a))]); xform(ry,(0.222*math.cos(a),0.0,0.222*math.sin(a)))
-        sun.append(finish(ry,'ray','gold',0.005,1))
+        a=math.radians(22.5*k); ry=sun_ray(); xform(ry,(0,0,0),[('Y',90-math.degrees(a))]); xform(ry,(0.222*math.cos(a),0.0,0.222*math.sin(a)))
+        sun.append(finish(ry,'ray','gold',0.0))
     sg=join(sun,'tmp_sun',30); sg.data.transform(Matrix.Translation((0.0,0.16,0.70)))
-    stake=finish(xform(cyl(0.013,0.016,0.36,8),(0.0,0.16,0.36)),'stake','darkwood',0.004)
+    stake=finish(xform(cyl(0.013,0.016,0.36,24),(0.0,0.16,0.36)),'stake','darkwood',0.004)
     # --- 籽：泪滴形旋转体（尖头朝下），压扁；白纹沿经线
     Hh=0.41; Rmax=0.122
     def fr(s): return (s**1.05)*((1-s)**0.55)/0.3566*Rmax
-    prof=[(fr(s),Hh*s) for s in [i/26 for i in range(27)]]
+    prof=[(fr(s),Hh*s) for s in [i/48 for i in range(49)]]
     prof=[(max(r,0.0),z) for r,z in prof]
     prof[0]=(0.0,0.0); prof[-1]=(0.0,Hh)
-    seed=lathe_n(prof,24,'ink',0.0); seed.data.transform(Matrix.Diagonal((1.0,0.62,1.0,1.0)))
+    seed=lathe_n(prof,144,'ink',0.0); seed.data.transform(Matrix.Diagonal((1.0,0.62,1.0,1.0)))
     st=[]
     for dl in (-42,-21,0,21,42):
         d_=math.radians(dl); pts=[]
-        for i in range(25):
-            s=0.17+0.72*i/24; r_=fr(s)+0.0025
+        for i in range(40):
+            s=0.17+0.72*i/39; r_=fr(s)+0.0025
             pts.append((r_*math.sin(d_),-0.62*r_*math.cos(d_),Hh*s))
-        st.append(finish(tube_into(bmesh.new(),pts,0.0085,4,rfn=lambda t:max(0.04,math.sin(math.pi*t)**0.7)),'stripe','white'))
+        st.append(finish(tube_into(bmesh.new(),pts,0.0085,16,rfn=lambda t:max(0.04,math.sin(math.pi*t)**0.7)),'stripe','white'))
     sd=join([seed]+st,'tmp_seed',35)
     Ms=Matrix.Translation((0.0,-0.02,0.19))@Rm(8,'Y')@Matrix.Scale(1.18,4)@Rm(-12,'Z'); sd.data.transform(Ms)
     top=Ms@Vector((0,0,Hh))
     # --- 芽 + 子叶
     tip=Vector((top.x+0.045,top.y-0.02,top.z+0.205))
-    sp=finish(tube_into(bmesh.new(),cr([(top.x,top.y,top.z-0.025),(top.x-0.004,top.y-0.008,top.z+0.045),(top.x+0.012,top.y-0.016,top.z+0.125),tuple(tip)],5),0.017,8,rfn=lambda t:1.0-0.35*t),'sprout','leafl')
+    sp=finish(tube_into(bmesh.new(),cr([(top.x,top.y,top.z-0.025),(top.x-0.004,top.y-0.008,top.z+0.045),(top.x+0.012,top.y-0.016,top.z+0.125),tuple(tip)],5),0.017,16,rfn=lambda t:1.0-0.35*t),'sprout','leafl')
     bud=finish(xform(ico(0.021,1),tuple(tip)),'bud','leafl',0.0)
     lvR=cotyledon(); mx(lvR,Tm(*tip)@Rm(-8,'Z')@Rm(-18,'Y')@Rm(-6,'X'))
     lvL=cotyledon(0.16); mx(lvL,Tm(*tip)@Rm(8,'Z')@Rm(24,'Y')@Rm(180,'Z')@Rm(6,'X'))
@@ -620,12 +638,11 @@ def shear_blade(L,sx,z0=-0.03):
     for i in range(0,21):
         z=0.07*L+0.88*L*i/20; xs=c(z)+w(z)/2; xe=c(z)-w(z)/2; xm=xe+0.25*(xs-xe); th=T(z)/2; te=min(0.0022,th*0.5)
         pts.append((sx*(xe+xm)/2,-(te+th)/2-0.0006,z))
-    line=finish(tube_into(bmesh.new(),pts,0.0046,4,rfn=lambda t:max(0.12,math.sin(math.pi*min(1.0,t*1.0+0.02))**0.45)),'edge','white')
+    line=finish(tube_into(bmesh.new(),pts,0.0046,12,rfn=lambda t:max(0.12,math.sin(math.pi*min(1.0,t*1.0+0.02))**0.45)),'edge','white')
     return body,line
 def tool_starshears():
-    # 星剪 v3：造型不变（张开成 X 的两片长刃，两只往外撇的大金指环，轴心金星螺丝，刃尖一颗小星光），加细：
-    # 刃是有厚度的楔形（刃背厚、刃口磨出斜面、向尖收窄），刃口亮线贴在斜面上；两片刃和扁剪柄都只有 0.036 厚，交叉处不穿插；
-    # 指环是 40 段圆环（管截面 14 边），立在木托上；金星螺丝坐在垫圈上、垫圈压在刃面上；星光用金环 + 细链挂在右刃尖外侧。
+    # 星剪：造型不变。指环是 128 段圆环、管截面 24 边，2.5x 下外轮廓是圆的，不是 40 边多边形。
+    # 刃仍是楔形；刃口亮线和挂链改成圆管。垫圈 64 段。金星螺丝和小星光保持星形。
     FL=0.1835; P=tcoaster('sh'); pz=0.50; A=math.radians(19); S=[]
     for sx in (-1,1):
         y0=-0.0185*sx
@@ -635,18 +652,18 @@ def tool_starshears():
         cxr=-sx*0.165; cz=0.297; rx,rz=0.100,0.088
         K=(cxr+sx*rx*math.cos(math.radians(62)),cz+rz*math.sin(math.radians(62)))
         path=cr([(0,0,pz),(-sx*0.030,0,pz-0.048),(-sx*0.075,0,0.418),(K[0],0,K[1])],6)
-        S.append(finish(ftube(path,y0,0.027,0.016,12,rfn=lambda t:1.0-0.12*t),'shank','gold2',0.004,2))
-        ring=[(cxr+rx*math.cos(t),y0,cz+rz*math.sin(t)) for t in [2*math.pi*k/40 for k in range(40)]]
-        S.append(finish(tube_into(bmesh.new(),ring,0.021,14,closed=True,flat=Vector((0,1,0))),'ring','gold2'))
-    S.append(finish(xform(cyl(0.016,0.016,0.11,12),(0,0,pz),[('X',90)]),'rivet','gold2',0.003))
-    S.append(finish(xform(cyl(0.050,0.050,0.014,24),(0,-0.0435,pz),[('X',90)]),'washer','gold2',0.004,2))
+        S.append(finish(ftube(path,y0,0.027,0.016,24,rfn=lambda t:1.0-0.12*t),'shank','gold2',0.004,2))
+        ring=[(cxr+rx*math.cos(t),y0,cz+rz*math.sin(t)) for t in [2*math.pi*k/128 for k in range(128)]]
+        S.append(finish(tube_into(bmesh.new(),ring,0.021,24,closed=True,flat=Vector((0,1,0))),'ring','gold2'))
+    S.append(finish(xform(cyl(0.016,0.016,0.11,32),(0,0,pz),[('X',90)]),'rivet','gold2',0.003))
+    S.append(finish(xform(cyl(0.050,0.050,0.014,64),(0,-0.0435,pz),[('X',90)]),'washer','gold2',0.004,2))
     S.append(finish(xform(prism(star_profile(5,0.062,0.030),0.022),(0,-0.0615,pz)),'pivot','gold',0.005,2))
     # 右刃尖的小星光：金环挂在刃尖内侧小孔位置，细链往右下垂到星
     ex=math.sin(A)*0.43; ez=pz+math.cos(A)*0.43
-    S.append(finish(tube_into(bmesh.new(),[(ex+0.016*math.cos(t),-0.032,ez+0.016*math.sin(t)) for t in [2*math.pi*k/14 for k in range(14)]],0.0048,5,closed=True),'eye','gold2'))
+    S.append(finish(tube_into(bmesh.new(),[(ex+0.016*math.cos(t),-0.032,ez+0.016*math.sin(t)) for t in [2*math.pi*k/48 for k in range(48)]],0.0048,12,closed=True),'eye','gold2'))
     sp_c=(ex+0.075,-0.0185-0.006*0,ez-0.085)
     chain=cr([(ex+0.012,-0.0185,ez-0.012),(ex+0.040,-0.0185,ez-0.030),(sp_c[0]-0.004,-0.0185,sp_c[2]+0.045)],4)
-    S.append(finish(tube_into(bmesh.new(),chain,0.0048,5),'chain','gold2'))
+    S.append(finish(tube_into(bmesh.new(),chain,0.0048,12),'chain','gold2'))
     S.append(finish(xform(prism(star_profile(4,0.068,0.020),0.024),(sp_c[0],-0.0185,sp_c[2]-0.012)),'spark','lamp',0.004,2))
     sh=join(S,'tmp_s',35); piv=Vector((0,0,0.38))
     sh.data.transform(Matrix.Translation(piv)@Rm(-8,'Z')@Rm(-6,'X')@Matrix.Translation(-piv))
