@@ -206,9 +206,21 @@ def apply_leg_ik(ctx, Wr, hips, s, A_target, foot_rot):
 # that foot points down. Twist about the forearm axis, and re-solve only bone side L
 # (her right) with a forward pole. Ankle target and foot world rotation stay put.
 # weight 0: no twist, and the knee IK is skipped (do not slerp thigh/shin — that slides the ankle).
-PALM_BACK = 0.28          # palm aim = medial + this much backward (matches the old hand-keyed walk)
+# Bone .L is her right, bone .R her left. PALM_BACK on her left is the aim that already
+# reads as palm-to-skirt from behind. The same backward aim leaves her right palm turned
+# toward the camera, so that side aims straight at the thigh (+X) instead.
+PALM_BACK = 0.28          # her left (bone .R): palm aim = medial + this much backward
 KNEE_POLE_M = 0.40        # metres, hip + this * hips-forward
+# What the 2d02e1d bake aimed bone .L at. migrate_right_palm rolls off this onto _palm_aim('L').
+LEGACY_RIGHT_PALM_AIM = np.array([1.0, 0.0, -PALM_BACK])
 _PALM_LOCAL = {}
+
+
+def _palm_aim(side):
+    """World-space palm-normal aim. Not normalised for side R (caller normalises)."""
+    if side == 'L':
+        return np.array([1.0, 0.0, 0.0])          # her right: straight into the thigh
+    return np.array([-1.0, 0.0, -PALM_BACK])       # her left: medial + a little backward
 
 
 def _palm_local(ctx):
@@ -245,8 +257,8 @@ def _correct_palms(ctx, Wr, weight):
         axis = Wr[fa][:, :, 1]
         axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
         n = np.einsum('nij,j->ni', Wr[ha], local[s])
-        desired = np.array([-sg, 0.0, -PALM_BACK], float)
-        desired /= np.linalg.norm(desired)
+        desired = _palm_aim(s)
+        desired = desired / np.linalg.norm(desired)
         d = desired - axis * np.sum(axis * desired, 1, keepdims=True)
         p = n - axis * np.sum(axis * n, 1, keepdims=True)
         dn = np.linalg.norm(d, axis=1, keepdims=True)
@@ -259,6 +271,60 @@ def _correct_palms(ctx, Wr, weight):
         out[fa] = Rd @ Wr[fa]
         out[ha] = Rd @ Wr[ha]
     return out
+
+
+def _aim_angle(axis, src, dst):
+    """Signed radians about axis (n,3) taking src's projection onto dst's. src/dst are one world direction."""
+    src = np.asarray(src, float)
+    dst = np.asarray(dst, float)
+    p = src - axis * np.sum(axis * src, 1, keepdims=True)
+    d = dst - axis * np.sum(axis * dst, 1, keepdims=True)
+    pn = np.linalg.norm(p, axis=1, keepdims=True)
+    dn = np.linalg.norm(d, axis=1, keepdims=True)
+    p = p / np.maximum(pn, 1e-9)
+    d = d / np.maximum(dn, 1e-9)
+    ang = np.arctan2(np.sum(np.cross(p, d) * axis, 1), np.sum(p * d, 1))
+    return np.where((dn[:, 0] > 1e-6) & (pn[:, 0] > 1e-6), ang, 0.0)
+
+
+def migrate_right_palm(ctx, Q, T, weight):
+    """One extra roll of forearm.L, from the legacy backward aim onto the thigh aim.
+
+    The curves this sees were already baked with LEGACY_RIGHT_PALM_AIM on both palms
+    and the right-knee pole. Bone .R (her left) and the legs are left byte-for-byte.
+    Only forearm.L's local quat changes; hand.L follows as its child, so the wrist
+    stays put. weight 0 (the idle end of walk_start / walk_stop) keeps the input quat.
+    Do not run this on a clip that was not baked with the legacy aim — a second roll
+    would carry her right palm past the thigh.
+    """
+    rig = ctx.rig
+    n = len(Q)
+    weight = np.asarray(weight, float)
+    if weight.ndim == 0:
+        weight = np.full(n, float(weight))
+    else:
+        weight = np.broadcast_to(weight, (n,)).astype(float).copy()
+    W = rig.fk(T, Q)
+
+    def rot_of(M):
+        R = M[:, :3, :3]
+        return R / np.linalg.norm(R, axis=-2, keepdims=True)
+
+    i_fa = rig.idx['forearm.L']
+    i_ua = rig.parent[i_fa]
+    Wr = rot_of(W[:, i_fa])
+    parent = rot_of(W[:, i_ua])
+    axis = Wr[:, :, 1]
+    axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
+    ang = _aim_angle(axis, LEGACY_RIGHT_PALM_AIM, _palm_aim('L')) * weight
+    Rd = RG.rotvec2m(axis * ang[:, None])
+    Wr2 = np.einsum('nij,njk->nik', Rd, Wr)
+    Q2 = np.array(Q, copy=True)
+    Q2[:, i_fa] = RG.m2q(np.einsum('nji,njk->nik', parent, Wr2))
+    flip = np.sum(Q2[:, i_fa] * Q[:, i_fa], -1) < 0
+    Q2[flip, i_fa] *= -1
+    Q2[weight <= 1e-8, i_fa] = Q[weight <= 1e-8, i_fa]
+    return Q2
 
 
 def _correct_right_knee(ctx, Wr, world, weight):
