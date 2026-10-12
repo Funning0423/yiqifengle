@@ -144,6 +144,20 @@
     "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
     "doc": "art-src/animation/mocap/SOURCES.md",
     "hands": "wrists IK-placed on the thighs (CMU chair had armrests; ours has none)"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       1
+      ],
+      [
+       2.0,
+       1
+      ]
+     ]
+    }
    }
   },
   "walk_start": {
@@ -2460,6 +2474,29 @@
     "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
     "doc": "art-src/animation/mocap/SOURCES.md",
     "hands": "wrists blended onto the thighs while seated (CMU chair had armrests)"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       0
+      ],
+      [
+       0.8667,
+       1
+      ],
+      [
+       1.2,
+       1
+      ]
+     ]
+    },
+    "settle_time_s": 0.8667
    }
   },
   "stand_up": {
@@ -2655,6 +2692,29 @@
     "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
     "doc": "art-src/animation/mocap/SOURCES.md",
     "hands": "wrists blended onto the thighs while seated (CMU chair had armrests)"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       1
+      ],
+      [
+       0.1333,
+       1
+      ],
+      [
+       0.8667,
+       0
+      ],
+      [
+       1.2667,
+       0
+      ]
+     ]
+    },
+    "release_time_s": 0.8667
    }
   },
   "door_reach": {
@@ -2757,5 +2817,23 @@
   "sources": "art-src/animation/mocap/SOURCES.md",
   "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
   "pipeline": "art-src/animation/mocap/scripts (export_clips.py -> solve_skirts.py in Blender -> write_glb.py)"
+ },
+ "morph": {
+  "mesh": "LOD0_G2_APRON",
+  "meshes": {
+   "LOD0_G2_APRON": {
+    "targets": {
+     "sit_drape": 0,
+     "sit_drape_mid": 1
+    }
+   },
+   "LOD0_G2_DRESS": {
+    "targets": {
+     "sit_drape": 0,
+     "sit_drape_mid": 1
+    }
+   }
+  },
+  "note": "seated drape (cloud-tasks/03-sit-drape.md): sparse POSITION targets, weights driven by CharacterMotion.morphWeights; skirt bones of sit_down / sit_hold / stand_up re-posed with the same weight curve (art-src/animation/sit-drape)"
  }
 }
