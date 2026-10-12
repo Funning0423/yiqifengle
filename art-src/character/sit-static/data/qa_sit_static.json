@@ -1,0 +1,164 @@
+{
+ "parts": {
+  "LOD0_G2_BODY": {
+   "inside_chair": 0,
+   "chair_depth_m": 0.0,
+   "inside_body": 0,
+   "body_depth_m": 0.0,
+   "below_floor": 0,
+   "aabb_min_blender": [
+    -0.1872,
+    4.0573,
+    -0.0
+   ],
+   "aabb_max_blender": [
+    0.5681,
+    4.5746,
+    1.0942
+   ],
+   "free": {
+    "inside_chair": 0,
+    "chair_depth_m": 0.0,
+    "inside_body": 0,
+    "body_depth_m": 0.0,
+    "below_floor": 0,
+    "aabb_min_blender": [
+     -0.1872,
+     4.0573,
+     -0.0
+    ],
+    "aabb_max_blender": [
+     0.5681,
+     4.5746,
+     1.0942
+    ]
+   }
+  },
+  "LOD0_G2_DRESS": {
+   "inside_chair": 7,
+   "chair_depth_m": 0.00045,
+   "inside_body": 253,
+   "body_depth_m": 0.03744,
+   "below_floor": 0,
+   "aabb_min_blender": [
+    -0.1855,
+    4.0515,
+    0.07
+   ],
+   "aabb_max_blender": [
+    0.5588,
+    4.5998,
+    0.5792
+   ],
+   "free": {
+    "inside_chair": 7,
+    "chair_depth_m": 0.00045,
+    "inside_body": 2,
+    "body_depth_m": 0.00664,
+    "below_floor": 0,
+    "aabb_min_blender": [
+     -0.1855,
+     4.0515,
+     0.07
+    ],
+    "aabb_max_blender": [
+     0.5588,
+     4.5998,
+     0.5792
+    ]
+   }
+  },
+  "LOD0_G2_APRON": {
+   "inside_chair": 0,
+   "chair_depth_m": 0.0,
+   "inside_body": 7,
+   "body_depth_m": 0.02903,
+   "below_floor": 0,
+   "aabb_min_blender": [
+    -0.1888,
+    4.2281,
+    0.14
+   ],
+   "aabb_max_blender": [
+    0.2827,
+    4.5677,
+    0.74
+   ],
+   "free": {
+    "inside_chair": 0,
+    "chair_depth_m": 0.0,
+    "inside_body": 7,
+    "body_depth_m": 0.02903,
+    "below_floor": 0,
+    "aabb_min_blender": [
+     -0.1888,
+     4.2281,
+     0.14
+    ],
+    "aabb_max_blender": [
+     0.2827,
+     4.5677,
+     0.74
+    ]
+   }
+  },
+  "LOD0_G2_BOW": {
+   "inside_chair": 0,
+   "chair_depth_m": 0.0,
+   "inside_body": 5,
+   "body_depth_m": 0.00612,
+   "below_floor": 0,
+   "aabb_min_blender": [
+    0.4959,
+    4.0619,
+    0.396
+   ],
+   "aabb_max_blender": [
+    0.593,
+    4.2465,
+    0.5361
+   ],
+   "free": {
+    "inside_chair": 0,
+    "chair_depth_m": 0.0,
+    "inside_body": 0,
+    "body_depth_m": 0.0,
+    "below_floor": 0,
+    "aabb_min_blender": [
+     0.4959,
+     4.0619,
+     0.396
+    ],
+    "aabb_max_blender": [
+     0.593,
+     4.2465,
+     0.5361
+    ]
+   }
+  }
+ },
+ "dress_log": 2782,
+ "apron_log": 282,
+ "bow_log": 24,
+ "apron_inside_dress": {
+  "count": 13,
+  "depth_m": 0.0252
+ },
+ "glb_bytes_with_material_names": 613368,
+ "seconds": 1.01,
+ "placement": {
+  "seatedRoot": [
+   0.4327299768730942,
+   0.0,
+   -4.207611558444886
+  ],
+  "yawRad": -2.0,
+  "seatAnchor": [
+   0.4203000068664551,
+   0.3799999952316284,
+   -4.2133002281188965
+  ],
+  "space": "room world, Y-up metres, identity under scene_root",
+  "pose": "sit_down last frame, armature applied, then cloth drape"
+ }
+}
