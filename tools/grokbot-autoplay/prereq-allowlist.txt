@@ -192,3 +192,21 @@ observe b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670 audio/G
 #  GameAudio b3cfd1a7, AudioBridge 45fc0889, RoomExploreOverlay 119e5c2e, IslandJourneyOverlay 893ce0c9, WorldNativeComposition ea951b0e,
 #  ManagedMobileBoardUI 91f45984, CheerText 4ff08b19). Observe-only; append only.
 observe 4cacd38416f018ba0792f85fe75316420f1e6f7ec25f9fb16d729ce0227adf45 world-r1/WorldFlowCore.ts         运镜bot return follow 0b6202e (int/v1 e793228 / 2f307b3)
+# int/v1 merge round 6 (fix/startup 084ccf6, fix/ui-sfx f14d33f, work/GGbot-r4fix f8cf6b0, int/board-ui 883dc9f,
+#  work/GGbot-locomotion 6dbf4c9, cloud/mocap-animation 038c9d8 on 2f307b3). sha256 of the merged working tree.
+#  Glue reviewed: Boot fields T0 reads (composition, busy, ready, loadPhase, invoke, board, islandJourney, islandHome, roomExplore,
+#  canvas, navLayout, loadingMask, loadingBackdrop, status, button(), paintNavigation) and __worldIntegration/__worldLoading shapes
+#  unchanged (board adds cabinHint/sawLevel/resultActions/openCabin; loco only touches FlowReferenceStandin + setWalkRestAhead);
+#  IslandJourneyOverlay isOpen/open/close and Island-bag/-journal/-settings node names unchanged (settings now opens the full
+#  settings page); WorldFlowComponent only adds hitCabin/CABIN_MIN_X/cabinRayOptions + onDoorShut (r4fix); WorldFlowCore adds
+#  onDoorShut at leaf angle 0, state order unchanged; GameAudio adds sfx mute + confirm-after-press suppression (onPropTap
+#  confirm sound skipped <150 ms after the press sound of the same target; ui:tap marks come from IslandPropTaps, unchanged);
+#  ManagedMobileBoardUI keeps hostPresentation().state/active.board and hostModalOpen(); result buttons now live in the board's
+#  ResultPanel (Next, Claim-chest, Home, Replay, RetrySave; diagnostics().popupTargets). Append only.
+strict  25b1ca8d464df000b0fa6b35a273fbab7b1b1d7cdf3d5c8a3687b339f9c5dc50 WorldIntegrationBoot.ts          int/v1 round-6 merge
+strict  df38095600e3ed4a9a9e6688dc25c7ac6a21d78a4fee6255270b1711f51a8ca1 world-r2/IslandJourneyOverlay.ts int/v1 round-6 merge (board-ui 883dc9f)
+strict  8d309347756bafb20c3a408e3a02b3d98e675d3e40026a10b67e80e8dabf3e70 world-r2/WorldNativeComposition.ts int/v1 round-6 merge (board-ui 883dc9f)
+observe 2293f59d838553c86a1ca7218d4f30d03b9993702fd70ad12c97d0cf3384207f world-r1/WorldFlowComponent.ts   int/v1 round-6 merge (r4fix f8cf6b0 + board-ui 883dc9f)
+observe 51cb93492db8ed50627789c92d1d4fbcddc9410c75ac2e6d31fc5abf0dde61e4 world-r1/WorldFlowCore.ts        int/v1 round-6 merge (r4fix f8cf6b0)
+observe 5c509e9ba41faad40cbe344b9c8acec8863da8c6f4e7d4c81454b4e6579358f9 audio/GameAudio.ts              int/v1 round-6 merge (ui-sfx f14d33f + board-ui 883dc9f)
+observe 61a48f6a6c1f587ef4ac3daa3c10b4b6d91a44dd5fc64f9ad4864c6ec11f2994 ManagedMobileBoardUI.ts          int/v1 round-6 merge (board-ui 883dc9f)

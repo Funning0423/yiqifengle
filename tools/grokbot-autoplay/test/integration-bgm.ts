@@ -47,7 +47,8 @@ const fail=(m:string)=>{console.error('FAIL: '+m+'\n'+marks().join('\n'));proces
    if(bl.length&&!clipDone&&clock.ms>=requested+LOAD_BUNDLE_MS+LOAD_CLIP_MS){clipDone=true;if(bl[0].p!==M.DEFAULT_BGM_PATH)fail('bundle.load path '+bl[0].p);bl[0].cb(null,new (AudioClip as any)('bgm_main',DUR));}
    if(hookMode==='late'&&!lateRestored&&A.musicDiagnostics().lastStart&&clock.ms>=requested+3000){lateRestored=true;restore();}};
   await run(8,()=>false,v5tick);
-  if(R.loads.some((l:any)=>/bgm/.test(l.path))||AM.bundleLoads.length)fail('music requested during the loading page');
+  // board-ui 883dc9f loads board_art + ui/tools-original at startup: only audio requests count here
+  if(R.loads.some((l:any)=>/bgm|audio/.test(l.path))||AM.bundleLoads.some((x:any)=>x.name===M.DEFAULT_BGM_BUNDLE||/audio|bgm/.test(x.name)))fail('music requested during the loading page: '+JSON.stringify({loads:R.loads.map((l:any)=>l.path),bundles:AM.bundleLoads.map((x:any)=>x.name)}));
   if(marks().some(l=>/ audio:bgm-(set|playing|start) /.test(l)))fail('bgm mark before room ready');
   await run(40,()=>false,v5tick);
   const L0=marks(),bs=L0.filter(l=>l.includes(' audio:bgm-start '));

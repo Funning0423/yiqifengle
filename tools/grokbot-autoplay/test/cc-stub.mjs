@@ -13,9 +13,9 @@ export class Node{constructor(name){this.name=name;this.children=[];this.parent=
  getComponent(C){if(typeof C==='function'&&this._list){const f=this._list.find(c=>c instanceof C&&c.isValid!==false);if(f)return f;}return this._c.get(C?.name||String(C))||null;}
  getComponentsInChildren(C){const o=[];const w=n=>{for(const c of (n._list||[]))if(c instanceof C)o.push(c);for(const k of n.children)w(k);};w(this);return o;}
  static EventType={TOUCH_START:'touch-start',TOUCH_MOVE:'touch-move',TOUCH_END:'touch-end',TOUCH_CANCEL:'touch-cancel'};}
-export class UITransform{constructor(){this.width=0;this.height=0;} setContentSize(w,h){this.width=w;this.height=h;} hitTest(){return false;}
+export class UITransform{constructor(){this.width=0;this.height=0;this.anchorX=.5;this.anchorY=.5;} setContentSize(w,h){if(typeof w==='object'&&w){h=w.height;w=w.width;}this.width=w;this.height=h;} get contentSize(){return {width:this.width,height:this.height};} setAnchorPoint(x,y){this.anchorX=x;this.anchorY=y;} hitTest(){return false;}
  convertToNodeSpaceAR(w,out){const o=this.node.worldPosition;return out.set(w.x-o.x,w.y-o.y,0);}}
-export class Label{constructor(){this.string='';this.fontSize=20;this.lineHeight=28;this.shadowOffset=new Vec2();} static HorizontalAlign={CENTER:1}; static VerticalAlign={CENTER:1}; static Overflow={NONE:0,SHRINK:2};
+export class Label{constructor(){this.string='';this.fontSize=20;this.lineHeight=28;this.shadowOffset=new Vec2();} static HorizontalAlign={LEFT:0,CENTER:1,RIGHT:2}; static VerticalAlign={TOP:0,CENTER:1,BOTTOM:2}; static Overflow={NONE:0,CLAMP:1,SHRINK:2,RESIZE_HEIGHT:3};
  updateRenderData(){const t=this.node?.getComponent(UITransform);if(t){t.width=this.string.length*this.fontSize*0.55;t.height=this.lineHeight;}}}
 export class Graphics{} export class BlockInputEvents{} export class EventTouch{}
 export class Vec2{constructor(x=0,y=0){this.x=x;this.y=y;} set(x,y){this.x=x;this.y=y;return this;}}
@@ -49,3 +49,10 @@ export const resources={loads:[],dirs:[],load(path,type,cb){this.loads.push({pat
 /** GameAudio v0.4 setMusic(path,bundle): fake asset bundles (loadBundle/getBundle), loads recorded like resources.load. */
 export const assetManager={bundles:new Map(),bundleLoads:[],getBundle(n){return this.bundles.get(n)||null;},loadBundle(n,cb){this.bundleLoads.push({name:n,cb});}};
 const store=new Map();export const sys={localStorage:{getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>{store.set(k,String(v));},removeItem:k=>{store.delete(k);}}};
+// board-ui 883dc9f: IslandJourneyOverlay now pulls in BoardArt/PopupKit/IslandPanels/ResultChest3D/ManagedToolArt (only loaded, not driven here)
+export class Sprite extends Component{constructor(){super();this.spriteFrame=null;this.color=null;} static Type={SIMPLE:0,SLICED:1,TILED:2,FILLED:3}; static SizeMode={CUSTOM:0,TRIMMED:1,RAW:2}; static FillType={HORIZONTAL:0,VERTICAL:1,RADIAL:2};}
+export class SpriteFrame{} export class Texture2D{} export class ImageAsset{} export class TextAsset{} export class Prefab{} export class RenderTexture{}
+export class Rect{constructor(x=0,y=0,w=0,h=0){this.x=x;this.y=y;this.width=w;this.height=h;}}
+export class Quat{constructor(x=0,y=0,z=0,w=1){this.x=x;this.y=y;this.z=z;this.w=w;}}
+export class Camera extends Component{} export class MeshRenderer extends Component{} export class SphereLight extends Component{} export class Mask extends Component{} export class ScrollView extends Component{}
+export const instantiate=(p)=>new Node(p&&p.name||'instance');
