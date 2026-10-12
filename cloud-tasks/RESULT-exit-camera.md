@@ -2,7 +2,7 @@
 
 分支 `cursor/exit-camera-pace-a0c7` → Pull Request 到 `int/v1`（草稿，未合并，没有推到 `int/v1`）。那一轮拿掉了摆镜的谷。
 
-这一轮分支 `cursor/exit-crane-smooth-16df` → 草稿 PR 到 `int/v1`（未合并，没有推到 `int/v1`）。只把升镜的爬升改成平滑过渡。
+这一轮分支 `cursor/exit-crane-smooth-16df` → 草稿 PR https://github.com/Funning0423/yiqifengle/pull/15 到 `int/v1`（未合并，没有推到 `int/v1`）。只把升镜的爬升改成平滑过渡。
 
 产品第 6 轮：白天出门这一段（开门、跨门槛、沿路跟拍、摆到正面、升到海岛全景）走着走着会突然加快，没有平滑过渡。人没有停下来等镜头。
 
