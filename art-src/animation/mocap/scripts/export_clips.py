@@ -1,6 +1,7 @@
 # Stage 1 (plain python3 + numpy): build every clip and write it as local joint arrays for the skirt solver / GLB writer.
 #   python3 export_clips.py [out_dir] [clip ...]
-# out_dir/<clip>.npz: Q [n,J,4], T [n,J,3] (rig joint order, skirt joints at rest), contacts_L/R, lock_w_<k>, lock_phase_<k>
+# out_dir/<clip>.npz: Q [n,J,4], T [n,J,3] (rig joint order, skirt joints at rest), contacts_L/R, lock_w_<k>, lock_phase_<k>,
+#   arm_hold_<side> (optional: weight of the hand IK target; the skirt solver keeps that arm's abduction at 0 where it is 1)
 # out_dir/<clip>.json: name, loop, fps, frames, events, root, extra, info, lock clip names
 import json
 import os
@@ -33,6 +34,8 @@ def export(name, out):
     for k, (w, clip, ph) in enumerate(c['lock']):
         arrs['lock_w_%d' % k] = np.asarray(w, float)
         arrs['lock_phase_%d' % k] = np.asarray(ph, float)
+    for s, w in c.get('arm_hold', {}).items():
+        arrs['arm_hold_' + s] = np.asarray(w, float)
     np.savez(os.path.join(out, name + '.npz'), **arrs)
     meta = dict(name=name, loop=bool(c['loop']), fps=CB.FPS, frames=int(len(Q)),
                 duration_s=round((len(Q) if c['loop'] else len(Q) - 1) / CB.FPS, 6),

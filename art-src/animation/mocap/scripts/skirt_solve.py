@@ -17,6 +17,7 @@ ROLLS = {'skirt.left': -1.0, 'skirt.right': 1.0}        # outward flare sign abo
 VARS = PANELS + [LOWS[p] for p in PANELS] + ['roll.' + p for p in ROLLS] + ['arm.L', 'arm.R']
 MARG_LEG = 0.006
 MARG_ARM = 0.003
+SEAM_R = 0.10          # arm vertices this close to the shoulder joint (rest) form the sleeve seam: never tested against the torso
 # closest approach leg -> dress in any direction (walk_clipcheck clear_leg_dress_mm must stay >= 6 mm); the extra 3 mm
 # covers the GLB key reduction of the skirt curves at the hem
 MARG_NEAR = 0.009
@@ -91,6 +92,29 @@ class Solver:
         self.ci = r.idx['chest']
         self.near = MARG_NEAR
         self.arm_sides = 'LR'
+        self.arm_static = self._rest_arm_hits()
+
+    def _rest_arm_hits(self):
+        """[3, n_arm] bool: arm vertex already inside dress / apron / torso in the bind pose, or (torso only) in the sleeve
+        seam band around the shoulder joint, which the hanging arm presses into the bodice whatever the abduction (2 vertices
+        still inside at 24 deg).  collide() skips them instead of abducting the arm to its cap."""
+        body = self.md['BODY']
+        H = self.rig.rest_world[self.hi, :3, 3]
+        trees = [BVHTree.FromPolygons([Vector(v) for v in self.md[k]['P']], self.md[k]['F'].tolist()) for k in ('DRESS', 'APRON')]
+        trees.append(BVHTree.FromPolygons([Vector(v) for v in body['P'][self.torso_ids]], self.torso_F.tolist()))
+        out = np.zeros((3, len(self.arm_ids)), bool)
+        for j, p in enumerate(body['P'][self.arm_ids]):
+            d = np.array([p[0] - H[0], 0.0, p[2] - H[2]])
+            L = np.linalg.norm(d)
+            if L < 1e-4:
+                continue
+            o, dv = Vector(p - d / L * MARG_ARM), Vector(d / L)
+            for t, tree in enumerate(trees):
+                out[t, j] = tree.ray_cast(o, dv, 0.05 + MARG_ARM)[0] is not None
+        rw = self.rig.rest_world
+        sh = np.array([rw[self.rig.idx['upper_arm.' + s], :3, 3] for s in self.arm_side])
+        out[2] |= np.linalg.norm(body['P'][self.arm_ids] - sh, axis=1) < SEAM_R
+        return out
 
     # ---------- skinning ----------
     def skin(self, W, md, ids=None):
@@ -179,7 +203,7 @@ class Solver:
             am = self.skin(W, self.md['BODY'], self.arm_ids)
             tor = self.skin(W, self.md['BODY'], self.torso_ids)
             tC = BVHTree.FromPolygons([Vector(v) for v in tor], self.torso_F.tolist())
-            for p, s in zip(am, self.arm_side):
+            for j, (p, s) in enumerate(zip(am, self.arm_side)):
                 if s not in self.arm_sides:
                     continue
                 d = np.array([p[0] - H[0], 0.0, p[2] - H[2]])
@@ -189,7 +213,9 @@ class Solver:
                 d /= L
                 o = Vector(p - d * marg_arm)
                 dv = Vector(d)
-                for tree in (tD, tA, tC):
+                for t, tree in enumerate((tD, tA, tC)):
+                    if self.arm_static[t, j]:
+                        continue
                     hit = tree.ray_cast(o, dv, 0.05 + marg_arm)
                     if hit[0] is not None:
                         hits['arm'] += 1
@@ -257,12 +283,20 @@ def envelope(r, sigma, periodic, iters=40):
 
 
 def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, arms=True, log=print, low_lag=1.5, low_k=0.0,
-               lock=None):
+               lock=None, arm_hold=None):
     """Q [n,J,4], T [n,J,3] (frames at 30 fps). end_lock: (n_start, n_end) frames over which curves are faded to 0 at the clip
     ends (to match idle), or None. lock: (w [n], {var: [n] radians}) -> curves = (1-w) * solved + w * given (hand-offs to a
-    clip whose curves are already fixed, e.g. walk_loop). returns (Q_out, report)."""
+    clip whose curves are already fixed, e.g. walk_loop). arm_hold: {side: [n] weight of a hand IK target} -> arm.<side>
+    is scaled by (1 - hold) and not solved where hold > 0.98 (abduction would pull the hand off its target).
+    returns (Q_out, report)."""
     import author_lib as AL
     n = len(Q)
+    arm_hold = arm_hold or {}
+    free = {s: 1.0 - np.clip(np.asarray(arm_hold[s], float), 0, 1) if s in arm_hold else np.ones(n) for s in 'LR'}
+    sides0 = solver.arm_sides
+
+    def sides_at(*ii):
+        return ''.join(s for s in sides0 if all(free[s][i] > 0.02 for i in ii))
     need = {v: np.zeros(n) for v in VARS}
     cur = None
     best = None
@@ -283,6 +317,7 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
     for it in range(outer):
         for i in range(n):
             st = {v: float(need[v][i]) for v in VARS}
+            solver.arm_sides = sides_at(i)
             x, hits, k = solver.solve_frame(Q[i], T[i], st, arms=arms)
             for v in VARS:
                 need[v][i] = x.get(v, 0.0)
@@ -300,6 +335,8 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
             if lock is not None:
                 lw, lv = lock
                 c = (1 - lw) * c + lw * lv.get(v, np.zeros(n))
+            if v in ('arm.L', 'arm.R'):
+                c = c * free[v[-1]]
             cur[v] = np.clip(c, -CAP[v] * 1.1, CAP[v] * 1.1)
         # lower segments: add follow-through (lagged copy of the upper segment's motion)
         for p in PANELS:
@@ -316,6 +353,8 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
                 if frac and not periodic and i == n - 1:
                     continue
                 q, t = compose(i, cur, frac)
+                j = (i + 1) % n if periodic else min(i + 1, n - 1)
+                solver.arm_sides = sides_at(i, j) if frac else sides_at(i)
                 push, armp, hits = solver.collide(q, t, arms=arms)
                 for k, v in hits.items():
                     tot[k] += v
@@ -341,6 +380,7 @@ def solve_clip(solver, Q, T, periodic=False, sigma=2.0, end_lock=None, outer=5, 
         if not bad:
             break
     cur = best[1]
+    solver.arm_sides = sides0
     Qo = Q.copy()
     for i in range(n):
         Qo[i] = solver.apply(Q[i], T[i], {v: cur[v][i] for v in VARS})

@@ -16,7 +16,6 @@ from export_clips import ORDER  # noqa: E402
 
 FPS = CB.FPS
 NO_ARMS = {'sit_hold', 'sit_down', 'stand_up'}     # hands IK-placed on the lap: arms stay as built
-ARM_SIDES = {'door_reach': 'R'}     # bone .L holds the door handle (IK); only her free left arm (bone .R) is solved
 SEATED = {'sit_hold', 'sit_down', 'stand_up'}     # seated drape is task 03: no closest-approach term (cannot clear the lap)
 
 
@@ -67,10 +66,11 @@ def main():
             meta = json.load(f)
         lock = lock_for(out, meta, d)
         solver.near = 0.0 if name in SEATED else SS.MARG_NEAR
-        solver.arm_sides = ARM_SIDES.get(name, 'LR')
+        solver.arm_sides = 'LR'
+        hold = {s: d['arm_hold_' + s] for s in 'LR' if 'arm_hold_' + s in d.files}   # door_reach: hand on the handle
         log = []
         Qo, rep = SS.solve_clip(solver, d['Q'], d['T'], periodic=meta['loop'], lock=lock, arms=name not in NO_ARMS,
-                                log=lambda *a: log.append(' '.join(str(x) for x in a)))
+                                log=lambda *a: log.append(' '.join(str(x) for x in a)), arm_hold=hold)
         curves = {v: np.radians(np.asarray(rep['curves_deg'].get(v, np.zeros(len(Qo))), float)) for v in SS.VARS}
         np.savez(os.path.join(out, name + '.skirt.npz'), Q=Qo, **{'curve_' + v: c for v, c in curves.items()})
         last = rep['iterations'][-1]

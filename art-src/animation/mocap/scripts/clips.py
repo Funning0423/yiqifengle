@@ -804,7 +804,7 @@ def build_door_reach():
                       'right wrist IK onto the handle with the performer\'s reach timing')
     lock = [(w_in, 'idle_breathing_loop', np.zeros(N)), (w_out, 'idle_breathing_loop', np.zeros(N))]
     return dict(name='door_reach', track=tr, world=tr, contacts=C, events=[], loop=False, lock=lock, root=None, extra=extra,
-                info=info)
+                info=info, arm_hold={'L': w_reach})
 
 
 BUILDERS = {
