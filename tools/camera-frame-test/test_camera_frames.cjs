@@ -218,13 +218,34 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
     const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:null;
     check('crane-marks',!!cs&&!!si&&cs.frame<si.frame&&!!sh,{craneStart:cs&&{t:+cs.t.toFixed(3),sinceCrossingOut:+(cs.t-t0).toFixed(3),toIslandProgress:cs.progress,predictedSeconds:+cs.seconds.toFixed(3)},
       settledIsland:si&&{t:+si.t.toFixed(3),sinceCrossingOut:+(si.t-t0).toFixed(3)},craneSeconds:cs&&si?+(si.t-cs.t).toFixed(3):null,settledHome:sh&&{t:+sh.t.toFixed(3)}});}
-  // --- outbound frontal swing distance: lens-to-girl horizontal distance from the first side key (distance >= 2 m; the
-  // doorway-exit and near-behind keys before it follow her out of the door) to crane-start. Replaces the 3.5-5 m side
-  // rail band: never closer than 2.0 m (no crowding), never further than 5.5 m when the crane takes over.
-  {const cs=(run.cameraEvents||[]).find(e=>e.kind==='crane-start');const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]);
-    const TC=env.M.RegionCameraData.TRANSITION_CAMERA,first=TC.railOut.find(k=>k.distance>=2),walkS=env.W.pathDuration(cfg.toIsland,cfg.speed);
-    const t1=cs&&first?cs.t-(cs.progress-first.progress)*walkS:Infinity;const railOut=cs?F.filter(f=>f.state==='crossing-out'&&f.t>=t1&&f.t<=cs.t):[];const ds=railOut.map(d);
-    check('rail-distance-band',ds.length>0&&Math.min(...ds)>=2.0&&Math.max(...ds)<=5.5,{swingSeconds:+(ds.length*dt).toFixed(2),outbound:ds.length?{min:+Math.min(...ds).toFixed(2),max:+Math.max(...ds).toFixed(2)}:null,band:[2.0,5.5]});}
+  // --- exit arc: after the doorway, rotation (behind → in front), dolly-back and crane lift are one move at one speed.
+  // The old rail band (stay within 5.5 m until a later crane-start) encoded "swing, then dolly, then lift". This check
+  // fails that sequence: during the swing the lens must already be rising and already moving away, and cruise speed
+  // must not jump once she is in front.
+  {const d=f=>Math.hypot(f.cam.position[0]-f.root[0],f.cam.position[2]-f.root[2]),y=f=>f.cam.position[1];
+    const front=f=>{const fx=Math.sin(f.yaw),fz=Math.cos(f.yaw),dx=f.cam.position[0]-f.root[0],dz=f.cam.position[2]-f.root[2],l=Math.hypot(dx,dz)||1;return Math.acos(Math.max(-1,Math.min(1,(fx*dx+fz*dz)/l)))*180/Math.PI;};
+    const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:0;
+    const TC=env.M.RegionCameraData.TRANSITION_CAMERA,span=env.W.pathDuration(cfg.outCrossing,cfg.speed)+env.W.pathDuration(cfg.toIsland,cfg.speed)+TC.crane.settleSeconds;
+    const tDoor=t0+env.W.pathDuration(cfg.outCrossing,cfg.speed),tEase=t0+span*(1-(TC.tracks.outbound.easeOut||0));
+    const exit=F.filter(f=>f.state==='crossing-out'&&f.t>=tDoor-1e-6);
+    const a150=exit.find(f=>front(f)<=150),a30=exit.find(f=>front(f)<=30);
+    const dH=a150&&a30?y(a30)-y(a150):0,dD=a150&&a30?d(a30)-d(a150):0;
+    const vOf=f=>{for(let i=0;i<kin.length;i++)if(kin[i].i===f.frame)return kin[i].v;return null;};
+    const med=xs=>{if(!xs.length)return null;const s=xs.slice().sort((p,q)=>p-q);return s[(s.length-1)>>1];};
+    const swing=[],after=[];
+    for(let i=0;i<exit.length;i++){const f=exit[i],ang=front(f),v=vOf(f);if(v===null)continue;
+      if(ang<=100&&ang>=40)swing.push(v);
+      if(a30&&ang<30&&f.t>a30.t+.25&&f.t<tEase)after.push(v);}
+    const vSwing=med(swing),vAfter=med(after),ratio=vSwing&&vAfter?vAfter/vSwing:Infinity;
+    let riseOk=exit.length>0,riseAt=null;const tA=tDoor+1.2,tB=tEase-.15;
+    if(exit.length)for(let t=tA;t+0.5<=tB+1e-6;t+=0.5){const fa=exit.reduce((p,f)=>Math.abs(f.t-t)<Math.abs(p.t-t)?f:p),fb=exit.reduce((p,f)=>Math.abs(f.t-(t+.5))<Math.abs(p.t-(t+.5))?f:p);
+      if(y(fb)-y(fa)<.4||d(fb)-d(fa)<.7){riseOk=false;if(!riseAt)riseAt={t:+t.toFixed(2),dH:+(y(fb)-y(fa)).toFixed(2),dD:+(d(fb)-d(fa)).toFixed(2)};}}
+    const cruise=[];for(let i=0;i<exit.length;i++){const f=exit[i];if(f.t>=tDoor+1.3&&f.t<tEase){const v=vOf(f);if(v!==null)cruise.push(v);}}
+    const cMin=cruise.length?Math.min(...cruise):0,cMax=cruise.length?Math.max(...cruise):0,flat=cMin>0&&cMax/cMin<=1.25;
+    const ok=!!(a150&&a30&&a30.t>a150.t&&dH>=3&&dD>=4&&vSwing&&vAfter&&ratio<=1.25&&ratio>=1/1.25&&riseOk&&flat);
+    check('exit-overlap',ok,{swing:{from:a150?+a150.t.toFixed(2):null,to:a30?+a30.t.toFixed(2):null,dHeight:+dH.toFixed(2),dDistance:+dD.toFixed(2),need:{dHeight:3,dDistance:4}},
+      speed:{duringSwing:vSwing&&+vSwing.toFixed(2),afterFacing:vAfter&&+vAfter.toFixed(2),ratio:+(Number.isFinite(ratio)?ratio:0).toFixed(2),limit:[1/1.25,1.25],cruise:[+cMin.toFixed(2),+cMax.toFixed(2)],cruiseRatioLimit:1.25},
+      steadyRise:riseOk,firstFlat:riseAt});}
   // --- wind strength (WorldFlowComponent.getWindStrength): 0 indoors; rises monotonically to EXACTLY 1 at the frontal
   // frame (camera in front of her); held; back to EXACTLY 0 at island settle and through island idle; per-frame step
   // <= WIND_EPS; listener fired only on change.
