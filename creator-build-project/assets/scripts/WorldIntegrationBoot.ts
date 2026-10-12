@@ -12,7 +12,7 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
-import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
@@ -122,8 +122,12 @@ class FlowReferenceStandin implements CharacterAdapter {
   for(let i=0;i<m.events.length;i++){const e=m.events[i];if((e.type==='settle'||e.name.indexOf('settle:')===0)&&e.time<=time+1e-3)this.noteSettle({def:e,clip});}}
  /** Keep the settled stop pose (still the stop clip) for at least TURN_FOLD_MIN_S after the clip's own frames run out. */
  private beginStopHold(){if(this.stopHold<TURN_FOLD_MIN_S)this.stopHold=TURN_FOLD_MIN_S;this.clock?.holdBase();}
- private tickStopHold(step:number){if(!(this.stopHold>0)||!this.clock)return;const j=this.job,foldLeft=j&&j.foldS>0?j.foldS-j.elapsed:0;
-  if(foldLeft>this.stopHold)this.stopHold=foldLeft;this.stopHold-=step;if(this.stopHold>1e-4)return;this.stopHold=0;this.clock.releaseHold();
+ private tickStopHold(step:number){if(!(this.stopHold>0)||!this.clock)return;const j=this.job;let foldLeft=0;if(j&&j.action&&j.action.kind==='turn'&&j.foldS>0)foldLeft=Math.max(0,j.duration-j.elapsed);
+  if(foldLeft>this.stopHold)this.stopHold=foldLeft;this.stopHold-=step;
+  // The folded turn is created inside the walk resolve, before this decrement, so the hold leads elapsed by one frame.
+  // 30/60 is just under 0.5, so a pose release on that frame would show idle while act is still turn.
+  if(this.stopHold<=1e-4&&foldLeft>1e-6)this.stopHold=foldLeft;
+  if(this.stopHold>1e-4)return;this.stopHold=0;this.clock.releaseHold();
   if(this.isStopClip(this.clock.base?.clip)){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
  private startsWalkStart(cur:string|undefined){return cur!==CLIP_ROLES.walk&&cur!==CLIP_ROLES.walkStart&&cur!==CLIP_ROLES.stopL&&cur!==CLIP_ROLES.stopR&&this.rig!.has(CLIP_ROLES.walkStart);}
  /** Root travel plan for this walk (CharacterMotion.planWalk): walk_start / stop forward curves inside the fixed duration. */
@@ -187,7 +191,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   else if(r.ended&&(!this.job||this.job.foldS>0||this.isStopClip(r.ended))&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp){if(this.isStopClip(r.ended))this.beginStopHold();else{const hm=c.meta(r.ended);if(this.stopRoot&&this.stopRoot.clip===r.ended)this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,hm&&hm.handoff&&hm.handoff.crossfade!==undefined?hm.handoff.crossfade:-1,true);}}
   this.idleGustTick(step);
   this.render();
-  if(j&&j.elapsed>=j.duration){const kind=j.action.kind;j.off();this.job=null;
+  if(j&&j.elapsed+1e-6>=j.duration){if(j.action.kind==='turn'&&j.foldS>0){j.elapsed=j.duration;this.setYaw(j.fromYaw+j.deltaYaw);this.yaw.reset(this.yawRad);}const kind=j.action.kind;j.off();this.job=null;
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
    else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
    j.resolve();}
@@ -220,10 +224,11 @@ class FlowReferenceStandin implements CharacterAdapter {
     if(this.pendingIdle){this.pendingIdle=false;this.settleFromWalk();}
     this.lastSpeed=0;const c=this.clock!,ch=chooseTurn(this.rig!,c.cfg,extra.deltaYaw,this.lastFoot);extra.deltaYaw=ch.deltaRad;duration=1.5;
     // < 45 deg (no turn clip): fold into the stop clip. CMU stops end with the root still moving, so the settled pose
-    // is held (stopHold) and the yaw uses that hold — never a 1.5 s turn on idle_breathing_loop.
+    // is held (stopHold) and the yaw uses that hold. The action ends with the hold (not the 1.5 s WorldFlow budgets via
+    // actionSeconds): otherwise idle_breathing_loop inherits act=turn for the rest of that 1.5 s.
     const b=c.base;let left=0;if(b&&!ch.role&&this.isStopClip(b.clip)){const authored=b.duration-c.localTime(b);left=authored>this.stopHold?authored:this.stopHold;
      if(left<TURN_FOLD_MIN_S){this.stopHold=TURN_FOLD_MIN_S;c.holdBase();left=TURN_FOLD_MIN_S;}}
-    if(left>1e-3)extra.foldS=Math.min(duration,left<TURN_FOLD_MIN_S?TURN_FOLD_MIN_S:left);
+    extra.foldS=foldedTurnDuration(left,duration);if(extra.foldS>0)duration=extra.foldS;
     this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:extra.foldS?'folded into '+b!.clip+' over '+extra.foldS.toFixed(3)+' s':ch.reason});
     if(ch.role){this.stopRoot=null;this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
    if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}

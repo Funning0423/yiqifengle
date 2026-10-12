@@ -46,8 +46,13 @@ export const START_RATE_MAX=1.2;export const START_RATE_STEP=0.05;
  *  rest has no room for it at rate 1: the CMU stops take 1.47 s for 0.42-0.50 m (toDoor 4.20 m / 6.00 s from rest). */
 export const STOP_RATE_MAX=1.2;
 /** A turn below 45 deg (no turn clip) that starts while a stop clip is still settling keeps that clip and finishes its yaw
- *  (smoothstep) by the stop clip's end, at least over this many seconds; she never turns in place on the idle loop then. */
+ *  (smoothstep) over the settled pose, at least this many seconds. The turn action ends with that pose (foldedTurnDuration):
+ *  idle is not entered while act is still turn. */
 export const TURN_FOLD_MIN_S=0.5;
+/** Job length of a small turn folded into a stop that still has `poseLeft` seconds of settled pose (authored tail, or the
+ *  hold). Caps at the nominal in-place turn. 0 when there is no pose to fold into. */
+export function foldedTurnDuration(poseLeft:number,nominal:number):number {
+  if(!(poseLeft>1e-3)||!(nominal>0))return 0;const hold=poseLeft<TURN_FOLD_MIN_S?TURN_FOLD_MIN_S:poseLeft;return hold<nominal?hold:nominal;}
 /** The stop must begin ON a walk_loop heel strike (clip frame 0 == walk_loop there). The phase at the stop entry is set by
  *  stretching the walk_loop clock over the whole cruise by at most this fraction. Slide budget: a warp w makes each planted
  *  foot drift |1-1/w| x native x flat stance; flat stance = heel strike..heel off = 0.37 cycle (anim_meta

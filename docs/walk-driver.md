@@ -246,7 +246,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 **每次停顿前都先停步（r5 #5）。** 走路后面接转身、开门、坐下时，先把停步走完再做下一件事：
 - 规划好的停步（9.3）在走路最后一段就播完了。
 - 没规划上（`stop-unplanned` 事件）：`stopTail` 从停步片段的 settle 时刻（`forward_m` 不再变的时刻，约 0.667 s）切进去，用落地脚相同的那个变体，根节点不动（不滑、不冲过头），然后 idle。
-- 转角 < 45° 不在 idle 上原地转：合进正在播的停步片段里（`turn-choice` 的 reason = `folded into <clip> over X s`），yaw 用 smoothstep 在停步剩下的时间里转完（至少 `TURN_FOLD_MIN_S = 0.5 s`）。岛上到达后约 −25.7° 的那次就是这样。CMU 停步的根节点一直走到最后一帧、没有静止尾巴时，驱动把坐稳那一帧再保持 `TURN_FOLD_MIN_S`（诊断里的片段名仍是停步），小角度转身合进这段保持，然后才切 idle。
+- 转角 < 45° 不在 idle 上原地转：合进正在播的停步片段里（`turn-choice` 的 reason = `folded into <clip> over X s`），yaw 用 smoothstep 在停步剩下的时间里转完（至少 `TURN_FOLD_MIN_S = 0.5 s`）。这次转身动作的时长就是这段保持（`foldedTurnDuration`），不是 WorldFlow 预算的 1.5 s；切到 idle 时动作已经结束（`act` 不是 turn），偏航也已经转到目标。岛上到达后约 −25.7° 的那次就是这样。CMU 停步的根节点一直走到最后一帧、没有静止尾巴时，驱动把坐稳那一帧再保持 `TURN_FOLD_MIN_S`（诊断里的片段名仍是停步），小角度转身合进这段保持，然后才切 idle。
 
 ### 9.3 一次走路的根节点轨迹（`planWalk`，时长不变）
 
