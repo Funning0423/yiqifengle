@@ -1,0 +1,8 @@
+[{"name":"h_front","az":0,"target":[0,0,1.56],"scale":0.46,"res":[500,500]},
+ {"name":"h_q34","az":35,"target":[0,0,1.56],"scale":0.46,"res":[500,500]},
+ {"name":"h_side","az":90,"target":[0,0,1.56],"scale":0.46,"res":[500,500]},
+ {"name":"h_back","az":180,"target":[0,0,1.56],"scale":0.46,"res":[500,500]},
+ {"name":"h_game","az":0,"el":30,"target":[0,0,1.56],"scale":0.46,"res":[500,500]},
+ {"name":"h_front_wire","az":0,"target":[0,0,1.56],"scale":0.46,"res":[500,500],"wire":true},
+ {"name":"h_side_wire","az":90,"target":[0,0,1.56],"scale":0.46,"res":[500,500],"wire":true},
+ {"name":"f_face","az":0,"target":[0,-0.05,1.54],"scale":0.20,"res":[500,500],"hide":["APRON"]}]

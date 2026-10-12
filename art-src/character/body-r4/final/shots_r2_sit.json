@@ -1,0 +1,2 @@
+[{"name":"P_sit_side","az":90,"target":[0,-0.2,0.45],"scale":1.1,"res":[500,500]},
+ {"name":"P_sit_front","az":20,"target":[0,-0.2,0.45],"scale":1.1,"res":[500,500]}]

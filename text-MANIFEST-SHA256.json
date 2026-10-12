@@ -501,8 +501,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 39751,
-    "sha256": "d6402854db7ab9d0819aaf9a7d2af13c83850afc32268375eb04cffbe0eb9b0b"
+    "bytes": 43476,
+    "sha256": "b84e34857d3bd7dc952ffa7bb0769c459c1d7b89b7acf0002ea1b3d979ad29ff"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
@@ -511,8 +511,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-    "bytes": 24062,
-    "sha256": "38b00097dd921a387db970a2e19e9e4a65d609b63baabac0e6ea6bec72b93695"
+    "bytes": 24068,
+    "sha256": "38b88ba48a6d3d6ef986caa8c417dfe8c29312701b751db5000e3c1eebbb8b84"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/combined_anchors_m.json",
@@ -891,8 +891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 55572,
-    "sha256": "564c2b4a70e1e4b0cb2b94035df2aa60e8325636848ffca76f4d9efdd9c49ddc"
+    "bytes": 55831,
+    "sha256": "c61b01a7efb36a32c72407ffd7108cc3f4b481a95beed128ab63f216fb366334"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",

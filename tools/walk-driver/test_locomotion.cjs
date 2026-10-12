@@ -32,11 +32,15 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
   // ---------- parsing (preview schema) ----------
   check('loco: anim_meta locomotion-v1 parsing (root_motion curves, walk_loop string root_motion ignored, entry, entry_contact/type, handoff crossfade_s, turn_deg)',()=>{const cfg=motion.parseAnimMeta(META);
     const ws=cfg.clips.walk_start,sl=cfg.clips.walk_stop_bodyL,sr=cfg.clips.walk_stop_bodyR,t180=cfg.clips.walk_turn_180;
-    assert.equal(cfg.clips.walk_loop.root,undefined);assert(ws.root.forward.length>=40);assert(Math.abs(ws.root.forward[ws.root.forward.length-1][1]-.847)<1e-6);
-    assert.equal(ws.handoff.crossfade,0);assert.equal(ws.handoff.at,1.5);assert.equal(ws.handoff.nextTime,0.2);
-    assert(sl.root.forward&&sl.root.lateral);assert.equal(sl.entry.walkTime,0);assert.equal(sr.entry.walkTime,0.566667);assert.equal(sl.entry.crossfade,0);
+    // expected values come from the raw anim_meta (d0760ce hand-keyed and the CMU mocap clips differ in every number)
+    const raw=META.clips,rf=raw.walk_start.root_motion.forward_m,rsl=raw.walk_stop_bodyL.root_motion.forward_m;
+    assert.equal(cfg.clips.walk_loop.root,undefined);assert(ws.root.forward.length>=40);assert.equal(ws.root.forward.length,rf.length);assert(Math.abs(ws.root.forward[ws.root.forward.length-1][1]-rf[rf.length-1][1])<1e-6);
+    assert.equal(ws.handoff.crossfade,raw.walk_start.handoff.crossfade_s);assert.equal(ws.handoff.at,raw.walk_start.handoff.at_s);assert.equal(ws.handoff.nextTime,raw.walk_start.handoff.next_time_s);
+    assert(sl.root.forward&&sl.root.lateral);assert.equal(sl.entry.walkTime,raw.walk_stop_bodyL.entry.walk_time_s);assert.equal(sr.entry.walkTime,raw.walk_stop_bodyR.entry.walk_time_s);assert.equal(sl.entry.crossfade,raw.walk_stop_bodyL.entry.crossfade_s);
+    const wl=raw.walk_loop.events;assert.equal(sl.entry.walkTime,wl.find(e=>e.body==='L').time_s,'bodyL entry = walk_loop heel strike of body L');assert.equal(sr.entry.walkTime,wl.find(e=>e.body==='R').time_s,'bodyR entry = walk_loop heel strike of body R');
     assert.equal(sl.events[0].entryContact,true);assert.equal(sl.events[0].type,'heel_strike');assert.equal(sl.events[2].type,'settle');assert(/^settle:/.test(sl.events[2].name),'settle step named settle:* '+sl.events[2].name);assert.equal(t180.turnDeg,180);
-    const st=motion.curveSettleTime(sl.root.forward);assert(Math.abs(st-.6667)<.03,'stop forward settles at '+st);
+    const st=motion.curveSettleTime(sl.root.forward),last=rsl[rsl.length-1][1];const firstAt=rsl.find(p=>rsl.slice(rsl.indexOf(p)).every(q=>Math.abs(q[1]-last)<1e-6))[0];
+    assert(Math.abs(st-firstAt)<1e-9,'stop forward settles at '+st+' (raw '+firstAt+')');
     return {walkStartKeys:ws.root.forward.length,stopForwardM:sl.root.forward[sl.root.forward.length-1][1],stopSettleS:+st.toFixed(4),stopLateralM:[sl.root.lateral[sl.root.lateral.length-1][1],sr.root.lateral[sr.root.lateral.length-1][1]],extraSecondsStartStop:+motion.walkProfileExtraSeconds(cfg,true,true).toFixed(3)};});
   // ---------- planWalk on synthetic curves ----------
   check('loco: planWalk synthetic curves (smoothstep start 1.5 s / 0.6 m, quadratic stop 0.25 m / 0.7 s): s(0)=0, s(D)=L, monotone, C0 + bounded speed steps, entry phase ON the heel strike',()=>{
@@ -141,7 +145,10 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
     const c=(d,f)=>motion.chooseTurn(info,cfg,r(d),f);const res={};
     assert.equal(c(95,'R').role,'walk_turn_90_bodyL');assert.equal(c(-95,'R').role,'walk_turn_90_bodyR');assert.equal(c(-95,'L').role,'walk_turn_90_bodyR');
     assert.equal(c(-161.5,'R').role,'walk_turn_180_bodyR');assert.equal(c(161.5,'L').role,'walk_turn_180');
-    let x=c(175,'L');assert.equal(x.role,'walk_turn_180_bodyR');assert(Math.abs(H.deg(x.deltaRad)+185)<1e-9);res.p175L=x.reason;x=c(-175,'R');assert.equal(x.role,'walk_turn_180');assert(Math.abs(H.deg(x.deltaRad)-185)<1e-9);res.m175R=x.reason;
+    // >= TURN180_FREE_DEG: the variant whose first step (anim_meta events) is the free foot, turned its own way (long way round if needed)
+    const first=n=>META.clips[n].events.find(e=>/^foot:/.test(e.name)).body,side={walk_turn_180:1,walk_turn_180_bodyR:-1};
+    for(const [d,f] of [[175,'L'],[-175,'R'],[175,'R'],[-175,'L']]){const want=Object.keys(side).find(n=>first(n)!==f);const x=c(d,f);assert.equal(x.role,want,d+' last foot '+f);
+      const exp=side[want]===Math.sign(d)?d:d-Math.sign(d)*360;assert(Math.abs(H.deg(x.deltaRad)-exp)<1e-9,d+' '+f+' turns '+H.deg(x.deltaRad)+' want '+exp);res['p'+d+f]=x.reason;}
     const ret=turns.find(t=>t.state==='walking-home');assert(ret&&ret.clip==='walk_turn_180_bodyR',JSON.stringify(turns));
     res.flow=turns.map(t=>t.state+':'+t.clip);return res;});}
   // r5 #5: settleFromWalk only ran when nothing followed; an unplanned walk end now plays the stop clip's tail (root still)

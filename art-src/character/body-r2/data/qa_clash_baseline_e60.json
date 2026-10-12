@@ -1,0 +1,479 @@
+{
+ "door_reach": {
+  "frames": [
+   0,
+   24
+  ],
+  "hand_L_travel_mm": 122.4,
+  "overlap_max": {},
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    35.8,
+    6
+   ],
+   "sleeve_R->apron": [
+    8.9,
+    4
+   ],
+   "hand_L->apron": [
+    51.7,
+    2
+   ],
+   "hand_R->apron": [
+    43.0,
+    2
+   ],
+   "sleeve_L->dress": [
+    26.5,
+    0
+   ],
+   "sleeve_R->dress": [
+    20.5,
+    4
+   ],
+   "hand_L->dress": [
+    67.8,
+    6
+   ],
+   "hand_R->dress": [
+    77.7,
+    2
+   ],
+   "legs->dress": [
+    21.0,
+    0
+   ]
+  }
+ },
+ "idle_breathing_loop": {
+  "frames": [
+   0,
+   96
+  ],
+  "hand_L_travel_mm": 12.5,
+  "overlap_max": {},
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    61.0,
+    0
+   ],
+   "sleeve_R->apron": [
+    73.5,
+    0
+   ],
+   "hand_L->apron": [
+    62.8,
+    0
+   ],
+   "hand_R->apron": [
+    56.3,
+    42
+   ],
+   "sleeve_L->dress": [
+    26.4,
+    36
+   ],
+   "sleeve_R->dress": [
+    23.5,
+    0
+   ],
+   "hand_L->dress": [
+    92.9,
+    44
+   ],
+   "hand_R->dress": [
+    92.8,
+    44
+   ],
+   "legs->dress": [
+    21.0,
+    0
+   ]
+  }
+ },
+ "sit_down": {
+  "frames": [
+   0,
+   30
+  ],
+  "hand_L_travel_mm": 308.2,
+  "overlap_max": {
+   "sleeve_L-apron": [
+    106,
+    30
+   ],
+   "sleeve_R-apron": [
+    102,
+    30
+   ],
+   "legs-dress": [
+    218,
+    30
+   ],
+   "legs-apron": [
+    122,
+    30
+   ],
+   "sleeve_L-dress": [
+    92,
+    30
+   ],
+   "sleeve_R-dress": [
+    93,
+    30
+   ]
+  },
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    0.0,
+    12
+   ],
+   "sleeve_R->apron": [
+    0.0,
+    22
+   ],
+   "hand_L->apron": [
+    35.9,
+    4
+   ],
+   "hand_R->apron": [
+    36.1,
+    4
+   ],
+   "sleeve_L->dress": [
+    0.1,
+    26
+   ],
+   "sleeve_R->dress": [
+    0.3,
+    28
+   ],
+   "hand_L->dress": [
+    53.8,
+    4
+   ],
+   "hand_R->dress": [
+    53.9,
+    4
+   ],
+   "legs->dress": [
+    0.0,
+    18
+   ]
+  }
+ },
+ "sit_hold": {
+  "frames": [
+   1,
+   31
+  ],
+  "hand_L_travel_mm": 0.0,
+  "overlap_max": {
+   "sleeve_L-dress": [
+    92,
+    1
+   ],
+   "sleeve_R-dress": [
+    93,
+    1
+   ],
+   "sleeve_L-apron": [
+    106,
+    1
+   ],
+   "sleeve_R-apron": [
+    102,
+    1
+   ],
+   "legs-dress": [
+    218,
+    1
+   ],
+   "legs-apron": [
+    122,
+    1
+   ]
+  },
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    0.2,
+    1
+   ],
+   "sleeve_R->apron": [
+    0.1,
+    1
+   ],
+   "hand_L->apron": [
+    49.1,
+    1
+   ],
+   "hand_R->apron": [
+    50.7,
+    1
+   ],
+   "sleeve_L->dress": [
+    0.3,
+    1
+   ],
+   "sleeve_R->dress": [
+    0.5,
+    1
+   ],
+   "hand_L->dress": [
+    62.6,
+    1
+   ],
+   "hand_R->dress": [
+    64.0,
+    1
+   ],
+   "legs->dress": [
+    0.0,
+    1
+   ]
+  }
+ },
+ "stand_up": {
+  "frames": [
+   0,
+   30
+  ],
+  "hand_L_travel_mm": 308.3,
+  "overlap_max": {
+   "sleeve_L-dress": [
+    92,
+    0
+   ],
+   "sleeve_R-dress": [
+    93,
+    0
+   ],
+   "sleeve_L-apron": [
+    106,
+    0
+   ],
+   "sleeve_R-apron": [
+    102,
+    0
+   ],
+   "legs-dress": [
+    218,
+    0
+   ],
+   "legs-apron": [
+    122,
+    0
+   ]
+  },
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    0.0,
+    18
+   ],
+   "sleeve_R->apron": [
+    0.0,
+    8
+   ],
+   "hand_L->apron": [
+    35.9,
+    26
+   ],
+   "hand_R->apron": [
+    36.1,
+    26
+   ],
+   "sleeve_L->dress": [
+    0.1,
+    4
+   ],
+   "sleeve_R->dress": [
+    0.3,
+    2
+   ],
+   "hand_L->dress": [
+    53.8,
+    26
+   ],
+   "hand_R->dress": [
+    53.9,
+    26
+   ],
+   "legs->dress": [
+    0.0,
+    0
+   ]
+  }
+ },
+ "walk_loop": {
+  "frames": [
+   0,
+   24
+  ],
+  "hand_L_travel_mm": 329.3,
+  "overlap_max": {
+   "legs-dress": [
+    45,
+    12
+   ]
+  },
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    43.5,
+    12
+   ],
+   "sleeve_R->apron": [
+    43.7,
+    0
+   ],
+   "hand_L->apron": [
+    37.2,
+    14
+   ],
+   "hand_R->apron": [
+    9.9,
+    14
+   ],
+   "sleeve_L->dress": [
+    26.4,
+    8
+   ],
+   "sleeve_R->dress": [
+    21.8,
+    0
+   ],
+   "hand_L->dress": [
+    24.8,
+    0
+   ],
+   "hand_R->dress": [
+    24.7,
+    12
+   ],
+   "legs->dress": [
+    0.1,
+    0
+   ]
+  }
+ },
+ "wind_sway_loop": {
+  "frames": [
+   0,
+   96
+  ],
+  "hand_L_travel_mm": 0.0,
+  "overlap_max": {},
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    36.0,
+    74
+   ],
+   "sleeve_R->apron": [
+    26.5,
+    20
+   ],
+   "hand_L->apron": [
+    53.6,
+    12
+   ],
+   "hand_R->apron": [
+    27.7,
+    22
+   ],
+   "sleeve_L->dress": [
+    26.5,
+    0
+   ],
+   "sleeve_R->dress": [
+    23.5,
+    0
+   ],
+   "hand_L->dress": [
+    67.5,
+    22
+   ],
+   "hand_R->dress": [
+    39.9,
+    22
+   ],
+   "legs->dress": [
+    6.3,
+    26
+   ]
+  }
+ },
+ "walk_loop_v2": {
+  "frames": [
+   0,
+   27
+  ],
+  "hand_L_travel_mm": 178.7,
+  "overlap_max": {},
+  "min_gap_mm": {
+   "sleeve_L->apron": [
+    7.8,
+    24
+   ],
+   "sleeve_R->apron": [
+    8.5,
+    10
+   ],
+   "hand_L->apron": [
+    10.2,
+    20
+   ],
+   "hand_R->apron": [
+    9.4,
+    24
+   ],
+   "sleeve_L->dress": [
+    14.7,
+    22
+   ],
+   "sleeve_R->dress": [
+    15.4,
+    8
+   ],
+   "hand_L->dress": [
+    23.4,
+    22
+   ],
+   "hand_R->dress": [
+    23.4,
+    10
+   ],
+   "legs->dress": [
+    8.4,
+    6
+   ]
+  }
+ },
+ "rest": {
+  "overlap": {
+   "sleeve_L-dress": 0,
+   "sleeve_R-dress": 0,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "hand_L-dress": 0,
+   "hand_R-dress": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-legs": 0,
+   "hand_R-legs": 0,
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "hand_L-torso": 0,
+   "hand_R-torso": 0
+  },
+  "min_gap_mm": {
+   "sleeve_L->apron": 35.8,
+   "sleeve_R->apron": 35.3,
+   "hand_L->apron": 55.1,
+   "hand_R->apron": 55.1,
+   "sleeve_L->dress": 26.5,
+   "sleeve_R->dress": 23.5,
+   "hand_L->dress": 67.8,
+   "hand_R->dress": 67.7,
+   "legs->dress": 21.0
+  }
+ }
+}

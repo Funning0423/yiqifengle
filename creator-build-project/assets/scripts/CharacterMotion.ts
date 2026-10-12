@@ -297,12 +297,14 @@ export function stopRole(info:ClipInfo,planted:Body|null):string|null {if(!plant
 /** Unplanned stop (the walk was not known to end at rest): a stop clip with a forward_m curve is entered at the end of its
  *  root travel (curveSettleTime), so the root does not move: no slide, no overshoot past the path end. The variant is the
  *  one whose planted body foot at that time is the walk's planted foot (the crossfade moves the free foot only).
- *  In-place stop clips (no forward curve): stopRole, from frame 0 (old behaviour). null = no stop clip -> idle. */
+ *  In-place stop clips (no forward curve): stopRole, from frame 0 (old behaviour). null = no stop clip -> idle.
+ *  A tail shorter than CROSSFADE_S (root still travelling until the last frames, e.g. the CMU mocap stops) is not used:
+ *  the clip would end inside the crossfade and hard-cut to idle, so the walk crossfades to idle instead. */
 export function stopTail(info:ClipInfo,cfg:MotionConfig,planted:Body|null):{clip:string;time:number}|null {if(!planted)return null;
   const names=[CLIP_ROLES.stopL,CLIP_ROLES.stopR];
   for(let i=0;i<names.length;i++){const n=names[i];if(!info.has(n))continue;const m=cfg.clips[n],f=m&&m.root&&m.root.forward;
     if(!f){if(n===stopRole(info,planted))return {clip:n,time:0};continue;}
-    const t=Math.min(curveSettleTime(f),info.duration(n));if(plantedBody(m!.events,t)===planted)return {clip:n,time:t};}
+    const d=info.duration(n),t=Math.min(curveSettleTime(f),d);if(d-t<CROSSFADE_S)continue;if(plantedBody(m!.events,t)===planted)return {clip:n,time:t};}
   return null;}
 /** In-place turn role: |delta| >= 135 deg -> walk_turn_180; >= 45 deg -> walk_turn_90_body{L|R} by turn side (positive yaw =
  *  turning to her left -> bodyL, the inside foot pivots); otherwise / missing clip -> null (idle + controller yaw). */

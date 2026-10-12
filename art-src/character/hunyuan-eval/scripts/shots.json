@@ -1,0 +1,7 @@
+[{"name":"front","az":0,"target":[0,0,1.56],"scale":0.46},
+ {"name":"q34","az":35,"target":[0,0,1.56],"scale":0.46},
+ {"name":"side","az":90,"target":[0,0,1.56],"scale":0.46},
+ {"name":"back","az":180,"target":[0,0,1.56],"scale":0.46},
+ {"name":"game30","az":0,"el":30,"target":[0,0,1.56],"scale":0.46},
+ {"name":"face","az":0,"target":[0,-0.02,1.53],"scale":0.24},
+ {"name":"face_q34","az":30,"target":[0,-0.02,1.53],"scale":0.24}]

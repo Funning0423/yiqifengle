@@ -1,0 +1,16 @@
+OK   node names/order
+OK   node TRS
+OK   skin joints
+OK   inverseBindMatrices bytes
+OK   7 animations bytes
+OK   materials
+OK   mesh names
+OK   image names
+OK   LOD0_G2_APRON#0 M_G2_APRON byte-identical
+OK   LOD0_G2_BODY#0 M_G2_FACE replaced (same attribute set & material)
+OK   LOD0_G2_BODY#1 M_G2_HEAD replaced (same attribute set & material)
+OK   LOD0_G2_BODY#2 M_G2_BODY byte-identical
+OK   LOD0_G2_BODY#3 M_G2_HAIR replaced (same attribute set & material)
+OK   LOD0_G2_BOW#0 M_G2_BODY byte-identical
+OK   LOD0_G2_DRESS#0 M_G2_DRESS byte-identical
+ALL_OK

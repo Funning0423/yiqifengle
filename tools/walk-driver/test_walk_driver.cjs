@@ -20,7 +20,13 @@ const ctx={...motion,REF:M.CharacterReference.CHARACTER_REFERENCE,Cancelled:W.Ca
 vm.runInNewContext(tx(classText+'\nexports.Standin=FlowReferenceStandin;'),ctx);const Standin=ctx.exports.Standin;
 const pick=()=>{for(const p of [process.env.WALK_GLB,'/workspace/yiqifengle/previews/角色动画bot/walk-v1/chr_b_r5g2_walk-v1_TEST.glb','/workspace/yiqifengle/previews/角色动画bot/walk-v2/chr_b_r5g2_walk-v2_TEST.glb',path.join(ROOT,'creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')])if(p&&fs.existsSync(p))return p;throw Error('no walk glb');};
 const GLB=pick();const metaPath=path.join(path.dirname(GLB),'anim_meta.json');const META=fs.existsSync(metaPath)?JSON.parse(fs.readFileSync(metaPath,'utf8')):null;
-const results=[];const check=(name,fn)=>{try{const info=fn();results.push({name,ok:true,info});}catch(e){results.push({name,ok:false,error:String(e&&e.stack||e)});}};
+/** Checks that already fail on int/v1 with the hand-keyed clips; left as they are, flagged in the report (knownFailOnIntV1). */
+const KNOWN_FAIL_ON_INTV1=new Set(['phase continuity across outCrossing->toIsland and toThreshold->inCrossing (no reset, no leg swap)',
+ 'onFoot timing: the event bone leads (heel strike in front) on every step',
+ 'morph: morphTargets {curl:1,flutter:0} remaps shape indices; written to every sub-mesh with enough targets (counts 3,0,2 -> 0,2)']);
+const results=[];const check=(name,fn)=>{const known=KNOWN_FAIL_ON_INTV1.has(name)?{knownFailOnIntV1:true}:{};try{const info=fn();results.push({name,ok:true,...known,info});}catch(e){results.push({name,ok:false,...known,error:String(e&&e.stack||e)});}};
+/** Foot events on a short straight walk: one per walk_loop step (anim_meta step_length_m; 0.50 m mocap, 0.40 m hand-keyed), minus the step taken by the start/stop. */
+const STEP_M=META?.clips?.walk_loop?.step_length_m||0.3967;const minFootEvents=L=>Math.round(L/STEP_M)-1;
 const deg=r=>r*180/Math.PI,wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const qang=(a,b)=>2*Math.acos(Math.min(1,Math.abs(a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w)))*180/Math.PI;
 /** Synthetic wind layers for the additive check: skirt/apron/hair bones swing +-AMP about local X; thigh.L also swings (must be masked off). */
@@ -138,7 +144,7 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
   c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});c.sampled.clear();const fe=[];c.s.onFoot(e=>fe.push(e));const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,2]],duration:2/0.7},new Token());
   for(let i=0;i<200;i++){c.s.advance(1/60);await flush();}await wp;
   check('baked fallback (CHARACTER_POSE_BLEND=false): play+pause one clip, hard cut, foot events + walkProgress still work',()=>{assert.equal(c.anim.useBakedAnimation,true);assert(c.plays.includes('walk_loop'));assert(c.states.get('walk_loop').paused);
-   assert(fe.length>=4);assert.equal(c.s.walkProgress(),null);return {plays:c.plays,footEvents:fe.length};});}
+   assert(fe.length>=minFootEvents(2),fe.length+' foot events, step '+STEP_M);assert.equal(c.s.walkProgress(),null);return {plays:c.plays,footEvents:fe.length,minFootEvents:minFootEvents(2)};});}
  /* ---------- apron morph targets (MorphDriver + morphWeights; docs/walk-driver.md §8) ---------- */
  const mockRenderer=(name,counts=[2],o={})=>({node:{name},mesh:o.noStruct?{name}:{name:name,struct:o.noMorph?{}:{morph:{subMeshMorphs:counts.map(n=>({attributes:['a_position'],targets:new Array(n).fill(0).map(()=>({displacements:[]}))})),targetNames:['curl','flutter']}}},
   enableMorph:o.enableMorph!==false,calls:[],w:{},setWeight(w,sub,shape){this.calls.push([w,sub,shape]);this.w[sub+':'+shape]=w;}});
@@ -180,7 +186,7 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
   for(const [want,rs] of cases){const c=makeCharacter({meta:morphMeta(),renderers:rs||undefined});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});const fe=[];c.s.onFoot(e=>fe.push(e));
    const wp=c.s.perform({kind:'walk',path:[[0,0,0],[0,0,1.5]],duration:1.5/0.7},new Token());for(let i=0;i<160;i++){c.s.advance(1/60);await flush();}await wp;const md=c.s.diagnostics().motion.morph;
    out.push({want,status:md.status,reason:md.reason,calls:(rs||[]).reduce((a,x)=>a+x.calls.length,0),feet:fe.length,targetCounts:md.targetCounts});}
-  check('morph: missing mesh / no morph / 1 target (<2 needed) / enableMorph=false -> no setWeight, status in diagnostics, walk unaffected',()=>{for(const o of out){assert.equal(o.status,o.want,JSON.stringify(o));assert.equal(o.calls,0,JSON.stringify(o));assert(o.feet>=3);}return out;});}
+  check('morph: missing mesh / no morph / 1 target (<2 needed) / enableMorph=false -> no setWeight, status in diagnostics, walk unaffected',()=>{for(const o of out){assert.equal(o.status,o.want,JSON.stringify(o));assert.equal(o.calls,0,JSON.stringify(o));assert(o.feet>=minFootEvents(1.5),JSON.stringify(o)+' step '+STEP_M);}return out;});}
  // 5) curve-only apron timeline (glb has no apron_lift clip): onApronLift immediate (unchanged), curl still rises to 1 at +0.37 s
  {const r=mockRenderer('LOD0_G2_APRON');const c=makeCharacter({meta:morphMeta(),renderers:[r]});c.s.cancelAndReset({kind:'standing',controllerRoot:[0,0,0],yawRad:0});let wind=0,tt=0;const cu=[],ev=[];c.s.setWindSource(()=>wind);c.s.onApronLift(()=>ev.push(tt));
   for(let i=0;i<240;i++){tt=i/60;wind=Math.min(1,i/100);c.s.advance(1/60);cu.push(c.s.diagnostics().motion.morph.weights.curl);}
@@ -206,6 +212,6 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
   assert.equal(c2.morphMesh,'X_APRON');assert.equal(JSON.stringify(c2.morphTargets),'{"curl":2,"flutter":3}');assert.equal(JSON.stringify(c2.clips.apron_lift.morph.curves.curl),'[[0,0],[1,1]]');assert(!c2.clips.apron_lift.morph.curves.bad);assert.equal(motion.piecewise(c2.windToMorphFlutter,1),.4);
   const c3=motion.parseAnimMeta({clips:{apron_lift:{morph:{mesh:'Y',curves:{curl:[[0,0],[1,1]]}}}}});assert.equal(c3.morphMesh,'Y');return {ok:true};});
  await locomotionTests();
- const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
+ const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',failedKnownOnIntV1:failed.filter(r=>r.knownFailOnIntV1).length,failedOther:failed.filter(r=>!r.knownFailOnIntV1).length,glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
  console.log(JSON.stringify(report,null,1));if(failed.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1;});
