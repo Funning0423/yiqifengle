@@ -8,9 +8,13 @@
 #     not re-solve the knee.
 #   * the 97b9c41 bake, which already aims the code palm normal at the thigh. On the device that
 #     face reads as the back of the hand, so the palm the player sees still opens toward the
-#     camera, and her left boot stays toe-up through the plant. correct_walk_side rolls both
-#     forearms so the visible palm faces the thigh, plants that boot flat on its existing
-#     contact path, and clamps swing yaw. A later run (visible palms already on the thigh) is refused.
+#     camera, and her left boot stays toe-up through the plant. correct_walk_side turns each
+#     hand about the finger axis so the visible palm faces the skirt, plants that boot flat,
+#     and clamps swing yaw. It does not roll upper_arm, and it does not spin the forearm.
+#   * the 56e616d bake, which did spin both forearms ~180° and sheared the elbows. That case
+#     unrolls the forearm back onto the upper arm and aims the hand about the finger axis.
+#     The feet are already planted, so they are not solved again. A later run (visible palms
+#     on the skirt and the elbow still intact) is refused.
 # Sit clips, turns, idle, door_reach, and wind are copied verbatim from whatever GLB this
 # script is pointed at (the door_reach palm bake stays). STANCE_MM is not touched.
 import hashlib
@@ -94,6 +98,21 @@ def knee_outward(rig, Q, T, side):
 
 def joint_pos(rig, Q, T, name):
     return rig.fk(T, Q)[:, rig.idx[name], :3, 3]
+
+
+def _max_elbow_twist(rig, Q, T):
+    """Degrees. The larger of the two forearms' twist off the upper arm."""
+    W = rig.fk(T, Q)
+
+    def Rn(i):
+        R = W[:, i, :3, :3]
+        return R / np.linalg.norm(R, axis=-2, keepdims=True)
+
+    m = 0.0
+    for s in 'LR':
+        tw = np.abs(AL._elbow_twist(Rn(rig.idx['upper_arm.' + s]), Rn(rig.idx['forearm.' + s])))
+        m = max(m, float(np.degrees(tw).max()))
+    return m
 
 
 def bone_angle(Ra, Rb):
@@ -230,13 +249,16 @@ def sit_max_deg(rig_a, rig_b):
     return worst, where
 
 
+_PALM_SENTENCE = (
+    'walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: each hand is turned about the finger axis so the face '
+    'a side camera sees points at the skirt and a little down (the back of the hand turns outward). The forearm is not '
+    'rolled past the elbow, and upper_arm is untouched. Her left shoe (bone .R) is planted flat and forward on its '
+    'existing contact path, and pulled in when that plant is wider than 50 mm. Swing yaw is clamped. Her right shoe '
+    'keeps its heel-to-toe roll. Turns, idle, door, wind, bow, and the sit clips are unchanged'
+)
 POSE_NOTE = {
-    'side': (
-        'walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: both palms are rolled so the face a side camera '
-        'sees points at the thigh and a little down (the back of the hand turns outward). Her left shoe (bone .R) is '
-        'planted flat and forward on its existing contact path, and pulled in when that plant is wider than 50 mm. '
-        'Swing yaw is clamped. Her right shoe keeps its heel-to-toe roll. Turns, idle, door, wind, and the sit clips '
-        'are unchanged'),
+    'side': _PALM_SENTENCE,
+    'unroll': _PALM_SENTENCE,
     'legacy': (
         'walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: her left palm (bone .R) keeps the medial+backward '
         'forearm twist; her right palm (bone .L) is rolled off that backward aim onto the thigh. Forward pole on her '
@@ -339,26 +361,35 @@ def main():
             vis_medial = float(np.median(vis['L']['out'])) < -0.75 and float(np.median(vis['R']['out'])) < -0.75
             # Her right palm still carries the legacy backward aim when its normal's Z is negative.
             legacy_right = medial and float(np.median(palms['L']['fwd'])) < -0.10
+            elbow = _max_elbow_twist(rig, Q, T)
+            # Visible palm already inward, elbow still together: this bake already ran.
+            if vis_medial and not medial and elbow < 60.0:
+                raise SystemExit('visible palms already face the skirt with the elbow intact; bake would roll the wrist again')
             if vis_medial and not medial:
-                raise SystemExit('visible palms already face the thighs; bake would roll them again')
-            if medial and not legacy_right:
+                mode = 'unroll'
+            elif medial and not legacy_right:
                 mode = 'side'
             elif legacy_right:
                 mode = 'legacy'
             else:
                 mode = 'full'
             print('mode', mode, 'visual_out L', round(float(np.median(vis['L']['out'])), 3),
-                  'R', round(float(np.median(vis['R']['out'])), 3), flush=True)
+                  'R', round(float(np.median(vis['R']['out'])), 3),
+                  'elbow_deg', round(elbow, 1), flush=True)
         if mode == 'legacy':
             # Already-baked clip: roll only forearm.L. Bone .R and the right knee stay.
             Q2 = AL.migrate_right_palm(ctx, Q, T, w)
+        elif mode == 'unroll':
+            # Forearms were spun ~180°. Unroll them and aim the hand. Leave the planted feet.
+            Q2, info = AL.correct_walk_side(rig, ctx, Q, T, w, periodic=name in LOOP, palms_only=True)
+            print('  unroll', info, flush=True)
         elif mode == 'side':
-            # Code normal already faces the thigh. Roll so the visible palm does, and fix the feet.
+            # Code normal already faces the thigh. Turn the visible palm on the hand, and fix the feet.
             Q2, info = AL.correct_walk_side(rig, ctx, Q, T, w, periodic=name in LOOP)
             print('  side', info, flush=True)
         else:
             Q2 = AL.locals_with_walk_pose(rig, ctx, Q, T, w, arms=True, leg=True)
-        palms2 = palm_out(rig, ctx, Q2, T, visual=(mode == 'side'))
+        palms2 = palm_out(rig, ctx, Q2, T, visual=(mode in ('side', 'unroll')))
         ank = np.linalg.norm(joint_pos(rig, Q, T, 'foot.L') - joint_pos(rig, Q2, T, 'foot.L'), axis=1).max() * 1000
         wrist = max(np.linalg.norm(joint_pos(rig, Q, T, 'hand.' + s) - joint_pos(rig, Q2, T, 'hand.' + s), axis=1).max()
                     for s in 'LR') * 1000
@@ -374,15 +405,17 @@ def main():
             if foot_deg > 0.05 or hand_local > 0.05:
                 raise SystemExit('%s moved a bone other than forearm.L (world %s deg, hand.L local %s)'
                                  % (name, round(foot_deg, 4), round(float(hand_local), 4)))
-        elif mode == 'side':
-            changed = {'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R',
-                       'forearm.L', 'hand.L', 'forearm.R', 'hand.R'}
+        elif mode in ('side', 'unroll'):
+            changed = {'forearm.L', 'hand.L', 'forearm.R', 'hand.R'}
+            if mode == 'side':
+                changed |= {'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R'}
             foot_deg = max_bone_deg(rig, Q, T, Q2, T, [n for n in rig.names if n not in changed])
-            hand_local = max(float(bone_angle(
-                RG.q2m(Q[:, rig.idx['hand.' + s]]), RG.q2m(Q2[:, rig.idx['hand.' + s]])).max()) for s in 'LR')
-            if foot_deg > 0.05 or hand_local > 0.05:
-                raise SystemExit('%s moved a bone outside the legs and forearms (world %s deg, hand local %s)'
-                                 % (name, round(foot_deg, 4), round(hand_local, 4)))
+            elbow_mm = max(np.linalg.norm(joint_pos(rig, Q, T, 'forearm.' + s) - joint_pos(rig, Q2, T, 'forearm.' + s), axis=1).max()
+                           for s in 'LR') * 1000
+            elbow_tw = _max_elbow_twist(rig, Q2, T)
+            if foot_deg > 0.05 or wrist > 2.0 or elbow_mm > 2.0 or elbow_tw > 50.0:
+                raise SystemExit('%s arm fix broke a joint (other %s deg, wrist %s mm, elbow move %s mm, elbow twist %s deg)'
+                                 % (name, round(foot_deg, 4), round(float(wrist), 3), round(float(elbow_mm), 3), round(elbow_tw, 2)))
         else:
             foot_deg = max_bone_deg(rig, Q, T, Q2, T, ['foot.L', 'foot.R', 'thigh.R', 'shin.R', 'upper_arm.L', 'upper_arm.R'])
         print('  after palmL', [round(float(palms2['L']['out'].min()), 3), round(float(palms2['L']['out'].max()), 3)],
@@ -393,9 +426,8 @@ def main():
               'kneeR', round(float(knee_outward(rig, Q2, T, 'R').max()), 2),
               'ankle_mm', round(float(ank), 4), 'wrist_mm', round(float(wrist), 4),
               'untouched_deg', round(foot_deg, 4), flush=True)
-        if mode == 'side':
-            # Idle ends of start/stop keep the old palm. Only the walking frames must face the thigh.
-            # The left palm's twist cannot get its X component past about -0.80 (forearm axis).
+        if mode in ('side', 'unroll'):
+            # Idle ends of start/stop keep the old palm. Only the walking frames must face the skirt.
             hi = w >= 0.999
             if hi.any() and (float(palms2['L']['out'][hi].max()) > -0.75 or float(palms2['R']['out'][hi].max()) > -0.75):
                 raise SystemExit('%s visible palm still faces outward' % name)
@@ -420,7 +452,8 @@ def main():
     chosen = None
     for tol in WG.TOLS:
         note = {
-            'side': 'walk pose: visible palms toward the thigh, left shoe (bone.R) planted flat, swing yaw clamped',
+            'side': 'walk pose: palms turned about the finger axis, elbow not rolled, left shoe (bone.R) planted flat',
+            'unroll': 'walk pose: palms turned about the finger axis, forearm unrolled onto the elbow, upper arm untouched',
             'legacy': 'walk pose: forearm.L rolled onto the thigh',
             'full': 'walk pose: forearm twist toward the thigh, right knee (bone.L) forward pole',
         }[mode]
@@ -451,7 +484,7 @@ def main():
         Q, T, t = sample(r, name)
         return Q, T, t
     Qw, Tw, tw = grab(rig2, 'walk_loop')
-    palms = palm_out(rig2, ctx, Qw, Tw, visual=(mode == 'side'))
+    palms = palm_out(rig2, ctx, Qw, Tw, visual=(mode in ('side', 'unroll')))
     kL = float(knee_outward(rig2, Qw, Tw, 'L').max())
     kR = float(knee_outward(rig2, Qw, Tw, 'R').max())
     print('written walk_loop palmL', [round(float(palms['L']['out'].min()), 3), round(float(palms['L']['out'].max()), 3)],
@@ -464,13 +497,17 @@ def main():
           'R', [round(float(vs_thigh('R').min()), 1), round(float(np.median(vs_thigh('R'))), 1), round(float(vs_thigh('R').max()), 1)],
           'signed_out L', round(float(np.median(palms['L']['out'])), 3),
           'R', round(float(np.median(palms['R']['out'])), 3), flush=True)
-    # Side mode: the left palm (bone .R) only reaches about -0.80 because the twist is about the forearm.
-    # -0.75 still means the visible palm faces the thigh, with room for the 0.2 deg key reduction.
-    palm_lim = -0.75 if mode == 'side' else -0.85
+    # Finger-axis aim reaches about -0.90. -0.75 still faces the skirt after 0.2 deg key reduction.
+    palm_lim = -0.75 if mode in ('side', 'unroll') else -0.85
     if palms['L']['out'].max() > palm_lim or palms['R']['out'].max() > palm_lim:
         raise SystemExit('palms still face outward after key reduction')
     if float(np.median(palms['L']['fwd'])) < -0.08:
         raise SystemExit('right palm still aims backward after key reduction')
+    if mode in ('side', 'unroll'):
+        written_elbow = _max_elbow_twist(rig2, Qw, Tw)
+        print('written elbow twist deg', round(written_elbow, 2), flush=True)
+        if written_elbow > 50.0:
+            raise SystemExit('written elbow is still rolled (%s deg)' % round(written_elbow, 2))
     if kL > kR + 2.0:
         raise SystemExit('right knee still swings wider than the left')
     Qs, Ts, ts = grab(rig2, 'walk_start')
