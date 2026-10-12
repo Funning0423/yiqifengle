@@ -2724,7 +2724,7 @@
    "duration_s": 2.0,
    "frames": 60,
    "fps": 30,
-   "keys": "621 keys, reduced per channel (see top-level compression), LINEAR",
+   "keys": "662 keys, reduced per channel (see top-level compression), LINEAR",
    "cocos_meta_split": {
     "from_s": 0.0,
     "to_s": 2.0,
@@ -2756,7 +2756,7 @@
     ],
     "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
     "doc": "art-src/animation/mocap/SOURCES.md",
-    "edits": "hips travel x0.5, spine/neck 60% of the performer lean, her left arm 15% of the performer (idle-like), right wrist IK onto the handle with the performer's reach timing"
+    "edits": "hips travel x0.5, spine/neck 60% of the performer lean, her left arm 15% of the performer (idle-like), right arm IK keeps the palm centre on the handle and turns the palm to face the door on the performer's reach timing"
    }
   }
  },
@@ -2793,8 +2793,8 @@
  },
  "driver_contract": "GGbot work/GGbot-walk afb5d7b docs/walk-driver.md; deploy path bundles/region_island/character/anim_meta.json",
  "compression": {
-  "clips": "keys reduced per channel (greedy; slerp / lerp error <= 0.03 deg hips+legs, 0.20 deg spine/chest/neck, 0.20 deg head/arms/hands, 0.30 deg skirt, root/hips translation 0.1 mm), rest translations / scales omitted, float32, LINEAR; source mocap low-passed (gauss sigma 4 frames at 120 fps) before retargeting. walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: her left palm (bone .R) keeps the medial+backward forearm twist; her right palm (bone .L) is rolled off that backward aim onto the thigh. Forward pole on her right knee (bone .L). Ankles, foot world rotation, and the other clips are unchanged",
-  "anim_bytes_total": 144252,
+  "clips": "keys reduced per channel (greedy; slerp / lerp error <= 0.03 deg hips+legs, 0.20 deg spine/chest/neck, 0.20 deg head/arms/hands, 0.30 deg skirt, root/hips translation 0.1 mm), rest translations / scales omitted, float32, LINEAR; source mocap low-passed (gauss sigma 4 frames at 120 fps) before retargeting. walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: her left palm (bone .R) keeps the medial+backward forearm twist; her right palm (bone .L) is rolled off that backward aim onto the thigh. Forward pole on her right knee (bone .L). Ankles, foot world rotation, and the other clips are unchanged. door_reach right arm (upper_arm.L, forearm.L, hand.L): palm aimed at the closed door with the same two-bone IK, key tolerance 0.20 deg on those three curves",
+  "anim_bytes_total": 145072,
   "anim_bytes_per_clip": {
    "idle_breathing_loop": 3304,
    "wind_sway_loop": 14700,
@@ -2802,7 +2802,7 @@
    "sit_hold": 1192,
    "stand_up": 13352,
    "sit_down": 12748,
-   "door_reach": 11852,
+   "door_reach": 12672,
    "walk_start": 13144,
    "walk_stop_bodyL": 11164,
    "walk_stop_bodyR": 9892,

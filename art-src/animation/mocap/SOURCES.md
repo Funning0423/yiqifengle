@@ -31,7 +31,7 @@ downloaded from `http://mocap.cs.cmu.edu/subjects/<NN>/<NN>.asf` and `.../<NN>_<
 | `sit_hold` | 113_15 | "Post pregnant woman" / sit in chair and get up | 2.60 – 4.60 | loop closed, seated on our 0.38 m seat, feet on the idle footprints, wrists on the thighs (CMU chair had armrests) |
 | `sit_down` | 113_15 | sit in chair and get up | 1.40 – 2.60 | standing / seated phases blended by hips height, idle → sit_hold, feet fixed, hands onto the thighs |
 | `stand_up` | 113_15 | sit in chair and get up | 4.70 – 5.95 | sit_hold → idle, as above |
-| `door_reach` | 15_06 | "various everyday behaviors" / lean forward, reach for | 15.05 – 17.05 | hips travel ×0.5, spine 60 % of the lean, right wrist IK onto the door handle with the performer's reach timing |
+| `door_reach` | 15_06 | "various everyday behaviors" / lean forward, reach for | 15.05 – 17.05 | hips travel ×0.5, spine 60 % of the lean, right arm IK keeps the palm centre on the handle and turns the palm to face the door (same two-bone IK, performer's reach timing) |
 
 All clips: rotation retarget onto the 28-joint rig (uniform scale = leg length ratio), ankles moved 4 cm outward along the
 pelvis axis (the CMU hip joints are much wider than ours; without this the feet land on one line and the legs cross), feet

@@ -21,6 +21,26 @@ SEAT_CLOTH = 0.008
 SEAT_HIPS_Z = -0.02          # hips bone over the seat centre (seat top centre is +0.014 m in the seated root frame)
 HANDLE = np.array([-0.115, 1.13, 0.34])     # door handle (palm centre) in the door_reach root frame; her right = -X
 PALM = 0.075                                 # wrist -> palm centre along the hand bone
+# Closed door's outward normal is world +Z (the room is -Z). Her yaw at the door is pathHeading(toDoor),
+# exit_path_04 -> door_stand_point. Palm normal in this clip's root frame (her +Z forward).
+_DOOR_FROM = np.array([-0.06529998779296875, 0.0, -0.7730000019073486])
+_DOOR_STAND = np.array([-0.21199999749660492, 0.0, -0.3321000039577484])
+_DOOR_YAW = float(np.arctan2(_DOOR_STAND[0] - _DOOR_FROM[0], _DOOR_STAND[2] - _DOOR_FROM[2]))
+DOOR_PALM = np.array([-np.sin(_DOOR_YAW), 0.0, np.cos(_DOOR_YAW)])
+DOOR_PALM = DOOR_PALM / np.linalg.norm(DOOR_PALM)
+# Right-arm bones the door palm aim may rewrite. The elbow has to come forward: with the forearm
+# length fixed, a palm that faces the door cannot also sit on the handle unless the wrist drops
+# under the ring, and that wrist is out of reach of the old elbow. upper_arm.L is the same two-bone
+# IK this clip already uses, not a new pose.
+DOOR_ARM = ('upper_arm.L', 'forearm.L', 'hand.L')
+# Unaimed hand.L stays ≥ ~87° from the door-facing hand rotation. A correction that
+# lands under this is finished: solving it again compounds a partial blend.
+DOOR_AIMED_DEG = 75.0
+# Below this the correction never clears DOOR_AIMED_DEG, so a second pass would add it again.
+DOOR_AIM_MIN_W = 0.25
+# Gaussian on hand.L only, in frames. Spreads the palm turn onto and off the handle.
+# 0.8 keeps the hold inside 1 deg and a second aim leaves it alone; a wider kernel pulls the palm off the ring.
+DOOR_HAND_SMOOTH = 0.8
 IDLE_KNEE = 7.0
 STOP_LATERAL_KEEP = 0.25
 
@@ -165,8 +185,10 @@ def skin_min_y(tr, region, meshes=('LOD0_G2_BODY',)):
 
 
 # ---------------------------------------------------------------- arm IK
-def arm_ik(tr, s, target, weight, hand_rot=None):
-    """move the wrist (hand.s head) of arm s toward target [n,3] with weight [n] (two-bone, elbow plane from FK)."""
+def arm_ik(tr, s, target, weight, hand_rot=None, pole_bias=0.03):
+    """move the wrist (hand.s head) of arm s toward target [n,3] with weight [n] (two-bone, elbow plane from FK).
+    pole_bias (metres) pushes the elbow pole along chest forward. 0 keeps the current elbow plane, which is a
+    fixed point of a second solve; the 0.03 default is the reach this clip was built with."""
     r = CB.rig()
     cx = CB.ctx()
     ua, fa, hd = 'upper_arm.' + s, 'forearm.' + s, 'hand.' + s
@@ -179,7 +201,7 @@ def arm_ik(tr, s, target, weight, hand_rot=None):
     L2 = np.linalg.norm(r.rest_t[r.idx[hd]])
     w = np.asarray(weight, float)[:, None]
     T = H0 * (1 - w) + target * w
-    E, H2, _ = AL.two_bone(S, T, E0 - 0.03 * Wr['chest'][:, :, 2], L1, L2, max_ext=0.995)
+    E, H2, _ = AL.two_bone(S, T, E0 - pole_bias * Wr['chest'][:, :, 2], L1, L2, max_ext=0.995)
     import rig as RG
     R1 = RG.align(E0 - S, E - S)
     out = dict(Wr)
@@ -194,6 +216,128 @@ def arm_ik(tr, s, target, weight, hand_rot=None):
     out[hd] = hr
     _ = cx
     return out, h
+
+
+def door_palm_weight(err_m):
+    """1 once the palm is on the handle, 0 while it is still down by the skirt. err_m: metres, palm centre to HANDLE."""
+    return 1.0 - AL.smootherstep((np.asarray(err_m, float) - 0.03) / 0.20)
+
+
+def door_hand_world(local_n):
+    """hand.L world rotation: palm normal (local_n) toward the door, fingers as up as that aim allows.
+    Returns (R [3,3], finger direction [3]). The finger/palm angle is the rig's, not a new wrist pose."""
+    door = DOOR_PALM
+    ey = np.array([0.0, 1.0, 0.0])
+    c = float(np.dot(local_n, ey))
+    side = np.cross(door, ey)
+    side = side / np.linalg.norm(side)
+    up = np.cross(side, door)
+    f = c * door + np.sqrt(max(0.0, 1.0 - c * c)) * up
+    f = f / np.linalg.norm(f)
+    s3 = np.cross(ey, local_n)
+    d3 = np.cross(f, door)
+    s3 = s3 / np.linalg.norm(s3)
+    d3 = d3 / np.linalg.norm(d3)
+    R = np.stack([f, door, d3], 1) @ np.linalg.inv(np.stack([ey, local_n, s3], 1))
+    U, _, Vt = np.linalg.svd(R)
+    R = U @ Vt
+    if np.linalg.det(R) < 0:
+        U = U.copy()
+        U[:, -1] *= -1
+        R = U @ Vt
+    return R, f
+
+
+def aim_door_palm_track(tr, local_n):
+    """Point her right palm at the door while the palm centre stays on HANDLE. Other bones are the input track.
+    Weight 0 keeps that frame's right arm exactly. A frame already under DOOR_AIMED_DEG is kept too, so a second
+    pass does not compound the blend. A palm that is on the handle but facing away is solved again (skirt clearance
+    can swing the upper arm after the first aim). Returns (track, weight)."""
+    import rig as RG
+    Wr, h = tr
+    W = CB.fk(Wr, h)
+    r = CB.rig()
+    i = r.idx['hand.L']
+    Rm = W[:, i, :3, :3]
+    Rm = Rm / np.linalg.norm(Rm, axis=-2, keepdims=True)
+    palm = W[:, i, :3, 3] + Rm[:, :, 1] * PALM
+    err = np.linalg.norm(palm - HANDLE, axis=1)
+    w = door_palm_weight(err)
+    Rh, finger = door_hand_world(local_n)
+    hq = RG.m2q(Rm)
+    hand_ang = np.degrees(2 * np.arccos(np.clip(np.abs(hq @ RG.m2q(Rh)), 0, 1)))
+    # A small weight never clears the unaimed angle floor, so the next pass would add it again.
+    w = np.where(w < DOOR_AIM_MIN_W, 0.0, w)
+    already = hand_ang < DOOR_AIMED_DEG
+    knocked = (err < 0.015) & (hand_ang > 8.0)
+    w = np.where(already & ~knocked, 0.0, w)
+    n = len(h)
+    target = np.repeat((HANDLE - PALM * finger)[None], n, 0)
+    hand_rot = np.repeat(Rh[None], n, 0)
+    # pole on the current elbow (no chest bias): the solved elbow stays in that plane, so a full-weight
+    # solve is a fixed point instead of walking a few degrees per pass.
+    Wr2, h2 = arm_ik(tr, 'L', target, w, hand_rot=hand_rot, pole_bias=0.0)
+    keep = w <= 1e-8
+    for k in DOOR_ARM:
+        Wr2[k] = np.where(keep[:, None, None], Wr[k], Wr2[k])
+    return (Wr2, h2), w
+
+
+def _smooth_quat(q, sigma, pin):
+    """Gaussian average of a quaternion curve. pin frames are copied through so the idle ends stay exact."""
+    import rig as RG
+    q = RG.qnorm(np.array(q, dtype=np.float64, copy=True))
+    for i in range(1, len(q)):
+        if np.dot(q[i], q[i - 1]) < 0:
+            q[i] *= -1
+    rad = max(int(np.ceil(3 * sigma)), 1)
+    xs = np.arange(-rad, rad + 1)
+    ker = np.exp(-0.5 * (xs / sigma) ** 2)
+    ker /= ker.sum()
+    out = np.zeros_like(q)
+    for i in range(len(q)):
+        acc = np.zeros(4)
+        for k, x in enumerate(xs):
+            j = min(max(i + int(x), 0), len(q) - 1)
+            acc += ker[k] * q[j]
+        out[i] = acc
+    out = RG.qnorm(out)
+    out[pin] = RG.qnorm(q[pin])
+    for i in range(1, len(out)):
+        if np.dot(out[i], out[i - 1]) < 0:
+            out[i] *= -1
+    return out
+
+
+def aim_door_palm_q(Q, T, rig=None):
+    """Local-quat form of aim_door_palm_track. Only DOOR_ARM channels change; weight 0 frames stay bit-identical.
+    The hand curve is smoothed once per new aim. A second pass sees an already-aimed arm (weight 0) and does not
+    smooth again — a second gaussian is not a fixed point."""
+    rig = CB.rig() if rig is None else rig
+    local_n = AL._palm_local(AL.Ctx(rig))['L']
+    Wr, hips = AL.world_from_local(rig, Q, T)
+    (Wr2, hips2), w = aim_door_palm_track((Wr, hips), local_n)
+    Q2, _T2 = AL.local_from_world(rig, Wr2, hips2)
+    out = np.array(Q, copy=True)
+    for name in DOOR_ARM:
+        j = rig.idx[name]
+        out[:, j] = Q2[:, j]
+    out[w <= 1e-8] = Q[w <= 1e-8]
+    for name in DOOR_ARM:
+        j = rig.idx[name]
+        for i in range(1, len(out)):
+            if w[i] <= 1e-8:
+                continue
+            if np.dot(out[i, j], out[i - 1, j]) < 0:
+                out[i, j] *= -1
+    if np.any(w > 1e-8):
+        n = len(out)
+        times = np.arange(n) / float(FPS)
+        # Idle blend occupies the first and last ~0.12s of the 2s clip. Leave those samples untouched.
+        pin = (times < 0.12) | (times > 1.92)
+        if pin.any() and (~pin).any():
+            out[:, rig.idx['hand.L']] = _smooth_quat(out[:, rig.idx['hand.L']], DOOR_HAND_SMOOTH, pin)
+    return out, w
 
 
 # ---------------------------------------------------------------- hub clips
@@ -799,6 +943,8 @@ def build_door_reach():
         Wf = CB.fk(*tr)
         palm_c = Wf[:, r.idx['hand.L'], :3, 3] + Wf[:, r.idx['hand.L'], :3, 1] * hand_len
         target = target + 0.5 * (HANDLE[None] - palm_c)
+    # CMU's wrist leaves the palm turned out (the walk pose). Retarget the same reach onto a palm that faces the door.
+    tr, _palm_w = aim_door_palm_track(tr, AL._palm_local(CB.ctx())['L'])
     Wt = CB.fk(*tr)
     pk = int(np.argmax(w_reach))
     reach_err = float(np.linalg.norm(Wt[pk, r.idx['hand.L'], :3, 3] + Wt[pk, r.idx['hand.L'], :3, 1] * hand_len - HANDLE))
@@ -809,7 +955,7 @@ def build_door_reach():
                  handoff=dict(next='idle_breathing_loop', at_s=round(t[-1], 6), next_time_s=0.0, crossfade_s=0.2))
     info = dict(trial=DOOR['trial'], src_window_s=[a, b], frames=N, reach_err_mm=round(reach_err * 1000, 1), plant=pinfo,
                 edits='hips travel x0.5, spine/neck 60% of the performer lean, her left arm 15% of the performer (idle-like), '
-                      'right wrist IK onto the handle with the performer\'s reach timing')
+                      'right arm IK keeps the palm centre on the handle and turns the palm to face the door on the performer\'s reach timing')
     lock = [(w_in, 'idle_breathing_loop', np.zeros(N)), (w_out, 'idle_breathing_loop', np.zeros(N))]
     return dict(name='door_reach', track=tr, world=tr, contacts=C, events=[], loop=False, lock=lock, root=None, extra=extra,
                 info=info, arm_hold={'L': w_reach})

@@ -71,6 +71,10 @@ def main():
         log = []
         Qo, rep = SS.solve_clip(solver, d['Q'], d['T'], periodic=meta['loop'], lock=lock, arms=name not in NO_ARMS,
                                 log=lambda *a: log.append(' '.join(str(x) for x in a)), arm_hold=hold)
+        if name == 'door_reach':
+            # arm clearance can swing the upper arm on the way in; put the palm back on the door after that
+            import clips as CL
+            Qo, _pw = CL.aim_door_palm_q(Qo, d['T'], solver.rig)
         curves = {v: np.radians(np.asarray(rep['curves_deg'].get(v, np.zeros(len(Qo))), float)) for v in SS.VARS}
         np.savez(os.path.join(out, name + '.skirt.npz'), Q=Qo, **{'curve_' + v: c for v, c in curves.items()})
         last = rep['iterations'][-1]
