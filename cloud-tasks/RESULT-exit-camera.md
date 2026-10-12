@@ -99,6 +99,8 @@ node tools/camera-frame-test/test_camera_frames.cjs
 
 ## 出门之后旋转、后退、抬升是同一段
 
+分支 `cursor/exit-camera-overlap-9e24` → https://github.com/Funning0423/yiqifengle/pull/22 （草稿，未合并，没有推到 `int/v1`）。
+
 上一节修的是节奏（摆镜谷和升镜冲刺）。产品看过之后判定**顺序**仍然是错的：人出门之后镜头先转完，再后退，再抬升。`int/v1` 上 crane 的 `startProgress` 约 0.553，摆到正面大约在 0.43，抬升落在转完之后。这一节从 `int/v1` 重做出门这一段，不接草稿 PR #15。
 
 正确的一段是 `leaveHome` 的 crossing-out：跨出门、沿路、摆正、后退、升到海岛全景。`railOut` 清空，镜头走 `paceOutbound` 画的一条弧，再用原来的 outbound ease-out 收到 `cameraIsland`。旋转、后退、抬升不是三段首尾相接。
