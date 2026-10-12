@@ -106,12 +106,15 @@ export interface RouteConfig {
   /** T2+: ONE camera move over stand-up + turn (progress over that move; first key should be cameraHome). With
    *  cameraTracks.standTurn it replaces the static stand + 1 s homeToDoor + static turn of the original. */
   cameraStandTurn?:readonly Pose[];
-  /** T2+: outbound crane. cameraToIsland's LAST key (cameraIsland) is reached `settleSeconds` after she stops (camera
-   *  eases to rest while she turns to islandYaw); startProgress = toIsland walk progress of the crane's first key.
+  /** T2+: outbound crane. Without cameraSettle, cameraToIsland's LAST key (cameraIsland) is reached `settleSeconds`
+   *  after she stops. With cameraSettle, that climb is keyed on the settle clock (last key = cameraIsland) and
+   *  cameraToIsland ends on the pose at the moment she stops. startProgress = toIsland walk progress of the crane's first key.
    *  returnLeadSeconds: the return crane-down starts this long before she turns/walks (mirror of settleSeconds).
    *  startSeconds: crane-start mark time from the start of crossing-out (precomputed by the route builder from the eased
    *  outbound track; WorldFlowCore stays free of CameraPose value imports). */
   crane?:Readonly<{startProgress:number;settleSeconds:number;returnLeadSeconds?:number;startSeconds?:number}>;
+  /** T2+ outbound crane settle poses (progress on the settle clock, last key = cameraIsland). Omitted = one key at the end. */
+  cameraSettle?:readonly Pose[];
   /** T2+ doorway-clean (island views): the door drifts from openDeg to islandDeg while she walks out (closeAfter s into
    *  toIsland, over closeSeconds), stays there on the island (restore), and reopens to openDeg during toThreshold
    *  (finishing openBefore s before crossing-in, over openSeconds). Smoothstep, sampled with the camera span (no job, no pop). */
@@ -384,10 +387,10 @@ export class WorldFlow {
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
         const end=c.toIsland[c.toIsland.length-1],settle=c.crane?.settleSeconds??0;
-        const segs:SpanSegment[]=[this.walkSegment(c.outCrossing,crossOut),this.walkSegment(c.toIsland,settle>0?toIsland.slice(0,-1):toIsland)];
+        const segs:SpanSegment[]=[this.walkSegment(c.outCrossing,crossOut),this.walkSegment(c.toIsland,settle>0&&!c.cameraSettle?toIsland.slice(0,-1):toIsland)];
         if(settle>0){const fromYaw=pathHeading(c.toIsland,true),toYaw=c.islandYawRad??0,turnS=this.turnSeconds();
           const turnNeeded=Math.abs(Math.atan2(Math.sin(toYaw-fromYaw),Math.cos(toYaw-fromYaw)))>.01&&turnS<=settle;
-          segs.push({seconds:settle,cameras:[{...toIsland[toIsland.length-1],progress:1}],run:async tk=>{
+          segs.push({seconds:settle,cameras:c.cameraSettle??[{...toIsland[toIsland.length-1],progress:1}],run:async tk=>{
             if(turnNeeded){await this.action({kind:'turn',controllerRoot:end,fromYawRad:fromYaw,toYawRad:toYaw,direction:'left'},tk);await this.waitSeconds(settle-turnS,tk);}
             else await this.waitSeconds(settle,tk);}});}
         const cs=c.crane?.startSeconds;
