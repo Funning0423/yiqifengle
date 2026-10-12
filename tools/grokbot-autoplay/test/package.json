@@ -1,0 +1,6 @@
+{
+  "name": "grokbot-autoplay-tests",
+  "private": true,
+  "description": "Dev-only test deps for tools/grokbot-autoplay (outside creator-build-project, never imported or built by Cocos).",
+  "devDependencies": { "esbuild": "0.21.5", "typescript": "5.4.5", "@babel/core": "7.29.7", "@babel/preset-env": "7.29.7", "@babel/preset-typescript": "7.28.5" }
+}

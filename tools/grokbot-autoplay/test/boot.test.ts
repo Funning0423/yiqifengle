@@ -1,0 +1,24 @@
+/** Unit: GrokbotBoot (pure) with a fake epoch clock. */
+import {BootTimeline,pickOrigin,tok,SUMMARY_DELTAS} from '../src/GrokbotBoot';
+let failures=0;const ok=(c:boolean,m:string)=>{if(!c){failures++;console.error('FAIL: '+m);}else console.error('ok - '+m);};
+const E=1791700000000;
+ok(pickOrigin({__gbBoot:{epoch:E-500},performance:{timeOrigin:E-900}},E).via==='prelude-game.js','origin: prelude first');
+ok(pickOrigin({performance:{timeOrigin:E-900}},E).epoch===E-900,'origin: performance.timeOrigin second');
+ok(pickOrigin({__gbBoot:{epoch:12},performance:{timeOrigin:5000}},E).via==='t0-eval','origin: non-epoch values rejected -> t0-eval');
+ok(pickOrigin({__gbBoot:{epoch:E+60000}},E).via==='t0-eval','origin: future epoch rejected');
+ok(tok('a b\tc')==='a_b_c'&&tok(undefined)==='-'&&tok('')==='-','tok');
+let now=E;const lines:string[]=[];const tl=new BootTimeline({epoch:E-1000,via:'prelude-game.js'},()=>now,(n,e)=>lines.push(n+' '+e));
+ok(tl.point('t0-eval','x=1')&&lines[0]==='boot:t0-eval t=1000 x=1','point t relative to origin');
+ok(!tl.point('t0-eval')&&lines.length===1,'point once per key');
+tl.point('game-js','',E-1000);ok(lines[1]==='boot:game-js t=0','explicit epoch');
+now=E+2000;tl.point('bundle-begin:region_island');now=E+6500;tl.point('bundle-end:region_island');now=E+9000;tl.point('world-ready');
+now=E+9017;tl.point('loading-hidden');now=E+9034;tl.point('room-first-frame');tl.note('asset','n=1');tl.note('asset','n=2');
+ok(lines.filter(l=>l.startsWith('boot:asset')).length===2,'note repeatable');
+const s=tl.summary('room-first-frame')||'';
+ok(/^origin=prelude-game.js reason=room-first-frame game-js=0 t0-eval=1000 bundle-begin:region_island=3000 bundle-end:region_island=7500 world-ready=10000 loading-hidden=10017 room-first-frame=10034 /.test(s),'summary keys in order: '+s);
+ok(/ d\.gameJsToT0=1000 /.test(s)&&/ d\.islandBundle=4500 /.test(s)&&/ d\.islandBundleToReady=2500 /.test(s)&&/ d\.readyToHidden=17 /.test(s)&&/ d\.hiddenToFrame=17 /.test(s)&&/ d\.t0ToSceneLaunch=- /.test(s)&&/ total=10034$/.test(s),'summary deltas');
+ok(SUMMARY_DELTAS.every(d=>s.includes(' d.'+d[0]+'=')),'every delta printed');
+ok(tl.summary('again')===null&&lines.filter(l=>l.startsWith('boot:summary')).length===1,'summary once');
+const l2:string[]=[];const t2=new BootTimeline({epoch:E,via:'t0-eval'},()=>E+120001,(n,e)=>l2.push(n+' '+e));t2.point('t0-eval');
+ok(/ reason=cap-120000 .* total=- incomplete=1$/.test(t2.summary('cap-120000')||''),'cap summary is marked incomplete');
+if(failures){console.error(failures+' failure(s)');process.exit(1);}console.error('PASS boot unit');

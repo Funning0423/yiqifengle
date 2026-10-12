@@ -1,0 +1,2 @@
+{"compilerOptions":{"target":"ES2019","module":"ES2015","moduleResolution":"node","strict":true,"noEmit":true,"lib":["ES2020","DOM"],"skipLibCheck":true},
+ "files":["cc-types.d.ts","../src/GrokbotMarks.ts","../src/GrokbotAutoplay.ts","../src/GrokbotAutoplaySequencer.ts","../src/GrokbotTouchScenarios.ts","../src/GrokbotCombo.ts","../src/GrokbotBoot.ts"]}

@@ -1,0 +1,194 @@
+# T0 autoplay prerequisite SHA-256 allowlist. Format: <level> <sha256> <path under creator-build-project/assets/scripts>
+# strict = glue reads private fields of this file; unknown SHA -> install refuses (override: --accept-unknown, logged).
+# observe = only feeds read-only observers (audio/segments); unknown SHA -> warning, observer degrades and logs.
+strict 4b4be7ab333b0f5263390e6a73a04e3ea75ef1bf6ca3143560ebfb226a3cf08e WorldIntegrationBoot.ts            baseline/near/matte
+strict 99ee910dfd5e78f537f5ae1c1e6392785bdd161ea025697016fb8c69457aa21a WorldIntegrationBoot.ts            T1 l123/l12 after
+strict a141d0b292c12c0196369439dd9160b24579ca31927b3cdd1fe1b0517fac35cb RoomExploreOverlay.ts              baseline/near/matte/T1
+strict aae6157ce78918e0481dceb61c731ae5fb3bdff6c9a41e81faaa91da23e8d6a9 world-r2/IslandJourneyOverlay.ts   baseline/near/matte
+strict c83ca5e17adaeb017457ed7078c05bdc4cbd98a9c46977712395f38b230e71d6 world-r2/IslandJourneyOverlay.ts   T1 after
+strict ea951b0ebdfa099a6ba3a9adbc6abe658f59bc00df7dac187dfab901baf531df world-r2/WorldNativeComposition.ts baseline/near/matte/T1
+observe 2aba051baabd4e79c77cd6655f6a7ea588d28741223253025eb3bbade061d1a5 world-r1/WorldFlowComponent.ts   baseline/near/matte
+observe d7be489e134dca868f303ce240404542c9fd68aa958ca4f7d39facc42f70da49 world-r1/WorldFlowComponent.ts   T1 after
+observe 0d6a4d40f58c108adf93dbb1ebf8b47c2d757d5812284f6e441f5fe58468ec7d world-r1/WorldFlowCore.ts         baseline/matte/T1
+observe c5cd721f94351c05b2ee80eb5ab56456398b57f41af31d461c990006aedf0558 world-r1/WorldFlowCore.ts         near
+observe d067086fb4bcfe0d8fa8f97a2f89f8a0d0eac060008606186a0955c35c1cb424 audio/GameAudio.ts              all
+# int/v1 entries (added by GGbot for T1-near integration; observe glue reviewed: WorldFlowCore.walk/config, WorldFlowComponent.flow, GameAudio.instance/play/loopSource/setMusic*/setMuted unchanged).
+# Pure near + T1-near (work/GGbot-t1-near 588ba07) needs no new entries: all its files are already listed above.
+observe dfb97e45cead6847315838830c8cc3ba6eb56aa7f5d9325d2783fb6c25b44439 world-r1/WorldFlowComponent.ts   int/v1 d72cd75 + T1-near 588ba07 (trial merge a898e1c)
+observe 072bd370f8edb904e1f259aee301db6d0fa7238164bf3151d389bd36fad77204 world-r1/WorldFlowComponent.ts   int/v1 d72cd75 (T5+df09ce8, before T1)
+observe 4715d357ac79113483da5b386e31b7f75b2c009273bbfaad43d51e5454d805fd world-r1/WorldFlowCore.ts         int/v1 d72cd75 (T5 optional room-light members), with or without T1
+observe 943154241ca8d6d1eecae7470d2c6c5a44436b79c4def68cb637eed19902b682 audio/GameAudio.ts              int/v1 d72cd75 (A2 cheers), with or without T1
+# int/v1 5d66c30 (T5 + A2 cheers b200456 + T6/T6b cc1f633 + T1 l123 + window fix + T8 step1), added for autoplay=combo. All existing
+# strict/observe files above already match 5d66c30 (WorldIntegrationBoot 99ee910d, RoomExploreOverlay a141d0b2, IslandJourneyOverlay c83ca5e1,
+# WorldNativeComposition ea951b0e, WorldFlowComponent dfb97e45, WorldFlowCore 4715d357, GameAudio 94315424). New observe-only files read by combo:
+#  ManagedMobileBoardUI: hostPresentation().state/active.board, hostModalOpen() (unchanged baseline..5d66c30);  CheerText: CheerTextHost.show() result shape.
+observe 91f45984efb11c23435a01793d42f57fee01955561a626208d04d6860b13dccf ManagedMobileBoardUI.ts          baseline/near/int-v1 d72cd75..5d66c30
+observe 7e0d97fee395a5e098f04e7d0be4e33b489560c7670d900a09a7e149101f9651 ui/CheerText.ts                  int/v1 d72cd75..5ae4452 (T6 system font)
+observe 4ff08b190ef526e16dd44fce1f6b016815b6671683b9c5524efd4b34f95d8cc7 ui/CheerText.ts                  int/v1 152a6aa..5d66c30 (T6b bitmap font)
+# T2+ (work/运镜bot 7f2b623) on int/v1 5d66c30: trial merge 932570a, + GGbot HUD work/GGbot-post-t2 4a26789. Glue reviewed:
+#  Boot fields read by T0 (composition/busy/ready/loadPhase/invoke/board/islandJourney/islandHome/roomExplore/canvas/navLayout) unchanged;
+#  WorldFlowComponent.flow + onCameraSettled/onCraneStart (T2+ hooks, now source=hook); WorldFlowCore.walk(path,cameras|null,token)/config
+#  paths unchanged (span segments call this.walk -> T0 seg:* wrapper still sees every walk). Exact SHAs only; nothing widened.
+strict c94266111399bbf53da5f0e70d407470d1df3f78c6779616d2abbbf4af2ed6c9 WorldIntegrationBoot.ts            int/v1 5d66c30 + T2+ 7f2b623 (trial merge 932570a)
+strict 95eeae2e6a281d31d4d80bafe9cc13716269e395e2ef6e88d193f67607f36db3 WorldIntegrationBoot.ts            + GGbot HUD (work/GGbot-post-t2 4a26789)
+observe f7c881cf541a9d28dd1c7460719c0d727ba4b28de1f8cb700fa9742288c70540 world-r1/WorldFlowComponent.ts   int/v1 5d66c30 + T2+ 7f2b623 (932570a/4a26789)
+observe 97983791763946746baae4f807de3c9596dde7f298dbe7d810e8c8224ca4cc47 world-r1/WorldFlowCore.ts         T2+ 7f2b623 (== 932570a/4a26789)
+# GGbot HUD content policy (work/GGbot-post-t2 5ef0e53): Boot adds statusText + content-gated plate only; T0 glue fields unchanged. StatusHud.ts is not read by T0 (no entry).
+strict 35ae7272540e48fddc168168eaf17b967ef957f3e757fe8a44ccc0cf50726424 WorldIntegrationBoot.ts            + GGbot HUD content policy (work/GGbot-post-t2 5ef0e53)
+# T9 island props (work/GGbot-t9 380891d on int/v1 5d66c30; trial merge onto int/v1 HEAD 5d66c30 = fast-forward). Glue reviewed:
+#  Boot fields read by T0 unchanged; mainline/Island-bag/Island-journal/Island-settings stay the same WarmButton nodes (now invisible
+#  hit areas in prop mode); IslandJourneyOverlay isOpen/open/close unchanged. New: __worldIntegration.onPropTap (read via globalThis, no entry).
+#  T9 + GGbot HUD (post-t2) not merged yet: its Boot SHA will need its own exact entry. Exact SHAs only; nothing widened.
+strict 49f52fb01d650ff50d412dd0fee03f4050edae23db4d8b625133e8f4327dcbcc WorldIntegrationBoot.ts            int/v1 5d66c30 + T9 380891d
+strict f8d007678718f8af959ad2fe1bfc46a7b929539a46e6ad074a2aa6087b2f4ee0 world-r2/IslandJourneyOverlay.ts   int/v1 5d66c30 + T9 380891d
+# 运镜bot-int 4bead5a (T2+ 17844e5 on int/v1 5d66c30; int/v1 will fast-forward to it) + GGbot post-T2 rebased onto it (work/GGbot-post-t2 0f54339:
+#  top status bar REMOVED, HUD wiring dropped). Glue reviewed: Boot fields read by T0 unchanged (4bead5a Boot vs 932570a = ES5 Array.from
+#  only; 0f54339 only touches the status plate + trackTransitionHud); WorldFlowComponent.flow + onCameraSettled/onCraneStart signatures
+#  identical to 7f2b623; WorldFlowCore.walk(path,cameras|null,token)/config unchanged (adds walkDuration/walkProgress contract only).
+strict 4146a91780b4b0d341b81395e46c3cd29c24c28aa2d5b6d151770a8282c5627a WorldIntegrationBoot.ts            运镜bot-int 4bead5a (== int/v1 after FF)
+strict 7d8c256b8bc23644bce1e5acfa5f40c93ae34256361bce3c611f24d80eabcede WorldIntegrationBoot.ts            4bead5a + GGbot status bar removed (work/GGbot-post-t2 0f54339)
+observe 9718cc85ae2a3923d8a047ec2af55e74dce434253abd4ec4a67a62b8e7dbbd05 world-r1/WorldFlowComponent.ts   运镜bot-int 4bead5a (== 0f54339)
+observe 0190d013f9aa5c57c7ce4bf0cac016659e8af3ee21897a475f651f8e93ff0037 world-r1/WorldFlowCore.ts         运镜bot-int 4bead5a (== 0f54339)
+# Voice bot A5 UI tap SFX (work/Voice-bot-a5 6307433 on T9 380891d). GameAudio: additive only (onPropTap/onUiBack, new SfxNames);
+#  instance/play/loopSource/setMusic*/setMuted unchanged. AudioBridge is NOT read by T0 glue; tracked observe-only so a change is visible:
+#  217de92b = every tree so far (baseline 1ef9f1d .. 5d66c30 / 380891d / 4bead5a / 0f54339), 45fc0889 = A5 (subscribes T9 onPropTap).
+observe c099b77ffdac78776188d96e1af582572d47c294945be49801d9e1a60f215ecb audio/GameAudio.ts              Voice bot A5 (work/Voice-bot-a5 6307433)
+observe 217de92be0624eac15e196b0688c6b83bba1240380b0d1104543b4d835e232ea audio/AudioBridge.ts            baseline 1ef9f1d .. int/v1 5d66c30, T9 380891d, 4bead5a, 0f54339
+observe 45fc088912d5374fafc61ca13c052a93bcd23571df0c72c180a79121eecde032 audio/AudioBridge.ts            Voice bot A5 (work/Voice-bot-a5 6307433)
+# T9 rebased onto int/v1 0f54339 (work/GGbot-t9 0ec1701: enlarged signpost a9398b4 + signpost entrance in the T2+ applyIslandEntrance
+#  sequence). Glue reviewed: Boot fields read by T0 unchanged (adds signEntrance/gateSignEntrance only); mainline stays the same WarmButton
+#  node; in signpost mode its hit area is 0x0 until the ~0.5 s button+signpost entrance ends (T0 combo enter-level already retries a tap
+#  with no effect). IslandJourneyOverlay == 380891d (f8d00767, listed). Exact SHA only; nothing widened.
+strict f8f5fdc381572929ee6f40e226e86fa90ac410a88c63d101269999ce97c00a30 WorldIntegrationBoot.ts            int/v1 0f54339 + T9 (work/GGbot-t9 0ec1701)
+# Voice bot A4 ambience (work/Voice-bot-a4v4 2fdc6cc on int/v1 0f54339; == work/Voice-bot-windseam f410a1d). GameAudio verified
+#  `git show 2fdc6cc:.../audio/GameAudio.ts | sha256sum` = 1a7b8027..8190. Observe-only, append only.
+observe 1a7b80278cc804db2573cf61b64fb6db7a75f1f6faf49b4c6016df18e18d8190 audio/GameAudio.ts              Voice bot A4 (work/Voice-bot-a4v4 2fdc6cc, == f410a1d)
+# int/v1 f0f3a13 (= merge of T9 0ec1701 onto cd34101 which already had 运镜bot wind API ff5a2e8 + A4 2fdc6cc).
+# WorldFlowComponent verified `git show f0f3a13:.../world-r1/WorldFlowComponent.ts | sha256sum` = 99cb29e4..1bd82
+# (from ff5a2e8 wind stub: getWindStrength/onWindStrength; flow + onCameraSettled/onCraneStart unchanged). Observe-only.
+# Voice bot A5v3 (work/Voice-bot-a5v3 3a966c1 on f0f3a13). GameAudio verified
+# `git show 3a966c1:.../audio/GameAudio.ts | sha256sum` = 6a1a2f94..1b4f. Observe-only, append only.
+# AudioBridge at 3a966c1 == 45fc0889 (already listed from A5 6307433). Boot at f0f3a13/3a966c1 == f8f5fdc3 (listed).
+observe 99cb29e452c53813cc339846f9f401ac0a58a7dbcb982bc1681a4dc37ed1bd82 world-r1/WorldFlowComponent.ts   int/v1 f0f3a13 (运镜bot wind API ff5a2e8)
+observe 6a1a2f94a8fdaa85bb4d70b1ff7634b3c26fe785cdded70c263325446b291b4f audio/GameAudio.ts              Voice bot A5v3 (work/Voice-bot-a5v3 3a966c1)
+# 运镜bot wind (work/运镜bot-wind 138bca5 on int/v1 e439b62): frontal swing + real wind channel (WorldFlowCore.setWind/windAt,
+#  WorldLease.animateCamera optional onSample) + palm-avoiding return rail. Verified `git show 138bca5:<file> | sha256sum`.
+#  Glue reviewed: WorldFlowCore.walk(path,cameras|null,token)/config paths and WorldFlowComponent.flow + onCameraSettled/onCraneStart
+#  unchanged. Boot/GameAudio/AudioBridge at 138bca5 == f8f5fdc3/6a1a2f94/45fc0889 (listed). Observe-only, append only.
+observe 4e9022bd153007f094f69c75c0b8d0d10f947db55efee764b9cd570243fcab8d world-r1/WorldFlowComponent.ts   运镜bot wind (work/运镜bot-wind 138bca5)
+observe 1c9c8147f5aa63a4d621fdf78416d628e2287723491c4520cbe6f6e4acb1d8bb world-r1/WorldFlowCore.ts         运镜bot wind (work/运镜bot-wind 138bca5)
+# --- GGbot walk driver (work/GGbot-walk afb5d7b on int/v1 e439b62; merges cleanly with 运镜bot-wind 138bca5, Boot identical there) ---
+#  FlowReferenceStandin rewritten (distance-driven walk clock, phase continuity, yaw limit, walkProgress, onFoot, crossfade +
+#  masked additive wind layers via new CharacterMotion.ts) + optional anim_meta load + __worldIntegration.onFoot/onApronLift/
+#  apronGust/motion. Glue reviewed: _referenceAdapter, composition/worldCommands, loadPhase/ready/busy, button(), paintNavigation,
+#  __worldIntegration.onPropTap unchanged. New T0 marks anim:foot / anim:apron-lift hook __worldIntegration. Verified sha256sum. Append only.
+strict a4f2254d50bc2ded590a4199e3c83157ab14cdf77acaea04d5b5b6a2d0f857ce WorldIntegrationBoot.ts            int/v1 e439b62 + GGbot walk driver (work/GGbot-walk afb5d7b)
+# GGbot audio unlock (work/GGbot-audiounlock bde9eff on int/v1 e439b62): RoomExploreOverlay forwards room-swipe/door-tap to the new
+#  audio/AudioUnlock.ts. Verified `git show bde9eff:.../RoomExploreOverlay.ts | sha256sum` = 119e5c2e..1e49. Glue reviewed: T0 reads
+#  root/down/up/leave/handle/rect/sync/diagnostics -- names, signatures and behaviour unchanged (leave is now a wrapper field that calls
+#  AudioUnlock.gesture('door-tap') then the original callback; down/up call AudioUnlock.gesture first, then the same body).
+#  AudioUnlock itself is read only via globalThis.__audioUnlock (like __worldIntegration.onPropTap: no entry). Boot at bde9eff == f8f5fdc3 (listed).
+strict 119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49 RoomExploreOverlay.ts              GGbot audio unlock (work/GGbot-audiounlock bde9eff)
+# T9n night look (work/GGbot-t9n 2e8e018 on int/v1 c5db016). IslandJourneyOverlay: tags repaint with the props night weight only
+#  (paintTags, propNightWeight); isOpen/open/close, the three WarmButton hit nodes and their handlers unchanged. Boot unchanged (a4f2254d).
+strict 893ce0c9f357c99fc7cffcc999b7eb4dc02677bb568b14665f7cc334caa523ed world-r2/IslandJourneyOverlay.ts   int/v1 c5db016 + T9n (work/GGbot-t9n 2e8e018)
+# 运镜bot wind lens-occlusion (work/运镜bot-wind 50c0227 on int/v1 dcfda87; trial merge). WorldFlowCore: turn
+#  targets from first path point >=0.05 m (pathHeading; fixes 166 deg return snap) + palm-avoiding rail keys.
+#  Verified sha256sum on merge(dcfda87+50c0227) = f3fe3064..c6c4 (== git show 50c0227:WorldFlowCore.ts). Glue reviewed:
+#  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged. WorldFlowComponent ==
+#  4e9022bd (listed from 138bca5). Boot unchanged (a4f2254d). Observe-only, append only.
+observe f3fe306486a272b6d60007f4a03497607825edd1fc5f919266296f6328dac6c4 world-r1/WorldFlowCore.ts         运镜bot wind 50c0227 on int/v1 dcfda87 (lens occlusion + turn-target)
+# GGbot apron morph driver (work/GGbot-morph 779b49a on int/v1 d637356; trial merge --no-ff identical). FlowReferenceStandin: MorphDriver
+#  bound in bindVisual (visual.getComponentsInChildren(MeshRenderer), node/mesh LOD0_G2_APRON), render() = rig.apply(plan) then setWeight
+#  on change; diagnostics().motion.morph + new __worldIntegration.morph() (read by T0 device:caps, optional). Verified
+#  `git show 779b49a:.../WorldIntegrationBoot.ts | sha256sum` = fcce49fc..6e5d. Glue reviewed: composition/worldCommands, loadPhase/ready/
+#  busy/invoke/board/islandJourney/roomExplore/canvas/navLayout, button(), paintNavigation, __worldIntegration.onPropTap/onFoot/
+#  onApronLift unchanged. WorldFlowCore/WorldFlowComponent unchanged (f3fe3064 / 4e9022bd, listed). Append only.
+strict fcce49fc336da86f5ebce641243aa45dd2838e94013548c121a5c7ac26b86e5d WorldIntegrationBoot.ts            int/v1 d637356 + GGbot apron morph (work/GGbot-morph 779b49a)
+# 运镜bot doorway-clean (4be7adf on int/v1 d637356): WorldFlowCore door drifts to 45 deg after she walks out
+#  (smoothstep on the camera span), holds on the island, reopens on the walk home; door leaf in lens-near checks.
+#  Verified `git show 4be7adf:.../world-r1/WorldFlowCore.ts | sha256sum` = 45e2c94c..611c. Glue reviewed:
+#  walk(path,cameras|null,token)/config paths, walkDuration/walkProgress contract unchanged (doorDrift rides the
+#  existing onSample wind channel). WorldFlowComponent 4e9022bd + Boot a4f2254d unchanged (listed). Observe-only, append only.
+observe 45e2c94c42c83ad85a00acaf1d38f4031828637b8a1e7a671cf3ea822932611c world-r1/WorldFlowCore.ts         运镜bot doorway-clean 4be7adf on int/v1 d637356
+# 场景特效bot Scene FX (work/场景特效bot 87071c8 on int/v1 d637356): WorldFlowComponent wires IslandAtmosphereFx
+#  (fx_chimney_smoke + fx_lighthouse_beam/glow/seaglint); authored beam bar + 5 chimney balls stay classified but
+#  r.enabled=false; lateUpdate/setView/dispose advance/dispose the FX. Verified
+#  `git show 87071c8:.../world-r1/WorldFlowComponent.ts | sha256sum` = d122c71d..7d59. Glue reviewed:
+#  flow/walk/config paths, onCameraSettled/onCraneStart, lighthouseTargets, button()/paintNavigation unchanged.
+#  WorldFlowCore f3fe3064 + Boot a4f2254d unchanged at 87071c8 (listed). Observe-only, append only.
+observe d122c71da82d9fcd1aae5654410499040b70c72a741bd3b0615876fb50847d59 world-r1/WorldFlowComponent.ts   场景特效bot Scene FX 87071c8 on int/v1 d637356
+# 运镜bot return entry (work/运镜bot-wind e3863fb = 4be7adf + 1, on int/v1 38b005f): WorldFlowCore.entrySpan runs crossing-in, door close,
+#  toSeat and sit as ONE camera span ending on cameraHome. Verified `git show e3863fb:.../world-r1/WorldFlowCore.ts | sha256sum`
+#  = a27457a4..7dab (== trial merge 38b005f+e3863fb+Voice-bot-bgm). Glue reviewed: walk(path,cameras|null,token)/config paths
+#  unchanged; entry walks still go through this.walk (seg:inCrossing/toSeat wrapper sees them); states crossing-in/closing-door/
+#  walking-to-seat/sitting/home emitted in the same order; ONE cameraEvent settled:home after the sit (flow_sim: home 42.767 s, same as
+#  4be7adf). 45e2c94c (4be7adf) kept. Observe-only, append only.
+observe a27457a434e0878cd83f226b13dab1e26f66be3d82afba14c384acc88e3a7dab world-r1/WorldFlowCore.ts         运镜bot return entry e3863fb on int/v1 38b005f
+# Voice bot scene BGM rebased (work/Voice-bot-bgm aa48f1f+df34cf5+4a8c474 on int/v1 38b005f). GameAudio v0.4 + setWindDuck:
+#  setMusic(path, bundle?) (bundle optional) + two-source crossfade loop + 1.5 s scene crossfade + BGM wind duck
+#  (-4 dB x smoothstep(0.2,1,s), tau 0.5 s; WindAudio feeds setWindDuck; musicDiagnostics.windDuck). Verified
+#  `git show 4a8c474:.../audio/GameAudio.ts | sha256sum` = a8755ab9..7058f. Glue reviewed: instance/play/onBoardFrame/
+#  onCheer/cascade/sfxVoices/reasons/muted/musicVolume/musicPath/setMusic/setMusicVolume/setMuted/musicDiagnostics/onGesture
+#  unchanged in name and meaning; loopSource still the current main voice (audio:bgm-loop-seam once per pass); setWindDuck/
+#  windDuckGain additive only. Only T0-checked file changed vs 38b005f (Boot a4f2254d, WorldFlowCore a27457a4/45e2c94c,
+#  WorldFlowComponent d122c71d, AudioBridge 45fc0889 ... unchanged, listed). 824ba6ab (pre-rebase 4c0ad2e/fbee3d5 on d637356)
+#  removed: never merged anywhere, only lived on the discarded tip. Observe-only.
+observe a8755ab98b9d5a05ec1f129bb7eab3471b523a8596c2f15c0d8049bc2867058f audio/GameAudio.ts              Voice bot scene BGM (work/Voice-bot-bgm aa48f1f/df34cf5/4a8c474 on int/v1 38b005f)
+# GGbot R3 fix (work/GGbot-r3fix 1c16c20 on int/v1 38b005f; merged into int/v1 as 6e9ce82): WorldIntegrationBoot gateSignEntrance/setSign
+#  (T9 signpost exists only in island-idle; fades out leaving island), WorldFlowCore exteriorKey ramp on the toThreshold walk
+#  (optional WorldLease.setExteriorKey/blendExteriorKey; restore() lands k=0), WorldFlowComponent wires setExteriorKey/blendExteriorKey +
+#  __worldDayNight.exteriorKey(). Verified `git show 1c16c20:<path> | sha256sum`: Boot 62f926d3..87de, Core f0a5cd9d..e21a, Component
+#  272a01dc..c0d5; on int/v1 6e9ce82 (with 运镜bot e3863fb return entry) Core = fa7655d1..7f50, Boot/Component same as 1c16c20.
+#  Glue reviewed: boot loadPhase/ready/composition/busy/invoke/roomExplore/islandJourney/islandHome/board/canvas/navLayout/
+#  loadingMask/loadingBackdrop/status unchanged; walk(path,cameras|null,token)/config paths and state order unchanged (closing-door
+#  is still a span segment; T0 harness lease now has wait()). Append only.
+strict  62f926d3ba171bcdc66fb4d5093bf5848450bdcfacfaeeadff261d4a741d87de WorldIntegrationBoot.ts          GGbot R3 fix 1c16c20 (int/v1 6e9ce82)
+observe f0a5cd9d02c2bb6e947f3a2a1ba2de7dfdfd85e0d922832ed7198f1f0002e21a world-r1/WorldFlowCore.ts         GGbot R3 fix 1c16c20 on 38b005f (without e3863fb)
+observe fa7655d12b35a1a96bea105006cd0da68e320e5eeeb9af640f12417e0dc77f50 world-r1/WorldFlowCore.ts         int/v1 6e9ce82 = 1c16c20 + 运镜bot e3863fb return entry
+observe 272a01dc2fc8d286013f2d5a15c09e2eff285a0080f5f0864afd5f3418cdc0d5 world-r1/WorldFlowComponent.ts   GGbot R3 fix 1c16c20 (int/v1 6e9ce82)
+# Voice bot audio pack (work/Voice-bot-pack 53f5999 on int/v1 f4cc0cb; merged as 8d2fe31, in 6e9ce82). GameAudio v0.5: no default BGM in
+#  onLoad (SceneMusic requests the island BGM from bundle audio_bgm_island once __worldLoading phase is ready), setMusic(path,bundle,
+#  {fadeIn}), static onMusicStart(cb) + __gameAudioMusic + musicDiagnostics().lastStart. Verified `git show 53f5999:.../audio/GameAudio.ts
+#  | sha256sum` = 011ce344..2d78 (== 6e9ce82). Glue reviewed: instance/play/onBoardFrame/onCheer/cascade/sfxVoices/reasons/muted/
+#  musicVolume/musicPath/loopSource/setMusic/setMusicVolume/setMuted/musicDiagnostics/onGesture unchanged in name and meaning (setMusic
+#  gained an optional 3rd arg; audio:bgm-set/bgm-playing now appear at room-ready, not at startup). New mark audio:bgm-start reads
+#  onMusicStart. Observe-only.
+observe 011ce344aa92cb85b96bb5ec25a0d3c36b0d8dfa82f1223e24fc0ff3e3b62d78 audio/GameAudio.ts              Voice bot audio pack 53f5999 (int/v1 8d2fe31/6e9ce82)
+# 场景特效bot island gulls (work/场景特效bot bfd5597 on int/v1 6e9ce82): WorldFlowComponent also disables the two authored orbiting gulls
+#  (12 renderers incl. wings) replaced by IslandAtmosphereFx fx_gull_N. Verified `git show bfd5597:.../world-r1/WorldFlowComponent.ts |
+#  sha256sum` = b96d4d93..b735. Glue reviewed: flow/walk/config paths, onCameraSettled/onCraneStart unchanged. 272a01dc kept (6e9ce82).
+#  Core fa7655d1, Boot 62f926d3, GameAudio 011ce344 unchanged at bfd5597 (listed). Observe-only.
+observe b96d4d93e5d2db8545ec8efa64bf218d86994bdef43e3e2106fc5a90fb65d735 world-r1/WorldFlowComponent.ts   场景特效bot gulls bfd5597 on int/v1 6e9ce82
+# 运镜bot Mac r3 fixes (work/运镜bot-wind 17eaaf5 on int/v1 6e9ce82; in work/GGbot-r4 as merge 1908273 over bfd5597): Boot
+#  FlowReferenceStandin.actionSeconds uses CLIP_ROLES + new optional actionSettleSeconds('sit'); WorldFlowCore CharacterAdapter
+#  .actionSettleSeconds? and entrySpan times the sit camera segment to the settle point (sit action still plays out before 'home').
+#  Verified sha256 on 17eaaf5 AND on the combined tree 1908273 (identical): Boot 74a36704..6681, Core 728b630b..5bf8; Component b96d4d93
+#  (bfd5597) unchanged, GameAudio 011ce344 unchanged. Glue reviewed: boot fields T0 reads unchanged; walk(path,cameras|null,token)/config
+#  paths and state order (crossing-in, closing-door, walking-to-seat, sitting, home) unchanged. Append only.
+strict  74a36704594fbb551338a1012afdfa58d27d44aaae06c36ffebaca8cb8186681 WorldIntegrationBoot.ts          运镜bot 17eaaf5 (= r4 1908273: 6e9ce82+bfd5597+17eaaf5)
+observe 728b630b1e2a7f4eab25d8887d3ec5c749eb689a0a1bbe8d34e99a0be4af5bf8 world-r1/WorldFlowCore.ts         运镜bot 17eaaf5 (= r4 1908273: 6e9ce82+bfd5597+17eaaf5)
+# GGbot first screen (work/GGbot-firstscreen a7d9aa1 on 29690bb): loading layer handoff in WorldIntegrationBoot
+strict  0f6d5ce4a3ab8cfc850829e4981941a730055911abd16bc61a3723574db6206f WorldIntegrationBoot.ts          GGbot first screen a7d9aa1
+# GGbot animfix (work/GGbot-animfix 11a1bac on int/v1 484d941; Mac r4 "girl slides in bind pose"): mountWorld sets
+#  useBakedAnimation=!CHARACTER_POSE_BLEND on the girl's SkeletalAnimation BEFORE reference.addChild(girl); AnimRig rebuilds
+#  states without _clipEval; diagnostics().motion gains repairedStates + clipEval (read by T0 anim:pose-live). Verified
+#  `git show 11a1bac:.../WorldIntegrationBoot.ts | sha256sum` = 49987a3d..b401. Core 728b630b unchanged. Glue reviewed: boot
+#  fields T0 reads, __worldIntegration/__worldLoading shapes (additive only) and flow state order unchanged. Append only.
+strict  49987a3dbdfddd734ca13f547f9d84b4f24f647227faa12fdc6ce83c46dfb401 WorldIntegrationBoot.ts          GGbot animfix 11a1bac
+# Voice bot A5 ui-soft (work/Voice-bot-uisoft 52ed6ff, child of int/v1 11a1bac): all island UI taps -> warm soft sounds, UI_TAP_VOLUME
+#  0.65 -> 1, sfx_ui_settings removed (settings plays sfx_ui_click). Verified `git show 52ed6ff:.../audio/GameAudio.ts | sha256sum` =
+#  b3cfd1a7..d670. No other allowlisted file changed (11a1bac..52ed6ff: GameAudio.ts + audio_sfx assets/docs/tests only). No T0
+#  scenario/test references sfx_ui_settings (only sfx_ui_click). Observe-only; append only.
+observe b3cfd1a7e214bce1b06fb905f42a4e00c12be6d5b22d1210f39d378f5d26d670 audio/GameAudio.ts              Voice bot ui-soft 52ed6ff (on int/v1 11a1bac)
+# 运镜bot return FOLLOW (0b6202e on int/v1 52ed6ff; merged as int/v1 e793228, == 2f307b3 for this file): WorldFlowCore cameraEntry
+#  doorSeconds<=0 = she walks through the doorway without stopping, NO 'closing-door' state; the leaf closes behind the lens during
+#  toSeat (may run into the sit) and span onDoorShut -> homeLayers() = WorldLease.setLayers(HOME) once the door channel is 0;
+#  noExteriorKey skips the R3 exterior key. Verified sha256 of the working tree after `git merge e793228` == `git show 0b6202e:...` =
+#  4cacd384..df45. Glue reviewed: walk(path,cameras|null,token)/config paths unchanged (crossing-in/toSeat still go through this.walk);
+#  state order now walking-home, crossing-in, walking-to-seat, sitting, home. T0 listens for the door shut via GB_MARK door:shut (wraps the
+#  live lease's setLayers/setDoor on WorldFlow.world, reads WorldFlow.stable to ignore restore()'s landing HOME; read-only, absent =
+#  door:shut-hook unavailable/missed). Every other listed file is identical at e793228 and 2f307b3 (Boot 49987a3d, Component b96d4d93,
+#  GameAudio b3cfd1a7, AudioBridge 45fc0889, RoomExploreOverlay 119e5c2e, IslandJourneyOverlay 893ce0c9, WorldNativeComposition ea951b0e,
+#  ManagedMobileBoardUI 91f45984, CheerText 4ff08b19). Observe-only; append only.
+observe 4cacd38416f018ba0792f85fe75316420f1e6f7ec25f9fb16d729ce0227adf45 world-r1/WorldFlowCore.ts         运镜bot return follow 0b6202e (int/v1 e793228 / 2f307b3)
