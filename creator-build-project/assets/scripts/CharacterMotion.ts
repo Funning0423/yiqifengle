@@ -66,6 +66,9 @@ export const FOOT_DEDUPE_S=0.1;
  *  Default mesh (glTF node == mesh name in the character glb) and target index mapping; anim_meta may override both. */
 export const DEFAULT_MORPH_MESH='LOD0_G2_APRON';
 export const DEFAULT_MORPH_TARGETS:{readonly [name:string]:number}={curl:0,flutter:1};
+/** Further morph meshes driven from the same weights (a target name shared by two meshes gets the same weight on both):
+ *  yellow dress 0 = seated drape (`sit_drape`), 1 = mid-sit correction (`sit_drape_mid`). anim_meta morph.meshes overrides. */
+export const DEFAULT_EXTRA_MORPH_MESHES:ReadonlyArray<{readonly mesh:string;readonly targets:{readonly [name:string]:number}}>=[{mesh:'LOD0_G2_DRESS',targets:{sit_drape:0,sit_drape_mid:1}}];
 /** setWeight is called only when a target weight moved by more than this since the last write (or reached exactly 0 / 1). */
 export const MORPH_EPS=1e-3;
 /** Agreed clip role names (all optional except the ones the old flow already required). */
@@ -92,7 +95,10 @@ export type MorphCurves={[target:string]:Array<[number,number]>};
 export type MotionConfig={clips:{[name:string]:ClipMeta};windToFlutter:ReadonlyArray<readonly [number,number]>;apronLiftThreshold:number;windMask:ReadonlyArray<string>;
   idleGust:{minS:number;maxS:number;durationS:number}|null;source:string;
   /** Morph: bound mesh (node or mesh name), target name -> morph target index, optional wind -> flutter weight mapping. */
-  morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null};
+  morphMesh:string;morphTargets:{[name:string]:number};windToMorphFlutter:ReadonlyArray<readonly [number,number]>|null;
+  /** Every driven morph mesh: [0] = morphMesh / morphTargets (the apron), then the others (yellow dress). */
+  morphMeshes:MorphBinding[]};
+export type MorphBinding={mesh:string;targets:{[name:string]:number}};
 export type FootEvent={event:string;bone:string;body:Body;clip:string;phase:number;time:number;cycle:number;pos:[number,number,number]|null;type:string};
 
 const num=(v:any):number|undefined=>typeof v==='number'&&isFinite(v)?v:undefined;
@@ -142,9 +148,14 @@ export function morphCurveEnd(m:{curves:MorphCurves}|undefined):number {let e=0;
 function points(v:any):Array<[number,number]>|null {if(!Array.isArray(v)||v.length<2)return null;const out:Array<[number,number]>=[];
   for(let i=0;i<v.length;i++){const p=v[i];if(!Array.isArray(p)||num(p[0])===undefined||num(p[1])===undefined)return null;out.push([p[0],Math.max(0,Math.min(1,p[1]))]);}
   out.sort((a,b)=>a[0]-b[0]);return out;}
+const copyTargets=(t:{readonly [name:string]:number}):{[name:string]:number}=>{const o:{[name:string]:number}={};for(const k in t)if(Object.prototype.hasOwnProperty.call(t,k))o[k]=t[k];return o;};
+function parseTargets(mt:any):{[name:string]:number}|null {if(!mt||typeof mt!=='object')return null;const t:{[name:string]:number}={};let n=0;
+  for(const k in mt){if(!Object.prototype.hasOwnProperty.call(mt,k))continue;const i=num(mt[k]);if(i!==undefined&&i>=0&&Math.floor(i)===i){t[k]=i;n++;}}return n?t:null;}
 /** Built-in defaults = walk-v1 contract expressed in cycle fractions, so the old 1.0 s walk_loop keeps working. */
-export function defaultMotionConfig():MotionConfig {return {clips:{walk_loop:{nativeSpeed:DEFAULT_NATIVE_SPEED,loop:true,events:[]}},windToFlutter:DEFAULT_WIND_TO_FLUTTER,apronLiftThreshold:APRON_LIFT_THRESHOLD,windMask:DEFAULT_WIND_MASK,idleGust:null,source:'defaults',
-  morphMesh:DEFAULT_MORPH_MESH,morphTargets:{curl:DEFAULT_MORPH_TARGETS.curl,flutter:DEFAULT_MORPH_TARGETS.flutter},windToMorphFlutter:null};}
+export function defaultMotionConfig():MotionConfig {const morphTargets={curl:DEFAULT_MORPH_TARGETS.curl,flutter:DEFAULT_MORPH_TARGETS.flutter};
+  return {clips:{walk_loop:{nativeSpeed:DEFAULT_NATIVE_SPEED,loop:true,events:[]}},windToFlutter:DEFAULT_WIND_TO_FLUTTER,apronLiftThreshold:APRON_LIFT_THRESHOLD,windMask:DEFAULT_WIND_MASK,idleGust:null,source:'defaults',
+  morphMesh:DEFAULT_MORPH_MESH,morphTargets,windToMorphFlutter:null,
+  morphMeshes:[{mesh:DEFAULT_MORPH_MESH,targets:morphTargets}].concat(DEFAULT_EXTRA_MORPH_MESHES.map(b=>({mesh:b.mesh,targets:copyTargets(b.targets)})))};}
 /** Tolerant anim_meta.json reader (schema anim_meta/v1 field names + camelCase aliases). Unknown/invalid -> defaults. */
 export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionConfig();if(!json||typeof json!=='object')return cfg;cfg.source=String(json.schema||'anim_meta');
   const clips=json.clips||{};for(const name in clips){if(!Object.prototype.hasOwnProperty.call(clips,name)||!clips[name])continue;cfg.clips[name]=parseClip(clips[name]);}
@@ -153,10 +164,13 @@ export function parseAnimMeta(json:any):MotionConfig {const cfg=defaultMotionCon
   const mask=w.mask||json.windMask;if(Array.isArray(mask)&&mask.length)cfg.windMask=mask.map(String);
   const g=w.idleGust||json.idleGust;if(g&&num(g.min_s??g.minS)!==undefined)cfg.idleGust={minS:num(g.min_s??g.minS)!,maxS:num(g.max_s??g.maxS)??num(g.min_s??g.minS)!,durationS:num(g.duration_s??g.durationS)??4};
   // morph: wind.windToMorphFlutter | windToMorphFlutter; morphTargets | morph.targets; mesh = morph.mesh | first clip morph.mesh | default
+  // morph.meshes {name: {target: index}}: the primary mesh's entry wins over morphTargets; the other entries replace the default extras
   const mw=points(w.windToMorphFlutter||json.windToMorphFlutter);if(mw)cfg.windToMorphFlutter=mw;
-  const top=json.morph&&typeof json.morph==='object'?json.morph:{};const mt=json.morphTargets||top.targets;
-  if(mt&&typeof mt==='object'){const t:{[name:string]:number}={};let n=0;for(const k in mt){if(!Object.prototype.hasOwnProperty.call(mt,k))continue;const i=num(mt[k]);if(i!==undefined&&i>=0&&Math.floor(i)===i){t[k]=i;n++;}}if(n)cfg.morphTargets=t;}
+  const top=json.morph&&typeof json.morph==='object'?json.morph:{};const mt=parseTargets(json.morphTargets||top.targets);if(mt)cfg.morphTargets=mt;
   let mesh=typeof top.mesh==='string'?top.mesh:'';if(!mesh)for(const name in cfg.clips){const m=cfg.clips[name].morph;if(m&&m.mesh){mesh=m.mesh;break;}}if(mesh)cfg.morphMesh=mesh;
+  const ms=top.meshes&&typeof top.meshes==='object'&&!Array.isArray(top.meshes)?top.meshes:null;let extra=cfg.morphMeshes.slice(1);
+  if(ms){extra=[];for(const k in ms){if(!Object.prototype.hasOwnProperty.call(ms,k))continue;const t=parseTargets(ms[k]&&ms[k].targets||ms[k]);if(!t)continue;if(k===cfg.morphMesh)cfg.morphTargets=t;else extra.push({mesh:k,targets:t});}}
+  cfg.morphMeshes=[{mesh:cfg.morphMesh,targets:cfg.morphTargets}].concat(extra);
   return cfg;}
 export function piecewise(pts:ReadonlyArray<readonly [number,number]>,x:number):number {const n=pts.length;if(!n)return 0;if(x<=pts[0][0])return pts[0][1];if(x>=pts[n-1][0])return pts[n-1][1];
   for(let i=1;i<n;i++){const a=pts[i-1],b=pts[i];if(x<=b[0]){const u=b[0]>a[0]?(x-a[0])/(b[0]-a[0]):1;return a[1]+(b[1]-a[1])*u;}}return pts[n-1][1];}
@@ -244,8 +258,9 @@ export class MotionClock {
       clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph,root,entry:m.entry,turnDeg:m.turnDeg};}
     const w=clips[CLIP_ROLES.walk],wd=info.has(CLIP_ROLES.walk)?info.duration(CLIP_ROLES.walk):0;
     if(w&&!w.events.length&&wd>0){w.events=[{time:0,name:'foot:R',bone:'foot.R',body:'L'},{time:wd/2,name:'foot:L',bone:'foot.L',body:'R'}];this.notes.push('walk_loop: default foot events (no anim_meta events)');}
-    for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&mm.mesh!==cfg.morphMesh)this.notes.push(name+': morph.mesh '+mm.mesh+' != bound mesh '+cfg.morphMesh+' (one morph mesh per character; curves still applied to the bound mesh)');}
-    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter};}
+    const morphMeshes=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:[{mesh:cfg.morphMesh,targets:cfg.morphTargets}];const bound=morphMeshes.map(b=>b.mesh);
+    for(const name in clips)if(Object.prototype.hasOwnProperty.call(clips,name)){const mm=clips[name].morph;if(mm&&mm.mesh&&bound.indexOf(mm.mesh)<0)this.notes.push(name+': morph.mesh '+mm.mesh+' is not a bound morph mesh ('+bound.join(',')+'; curves are applied by target name to every bound mesh)');}
+    this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter,morphMeshes};}
   meta(name:string):ClipMeta|null {return this.cfg.clips[name]||null;}
   private track(name:string,loop:boolean,time:number):Track {const m=this.meta(name),d=this.info.duration(name);const ns=m&&m.nativeSpeed!==undefined?m.nativeSpeed:name===CLIP_ROLES.walk?DEFAULT_NATIVE_SPEED:0;
     return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false,rate:1};}
@@ -448,13 +463,15 @@ function curveAt(cfg:MotionConfig,clip:string,target:string,time:number):number 
  *   clip  = base + layer;  a clip without a curve for that target contributes 0.
  *   flutter only: w = max(clip, windToMorphFlutter(windDrive))  -- MAX, not sum, so a flutter curve authored in
  *   wind_flutter_loop AND a wind mapping never double up; with only one of them it is exactly that one.
- *   Every result clamped 0..1. Targets = keys of cfg.morphTargets. */
+ *   Every result clamped 0..1. Targets = keys of every cfg.morphMeshes[i].targets (cfg.morphTargets when absent). */
 export function morphWeights(cfg:MotionConfig,plan:Plan,windDrive:number,out?:{[target:string]:number}):{[target:string]:number} {const res=out||{};const b=plan.base,o=plan.out;
-  for(const t in cfg.morphTargets){if(!Object.prototype.hasOwnProperty.call(cfg.morphTargets,t))continue;let w=0;
+  const bs=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:null;const nb=bs?bs.length:1;
+  for(let m=0;m<nb;m++){const targets=bs?bs[m].targets:cfg.morphTargets;
+  for(const t in targets){if(!Object.prototype.hasOwnProperty.call(targets,t))continue;let w=0;
     if(b){const fo=o?o.weight:0;w=curveAt(cfg,b.clip,t,b.time)*(1-fo);if(o)w+=curveAt(cfg,o.clip,t,o.time)*fo;}
     const ls=plan.morph||[];for(let i=0;i<ls.length;i++)w+=ls[i].weight*curveAt(cfg,ls[i].clip,t,ls[i].time);
     if(t==='flutter'&&cfg.windToMorphFlutter){const ww=piecewise(cfg.windToMorphFlutter,windDrive);if(ww>w)w=ww;}
-    res[t]=w>0?(w<1?w:1):0;}
+    res[t]=w>0?(w<1?w:1):0;}}
   return res;}
 /** Structural subset of Cocos MeshRenderer / SkinnedMeshRenderer (3.8.8: setWeight(weight, subMeshIndex, shapeIndex)). */
 export type MorphRendererLike={node?:{name?:string}|null;mesh?:any;enableMorph?:boolean;setWeight(weight:number,subMeshIndex:number,shapeIndex:number):void};
