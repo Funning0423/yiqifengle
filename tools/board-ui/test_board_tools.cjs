@@ -12,7 +12,52 @@ async function board(opts = {}) {
   const H = createHarness(); H.cc.sys.localStorage.setItem('qfl.ui.seenTools', SEEN);
   const b = createBoard({ harness: H, ...opts }); await H.flush(); b.render(); b.u.update(0); return b;
 }
+const OPENING = '1234024303123515514310020422145115232553550230203';
 const E = n => n.constructor.EventType;
+function piecesOf(s) { return (s && s.active && s.active.board || []).map(t => t ? String(t.type) : '.').join(''); }
+function memStore(extra = {}) {
+  const mem = new Map(Object.entries(extra));
+  return { getItem: k => mem.has(k) ? mem.get(k) : null, setItem: (k, v) => { mem.set(k, String(v)); } };
+}
+async function openLevel(H, level, seed, extra) {
+  H.cc.sys.localStorage.setItem('qfl.ui.seenTools', SEEN);
+  const { createPort } = require('../../creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js');
+  const { createManagedMainlineBinding } = H.load('world-r2/ManagedMainlineBinding');
+  const { ManagedMobileBoardUI } = H.load('ManagedMobileBoardUI');
+  const saved = Object.assign({}, extra), defer = !!saved.defer; delete saved.defer;
+  const port = createPort(memStore(saved));
+  const controller = port.createController();
+  const binding = createManagedMainlineBinding(port, controller, { exit: () => ({ ok: true }), resume: () => ({ ok: true }) });
+  const u = new ManagedMobileBoardUI(), owner = new H.cc.Node('owner');
+  u.node = owner; owner.components.push(u); H.cc._scene.addChild(owner);
+  if (defer) u.deferPresentation = true;
+  u.initializeManaged({}, binding);
+  await H.flush();
+  const id = 'mainline-' + String(level + 1).padStart(2, '0');
+  const started = u.host.command('startStage', id, { seed });
+  if (!started.ok) throw Error('start ' + id + ' ' + JSON.stringify(started));
+  u.update(0);
+  const seen = [];
+  const orig = controller.previewAction.bind(controller);
+  controller.previewAction = (a) => { seen.push(Array.isArray(a) ? a.slice() : a); return orig(a); };
+  return { u, controller, seen, port };
+}
+function layoutDrag(H, u, from, to, id, o = {}) {
+  const n = u.cells[from], start = u.measureLayout().tiles[from], end = u.measureLayout().tiles[to];
+  const ev = (p) => H.event(p, id);
+  n.emit(E(n).TOUCH_START, ev(start));
+  n.emit(E(n).TOUCH_MOVE, ev(end));
+  u.update(1 / 60);
+  if (o.hold) return { n, end };
+  if (o.cancel) n.emit(E(n).TOUCH_CANCEL, H.event(end, id, E(n).TOUCH_END));
+  else n.emit(E(n).TOUCH_END, ev(end));
+  return { n, end };
+}
+function drain(u) {
+  let n = 0;
+  while (u.snapshot && u.snapshot.state === 'run.resolving' && n < 120) { u.update(0.2); n++; }
+  return n;
+}
 function drag(b, slot, target, o = {}) {
   const { H, u } = b, n = u.tools[slot], id = o.id || 1, start = H.point(n), p = typeof target === 'number' ? H.point(u.cells[target]) : target;
   n.emit(E(n).TOUCH_START, H.event(start, id)); n.emit(E(n).TOUCH_MOVE, H.event(p, id));
@@ -317,6 +362,168 @@ function drag(b, slot, target, o = {}) {
       assert.equal(u.tools.filter(n => n.active).length, 1); H.tap(u.tools[0]); if (region === 1) H.tap(u.cells[17]);
       assert.deepEqual(log.tools, [[['tideAnchor', 'sunSeed', 'prismShift'][region], region === 1 ? 17 : -1]]); u.onDestroy();
     }
+  });
+  const live = createHarness();
+  const level = async (n, seed, extra) => Object.assign({ H: live }, await openLevel(live, n, seed, extra));
+  function expectClear(u, controller, from, to, opening, moves) {
+    assert.equal(u.snapshot.state, 'run.resolving', 'release commits while the clear is still off screen');
+    assert.equal(u.moves.string, String(moves), 'presented moves stay on the pre-clear frame');
+    assert.equal(piecesOf(u.snapshot), opening, 'presented board stays on the pre-clear frame');
+    assert.equal(u.snapshot.active.actions.length, 0, 'the pre-clear frame does not list the swap yet');
+    assert.equal(controller.snapshot().active.moves, moves - 1);
+    assert.deepEqual(controller.snapshot().active.actions[0], ['swap', from, to]);
+    const steps = drain(u);
+    assert(steps > 0, 'the component clock walks the clear');
+    assert.equal(u.snapshot.state, 'run.ready');
+    assert.equal(u.moves.string, String(moves - 1));
+    assert.equal(controller.snapshot().active.moves, moves - 1);
+    assert.notEqual(piecesOf(u.snapshot), opening);
+    assert(u.diagnostics().frameKinds.includes('clear'), 'clear frame was shown');
+    assert(u.diagnostics().frameKinds.includes('drop'), 'drop frame was shown');
+  }
+  await ok('seed 1 rejects the corner pairs but still calls swap; holding and cancel do not', async () => {
+    const { H, u, controller, seen } = await level(0, 1);
+    try {
+      assert.equal(u.snapshot.active.name, '露珠问候');
+      assert.equal(u.moves.string, '22');
+      assert.equal(piecesOf(u.snapshot), OPENING);
+      assert.deepEqual(controller.session.engine.possibleMoves(), [[16, 23], [23, 24], [24, 31], [38, 39], [39, 40]]);
+      for (const [a, b] of [[0, 1], [0, 7], [1, 2], [1, 8]]) {
+        seen.length = 0;
+        layoutDrag(H, u, a, b, 50 + a);
+        assert.deepEqual(seen, [['swap', a, b]], 'rules may reject ' + a + '↔' + b + ', but swap is still called');
+        assert.equal(controller.snapshot().state, 'run.ready');
+        assert.equal(controller.snapshot().active.moves, 22);
+        assert.equal(controller.snapshot().active.actions.length, 0);
+        assert.equal(u.moves.string, '22');
+        assert.equal(piecesOf(u.snapshot), OPENING);
+      }
+      seen.length = 0;
+      const held = layoutDrag(H, u, 23, 24, 70, { hold: true });
+      u.update(0.2);
+      assert.equal(seen.length, 0, 'finger down: no swap and no clear');
+      assert.equal(u.snapshot.state, 'run.ready');
+      assert.equal(u.moves.string, '22');
+      assert.equal(piecesOf(u.snapshot), OPENING);
+      held.n.emit(E(held.n).TOUCH_CANCEL, H.event(held.end, 70, E(held.n).TOUCH_END));
+      held.n.emit(E(held.n).TOUCH_END, H.event(held.end, 70));
+      assert.equal(seen.length, 0, 'cancel is not a drop, and a later end does not swap');
+      assert.equal(u.moves.string, '22');
+    } finally { u.onDestroy(); }
+  });
+  await ok('seed 1 legal layout releases clear and spend a move once the visual clock runs', async () => {
+    for (const [from, to] of [[23, 24], [16, 23], [24, 31], [38, 39], [39, 40]]) {
+      const { H, u, controller, seen } = await level(0, 1);
+      try {
+        seen.length = 0;
+        layoutDrag(H, u, from, to, 60 + from, { hold: true });
+        assert.equal(seen.length, 0);
+        assert.equal(controller.snapshot().active.moves, 22);
+        layoutDrag(H, u, from, to, 61 + from);
+        assert.deepEqual(seen[0], ['swap', from, to]);
+        expectClear(u, controller, from, to, OPENING, 22);
+        if (from === 23 && to === 24) assert.equal(u.snapshot.active.goals.type0, 12);
+      } finally { u.onDestroy(); }
+    }
+  });
+  await ok('a screen point that is not the UI point still releases onto that cell and clears', async () => {
+    const { H, u, controller, seen } = await level(0, 1);
+    try {
+      const split = (screen, id) => ({ getLocation: () => ({ x: screen.x, y: screen.y }), getUILocation: () => ({ x: 1, y: 1 }), getID: () => id, windowId: 0, getEventCode: () => undefined, getAllTouches: () => [], propagationStopped: false });
+      const n = u.cells[23], id = 100;
+      n.emit(E(n).TOUCH_START, split(H.point(u.cells[23]), id));
+      n.emit(E(n).TOUCH_MOVE, split(H.point(u.cells[24]), id));
+      u.update(1 / 60);
+      assert.equal(seen.length, 0);
+      assert.equal(u.moves.string, '22');
+      n.emit(E(n).TOUCH_END, split(H.point(u.cells[24]), id));
+      assert.deepEqual(seen[0], ['swap', 23, 24]);
+      expectClear(u, controller, 23, 24, OPENING, 22);
+    } finally { u.onDestroy(); }
+  });
+  await ok('a touch end stuck on the press cell still swaps to the last layout cell', async () => {
+    const { H, u, controller, seen } = await level(0, 1);
+    try {
+      const n = u.cells[39], id = 110, start = u.measureLayout().tiles[39], end = u.measureLayout().tiles[40];
+      n.emit(E(n).TOUCH_START, H.event(start, id));
+      n.emit(E(n).TOUCH_MOVE, H.event(end, id));
+      u.update(1 / 60);
+      assert.equal(seen.length, 0);
+      n.emit(E(n).TOUCH_END, H.event(start, id));
+      assert.deepEqual(seen[0], ['swap', 39, 40]);
+      expectClear(u, controller, 39, 40, OPENING, 22);
+    } finally { u.onDestroy(); }
+  });
+  await ok('layout bomb release calls useTool and the clear shows after the visual clock; cancel does not', async () => {
+    for (const [x, y, index] of [[67, 265, 0], [110, 265, 1], [152, 265, 2]]) {
+      const { H, u, controller, seen } = await level(0, 1);
+      try {
+        const n = u.tools[0], id = 80 + index, point = { x, y }, slot = u.measureLayout().targets.bomb;
+        const qty = () => n.find('Quantity').getComponent(H.cc.Label).string;
+        assert.equal(qty(), '2');
+        if (index === 0) {
+          n.emit(E(n).TOUCH_START, H.event(slot, id));
+          n.emit(E(n).TOUCH_MOVE, H.event(point, id));
+          u.update(1 / 60);
+          assert.equal(seen.length, 0);
+          assert.equal(controller.snapshot().active.bombs, 2);
+          n.emit(E(n).TOUCH_CANCEL, H.event(point, id, E(n).TOUCH_END));
+          n.emit(E(n).TOUCH_END, H.event(point, id));
+          assert.equal(seen.length, 0, 'cancel does not use the bomb');
+          assert.equal(controller.snapshot().active.bombs, 2);
+          assert.equal(qty(), '2');
+        }
+        seen.length = 0;
+        n.emit(E(n).TOUCH_START, H.event(slot, id + 1));
+        H.cc.input.getAllTouches = () => [{ getID: () => id + 1, getUILocation: () => point }];
+        u.update(1 / 60);
+        assert.equal(seen.length, 0, 'holding the bomb does not clear');
+        assert.equal(controller.snapshot().active.bombs, 2);
+        assert.equal(u.snapshot.state, 'run.ready');
+        H.cc.input.getAllTouches = () => [];
+        n.emit(E(n).TOUCH_END, H.event(point, id + 1));
+        assert.deepEqual(seen[0], ['bomb', index]);
+        assert.equal(controller.snapshot().active.bombs, 1);
+        assert.equal(controller.snapshot().active.moves, 22, 'a bomb does not spend a move');
+        assert.equal(qty(), '1', 'the live count drops on release');
+        assert.equal(u.snapshot.active.bombs, 2, 'the pre-clear frame still shows two bombs');
+        assert.equal(piecesOf(u.snapshot), OPENING);
+        assert(drain(u) > 0);
+        assert.equal(u.snapshot.state, 'run.ready');
+        assert.equal(u.snapshot.active.bombs, 1);
+        assert.equal(qty(), '1');
+        assert.equal(u.moves.string, '22');
+        assert.notEqual(piecesOf(u.snapshot), OPENING);
+        assert(u.diagnostics().frameKinds.includes('clear'));
+      } finally { u.onDestroy(); H.cc.input.getAllTouches = undefined; }
+    }
+  });
+  await ok('input stays blocked until presentForPlay, then a legal drag clears', async () => {
+    const { H, u, controller, seen } = await level(0, 1, { defer: true });
+    try {
+      layoutDrag(H, u, 23, 24, 90);
+      assert.equal(seen.length, 0, 'the board is not presented yet');
+      assert.equal(u.moves.string, '22');
+      assert.equal(piecesOf(u.snapshot), OPENING);
+      u.presentForPlay();
+      layoutDrag(H, u, 23, 24, 91);
+      assert.deepEqual(seen[0], ['swap', 23, 24]);
+      expectClear(u, controller, 23, 24, OPENING, 22);
+    } finally { u.onDestroy(); }
+  });
+  await ok('level 03 浆果野餐 uses the same release path and clears a legal swap', async () => {
+    const { H, u, controller, seen } = await level(2, 1, { 'forest-v3-progress': '2' });
+    try {
+      assert.equal(u.snapshot.active.name, '浆果野餐');
+      const opening = piecesOf(u.snapshot), moves = u.snapshot.active.moves;
+      const [from, to] = controller.session.engine.possibleMoves()[0];
+      layoutDrag(H, u, from, to, 120, { hold: true });
+      assert.equal(seen.length, 0);
+      assert.equal(u.moves.string, String(moves));
+      layoutDrag(H, u, from, to, 121);
+      assert.deepEqual(seen[0], ['swap', from, to]);
+      expectClear(u, controller, from, to, opening, moves);
+    } finally { u.onDestroy(); }
   });
   console.log(JSON.stringify({ status: 'PASS', checks: checks.length, scope: 'Real board-ui ManagedMobileBoardUI tool bar on Cocos memory doubles; no rendering or device touch' }));
 })().catch(e => { console.error(e); process.exit(1); });
