@@ -125,7 +125,7 @@ class Colliders:
                     leg_min_mm=float(s[dist < 0.06].min() * 1e3) if (dist < 0.06).any() else None, chair_min_mm=float(cs.min() * 1e3))
 
 
-def compose_dress(c, W, tgt, budget, smooth_it=25, col=None, extra=None):
+def compose_dress(c, W, tgt, budget, smooth_it=None, col=None, extra=None):
     md = c.md['DRESS']
     P1 = c.skin('DRESS', W)
     rep, n = D.weld(md['P'])
@@ -138,7 +138,7 @@ def compose_dress(c, W, tgt, budget, smooth_it=25, col=None, extra=None):
     r = Tn - Pn
     rest_y = node_mean(md['P'], rep, n)[0][:, 1]
     r *= np.clip((WAIST_KEEP_Y - rest_y) / 0.06, 0, 1)[:, None]
-    rs = laplace(r, E, n, smooth_it)
+    rs = laplace(r, E, n, smooth_it or int(os.environ.get('SD_SMOOTH', '25')))
     vmax = budget // BYTES_PER_V
     mag = np.linalg.norm(rs, axis=1)
     # threshold so that the tapered set fits with ~25% headroom for collision growth

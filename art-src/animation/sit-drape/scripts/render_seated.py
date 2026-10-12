@@ -27,6 +27,8 @@ for n in ('LOD0_G2_DRESS', 'LOD0_G2_APRON'):
             kb.value = SW if kb.name == 'sit_drape' else (SWM if kb.name == 'sit_drape_mid' else 0.0)
             print('SHAPEKEY', n, kb.name, kb.value)
 R.setup_workbench()
+# character root ahead of the seated root along her front (anim_meta root_motion, as verify.py places it)
+ch.top.location = (0, -float(os.environ.get('SD_ROOTZ', '0')), 0)
 ch.pose(CLIP, T)
 for v in VIEWS:
     loc, tg = R.SEAT_VIEWS[v]

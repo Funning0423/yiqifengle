@@ -2,10 +2,9 @@
 #   python3 build_glb.py <in.glb> <out.glb> <compose.npz> [--fit t=<fit.npz> ...] [--mid <mid.npz>] [--meta <anim_meta.json>]
 # Skirt bones (same 10 joints, same names / hierarchy; only clip channels change):
 #   correction C_b = L_b(sit_hold 0)^-1 * L'_b(sit_hold 0)  (local, post-multiplied: L'(t) = L(t) * C(t))
-#   sit_hold : C on every key (rotation + translation channels)
-#   sit_down : C(t) through the sim-fitted keys (--fit t=..., relative to that frame's own pose), identity before DESCENT_T,
-#              the settled C from SETTLE_T on
-#   stand_up : C(t) = slerp(I, C, w(t)), w = the stand_up sit_drape weight curve
+#   sit_hold : C at t = 0 / the loop end, follow fits (fit_follow.py, --follow) in between (the hips rock ~27 deg there)
+#   sit_down : identity before DESCENT_T, then the --fit / --follow keys, C at the clip end
+#   stand_up : C at t = 0, the follow keys, identity from STAND_OFF_T (no --follow: C(t) = slerp(I, C, w(t)))
 # Morph targets (sparse, bind space): LOD0_G2_DRESS and LOD0_G2_APRON, 0 = sit_drape, 1 = sit_drape_mid.
 # anim_meta: clip morph curves + morph.meshes target mapping + sit_down.morph.settle_time_s.
 import sys, json, argparse
@@ -129,6 +128,7 @@ def main():
     ap.add_argument('out')
     ap.add_argument('comp')
     ap.add_argument('--fit', action='append', default=[])
+    ap.add_argument('--follow', nargs='*', default=[])
     ap.add_argument('--mid')
     ap.add_argument('--meta')
     a = ap.parse_args()
@@ -138,22 +138,35 @@ def main():
     T0, R0, _ = c.local('sit_hold', 0.0)
     Cs = {b: corr_of(T0, R0, comp['T'], comp['Rq'], rig.idx[b]) for b in SKIRT}
     down = {b: [(0.0, np.eye(4)), (DESCENT_T, np.eye(4))] for b in SKIRT}
-    for f in a.fit:
-        tt, path = f.split('=')
-        tt = float(tt)
+    hold = {b: [(0.0, Cs[b]), (rig.clip_duration('sit_hold'), Cs[b])] for b in SKIRT}
+    stand = {b: [(0.0, Cs[b]), (STAND_OFF_T, np.eye(4)), (rig.clip_duration('stand_up'), np.eye(4))] for b in SKIRT}
+    keysets = {'sit_down': down, 'sit_hold': hold, 'stand_up': stand}
+    fits = [('sit_down',) + tuple(f.split('=')) for f in a.fit] + [(None, None, f) for f in a.follow]
+    for clip, tt, path in fits:
         fz = np.load(path)
-        Tt, Rt, _ = c.local('sit_down', tt)
+        clip = clip or str(fz['clip'])
+        tt = float(tt) if tt is not None else float(fz['time'])
+        Tt, Rt, _ = c.local(clip, tt)
         for b in SKIRT:
-            down[b].append((tt, corr_of(Tt, Rt, fz['T'], fz['Rq'], rig.idx[b])))
+            ks = keysets[clip][b]
+            ks[:] = [k for k in ks if abs(k[0] - tt) > 1e-4] + [(tt, corr_of(Tt, Rt, fz['T'], fz['Rq'], rig.idx[b]))]
     for b in SKIRT:
-        down[b] += [(SETTLE_T, Cs[b]), (1.2, Cs[b])]
-        down[b].sort(key=lambda k: k[0])
+        if not any(abs(k[0] - SETTLE_T) < 1e-4 for k in down[b]):
+            down[b].append((SETTLE_T, Cs[b]))
+        if not any(abs(k[0] - 1.2) < 1e-4 for k in down[b]):
+            down[b].append((1.2, Cs[b]))
+        for ks in keysets.values():
+            ks[b].sort(key=lambda k: k[0])
+    for clip, ks in keysets.items():
+        print('KEYS', clip, [round(k[0], 4) for k in ks['skirt.front']])
     g = Glb(a.inp)
     dur = {n: rig.clip_duration(n) for n in ('sit_down', 'sit_hold', 'stand_up')}
     plans = {
-        'sit_hold': (key_times(dur['sit_hold']), lambda b, t: Cs[b]),
+        'sit_hold': (key_times(dur['sit_hold'], [k[0] for k in hold['skirt.front']]), lambda b, t: interp_corr(hold[b], t)),
         'sit_down': (key_times(dur['sit_down'], [k[0] for k in down['skirt.front']]), lambda b, t: interp_corr(down[b], t)),
-        'stand_up': (key_times(dur['stand_up'], [STAND_HOLD_T, STAND_OFF_T]), lambda b, t: blend_corr(Cs[b], curve(CURVES['stand_up']['sit_drape'], t))),
+        'stand_up': (key_times(dur['stand_up'], [STAND_HOLD_T, STAND_OFF_T]),
+                     (lambda b, t: interp_corr(stand[b], t)) if len(stand['skirt.front']) > 3 else
+                     (lambda b, t: blend_corr(Cs[b], curve(CURVES['stand_up']['sit_drape'], t)))),
     }
     for clip, (times, fn) in plans.items():
         rot, tra = clip_curves(rig, clip, times, fn)
