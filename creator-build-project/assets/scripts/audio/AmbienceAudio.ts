@@ -184,6 +184,13 @@ export class AmbienceAudio extends Component {
   static nightWeight(): number { try { const f = AmbienceAudio.nightSource; const w = f ? Number(f()) : 0; return Number.isFinite(w) ? Math.max(0, Math.min(1, w)) : 0; } catch { return 0; } }
   /** 海鸥事件的时钟（秒）：事件里的 at 都是这个时钟 */
   static gameTime(): number { return AmbienceAudio.inst ? AmbienceAudio.inst.clock : 0; }
+  /** 海浪循环的播放进度（秒）。正在播 amb_waves_loop 时等于 AudioSource.currentTime，否则 null。
+   *  拍岸画面用它锁拍；室内暂停时返回 null，窗边的浪自己往前走。 */
+  static wavePlayhead(): number | null {
+    const a = AmbienceAudio.inst; if (!a || !a.alive) return null;
+    const src = a.src; if (!src || !src.playing) return null;
+    const t = src.currentTime; return typeof t === 'number' && Number.isFinite(t) ? t : null;
+  }
   /** 订阅海鸥事件；返回取消订阅函数 */
   static onGullCall(cb: GullCallListener): () => void {
     if (typeof cb !== 'function') return () => {};
@@ -245,8 +252,9 @@ export class AmbienceAudio extends Component {
   private exposeOnWorld() {
     try {
       const wi = (globalThis as any).__worldIntegration;
-      if (wi && typeof wi === 'object' && wi.onGullCall !== AmbienceAudio.onGullCall) {
+      if (wi && typeof wi === 'object' && (wi.onGullCall !== AmbienceAudio.onGullCall || wi.wavePlayhead !== AmbienceAudio.wavePlayhead)) {
         wi.onGullCall = AmbienceAudio.onGullCall; wi.requestGullCall = AmbienceAudio.requestGullCall; wi.gullClock = AmbienceAudio.gameTime;
+        wi.wavePlayhead = AmbienceAudio.wavePlayhead;
       }
     } catch { /* optional */ }
   }
