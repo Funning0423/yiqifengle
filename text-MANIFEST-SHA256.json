@@ -946,8 +946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 70101,
-    "sha256": "1190d2fa6fdbc35163276a758d4ee63f12783c7994bd75d9f8b36b1e8ed0fd07"
+    "bytes": 71137,
+    "sha256": "ef63903f37cbaac392ac318cc0a34c68729aa596b792b9ef613b97d1f1f76e43"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
