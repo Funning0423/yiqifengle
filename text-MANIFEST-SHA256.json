@@ -946,8 +946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 61633,
-    "sha256": "618a393bad6902c7597f32cb1d05be8c4db55cf56c972d6c66654d33d9cc8cea"
+    "bytes": 62357,
+    "sha256": "405bdce1eb4e32337fc5b51aa70b728e7c365ac20c453918700ae76bdae1fafb"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1026,8 +1026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 71425,
-    "sha256": "a1eeb165b01b9fdc74623ee47363deab614bac996d821c734b09f750ed93db0a"
+    "bytes": 71450,
+    "sha256": "55e3b70d1db9170cbf63783f288050000c6cfcc8b8fbb3b9d74d5fba93696b6a"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1881,8 +1881,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 48314,
-    "sha256": "2293f59d838553c86a1ca7218d4f30d03b9993702fd70ad12c97d0cf3384207f"
+    "bytes": 50809,
+    "sha256": "83212413382499cdfa67e81ad0904086ed123765ac1a8cc858b5b01bebd8541c"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1891,8 +1891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 49572,
-    "sha256": "02982ef5d3ae3bb0d0007ee96f037080711a3c8ff73082348d97278a5f24b344"
+    "bytes": 50346,
+    "sha256": "888a97cc8dcd658f0c25c18e7bc99b26a1d2e6ec79dc8a9b9cdf3fc1306d04a6"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -2056,8 +2056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts",
-    "bytes": 4758,
-    "sha256": "cc36948f46ff8b545955c971d2daa98c646ea7bad83c040b46b45a2ba16dcd6b"
+    "bytes": 4772,
+    "sha256": "56e9388a1d8d4d72dc3d7edab21e8ac2e324e6cb513530365d5fa30d8b28113d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts.meta",

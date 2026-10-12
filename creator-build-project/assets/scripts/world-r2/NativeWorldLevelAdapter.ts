@@ -56,7 +56,7 @@ export function createNativeWorldLevelAdapter(options:{
       for(const name of ['Backpack','RetryConfirm']){const panel=canvasRoot?.getChildByName(name);if(panel){modalNodes.push(panel);panel.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED,syncPaused);}}
       syncPaused();
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
-        hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);session!.show();root.active=true;background.setVisible(true);},
+        hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
         resume:()=>session!.resume() as Result,dispose};
       ownedLease=lease;root.active=true;background.setVisible(true);active=lease;options.onSession?.(session);return lease;
     }catch(e){dispose();throw e;}finally{entering=false;}

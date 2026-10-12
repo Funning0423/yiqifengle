@@ -51,6 +51,8 @@ export class ManagedMobileBoardUI extends Component {
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {};
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
   private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null;
+  /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
+  private boardWasHidden = false; private returnPause = false;
   private hide = () => { this.selected = -1; this.host?.hide(); }; private show = () => this.host?.show();
   private resize = () => { if (!this.disposing && this.root && isValid(this.root, true)) this.layout(); };
   initialize(fixture: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void) {
@@ -343,6 +345,11 @@ export class ManagedMobileBoardUI extends Component {
   private render(s: any) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
     this.snapshot = s; if (s.visual?.kind) this.frameKinds.add(s.visual.kind); if (!this.managed) (globalThis as any).__forestLiveSnapshot = s;
+    const back = this.boardWasHidden && !s.hidden;
+    this.boardWasHidden = !!s.hidden;
+    if (s.hidden || s.state !== 'run.paused' || !s.active) this.returnPause = false;
+    else if (back && !this.modalOpen()) this.returnPause = true;
+    if (s.state !== 'run.paused' && this.popups?.find('PausePanel')) this.popups.close('PausePanel');
     const book = ['book.ready', 'stage.detail'].includes(s.state), result = this.isResult(s), board = !book && !result;
     this.grid.active = board; this.boardFrame.active = board; this.regionalFocus.active = board && s.provider === 'regional-r05'; this.stagePanel.active = book; this.hud.active = board && !!s.active;
     if (s.state !== 'run.ready' || s.readOnly) this.cancelToolInput();
@@ -458,6 +465,7 @@ export class ManagedMobileBoardUI extends Component {
   }
   update(dt: number) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
+    if (this.returnPause) { this.returnPause = false; if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden && this.snapshot.active && !this.modalOpen()) this.openPausePanel(); }
     this.tint.update(); this.popups.update(dt);
     const s = this.snapshot, active = !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
     if (this.hintClock.tick(dt, active)) this.autoHint();
