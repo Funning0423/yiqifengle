@@ -79,6 +79,45 @@ function drag(b, slot, target, o = {}) {
     const anchor = tide.u.tools[0].find('OriginalToolArt').getComponent(tide.H.cc.Sprite);
     assert.notEqual(anchor.spriteFrame, tide.H.load('ui/BoardArt').BoardArt.shared().frame('r2/tool_tidenet'));
   });
+  await ok('drag ghost tracks the pointer every frame with no lift; cancel never spends the tool', async () => {
+    const b = await board(), { H, u, log } = b, E = H.cc.Node.EventType;
+    const n = u.tools[1], id = 3, start = H.point(n), p = H.point(u.cells[24]);
+    n.emit(E.TOUCH_START, H.event(start, id));
+    n.emit(E.TOUCH_MOVE, H.event(p, id));
+    const ghost = u.root.find('ToolDragGhost'), info = u.layoutInfo;
+    const at = (q) => ({ x: q.x - info.width / 2, y: q.y - info.height / 2 });
+    assert(ghost && ghost.active, 'ghost is visible while the finger is down');
+    assert(Math.abs(ghost.worldPosition.x - at(p).x) < 1e-4 && Math.abs(ghost.worldPosition.y - at(p).y) < 1e-4, 'ghost sits on the pointer, not above it');
+    assert.equal(log.tools.length, 0, 'holding does not use the tool');
+    let finger = { x: p.x + 36, y: p.y - 18 };
+    H.cc.input.getAllTouches = () => [{ getID: () => id, getUILocation: () => ({ x: finger.x, y: finger.y }) }];
+    u.update(1 / 60);
+    assert(Math.abs(ghost.worldPosition.x - at(finger).x) < 1e-4 && Math.abs(ghost.worldPosition.y - at(finger).y) < 1e-4, 'next frame follows the live finger');
+    assert.equal(log.tools.length, 0, 'a frame while held does not clear');
+    n.emit(E.TOUCH_CANCEL, H.event(p, id, E.TOUCH_END));
+    assert.equal(log.tools.length, 0, 'cancel over a cell is not a release, even when its code says end');
+    assert.equal(u.toolDrag, null);
+    assert.equal(ghost.active, false, 'cancel puts the ghost away');
+    n.emit(E.TOUCH_END, H.event(p, id));
+    assert.equal(log.tools.length, 0, 'a later end after cancel does not spend the tool');
+  });
+  await ok('piece swap waits for a real touch end; cancel does not swap or clear', async () => {
+    const b = await board(), { H, u, log } = b, E = H.cc.Node.EventType;
+    const n = u.cells[0], from = H.point(n), to = { x: from.x + 40, y: from.y };
+    n.emit(E.TOUCH_START, H.event(from));
+    n.emit(E.TOUCH_MOVE, H.event(to));
+    assert.equal(log.commands.length, 0, 'finger still down: no swap yet');
+    u.update(1 / 60);
+    assert.equal(log.commands.length, 0, 'a frame while held does not start a clear');
+    n.emit(E.TOUCH_CANCEL, H.event(to, 1, E.TOUCH_END));
+    assert.equal(log.commands.length, 0, 'cancel does not swap');
+    n.emit(E.TOUCH_END, H.event(to));
+    assert.equal(log.commands.length, 0, 'end after cancel does not swap');
+    n.emit(E.TOUCH_START, H.event(from));
+    n.emit(E.TOUCH_MOVE, H.event(to));
+    n.emit(E.TOUCH_END, H.event(to));
+    assert.deepEqual(log.commands.map(c => c[0]), ['previewAction', 'commitAction']);
+  });
   await ok('regional tools: one slot, tideAnchor / prismShift fire at once, sunSeed targets a cell', async () => {
     for (let region = 0; region < 3; region++) {
       const b = await board({ provider: 'regional-r05', region }), { H, u, log } = b;
