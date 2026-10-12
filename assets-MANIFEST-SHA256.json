@@ -431,8 +431,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/sit-static/chr_sit_static.glb",
-    "bytes": 44016,
-    "sha256": "9582c35ad4c719277de41f793ad28eda6fac0f3e1cca1aa44b4f2d5e2a26f500"
+    "bytes": 44176,
+    "sha256": "56d619c3bcddbf86fc1f5d7a76527eefe88fbdb84b241e92ed3077f0afa957eb"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/ui-props/beach_palm_short.glb",

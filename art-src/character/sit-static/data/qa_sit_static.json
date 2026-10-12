@@ -137,7 +137,7 @@
       "worst_m": 0.0,
       "below_floor": 0,
       "verts": 1258,
-      "tris": 2455,
+      "tris": 2479,
       "material": "M_G2_DRESS",
       "materials": [
         "M_G2_DRESS"
@@ -159,9 +159,9 @@
     }
   },
   "source": "chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
-  "triangles": 7966,
+  "triangles": 7990,
   "cloth_inside_or_floor": 0,
-  "glb_bytes": 44016,
-  "runtime_plus_sit_bytes": 1463240,
-  "runtime_glb_bytes": 1419224
+  "glb_bytes": 44176,
+  "runtime_plus_sit_bytes": 1463300,
+  "runtime_glb_bytes": 1419124
 }

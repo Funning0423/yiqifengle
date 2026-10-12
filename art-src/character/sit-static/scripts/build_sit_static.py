@@ -1008,7 +1008,7 @@ def tri_front_z(tris, x, y):
     return best
 
 
-def stocking_covered(dress_tris, legs):
+def stocking_covered(dress_tris, legs, margin=0.004):
     """Sock points the skirt does not hide. Returns the open count and a few samples."""
     open_n = 0
     samples = []
@@ -1016,7 +1016,7 @@ def stocking_covered(dress_tris, legs):
         if leg.z < 0.38 or abs(leg.x) > 0.18 or not (0.36 <= leg.y <= 0.58):
             continue
         front = tri_front_z(dress_tris, leg.x, leg.y)
-        if front is None or front < leg.z + 0.004:
+        if front is None or front < leg.z + margin:
             open_n += 1
             if len(samples) < 6:
                 samples.append((leg.x, leg.y, leg.z, front))
@@ -1051,6 +1051,236 @@ def dress_yellow_uv(dress):
     if best is None:
         return fallback
     return Vector((best[1], best[2]))
+
+
+# The pasted knee panel is one flat UV. Original skirt faces vary across the atlas.
+COVER_UV = (0.797, 0.641)
+
+
+def _smooth01(t):
+    t = 0.0 if t < 0.0 else 1.0 if t > 1.0 else t
+    return t * t * (3.0 - 2.0 * t)
+
+
+def hem_y_at(x):
+    """Front hem. Ends sit on the side hems; it rises over each knee and dips between them.
+
+    A constant y is the straight board. The left knee has to stay a little higher:
+    the near shin is already in front of the side hem, and pushing past that hem
+    lengthens the side view.
+    """
+    arc = (
+        (-0.220, 0.312),
+        (-0.160, 0.336),
+        (-0.110, 0.352),
+        (-0.040, 0.300),
+        (0.010, 0.255),
+        (0.060, 0.308),
+        (0.130, 0.304),
+        (0.220, 0.308),
+    )
+    if x <= arc[0][0]:
+        return arc[0][1]
+    if x >= arc[-1][0]:
+        return arc[-1][1]
+    for i in range(len(arc) - 1):
+        x0, y0 = arc[i]
+        x1, y1 = arc[i + 1]
+        if x <= x1:
+            t = 0.0 if x1 == x0 else (x - x0) / (x1 - x0)
+            return y0 + (y1 - y0) * _smooth01(t)
+    return arc[-1][1]
+
+
+def top_y_at(x):
+    # Stay under the height where the side hem turns back toward the waist.
+    # Higher than this, the same depth sticks out as a tab in the side view.
+    return 0.546 + 0.006 * math.sin((x + 0.21) / 0.42 * math.pi)
+
+
+def front_rail(coords, xlo, xhi):
+    """Front edge of one side hem, low to high. The new cloth joins this arc."""
+    pts = []
+    y = 0.28
+    while y < 0.60:
+        band = [c for c in coords if y <= c.y < y + 0.02 and xlo <= c.x <= xhi and c.z > 0.46]
+        if len(band) >= 2:
+            pts.append(max(band, key=lambda c: c.z).copy())
+        y += 0.02
+    return pts
+
+
+def rail_at(rail, y):
+    if y <= rail[0].y:
+        return rail[0]
+    if y >= rail[-1].y:
+        return rail[-1]
+    for i in range(len(rail) - 1):
+        a, b = rail[i], rail[i + 1]
+        if a.y <= y <= b.y and b.y > a.y:
+            return a.lerp(b, (y - a.y) / (b.y - a.y))
+    return rail[-1]
+
+
+def _drop_rail_holes(pts):
+    """Ignore front-edge samples that fall into a fold behind the real hem."""
+    changed = True
+    while changed and len(pts) > 4:
+        changed = False
+        keep = [pts[0]]
+        for i in range(1, len(pts) - 1):
+            if pts[i].z < max(pts[i - 1].z, pts[i + 1].z) - 0.02:
+                changed = True
+                continue
+            keep.append(pts[i])
+        keep.append(pts[-1])
+        pts = keep
+    if len(pts) > 2 and pts[-1].z < pts[-2].z - 0.02:
+        pts = pts[:-1]
+    return pts
+
+
+def reshape_front_drape(dress, socks, body_tris=None):
+    """Replace the flat knee panel. Side and back vertices are not moved.
+
+    The new cloth's sides lie on the side-hem rails, so it inherits their arc
+    and their depth. The lower edge continues that arc across both knees.
+    """
+    me = dress.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    uv_layer = bm.loops.layers.uv.active
+    doomed = []
+    if uv_layer is not None:
+        for face in bm.faces:
+            first = None
+            same = True
+            for loop in face.loops:
+                key = (round(loop[uv_layer].uv.x, 3), round(loop[uv_layer].uv.y, 3))
+                if first is None:
+                    first = key
+                elif key != first:
+                    same = False
+                    break
+            if not same or first != COVER_UV:
+                continue
+            c = to_c(face.calc_center_median())
+            if 0.30 <= c.y <= 0.62 and c.z > 0.45 and -0.25 <= c.x <= 0.20:
+                doomed.append(face)
+    log('drape removing flat panel faces %d' % len(doomed))
+    if len(doomed) < 40:
+        bm.free()
+        raise RuntimeError('flat knee panel not found (%d faces)' % len(doomed))
+    bmesh.ops.delete(bm, geom=doomed, context='FACES')
+    loose = [v for v in bm.verts if not v.link_faces]
+    if loose:
+        bmesh.ops.delete(bm, geom=loose, context='VERTS')
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+
+    coords = [to_c(v.co) for v in me.vertices]
+    left = _drop_rail_holes(front_rail(coords, -0.24, -0.10))
+    right = _drop_rail_holes(front_rail(coords, 0.06, 0.23))
+    log('drape rails left %d right %d' % (len(left), len(right)))
+    if len(left) < 4 or len(right) < 4:
+        raise RuntimeError('side hem rails too short')
+
+    nu, nv = 16, 5
+    grid = []
+    for r in range(nv):
+        v = r / float(nv - 1)
+        vv = _smooth01(v)
+        row = []
+        for k in range(nu):
+            u = k / float(nu - 1)
+            left_g = rail_at(left, 0.40)
+            right_g = rail_at(right, 0.40)
+            x = left_g.x + (right_g.x - left_g.x) * u
+            y = hem_y_at(x) + (top_y_at(x) - hem_y_at(x)) * vv
+            left_p = rail_at(left, y)
+            right_p = rail_at(right, y)
+            x = left_p.x + (right_p.x - left_p.x) * u
+            y = hem_y_at(x) + (top_y_at(x) - hem_y_at(x)) * vv
+            left_p = rail_at(left, y)
+            right_p = rail_at(right, y)
+            x = left_p.x + (right_p.x - left_p.x) * u
+            # Depth follows the side hems. The near side (camera at -X) must not
+            # pass that depth or the side outline grows. The far knee may come
+            # forward just enough to cover the shin; the near thigh hides it.
+            z = left_p.z + (right_p.z - left_p.z) * u
+            cap = max(left_p.z, right_p.z)
+            # The far shin sits in front of the side hem. Extra depth there is
+            # hidden from the side camera by the near thigh. The near side and
+            # the top of the cloth stay on the hem itself.
+            if body_tris and u > 0.52 and y < 0.42:
+                bz = tri_front_z(body_tris, x, y)
+                if bz is not None and bz + 0.004 > z:
+                    z = min(max(z, bz + 0.014), cap + 0.08)
+            if y > 0.50 and u < 0.55:
+                # Near the camera, the same depth projects past the side outline.
+                z -= 0.024 * (0.55 - u) / 0.55
+            if u < 0.001:
+                x -= 0.008
+            elif u > 0.999:
+                x += 0.008
+            row.append([x, y, z, u, v])
+        grid.append(row)
+
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    uv_layer = bm.loops.layers.uv.active
+    if uv_layer is None:
+        uv_layer = bm.loops.layers.uv.new('UVMap')
+
+    def add_row(pts):
+        return [bm.verts.new(to_b(Vector((p[0], p[1], p[2])))) for p in pts]
+
+    rows = [add_row(row) for row in grid]
+    made = []
+    for r in range(len(rows) - 1):
+        for k in range(nu - 1):
+            verts = (rows[r][k], rows[r][k + 1], rows[r + 1][k + 1], rows[r + 1][k])
+            pa = (rows[r][k].co, rows[r][k + 1].co, rows[r + 1][k].co)
+            if (pa[1] - pa[0]).cross(pa[2] - pa[0]).length < 1e-8:
+                continue
+            try:
+                face = bm.faces.new(verts)
+            except ValueError:
+                continue
+            face.material_index = 0
+            face.smooth = True
+            for loop in face.loops:
+                loop[uv_layer].uv = COVER_UV
+            made.append(face)
+    bm.normal_update()
+    for face in made:
+        if face.normal.y > 0.0:
+            face.normal_flip()
+    before = len(me.polygons)
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+
+    coords = [to_c(v.co) for v in me.vertices]
+    tris = []
+    me.calc_loop_triangles()
+    for lt in me.loop_triangles:
+        tris.append([coords[i] for i in lt.vertices])
+    # The shell depth is the side hem. Cloth may sit on that depth, not past it,
+    # so a sock that already breaks the silhouette is not a reason to puff the side.
+    # Points behind z=0.47 sit inside the thigh, not on the white front of the shin.
+    front_socks = [p for p in socks if p.z >= 0.47] if socks else []
+    open_n, open_samples = stocking_covered(tris, front_socks, -0.002) if front_socks else (0, [])
+    hem = [pt[1] for pt in grid[0]]
+    log('drape faces %d hem y %.3f..%.3f stockings_open %d/%d' % (
+        len(me.polygons) - before, min(hem), max(hem), open_n, len(socks)))
+    for x, y, z, front in open_samples:
+        log('stocking still open x %.3f y %.3f sock %.3f cloth %s' % (x, y, z, '%.3f' % front if front is not None else '-'))
+    if open_n:
+        raise RuntimeError('skirt still open over %d stocking samples' % open_n)
+    if total_tris() > MAX_TRIS:
+        raise RuntimeError('cover pushed triangles to %d' % total_tris())
 
 
 def cover_knees(dress, bones=None):
@@ -2379,6 +2609,63 @@ def main():
     log('done %s' % json.dumps({'tris': report['triangles'], 'bytes': len(data), 'sum': report['runtime_plus_sit_bytes'], 'cloth': cloth_inside}))
 
 
+def reshape_existing():
+    """Replace only the front knee panel on the sit glb already on disk."""
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.gltf(filepath=GLB_OUT)
+    dress = None
+    body = None
+    for obj in list(bpy.context.scene.objects):
+        if obj.type != 'MESH':
+            continue
+        obj['sit'] = 1
+        if obj.name.startswith('LOD0_G2_DRESS'):
+            dress = obj
+        elif obj.name.startswith('LOD0_G2_BODY'):
+            body = obj
+    if dress is None or body is None:
+        raise RuntimeError('sit glb is missing the dress or the body')
+    socks = []
+    for vert in body.data.vertices:
+        point = to_c(vert.co)
+        if 0.34 <= point.y <= 0.60 and abs(point.x) < 0.20 and point.z > 0.40:
+            socks.append(point)
+    body_tris = []
+    body.data.calc_loop_triangles()
+    for lt in body.data.loop_triangles:
+        tri = [to_c(body.data.vertices[i].co) for i in lt.vertices]
+        ys = [p.y for p in tri]
+        xs = [p.x for p in tri]
+        zs = [p.z for p in tri]
+        if max(ys) < 0.15 or min(ys) > 0.62 or max(xs) < -0.28 or min(xs) > 0.28 or max(zs) < 0.25:
+            continue
+        body_tris.append(tri)
+    log('reshape socks %d body tris %d' % (len(socks), len(body_tris)))
+    reshape_front_drape(dress, socks, body_tris)
+    log('reshape tris %d' % total_tris())
+    export_glb(GLB_OUT, False)
+    pack_sit_glb(GLB_OUT)
+    data = open(GLB_OUT, 'rb').read()
+    open(RUNTIME, 'wb').write(data)
+    qa_path = os.path.join(OUT_DIR, 'data', 'qa_sit_static.json')
+    report = json.load(open(qa_path))
+    runtime_bytes = os.path.getsize(CHR)
+    report['glb_bytes'] = len(data)
+    report['runtime_glb_bytes'] = runtime_bytes
+    report['runtime_plus_sit_bytes'] = len(data) + runtime_bytes
+    report['triangles'] = total_tris()
+    dress_part = report.get('parts', {}).get('LOD0_G2_DRESS')
+    if isinstance(dress_part, dict):
+        dress_part['tris'] = tris_of(dress)
+    with open(qa_path, 'w') as handle:
+        json.dump(report, handle, indent=2)
+    limit = sit_byte_limit()
+    log('reshaped %d runtime %d sum %d limit %d tris %d' % (
+        len(data), runtime_bytes, len(data) + runtime_bytes, limit, report['triangles']))
+    if len(data) > limit or len(data) + runtime_bytes > BYTE_BUDGET:
+        raise RuntimeError('reshaped sit glb still over the 1.5 MiB sum')
+
+
 def pack_existing():
     """Shrink the sit glb already on disk. Does not rebuild the mesh."""
     pack_sit_glb(GLB_OUT)
@@ -2402,6 +2689,8 @@ if __name__ == '__main__':
     try:
         if os.environ.get('SIT_PACK') == '1':
             pack_existing()
+        elif os.environ.get('SIT_FRONT') == '1':
+            reshape_existing()
         else:
             main()
     except Exception:
