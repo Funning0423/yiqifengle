@@ -150,8 +150,11 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
     const ch=allEv.find(e=>e.kind==='turn-choice'&&e.t>=isl.t);const total=H.deg(Math.abs(H.wrap(seg[seg.length-1].yaw-fr.rec[fr.rec.findIndex(r=>r.t===seg[0].t)-1].yaw)));
     assert(ch&&ch.clip===null&&/^folded into walk_stop_body/.test(ch.reason),JSON.stringify(ch));assert(total>1&&total<45,'turn '+total);
     const moving=seg.filter(s=>s.dy>1e-7);assert(moving.length>10,'yaw frames '+moving.length);for(const s of moving)assert(s.clip===isl.clip||s.prev===isl.clip,'yaw change on '+s.clip+' at '+s.t.toFixed(3)); // (last yaw frame = the frame the stop clip ends)
-    const clips=[...new Set(seg.map(s=>s.clip))];assert.deepEqual(clips,[isl.clip,'idle_breathing_loop'],JSON.stringify(clips));
-    return {stop:isl.clip,turnDeg:+total.toFixed(2),reason:ch.reason,yawFrames:moving.length,turnFrames:seg.length,clips};});
+    const clips=[...new Set(seg.map(s=>s.clip))];assert.deepEqual(clips,[isl.clip],JSON.stringify(clips)); // the turn action ends in the held stop; idle is not act=turn
+    const idle=fr.rec.slice(k).find(r=>r.clip==='idle_breathing_loop');assert(idle&&idle.action!=='turn',JSON.stringify(idle&&{t:idle.t,clip:idle.clip,action:idle.action}));
+    for(let i=k;i<fr.rec.length&&fr.rec[i].state==='crossing-out';i++)if(fr.rec[i].clip==='idle_breathing_loop')assert(fr.rec[i].action!=='turn','idle still turning at '+fr.rec[i].t.toFixed(3));
+    const yawLeftDeg=Math.abs(H.deg(H.wrap(idle.yaw-(fr.cfg.islandYawRad||0))));assert(yawLeftDeg<0.02,'yaw left on idle '+yawLeftDeg);
+    return {stop:isl.clip,turnDeg:+total.toFixed(2),reason:ch.reason,yawFrames:moving.length,turnFrames:seg.length,clips,idleYawLeftDeg:+yawLeftDeg.toFixed(6),idleAt:+idle.t.toFixed(3),idleAction:idle.action};});
   // 180 L/R and 90 L/R on the real clips: the side follows the turn (90s and the 180 below TURN180_FREE_DEG), the foot decides >= 170
   {const info={has:n=>!!META.clips[n],duration:()=>1.5},cfg=motion.parseAnimMeta(META),r=x=>x*Math.PI/180;
    check('loco: turn variants on the real clips: +-90 -> walk_turn_90_body{L,R}; return turn -161.5 -> walk_turn_180_bodyR, +161.5 -> walk_turn_180; >= 170 deg by the last foot (incl. settle); in the flow the return turn uses walk_turn_180_bodyR',()=>{
@@ -178,7 +181,9 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
      const settle=r.ev.filter(e=>e.kind==='settle');assert.equal(settle.length,1,'settle step of the tail '+JSON.stringify(settle));
      if(name==='turn20'){const ch=r.ev.find(e=>e.kind==='turn-choice');assert(ch&&/^folded into/.test(ch.reason),JSON.stringify(ch));
       for(let i=r.endAt;i<r.seq.length;i++)if(Math.abs(H.wrap(r.seq[i].yaw-r.seq[i-1].yaw))>1e-7)assert(r.seq[i].clip===u[0].clip||r.seq[i-1].clip===u[0].clip,'yaw change on '+r.seq[i].clip);
-      assert(Math.abs(H.deg(r.seq[r.seq.length-1].yaw)-20)<1e-6);out.turnReason=ch.reason;}
+      const idleAt=r.seq.findIndex((s,ix)=>ix>=r.endAt&&s.clip==='idle_breathing_loop');assert(idleAt>0&&r.seq[idleAt].action!=='turn',JSON.stringify(r.seq[idleAt]));
+      const yawLeft=Math.abs(H.deg(H.wrap(r.seq[idleAt].yaw-20*Math.PI/180)));assert(yawLeft<0.02,'yaw left on idle '+yawLeft);
+      assert(Math.abs(H.deg(r.seq[r.seq.length-1].yaw)-20)<1e-6);out.turnReason=ch.reason;out.idleYawLeftDeg=+yawLeft.toFixed(6);}
      out[name]={tail:u[0].clip,fromS:+u[0].from.toFixed(4),clips,rootDriftM:drift};}
     return out;});}
   // walk_start rate: outCrossing (1.987 m / 2.839 s from rest at the door) cannot fit walk_start at rate 1 (cruise 1.43 x native)
