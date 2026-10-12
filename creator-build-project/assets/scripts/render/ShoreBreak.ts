@@ -1,9 +1,12 @@
 import { Node, Scene, MeshRenderer, Material, Mesh, Vec3, Vec4, Quat, EffectAsset, utils, gfx, isValid } from 'cc';
 import { approachNight, pickNight } from './IslandAtmosphereFxCore';
-import { SHORE, farSeaPoint, farShoreGeometry, farWashAlpha, foamMultiply, seaHeight, seaUvShift, shorePhase, shoreWashGeometry, stepShoreClock, waveLinePose } from './ShoreBreakCore';
+import { SHORE, farSeaPoint, farShoreGeometry, farWashAlpha, foamMultiply, seaAlbedoColors, seaHeight, seaUvShift, shorePhase, shoreWashGeometry, stepShoreClock, waveLinePose } from './ShoreBreakCore';
 import type { SeaPhase, ShoreGeometry, V3 } from './ShoreBreakCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 /** Same env_sea_surface, heaving on AmbienceAudio.wavePlayhead (amb_waves_loop, 8.064 s).
+ * Daytime blue is COLOR_0 (RGB), not mainColor. The dynamic copy keeps that colour (alpha 1) and keeps
+ * normals facing up (ny = 1 before normalize). A mesh without a_color is left authored — the standard
+ * shader would multiply albedo by 0 and the sea would draw black — and only the node bobs / UVs scroll.
  * The white lip is one untextured sheet under scene-root 'ShoreBreak'. It only exists while the crest is on
  * the sand, then it runs back and the node hides. Night is foamMultiply on that lip. The sea material's
  * mainColor is never written here (IslandProps still tints this same sea). No second sea, no second night mesh.
@@ -17,6 +20,7 @@ type SeaBind = {
   colors: Float32Array | null; idx16: Uint16Array | null; idx32: Uint32Array | null; min: Vec3; max: Vec3;
 };
 type SeaScroll = { instance: Material; offset: Vec4; baseZ: number; baseW: number };
+type SeaNode = { node: Node; x: number; y: number; z: number };
 const TECH_ALPHA_BLEND = 3;
 function findNamed(root: Node, name: string): Node | null {
   if (root.name === name) return root;
@@ -34,7 +38,7 @@ export class ShoreBreak {
   private wash: Fx | null = null; private far: Fx | null = null; private line01: Line | null = null; private line02: Line | null = null;
   private washPos: Float32Array | null = null; private washCol: Float32Array | null = null; private washIdx: Uint16Array | null = null;
   private washMin = new Vec3(); private washMax = new Vec3(); private washCount = 0;
-  private sea: SeaBind | null = null; private seaScroll: SeaScroll | null = null;
+  private sea: SeaBind | null = null; private seaScroll: SeaScroll | null = null; private seaNode: SeaNode | null = null;
   private exterior = false; private backdrop = false; private night = false; private synced = false; private time = 0; private ownNight = 0; private nightShown = 0;
   private disposed = false;
   private last = { strength: 0, travel: 0, foamU: 0, foamA: 0, wash: 0, far: 0, sea: 0, lineY: [] as number[] };
@@ -90,13 +94,16 @@ export class ShoreBreak {
     const p = node.position, s = node.scale;
     return { node: node, x: p.x, y: p.y, z: p.z, sx: s.x, sy: s.y, sz: s.z, rot: node.rotation.clone() };
   }
-  /** Read the imported sea once and swap in a dynamic copy on the same renderer. Material (night tint included) stays. */
+  /** Read the imported sea once. Swap in a dynamic copy only when its vertex colour (the daytime blue) can be kept.
+   * Material (night tint included) stays. mainColor is never written. */
   private bindSea(model: Node): void {
     const node = findNamed(model, 'env_sea_surface');
     if (!node) { console.warn('[SHORE] sea surface missing'); return; }
+    const p = node.position;
+    this.seaNode = { node: node, x: p.x, y: p.y, z: p.z };
     const mr = node.getComponent(MeshRenderer);
     if (!mr) return;
-    try { this.bindSeaMesh(mr); } catch (e) { console.warn('[SHORE] sea mesh bind failed; UV scroll only', String(e)); this.bindSeaScroll(mr); }
+    try { this.bindSeaMesh(mr); } catch (e) { console.warn('[SHORE] sea mesh bind failed; node bob and UV scroll only', String(e)); this.bindSeaScroll(mr); }
   }
   private bindSeaMesh(mr: MeshRenderer): void {
     const mesh = mr.mesh;
@@ -112,7 +119,10 @@ export class ShoreBreak {
     let idx16: Uint16Array | null = null, idx32: Uint32Array | null = null;
     if (rawIdx instanceof Uint32Array) idx32 = new Uint32Array(rawIdx);
     else { idx16 = new Uint16Array(rawIdx.length); for (let i = 0; i < rawIdx.length; i++) idx16[i] = rawIdx[i]; }
-    const colors = this.readColors(mesh, count);
+    const rawColor = mesh.readAttribute(0, gfx.AttributeName.ATTR_COLOR) as ArrayLike<number> | null;
+    const bpe = rawColor && typeof (rawColor as any).BYTES_PER_ELEMENT === 'number' ? (rawColor as any).BYTES_PER_ELEMENT : 4;
+    const colors = seaAlbedoColors(rawColor, count, bpe);
+    if (!colors) { console.warn('[SHORE] sea vertex color missing; mesh left authored so the blue stays lit'); this.bindSeaScroll(mr); return; }
     const base = copyFloats(pos), baseUv = copyFloats(uv);
     let minX = 1e9, minZ = 1e9, maxX = -1e9, maxZ = -1e9;
     for (let i = 0; i < count; i++) {
@@ -122,22 +132,13 @@ export class ShoreBreak {
     const min = new Vec3(minX, -0.7, minZ), max = new Vec3(maxX, 0.7, maxZ);
     const create = (utils as any).MeshUtils && (utils as any).MeshUtils.createDynamicMesh;
     if (typeof create !== 'function') { console.warn('[SHORE] createDynamicMesh missing; UV scroll only'); this.bindSeaScroll(mr); return; }
-    const geo: any = { positions: copyFloats(base), normals: copyFloats(nrm), uvs: copyFloats(baseUv), minPos: min, maxPos: max };
-    if (colors) geo.colors = colors;
+    const geo: any = { positions: copyFloats(base), normals: copyFloats(nrm), uvs: copyFloats(baseUv), colors: colors, minPos: min, maxPos: max };
     if (idx16) geo.indices16 = idx16; else geo.indices32 = idx32;
     const indexCount = idx16 ? idx16.length : (idx32 ? idx32.length : 0);
     const dynamic = create(0, geo, undefined, { maxSubMeshes: 1, maxSubMeshVertices: count + 8, maxSubMeshIndices: indexCount + 8 }) as Mesh;
     this.meshes.push(dynamic);
     mr.mesh = dynamic;
     this.sea = { renderer: mr, authored: mesh, dynamic: dynamic, count: count, base: base, pos: geo.positions, nrm: geo.normals, baseUv: baseUv, uv: geo.uvs, colors: colors, idx16: idx16, idx32: idx32, min: min, max: max };
-  }
-  private readColors(mesh: Mesh, count: number): Float32Array | null {
-    const src = mesh.readAttribute(0, gfx.AttributeName.ATTR_COLOR) as ArrayLike<number> | null;
-    if (!src || src.length < count * 4) return null;
-    const out = new Float32Array(count * 4);
-    const bytes = (src as any).BYTES_PER_ELEMENT === 1;
-    for (let i = 0; i < out.length; i++) out[i] = bytes ? src[i] / 255 : src[i];
-    return out;
   }
   /** Visible wavelet drift when the vertex buffer cannot be read. Does not touch mainColor. */
   private bindSeaScroll(renderer: MeshRenderer): void {
@@ -166,7 +167,10 @@ export class ShoreBreak {
     this.time = stepShoreClock(this.time, dt, this.playhead());
     const phase = shorePhase(this.time), rgb = foamMultiply(this.nightShown);
     this.last.strength = phase.strength; this.last.travel = phase.travel; this.last.foamU = phase.foamU; this.last.foamA = phase.foamA;
-    if (this.backdrop || this.exterior) { this.displaceSea(this.time, phase); this.scrollSea(this.time); }
+    if (this.backdrop || this.exterior) {
+      if (this.sea) this.displaceSea(this.time, phase); else this.heaveSea(this.time, phase);
+      this.scrollSea(this.time);
+    }
     const showWash = this.exterior && phase.foamA > 1 / 255;
     if (showWash) this.moveWash(phase.foamU, this.time);
     this.last.wash = showWash ? phase.foamA * SHORE.shorePeak : 0;
@@ -200,6 +204,7 @@ export class ShoreBreak {
       if (i === 0) sample = h;
       const hx = seaHeight(x + 0.45, z, time, phase) - seaHeight(x - 0.45, z, time, phase);
       const hz = seaHeight(x, z + 0.45, time, phase) - seaHeight(x, z - 0.45, time, phase);
+      // ny is 1 before normalize, so the lit side stays up. A downward normal is an unlit black face.
       const nx = -hx / 0.9, ny = 1, nz = -hz / 0.9;
       const inv = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
       nrm[i * 3] = nx * inv; nrm[i * 3 + 1] = ny * inv; nrm[i * 3 + 2] = nz * inv;
@@ -207,9 +212,16 @@ export class ShoreBreak {
     }
     this.last.sea = sample;
     s.min.y = minY - 0.05; s.max.y = maxY + 0.05;
-    const geo: any = { positions: pos, normals: nrm, uvs: uv, minPos: s.min, maxPos: s.max };
+    const geo: any = { positions: pos, normals: nrm, uvs: uv, colors: s.colors, minPos: s.min, maxPos: s.max };
     if (s.idx16) geo.indices16 = s.idx16; else geo.indices32 = s.idx32;
     s.dynamic.updateSubMesh(0, geo);
+  }
+  /** Whole-sheet bob when the authored mesh must stay (no vertex colours to copy). Same clock as the swell. */
+  private heaveSea(time: number, phase: SeaPhase): void {
+    const n = this.seaNode; if (!n || !isValid(n.node, true)) return;
+    const h = seaHeight(0, 40, time, phase);
+    n.node.setPosition(n.x, n.y + h, n.z);
+    this.last.sea = h;
   }
   private scrollSea(time: number): void {
     const s = this.seaScroll; if (!s || !isValid(s.instance, true)) return;
@@ -264,15 +276,20 @@ export class ShoreBreak {
   dispose(): void {
     if (this.disposed) return; this.disposed = true;
     this.restoreSea();
+    this.restoreSeaNode();
     this.restore(this.line01); this.restore(this.line02); this.line01 = this.line02 = null;
     if (this.root && isValid(this.root, true)) this.root.destroy();
     for (let i = 0; i < this.materials.length; i++) this.materials[i].destroy();
     for (let i = 0; i < this.meshes.length; i++) this.meshes[i].destroy();
-    this.root = null; this.wash = null; this.far = null; this.materials = []; this.meshes = []; this.sea = null; this.seaScroll = null;
+    this.root = null; this.wash = null; this.far = null; this.materials = []; this.meshes = []; this.sea = null; this.seaScroll = null; this.seaNode = null;
   }
   private restoreSea(): void {
     const s = this.sea; if (!s) return;
     if (isValid(s.renderer, true) && isValid(s.renderer.node, true) && isValid(s.authored, true)) s.renderer.mesh = s.authored;
+  }
+  private restoreSeaNode(): void {
+    const n = this.seaNode; if (!n || !isValid(n.node, true)) return;
+    n.node.setPosition(n.x, n.y, n.z);
   }
   private restore(line: Line | null): void {
     if (!line || !isValid(line.node, true)) return;
