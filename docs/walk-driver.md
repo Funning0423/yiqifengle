@@ -125,6 +125,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 ## 8. 围裙形变目标（morph / blend shape）
 
 围裙 `LOD0_G2_APRON` 带 2 个形变目标：**0 = 掀起时的 S 形卷边（`curl`）**，**1 = 风吹的小抖动（`flutter`）**。
+（`curl` / `flutter` 还没做进 glb；现在的 glb 里围裙、裙子、蝴蝶结带的是坐下搭布 `sit_drape` + 空的 `_pad`，按目标名驱动，见 §8.1 多个形变网格。）
 权重**只由驱动写**：每帧写完骨骼姿势后，算出每个目标的权重，调 `SkinnedMeshRenderer.setWeight(weight, subMeshIndex, shapeIndex)`。
 **动画片段里不要放形变轨道**：烘焙模式根本不播形变轨道；非烘焙模式下 AnimRig 每帧要采样好几个片段（淡化的两个 + 风效层），
 最后采样的那个会覆盖前面的，交叉淡化时权重会跳。代码：`CharacterMotion.ts` 的 `morphWeights` / `MorphDriver`，
@@ -156,7 +157,28 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 
 - 曲线时间是**片段自己的秒数**（循环片段取循环内时间）。anim_meta 的 `duration_s` 和片段实际长度不一致时，曲线时间和事件一样等比缩放。
 - 目标名就是 `morphTargets` 里的键；曲线里写了不在 `morphTargets` 里的名字会被忽略。
-- 一个角色只绑一个形变网格：`morph.mesh`（顶层）> 第一个写了 `morph.mesh` 的片段 > 默认值。片段写了别的网格名会在 `motion().notes` 里记一条，曲线仍然作用在绑定的网格上。
+- 主形变网格：`morph.mesh`（顶层）> 第一个写了 `morph.mesh` 的片段 > 默认值（围裙）。
+- **多个形变网格**（坐下搭布 `sit_drape`，见下）：`morph.meshes` 列出另外要驱动的网格，写法 `{"网格名": {"目标名": 序号}}` 或 `["网格名", ...]`。
+  每个网格一个 `MorphDriver`，**权重按目标名共用**（同一条曲线同时写到裙子、围裙、蝴蝶结上）。
+  目标序号优先用网格自己的目标名（glTF `mesh.extras.targetNames`，Cocos 导入后是 `mesh.struct.morph.targetNames`）；
+  网格没带名字时才用这里写的序号；顶层写了 `morphTargets` 时一律按 `morphTargets` 的序号（旧行为）。
+  片段的 `morph.mesh` 不在这些网格里时，在 `motion().notes` 里记一条，曲线仍按目标名作用在所有网格上。
+- 参与计算的目标名 = `morphTargets` 的键 + `morph.meshes` 里写的目标名 + 所有片段曲线里出现的名字；网格没有的目标不写。
+
+```jsonc
+"morph": {
+  "mesh": "LOD0_G2_APRON",
+  "meshes": {"LOD0_G2_DRESS": {"sit_drape": 0, "_pad": 1}, "LOD0_G2_BOW": {"sit_drape": 0, "_pad": 1}}
+},
+"clips": {
+  "sit_down": {"settle_time_s": 0.8667, "morph": {"mesh": "LOD0_G2_DRESS", "curves": {"sit_drape": [[0,0],[0.6,0.4],[1.2,1]]}}},
+  "sit_hold": {"morph": {"curves": {"sit_drape": [[0,1],[1.9667,1]]}}},
+  "stand_up": {"morph": {"curves": {"sit_drape": [[0,1],[1.2667,0]]}}}
+}
+```
+
+`sit_drape`：裙子 / 围裙 / 蝴蝶结各一个稀疏位置目标（只有位置差，≤ 20 KB），坐下时 0 → 1，坐着保持 1，起身 1 → 0（实际曲线见 anim_meta）。
+`_pad` 是空的第二个目标（Cocos 只有 1 个目标时编号有问题，见 §8.4）。制作脚本和数据：`art-src/animation/sit-drape`，结果：`cloud-tasks/RESULT-sit-drape.md`。
 
 ### 8.2 每帧权重怎么算（和姿势同一套权重）
 
@@ -181,11 +203,11 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 | `ok` | 已绑定；`subMeshes` 是会写的子网格，`weights` 是最近一帧的权重，`setWeightCalls` 是累计调用次数 |
 | `not-found` | 角色下面没有叫这个名字的 MeshRenderer |
 | `morph-disabled` | `enableMorph=false` |
-| `no-morph` | 网格没有形变数据（现在 int/v1 的 glb 就是这个状态） |
+| `no-morph` | 网格没有形变数据（sit-drape 之前 int/v1 的 glb 就是这个状态） |
 | `too-few-targets` | 形变目标数 < 需要的数（默认要 2 个；`targetCounts` 给出每个子网格的实际数） |
 | `error` / `unbound` | 运行中出错（附 `reason`）/ 还没绑定角色 |
 
-查看：`__worldIntegration.morph()`，或 `__worldIntegration.motion().morph`。T0 启动时的 `GB_MARK device:caps` 也会带上 `apronMorph=` 状态和目标数。
+查看：`__worldIntegration.morph()`，或 `__worldIntegration.motion().morph`。顶层字段是主网格（围裙）的状态，`meshes` 列出每个绑定网格的 `mesh / status / reason / targets / setWeightCalls`。T0 启动时的 `GB_MARK device:caps` 也会带上 `apronMorph=` 状态和目标数。
 
 ### 8.4 Blender 导出（给 角色建模bot / 角色动画bot）
 
@@ -193,5 +215,8 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 - **Apply Modifiers 开**，但要确认形状键能跟着导出（带形状键的网格上不要留会改顶点数的修改器，先应用掉）。
 - 形状键顺序就是目标序号：`Basis` 之后第 1 个 = 序号 0（`curl`），第 2 个 = 序号 1（`flutter`）。名字建议就叫 `curl`、`flutter`，`morph().targetNames` 会显示出来方便核对。
 - 只做 1 个目标时 Cocos 的形变变体编号会有问题，所以原型直接做 2 个；不够 2 个时驱动报 `too-few-targets` 并且不写。
+  `sit_drape` 的网格都带一个空的 `_pad` 作为第 2 个目标（1 个顶点、位移 0，14 字节）。
+- 稀疏目标：glTF 允许形变目标用稀疏 accessor（没有 bufferView，只存动过的顶点：uint16 序号 + 3×float32）。Cocos 导入时会展开成完整数组，
+  所以包体小，但**运行时内存按完整顶点数算**（裙子 5323 顶点 × 12 字节 ≈ 64 KB / 目标）。
 - Cocos 导入：在 glb 的导入设置里把 **Morph Normals 设为 Exclude**（和 Tangents 一样，设完在 `.meta` 里核对实际写进去的数值，不要靠猜）。
 - **未在真机测**：形变走贴图（WebGL1 上要 `OES_texture_float` 才用 RGBA32F，否则退到 RGBA8）。T0 的 `GB_MARK device:caps` 会记设备能力，原型出来后在 Mac 开发者工具、iOS 微信和低端安卓上分别看。
