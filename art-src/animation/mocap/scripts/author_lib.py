@@ -410,6 +410,316 @@ def locals_with_walk_pose(rig, ctx, Q, T, weight, arms=True, leg=True):
     return Q2
 
 
+# The thin-axis _palm_local aims at the thigh is the face a side camera already sees as a
+# board. On the device that board reads as the palm (fingers spread, flat toward the lens).
+# The other face is the back of the hand. Roll both forearms so the palm faces the thigh
+# and a little downward: from the side the back of the hand shows, not the whole palm.
+# Feet: her left boot stays toe-up through the whole plant, and the swing boot yaws out.
+# Lock a planted shoe flat and forward on the contact point's existing clip path (that path
+# already cancels root motion, so sole points do not pick up slide). Swing yaw is clamped
+# on the way in. STANCE_MM is not involved here; this does not loosen it.
+VISUAL_PALM_DOWN = 0.40
+STANCE_X_M = 0.050          # planted sole wider than this is pulled in; a narrower plant stays
+SWING_YAW_DEG = 8.0
+WALK_SPEED = 0.7            # native_speed_mps; in-place clip z cancels this on a plant
+WALK_FPS = 30.0
+
+
+def _visual_palm_aim(side):
+    """Direction the player's palm (the face opposite _palm_local) should point."""
+    a = np.array(_palm_aim(side), float)
+    a[1] -= VISUAL_PALM_DOWN
+    return a / np.linalg.norm(a)
+
+
+def _code_aim_for_visual_palm(side):
+    return -_visual_palm_aim(side)
+
+
+_SOLE_BAND = {}
+
+
+def sole_band_local(rig):
+    """Shoe sole points in foot-bone local space. Same set as walk-driver solePoints
+    (weight > 0.999, lowest 12 mm of the bind pose)."""
+    key = id(rig)
+    if key in _SOLE_BAND:
+        return _SOLE_BAND[key]
+    J, B = rig.J, rig.BIN
+    out = {}
+    for side in 'LR':
+        j = rig.idx['foot.' + side]
+        pts = []
+        for m in J['meshes']:
+            for pr in m['primitives']:
+                at = pr['attributes']
+                if 'JOINTS_0' not in at:
+                    continue
+                P = RG.acc(J, B, at['POSITION'])
+                Jn = RG.acc(J, B, at['JOINTS_0']).astype(np.int32)
+                Wt = RG.acc(J, B, at['WEIGHTS_0'])
+                w = np.zeros(len(P))
+                for c in range(4):
+                    w = w + np.where(Jn[:, c] == j, Wt[:, c], 0.0)
+                sel = np.where(w > 0.999)[0]
+                if len(sel):
+                    pts.append(P[sel])
+        P = np.concatenate(pts)
+        band = P[P[:, 1] < P[:, 1].min() + 0.012]
+        M = rig.ibm[j]
+        out[side] = (M[:3, :3] @ band.T).T + M[:3, 3]
+    _SOLE_BAND[key] = out
+    return out
+
+
+def _ortho_R(R):
+    u, _, vt = np.linalg.svd(R)
+    R2 = u @ vt
+    if np.linalg.det(R2) < 0:
+        u = u.copy()
+        u[:, -1] *= -1
+        R2 = u @ vt
+    return R2
+
+
+def _flat_foot_world(rig, side):
+    """Rest foot orientation: sole on the ground, toe along +Z."""
+    return _ortho_R(np.array(rig.rest_world[rig.idx['foot.' + side], :3, :3], float))
+
+
+def _contact_runs(mask, periodic, min_len=4):
+    n = len(mask)
+    segs = intervals(mask, 1)
+    runs = []
+    if periodic and len(segs) >= 2 and mask[0] and mask[-1] and segs[0][0] == 0 and segs[-1][1] == n - 1:
+        a, _b = segs[-1]
+        _c, d = segs[0]
+        runs.append(list(range(a, n)) + list(range(n, n + d + 1)))
+        segs = segs[1:-1]
+    for a, b in segs:
+        runs.append(list(range(a, b + 1)))
+    return [r for r in runs if len(r) >= min_len]
+
+
+def _limit_foot_yaw(R, toe_local, lim_deg):
+    """R [n,3,3]. Clamp the toe's horizontal heading to ±lim degrees of +Z."""
+    toe = np.einsum('nij,j->ni', R, toe_local)
+    yaw = np.arctan2(toe[:, 0], toe[:, 2])
+    lim = np.radians(lim_deg)
+    dy = np.clip(yaw, -lim, lim) - yaw
+    c, s = np.cos(dy), np.sin(dy)
+    Ry = np.zeros((len(R), 3, 3))
+    Ry[:, 0, 0] = c
+    Ry[:, 0, 2] = s
+    Ry[:, 1, 1] = 1
+    Ry[:, 2, 0] = -s
+    Ry[:, 2, 2] = c
+    return np.einsum('nij,njk->nik', Ry, R)
+
+
+def correct_walk_side(rig, ctx, Q, T, weight, periodic=False):
+    """Local quats for one walk clip.
+
+    Palms: roll both forearms so the face the side camera was seeing (the player's palm)
+    points at the thigh and slightly down. The back of the hand turns outward.
+    Feet: a planted shoe is set flat and forward, riding the contact point's original
+    clip path (narrowed when the plant is wider than STANCE_X_M). A swinging shoe's
+    yaw is clamped so it lands along that path. Frames with weight 0 are copied through.
+    """
+    n = len(Q)
+    weight = np.asarray(weight, float)
+    if weight.ndim == 0:
+        weight = np.full(n, float(weight))
+    else:
+        weight = np.broadcast_to(weight, (n,)).astype(float).copy()
+    W = rig.fk(T, Q)
+    Wr, hips = world_from_local(rig, Q, T)
+    bands = sole_band_local(rig)
+    info = {}
+
+    for s in 'LR':
+        ft = 'foot.' + s
+        j = rig.idx[ft]
+        R0 = Wr[ft]
+        A0 = W[:, j, :3, 3].copy()
+        loc = bands[s]
+        world = np.einsum('nij,kj->nki', R0, loc) + A0[:, None, :]
+        ymin = world[:, :, 1].min(1)
+        R_flat = _flat_foot_world(rig, s)
+        toe_local = R_flat.T @ np.array([0.0, 0.0, 1.0])
+        rel = (R_flat @ loc.T).T
+        # Only her left boot (bone .R) never sets the sole down. Her right boot already
+        # rolls heel-to-toe; flat-locking it straightens that leg and pulls walk_stop_bodyR
+        # off the walk_loop heel strike.
+        runs = _contact_runs(ymin < 0.010, periodic) if s == 'R' else []
+        R_new = np.array(R0, copy=True)
+        A_new = A0.copy()
+        planted = np.zeros(n, bool)
+        # Frames of the same plant that are still above the 6 mm band. They take the
+        # flat orientation too, at their own height: leaving the old toe-up pose next
+        # to a flat plant makes the sole swing through the floor between keys.
+        approach = np.zeros(n, bool)
+        sg = -1.0 if s == 'L' else 1.0
+        for run in runs:
+            frames = np.array([i % n for i in run])
+            if float(np.median(weight[frames])) < 0.8:
+                continue
+            use = [i for i in run if weight[i % n] >= 0.8]
+            if len(use) < 4:
+                continue
+            # Only frames already inside the 6 mm stance band. A frame that is still
+            # 8 mm up (the last sample before the loop point) is not a plant; pulling it
+            # down to the floor puts it in that band one stride-frame away from the
+            # heel strike, and the driver counts the jump as slide.
+            use = [i for i in use if ymin[i % n] < 0.006]
+            if len(use) < 4:
+                continue
+            kk = np.array([i % n for i in use])
+            toe = np.einsum('nij,j->ni', R0[kk], toe_local)
+            pitch = np.degrees(np.arctan2(toe[:, 1], np.hypot(toe[:, 0], toe[:, 2])))
+            # A plant that already sets the sole down (heel then flat) stays. Forcing it
+            # flat through toe-off straightens the leg past its reach. The plant that never
+            # comes down — her left boot, toe up the whole stance — is the one we reset.
+            if float(np.min(pitch)) < 8.0 and float(np.median(pitch)) < 18.0:
+                continue
+            # The vertex that actually stays in the 6 mm band. Lowest-mean-y picks a
+            # point whose path matches a constant 0.7 m/s and then slides once the
+            # driver's cruise is not 0.7. The planted heel's own path is the one the
+            # stride was authored against.
+            in_band = world[kk, :, 1] < 0.006
+            k = int(np.argmax(in_band.sum(0) * 1000.0 - world[kk, :, 1].mean(0)))
+            med = float(np.median(world[kk, k, 0]))
+            dx = (sg * STANCE_X_M - med) if abs(med) > STANCE_X_M and med * sg > 0 else 0.0
+            for i in use:
+                ii = i % n
+                anchor = world[ii, k, [0, 2]].copy()
+                anchor[0] += dx
+                ankle = np.zeros(3)
+                ankle[0] = anchor[0] - rel[k, 0]
+                ankle[2] = anchor[1] - rel[k, 2]
+                ankle[1] = -float(rel[:, 1].min())
+                A_new[ii] = ankle
+                R_new[ii] = R_flat
+                planted[ii] = True
+            for i in run:
+                ii = i % n
+                if planted[ii] or weight[ii] < 0.8 or ymin[ii] < 0.006:
+                    continue
+                # Sit this frame on the plant it is about to reach, not on its old
+                # clip XZ. Across the loop the next plant is one cycle ahead, so a
+                # frame that keeps the old XZ enters the 6 mm band a few centimetres
+                # off the landing.
+                j = None
+                cycles = 0
+                for d in range(1, n):
+                    k2 = (ii + d) % n if periodic else ii + d
+                    if not periodic and k2 >= n:
+                        break
+                    if planted[k2]:
+                        j = k2
+                        cycles = 1 if periodic and k2 <= ii else 0
+                        break
+                if j is None:
+                    anchor = world[ii, k, [0, 2]].copy()
+                    anchor[0] += dx
+                else:
+                    anch = A_new[j, [0, 2]] + rel[k, [0, 2]]
+                    t_here = ii / WALK_FPS
+                    t_plant = j / WALK_FPS + cycles * (n / WALK_FPS)
+                    anchor = np.array([anch[0], anch[1] + WALK_SPEED * (t_plant - t_here)])
+                ankle = np.zeros(3)
+                ankle[0] = anchor[0] - rel[k, 0]
+                ankle[2] = anchor[1] - rel[k, 2]
+                ankle[1] = float(ymin[ii]) - float(rel[:, 1].min())
+                A_new[ii] = ankle
+                R_new[ii] = R_flat
+                approach[ii] = True
+        swing = (weight >= 0.85) & ~planted & ~approach & (ymin > 0.012)
+        for i in np.nonzero(swing)[0]:
+            R_new[i] = _limit_foot_yaw(R0[i:i + 1], toe_local, SWING_YAW_DEG)[0]
+            A_new[i] = A0[i]
+            sole_x = A_new[i, 0] + float((R_new[i] @ loc.mean(0))[0])
+            cap = STANCE_X_M + 0.008
+            if sole_x * sg > cap:
+                A_new[i, 0] -= sole_x - sg * cap
+            rel_i = (R_new[i] @ loc.T).T
+            ymin_new = A_new[i, 1] + float(rel_i[:, 1].min())
+            # Stay out of the 6 mm contact band so a yaw fix cannot slide a planted sole.
+            need = max(float(ymin[i]), 0.012)
+            if ymin_new < need:
+                A_new[i, 1] += need - ymin_new
+        # Arrive at the flat plant over the swing frames just before touchdown.
+        # Only forward: blending back toward the plant we just left makes walk_stop_bodyR
+        # frame 0 (no previous plant in that clip) disagree with walk_loop.
+        for i in np.nonzero(swing)[0]:
+            dist, j = None, None
+            for d in range(1, 5):
+                k = (i + d) % n if periodic else i + d
+                if not (periodic or k < n):
+                    break
+                if planted[k]:
+                    dist, j = d, k
+                    break
+            if j is None:
+                continue
+            u = dist / 5.0
+            R_new[i] = RG.q2m(RG.slerp(RG.m2q(R_flat), RG.m2q(R_new[i]), u))
+            # Clip Z jumps by a stride across the loop point. Only blend the ankle toward a
+            # plant in the same place.
+            if abs(A_new[j, 2] - A_new[i, 2]) < 0.12 and abs(A_new[j, 0] - A_new[i, 0]) < 0.08:
+                A_new[i] = (1.0 - u) * A_new[j] + u * A_new[i]
+                rel_i = (R_new[i] @ loc.T).T
+                ymin_new = A_new[i, 1] + float(rel_i[:, 1].min())
+                if ymin_new < 0.012:
+                    A_new[i, 1] += 0.012 - ymin_new
+        mod = planted | swing | approach
+        if np.any(mod):
+            Wr_ik, clamped = apply_leg_ik(ctx, Wr, hips, s, A_new, R_new)
+            th, sh, ftb = LEGS[s]
+            for b in (th, sh, ftb):
+                Wr[b] = np.where(mod[:, None, None], Wr_ik[b], Wr[b])
+            if s == 'L':
+                # apply_leg_ik's foot-Y pole kicks her right knee out when the swing boot yaws.
+                # The forward pole keeps the ankle and the foot rotation we just set.
+                world = ctx.fk(Wr, hips)
+                Wr = _correct_right_knee(ctx, Wr, world, mod.astype(float))
+            info[s] = dict(planted=int(planted.sum()), swing=int(swing.sum()), clamped=int(np.asarray(clamped)[mod].sum()))
+        else:
+            info[s] = dict(planted=0, swing=0, clamped=0)
+
+    # palms after the legs, so a foot IK cannot touch the arms
+    local = _palm_local(ctx)
+    for s in 'LR':
+        fa, ha = 'forearm.' + s, 'hand.' + s
+        axis = Wr[fa][:, :, 1]
+        axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
+        n = np.einsum('nij,j->ni', Wr[ha], local[s])
+        desired = _code_aim_for_visual_palm(s)
+        desired = desired / np.linalg.norm(desired)
+        ang = _aim_angle(axis, n, desired) * weight
+        Rd = RG.rotvec2m(axis * ang[:, None])
+        Wr[fa] = np.einsum('nij,njk->nik', Rd, Wr[fa])
+        Wr[ha] = np.einsum('nij,njk->nik', Rd, Wr[ha])
+
+    changed = ['thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R',
+               'forearm.L', 'hand.L', 'forearm.R', 'hand.R']
+    worldR = {nm: np.array(Wr[nm] if nm in Wr else (W[:, rig.idx[nm], :3, :3] / np.linalg.norm(W[:, rig.idx[nm], :3, :3], axis=-2, keepdims=True)), copy=True)
+              for nm in rig.names}
+    # world_from_local stored every bone; Wr was that dict, mutated in place
+    Q2 = np.array(Q, copy=True)
+    for nm in changed:
+        i = rig.idx[nm]
+        p = rig.parent[i]
+        pr = worldR[rig.names[p]]
+        Q2[:, i] = RG.m2q(np.einsum('nji,njk->nik', pr, worldR[nm]))
+        flip = np.sum(Q2[:, i] * Q[:, i], -1) < 0
+        Q2[flip, i] *= -1
+    same = weight <= 1e-8
+    if np.any(same):
+        Q2[same] = Q[same]
+    return Q2, info
+
+
 def knee_angle(ctx, Wr, hips, s):
     rig = ctx.rig
     th, sh, ft = LEGS[s]

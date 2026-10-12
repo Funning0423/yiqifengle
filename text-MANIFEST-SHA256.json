@@ -516,8 +516,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json",
-    "bytes": 45333,
-    "sha256": "2341450aee6e2d570da185843e8593d39cade8b018875835833250d6e382a572"
+    "bytes": 45475,
+    "sha256": "ba3b716f83cace367a5f51307b2ff70da97b8ba6b68adad2a96d8b16f2880a3d"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/anim_meta.json.meta",
