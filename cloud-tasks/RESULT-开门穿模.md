@@ -1,6 +1,6 @@
 # RESULT：开门那一秒，门洞里不再是一整片海
 
-分支 `cursor/door-open-sea-clip-f5f9` → 草稿 PR 到 `int/v1`。起点 `195159c`（出门运镜 `195159c`，坐姿冻结 `14716b7`）。没有合并，没有 push 到 `int/v1`。
+分支 `cursor/door-open-sea-clip-f5f9` → 草稿 PR https://github.com/Funning0423/yiqifengle/pull/11 ，基线 `int/v1` @ `195159c`（出门运镜 `195159c`，坐姿冻结 `14716b7`）。没有合并，没有 push 到 `int/v1`。
 
 ## 结论
 
