@@ -334,11 +334,10 @@ def plant_feet(ctx, Wr, hips, fps, contacts, periodic=False, targets=None, flat_
     return Wr, hips, info
 
 
-def separate_feet(ctx, Wr, hips, contacts, min_gap=0.012, cap=0.03, iters=3):
+def separate_feet(ctx, Wr, hips, contacts, min_gap=0.005, cap=0.03, iters=3):
     """a swinging shoe that passes the other one closer than min_gap (closest vertex pair) is lifted by a sin^2 bump over
-    its swing (zero at lift-off and landing, so planted frames are untouched).  The shoes are wider than the retargeted
-    step width, so seen from above they overlap and the swinging sole passes over the planted toe cap: only height
-    separates them.  Returns new (Wr, info)."""
+    its swing (zero at lift-off and landing, so planted frames are untouched).  Only a guard: the step width
+    (clipbuild.STANCE_WIDEN) is what keeps the shoes apart.  Returns new (Wr, info)."""
     rig = ctx.rig
     n = len(hips)
     fi = {s: rig.idx[LEGS[s][2]] for s in 'LR'}
@@ -420,6 +419,56 @@ def limit_swing_knee(ctx, Wr, hips, contacts, k0=35.0, f=0.6, sigma=1.5):
         R = RG.rotvec2m(-ax * dk[:, None])
         out[sh] = R @ Wr[sh]
     return out
+
+
+def rate_limit(x, fixed, r, periodic=False, iters=400):
+    """closest curve to x with |x[k+1] - x[k]| <= r (pairwise projection); samples where fixed stay put."""
+    y = np.asarray(x, float).copy()
+    free = ~np.asarray(fixed, bool)
+    n = len(y)
+    for _ in range(iters):
+        nxt = np.roll(y, -1) if periodic else np.append(y[1:], y[-1])
+        d = nxt - y
+        ex = np.sign(d) * np.maximum(np.abs(d) - r, 0.0)
+        if not periodic:
+            ex[-1] = 0.0
+        if np.abs(ex).max() < 1e-4:
+            break
+        fn = np.roll(free, -1) if periodic else np.append(free[1:], False)
+        both = free & fn
+        a = np.where(both, 0.5, np.where(free, 1.0, 0.0)) * ex
+        b = np.where(both, 0.5, np.where(fn, 1.0, 0.0)) * ex
+        y += 0.9 * a
+        y -= 0.9 * (np.roll(b, 1) if periodic else np.concatenate([[0.0], b[:-1]]))
+    return y
+
+
+def limit_knee_rate(ctx, Wr, hips, contacts, max_step=10.0, periodic=False):
+    """knee angle steps per frame limited to max_step deg on swing frames (planted frames fixed, so the lift-off and the
+    landing ease in instead of jumping).  The new knee angle is reached by moving the ankle vertically only: the swing
+    foot keeps its horizontal path and orientation, so no travel is added near the floor.  Returns (Wr, {s: max change deg})."""
+    rig = ctx.rig
+    info = {}
+    for s in 'LR':
+        k = knee_angle(ctx, Wr, hips, s)
+        fixed = np.asarray(contacts[s], bool).copy()
+        if not periodic:
+            fixed[[0, -1]] = True
+        k2 = rate_limit(k, fixed, max_step, periodic)
+        ch = np.abs(k2 - k)
+        info[s] = round(float(ch.max()), 1)
+        if ch.max() < 0.05:
+            continue
+        W = ctx.fk(Wr, hips)
+        th, sh, ft = LEGS[s]
+        H = W[:, rig.idx[th], :3, 3]
+        A = W[:, rig.idx[ft], :3, 3].copy()
+        d = leg_dist_for_knee(ctx, k2)
+        hz2 = np.sum((A[:, [0, 2]] - H[:, [0, 2]]) ** 2, 1)
+        ok = (ch >= 0.05) & (d ** 2 > hz2)
+        A[ok, 1] = H[ok, 1] - np.sqrt(d[ok] ** 2 - hz2[ok])
+        Wr, _ = apply_leg_ik(ctx, Wr, hips, s, A, W[:, rig.idx[ft], :3, :3].copy())
+    return Wr, info
 
 
 def leg_dist_for_knee(ctx, knee_deg):

@@ -108,9 +108,11 @@ def plant_fit(tr, C, targets=None, rounds=3, periodic=False, hips_lock=None, arc
         if hips_lock is not None:
             w, ref = hips_lock
             h = h * (1 - w)[:, None] + ref * w[:, None]
+    Wp, kr = AL.limit_knee_rate(cx, Wp, hp, C, periodic=periodic)
     Wp, sep = AL.separate_feet(cx, Wp, hp, C)
     out = {s: {k: v for k, v in info[s].items() if k != 'clamp_mask'} for s in info}
     out['released_contact_frames'] = int(trimmed)
+    out['knee_rate_change_deg'] = kr
     out['swing_lift_mm'] = sep
     return (Wp, hp), out
 

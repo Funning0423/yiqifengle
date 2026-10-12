@@ -123,6 +123,7 @@ def build(n_cycles_plant=3, verbose=True):
         Wf = CB.fk(Wp, hp)
         A = {s: Wf[:, CB.rig().idx['foot.' + s], :3, 3] for s in 'LR'}
         h2 = AL.fit_hips_height(cx, big[0], h2, A, Cb, knee_ref, min_knee=MIN_KNEE)
+    Wp, info['knee_rate_change_deg'] = AL.limit_knee_rate(cx, Wp, hp, Cb)
     Wp, info['swing_lift_mm'] = AL.separate_feet(cx, Wp, hp, Cb)
     info['hips_height_change_mm'] = [round(float((h2[:, 1] - big[1][:, 1]).min() * 1000), 1), round(float((h2[:, 1] - big[1][:, 1]).max() * 1000), 1)]
     hp = hp.copy()

@@ -13,7 +13,7 @@ GLB = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/cha
 CMU = os.environ.get('CMU_DIR', '/tmp/cmu/raw')
 FPS = 30
 MAPPED = list(RT.TMAP.keys())
-STANCE_WIDEN = 0.04         # m per ankle, see widen_stance
+STANCE_WIDEN = float(os.environ.get('MOCAP_WIDEN', '0.05'))   # m per ankle, see widen_stance
 SOURCE_SMOOTH = float(os.environ.get('MOCAP_SMOOTH', '4.0'))   # gauss sigma in 120 fps source frames (marker jitter -> keys)
 
 _rig = None
@@ -100,10 +100,11 @@ class Take:
         return out
 
 
-def widen_stance(Wr, hips, d=STANCE_WIDEN):
+def widen_stance(Wr, hips, d=None):
     """move each ankle d outward along the pelvis' lateral axis (leg IK, foot orientation kept).  Rotation retargeting
     copies the performer's leg adduction, but the CMU hip joints sit ~2x wider (scaled) than ours, so without this the
     feet land on one line and the legs cross in the walk."""
+    d = STANCE_WIDEN if d is None else d
     if d <= 0:
         return Wr, hips
     c = ctx()
