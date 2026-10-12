@@ -80,8 +80,11 @@ export class AudioBridge extends Component {
     // 3) one-time rewards: a claim flag flipping false->true while this board is open
     const sig = this.rewardSignature(s);
     if (sig !== null) {
-      if (this.rewardBaseline !== null && sig !== this.rewardBaseline && this.countClaims(sig) > this.countClaims(this.rewardBaseline))
-        audio.onClaimResult({ ok: true, duplicate: false });
+      if (this.rewardBaseline !== null && sig !== this.rewardBaseline && this.countClaims(sig) > this.countClaims(this.rewardBaseline)) {
+        const prev = this.rewardBaseline.split('|'), next = sig.split('|');
+        // Region-tool claims are not a chest. Chest opens and mementos still use sfx_chest_open.
+        if (prev[0] !== next[0] || prev[2] !== next[2] || prev[3] !== next[3]) audio.onClaimResult({ ok: true, duplicate: false });
+      }
       this.rewardBaseline = sig;
     }
   }

@@ -246,7 +246,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 **每次停顿前都先停步（r5 #5）。** 走路后面接转身、开门、坐下时，先把停步走完再做下一件事：
 - 规划好的停步（9.3）在走路最后一段就播完了。
 - 没规划上（`stop-unplanned` 事件）：`stopTail` 从停步片段的 settle 时刻（`forward_m` 不再变的时刻，约 0.667 s）切进去，用落地脚相同的那个变体，根节点不动（不滑、不冲过头），然后 idle。
-- 转角 < 45° 不在 idle 上原地转：合进正在播的停步片段里（`turn-choice` 的 reason = `folded into <clip> over X s`），yaw 用 smoothstep 在停步剩下的时间里转完（至少 `TURN_FOLD_MIN_S = 0.5 s`）。岛上到达后约 −25.7° 的那次就是这样。
+- 转角 < 45° 不在 idle 上原地转：合进正在播的停步片段里（`turn-choice` 的 reason = `folded into <clip> over X s`），yaw 用 smoothstep 在停步剩下的时间里转完（至少 `TURN_FOLD_MIN_S = 0.5 s`）。岛上到达后约 −25.7° 的那次就是这样。CMU 停步的根节点一直走到最后一帧、没有静止尾巴时，驱动把坐稳那一帧再保持 `TURN_FOLD_MIN_S`（诊断里的片段名仍是停步），小角度转身合进这段保持，然后才切 idle。
 
 ### 9.3 一次走路的根节点轨迹（`planWalk`，时长不变）
 
@@ -257,7 +257,7 @@ WALK_FLOW_ROOT=<运镜bot-wind 检出> node tools/walk-driver/test_walk_driver.c
 - **起步可以稍微快一点。** 起步时间放不下时（`outCrossing` 1.987 m / 2.839 s 从静止起步），`walk_start` 按 `START_RATE_STEP = 0.05` 一档档加快，最多 `START_RATE_MAX = 1.2`：片段时钟和根节点曲线一起乘这个倍率（`forward_m(t × rate)`），脚仍然锁地。`outCrossing` 用 ×1.1。倍率在 `walkPlan.startRate`，notes 里写 `walk_start x1.10 (at rate 1: …)`。
 - **停步也可以稍微快一点。** CMU 停步 1.47 s 只走 0.42–0.50 m，`toDoor`（4.20 m / 6.00 s）原速放不下。停步同样按 `START_RATE_STEP` 加快，最多 `STOP_RATE_MAX = 1.2`（`forward_m((t − tEntry) × rate)`），只用于停在路线终点（`aheadM` 为 0）的走路；先选两个倍率里较大的那个最小的组合。倍率在 `walkPlan.stop.rate` / `lastPlan.stopRate`，notes 里写 `stop xN`。
 - **停步的 lateral_m 只在路线上走、不带偏终点。** CMU 停步的 `lateral_m` 中途摆到约 ±0.1 m，结束时还留 14–21 mm。驱动用 `stopLateralAt` 让横向偏移跟着 `forward_m` 的进度把末值淡掉，所以停步结束时根节点正好在路线终点；朝向从路线上的点往前看（不是从偏开的根节点），否则停步中她会朝终点拧身、着地脚跟着转。
-- CMU 停步的根节点曲线一直走到片段最后一帧，停步片段播完就交给 idle（不必等走路的最后一帧再发 ended）。
+- CMU 停步的根节点曲线一直走到片段最后一帧。片段自己的帧播完后，坐稳姿势再保持 `TURN_FOLD_MIN_S`（0.5 s），给小于 45° 的转身合进去；保持结束才交给 idle。不必等走路的最后一帧再发 ended。
 - 还不行，或者巡航速度会超出 `CRUISE_RATIO_MIN..MAX = 0.75..1.3 × native`（步频变化超过 ±25–30% 太明显），先放弃停步，再放弃起步，最后退回旧的匀速 L·t/D。原因写在 `motion.walkPlan.notes`。
 - 规划失败但这段确实停了（`stop-unplanned` 事件）：从停步片段的 settle 时刻切进去（见 9.2），根节点不动。以前是 walk_loop → idle 淡化，会滑 6–13 cm。
 - 诊断：`__worldIntegration.motion().walkPlan = {L, D, rest, aheadM, start, stop, warp, stopScale, cruiseMps, notes}`；`stopRoot`（停步结束后 lateral 那一步）；`lastFoot`、`footDeduped`。

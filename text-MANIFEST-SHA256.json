@@ -891,8 +891,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 59726,
-    "sha256": "f06841fef8aacb00e86ef2cb41f3d650afb563fc499ca39b2e82ce4f0ff7fd07"
+    "bytes": 60181,
+    "sha256": "e22fa65e4a86fd7022890af8a23e27a237cda736826473f11e82ddc9edfa2ac9"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -921,8 +921,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 61176,
-    "sha256": "61a48f6a6c1f587ef4ac3daa3c10b4b6d91a44dd5fc64f9ad4864c6ec11f2994"
+    "bytes": 61387,
+    "sha256": "9dfb555f0939a54f43a0355ffcf50e215af71ec19e8b45a5e0ac594804e77483"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1001,8 +1001,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 68969,
-    "sha256": "ce910326276e900e83ffe8ba3ae25fbf5b25822701159491bf5550ae122d7738"
+    "bytes": 70806,
+    "sha256": "6e83d0505ea91faadd2fbf52337bc19a2ca47259f0bbe5188164a8c3cc1a3ecf"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1036,8 +1036,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AudioBridge.ts",
-    "bytes": 6879,
-    "sha256": "45fc088912d5374fafc61ca13c052a93bcd23571df0c72c180a79121eecde032"
+    "bytes": 7134,
+    "sha256": "e88d468e214bfcaefcafc8d3cf358b79d9a106735399f48d2edd2e39bf45d980"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AudioBridge.ts.meta",
@@ -1641,8 +1641,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 10839,
-    "sha256": "d62d4372e47bf8fcce2bd81b2fb343d8d12be7c56b43a32e7ffa295283175e48"
+    "bytes": 11070,
+    "sha256": "a41ef6653b2670c456cc7205dd3eef5ce6892097e1fd1352be83dc4baac24642"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -1671,8 +1671,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
-    "bytes": 18029,
-    "sha256": "f28c583e6be9cb881fb323b82a6ba4a0ad45822568e317612414a772a2d83eae"
+    "bytes": 18030,
+    "sha256": "02b6e5097d5539bfa9e1302cee9cfb564d878bcd2de9e2b23e9f8f1d0d0e66fe"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",
@@ -1816,8 +1816,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts",
-    "bytes": 23442,
-    "sha256": "0dbe50b8632a488c4e8bec4586c199b16e06dae2a821961b3dd1f4b310edcb48"
+    "bytes": 33259,
+    "sha256": "dc156b409881d4eeba399566c357e199d5a1c5c9dac8b5bbef0e3f107ccf2c50"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/FirstsliceRoutes.ts.meta",
@@ -1836,8 +1836,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts",
-    "bytes": 23879,
-    "sha256": "7cf2ee17fa620c476c65d0909b60a95c43b7140bc79f1f7a8541664b6376e9f4"
+    "bytes": 24582,
+    "sha256": "5b07ea0694679b29ce2c4d21ac5a791e2dca69225538ecd200e0bcdb68901e53"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/RegionCameraData.ts.meta",
@@ -1866,8 +1866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 49107,
-    "sha256": "51cb93492db8ed50627789c92d1d4fbcddc9410c75ac2e6d31fc5abf0dde61e4"
+    "bytes": 49423,
+    "sha256": "8a838a857e965a1da7c67ff0ebd47a55174c5593a28644c9e81e5510ff04e48a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",

@@ -336,13 +336,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_meadow.png",
-    "bytes": 7930,
-    "sha256": "3cc9672521ec052dd75fc00bab882e700f4c8c14223c4b8467e718fcaf90f408"
+    "bytes": 23380,
+    "sha256": "3a42844a46378e057244eb25a620574a3aa530e2d8c202b3802acd16b093f4a4"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_sky.png",
-    "bytes": 4821,
-    "sha256": "a464f09ae7849fd5bd89c8074454583d545450c9a57d6b03ba61071a1392e863"
+    "bytes": 14143,
+    "sha256": "dd1450567722fd9029dcb7bab2fd4715ae9a8ce7154625106319ee6d5fa943f5"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_tide.png",

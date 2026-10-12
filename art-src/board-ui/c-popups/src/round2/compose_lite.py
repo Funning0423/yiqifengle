@@ -82,9 +82,7 @@ def region_window(rid,w,h,lock=False,placeholder=False):
     # 窗沿：一圈 3 px 浅木线 + 内侧 1 px 高光，像嵌进路牌里
     o=Image.new('RGBA',(w+8,h+8),(0,0,0,0)); od=ImageDraw.Draw(o); od.rounded_rectangle((0,0,w+7,h+7),radius=20,fill=(196,166,118,255) if not lock else (198,190,176,255))
     o.alpha_composite(im,(4,4)); od=ImageDraw.Draw(o); od.rounded_rectangle((4,4,w+3,h+3),radius=16,outline=(255,250,236,90),width=1)
-    if placeholder:
-        f=font(20,False); tw=od.textlength('占位',font=f)
-        od.rounded_rectangle((w-tw-20,h-26,w+2,h+0),radius=11,fill=(255,250,238,200)); od.text((w-tw/2-9,h-13),'占位',font=f,fill=(140,124,100),anchor='mm')
+    # placeholder marks the source as stand-in art. Do not stamp 「占位」 on the picture: players see the journey book.
     return o
 
 def journey_lite():

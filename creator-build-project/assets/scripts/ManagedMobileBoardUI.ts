@@ -523,7 +523,9 @@ export class ManagedMobileBoardUI extends Component {
     if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
     const gained = items.map(i => i.kind);
-    openReward(this.popups, items, this.toolArt, { chest: chest || !memento, description: memento ? '地区印记收进旅程册了。' : '海风吹开了宝箱，收进行囊吧。', done: () => { for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
+    const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
+    const desc = memento ? '地区印记收进旅程册了。' : region && !chest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
+    openReward(this.popups, items, this.toolArt, { chest: !!chest, description: desc, done: () => { if (behind && behind.alive) behind.root.active = true; for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
   }
   private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {

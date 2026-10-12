@@ -232,7 +232,7 @@ export function jointAngleDeg(a:Float64Array,b:Float64Array,i:number):number {co
 /* ---------------- clip clock: which clips, at what time, with which weights ---------------- */
 export interface ClipInfo {has(name:string):boolean;duration(name:string):number}
 /** rate: distance clips advance rate x ds / nativeSpeed (1 = locked to the ground; != 1 only for the stop-entry stride warp). */
-type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:number;duration:number;endedReported:boolean;rate:number};
+type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:number;duration:number;endedReported:boolean;rate:number;pinned:boolean};
 export type PlanLayer={clip:string;time:number;weight:number;mode:LayerMode;mask:ReadonlyArray<string>;referenceTime:number};
 /** morph: every layer the morph curves read (same clip/time/weight as `layers`, plus a curve-only apron_lift timeline when the
  *  glb has no apron_lift clip yet but anim_meta has its morph curves). */
@@ -263,9 +263,12 @@ export class MotionClock {
     this.cfg={clips,windToFlutter:cfg.windToFlutter,apronLiftThreshold:cfg.apronLiftThreshold,windMask:cfg.windMask,idleGust:cfg.idleGust,source:cfg.source,morphMesh:cfg.morphMesh,morphTargets:cfg.morphTargets,windToMorphFlutter:cfg.windToMorphFlutter,morphMeshes};}
   meta(name:string):ClipMeta|null {return this.cfg.clips[name]||null;}
   private track(name:string,loop:boolean,time:number):Track {const m=this.meta(name),d=this.info.duration(name);const ns=m&&m.nativeSpeed!==undefined?m.nativeSpeed:name===CLIP_ROLES.walk?DEFAULT_NATIVE_SPEED:0;
-    return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false,rate:1};}
+    return {clip:name,abs:Math.max(0,time),loop,distance:ns>0,nativeSpeed:ns,duration:d>0?d:1,endedReported:false,rate:1,pinned:false};}
   /** Stride warp of the base distance clip (walk_loop, see STOP_WARP_MAX) or clock rate of a time clip (walk_start, START_RATE_MAX). */
   setRate(rate:number){if(this.base)this.base.rate=rate>0&&isFinite(rate)?rate:1;}
+  /** Freeze the base clip on its current frame (settled stop pose). A later tick does not advance it or fire ended again. */
+  holdBase(){const b=this.base;if(!b||b.loop)return;if(b.abs>b.duration)b.abs=b.duration;b.pinned=true;b.endedReported=true;}
+  releaseHold(){if(this.base)this.base.pinned=false;}
   /** keep=true: same clip already base -> nothing changes (phase continuity). fade<0: use crossfadeS. Returns true when switched. */
   play(name:string,loop:boolean,opts?:{fade?:number;time?:number;keep?:boolean}):boolean {const o=opts||{};
     if(o.keep!==false&&this.base&&this.base.clip===name&&this.base.loop===loop)return false;
@@ -276,7 +279,7 @@ export class MotionClock {
   /** ds: metres travelled this frame along the walk (null = not walking -> distance clips hold their phase). */
   /** snapAbs: set the base clock to exactly this absolute time (stop entry lands ON the heel strike; events crossed inclusive). */
   tick(dt:number,ds:number|null,wind:number,snapAbs?:number):TickResult {const res:TickResult={foot:[],ended:null,apronLift:null};const b=this.base;
-    if(b){const prev=b.abs;if(snapAbs!==undefined&&snapAbs>=prev)b.abs=snapAbs;else b.abs+=b.distance?(ds!==null&&ds>0?ds/b.nativeSpeed*b.rate:0):dt*b.rate;const m=this.meta(b.clip);
+    if(b){const prev=b.abs;if(!b.pinned){if(snapAbs!==undefined&&snapAbs>=prev)b.abs=snapAbs;else b.abs+=b.distance?(ds!==null&&ds>0?ds/b.nativeSpeed*b.rate:0):dt*b.rate;}const m=this.meta(b.clip);
       if(m&&m.events.length){const ev=crossedEvents(m.events,prev,b.abs,b.duration,b.loop);for(let i=0;i<ev.length;i++)res.foot.push({def:ev[i].def,cycle:ev[i].cycle,abs:ev[i].abs,clip:b.clip,duration:b.duration});}
       if(!b.loop&&b.abs>=b.duration&&!b.endedReported){b.endedReported=true;res.ended=b.clip;}}
     if(this.out){const o=this.out;o.abs+=o.distance?(ds!==null&&ds>0?ds/o.nativeSpeed*o.rate:0):dt*o.rate;this.fadeT+=dt;if(this.fadeT>=this.fadeS)this.out=null;}
@@ -313,17 +316,18 @@ export class MotionClock {
 /** Stop-clip role for the planted body foot (null when that clip does not exist). */
 export function stopRole(info:ClipInfo,planted:Body|null):string|null {if(!planted)return null;const r=planted==='L'?CLIP_ROLES.stopL:CLIP_ROLES.stopR;return info.has(r)?r:null;}
 /** Unplanned stop (the walk was not known to end at rest): a stop clip with a forward_m curve is entered at the end of its
- *  root travel (curveSettleTime), so the root does not move: no slide, no overshoot past the path end. The variant is the
- *  one whose planted body foot at that time is the walk's planted foot (the crossfade moves the free foot only).
- *  In-place stop clips (no forward curve): stopRole, from frame 0 (old behaviour). null = no stop clip -> idle.
- *  A tail shorter than CROSSFADE_S (root still travelling until the last frames, e.g. the CMU mocap stops) is not used:
- *  the clip would end inside the crossfade and hard-cut to idle, so the walk crossfades to idle instead. */
+ *  root travel (curveSettleTime), so the root does not move: no slide, no overshoot past the path end. Prefer the variant
+ *  whose planted body foot at that frame is the walk's planted foot. CMU stops plant the other foot before the root
+ *  settles and keep travelling until the last frame (tail shorter than CROSSFADE_S): still return stopRole at the settle
+ *  frame. The driver holds that pose for TURN_FOLD_MIN_S, so the crossfade has a stable target and a < 45 deg turn can
+ *  fold into the hold instead of spinning on idle. In-place stop clips (no forward curve): stopRole, from frame 0. */
 export function stopTail(info:ClipInfo,cfg:MotionConfig,planted:Body|null):{clip:string;time:number}|null {if(!planted)return null;
-  const names=[CLIP_ROLES.stopL,CLIP_ROLES.stopR];
+  const names=[CLIP_ROLES.stopL,CLIP_ROLES.stopR];let fallback:{clip:string;time:number}|null=null;
   for(let i=0;i<names.length;i++){const n=names[i];if(!info.has(n))continue;const m=cfg.clips[n],f=m&&m.root&&m.root.forward;
     if(!f){if(n===stopRole(info,planted))return {clip:n,time:0};continue;}
-    const d=info.duration(n),t=Math.min(curveSettleTime(f),d);if(d-t<CROSSFADE_S)continue;if(plantedBody(m!.events,t)===planted)return {clip:n,time:t};}
-  return null;}
+    const d=info.duration(n),t=Math.min(curveSettleTime(f),d);if(plantedBody(m!.events,t)===planted)return {clip:n,time:t};
+    if(n===stopRole(info,planted))fallback={clip:n,time:t};}
+  return fallback;}
 /** In-place turn role: |delta| >= 135 deg -> walk_turn_180; >= 45 deg -> walk_turn_90_body{L|R} by turn side (positive yaw =
  *  turning to her left -> bodyL, the inside foot pivots); otherwise / missing clip -> null (idle + controller yaw). */
 export function turnRole(info:ClipInfo,deltaRad:number):string|null {const a=Math.abs(deltaRad)*180/Math.PI;

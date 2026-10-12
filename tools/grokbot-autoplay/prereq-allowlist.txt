@@ -217,3 +217,13 @@ strict  9971d4c3c4dd7dad0b6dea70ac7f981513ddc39b0060bbf1b3bc3a8fdf2834e9 WorldIn
 # sit-drape (cloud-tasks/03-sit-drape.md): one MorphDriver per anim_meta morph mesh (LOD0_G2_APRON + LOD0_G2_DRESS). Glue reviewed:
 #  Boot fields T0 reads unchanged; __worldIntegration.morph() keeps the apron driver's fields (status/reason/...) + meshes[]. Append only.
 strict  ce910326276e900e83ffe8ba3ae25fbf5b25822701159491bf5550ae122d7738 WorldIntegrationBoot.ts          sit-drape multi-mesh morph driver
+# r6 follow-up: <45 deg arrival turn holds the settled stop pose (TURN_FOLD_MIN_S) instead of spinning on idle.
+#  Glue reviewed: Boot fields T0 reads unchanged; stopHold is private to FlowReferenceStandin. Result panel is hidden
+#  while the reward popup is open (hostPresentation / hostModalOpen unchanged). Region-tool claims no longer call
+#  onClaimResult (chest opens and mementos still do). Append only.
+strict  6e83d0505ea91faadd2fbf52337bc19a2ca47259f0bbe5188164a8c3cc1a3ecf WorldIntegrationBoot.ts          r6 stop-pose hold for <45 deg turns
+observe 9dfb555f0939a54f43a0355ffcf50e215af71ec19e8b45a5e0ac594804e77483 ManagedMobileBoardUI.ts          r6 result/reward layout; hide result under reward popup
+observe e88d468e214bfcaefcafc8d3cf358b79d9a106735399f48d2edd2e39bf45d980 audio/AudioBridge.ts            r6 region-tool claim does not play sfx_chest_open
+# exit-camera pace (34fd323, merged 195159c): optional cameraSettle on the outbound settle clock. Glue reviewed:
+#  walk(path, cameras|null, token), config paths, onDoorShut and the island turn action are unchanged. Append only.
+observe 8a838a857e965a1da7c67ff0ebd47a55174c5593a28644c9e81e5510ff04e48a world-r1/WorldFlowCore.ts         exit-camera pace 34fd323 (int/v1 195159c)

@@ -191,7 +191,7 @@ export function openReward(stack: PopupStack, items: RewardItem[], legacy: ToolA
     chest.node.active = false;
     void chest.load().then(ok => { if (!ok || !chest || !isValid(chest.node, true)) return; chest.node.active = true; if (fallback && isValid(fallback.node, true)) fallback.node.active = false; chest.open(!reducedMotion()); });
   }
-  const n = Math.min(3, items.length), xs = n === 1 ? [0] : n === 2 ? [-110, 110] : [-180, 0, 180], ys = n === 3 ? [118, 84, 118] : [100, 100];
+  const n = Math.min(3, items.length), xs = n === 1 ? [0] : n === 2 ? [-110, 110] : [-180, 0, 180], ys = n === 3 ? [220, 186, 220] : [200, 200];
   const itemNodes: Node[] = [];
   for (let i = 0; i < n; i++) {
     const it = items[i], holder = uiNode('Gain-' + it.kind, p.body, 140, 140); itemNodes.push(holder);

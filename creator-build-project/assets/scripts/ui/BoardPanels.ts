@@ -50,7 +50,8 @@ export interface ResultModel {
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
-  const rewardsH = m.kind === 'win' && m.rewards.length ? 200 : 0, nextH = m.kind === 'win' && !m.next ? -120 : 0;
+  const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
+  const rewardsH = m.kind === 'win' && m.rewards.length ? (wideReward ? 256 : 200) : 0, nextH = m.kind === 'win' && !m.next ? -120 : 0;
   const ph = m.kind === 'win' ? 808 + rewardsH + nextH : m.kind === 'lose' ? (m.chestHint ? 920 : 808) - (m.replay ? 0 : 120) : m.kind === 'unsaved' ? (m.chestHint ? 880 : 768) : 680;
   const p = stack.open({ name: 'ResultPanel', height: ph, title: TITLES[m.kind][0], titleArt: TITLES[m.kind][1] });
   const starNodes = stars(p, 184, m.kind === 'lose' ? 0 : m.stars ?? 0);
@@ -64,8 +65,8 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     p.well(0, 472, 196, 48, [224, 238, 232], 24); p.text('成绩已保存', 0, 472, 28, 'teal', { bold: false });
     y = 600;
     if (m.rewards.length) {
-      const n = m.rewards.length, step = n === 1 ? 0 : n === 2 ? 220 : 200;
-      for (let i = 0; i < n; i++) rewardSlot(p, m.rewards[i], (i - (n - 1) / 2) * step, y, legacy);
+      const n = m.rewards.length, step = n === 1 ? 0 : n === 2 ? (wideReward ? 280 : 220) : 200;
+      for (let i = 0; i < n; i++) rewardSlot(p, m.rewards[i], (i - (n - 1) / 2) * step, y, legacy, wideReward);
       y += rewardsH;
     }
     if (m.next) { p.button('primary', '下一关', 0, y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }); p.button('secondary', '回小岛', 0, y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
@@ -96,12 +97,13 @@ function chestLine(p: PopupPanel, y: number, text: string) {
   const s = p.sprite('popup/chest_closed', -150, y, 144, undefined, 'half'); s.grayscale = true; p.tint.setBase(s, [255, 255, 255], 153);
   p.text(text, -60, y, 28, 'brown2', { align: 'left', width: 320, bold: false });
 }
-function rewardSlot(p: PopupPanel, r: ResultReward, x: number, y: number, legacy: ToolArtSource | null) {
-  if (r.iconKind === 'tool' && r.tool) toolArt(p, r.tool, x, y - 20, 120, legacy);
-  else { const s = p.sprite(r.icon, x, y - 20, r.iconKind === 'seal' ? undefined : 150, r.iconKind === 'seal' ? 112 : undefined, r.iconKind === 'chest' ? 'half' : 'ui'); if (r.state === 'locked') s.grayscale = true; }
-  if (r.state === 'claimed') { p.sprite('popup/stamp_claimed', x + 40, y - 40, 112, 112).node.setRotationFromEuler(0, 0, 12); p.text(r.label, x, y + 76, 24, 'brown2', { bold: false, width: 200 }); }
-  else if (r.state === 'ready' && r.claim) p.button('secondary', r.label, x, y + 76, 176, 64, r.claim, { fontSize: 26, name: 'Claim-' + r.id });
-  else p.text(r.label, x, y + 76, 24, 'grey', { bold: false, width: 200 });
+function rewardSlot(p: PopupPanel, r: ResultReward, x: number, y: number, legacy: ToolArtSource | null, wide = false) {
+  if (r.iconKind === 'tool' && r.tool) toolArt(p, r.tool, x, y - 36, 120, legacy);
+  else { const s = p.sprite(r.icon, x, y - 36, r.iconKind === 'seal' ? undefined : 150, r.iconKind === 'seal' ? 112 : undefined, r.iconKind === 'chest' ? 'half' : 'ui'); if (r.state === 'locked') s.grayscale = true; }
+  const by = y + 112, bw = wide && r.label.length >= 6 ? 248 : 176;
+  if (r.state === 'claimed') { p.sprite('popup/stamp_claimed', x + 40, y - 56, 112, 112).node.setRotationFromEuler(0, 0, 12); p.text(r.label, x, by, 24, 'brown2', { bold: false, width: bw }); }
+  else if (r.state === 'ready' && r.claim) p.button('secondary', r.label, x, by, bw, 64, r.claim, { fontSize: r.label.length >= 6 ? 24 : 26, name: 'Claim-' + r.id });
+  else p.text(r.label, x, by, 24, 'grey', { bold: false, width: bw });
 }
 /** Three stars, middle one larger; empty stars dimmed (alpha 0.75). Chest and stars take the half night tint. */
 function stars(p: PopupPanel, cy: number, filled: number): Node[] {
