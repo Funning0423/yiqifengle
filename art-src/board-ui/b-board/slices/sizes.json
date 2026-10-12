@@ -154,26 +154,26 @@
  {
   "file": "tool_starlight.png",
   "group": "道具",
-  "w": 192,
-  "h": 192,
-  "bytes": 9755,
-  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+  "w": 768,
+  "h": 768,
+  "bytes": 77660,
+  "note": "768²；无货用 Sprite.grayscale；焦点调色"
  },
  {
   "file": "tool_windbell.png",
   "group": "道具",
-  "w": 192,
-  "h": 192,
-  "bytes": 9320,
-  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+  "w": 768,
+  "h": 768,
+  "bytes": 71989,
+  "note": "768²；无货用 Sprite.grayscale；焦点调色"
  },
  {
   "file": "tool_tidebottle.png",
   "group": "道具",
-  "w": 192,
-  "h": 192,
-  "bytes": 9376,
-  "note": "192²；无货用 Sprite.grayscale；焦点调色"
+  "w": 768,
+  "h": 768,
+  "bytes": 77408,
+  "note": "768²；无货用 Sprite.grayscale；焦点调色"
  },
  {
   "file": "bg_island_board.jpg",

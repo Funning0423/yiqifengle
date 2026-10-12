@@ -19,7 +19,11 @@ for n in ['icon_moves']:
     im=L(n); im=im.crop(im.getbbox()); save(im,n,'托盘/HUD')
 p=L('hud_pause'); p=p.crop(p.getbbox()); save(p,'hud_pause','HUD')
 pl=L('hud_levelplate'); pl=pl.crop(pl.getbbox()); pl=pl.resize((411,round(pl.height*411/pl.width)),Image.LANCZOS); save(pl,'hud_levelplate','HUD','可九宫格拉伸')
-for n in ['tool_starlight','tool_windbell','tool_tidebottle']: save(focus_grade(L(n)),n,'道具','192²；无货用 Sprite.grayscale；焦点调色')
+for n in ['tool_starlight','tool_windbell','tool_tidebottle']:
+    im=focus_grade(L(n)); side=768 if im.width>=768 else 192
+    if im.width<side or im.height<side: raise SystemExit('refuse upscale '+n)
+    if im.size!=(side,side): im=im.resize((side,side),Image.LANCZOS)
+    save(im,n,'道具','%d²；无货用 Sprite.grayscale；焦点调色'%side)
 # background
 soft=bg_post(BGRAW)
 bp=os.path.join(SL,'bg_island_board.jpg'); soft.save(bp,quality=70,optimize=True,progressive=True,subsampling=2)

@@ -77,6 +77,18 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert.equal(inPopup(b, 'BagPanel', 'tool_windbell').getComponent(H.cc.Sprite).spriteFrame, lib.frame('board/tool_windbell'), 'level bag mainline stays on the board slice');
     H.tap(inPopup(b, 'BagPanel', 'OpenChest-0')); b.step(0.3); assert.deepEqual(log.commands.at(-1), ['openChest', 0]);
     H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); assert.equal(top(b), 'SettingsPanel'); for (const n of ['MusicVolume', 'SfxToggle', 'ReducedMotion', 'AboutRow']) assert(inPopup(b, 'SettingsPanel', n), n);
+    const vis = n => { const t = n.getComponent(H.cc.UITransform); return [Math.round(t.width * n.scale.x), Math.round(t.height * n.scale.y)]; };
+    const dayPlate = inPopup(b, 'SettingsPanel', 'Day').find('Plate');
+    assert.deepEqual(vis(dayPlate), [136, 62], 'day button keeps its design size');
+    assert.equal(dayPlate.getComponent(H.cc.Sprite).type, H.cc.Sprite.Type.SLICED);
+    assert.equal(dayPlate.getComponent(H.cc.Sprite).spriteFrame.insetLeft, 207);
+    assert.ok(dayPlate.getComponent(H.cc.Sprite).spriteFrame.originalSize.height >= 312);
+    const frameN = inPopup(b, 'SettingsPanel', 'PanelFrame');
+    assert.deepEqual(vis(frameN), [680, 768], 'settings frame keeps its design size');
+    assert.equal(frameN.getComponent(H.cc.Sprite).spriteFrame.insetTop, 276);
+    const music = inPopup(b, 'SettingsPanel', 'icon_music');
+    assert.equal(music.getComponent(H.cc.UITransform).height, 56);
+    assert.equal(music.scale.x, 1, 'unsliced icons stay in their box');
     assert(labels(b, 'SettingsPanel').includes('v0.1 · 构建 dev'));
     H.tap(inPopup(b, 'SettingsPanel', 'AboutRow')); assert.equal(top(b), 'AboutPanel'); assert(labels(b, 'AboutPanel').includes('v0.1 · 构建 dev'));
     b.u.popups.close('AboutPanel'); b.u.popups.close('SettingsPanel'); b.step(0.3);

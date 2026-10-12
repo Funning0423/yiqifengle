@@ -1666,8 +1666,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
-    "bytes": 7677,
-    "sha256": "210b598d2f10d94d48a0f78c7ffc9054b10d39b9e9abd93c4d0d518c50742d3a"
+    "bytes": 8147,
+    "sha256": "661075fd1ca77282bb7be2cc34e0c228d9e21acabb3af7046854826f9c458fc1"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
@@ -1756,8 +1756,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 23516,
-    "sha256": "9f9a79bf5a2808667540ae66901a38a24156de773f83ca6eb3c3f35843590ca0"
+    "bytes": 23728,
+    "sha256": "5755117d32b4ff103a299e63129dbbad47a84704a118acc89c20c94c1eea8515"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",

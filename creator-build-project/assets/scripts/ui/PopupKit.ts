@@ -1,6 +1,6 @@
 import { BlockInputEvents, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
-import { BoardArt } from './BoardArt';
+import { ART_PX, BoardArt } from './BoardArt';
 import { textRgb, tintRgb, uiNightWeight, type TextRole, type TintKind } from './NightTint';
 import { reducedMotion } from './UiPrefs';
 /** Unified popup kit (INTEGRATION §3): one light-wood 9-slice frame without pegs, width 680 px of the 750 design,
@@ -54,9 +54,12 @@ export function artSprite(parent: Node, key: string, x: number, y: number, width
   const art = BoardArt.shared(), size = art.size(key), n = uiNode(name || key.split('/').pop() || 'Art', parent);
   const w = width ?? (height !== undefined && size.height ? size.width * height / size.height : size.width);
   const h = height ?? (width !== undefined && size.width ? size.height * width / size.width : size.height);
-  n.getComponent(UITransform)!.setContentSize(w, h); n.setPosition(x, y, 0);
+  const f = art.frame(key);
+  const sliced = !!(f && (f.insetLeft || f.insetRight || f.insetTop || f.insetBottom) && width !== undefined && height !== undefined);
+  const px = sliced ? (ART_PX[key] || 1) : 1;
+  n.getComponent(UITransform)!.setContentSize(w * px, h * px); if (px !== 1) n.setScale(1 / px, 1 / px, 1); n.setPosition(x, y, 0);
   const s = n.addComponent(Sprite); s.sizeMode = Sprite.SizeMode.CUSTOM; s.trim = false;
-  const f = art.frame(key); if (f) { s.spriteFrame = f; if ((f.insetLeft || f.insetRight || f.insetTop || f.insetBottom) && width !== undefined && height !== undefined) s.type = Sprite.Type.SLICED; }
+  if (f) { s.spriteFrame = f; if (sliced) s.type = Sprite.Type.SLICED; }
   return s;
 }
 export interface LabelOptions { width?: number; height?: number; bold?: boolean; align?: 'left' | 'center' | 'right'; lines?: number; name?: string }
@@ -144,9 +147,10 @@ export function artSlider(parent: Node, tint: TintSet, x: number, y: number, w: 
   const fillUi = fill.node.getComponent(UITransform)!; fillUi.setAnchorPoint(0, 0.5);
   const knob = artSprite(node, 'popup/toggle_knob', 0, 0, h * 1.5, h * 1.5, 'Knob'); tint.sprite(knob, 'ui');
   let v = Math.max(0, Math.min(1, value));
+  const fillPx = ART_PX['popup/toggle_on'] || 1;
   const paint = () => {
     fill.node.active = v > 0.001; fill.node.setPosition(-w / 2, 0, 0);
-    if (v > 0.001) fillUi.setContentSize(Math.max(w * v, 0.01), h);
+    if (v > 0.001) fillUi.setContentSize(Math.max(w * v, 0.01) * fillPx, h * fillPx);
     knob.node.setPosition(-w / 2 + w * v, 0, 0);
   };
   paint();

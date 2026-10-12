@@ -6,6 +6,9 @@ import bpy, bmesh, math, sys, os, json, random
 from mathutils import Vector, Matrix
 argv=sys.argv[sys.argv.index('--')+1:]
 OUT=argv[0]; SAMPLES=int(argv[1]) if len(argv)>1 else 64; ONLY=set(argv[2].split(',')) if len(argv)>2 and argv[2] else None
+# 1 keeps the signed-off camera pixels. Higher values re-render the same framing (phone close-ups were magnifying the small PNGs).
+RES_SCALE=int(os.environ.get('POPUP_RES_SCALE','1') or '1')
+TOOL_SCALE=int(os.environ.get('POPUP_TOOL_SCALE', str(RES_SCALE)) or str(RES_SCALE))
 HERE=os.path.dirname(os.path.abspath(__file__))
 exec(open(os.path.join(HERE,'palette_helpers.py')).read())   # TEX, SW, MAT, finish/prism/rrect/xform/box/cyl/ico/uvs/tube/sweep/star_profile/deform/join
 SW.update({k:sw(*v) for k,v in dict(btnTeal=(50,9),lamp=(182,13),coral=(150,6),moon=(200,12),sun=(150,13),
@@ -735,6 +738,9 @@ cur_parts=[o for v in CUR.values() for o in v]
 sc=bpy.context.scene
 sc.render.engine='CYCLES'; sc.cycles.device='CPU'; sc.cycles.samples=SAMPLES; sc.cycles.use_denoising=True
 sc.render.film_transparent=True; sc.render.image_settings.file_format='PNG'; sc.render.image_settings.color_mode='RGBA'
+if os.environ.get('POPUP_THREADS'):
+    sc.render.threads_mode='FIXED'; sc.render.threads=int(os.environ['POPUP_THREADS'])
+if RES_SCALE>1 or TOOL_SCALE>1: sc.render.use_persistent_data=True
 sc.view_settings.view_transform='Standard'; sc.view_settings.look='None'
 w=bpy.data.worlds.new('sky'); sc.world=w; w.use_nodes=True
 bg=w.node_tree.nodes['Background']; bg.inputs['Color'].default_value=(0.62,0.80,0.95,1); bg.inputs['Strength'].default_value=0.55
@@ -804,7 +810,8 @@ for name,ob,kind,mode in jobs:
     up=Vector((0,1,0)) if el>=89 else Vector((0,0,1))
     cam.rotation_euler=(-d).to_track_quat('-Z','Y').to_euler() if el<89 else (0,0,0)
     cd.ortho_scale=osc; cd.sensor_fit='HORIZONTAL'
-    sc.render.resolution_x=rx; sc.render.resolution_y=ry
+    kscale=TOOL_SCALE if kind=='tool' else RES_SCALE
+    sc.render.resolution_x=rx*kscale; sc.render.resolution_y=ry*kscale
     sc.render.filepath=os.path.join(OUT,'raw',name+'.png')
     bpy.ops.render.render(write_still=True)
     meta[name]={'kind':kind,'cam':CAMS[kind],'tris':(sum(len(p.vertices)-2 for p in ob.data.polygons) if ob else 0)+(sum(len(p.vertices)-2 for p in CL.data.polygons) if kind=='chest' and ob else 0)}

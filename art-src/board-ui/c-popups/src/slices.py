@@ -3,6 +3,7 @@ import sys, os, json, subprocess, shutil, math
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from ui_kit import *
 from compose import rays
+import sharpen_slices as SH
 OUT=sys.argv[1] if len(sys.argv)>1 else '..'; SL=os.path.join(OUT,'slices'); os.makedirs(SL,exist_ok=True)
 for f in os.listdir(SL): os.remove(os.path.join(SL,f))
 rows=[]
@@ -19,15 +20,10 @@ def compact(im,l,t,mid=24):
     for (a0,a1,dx) in xs:
         for (b0,b1,dy) in ys: o.alpha_composite(im.crop((a0,b0,a1,b1)),(dx,dy))
     return o
-fr=scaled(L('panel_frame_clean'),FRAME_SCALE); ins=round(FRAME_INS[0]*FRAME_SCALE)
-save(compact(fr,ins,ins),'panel_frame_9s','弹窗框',f'精简版（无角钉）。九宫格 insets {ins} px（四边相同），中心 24 px 可拉伸；所有弹窗宽 680')
-pl=scaled(A('title_plank_clean'),0.56); e=round(150*0.56); save(compact(pl,e,0),'title_plank_3s','弹窗框','精简版（无绳无钉）。三宫格：左右各 %d px 不拉伸'%e)
-for k in ('primary','secondary'):
-    b=fith(A('btn_'+k),104); e=round(110*104/A('btn_'+k).height); save(compact(b,e,0),'btn_%s_3s'%k,'通用按钮','三宫格：左右各 %d px 不拉伸；高 104 = 54pt'%e)
-save(fitw(A('btn_close'),96),'btn_close','通用按钮','命中区 ≥44pt')
+RAW_DIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'raw')
+for name,im,group,note in SH.frame_and_buttons(RAW_DIR): save(im,name,group,note)
 for k in ('restart','bag','settings'): save(fitw(A('tile_'+k),150),'tile_'+k,'暂停图标')
-for k in ('music','sfx','sun','moon','motion','home','about','play'): save(fith(A('icon_'+k),84 if k!='play' else 56),'icon_'+k,'小图标')
-save(fith(A('toggle_on'),56),'toggle_on','开关','也做音乐音量滑条的已填充段（三宫格，左右各 28 px）'); save(fith(A('toggle_off'),56),'toggle_off','开关','也做音乐音量滑条的轨道（三宫格）'); save(fith(A('toggle_knob'),48),'toggle_knob','开关','跟随 isOn 左右移动 0.15 s')
+for name,im,group,note in SH.icons_and_toggles(RAW_DIR): save(im,name,group,note)
 save(fith(A('star_full'),170),'star_full','结算'); save(fith(A('star_empty'),170),'star_empty','结算','也可用 star_full + 灰化，省 1 张')
 for rg,cn in (('tide','潮汐'),('meadow','草甸'),('sky','天空城')): save(fith(A('reward_seal_'+rg),128),'reward_seal_'+rg,'奖励','地区印记·'+cn)
 save(fitw(A('chest_body'),380),'chest_closed','宝箱(2D 备选)','只在用 2D Sprite 方案时需要')
