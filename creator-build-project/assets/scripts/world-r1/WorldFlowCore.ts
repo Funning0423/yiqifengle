@@ -48,6 +48,8 @@ export interface CharacterAdapter {
   /** Walk-duration contract (optional): distance-travelled fraction 0..1 of the CURRENT walk action, null/undefined when
    *  not walking. When present, camera track progress follows distance instead of elapsed time. */
   walkProgress?():number|null;
+  /** Seconds to fade the fixed sitting mesh back to the skeleton before stand_up. 0 = already on the skeleton (snap). */
+  beginStandFade?():number;
 }
 /** T2+: camera events for audio/debug/HUD sequencing (no logging here). crane-start: the outbound lens first faces her
  *  on the single exit arc (rotation, dolly and lift are already one move; this is not a second phase).
@@ -208,7 +210,7 @@ export function rejoinSeconds(from:Pose,home:Pose):number {
   return deg<.5?0:Math.max(.5,Math.min(2.0,deg/75));
 }
 export class WorldFlow {
-  private state:State='idle'; private stable:Place='home'; private mode:Mode;
+  private state:State='idle'; private stable:Place='home'; private homeStance:'chair'|'window'='chair'; private mode:Mode;
   private hidden=false; private needsResume=false; private error:string|null=null;
   private current:Cancellation|null=null; private world:WorldLease|null=null; private level:LevelLease|null=null;
   private character:CharacterAdapter|null; private readonly config:RouteConfig;
@@ -248,7 +250,15 @@ export class WorldFlow {
       c.clearanceRadiusM>0&&c.clearanceRadiusM<=.18&&distance(c.standingRoot,s.standingControllerRoot)<1e-4&&
       distance(c.seatedRoot,s.seatedControllerRoot)<1e-4&&Math.abs(c.seatYawRad-s.yawRad)<1e-5);
   }
-  private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
+  private pose():StablePose {
+    if(this.stable==='home'&&this.homeStance==='window')return {kind:'standing',controllerRoot:this.config.seat.standingControllerRoot,yawRad:this.config.seat.yawRad};
+    return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};
+  }
+  /** 「坐下」/「起身」 while the room is idle. Empty when a transition owns her. */
+  seatLabel():''|'坐下'|'起身' {
+    if(this.state!=='home'||this.hidden||this.needsResume||!this.characterReady())return '';
+    return this.homeStance==='window'?'坐下':'起身';
+  }
   private restore():void {
     this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.islandDoorDeg());
@@ -376,10 +386,11 @@ export class WorldFlow {
         const stand=this.character?.actionSeconds?.('stand'),standS=stand&&stand>0&&Number.isFinite(stand)?stand:1.0,turnS=this.turnSeconds();
         const from=options?.from,lead=from?rejoinSeconds(from,c.cameraHome):0,segs:SpanSegment[]=[];
         if(lead>0)segs.push({seconds:lead,cameras:[{...from!,progress:0},{...c.cameraHome,progress:1}],run:tk=>this.waitSeconds(lead,tk)});
-        segs.push({seconds:standS+turnS,cameras:c.cameraStandTurn,run:async tk=>{await this.action({kind:'stand',seat:c.seat},tk);tk.check();this.change('turning-out');await this.action(turn,tk);}});
+        const fromWindow=this.homeStance==='window';
+        segs.push({seconds:standS+turnS,cameras:c.cameraStandTurn,run:async tk=>{if(fromWindow)await this.waitSeconds(standS,tk);else await this.action({kind:'stand',seat:c.seat},tk);tk.check();this.change('turning-out');await this.action(turn,tk);}});
         await this.span(segs,t,c.cameraTracks.standTurn);
       } else {
-        await this.action({kind:'stand',seat:c.seat},t);
+        if(this.homeStance==='window')await this.waitSeconds(this.character?.actionSeconds?.('stand')||1,t);else await this.action({kind:'stand',seat:c.seat},t);
         if(this.mode==='motion'){const k=c.cameraHomeToDoor??[c.cameraHome,c.cameraToDoor[0]],o=c.cameraTracks?.homeToDoor;await t.wait(o?this.world!.animateCamera(k,1,t,o):this.world!.animateCamera(k,1,t));}
         t.check();this.change('turning-out');await this.action(turn,t);
       }
@@ -466,7 +477,9 @@ export class WorldFlow {
       // 'closing-door' still marks this legacy stop. The shut event waits until animateDoor has put the leaf at 0.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();
       this.homeLayers();this.emitDoorShut();this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t);
-      this.change('sitting');await this.action({kind:'sit',seat:c.seat},t);
+      this.change('sitting');const sitClip=this.character?.actionSeconds?.('sit'),clipOk=!!sitClip&&sitClip>0&&Number.isFinite(sitClip),settle=clipOk?this.character?.actionSettleSeconds?.('sit'):undefined;
+      const sitS=this.turnSeconds()+(clipOk?(settle!==undefined&&settle>0&&settle<=sitClip!?settle:sitClip!):1.0);
+      await this.holdWindow(t,sitS);
       this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
     });
   }
@@ -490,7 +503,7 @@ export class WorldFlow {
     segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'));
     if(stop)segs.push({seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();this.emitDoorShut();}});
     segs.push(this.walkSegment(c.toSeat,E.seat,'walking-to-seat'),
-      {seconds:sitS,cameras:E.sit,state:'sitting',run:tk=>this.action({kind:'sit',seat:c.seat},tk)});
+      {seconds:sitS,cameras:E.sit,state:'sitting',run:tk=>this.holdWindow(tk,sitS)});
     const total=segs.reduce((x,g)=>x+g.seconds,0),a=Math.max(0,o.easeIn??0),b=Math.max(0,o.easeOut??0);
     let a2=a*(tIn+crossS)/total,b2=Math.max(0,Math.min(.5,a+b-a2));
     if(E.easeInSeconds!==undefined||E.easeOutSeconds!==undefined){a2=Math.max(0,Math.min(.5,(E.easeInSeconds??0)/total));b2=Math.max(0,Math.min(.5,(E.easeOutSeconds??0)/total));}
@@ -513,6 +526,39 @@ export class WorldFlow {
     // its closing-door segment. Either way the public shut event is this moment, not the 'closing-door' state change.
     await this.span(segs,t,track,undefined,undefined,door,keyMap,{onDoorShut:()=>{if(!stop)this.homeLayers();this.emitDoorShut();},shutAfter});
     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
+  }
+  /** Former sit segment: she is already at the window (standingRoot). Turn to the seat yaw if the path
+   * heading differs, then idle-hold for the rest of `seconds` so the camera segment keeps its length.
+   * State name stays 'sitting'. Does not play sit_down and does not move the root onto the chair. */
+  private async holdWindow(token:Cancellation, seconds:number):Promise<void> {
+    const c=this.config,root=c.seat.standingControllerRoot,from=pathHeading(c.toSeat),to=c.seat.yawRad;
+    const delta=Math.atan2(Math.sin(to-from),Math.cos(to-from));let used=0;
+    if(Math.abs(delta)>0.001){await this.action({kind:'turn',controllerRoot:root,fromYawRad:from,toYawRad:to,direction:'left'},token);used=this.turnSeconds();}
+    await this.waitSeconds(Math.max(0,seconds-used),token);
+    // The camera segment may end at the settle frame. 'home' still waits until sit_down would have ended.
+    const clip=this.character?.actionSeconds?.('sit'),settle=clip?this.character?.actionSettleSeconds?.('sit'):undefined;
+    if(clip&&settle!==undefined&&settle>0&&settle<clip)await this.waitSeconds(clip-settle,token);
+    this.homeStance='window';
+  }
+  /** 「坐下」: existing sit_down, then the adapter fades to the fixed mesh. Only from the window. */
+  async sitDown():Promise<Result> {
+    const fail=this.blocked('home',true);if(fail)return fail;
+    if(this.homeStance!=='window')return {ok:false,reason:'already-seated'};
+    return this.operate('sitting',async t=>{
+      await this.action({kind:'sit',seat:this.config.seat},t);
+      this.homeStance='chair';this.stable='home';this.restore();this.change('home');
+    });
+  }
+  /** 「起身」: fade back to the skeleton, play stand_up, stand at the window. */
+  async standUp():Promise<Result> {
+    const fail=this.blocked('home',true);if(fail)return fail;
+    if(this.homeStance!=='chair')return {ok:false,reason:'already-standing'};
+    return this.operate('standing',async t=>{
+      const fade=this.character?.beginStandFade?.()??0;
+      if(fade>0)await this.waitSeconds(fade,t);
+      t.check();await this.action({kind:'stand',seat:this.config.seat},t);
+      this.homeStance='window';this.stable='home';this.restore();this.change('home');
+    });
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;

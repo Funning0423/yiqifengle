@@ -555,6 +555,16 @@
     "sha256": "cea6abbe29d7894652f353c47bc87476844e7ba7140e0fcb359e828905d5eeaf"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/sit-static.meta",
+    "bytes": 169,
+    "sha256": "9d02c7453bf8575ca0d4fe56de322eb916c19bbad676cdc84b54844cb7ff3fac"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/sit-static/chr_sit_static.glb.meta",
+    "bytes": 187,
+    "sha256": "fd11f361790fa134ff2ae870aa1c19bb7ee508e4185413f17b88c12d1790e15b"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/ui-props.meta",
     "bytes": 169,
     "sha256": "2ffaa2d2895d086f0eeb4c2eb7099ca63b0054db21ff63a8444c71253a2885e7"
@@ -986,8 +996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts",
-    "bytes": 5660,
-    "sha256": "119e5c2eb2724318a27e8640184dec6b0467145a0286dac5e302d9ea4d7d1e49"
+    "bytes": 6580,
+    "sha256": "5a57d8b680178dffffd3639f1f23dc050ee7459fb63e9b3ed25e616a31004e61"
   },
   {
     "path": "creator-build-project/assets/scripts/RoomExploreOverlay.ts.meta",
@@ -1908,6 +1918,16 @@
     "path": "creator-build-project/assets/scripts/world-r1/RoomLook.ts.meta",
     "bytes": 171,
     "sha256": "53d7bcd9d90d996d9b27cfdfcec3ba526fa0413dd5993025845a8f651e6968d7"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/SitStaticSwap.ts",
+    "bytes": 1627,
+    "sha256": "289d17c13efca25135fbb0e2b91506ea77e50de3eb8673958c80f7e29a0b7904"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/SitStaticSwap.ts.meta",
+    "bytes": 171,
+    "sha256": "371905edfdec7dfc07bd31f96cf1e559d12a8378848890f66fecbf65ebf33dd3"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
