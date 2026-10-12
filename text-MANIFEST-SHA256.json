@@ -1036,8 +1036,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 71535,
-    "sha256": "be4be0585f58ba93e6bc00fb90b4161ee668c54ed9a5fcd2b884bc391e65f49e"
+    "bytes": 76631,
+    "sha256": "63c76cf098af9867154f786dd7634ce81c6add76d85ea4821e53ff445c92dcbd"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1931,8 +1931,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 52171,
-    "sha256": "e95fc0c382d842a6f586774f9f10a6d06519f2b93991680b3dadcec00105a1c1"
+    "bytes": 52421,
+    "sha256": "afc787267fec231ef0d362a2e07f723773cdb682f0ad92e89e7c31fb55355f3a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1941,8 +1941,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 50543,
-    "sha256": "da0dd7753c57225174ddc0b98ed6d81a37f4cc56ff30dfa888b7fec992a5e343"
+    "bytes": 53895,
+    "sha256": "0e6374a5d4f22343390f26309c1224129bc26cd77facf1188489c4db1b01318a"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",

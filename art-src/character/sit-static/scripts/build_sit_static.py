@@ -18,7 +18,9 @@ Blender is Z-up; character numbers are glTF Y-up, +Z forward.
 import json
 import math
 import os
+import struct
 import traceback
+from ctypes import CDLL, c_bool, c_char_p, c_size_t, c_uint8, c_uint32, c_uint64, c_void_p
 
 import bmesh
 import bpy
@@ -37,8 +39,13 @@ GLB_OUT = os.path.join(OUT_DIR, 'chr_sit_static.glb')
 RUNTIME = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/sit-static/chr_sit_static.glb')
 REF_DIR = os.environ.get('SIT_REF_DIR', '/home/ubuntu/.cursor/projects/workspace/assets')
 MAX_TRIS = 8000
-# Runtime glb is 1,373,744 bytes. 1.5 MiB leaves 199,120. Stay under that.
-MAX_BYTES = 199000
+# 1.5 MiB for this sit glb plus the runtime character glb on the branch tip.
+# The runtime file is measured, not a baked constant: another branch is editing it.
+BYTE_BUDGET = 1572864
+
+
+def sit_byte_limit():
+    return BYTE_BUDGET - os.path.getsize(CHR)
 
 # Reading-chair parts in the seated character frame (Y up, metres). Seat top is 0.38.
 CHAIR_BOXES_CHAR = {
@@ -1951,6 +1958,158 @@ def flatten_material(mat):
         pass
 
 
+def draco_library():
+    root = os.path.dirname(bpy.app.binary_path)
+    ver = '%d.%d' % bpy.app.version[:2]
+    path = os.path.join(root, ver, 'scripts', 'addons_core', 'io_scene_gltf2', 'libextern_draco.so')
+    if not os.path.isfile(path):
+        raise RuntimeError('draco encoder not found: ' + path)
+    return path
+
+
+def pack_sit_glb(path):
+    """Draco-compress the sit glb already on disk. Does not move the mesh.
+
+    Same KHR_draco_mesh_compression the island meshes already use: Creator
+    decodes it on import, and the skirt, M_G2_* slots and white COLOR_0 stay.
+    Position and UV quantization are 14-bit (about 0.2 mm and a fraction of a
+    texel on this mesh). An already-compressed file is left as it is.
+    """
+    data = open(path, 'rb').read()
+    if data[:4] != b'glTF':
+        raise RuntimeError('not a glb: ' + path)
+    json_len = struct.unpack_from('<I', data, 12)[0]
+    js = json.loads(data[20:20 + json_len].decode('utf-8'))
+    if 'KHR_draco_mesh_compression' in (js.get('extensionsUsed') or []):
+        log('pack skipped, already draco')
+        return os.path.getsize(path)
+    bin_at = 20 + json_len
+    bin_len = struct.unpack_from('<I', data, bin_at)[0]
+    blob = data[bin_at + 8:bin_at + 8 + bin_len]
+
+    def acc_bytes(index):
+        acc = js['accessors'][index]
+        bv = js['bufferViews'][acc['bufferView']]
+        off = bv.get('byteOffset', 0) + acc.get('byteOffset', 0)
+        ncomp = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4}[acc['type']]
+        size = {5126: 4, 5123: 2, 5121: 1, 5125: 4}[acc['componentType']]
+        stride = bv.get('byteStride') or size * ncomp
+        raw = bytearray()
+        for i in range(acc['count']):
+            raw += blob[off + i * stride:off + i * stride + size * ncomp]
+        return raw
+
+    dll = CDLL(draco_library())
+    dll.encoderCreate.restype = c_void_p
+    dll.encoderCreate.argtypes = [c_uint32]
+    dll.encoderRelease.restype = None
+    dll.encoderRelease.argtypes = [c_void_p]
+    dll.encoderSetCompressionLevel.restype = None
+    dll.encoderSetCompressionLevel.argtypes = [c_void_p, c_uint32]
+    dll.encoderSetQuantizationBits.restype = None
+    dll.encoderSetQuantizationBits.argtypes = [c_void_p, c_uint32, c_uint32, c_uint32, c_uint32, c_uint32]
+    dll.encoderSetIndices.restype = None
+    dll.encoderSetIndices.argtypes = [c_void_p, c_size_t, c_uint32, c_void_p]
+    dll.encoderSetAttribute.restype = c_uint32
+    dll.encoderSetAttribute.argtypes = [c_void_p, c_char_p, c_size_t, c_char_p, c_void_p, c_bool]
+    dll.encoderEncode.restype = c_bool
+    dll.encoderEncode.argtypes = [c_void_p, c_uint8]
+    dll.encoderGetEncodedVertexCount.restype = c_uint32
+    dll.encoderGetEncodedVertexCount.argtypes = [c_void_p]
+    dll.encoderGetEncodedIndexCount.restype = c_uint32
+    dll.encoderGetEncodedIndexCount.argtypes = [c_void_p]
+    dll.encoderGetByteLength.restype = c_uint64
+    dll.encoderGetByteLength.argtypes = [c_void_p]
+    dll.encoderCopy.restype = None
+    dll.encoderCopy.argtypes = [c_void_p, c_void_p]
+
+    chunks = []
+    views = []
+
+    def add_view(raw):
+        while sum(len(c) for c in chunks) % 4:
+            chunks.append(b'\x00')
+        offset = sum(len(c) for c in chunks)
+        chunks.append(raw)
+        views.append({'buffer': 0, 'byteOffset': offset, 'byteLength': len(raw)})
+        return len(views) - 1
+
+    for mesh in js['meshes']:
+        for prim in mesh['primitives']:
+            attrs = prim['attributes']
+            if 'POSITION' not in attrs or prim.get('indices') is None:
+                raise RuntimeError('sit primitive missing position or indices')
+            pos = js['accessors'][attrs['POSITION']]
+            encoder = dll.encoderCreate(pos['count'])
+            holders = []
+            draco_ids = {}
+            for name, index in attrs.items():
+                acc = js['accessors'][index]
+                raw = acc_bytes(index)
+                holders.append(raw)
+                buf = (c_uint8 * len(raw)).from_buffer(raw)
+                holders.append(buf)
+                draco_ids[name] = int(dll.encoderSetAttribute(
+                    encoder, name.encode(), acc['componentType'], acc['type'].encode(),
+                    buf, bool(acc.get('normalized'))))
+            indices = js['accessors'][prim['indices']]
+            iraw = acc_bytes(prim['indices'])
+            holders.append(iraw)
+            ibuf = (c_uint8 * len(iraw)).from_buffer(iraw)
+            holders.append(ibuf)
+            dll.encoderSetIndices(encoder, indices['componentType'], indices['count'], ibuf)
+            dll.encoderSetCompressionLevel(encoder, 7)
+            dll.encoderSetQuantizationBits(encoder, 14, 10, 14, 14, 12)
+            if not dll.encoderEncode(encoder, 0):
+                dll.encoderRelease(encoder)
+                raise RuntimeError('draco encode failed for ' + mesh.get('name', ''))
+            nbytes = dll.encoderGetByteLength(encoder)
+            encoded_verts = dll.encoderGetEncodedVertexCount(encoder)
+            encoded_indices = dll.encoderGetEncodedIndexCount(encoder)
+            out_buf = (c_uint8 * nbytes)()
+            dll.encoderCopy(encoder, out_buf)
+            encoded = bytes(out_buf)
+            dll.encoderRelease(encoder)
+            prim['extensions'] = {
+                'KHR_draco_mesh_compression': {
+                    'bufferView': add_view(encoded),
+                    'attributes': draco_ids,
+                }
+            }
+            for index in attrs.values():
+                acc = js['accessors'][index]
+                acc['count'] = encoded_verts
+                acc.pop('bufferView', None)
+                acc.pop('byteOffset', None)
+            indices['count'] = encoded_indices
+            indices.pop('bufferView', None)
+            indices.pop('byteOffset', None)
+
+    for acc in js['accessors']:
+        if 'bufferView' in acc:
+            raise RuntimeError('accessor left outside draco')
+    js['bufferViews'] = views
+    binary = b''.join(chunks)
+    while len(binary) % 4:
+        binary += b'\x00'
+    js['buffers'] = [{'byteLength': len(binary)}]
+    js['extensionsUsed'] = ['KHR_draco_mesh_compression']
+    js['extensionsRequired'] = ['KHR_draco_mesh_compression']
+    payload = json.dumps(js, separators=(',', ':')).encode('utf-8')
+    while len(payload) % 4:
+        payload += b' '
+    out = bytearray()
+    out += struct.pack('<4sII', b'glTF', 2, 0)
+    out += struct.pack('<I4s', len(payload), b'JSON')
+    out += payload
+    out += struct.pack('<I4s', len(binary), b'BIN\x00')
+    out += binary
+    struct.pack_into('<I', out, 8, len(out))
+    open(path, 'wb').write(out)
+    log('pack %s %d -> %d' % (os.path.basename(path), len(data), len(out)))
+    return len(out)
+
+
 def export_glb(path, normals):
     char_objs = [o for o in mesh_objects() if o.get('sit')]
     bpy.ops.object.select_all(action='DESELECT')
@@ -2191,32 +2350,60 @@ def main():
     export_glb(GLB_OUT, True)
     size = os.path.getsize(GLB_OUT)
     log('glb %d' % size)
-    if size > MAX_BYTES:
+    limit = sit_byte_limit()
+    if size > limit:
         export_glb(GLB_OUT, False)
         size = os.path.getsize(GLB_OUT)
         log('glb without normals %d' % size)
-    if size > MAX_BYTES:
+    pack_sit_glb(GLB_OUT)
+    size = os.path.getsize(GLB_OUT)
+    if size > limit:
         for obj in mesh_objects():
             if obj.get('sit') and obj.name not in ('LOD0_G2_BODY', 'SitShoes', 'SitHands', 'SitFace', dress.name, apron.name, bow.name) and tris_of(obj) > 400:
                 decimate(obj, 0.8)
         export_glb(GLB_OUT, False)
+        pack_sit_glb(GLB_OUT)
         size = os.path.getsize(GLB_OUT)
         report['triangles'] = total_tris()
         log('glb squeezed %d tris %d' % (size, report['triangles']))
-    if size > MAX_BYTES or report.get('triangles', total) > MAX_TRIS:
-        raise RuntimeError('budget glb %d tris %s' % (size, report.get('triangles')))
+    if size > limit or report.get('triangles', total) > MAX_TRIS:
+        raise RuntimeError('budget glb %d limit %d tris %s' % (size, limit, report.get('triangles')))
     data = open(GLB_OUT, 'rb').read()
     open(RUNTIME, 'wb').write(data)
+    runtime_bytes = os.path.getsize(CHR)
     report['glb_bytes'] = len(data)
-    report['runtime_plus_sit_bytes'] = len(data) + os.path.getsize(CHR)
+    report['runtime_glb_bytes'] = runtime_bytes
+    report['runtime_plus_sit_bytes'] = len(data) + runtime_bytes
     with open(os.path.join(OUT_DIR, 'data', 'qa_sit_static.json'), 'w') as f:
         json.dump(report, f, indent=2)
     log('done %s' % json.dumps({'tris': report['triangles'], 'bytes': len(data), 'sum': report['runtime_plus_sit_bytes'], 'cloth': cloth_inside}))
 
 
+def pack_existing():
+    """Shrink the sit glb already on disk. Does not rebuild the mesh."""
+    pack_sit_glb(GLB_OUT)
+    data = open(GLB_OUT, 'rb').read()
+    open(RUNTIME, 'wb').write(data)
+    qa_path = os.path.join(OUT_DIR, 'data', 'qa_sit_static.json')
+    report = json.load(open(qa_path))
+    runtime_bytes = os.path.getsize(CHR)
+    report['glb_bytes'] = len(data)
+    report['runtime_glb_bytes'] = runtime_bytes
+    report['runtime_plus_sit_bytes'] = len(data) + runtime_bytes
+    with open(qa_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    limit = sit_byte_limit()
+    log('packed %d runtime %d sum %d limit %d' % (len(data), runtime_bytes, len(data) + runtime_bytes, limit))
+    if len(data) > limit or len(data) + runtime_bytes > BYTE_BUDGET:
+        raise RuntimeError('packed sit glb still over the 1.5 MiB sum')
+
+
 if __name__ == '__main__':
     try:
-        main()
+        if os.environ.get('SIT_PACK') == '1':
+            pack_existing()
+        else:
+            main()
     except Exception:
         traceback.print_exc()
         raise
