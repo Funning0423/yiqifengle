@@ -26,11 +26,15 @@ for n in ('LOD0_G2_DRESS', 'LOD0_G2_APRON'):
         for kb in o.data.shape_keys.key_blocks[1:]:
             kb.value = SW if kb.name == 'sit_drape' else (SWM if kb.name == 'sit_drape_mid' else 0.0)
             print('SHAPEKEY', n, kb.name, kb.value)
-R.setup_workbench()
+R.setup_eevee() if ENGINE == 'eevee' else R.setup_workbench()
 # character root ahead of the seated root along her front (anim_meta root_motion, as verify.py places it)
 ch.top.location = (0, -float(os.environ.get('SD_ROOTZ', '0')), 0)
 ch.pose(CLIP, T)
+RZ = float(os.environ.get('SD_ROOTZ', '0'))
+# camera follows the character part of the way (keeps the chair in frame), a little higher while she is standing
+SHIFT = np.array([0.0, -0.6 * RZ, 0.25 * min(1.0, RZ / 0.3)])
 for v in VIEWS:
     loc, tg = R.SEAT_VIEWS[v]
-    c = R.camera(v, loc, tg, lens=50)
+    loc, tg = tuple(np.array(loc) + SHIFT), tuple(np.array(tg) + SHIFT)
+    c = R.camera(v, loc, tg, lens=float(os.environ.get('SD_LENS', '50')))
     R.render(c, '%s_%s.png' % (OUT, v), int(RES * 0.8), RES)

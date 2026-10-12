@@ -9,7 +9,8 @@ from mathutils.bvhtree import BVHTree
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..', '..'))
 CHR = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/character')
-GLB = os.path.join(CHR, 'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')
+# SD_GLB: the character GLB WITHOUT the seated drape (build_all.sh extracts it from git); default = the runtime GLB
+GLB = os.environ.get('SD_GLB') or os.path.join(CHR, 'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')
 ROOM = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/combined_visual_m.glb')
 FPS = 30
 

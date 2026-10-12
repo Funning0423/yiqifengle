@@ -14,7 +14,8 @@ sys.path.insert(0, os.path.join(REPO, 'art-src/animation/mocap/scripts'))
 import rig as RG  # noqa: E402
 
 CHR = os.path.join(REPO, 'creator-build-project/assets/bundles/region_island/character')
-GLB = os.path.join(CHR, 'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')
+# SD_GLB: the character GLB WITHOUT the seated drape (build_all.sh extracts it from git); default = the runtime GLB
+GLB = os.environ.get('SD_GLB') or os.path.join(CHR, 'chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb')
 ANIM_META = os.path.join(CHR, 'anim_meta.json')
 FPS = 30
 

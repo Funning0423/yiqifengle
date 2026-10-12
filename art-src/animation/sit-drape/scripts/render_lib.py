@@ -16,7 +16,33 @@ def setup_workbench(bg=(0.16, 0.17, 0.19)):
     wd = bpy.data.worlds.new('w')
     wd.color = bg
     sc.world = wd
-    sc.view_settings.view_transform = 'Standard'
+    sc.view_settings.view_transform = 'AgX'
+    looks = [i.identifier for i in sc.view_settings.bl_rna.properties['look'].enum_items_static]
+    sc.view_settings.look = next((k for k in looks if k.endswith('Medium High Contrast')), 'None')
+    sc.render.film_transparent = False
+
+
+def setup_eevee(bg=(0.86, 0.88, 0.90), sun_dir=(0.7, -0.9, 1.1), samples=64):
+    """soft, clean preview light (key sun + sky fill, AgX medium-high contrast), for the settled-frame screenshot."""
+    sc = bpy.context.scene
+    sc.render.engine = 'BLENDER_EEVEE_NEXT' if 'BLENDER_EEVEE_NEXT' in [e.identifier for e in bpy.types.RenderSettings.bl_rna.properties['engine'].enum_items] else 'BLENDER_EEVEE'
+    sc.eevee.taa_render_samples = samples
+    wd = bpy.data.worlds.new('w')
+    wd.use_nodes = True
+    bgn = wd.node_tree.nodes.get('Background')
+    bgn.inputs['Color'].default_value = (bg[0], bg[1], bg[2], 1)
+    bgn.inputs['Strength'].default_value = 0.55
+    sc.world = wd
+    ld = bpy.data.lights.new('sun', 'SUN')
+    ld.energy = 2.4
+    ld.angle = math.radians(12)
+    ld.color = (1.0, 0.96, 0.9)
+    o = bpy.data.objects.new('sun', ld)
+    sc.collection.objects.link(o)
+    o.rotation_euler = Vector(sun_dir).to_track_quat('Z', 'Y').to_euler()
+    sc.view_settings.view_transform = 'AgX'
+    looks = [i.identifier for i in sc.view_settings.bl_rna.properties['look'].enum_items_static]
+    sc.view_settings.look = next((k for k in looks if k.endswith('Medium High Contrast')), 'None')
     sc.render.film_transparent = False
 
 
