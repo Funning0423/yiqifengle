@@ -16,6 +16,8 @@ import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower,
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
+/** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
+export const CABIN_MIN_X=2.6;
 const {ccclass,property}=_decorator;
 /** T2: interior renderers that the island camera can see through the open door / tower windows.
  * Blender ray audit of combined_visual_m.glb (door open 86.4°, 60k rays from cameraIsland and two late toIsland poses):
@@ -168,7 +170,7 @@ export class WorldFlowComponent extends Component {
   }
   private roomLookToken:Cancellation|null=null;
   private jobs=new Set<Job>();
-  private lighthouseTargets:MeshRenderer[]=[];private readonly lighthouseRay=new geometry.Ray();private readonly lighthouseRayOptions={mode:geometry.ERaycastMode.ANY,distance:500,doubleSided:true};
+  private lighthouseTargets:MeshRenderer[]=[];private readonly lighthouseRay=new geometry.Ray();private readonly lighthouseRayOptions={mode:geometry.ERaycastMode.ANY,distance:500,doubleSided:true};private readonly cabinRayOptions={mode:geometry.ERaycastMode.CLOSEST,distance:500,doubleSided:true};
   private ownedModel:Node|null=null;
   private disposed=false;
   private safetyFailure:string|null=null;
@@ -219,7 +221,7 @@ export class WorldFlowComponent extends Component {
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
-    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),
+    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
@@ -231,6 +233,12 @@ export class WorldFlowComponent extends Component {
     if(!Number.isFinite(ray.o.x)||!Number.isFinite(ray.o.y)||!Number.isFinite(ray.o.z)||!Number.isFinite(ray.d.x)||!Number.isFinite(ray.d.y)||!Number.isFinite(ray.d.z))return false;
     // The hidden interior shell is an exact-geometry fallback for open doorway/window holes, never a bounding-box hotzone.
     for(const r of this.lighthouseTargets){if(!isValid(r,true)||!isValid(r.node,true)||!r.node.activeInHierarchy||!r.model)continue;if(geometry.intersect.rayModel(ray,r.model,this.lighthouseRayOptions)>0)return true;}return false;
+  }
+  /** The exterior lighthouse mesh also wraps the cabin annex (east of the tower): classify the closest hit by world x. */
+  private hitCabin(x:number,y:number):boolean {
+    if(!this.hitLighthouse(x,y))return false;const ray=this.lighthouseRay;let best=Infinity;
+    for(const r of this.lighthouseTargets){if(!isValid(r,true)||!isValid(r.node,true)||!r.node.activeInHierarchy||!r.model)continue;const t=geometry.intersect.rayModel(ray,r.model,this.cabinRayOptions);if(t>0&&t<best)best=t;}
+    return Number.isFinite(best)&&ray.o.x+ray.d.x*best>=CABIN_MIN_X;
   }
   private roomView(aspect:number){const s=this.flow?.snapshot();return {enabled:!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0,settling:!!this.roomLookToken,door:this.roomLook.door(FIRSTSLICE.anchors.door_handle.position,aspect),angles:this.roomLook.angles()};}
   private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera||!this.roomLook.drag(dx,dy))return false;return applyCameraPose(this.worldCamera,this.roomLook.pose(),'room.look');}

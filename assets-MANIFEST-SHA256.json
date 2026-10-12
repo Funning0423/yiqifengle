@@ -5,9 +5,404 @@
     "sha256": "21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a"
   },
   {
-    "path": "creator-build-project/assets/bundles/background_foliage/painted-cloud.png",
-    "bytes": 1417468,
-    "sha256": "eeca70e033d1f1eb65b5e8f4c182d8be1c58e42816976533352c44a11cb323f2"
+    "path": "creator-build-project/assets/bundles/board_art/board/hud_levelplate.png",
+    "bytes": 13837,
+    "sha256": "b847e8cb0a6690c7d3a60df91396dc0aeb6b8d61b5987f7fbaa26cf6a5e5f77b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/hud_pause.png",
+    "bytes": 7466,
+    "sha256": "1631b6f99ef7090d1fb6c02435320c4529e0ffe8ccb31fdb2171bf6bfd30f9d8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/icon_moves.png",
+    "bytes": 4314,
+    "sha256": "dbca87db64bb264d28d34849ae60d277036e1ac09bc8e45a2aa0ee64d93d7519"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_moss.png",
+    "bytes": 10732,
+    "sha256": "4756dc4c46e627e6c7da66e6fc0b9e6ae2e0627dc84d111fcb64c1c532dfe666"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_roots.png",
+    "bytes": 6927,
+    "sha256": "f7dc0c07d6ed2fb894dfc47f28eff689d022cace39ce316ab53e8bdfb487dc4f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_shell_1.png",
+    "bytes": 9722,
+    "sha256": "40e69ec3a7106c692f9ddb1888d17d6dc9c2e320b2c563bc2b479d93a4d6bd8e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/obstacle_shell_2.png",
+    "bytes": 8504,
+    "sha256": "e9f482648afe6137fb41eddb9490183e9a237c5f1f4af8b987a0a80b1a5cac2c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_acorn.png",
+    "bytes": 10848,
+    "sha256": "0f5f0fd1ec39a2c45f3b3756d9c799508b6f393e362ce55ec4e0fae15015b5ec"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_blueberry.png",
+    "bytes": 10792,
+    "sha256": "2721400b4a5d3c6595c980761fdd7f03da56c0c9db962442199595aabeba4ef2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_flower.png",
+    "bytes": 11203,
+    "sha256": "3039ad00e8781a4a99186a3b3eb0b28c88551df5a5de098a3ee063804d327e1a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_leaf.png",
+    "bytes": 9034,
+    "sha256": "896cec3a4148e9780a6130a146e5d1ea7aa687088feb3fc80409d596ba9c6c9b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_shell.png",
+    "bytes": 11479,
+    "sha256": "e0c3113102599efaad0a60bea63aba2b590293a6d9d54a82075eeff8f07e3889"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/piece_strawberry.png",
+    "bytes": 9583,
+    "sha256": "51a117161ed699e87be58b3994668ab4250255966f0dd24a0696ed2ef124a6b0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_bomb.png",
+    "bytes": 10729,
+    "sha256": "21c46f70508e7ccf53659cff7cb5b147ebf4cdd135993d808b68fe6643780e04"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_line_h.png",
+    "bytes": 4211,
+    "sha256": "f7b398bdbd339d20f3d4937b66f54f584e45e3218bef986b832e9875ad682fa8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/special_line_v.png",
+    "bytes": 4470,
+    "sha256": "1b429cab5a01bd9910c931137dc6433c4cf5e216b31f07bade4943beeec2b041"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tile_a.png",
+    "bytes": 5404,
+    "sha256": "865b58b7b80386da39301cf771425ad7188bba446bca92a8056798d687a59d4e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tile_b.png",
+    "bytes": 5912,
+    "sha256": "2881f6943cabe9ecc13d10d3f6fa26b715cda71ec249233d5125f4a7a0ec17de"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_starlight.png",
+    "bytes": 9755,
+    "sha256": "75cdb5cbf11fbfbf3074729bf798a87ed640e0876f907c20b85dce31e4f47f01"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_tidebottle.png",
+    "bytes": 9376,
+    "sha256": "f6f6d5655d7ad2f004f5db4e5acc8bb141631a3198d2b85379387c962f9db045"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tool_windbell.png",
+    "bytes": 9320,
+    "sha256": "e12aa07a81f217084c2f4b5acf69f10dd25f1dc587186bfa1e0bb2b999c65d5f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/board/tray_frame.png",
+    "bytes": 88104,
+    "sha256": "70933c84f831fcc7038c1fcde973d65698777c08f946f929e5bf55c789148109"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/chest/result_chest.glb",
+    "bytes": 29536,
+    "sha256": "87960e97a83a18e1919ddf5409a17974aef06293c3e2cb50498b012e20d20e03"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_close.png",
+    "bytes": 6128,
+    "sha256": "a256171791b0e8dd53c97cd480b0c41618727f55fba5fcd69941bf7077de5f69"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_primary_3s.png",
+    "bytes": 5328,
+    "sha256": "d80e89364948109df2e63b305e1f3662f9da84578ebd60d4e92ccc2fd9ed9311"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/btn_secondary_3s.png",
+    "bytes": 5668,
+    "sha256": "caef8e394b1d98173db69ffe934fbfef8193f9dea05e09b97312b7dec7058573"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/chest_closed.png",
+    "bytes": 39775,
+    "sha256": "c2b7695656a4667f0e72997dbbf425ae6e686f4f741ef72f55db1f1060689b91"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/fx_rays.png",
+    "bytes": 16796,
+    "sha256": "e8095afd714f80470b9e0e6035d833a0d6d34b942fe84c4b0b0b746fbcea3bb7"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_about.png",
+    "bytes": 3235,
+    "sha256": "c92eaa297d39cb16dc5edc23a18db72d83a3da551238afe613ef8f0a0a1a295b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_home.png",
+    "bytes": 3012,
+    "sha256": "718129feb8a79f60f94615bd7d9edee88a106705ab1098d769b545fb7384645c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_moon.png",
+    "bytes": 3753,
+    "sha256": "384cc5c58b510157ebac540032caac0d4ba30ea4726a8e61af80cef4c7fbb6a1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_motion.png",
+    "bytes": 3394,
+    "sha256": "1311b770cd33ea78365631bf9d404de0e9b795973bbf320197e8e5a056ade2e6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_music.png",
+    "bytes": 2484,
+    "sha256": "e5c08a415bde9498df825cbf31fbebcfefe5323926e5b270b02cf8e1201f70d8"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_play.png",
+    "bytes": 1204,
+    "sha256": "08559707149f88360ed361b55a3d21f4cfada3b4a9dd843f8cfbd12cda80a80e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_sfx.png",
+    "bytes": 5570,
+    "sha256": "99b58d063e52fae100ce689a4d2455f193ab604dda3ad16d2e1cdbe540f5a68e"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/icon_sun.png",
+    "bytes": 3754,
+    "sha256": "3f5089086c510e52cb40a868786a68e89b312a110cef22f4542057a18e4751ea"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/panel_frame_9s.png",
+    "bytes": 9621,
+    "sha256": "df24a0178260fc5182aae8550e276a6f2138ed06905b9410bef3c250abd2268c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_meadow.png",
+    "bytes": 8129,
+    "sha256": "0dfe2220a266e17b444cdeece973612342aa1e880beca732c24d8b98af71404d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_sky.png",
+    "bytes": 8257,
+    "sha256": "566736647b410f445e8dfbfdb6d8e12487bcfe235429e2b0ae7d35a5ae302640"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/reward_seal_tide.png",
+    "bytes": 8223,
+    "sha256": "a063679af41ae97bfe08b03fce2e80f8124d35f41751c5f52a00aad942c9061d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/stamp_claimed.png",
+    "bytes": 6368,
+    "sha256": "f35d956f4f7d9e28ac84186b7200191ddcda58be1c382b763b394716239e90cf"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/star_empty.png",
+    "bytes": 8738,
+    "sha256": "316c4290404f06e9c21e191601a898f9673966329a6ecab9afdf7c0d8656dfdc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/star_full.png",
+    "bytes": 10485,
+    "sha256": "367a3c8bbb544e3e3e1bfbfb12025248d45e3f464cd549d82c7f05600024f327"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_bag.png",
+    "bytes": 9238,
+    "sha256": "e8d3dbc7ca48930eef0a62fd3404cd03a62144b06716688bcf0336a35e128ead"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_restart.png",
+    "bytes": 9612,
+    "sha256": "9612d431b79075f337bf2f6bac94dfde11aa3d7b715ea28a6de355e3fe50d1d9"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/tile_settings.png",
+    "bytes": 9932,
+    "sha256": "0b30323831d495f29cc0f32ef3eb007ee1bec60630455ab1008cb5618d4d1669"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_0.png",
+    "bytes": 2801,
+    "sha256": "617def1a61f54bd4899a8a67764ec35e811b1488dfa90b6f718b5ab0869b75d4"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_1.png",
+    "bytes": 4460,
+    "sha256": "7ea4342c179631f53c84c0255eed1a3238b1b6da381e0cfa97d434c528185cfa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_2.png",
+    "bytes": 2089,
+    "sha256": "a6cf98af41c817709c62f855e269f412a6e5d664db1a34966fe6e882f5b9f9bc"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_3.png",
+    "bytes": 2322,
+    "sha256": "ca407c6d22e1c1faebd278122e26c53262d7ca518cb75340cab898b664ef1762"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_4.png",
+    "bytes": 3017,
+    "sha256": "7bbcb7bfa61e4741f36091b02cde22a4e24562182a54bcf5aedd3310e9cb44d2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_5.png",
+    "bytes": 2284,
+    "sha256": "de46cdc500492e6c7324ffc750ba626f3605f864ce52477c5f11ed2cac2b88dd"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/title_plank_3s.png",
+    "bytes": 6558,
+    "sha256": "3ffcfa2f4e493d623922556034752d278d1b43493203006b8fdc3864dba5aec0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_knob.png",
+    "bytes": 1956,
+    "sha256": "ab4feb2d80d701e322531ffaacbaad5e3996e7a98d3bc58c9803524f6b1f943f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_off.png",
+    "bytes": 2986,
+    "sha256": "f8af4e0f56961cbe3329e86b08235d1865ff052777ce4bb4922dc20caaf89e97"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/popup/toggle_on.png",
+    "bytes": 3225,
+    "sha256": "219060b2c7bcf11e338fce94351a5a1f9b3c22f56c36d829409b0949c045a998"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/beacon_lighthouse.png",
+    "bytes": 3557,
+    "sha256": "1aa50c2d8d8e52839a416418fc21804a898b1e6452005c7b0f3a00cf0f8095db"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/beacon_ring.png",
+    "bytes": 2135,
+    "sha256": "0d93a0064dc47c8ed866ae48d68115077985c66b51e8a26861e9865b76a41f84"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_meadow.png",
+    "bytes": 3298,
+    "sha256": "0fbffd5c228269c49fcc6d84bbe8bd3692f96d83df281d8cb5a5f6466d1f66eb"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_sky.png",
+    "bytes": 2825,
+    "sha256": "7b00ee56e409a4a2be7328022f723d8e56f8c9d8d0415da4df74e4e1c6a57159"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/chapter_tide.png",
+    "bytes": 3446,
+    "sha256": "1aaf9fd5b29afa3ecdf7cba86ae840b5d7e1222113d51932d95aa48076c6ae88"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_starlight.png",
+    "bytes": 27628,
+    "sha256": "8e64a20a493d5c336862addf79c65d6e67273d0d0798398b7722eb4c84bd42b9"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_tidebottle.png",
+    "bytes": 26253,
+    "sha256": "1d0fce429293ae9060bec394f27fb0f67475183f337cd81a980662467949b355"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/hero_windbell.png",
+    "bytes": 25359,
+    "sha256": "6570ca0d818333d52d4b1d38f901df1c66aea4e041db53185e4dda17a3d47f41"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/icon_charm.png",
+    "bytes": 7396,
+    "sha256": "8c5bc97ac6bf582dbf095c5d7700634cf26883fad48f3353790651bd19d8b4c6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/icon_lock.png",
+    "bytes": 3652,
+    "sha256": "41294893b1b2bde33334d3bf09adee25f017507ac6aafe8e7b33e9d40d3e726a"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_meadow.png",
+    "bytes": 7930,
+    "sha256": "3cc9672521ec052dd75fc00bab882e700f4c8c14223c4b8467e718fcaf90f408"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_sky.png",
+    "bytes": 4821,
+    "sha256": "a464f09ae7849fd5bd89c8074454583d545450c9a57d6b03ba61071a1392e863"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/region_tide.png",
+    "bytes": 13021,
+    "sha256": "a7777aac4b6bd8c1b03a52188469a0b4f61826d948a3b899d1bff6afdc114d1f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/sign_plank_3s.png",
+    "bytes": 9098,
+    "sha256": "354af3fdf74a75ba904e354431d66ebf8c392fe822082a10064c49e526fb11f6"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_bag.png",
+    "bytes": 4656,
+    "sha256": "274224e6ab783233309529143be9655a9008dc2ec76a46a2601982a7d460af98"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_journey.png",
+    "bytes": 3218,
+    "sha256": "fc40cfbeb0a01277da7b927449147db1b577182a889e6f4a530728a46723546f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_rest.png",
+    "bytes": 3859,
+    "sha256": "ffeba61621f67f50422f8d1a3e7d6fa82404bce8a713d59f116513430f21dafb"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_review.png",
+    "bytes": 3961,
+    "sha256": "0d8acb2362a7ae55b416b0d1741eb81f68348ff48829d11931c93e5d65d87eea"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_starlight.png",
+    "bytes": 1927,
+    "sha256": "e76a9a348402703c3afc89211b30edcf0cc056e9a1c4d599044fc04a5910d9e1"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/title_unsaved.png",
+    "bytes": 3583,
+    "sha256": "166c2a629fccbfaa5738511a57df9c0f66584e949a181131990c2fe7244c154b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/about_gamename.png",
+    "bytes": 4503,
+    "sha256": "3e44c0f9c4439663faf930ca1c9531b956cbe8bb98937ee55bb68f2fd53ab70c"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/cabin_glow.png",
+    "bytes": 1602,
+    "sha256": "81360de9d701907bccf54098eb4467497c976b5ef75a1d350af3e6ba2dfb77a2"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r3/title_about.png",
+    "bytes": 1755,
+    "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg",
+    "bytes": 23276,
+    "sha256": "4c18d04cd815cf966fd2e7c23f780d7bb21ecd20bea912a83a39f0dbf1fa098a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
@@ -213,16 +608,6 @@
     "path": "creator-build-project/assets/resources/ui/cheer-font/cheer-fredoka.png",
     "bytes": 2118,
     "sha256": "0bf1a4335842f3ab8821f40f28197b89298d285f5f52db733148102fdf27e16c"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ui/loading-reference.jpg",
-    "bytes": 129312,
-    "sha256": "308f78b5f037bd33668ff8ad899649ee6094b8e55cf695cf7df62a195b7e8e8d"
-  },
-  {
-    "path": "creator-build-project/assets/resources/ui/pieces.png",
-    "bytes": 776072,
-    "sha256": "0d9d66b936ed15d5d4c993686e51922e7e768dfcf28e5dd9b1795cd9f45d982e"
   },
   {
     "path": "creator-build-project/assets/resources/ui/tools-original.png",

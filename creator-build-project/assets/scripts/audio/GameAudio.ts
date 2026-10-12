@@ -84,6 +84,7 @@ export const DEFAULT_BGM_BUNDLE = 'audio_bgm_island';
 export const ROOM_FADE_IN_S = 1.5;
 export type MusicStartInfo = { path: string | null; bundle: string | null; at: number; first: boolean; fadeIn: boolean; requestedAt: number; loadedAt: number | null };
 const MUSIC_VOLUME_KEY = 'qfl.audio.musicVolume';
+const SFX_MUTE_KEY = 'qfl.audio.sfxMuted';   // 设置页「音效」开关：只关音效（含鼓励音），不关音乐
 const MUTE_KEY = 'qfl.audio.muted';   // 正式 key。R6 实测用的是隔离 key 'dot-audio-r1-test-20261009:muted'，那份测试存档不迁移。
 const MIN_GAP_MS = 60;        // 同一个音效 60 ms 内只播一次，防止同帧多次触发叠成爆音
 // Cocos 3.8.8 may resolve a mini-game player load after its own 8 s fallback.
@@ -188,6 +189,7 @@ export class GameAudio extends Component {
   private clips = new Map<string, AudioClip>();
   private lastPlay = new Map<string, number>();
   private muted = false;
+  private sfxMuted = false;
   private reasons = new Set<SuspendReason>();  // 挂起原因集合；为空 = 正常
   private cascade = 0;                         // 本次操作里第几波消除（0 = 还没消）
   /** 最近一次真正播出的道具按下音：同目标在 UI_CONFIRM_AFTER_PRESS_MS 内不再叠 confirm */
@@ -282,6 +284,7 @@ export class GameAudio extends Component {
     this.node.on(AudioSource.EventType.STARTED, this.onSfxStarted, this);
     this.node.on(AudioSource.EventType.ENDED, this.onSfxEnded, this);
     try { this.muted = sys.localStorage.getItem(MUTE_KEY) === '1'; } catch { this.muted = false; }
+    try { this.sfxMuted = sys.localStorage.getItem(SFX_MUTE_KEY) === '1'; } catch { this.sfxMuted = false; }
     try {
       const saved = sys.localStorage.getItem(MUSIC_VOLUME_KEY);
       // WeChat can return an empty string for an absent key; Number('') would mute by mistake.
@@ -290,7 +293,7 @@ export class GameAudio extends Component {
       if (Number.isFinite(value)) this.musicVolume = Math.max(0, Math.min(1, value));
     } catch { /* storage denial must not prevent sound */ }
     if (cur && cur !== this) {
-      this.muted = cur.muted; this.musicVolume = cur.musicVolume;
+      this.muted = cur.muted; this.musicVolume = cur.musicVolume; this.sfxMuted = cur.sfxMuted;
     }
     this.applyMusicGains();
     input.on(Input.EventType.TOUCH_END, this.onGesture, this);
@@ -360,7 +363,7 @@ export class GameAudio extends Component {
 
   // ---------- 通用 ----------
   play(name: SfxName, volume = 1) {
-    if (!GameAudio.usable(this) || this.muted || this.reasons.size > 0) return;   // 已交接 / 已销毁、静音或任何挂起原因：新音效直接丢弃（不排队、不补播）
+    if (!GameAudio.usable(this) || this.muted || this.sfxMuted || this.reasons.size > 0) return;   // 已交接 / 已销毁、静音或任何挂起原因：新音效直接丢弃（不排队、不补播）
     const clip = this.clips.get(name);
     if (!clip) return;
     const now = GameAudio.now();
@@ -453,6 +456,15 @@ export class GameAudio extends Component {
     if (m) { this.stopAllSfx(); this.pauseLoop(); } else this.resumeLoopIfAllowed();
   }
   isMuted() { return this.muted; }
+  /** 只关音效（含鼓励音），音乐照常；正在播的音效立即停 */
+  setSfxMuted(m: boolean) {
+    if (!GameAudio.usable(this)) return;
+    this.sfxMuted = !!m;
+    try { sys.localStorage.setItem(SFX_MUTE_KEY, m ? '1' : '0'); } catch (e) { console.warn('[GameAudio] sfx preference not saved', e); }
+    if (m) this.stopAllSfx();
+  }
+  isSfxMuted() { return this.sfxMuted; }
+  getMusicVolume() { return this.musicVolume; }
 
   /** 只读：当前是否挂起，以及原因（给日志/验收用，AudioBridge 不需要） */
   isSuspended() { return this.reasons.size > 0; }
@@ -745,7 +757,7 @@ export class GameAudio extends Component {
   /** Reports loading and player state only. It cannot establish audible device output. */
   musicDiagnostics() {
     return { path: this.musicPath, bundle: this.musicBundle, status: this.musicStatus, error: this.musicError,
-      gestureSeen: this.gestureSeen, muted: this.muted, volume: this.musicVolume,
+      gestureSeen: this.gestureSeen, muted: this.muted, sfxMuted: this.sfxMuted, volume: this.musicVolume,
       suspended: this.suspendReasons(), playRequested: this.loopRequested,
       playing: !!this.loopSource?.playing,
       playbackState: this.loopNeedsReplacement ? (this.loopRetryIsFailure && this.loopRecoveries >= MAX_LOOP_RECOVERIES ? 'blocked'
@@ -899,7 +911,7 @@ export class GameAudio extends Component {
 
   /** 鼓励音：已有更高或同档在播就不重复；低档在播时先停掉再播高档，避免几条念词叠在一起听不清 */
   private playCheer(level: number) {
-    if (!GameAudio.usable(this) || this.muted || this.reasons.size > 0) return;
+    if (!GameAudio.usable(this) || this.muted || this.sfxMuted || this.reasons.size > 0) return;
     let playingLevel = -1;
     const voices = Array.from(this.sfxVoices.values());   // loose ES5：Map 不能 for-of
     for (let i = 0; i < voices.length; i++) playingLevel = Math.max(playingLevel, CHEERS.indexOf(voices[i].name));

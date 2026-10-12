@@ -71,6 +71,19 @@ Session.prototype.state = function () {
     beaconCursor: e.beaconCursor
   };
 };
+// Same shape as ForestEngine.prototype.beaconTarget() in r4-cloud-compat/runtime/engine.js; the frozen mainline vendor
+// engine keeps beaconRoute/beaconCursor but has no such method.
+function beaconTarget(e) {
+  var route = e.beaconRoute || [];
+  if (e.beaconCursor >= route.length) return null;
+  return {
+    index: route[e.beaconCursor],
+    type: e.beaconTypes ? e.beaconTypes[e.beaconCursor] : null,
+    cursor: e.beaconCursor,
+    total: route.length,
+    typed: !!e.beaconTypes
+  };
+}
 Session.prototype.snapshot = function () {
   var e = this.engine,
     s = this.state();
@@ -83,7 +96,8 @@ Session.prototype.snapshot = function () {
     initialGoals: copy(e.initialGoals),
     goalOrder: Array.from(e.goalOrder),
     actions: copy(this.actions),
-    beaconTarget: null
+    beaconTarget: beaconTarget(e),
+    beaconRoute: Array.from(e.beaconRoute || [])
   }));
 };
 Session.prototype.valid = function (a) {

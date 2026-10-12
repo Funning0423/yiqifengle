@@ -1,21 +1,24 @@
 'use strict';
-const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');const H=require('../cloud-ui/harness.cjs')();
-const skin=H.evaluate(path.join(H.root,'ui/JourneyNavigationSkin.ts'),['applyJourneyNavigationSkin'],{warmButtonGraphics:H.warm.warmButtonGraphics});// T9: the overlay and the Boot import the prop layout + IslandPropTaps (engine-free real sources); IslandProps itself
-// (3D host) is a stub that never becomes ready here, so this test keeps covering the flat-button path.
-const camPose=H.evaluate(path.join(H.root,'world-r1/CameraPose.ts'),['projectPoint','rotate']);
-const propLayout=H.evaluate(path.join(H.root,'world-r2/IslandPropsLayout.ts'),['ISLAND_PROPS','propButtonLayout','propNightWeight','tagColorsAt','setPropNightWeight'],camPose);
-const propTaps=H.evaluate(path.join(H.root,'world-r2/IslandPropTaps.ts'),['emitPropTap','onPropTap','setPropTapLook']);
-class UIOpacity{constructor(){this.opacity=255;}}
-const {IslandJourneyOverlay}=H.evaluate(path.join(H.root,'world-r2/IslandJourneyOverlay.ts'),['IslandJourneyOverlay'],{warmButton:H.warm.warmButton,...skin,...propLayout,emitPropTap:propTaps.emitPropTap,UIOpacity});
-const layout=H.evaluate(path.join(H.root,'world-r2/WorldNavigationLayout.ts'),['ISLAND_NAV_IDS','worldNavigationLayout']);
-// Funning final 2026-10-11: the top status bar is REMOVED. Capture the Boot's console-only [OI_HUD] log.
-const hudLog=[];const consoleInfo=console.info;console.info=(...a)=>{if(typeof a[0]==='string'&&a[0].startsWith('[OI_HUD]'))hudLog.push(a[0]);else consoleInfo(...a);};
-// T1 (lighthouse tap -> returnHome) stub: records the Boot's per-frame enable decision; the real class has its own
-// harness (tools/t1). Here we only assert the Boot wiring: enabled exactly on a stable, operable island; disposed with Boot.
+// Actual WorldIntegrationBoot navigation wiring (board-ui harness: real Boot, real IslandJourneyOverlay / WarmButton /
+// navigation layout; doubles for the 3D props, T1 lighthouse tap, startup gate, room overlay and region loader).
+// IslandProps never becomes ready here, so this keeps covering the flat-button path.
+const assert=require('node:assert/strict');const {createHarness}=require('../board-ui/harness.cjs');
 const islandHomes=[];class IslandHomeInteraction{constructor(parent,options){this.parent=parent;this.options=options;this.syncs=[];this.disposed=false;islandHomes.push(this);}sync(w,h,enabled){this.syncs.push(enabled);}dispose(){this.disposed=true;}get last(){return this.syncs[this.syncs.length-1];}}
-let skinCalls=0;const vars={...H.cc,...H.warm,...layout,...propTaps,UIOpacity,IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}},IslandJourneyOverlay,IslandHomeInteraction,StartupReadyGate:class{dispose(){}},RoomExploreOverlay:class{sync(){}diagnostics(){return null;}dispose(){}},assetManager:{loadBundle(){}},applyJourneyNavigationSkin:(...args)=>{skinCalls++;skin.applyJourneyNavigationSkin(...args);}};
-H.cc.director.getScene=()=>null;
-let code=fs.readFileSync(path.join(H.root,'WorldIntegrationBoot.ts'),'utf8').replace(/^import .*?;\n/gm,'').replace(/@ccclass\([^\n]*\)/g,'').replace(/@property\([^\n]*?\)/g,'').replace(/@property\s+/g,'').replace(/export /g,'');code=stripTypeScriptTypes(code,{mode:'transform'});const Boot=new Function(...Object.keys(vars),code+';return WorldIntegrationBoot;')(...Object.values(vars));
+let skinCalls=0;
+const B=createHarness({overrides:{
+ 'world-r2/IslandHomeInteraction':{IslandHomeInteraction},
+ 'world-r2/IslandProps':{IslandProps:class{get ready(){return false;}load(){return Promise.resolve(false);}dispose(){}}},
+ 'world-r2/StartupReadyGate':{StartupReadyGate:class{dispose(){}},StartupAttempt:class{},StartupCancelled:class extends Error{}},
+ 'RoomExploreOverlay':{RoomExploreOverlay:class{sync(){}diagnostics(){return null;}dispose(){}}},
+}});
+const realSkin=B.load('ui/JourneyNavigationSkin');
+// count skin bakes: wrap the real export the Boot imports (same module instance)
+const origSkin=realSkin.applyJourneyNavigationSkin;Object.defineProperty(realSkin,'applyJourneyNavigationSkin',{configurable:true,enumerable:true,get:()=>(...a)=>{skinCalls++;return origSkin(...a);}});
+const hudLog=[];const consoleInfo=console.info;console.info=(...a)=>{if(typeof a[0]==='string'&&a[0].startsWith('[OI_HUD]'))hudLog.push(a[0]);else consoleInfo(...a);};
+const code=require('node:fs').readFileSync(require('node:path').join(B.SCRIPTS,'WorldIntegrationBoot.ts'),'utf8');
+const Boot=B.load('WorldIntegrationBoot').WorldIntegrationBoot;
+const H={Node:B.cc.Node,UITransform:B.cc.UITransform,point:B.point,event:(id,p)=>B.event(p,id),tapNode:n=>B.tap(n),setup:(prov,region,w,h)=>B.setViewport(w,h)};
+B.cc.director.getScene=()=>null;
 let cases=0,hudCases=0;
 for(const [w,h] of [[320,568],[390,844],[402,874],[568,320],[844,390]]){
  H.setup('mainline-v33',0,w,h);const boot=new Boot(),calls=[];let snap={state:'island',needsResume:false,hidden:false};boot.node=new H.Node('Boot');boot.ready=true;boot.loadPhase='ready';boot.board=()=>null;boot.composition={worldCommands:()=>({snapshot:()=>snap,dayNight:()=>({mode:'day'}),returnHome:()=>calls.push('home'),enterSkycity:()=>calls.push('skycity'),exitSkycity:()=>calls.push('back'),cancelTransition:()=>({ok:true})}),enterMainline:()=>calls.push('mainline'),islandOverview:()=>({journey:{inventory:{tools:{windBell:1}}}}),islandGates:()=>({r4:[],r5:[]})};const preResize=skinCalls;boot.createNavigation();boot.resize();const before=skinCalls;assert.ok(before>preResize,'T2: island button skin is baked during resize while hidden');boot.paintNavigation();boot.paintNavigation();assert.equal(skinCalls,before,'T2: first visible island frame uses the pre-baked skin; no per-frame surface rebuild');assert.deepEqual([...boot.controls].filter(([,n])=>n.active).map(([k])=>k),['mainline']);

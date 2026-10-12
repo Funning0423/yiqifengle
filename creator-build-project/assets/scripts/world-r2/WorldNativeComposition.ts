@@ -2,7 +2,7 @@ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } f
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
-import { createOriginalLevelBackground } from './OriginalLevelBackground';
+import { createIslandBoardBackground } from './IslandBoardBackground';
 import type { Selection } from './ManagedBoardSession';
 import RegionalAPI from '../regional-r05/runtime/index.js';
 import CampaignHost from '../regional-r05/runtime/campaign-host.js';
@@ -35,7 +35,7 @@ export class WorldNativeComposition extends Component {
     const fixture:any=this.smokeFixture.json;
     this.selection={provider:'r4',stageId:fixture.stageId,seed:fixture.seed};
     const composition=this;
-    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:createOriginalLevelBackground,get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
+    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:createIslandBoardBackground,get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
       select:id=>{if(!this.selection||id!==this.selection.stageId)throw Error('Select provider/stage explicitly first');return {...this.selection};},
       navigation:{exit:()=>world.commands().exitLevel(),resume:()=>world.commands().snapshot().needsResume?world.commands().resume():undefined},
     });
@@ -80,7 +80,10 @@ export class WorldNativeComposition extends Component {
     const readOnly={load:(key:string)=>this.r4.platform.load(key),save:()=>false};
     const r4=new (R4 as any)({platform:readOnly,journey:this.mainline.journey}).snapshot().stages;
     const r5=(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>{const target=this.regionSelection(x.region);return target.ok?{id:target.selection.stageId,region:x.region,seed:target.selection.seed,...(CampaignHost as any).inspectSelection(this.persistence,target.selection)}:{id:x.id,region:x.region,ok:false,reason:target.reason};});
-    return {r4,r5};
+    // Journal display only (x/4 per region): the provider still owns every gate and write.
+    const challenges:Record<string,number>={tide:0,meadow:0,sky:0};
+    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id);if(m)challenges[m[1]]++;}}catch{}
+    return {r4,r5,challenges};
   }
 
   mainlineStatus(){return this.mainline.createController().snapshot();}

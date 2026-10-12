@@ -1,0 +1,96 @@
+{
+ "first_screen": {
+  "file": "first_screen_composite.jpg",
+  "size": [
+   750,
+   1624
+  ],
+  "bytes": 58207,
+  "jpeg_quality": 91
+ },
+ "logo": {
+  "scale": 0.78,
+  "size": [
+   92,
+   97
+  ],
+  "center": [
+   389,
+   340
+  ],
+  "topleft": [
+   343,
+   292
+  ],
+  "visible_bbox": [
+   347,
+   295,
+   432,
+   385
+  ],
+  "visible_pct": [
+   18.2,
+   23.7
+  ]
+ },
+ "title": {
+  "scale": 0.92,
+  "size": [
+   432,
+   134
+  ],
+  "center": [
+   375,
+   452
+  ],
+  "topleft": [
+   159,
+   385
+  ],
+  "visible_bbox": [
+   166,
+   392,
+   590,
+   518
+  ],
+  "visible_pct": [
+   24.1,
+   31.9
+  ]
+ },
+ "bar_track": {
+  "size": [
+   496,
+   44
+  ],
+  "topleft": [
+   127,
+   1271
+  ],
+  "center_y": 1293,
+  "center_pct": 79.6,
+  "visible_bbox": [
+   133,
+   1283,
+   617,
+   1306
+  ]
+ },
+ "tip_text": {
+  "top_y": 1341,
+  "pct": 85.0
+ },
+ "crop_16x9": {
+  "visible_y": [
+   145,
+   1479
+  ],
+  "handover_mean_abs_diff": 0.86,
+  "handover_p99_diff": 6.0
+ },
+ "loading_frames": {
+  "loading_final_000.png": 319155,
+  "loading_final_050.png": 323792,
+  "loading_final_100.png": 327080
+ }
+}
