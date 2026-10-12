@@ -50,7 +50,9 @@ export interface CharacterAdapter {
   walkProgress?():number|null;
 }
 /** T2+: camera events for audio/debug/HUD sequencing (no logging here). crane-start: the outbound crane leaves the rail;
- *  settled: the camera is at the stable pose with zero speed and the character is still (fired right after restore()). */
+ *  settled: the camera is at the stable pose with zero speed and the character is still (fired right after restore()).
+ *  The return door is not a camera event and, on the follow route (cameraEntry.doorSeconds <= 0), not a 'closing-door'
+ *  state either: subscribers use WorldFlow.onDoorShut, which fires once when the leaf actually reaches 0. */
 export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress:number;seconds:number}>|Readonly<{kind:'settled';place:'island'|'home'}>;
 /** UI is granted commands/status only; never a world node or camera reference. */
 export interface LevelLease { requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void; }
@@ -220,6 +222,14 @@ export class WorldFlow {
   /** T2+: subscribe to camera events; returns unsubscribe. Listener errors are contained. */
   onCameraEvent(listener:(event:CameraEvent)=>void):()=>void {this.cameraListeners.add(listener);return ()=>{this.cameraListeners.delete(listener);};}
   private cameraEvent(event:CameraEvent):void {for(const fn of Array.from(this.cameraListeners)){try{fn(event);}catch(error){console.warn('camera event listener failed',String(error));}}}
+  private readonly doorShutListeners=new Set<()=>void>();
+  private doorShutSent=false;
+  /** Fires once per return when the door leaf actually reaches 0 (follow: during the walk, behind the lens; legacy
+   *  stop: when the close channel / animateDoor finishes). Not when the 'closing-door' state begins — the follow route
+   *  never enters that state. Returns unsubscribe. Listener errors are contained. */
+  onDoorShut(listener:()=>void):()=>void {this.doorShutListeners.add(listener);return ()=>{this.doorShutListeners.delete(listener);};}
+  private emitDoorShut():void {if(this.doorShutSent)return;this.doorShutSent=true;
+    for(const fn of Array.from(this.doorShutListeners)){try{fn();}catch(error){console.warn('door shut listener failed',String(error));}}}
   constructor(options:{config:RouteConfig;mode?:Mode;character?:CharacterAdapter;levels:LevelAdapter;skycity?:RegionVisitAdapter;loadWorld:(t:Cancellation)=>Promise<WorldLease>;onChange?:(s:Snapshot)=>void}) {
     this.config=options.config;this.mode=options.mode??'fixed';this.character=options.character??null;this.levels=options.levels;this.skycity=options.skycity;this.loadWorld=options.loadWorld;this.emit=options.onChange??(()=>{});
   }
@@ -419,6 +429,7 @@ export class WorldFlow {
   async returnHome():Promise<Result> {
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
+      this.doorShutSent=false; // this return may shut the leaf again
       // T2 (mirror): enter BOTH with exterior lighting (weight 0) so the first return frame matches the island frame.
       // Hold island light in the SAME frame the interior view turns on (the rig resets to room light on that switch).
       const c=this.config;this.world!.setLayers(BOTH);if(c.interiorLighting)this.world!.setRoomLightWeight?.(0);
@@ -445,8 +456,9 @@ export class WorldFlow {
       else{if(c.doorDrift)this.world!.setDoor(c.openDeg);await this.walk(c.toThreshold,toThreshold,t);
         this.change('crossing-in');await this.walk(c.inCrossing,crossIn,t);}
       // No original concurrent door-close samples: stop inside, THEN close, THEN approach seat.
+      // 'closing-door' still marks this legacy stop. The shut event waits until animateDoor has put the leaf at 0.
       this.change('closing-door');await t.wait(this.world!.animateDoor(c.openDeg,0,1,t));t.check();
-      this.homeLayers();this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t);
+      this.homeLayers();this.emitDoorShut();this.change('walking-to-seat');await this.walk(c.toSeat,c.cameraToSeat??[c.cameraInside,c.cameraHome],t);
       this.change('sitting');await this.action({kind:'sit',seat:c.seat},t);
       this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
     });
@@ -469,7 +481,7 @@ export class WorldFlow {
     // Mac r4 follow: doorSeconds <= 0 = no stop at the entrance (the leaf closes behind the lens during toSeat).
     const stop=!(E.doorSeconds<=0),doorS=stop?(E.doorSeconds>0?E.doorSeconds:1):0;
     segs.push(this.walkSegment(c.inCrossing,E.cross,'crossing-in'));
-    if(stop)segs.push({seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();}});
+    if(stop)segs.push({seconds:doorS,cameras:E.door,state:'closing-door',run:async tk=>{await this.waitSeconds(doorS,tk);tk.check();this.world!.setDoor(0);this.homeLayers();this.emitDoorShut();}});
     segs.push(this.walkSegment(c.toSeat,E.seat,'walking-to-seat'),
       {seconds:sitS,cameras:E.sit,state:'sitting',run:tk=>this.action({kind:'sit',seat:c.seat},tk)});
     const total=segs.reduce((x,g)=>x+g.seconds,0),a=Math.max(0,o.easeIn??0),b=Math.max(0,o.easeOut??0);
@@ -486,11 +498,13 @@ export class WorldFlow {
     if(dd&&from!==open){const r1=tIn-dd.openBefore,r0=r1-dd.openSeconds;door.push([Math.max(0,r0/total),from],[Math.max(1e-6,r1/total),open]);}
     let shutAfter=1;
     if(stop){// the close starts 0.1 of the door segment after she stops (key-progress clock vs state change: never during crossing-in)
-      const d0=tIn+crossS+.1*doorS,d1=tIn+crossS+doorS*Math.max(.2,Math.min(1,E.doorCloseFraction||1));door.push([at(d0),open],[at(d1),0],[1,0]);}
+      const d0=tIn+crossS+.1*doorS,d1=tIn+crossS+doorS*Math.max(.2,Math.min(1,E.doorCloseFraction||1));shutAfter=at(d0);door.push([at(d0),open],[at(d1),0],[1,0]);}
     else{const dc=E.doorClose??{from:.7,seconds:2.4},c0=seat0+clamp01(dc.from)*seatS,s0=at(c0),s1=at(Math.min(total,c0+Math.max(.1,dc.seconds)));shutAfter=s0;door.push([s0,open],[s1,0],[1,0]);}
     for(let i=1;i<door.length;i++)if(!(door[i][0]>door[i-1][0]))door[i]=[door[i-1][0]+1e-6,door[i][1]];
     // Room light w: unchanged T5 path (walk ramps interiorLighting.toThreshold / crossIn on the walk clock, see the route builder).
-    await this.span(segs,t,track,undefined,undefined,door,keyMap,{onDoorShut:stop?undefined:()=>this.homeLayers(),shutAfter});
+    // onDoorShut: the leaf is at 0. Follow switches to HOME layers then; the stop path already does that at the end of
+    // its closing-door segment. Either way the public shut event is this moment, not the 'closing-door' state change.
+    await this.span(segs,t,track,undefined,undefined,door,keyMap,{onDoorShut:()=>{if(!stop)this.homeLayers();this.emitDoorShut();},shutAfter});
     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});
   }
   advance(seconds:number):void {
@@ -515,7 +529,7 @@ export class WorldFlow {
     if(this.state==='disposed')return;this.error=message;this.needsResume=true;this.invalidate();this.level?.hide();this.visit?.hide();this.character?.setVisible(false);this.world?.setLayers(NONE);this.change('error');
   }
   dispose():void {
-    if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
+    if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.doorShutListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
     this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
   }
 }

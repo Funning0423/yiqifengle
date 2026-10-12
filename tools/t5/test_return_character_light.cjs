@@ -6,13 +6,19 @@
 // then rig.setView), setLayers(interior) -> w=1, then the flow's own w / exterior-key writes of that frame.
 // Per frame it evaluates the radiance of the side of the girl the lens sees (normal = horizontal direction her root ->
 // lens): Lambert sun (rig's Main Light rotation/illuminance/colour) + hemispheric ambient (rig's skyIllum, sky/ground).
-// Reference = the approved outbound frontal hold (median over the settle before state 'island', same mode) at w=0 and the
-// seated home view after the return at w=1 (approved indoor look), linear in the frame's w.
-// FAIL (per day and night) when, on any in-shot return frame (head inside a 0.46-aspect frustum, lens <= 10 m):
-//   - the radiance drops below 45 % of that expected level, or
+// The follow lens stays behind her, so that side is her back under the authored sun (no exterior-key mirror, no fill).
+// Reference = the approved outbound frontal hold (median over the settle before state 'island', same mode).
+// FAIL (per day and night) when:
+//   - on any in-shot exterior follow frame (walking-home, head in a 0.46-aspect frustum, lens <= 10 m, room weight
+//     still 0) that side is below 56 % (day) or 62 % (night) of the outbound hold, or
+//   - on any in-shot walking-home frame it is below 45 % of the w-linear expected level (hold at w=0, seated home
+//     view at w=1) — this floor is not widened, or
 //   - it dips: lower than 85 % of BOTH the best value before and the best value after it on the return (a valley), or
-//   - the layers are not BOTH (exterior + interior view) on the exterior part of the walk, or the girl is outdoors
-//     with w > 0 before the T5 ramp / the key is not 0 on the first return frame (must match the island frame).
+//   - the layers are not BOTH on the exterior part of the walk, or w/k are not 0 on the first return frame, or
+//   - return house/terrain photometry (Main Light rotation, illuminance, colour, ambient) differs from a replay that
+//     never applies the exterior key.
+// The old mirror-timing check (key already 1 the first time the lens sees her front) is gone: this lens does not
+// swing onto her front, and the key is not run.
 // Plus rig unit checks of the R3 exterior key. usage: node test_return_character_light.cjs [--root <worktree>] [--json out]
 //   --root: run against another worktree (e.g. 38b005f to reproduce the r3 failure; key API absent there = k ignored).
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
@@ -74,36 +80,51 @@ function radiance(x,n){const L=rotate(x.sun.node.rotation,[0,0,-1]),nl=Math.max(
 function inShot(f,aspect=.46){const head=[f.root[0],f.root[1]+1.3,f.root[2]],p=f.cam.position,d=[head[0]-p[0],head[1]-p[1],head[2]-p[2]],dist=Math.hypot(...d);if(dist>10)return false;
   const q=f.cam.rotation,inv=[-q[0],-q[1],-q[2],q[3]],c=rotate(inv,d);if(c[2]>=0)return false;const t=Math.tan(f.cam.fovVerticalDeg*Math.PI/360);
   return Math.abs(c[1]/-c[2])<=t&&Math.abs(c[0]/-c[2])<=t*aspect;}
-/** Replays the simulated frames through the real rig like WorldFlowComponent (applyDayNight on layer switches). */
-function replay(frames,night){
+/** Replays the simulated frames through the real rig like WorldFlowComponent (applyDayNight on layer switches).
+ *  forceKey0: never write the flow's exterior key (house and terrain must match this replay on the return). */
+function replay(frames,night,forceKey0){
   const x=makeRig(),hasKey=typeof x.rig.setExteriorKey==='function',view=resolveDayNight(night?'night':'day',true);let last=null;const out=[];
   for(const f of frames){const L=f.layers||{interior:false,exterior:false,backdrop:false},sig=JSON.stringify(L);
     if(sig!==last){last=sig;x.sun.illuminance=LIGHT_HOME*resolveDayNight(night?'night':'day',!!L.exterior).lightScale;const c=view.lightColor;x.sun.color=new Color(c[0],c[1],c[2],255);
       x.rig.setView(!!L.interior,!!L.backdrop,night);if(L.interior)x.rig.setRoomLightWeight(1);}
-    if(L.interior){x.rig.setRoomLightWeight(f.weight);if(hasKey)x.rig.setExteriorKey(f.key??0);}
+    if(L.interior){x.rig.setRoomLightWeight(f.weight);if(hasKey)x.rig.setExteriorKey(forceKey0?0:(f.key??0));}
     const toCam=[f.cam.position[0]-f.root[0],0,f.cam.position[2]-f.root[2]],n0=Math.hypot(toCam[0],toCam[2])||1,n=[toCam[0]/n0,0,toCam[2]/n0];
+    const q=x.sun.node.rotation;
     out.push({t:f.t,op:f.op,state:f.state,w:x.rig.getRoomLightWeight(),k:hasKey?x.rig.getExteriorKey():0,layers:L,shot:inShot(f),n,root:f.root,yaw:f.yaw,cam:f.cam,
-      sunI:x.sun.illuminance*luma(x.sun.color.r/255,x.sun.color.g/255,x.sun.color.b/255),sunC:[x.sun.color.r,x.sun.color.g,x.sun.color.b],amb:x.ambient.skyIllum,sky:[x.ambient._sky.x,x.ambient._sky.y,x.ambient._sky.z],ground:[x.ambient._ground.x,x.ambient._ground.y,x.ambient._ground.z],...radiance(x,n)});}
+      sunI:x.sun.illuminance*luma(x.sun.color.r/255,x.sun.color.g/255,x.sun.color.b/255),sunC:[x.sun.color.r,x.sun.color.g,x.sun.color.b],amb:x.ambient.skyIllum,sky:[x.ambient._sky.x,x.ambient._sky.y,x.ambient._sky.z],ground:[x.ambient._ground.x,x.ambient._ground.y,x.ambient._ground.z],
+      photo:{q:[q.x,q.y,q.z,q.w],I:x.sun.illuminance,c:[x.sun.color.r,x.sun.color.g,x.sun.color.b],amb:x.ambient.skyIllum,sky:[x.ambient._sky.x,x.ambient._sky.y,x.ambient._sky.z],ground:[x.ambient._ground.x,x.ambient._ground.y,x.ambient._ground.z]},...radiance(x,n)});}
   return {rows:out,hasKey};}
+function samePhoto(a,b){const e=1e-9;if(!a||!b)return false;if(a.I!==b.I||a.amb!==b.amb)return false;
+  if(a.c.some((v,i)=>v!==b.c[i]))return false;
+  if(a.q.some((v,i)=>Math.abs(v-b.q[i])>e))return false;
+  if(a.sky.some((v,i)=>Math.abs(v-b.sky[i])>e)||a.ground.some((v,i)=>Math.abs(v-b.ground[i])>e))return false;return true;}
 const results=[];const test=async(name,fn)=>{try{const info=await fn();results.push({name,pass:true,info});}catch(e){results.push({name,pass:false,error:String(e&&e.message||e)});}};
 (async()=>{
   const env=S.create(),run=await S.run(env),F=run.frames;
   const per={};
-  for(const night of [false,true]){const mode=night?'night':'day';const {rows,hasKey}=replay(F,night);per[mode]={rows,hasKey};
+  for(const night of [false,true]){const mode=night?'night':'day';const floor=night?0.62:0.56;const {rows,hasKey}=replay(F,night);const bare=replay(F,night,true);per[mode]={rows,hasKey};
     const out=rows.filter(r=>r.op==='leaveHome'),ret=rows.filter(r=>r.op==='returnHome');
     // reference: outbound settle before 'island' (frontal hold, Funning-approved look), in-shot frames only
     const iIsl=out.findIndex(r=>r.state==='island'),hold=out.slice(0,iIsl<0?out.length:iIsl).filter(r=>r.shot).slice(-90).map(r=>r.E).sort((a,b)=>a-b);
     const ref=hold[Math.floor(hold.length/2)];
-    // room end: the seated home view after the return (w=1, approved indoor look); the floor follows w between the two
+    // room end: the seated home view after the return (w=1, approved indoor look); the 45 % floor follows w between the two
     const homeE=rows.filter(r=>r.op==='returnHome:hold').map(r=>r.E).sort((a,b)=>a-b),refHome=homeE[Math.floor(homeE.length/2)];
-    const floorAt=r=>.45*((1-r.w)*ref+r.w*Math.min(ref,refHome));
-    // exterior part of the return: from the first frame until the layers leave BOTH (door shut) or crossing-in begins
-    const ext=ret.filter(r=>r.state==='walking-home');const shot=ext.filter(r=>r.shot);
-    const ratio=r=>r.E/(floorAt(r)/.45),minR=Math.min(...shot.map(ratio)),worst=shot.find(r=>ratio(r)===minR),minE=worst.E;
+    const expected=r=>(1-r.w)*ref+r.w*Math.min(ref,refHome);
+    // exterior part of the return: walking-home, until crossing-in. Follow shot of her back is the w=0 stretch.
+    const ext=ret.filter(r=>r.state==='walking-home');const shot=ext.filter(r=>r.shot),follow=shot.filter(r=>r.w<=1e-9);
+    const ratio=r=>r.E/expected(r),minR=Math.min(...shot.map(ratio)),worst=shot.find(r=>ratio(r)===minR);
+    const followRatio=r=>r.E/ref,minF=Math.min(...follow.map(followRatio)),worstF=follow.find(r=>followRatio(r)===minF);
     const dips=[];for(let i=0;i<shot.length;i++){const before=Math.max(...shot.slice(0,i+1).map(r=>r.E)),after=Math.max(...shot.slice(i).map(r=>r.E));if(shot[i].E<.85*Math.min(before,after))dips.push(shot[i]);}
-    const firstFront=shot.find(r=>r.n[2]<-.5);
-    per[mode].summary={ref:+ref.toFixed(0),refHome:+refHome.toFixed(0),inShotFrames:shot.length,minRatio:+minR.toFixed(3),minRatioToHold:+(Math.min(...shot.map(r=>r.E))/ref).toFixed(3),worstAt:worst&&{t:+(worst.t-ret[0].t).toFixed(2),w:+worst.w.toFixed(2),k:+worst.k.toFixed(2),nl:+worst.nl.toFixed(2)},
-      dipFrames:dips.length,firstDip:dips[0]&&{t:+(dips[0].t-ret[0].t).toFixed(2),ratio:+(dips[0].E/ref).toFixed(3)},keyAtFirstFrontal:firstFront?+firstFront.k.toFixed(3):null,firstFrontalT:firstFront?+(firstFront.t-ret[0].t).toFixed(2):null};
+    const bareRet=bare.rows.filter(r=>r.op==='returnHome');let photoMismatch=null;
+    for(let i=0;i<ret.length;i++)if(!samePhoto(ret[i].photo,bareRet[i].photo)){photoMismatch={t:+(ret[i].t-ret[0].t).toFixed(2),k:ret[i].k,w:ret[i].w};break;}
+    per[mode].summary={ref:+ref.toFixed(0),refHome:+refHome.toFixed(0),inShotFrames:shot.length,followFrames:follow.length,floor,minFollowRatio:+minF.toFixed(3),minRatio:+minR.toFixed(3),
+      followWorst:worstF&&{t:+(worstF.t-ret[0].t).toFixed(2),w:+worstF.w.toFixed(2),nl:+worstF.nl.toFixed(2)},
+      worstAt:worst&&{t:+(worst.t-ret[0].t).toFixed(2),w:+worst.w.toFixed(2),k:+worst.k.toFixed(2),nl:+worst.nl.toFixed(2)},
+      dipFrames:dips.length,firstDip:dips[0]&&{t:+(dips[0].t-ret[0].t).toFixed(2),ratio:+(dips[0].E/ref).toFixed(3)},photoMismatch};
+    await test(mode+': follow lens - the side it sees (her back, authored sun) >= '+(floor*100).toFixed(0)+' % of the outbound frontal hold on every in-shot frame while w=0',()=>{
+      assert.ok(follow.length>=60,'too few exterior follow frames: '+follow.length);
+      assert.ok(minF>=floor,`min ${(minF*100).toFixed(1)} % of the outbound hold at t=${per[mode].summary.followWorst.t}s (N.L=${per[mode].summary.followWorst.nl})`);
+      return {followFrames:follow.length,minFollowRatio:per[mode].summary.minFollowRatio};});
     await test(mode+': return walk - lit side the lens sees >= 45 % of the expected level on every in-shot frame (outbound frontal hold at w=0, seated home view at w=1, linear in w)',()=>{
       assert.ok(shot.length>=60,'too few in-shot return frames: '+shot.length);
       assert.ok(minR>=.45,`min ${(minR*100).toFixed(1)} % of the expected level at t=${per[mode].summary.worstAt.t}s (w=${per[mode].summary.worstAt.w}, k=${per[mode].summary.worstAt.k}, N.L=${per[mode].summary.worstAt.nl})`);
@@ -114,8 +135,11 @@ const results=[];const test=async(name,fn)=>{try{const info=await fn();results.p
       for(const r of ext)assert.ok(r.layers.interior&&r.layers.exterior,'not BOTH at t='+r.t);
       assert.equal(ret[0].w,0);assert.equal(ret[0].k,0);
       const firstW=ext.findIndex(r=>r.w>0);assert.ok(firstW>ext.length*.4,'w rises too early: frame '+firstW+' of '+ext.length);
-      for(const r of out)assert.equal(r.k,0,'k on the way out at t='+r.t);
-      if(hasKey)assert.ok(firstFront&&firstFront.k>=1-1e-9,'key not complete when the lens first sees her front: k='+firstFront?.k);});
+      for(const r of out)assert.equal(r.k,0,'k on the way out at t='+r.t);});
+    await test(mode+': return house and terrain photometry matches a replay with the exterior key forced off',()=>{
+      assert.equal(ret.length,bareRet.length,'return frame count');
+      for(const r of ret)assert.equal(r.k,0,'exterior key written on the return at t='+r.t);
+      assert.equal(photoMismatch,null,'sun/ambient diverged at t='+(photoMismatch&&photoMismatch.t)+'s');});
   }
   await test('rig: mirroredKey keeps elevation + x, mirrors z; k=0 exact authored, w=1 exact room (k ignored); k reset on setView switch; validity like w',()=>{
     assert.ok(mirroredKey,'mirroredKey missing (pre-R3 rig)');

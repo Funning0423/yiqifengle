@@ -73,6 +73,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
   if(!(await flow.load()).ok)throw Error('load failed');
   const results=[];
   const cameraEvents=[];flow.onCameraEvent(e=>cameraEvents.push({frame,t:frame*dt,...e}));
+  const doorShut=[];flow.onDoorShut(()=>doorShut.push({frame,t:frame*dt,state}));
   const windEvents=[];flow.onWindStrength(s=>windEvents.push({frame,s}));
   // script entries: 'op' or ['op', arg] (e.g. ['leaveHome',{from:pose}] = leave from a dragged room view)
   for(const entry of script){const [op,arg]=Array.isArray(entry)?entry:[entry];
@@ -85,6 +86,6 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     // hold a few stable frames after arrival (camera must not move)
     for(let k=0;k<10;k++){frame++;await tick();frames.push({...snap(),op:op+':hold'});}
   }
-  return {frames,states,results,events:world.events,cameraEvents,windEvents,actions,dt};
+  return {frames,states,results,events:world.events,cameraEvents,doorShut,windEvents,actions,dt};
 }
 module.exports={create,run};

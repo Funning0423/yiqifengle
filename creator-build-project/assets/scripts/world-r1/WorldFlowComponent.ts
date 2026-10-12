@@ -138,7 +138,9 @@ export class WorldFlowComponent extends Component {
   private roomLook=new RoomLook(homePoseEntry());
   private readonly settledListeners=new Set<(place:'island'|'home')=>void>();
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
+  private readonly doorShutListeners=new Set<()=>void>();
   private flowEventsOff:(()=>void)|null=null;
+  private doorShutOff:(()=>void)|null=null;
   private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();private windOff:(()=>void)|null=null;
   /** T2+ hook (contract with GGbot T0): fires once per completed journey when the camera has reached cameraIsland /
    *  cameraHome with zero speed and the girl is still. Returns unsubscribe. No logging here. */
@@ -146,6 +148,9 @@ export class WorldFlowComponent extends Component {
   /** T2+ hook: the outbound camera leaves the rail and starts the crane up to the island wide shot (ends at
    *  onCameraSettled('island')). info.seconds = time from the start of crossing-out. Returns unsubscribe. */
   onCraneStart(listener:(info:{segment:'toIsland';progress:number;seconds:number})=>void):()=>void {this.craneListeners.add(listener);return ()=>{this.craneListeners.delete(listener);};}
+  /** Return door leaf has reached 0 (once per return). The follow route never enters 'closing-door'; this is the shut.
+   *  Returns unsubscribe. */
+  onDoorShut(listener:()=>void):()=>void {this.doorShutListeners.add(listener);return ()=>{this.doorShutListeners.delete(listener);};}
   /** T2+ wind strength 0..1 for the current frame (primary API; Voice bot + 角色动画bot poll it every frame). Clamped,
    *  0 when disposed / before the world exists / whenever the camera is settled (island idle = exactly 0).
    *  Driven by WorldFlowCore's outbound frontal-swing wind channel (signature unchanged from work/运镜bot-wind-api). */
@@ -156,6 +161,10 @@ export class WorldFlowComponent extends Component {
   private forwardCameraEvent(e:CameraEvent){
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
     for(const fn of list){try{e.kind==='settled'?fn(e.place):fn({segment:e.segment,progress:e.progress,seconds:e.seconds});}catch(error){console.warn('camera hook listener failed',String(error));}}
+  }
+  private forwardDoorShut(){
+    this.reportRuntime('door-shut');
+    for(const fn of Array.from(this.doorShutListeners)){try{fn();}catch(error){console.warn('door shut listener failed',String(error));}}
   }
   private roomLookToken:Cancellation|null=null;
   private jobs=new Set<Job>();
@@ -202,6 +211,7 @@ export class WorldFlowComponent extends Component {
     this.installCameraDebug();
     this.dayNightMode=localNight(new Date())?'night':'day';
     this.flow=new WorldFlow({config:createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE),mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
+    this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);
     return this.flow.load();
@@ -423,7 +433,7 @@ export class WorldFlowComponent extends Component {
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
   onDestroy():void {
-    this.flowEventsOff?.();this.flowEventsOff=null;this.settledListeners.clear();this.craneListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
+    this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
