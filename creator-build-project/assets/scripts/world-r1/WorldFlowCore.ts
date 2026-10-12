@@ -49,7 +49,8 @@ export interface CharacterAdapter {
    *  not walking. When present, camera track progress follows distance instead of elapsed time. */
   walkProgress?():number|null;
 }
-/** T2+: camera events for audio/debug/HUD sequencing (no logging here). crane-start: the outbound crane leaves the rail;
+/** T2+: camera events for audio/debug/HUD sequencing (no logging here). crane-start: the outbound lens first faces her
+ *  on the single exit arc (rotation, dolly and lift are already one move; this is not a second phase).
  *  settled: the camera is at the stable pose with zero speed and the character is still (fired right after restore()).
  *  The return door is not a camera event and, on the follow route (cameraEntry.doorSeconds <= 0), not a 'closing-door'
  *  state either: subscribers use WorldFlow.onDoorShut, which fires once when the leaf actually reaches 0. */
@@ -106,9 +107,10 @@ export interface RouteConfig {
   /** T2+: ONE camera move over stand-up + turn (progress over that move; first key should be cameraHome). With
    *  cameraTracks.standTurn it replaces the static stand + 1 s homeToDoor + static turn of the original. */
   cameraStandTurn?:readonly Pose[];
-  /** T2+: outbound crane. Without cameraSettle, cameraToIsland's LAST key (cameraIsland) is reached `settleSeconds`
-   *  after she stops. With cameraSettle, that climb is keyed on the settle clock (last key = cameraIsland) and
-   *  cameraToIsland ends on the pose at the moment she stops. startProgress = toIsland walk progress of the crane's first key.
+  /** T2+: outbound exit arc. Without cameraSettle, cameraToIsland's LAST key (cameraIsland) is reached `settleSeconds`
+   *  after she stops. With cameraSettle, the same arc is keyed on the settle clock (last key = cameraIsland) and
+   *  cameraToIsland ends on the pose at the moment she stops. startProgress = her toIsland walk progress when the lens
+   *  first faces her (wind is 1 there). Rotation, dolly and lift are one arc, not a later climb.
    *  returnLeadSeconds: the return crane-down starts this long before she turns/walks (mirror of settleSeconds).
    *  startSeconds: crane-start mark time from the start of crossing-out (precomputed by the route builder from the eased
    *  outbound track; WorldFlowCore stays free of CameraPose value imports). */

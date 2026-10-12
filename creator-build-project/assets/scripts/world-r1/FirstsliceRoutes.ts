@@ -28,7 +28,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
   return {position:[root[0]+d[0]*L,root[1]+d[1]*L,root[2]+d[2]*L],target:[ta[0]+(b.target[0]-ta[0])*w,ta[1]+(b.target[1]-ta[1])*w,ta[2]+(b.target[2]-ta[2])*w],
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
 }
-type PaceOpts=Readonly<{sampleMetres:number;craneRampSeconds:number}>;
+type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;depart:Readonly<{blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -55,27 +55,28 @@ function pchipScalar(t:readonly number[],y:readonly number[]):(x:number)=>number
     return (2*u3-3*u2+1)*y[i]+(u3-2*u2+u)*hh*m[i]+(-2*u3+3*u2)*y[i+1]+(u3-u2)*hh*m[i+1];};
 }
 /**
- * Outbound lens along a centripetal spline through the authored span knots (crossing, railOut, equal-u crane steps,
- * cameraIsland). pchip on the five rail poses zeroed the reversing axis at the swing (~4.9 → ~2 → ~4.9 m/s); the spline
- * does not, and arc-length samples between those knots keep each knot on its walk progress (frontal pose, wind, crane
- * mark). From the crane knot the same spline is retimed with a smoothstep off the rail speed, then the track ease-out
- * settles it — the old one-segment settle climbed ~3 → ~12 m/s. Zoom is not that spline: a 1-D centripetal curve kinks
- * the fov rate at each rail knot (~−15 → ~−8 deg/s in one frame). Fov is a scalar pchip of the knot fovs against span
- * progress, so the rate stays continuous and every knot keeps its authored fov. She does not wait.
+ * One outbound arc from the doorway pose to cameraIsland. Rotation (behind her → in front), dolly-back and the crane
+ * lift share that arc. The orbit around her crosses the lighthouse wall, so the first metres are a doorway portal:
+ * out through the opening, up over the open leaf, then a quintic blend onto that orbit once the orbit is outside.
+ * One cubic then carries the same arc-length clock to the island. A short smoothstep leaves the doorway follow
+ * speed and the rest of the arc holds one cruise until the track ease-out lands. Fov eases along that same arc.
+ * Wind is 1 at the first frontal sample and stays 1 only while she is still in front. She does not wait.
  */
-function paceOutbound(opts:PaceOpts,span:readonly Pose[],cut:Readonly<{qCrossEnd:number;qCrane:number;qWalkEnd:number;frontalQ:number}>,track:Readonly<{easeIn?:number;easeOut?:number}>,totalSeconds:number,island:Pose):{cross:Pose[];toIsland:Pose[];settle:Pose[];frontalProgress:number}{
+function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd:number;qWalkEnd:number}>,track:Readonly<{easeIn?:number;easeOut?:number}>,totalSeconds:number,island:Pose,actorAt:(q:number)=>{root:Vec;yaw:number}):{cross:Pose[];toIsland:Pose[];settle:Pose[];frontalQ:number;holdQ:number;frontalWalk:number;frontalSeconds:number}{
   const qOf=(k:Pose)=>k.progress??0;
-  if(span.length<6||Math.abs(qOf(span[0]))>1e-9||Math.abs(qOf(span[span.length-1])-1)>1e-9)throw Error('outbound pace: span keys');
-  const posAt=centripetal(span.map(k=>k.position)),tgtAt=centripetal(span.map(k=>k.target));
-  const fovOfQ=pchipScalar(span.map(qOf),span.map(k=>k.fovVerticalDeg??50));
+  const {qCrossEnd,qWalkEnd}=cut;
+  if(door.length<4||Math.abs(qOf(door[0]))>1e-9||Math.abs(qOf(door[door.length-1])-qCrossEnd)>1e-6)throw Error('outbound pace: door keys');
+  if(!(qCrossEnd>0&&qCrossEnd<qWalkEnd&&qWalkEnd<1))throw Error('outbound pace: segment cuts');
+  const posAt=centripetal(door.map(k=>k.position)),tgtAt=centripetal(door.map(k=>k.target));
+  const fovOfQ=pchipScalar(door.map(qOf),door.map(k=>k.fovVerticalDeg??50));
   const per=24,pts:{pose:Look;s:number;knot:number}[]=[];let sAcc=0;
-  const at=(i:number,u:number,knot:number):Look=>{if(knot>=0)return span[knot];
-    return {position:posAt(i,u),target:tgtAt(i,u),fovVerticalDeg:fovOfQ(qOf(span[i])+(qOf(span[i+1])-qOf(span[i]))*u)};};
-  for(let i=0;i<span.length-1;i++)for(let j=0;j<=per;j++){if(j===0&&i>0)continue;const u=j/per,knot=j===0?i:j===per?i+1:-1,pose=at(i,u,knot);
+  const at=(i:number,u:number,knot:number):Look=>{if(knot>=0)return door[knot];
+    return {position:posAt(i,u),target:tgtAt(i,u),fovVerticalDeg:fovOfQ(qOf(door[i])+(qOf(door[i+1])-qOf(door[i]))*u)};};
+  for(let i=0;i<door.length-1;i++)for(let j=0;j<=per;j++){if(j===0&&i>0)continue;const u=j/per,knot=j===0?i:j===per?i+1:-1,pose=at(i,u,knot);
     if(pts.length){const p=pts[pts.length-1].pose.position,q=pose.position;sAcc+=Math.hypot(q[0]-p[0],q[1]-p[1],q[2]-p[2]);}
     pts.push({pose,s:sAcc,knot});}
-  const knotS=span.map((_,i)=>{const p=pts.find(x=>x.knot===i);if(!p)throw Error('outbound pace: knot arc');return p.s;});
-  const poseAtS=(s:number):Look=>{if(s<=0)return pts[0].pose;if(s>=sAcc)return pts[pts.length-1].pose;let lo=0,hi=pts.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(pts[m].s<s)lo=m;else hi=m;}
+  const knotS=door.map((_,i)=>{let found=-1;for(let k=0;k<pts.length;k++)if(pts[k].knot===i){found=k;break;}if(found<0)throw Error('outbound pace: knot arc');return pts[found].s;});
+  const doorAtS=(s:number):Look=>{if(s<=0)return pts[0].pose;if(s>=sAcc)return pts[pts.length-1].pose;let lo=0,hi=pts.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(pts[m].s<s)lo=m;else hi=m;}
     const a=pts[lo],b=pts[hi],u=(s-a.s)/((b.s-a.s)||1);
     if(a.knot>=0&&u<1e-4)return a.pose;if(b.knot>=0&&u>1-1e-4)return b.pose;
     const pa=a.pose.position,pb=b.pose.position,ta=a.pose.target,tb=b.pose.target;
@@ -83,50 +84,121 @@ function paceOutbound(opts:PaceOpts,span:readonly Pose[],cut:Readonly<{qCrossEnd
       fovVerticalDeg:(a.pose.fovVerticalDeg??50)+((b.pose.fovVerticalDeg??50)-(a.pose.fovVerticalDeg??50))*u};};
   const posed=(src:Look,progress:number):Pose=>({position:[src.position[0],src.position[1],src.position[2]],target:[src.target[0],src.target[1],src.target[2]],
     fovVerticalDeg:Math.min(74.9,Math.max(30.1,src.fovVerticalDeg??50)),progress});
-  let ic=0;for(let i=0;i<span.length;i++)if(qOf(span[i])<=cut.qCrane+1e-8)ic=i;
-  if(ic<2||Math.abs(qOf(span[ic])-cut.qCrane)>1e-4)throw Error('outbound pace: crane key missing');
   const step=Math.max(.05,opts.sampleMetres),out:Pose[]=[];
-  const withFov=(src:Look,q:number):Look=>({position:src.position,target:src.target,fovVerticalDeg:fovOfQ(q)});
-  const push=(src:Look,q:number)=>{if(out.length&&q<=(out[out.length-1].progress??0)+1e-6)return;out.push(posed(withFov(src,q),q));};
-  // Arc vs span-progress through the knots up to the crane. All slopes are positive, so this pchip keeps d(arc)/dq
-  // continuous and non-zero: a per-interval constant speed stepped at each knot, and the runtime pchip then spiked.
-  const qK=span.slice(0,ic+1).map(qOf),SK=knotS.slice(0,ic+1),SOfQ=pchipScalar(qK,SK);
-  push(span[0],0);
-  for(let i=0;i<ic;i++){let q=qK[i];
-    while(q<qK[i+1]){const target=SOfQ(q)+step;if(target>=SK[i+1]-step*.35)break;
+  const push=(src:Look,q:number)=>{if(out.length&&q<=(out[out.length-1].progress??0)+1e-6)return;out.push(posed(src,q));};
+  const qK=door.map(qOf),SOfQ=pchipScalar(qK,knotS);
+  push(door[0],0);
+  for(let i=0;i<door.length-1;i++){let q=qK[i];
+    while(q<qK[i+1]){const target=SOfQ(q)+step;if(target>=knotS[i+1]-step*.35)break;
       let a=q,b=qK[i+1];for(let k=0;k<24;k++){const m=(a+b)/2;if(SOfQ(m)<target)a=m;else b=m;}
-      const nq=(a+b)/2;if(!(nq>q+1e-5&&nq<qK[i+1]-1e-5))break;q=nq;push(poseAtS(SOfQ(q)),q);}
-    push(span[i+1],qK[i+1]);}
-  const q0=qK[ic],sStart=knotS[ic],L=knotS[span.length-1]-sStart,D=1-q0;
-  const C0=Math.max(1e-3,(SOfQ(q0)-SOfQ(q0-1e-4))/1e-4);
+      const nq=(a+b)/2;if(!(nq>q+1e-5&&nq<qK[i+1]-1e-5))break;q=nq;push(doorAtS(SOfQ(q)),q);}
+    push(door[i+1],qK[i+1]);}
+  const P0=door[door.length-1].position,P3=island.position,dep=opts.depart;
+  if(!dep||!(dep.seconds>1)||!(dep.handle>0.5)||!(dep.blendMetres>=0)||!(dep.aimDeg>0)||dep.lead.length!==3)throw Error('exit arc: depart');
+  const sm=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*(3-2*t);};
+  const sm5=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
+  const back=doorAtS(Math.max(0,sAcc-.05)).position,tdx=P0[0]-back[0],tdy=P0[1]-back[1],tdz=P0[2]-back[2],tl=Math.hypot(tdx,tdy,tdz)||1;
+  const Tdir:Vec=[tdx/tl,tdy/tl,tdz/tl];
+  const D=1-qCrossEnd,C0=Math.max(1e-3,(SOfQ(qCrossEnd)-SOfQ(qCrossEnd-1e-4))/1e-4);
   const slope=(remapProgress(.5,track)-remapProgress(.4,track))/.1;
-  let qr=opts.craneRampSeconds*slope/totalSeconds;qr=Math.min(Math.max(qr,.02),D*.7);
-  const Cc=C0+(L-C0*D)/(D-.5*qr);
-  if(!(C0>0&&Cc>0&&L>0&&Number.isFinite(Cc)))throw Error('outbound pace: crane speed');
-  const sFromQ=(q:number)=>{const x=q-q0;if(x<=0)return 0;if(q>=1)return L;
+  let qr=opts.rampSeconds*slope/totalSeconds;qr=Math.min(Math.max(qr,.02),D*.45);
+  const tDoor=invertProgress(qCrossEnd,track)*totalSeconds;
+  // Two passes so the cruise that walks the arc is the cruise implied by the finished length. The orbit around
+  // her crosses the lighthouse jamb, so the fillet aims at that orbit shifted through the doorway and the
+  // shift fades once the orbit is outside.
+  let arcPts:Vec[]=[],arcS:number[]=[0],arcL=0,Cc=60;
+  const aimBear=dep.aimDeg*Math.PI/180,doorActor=actorAt(remapProgress(tDoor/totalSeconds,track));
+  const r0=Math.max(1.95,Math.hypot(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]));
+  const bear0=Math.atan2(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]);
+  let bear1=-aimBear;while(bear1>bear0-.05)bear1-=Math.PI*2;
+  for(let pass=0;pass<2;pass++){
+    const vAt=(e:number)=>{const u=Math.min(1,e/opts.rampSeconds),dsq=e>=opts.rampSeconds?Cc:C0+(Cc-C0)*(3*u*u-2*u*u*u);return dsq*slope/totalSeconds;};
+    const slot=(tau:number,e:number):Vec=>{const h=actorAt(remapProgress((tDoor+Math.max(0,e))/totalSeconds,track)).root;
+      const t=Math.max(0,Math.min(1,tau/dep.seconds)),uB=1-(1-t)*(1-t),bear=bear0+(bear1-bear0)*uB,rad=r0+dep.radial*tau;
+      const uH=t<=.62?0:Math.min(1,(t-.62)/.38),integ=uH-.7*(uH*uH*uH-.5*uH*uH*uH*uH);
+      const yLin=Math.min(P3[1]-1.6,P0[1]+dep.climb*dep.seconds*(.62*Math.min(1,t/.62)+.38*integ));
+      // Ease the climb off the door tangent. A full-rate rise during the fillet pitches the look
+      // up and then dumps that rate once the orbit's horizontal swing starts.
+      const yDoor=P0[1]+Tdir[1]*1.35*tau,up=sm5(Math.min(1,tau/1.8));
+      const y=yDoor+(yLin-yDoor)*up;
+      // The raw orbit still crosses the jamb. Shift it seaward, up, and out, and blend onto that
+      // shifted orbit with the fillet that leaves along the door tangent.
+      // Horizontal shift holds through the doorway. The extra lift fades on its own so the climb
+      // passes under the gull orbit instead of rising into the swept wings.
+      const hFade=1-sm5(Math.max(0,Math.min(1,(tau-1.6)/2)));
+      const vFade=1-sm5(Math.max(0,Math.min(1,(tau-.4)/2.6)));
+      const orbit:Vec=[h[0]+Math.sin(bear)*rad-1.05*hFade,y+1.05*vFade,h[2]+Math.cos(bear)*rad+.5*hFade];
+      const k=sm5(Math.min(1,tau/.8)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35,P0[2]+Tdir[2]*tau*1.35];
+      return [ray[0]*(1-k)+orbit[0]*k,ray[1]*(1-k)+orbit[1]*k,ray[2]*(1-k)+orbit[2]*k];};
+    const pts:Vec[]=[slot(0,0)];let pos:Vec=[pts[0][0],pts[0][1],pts[0][2]],tau=0,tang:Vec=[Tdir[0],Tdir[1],Tdir[2]];
+    const dt=.01,steps=Math.max(1,Math.round((dep.seconds+1)/dt));
+    for(let i=1;i<=steps&&tau<dep.seconds-.001;i++){const e=i*dt,v=vAt(Math.min(e,dep.seconds+2)),stepV=v*dt;let lo=0,hi=.06;
+      for(let k=0;k<8;k++){const s=slot(Math.min(dep.seconds,tau+hi),e);if(Math.hypot(s[0]-pos[0],s[1]-pos[1],s[2]-pos[2])>=stepV)break;hi*=1.8;}
+      for(let k=0;k<16;k++){const mid=(lo+hi)/2,s=slot(Math.min(dep.seconds,tau+mid),e),d=Math.hypot(s[0]-pos[0],s[1]-pos[1],s[2]-pos[2]);if(d<stepV)lo=mid;else hi=mid;}
+      tau=Math.min(dep.seconds,tau+(lo+hi)/2);const nxt=slot(tau,e);
+      const mv:Vec=[nxt[0]-pos[0],nxt[1]-pos[1],nxt[2]-pos[2]],ml=Math.hypot(mv[0],mv[1],mv[2])||1;tang=[mv[0]/ml,mv[1]/ml,mv[2]/ml];
+      pos=[nxt[0],nxt[1],nxt[2]];pts.push([pos[0],pos[1],pos[2]]);}
+    const Pend=pts[pts.length-1];
+    const P1c:Vec=[Pend[0]+tang[0]*dep.handle,Pend[1]+tang[1]*dep.handle,Pend[2]+tang[2]*dep.handle];
+    const P2c:Vec=[Pend[0]+(P3[0]-Pend[0])*dep.lead[0],Pend[1]+(P3[1]-Pend[1])*dep.lead[1],Pend[2]+(P3[2]-Pend[2])*dep.lead[2]];
+    const bez=(g:number):Vec=>{const u=1-g,b0=u*u*u,b1=3*u*u*g,b2=3*u*g*g,b3=g*g*g;
+      return [b0*Pend[0]+b1*P1c[0]+b2*P2c[0]+b3*P3[0],b0*Pend[1]+b1*P1c[1]+b2*P2c[1]+b3*P3[1],b0*Pend[2]+b1*P1c[2]+b2*P2c[2]+b3*P3[2]];};
+    for(let i=1;i<=240;i++)pts.push(bez(i/240));
+    const ss:number[]=[0];let L=0;for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i];L+=Math.hypot(q[0]-p[0],q[1]-p[1],q[2]-p[2]);ss.push(L);}
+    arcPts=pts;arcS=ss;arcL=L;Cc=(arcL-C0*qr*.5)/(D-.5*qr);
+  }
+  if(!(C0>0&&Cc>C0&&arcL>0&&Number.isFinite(Cc)))throw Error('outbound pace: cruise speed');
+  const posFromS=(s:number):Vec=>{if(s<=0)return arcPts[0];if(s>=arcL)return arcPts[arcPts.length-1];
+    let lo=0,hi=arcS.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(arcS[m]<s)lo=m;else hi=m;}
+    const u=(s-arcS[lo])/((arcS[hi]-arcS[lo])||1),pa=arcPts[lo],pb=arcPts[hi];
+    return [pa[0]+(pb[0]-pa[0])*u,pa[1]+(pb[1]-pa[1])*u,pa[2]+(pb[2]-pa[2])*u];};
+  const sFromQ=(q:number)=>{const x=q-qCrossEnd;if(x<=0)return 0;if(q>=1)return arcL;
     if(x<qr){const u=x/qr;return C0*x+(Cc-C0)*qr*(u*u*u-.5*u*u*u*u);}
     return C0*qr+(Cc-C0)*qr*.5+Cc*(x-qr);};
-  const qFromS=(s:number)=>{if(s<=0)return q0;if(s>=L-1e-9)return 1;let lo=q0,hi=1;for(let k=0;k<48;k++){const m=(lo+hi)/2;if(sFromQ(m)<s)lo=m;else hi=m;}return (lo+hi)/2;};
-  const nC=Math.max(1,Math.ceil(L/step));
-  for(let j=1;j<=nC;j++){const s=L*j/nC;push(j===nC?island:poseAtS(sStart+s),j===nC?1:qFromS(s));}
-  const {qCrossEnd,qWalkEnd,frontalQ}=cut;
-  if(!(qCrossEnd>0&&qCrossEnd<q0&&q0<qWalkEnd&&qWalkEnd<1))throw Error('outbound pace: segment cuts');
-  const near=(q:number)=>{let best=out[0],e=1e9;for(const k of out){const d=Math.abs((k.progress??0)-q);if(d<e){e=d;best=k;}}if(e>1e-3)throw Error('outbound pace: missing boundary');return best;};
-  const door=near(qCrossEnd),bound=withFov(poseAtS(sStart+sFromQ(qWalkEnd)),qWalkEnd);
+  const doorT=door[door.length-1].target,f0=door[door.length-1].fovVerticalDeg??50,f1=island.fovVerticalDeg??42;
+  const lookAt=(s:number,q:number):Look=>{
+    const g=Math.max(0,Math.min(1,s/(arcL||1)));
+    if(g>=1-1e-9)return {position:[P3[0],P3[1],P3[2]],target:[island.target[0],island.target[1],island.target[2]],fovVerticalDeg:f1};
+    const root=actorAt(q).root,position=posFromS(s),chest:Vec=[root[0],root[1]+opts.chest,root[2]],toC=sm(Math.min(1,g/.1));
+    // The door target hands off across the first tenth of the arc. Early on she is close and beside the lens:
+    // bias toward the lens keeps the near shoulder in, and a sideways bias keeps her off the portrait edge.
+    const vx=position[0]-root[0],vz=position[2]-root[2],vl=Math.hypot(vx,vz)||1,near=1-sm(Math.min(1,(g-.015)/.06));
+    const aim:Vec=[chest[0]+vx/vl*.35*near+vz/vl*.4*near,chest[1]+.06*near,chest[2]+vz/vl*.35*near-vx/vl*.4*near];
+    const mid:Vec=[doorT[0]+(aim[0]-doorT[0])*toC,doorT[1]+(aim[1]-doorT[1])*toC,doorT[2]+(aim[2]-doorT[2])*toC];
+    const toI=sm((g-.78)/.22),it=island.target;
+    return {position,target:[mid[0]+(it[0]-mid[0])*toI,mid[1]+(it[1]-mid[1])*toI,mid[2]+(it[2]-mid[2])*toI],fovVerticalDeg:f0+(f1-f0)*Math.pow(g,1.15)};};
+  const poseQ=(q:number):Look=>{if(q<=qCrossEnd)return doorAtS(SOfQ(q));if(q>=1-1e-9)return lookAt(arcL,1);return lookAt(sFromQ(q),q);};
+  const qFromS=(s:number)=>{if(s<=0)return qCrossEnd;if(s>=arcL-1e-9)return 1;let lo=qCrossEnd,hi=1;for(let k=0;k<48;k++){const m=(lo+hi)/2;if(sFromQ(m)<s)lo=m;else hi=m;}return (lo+hi)/2;};
+  const nC=Math.max(1,Math.ceil(arcL/step));
+  for(let j=1;j<=nC;j++){const s=arcL*j/nC,q=j===nC?1:qFromS(s);push(poseQ(q),q);}
+  const angAt=(q:number)=>{const pose=poseQ(q),actor=actorAt(q),dx=pose.position[0]-actor.root[0],dz=pose.position[2]-actor.root[2],dist=Math.hypot(dx,dz)||1;
+    return {ang:Math.acos(Math.max(-1,Math.min(1,(Math.sin(actor.yaw)*dx+Math.cos(actor.yaw)*dz)/dist)))*180/Math.PI,y:pose.position[1],dist,t:invertProgress(q,track)*totalSeconds};};
+  let qFr=-1,qHold=-1,tFr=0,y150=0,d150=0,y30=0,d30=0,saw150=false,saw30=false,minD=99;
+  const nA=160;
+  for(let i=0;i<=nA;i++){const q=qCrossEnd+(1-qCrossEnd)*i/nA,m=angAt(q);
+    if(m.dist<minD)minD=m.dist;
+    if(!saw150&&m.ang<=150){saw150=true;y150=m.y;d150=m.dist;}
+    if(saw150&&!saw30&&m.ang<=30){saw30=true;y30=m.y;d30=m.dist;}
+    if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}
+    else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=tFr+1.6)qHold=q;}
+  if(!(qFr>qCrossEnd&&qHold>qFr+1e-4&&tFr>0))throw Error('outbound pace: frontal mark');
+  if(!(saw150&&saw30&&y30-y150>=3&&d30-d150>=4))throw Error('outbound pace: rotate, dolly and lift must overlap');
+  if(!(minD>=1.7))throw Error('outbound pace: lens crowds her');
+  const bound=poseQ(qWalkEnd);
   const locC=(q:number)=>q/qCrossEnd,locI=(q:number)=>(q-qCrossEnd)/(qWalkEnd-qCrossEnd),locS=(q:number)=>(q-qWalkEnd)/(1-qWalkEnd);
   const cross:Pose[]=out.filter(k=>(k.progress??0)<qCrossEnd-1e-6).map(k=>({...k,progress:locC(k.progress!)}));
-  cross.push({...door,progress:1});
-  const toIsland:Pose[]=[{...door,progress:0}];
-  for(const k of out){const q=k.progress!;if(q>qCrossEnd+1e-6&&q<qWalkEnd-2e-4)toIsland.push({...k,progress:locI(q)});}
+  cross.push(posed(poseQ(qCrossEnd),1));
+  const toIsland:Pose[]=[posed(poseQ(qCrossEnd),0)];
+  for(let i=0;i<out.length;i++){const q=out[i].progress!;if(q>qCrossEnd+1e-6&&q<qWalkEnd-2e-4)toIsland.push({...out[i],progress:locI(q)});}
   toIsland.push(posed(bound,1));
   const settle:Pose[]=[posed(bound,0)];
-  for(const k of out){const q=k.progress!;if(q>qWalkEnd+2e-4&&q<1-1e-6)settle.push({...k,progress:locS(q)});}
-  settle.push({position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:island.fovVerticalDeg,progress:1});
+  for(let i=0;i<out.length;i++){const q=out[i].progress!;if(q>qWalkEnd+2e-4&&q<1-1e-6)settle.push({...out[i],progress:locS(q)});}
+  settle.push({position:[island.position[0],island.position[1],island.position[2]],target:[island.target[0],island.target[1],island.target[2]],fovVerticalDeg:island.fovVerticalDeg,progress:1});
   const mono=(name:string,keys:Pose[])=>{for(let i=1;i<keys.length;i++)if(!((keys[i].progress??0)>(keys[i-1].progress??0)))throw Error('outbound pace: '+name+' keys not increasing');};
   mono('cross',cross);mono('toIsland',toIsland);mono('settle',settle);
-  const frontalProgress=locI(frontalQ);
-  if(!(frontalProgress>0&&frontalProgress<locI(q0)-1e-4))throw Error('outbound pace: frontal key must stay before the crane');
-  return {cross,toIsland,settle,frontalProgress};
+  const walkStart=qCrossEnd*totalSeconds,walkStop=qWalkEnd*totalSeconds;
+  const frontalWalk=tFr<=walkStart?0:tFr>=walkStop?1:(tFr-walkStart)/(walkStop-walkStart);
+  return {cross,toIsland,settle,frontalQ:qFr,holdQ:qHold,frontalWalk,frontalSeconds:tFr};
 }
 /** Mac r4 pure: return FOLLOW rig (RegionCameraData returnFollow). `route` = her whole return walk (toThreshold + inCrossing +
  *  toSeat, joined); s = her arclength on it. The lens trails her own path (smoothed over `smoothing` m; before the start it
@@ -221,21 +293,23 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
     const at=(name:string,progress:number,root:Vec):Pose=>{const k=K[name];return {position:[...k.position] as unknown as Vec,target:[root[0],root[1]+k.targetHeight,root[2]],fovVerticalDeg:k.fovVerticalDeg,progress};};
     const dp=cameraToDoor.map(k=>k.progress!);
     const D=['D0','D1','D2','D3','D4'].map((n,i)=>key(n,toDoor,dp[i]));
-    // T2+ rail + crane (data: TRANSITION_CAMERA.railOut/railIn/crane/craneDown). Off while the rail lists are empty.
-    const T=TRANSITION_CAMERA,railOn=T.railOut.length>0&&T.railIn.length>0;
+    // T2+ return rail + outbound exit arc (data: TRANSITION_CAMERA.railIn/crane/craneDown). Off while the return rail is empty.
+    const T=TRANSITION_CAMERA,railOn=T.railIn.length>0&&!!T.crossOutEnd;
     // T2+: crossing-out ends on a lens just behind her in the doorway (generated, not the old in-room 'O' key).
     const inside=D[4],outside=railOn?railPose(outCrossing,{...T.crossOutEnd,progress:1}):key('O',outCrossing,1),insideReturn=key('IR',inCrossing,1),outsideReturn=key('OR',toThreshold,1);
     const walkS=walkDurationFn; // shared walk-duration contract (see walkDuration)
     const crossOutPoses:Pose[]=[{...inside,progress:0},key('X1',outCrossing,.35),key('X2',outCrossing,.55),{...outside,progress:1}];
-    const outboundPaced=railOn?(()=>{const cs=T.crane.startProgress,rail=T.railOut.filter(k=>k.progress<=cs).map(k=>railPose(toIsland,k));
-      const start=rail[rail.length-1];if(!start||Math.abs(start.progress!-cs)>1e-9)throw Error('railOut must end on crane.startProgress');
-      const fr=T.railOut.find(k=>k.frontal&&k.progress<=cs);if(!fr)throw Error('railOut needs a frontal key before the crane');
-      const pace=T.crane.pace;if(!pace)throw Error('outbound crane pace missing');
-      const a=walkS(outCrossing),b=walkS(toIsland),settleS=T.crane.settleSeconds,tot=a+b+settleS,ra=pointOnPath(toIsland,cs),rb=toIsland[toIsland.length-1],crane:Pose[]=[];
-      for(let i=1;i<=T.crane.steps;i++){const p=cs+(1-cs)*i/T.crane.steps;crane.push(cranePose(start,ra,cameraIsland,rb,pointOnPath(toIsland,p),(p-cs)*b/tot,p));}
-      const original:Pose[]=[{...outside,progress:0},...rail,...crane,{...cameraIsland,progress:1}];
-      const span=spanCameraKeys([{seconds:a,cameras:crossOutPoses},{seconds:b,cameras:original.slice(0,-1)},{seconds:settleS,cameras:[{...cameraIsland,progress:1}]}]);
-      return paceOutbound(pace,span,{qCrossEnd:a/tot,qCrane:(a+cs*b)/tot,qWalkEnd:(a+b)/tot,frontalQ:(a+fr.progress*b)/tot},T.tracks.outbound,tot,cameraIsland);})():null;
+      const outboundPaced=railOn?(()=>{const pace=T.crane.pace;if(!pace||!pace.depart)throw Error('outbound exit arc missing');
+      const a=walkS(outCrossing),b=walkS(toIsland),settleS=T.crane.settleSeconds,tot=a+b+settleS,qCross=a/tot,qWalk=(a+b)/tot;
+      const door=crossOutPoses.map(k=>({...k,progress:(k.progress??0)*qCross}));
+      const endYaw=(()=>{const u=pointOnPath(toIsland,.998),v=pointOnPath(toIsland,1);return Math.atan2(v[0]-u[0],v[2]-u[2]);})();
+      const yawOf=(route:readonly Vec[],p:number)=>{const u=pointOnPath(route,Math.max(0,p-.002)),v=pointOnPath(route,Math.min(1,p+.002));return Math.atan2(v[0]-u[0],v[2]-u[2]);};
+      const actorAt=(q:number)=>{const t=invertProgress(q,T.tracks.outbound as any)*tot;
+        if(t<=a){const p=a>0?t/a:0;return {root:pointOnPath(outCrossing,p),yaw:yawOf(outCrossing,p)};}
+        if(t<=a+b){const p=(t-a)/b;return {root:pointOnPath(toIsland,p),yaw:yawOf(toIsland,p)};}
+        const u=Math.min(1,(t-a-b)/1.5),yaw=endYaw+Math.atan2(Math.sin(-endYaw),Math.cos(-endYaw))*u;
+        return {root:toIsland[toIsland.length-1],yaw};};
+      return paceOutbound(pace,door,{qCrossEnd:qCross,qWalkEnd:qWalk},T.tracks.outbound,tot,cameraIsland,actorAt);})():null;
     const inboundRail=():Pose[]=>{const ce=T.craneDown.endProgress,rail=T.railIn.map(k=>railPose(toThreshold,k)),end=rail[0];
       if(!end||Math.abs(end.progress!-ce)>1e-9)throw Error('railIn must start on craneDown.endProgress');
       const w=walkS(toThreshold),turn=1.5+T.craneDown.leadSeconds,total=turn+ce*w,ra=pointOnPath(toThreshold,ce),rb=toThreshold[0],keys:Pose[]=[];
@@ -284,9 +358,9 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       cameraToThreshold:follow?follow.cameraToThreshold:railOn?inboundRail():[{...cameraIsland,progress:0},follow(toThreshold,.35,[-6.3,6.3,3],60),key('T2',toThreshold,.6),{...outsideReturn,progress:1}],
       ...(TRANSITION_CAMERA.standTurn&&K[TRANSITION_CAMERA.standTurn.key]?{cameraStandTurn:[{...cameraHome,progress:0},
         at(TRANSITION_CAMERA.standTurn.key,TRANSITION_CAMERA.standTurn.mid,reference.standingRoot),{...D[0],progress:1}]}:{}),
-      ...(outboundPaced?{cameraSettle:outboundPaced.settle,crane:{startProgress:T.crane.startProgress,settleSeconds:T.crane.settleSeconds,returnLeadSeconds:T.craneDown.leadSeconds,
-        // crane-start mark: outbound span = crossing-out walk + toIsland walk + settle (all known here); eased track time of the key.
-        startSeconds:(()=>{const a=walkS(outCrossing),b=walkS(toIsland),total=a+b+T.crane.settleSeconds;return total*invertProgress((a+T.crane.startProgress*b)/total,T.tracks.outbound as any);})()}}:{}),
+      ...(outboundPaced?{cameraSettle:outboundPaced.settle,crane:{startProgress:outboundPaced.frontalWalk,settleSeconds:T.crane.settleSeconds,returnLeadSeconds:T.craneDown.leadSeconds,
+        // crane-start mark: the frontal beat on the one exit arc (rotation, dolly and lift are already underway).
+        startSeconds:outboundPaced.frontalSeconds}}:{}),
       cameraCrossIn:[{...outsideReturn,progress:0},key('C1',inCrossing,.3),key('C2',inCrossing,.55),key('C3',inCrossing,.8),{...insideReturn,progress:1}],
       // T2+ return entry: ONE move OR -> crossing-in -> door close -> toSeat -> sit -> cameraHome (TRANSITION_CAMERA.entry).
       ...(follow?{remapProgress,cameraEntry:follow.cameraEntry}:railOn&&T.entry?.enabled?{remapProgress,cameraEntry:(()=>{const E=T.entry,seat=c0seat(),list=(g:string)=>E.keys.filter(k=>k.seg===g);
@@ -303,11 +377,10 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
       // T2+ wind channel: keys in outbound-span key progress (crossing-out walk + toIsland walk + settle, all from walkDuration).
       ...(railOn&&T.doorDrift?{doorDrift:{...T.doorDrift}}:{}),
       ...(railOn&&T.windOut?{wind:{outbound:(()=>{const W=T.windOut,a=walkS(outCrossing),b=walkS(toIsland),tot=a+b+T.crane.settleSeconds;
-        const f=T.railOut.filter(k=>k.frontal);if(f.length!==1)throw Error('railOut needs exactly one frontal key');
-        // Frontal knot stays on its walk progress (paceOutbound only resamples between knots), so wind is 1 exactly on that pose.
-        const fp=outboundPaced!.frontalProgress,he=T.crane.startProgress;if(!(W.swingStart<fp&&fp<he))throw Error('wind: swingStart < frontal < crane.startProgress');
-        const out=(q:number)=>q*a/tot,isl=(p:number)=>(a+p*b)/tot;
-        const keys:Array<readonly [number,number]>=[[0,0],[out(W.doorProgress),W.base],[isl(W.swingStart),W.base],[isl(fp),1],[isl(he),1],[1,0]];
+        // Wind is 1 on the frontal sample of the one exit arc, and stays 1 only while the lens is still in front of her.
+        const qFr=outboundPaced!.frontalQ,qHold=outboundPaced!.holdQ,out=(q:number)=>q*a/tot,qSwing=(a+W.swingStart*b)/tot;
+        if(!(out(W.doorProgress)<qSwing&&qSwing<qFr&&qFr<qHold&&qHold<1))throw Error('wind: door < swing < frontal < hold');
+        const keys:Array<readonly [number,number]>=[[0,0],[out(W.doorProgress),W.base],[qSwing,W.base],[qFr,1],[qHold,1],[1,0]];
         for(let i=1;i<keys.length;i++)if(!(keys[i][0]>keys[i-1][0]))throw Error('wind keys must increase');return keys;})()}}:{}),
     };
   })():null;
