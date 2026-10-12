@@ -23,6 +23,8 @@ HANDLE = np.array([-0.115, 1.13, 0.34])     # door handle (palm centre) in the d
 PALM = 0.075                                 # wrist -> palm centre along the hand bone
 IDLE_KNEE = 7.0
 STOP_LATERAL_KEEP = 0.25
+STOP_HOLD_FRAMES = int(os.environ.get('MOCAP_STOP_HOLD', '18'))   # still tail of the stop clips (30 fps)
+STOP_ROOT_SETTLE_LEAD = 3    # stop root curves constant this many frames before the settle step lands
 
 
 def cached(name, fn, refresh=False):
@@ -449,7 +451,24 @@ def build_stop(body):
     rz = rz + (0 - rz[0]) * (1 - u) + (ze - rz[-1]) * u
     rx = rx + (0 - rx[0]) * (1 - u) + (xe - rx[-1]) * u
     rz = np.maximum.accumulate(rz)
+    # root settled before the settle step lands, so an unplanned stop entered there still plays that step; the world track
+    # is unchanged (the hips take the last ~3 cm of pelvis drift)
+    k_s = f_land - STOP_ROOT_SETTLE_LEAD
+    ws_end = AL.smoothstep((i - o_hs) / float(max(1, k_s - o_hs)))
+    rz = rz + (rz[-1] - rz) * ws_end
+    rx = rx + (rx[-1] - rx) * ws_end
+    rz[k_s:], rx[k_s:] = rz[-1], rx[-1]
     track = to_root(tr, rx, rz)
+    # still tail: the end pose and root held, so the driver finds the root settled CROSSFADE_S+ before the clip end
+    # (unplanned stop tail, < 45 deg turns folded into the stop)
+    H = STOP_HOLD_FRAMES
+    hold = lambda a: np.concatenate([a, np.repeat(a[-1:], H, 0)])
+    track = ({k: hold(v) for k, v in track[0].items()}, hold(track[1]))
+    tr = ({k: hold(v) for k, v in tr[0].items()}, hold(tr[1]))
+    C = {s: hold(np.asarray(c, bool)) for s, c in C.items()}
+    w_walk, w_idle, phase = hold(w_walk), hold(w_idle), hold(phase)
+    rz, rx = hold(rz), hold(rx)
+    i = np.arange(N + H)
     ev = [dict(name='foot:' + E, time_s=0.0, bone='foot.' + E, body='R' if E == 'L' else 'L', type='heel_strike',
                entry_contact=True, note='same heel strike walk_loop fires at the entry; driver should not play it twice')]
     ev.append(dict(name='foot:' + O, time_s=round(o_hs / FPS, 6), bone='foot.' + O, body='R' if O == 'L' else 'L',
@@ -464,15 +483,20 @@ def build_stop(body):
                  entry=dict(**{'from': 'walk_loop'}, at_event='foot:' + E, body=body, walk_time_s=round(p_e, 6), crossfade_s=0.0,
                             note='start at the walk_loop heel strike of her %s foot (bone foot.%s); clip frame 0 == walk_loop '
                                  'at that time' % ('right' if body == 'R' else 'left', E)),
-                 handoff=dict(next='idle_breathing_loop', at_s=round((N - 1) / FPS, 6), next_time_s=0.0, crossfade_s=0.0,
+                 handoff=dict(next='idle_breathing_loop', at_s=round((N + H - 1) / FPS, 6), next_time_s=0.0, crossfade_s=0.0,
                               note='end pose == idle_breathing_loop frame 0 relative to the root (after root_motion)'),
-                 driver_note='root decelerates 0.7 -> 0 m/s (total %.3f m forward, %.3f m sideways); drive the root by '
-                             'root_motion.' % (ze, xe))
+                 hold=dict(from_s=round((N - 1) / FPS, 6), to_s=round((N + H - 1) / FPS, 6), frames=H,
+                           root_settle_s=round(k_s / FPS, 6),
+                           note='still tail: pose constant from from_s, root_motion constant from root_settle_s (before the '
+                                'settle step lands)'),
+                 driver_note='root decelerates 0.7 -> 0 m/s (total %.3f m forward, %.3f m sideways, settled at %.3f s), the '
+                             'pose holds still for the last %.3f s; drive the root by root_motion.'
+                             % (rz[-1], rx[-1], k_s / FPS, H / FPS))
     info = dict(trial='91_29', mirrored=(body == 'L'), src_window_s=[round(t_e, 4), t_src_end], time_stretch=STRETCH,
                 other_strike_frame=int(o_hs), settle=[int(f_to), int(f_land)], root_end=[round(float(xe), 4), round(float(ze), 4)],
-                src_lateral_drift_m=round(float(xe_raw), 4),
+                src_lateral_drift_m=round(float(xe_raw), 4), hold_from_frame=int(N - 1), hold_frames=int(H),
                 plant=pinfo)
-    lock = [(w_walk, 'walk_loop', phase % W.T), (w_idle, 'idle_breathing_loop', np.zeros(N))]
+    lock = [(w_walk, 'walk_loop', phase % W.T), (w_idle, 'idle_breathing_loop', np.zeros(N + H))]
     return dict(name=name, track=track, world=tr, contacts=C, events=ev, loop=False, lock=lock, root=root, extra=extra,
                 info=info)
 

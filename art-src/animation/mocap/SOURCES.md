@@ -21,7 +21,7 @@ downloaded from `http://mocap.cs.cmu.edu/subjects/<NN>/<NN>.asf` and `.../<NN>_<
 |---|---|---|---|---|
 | `walk_loop` | 91_29 | "walks and turns" / NormalWalk | 5.425 – 6.683 (one gait cycle, foot.R heel strike to heel strike) | time ×1.139 (1.433 s cycle), stride ×0.698 to 0.7 m/s, feet planted, step lengths evened (0.67/0.73 m source asymmetry), swing knee peaks softened |
 | `walk_start` | 91_29 | NormalWalk (start from standing) | 2.75 – 4.43 | time ×1.15, starts at the idle pose, from 1.533 s identical to `walk_loop` |
-| `walk_stop_bodyR` | 91_29 | NormalWalk (stop before the turn) | 15.47 – 16.45 | time ×1.15, pelvis turn removed, 25 % of the sideways drift kept, small settle step, ends in the idle pose |
+| `walk_stop_bodyR` | 91_29 | NormalWalk (stop before the turn) | 15.47 – 16.45 | time ×1.15, pelvis turn removed, 25 % of the sideways drift kept, small settle step, ends in the idle pose; root curves settle 3 frames before the settle step lands, then 0.6 s still hold (authored, not mocap) |
 | `walk_stop_bodyL` | 91_29 | same, mirrored | 15.47 – 16.45 | as above, mirrored left/right |
 | `walk_turn_180` | 91_29 | NormalWalk (turn to her left) | 8.25 – 9.75 | yaw scaled to exactly 180° (source 190°), drift removed, idle pose at both ends, pivot shuffles turned into short steps |
 | `walk_turn_180_bodyR` | 91_29 | NormalWalk (turn to her right) | 16.0 – 17.5 | yaw scaled to −180° (source −194°), as above (the 1-frame pivot shuffle of her left foot became a 7-frame step) |

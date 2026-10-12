@@ -34,6 +34,11 @@ def load(out):
         with open(os.path.join(out, n + '.json')) as f:
             m = json.load(f)
         clips[n] = dict(fps=CB.FPS, Q=Q, T=d['T'], loop=m['loop'])
+        hf = m['info'].get('hold_from_frame')
+        if hf is not None:       # still tail: exactly the hold-start pose (the skirt solve may jitter it), key pinned there
+            Q, T = Q.copy(), d['T'].copy()
+            Q[hf:], T[hf:] = Q[hf], T[hf]
+            clips[n].update(Q=Q, T=T, pin=[hf])
         m['contacts'] = {s: d['contacts_' + s].astype(bool) for s in 'LR'}
         m['skirt'] = json.load(open(os.path.join(out, n + '.skirt.json')))['result'] if os.path.exists(sk) else None
         metas[n] = m

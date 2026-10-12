@@ -632,7 +632,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.466667
+          "to": 2.066667
         },
         "events": []
       },
@@ -655,7 +655,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.466667
+          "to": 2.066667
         },
         "events": []
       },
@@ -898,13 +898,13 @@
       },
       {
         "name": "walk_stop_bodyL",
-        "duration": 1.466667,
+        "duration": 2.066667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_stop_bodyL",
             "from": 0,
-            "to": 1.466667,
+            "to": 2.066667,
             "wrapMode": 1,
             "previousId": "f0225"
           }
@@ -912,13 +912,13 @@
       },
       {
         "name": "walk_stop_bodyR",
-        "duration": 1.466667,
+        "duration": 2.066667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_stop_bodyR",
             "from": 0,
-            "to": 1.466667,
+            "to": 2.066667,
             "wrapMode": 1,
             "previousId": "d2c9e"
           }

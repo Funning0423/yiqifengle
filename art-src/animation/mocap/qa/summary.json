@@ -215,12 +215,12 @@
  },
  "walk_stop_bodyL": {
   "slide_planted_mm": {
-   "L": 2.41,
-   "R": 2.09
+   "L": 2.37,
+   "R": 2.03
   },
-  "min_mesh_z_mm": -0.27,
+  "min_mesh_z_mm": -0.31,
   "foot_foot_overlap_tris": 0,
-  "double_support_pct": 20.9,
+  "double_support_pct": 43.8,
   "knee": {
    "L": {
     "stance_min_deg": 7.0,
@@ -241,7 +241,7 @@
     "max_flex_vel_dps": 300,
     "max_abs_acc_dps2": 12278,
     "max_acc_frame": 27,
-    "max_spike_ratio": 55.87,
+    "max_spike_ratio": 55.88,
     "spike_frame": 27
    }
   },
@@ -264,7 +264,7 @@
    "apron_in_dress": 0,
    "arm_in_dress": 0,
    "arm_in_apron": 0,
-   "arm_in_torso": 1243,
+   "arm_in_torso": 1855,
    "arm_in_torso_dyn": 0
   },
   "clip_max_depth_mm": {
@@ -279,7 +279,7 @@
   },
   "min_clearance_mm": {
    "clear_leg_dress_mm": 16.2,
-   "clear_leg_apron_mm": 33.7,
+   "clear_leg_apron_mm": 32.0,
    "clear_arm_cloth_mm": 6.7,
    "clear_arm_torso_mm": 0.0,
    "clear_legfoot_back_mm": 16.2
@@ -288,7 +288,7 @@
    "tri_leg_dress": 0,
    "tri_leg_apron": 0,
    "tri_dress_apron_new": 0,
-   "tri_arm_any": 5058,
+   "tri_arm_any": 8082,
    "tri_leg_dress_margin": 0,
    "tri_leg_apron_margin": 0,
    "tri_leg_back_panel": 0,
@@ -318,11 +318,11 @@
  "walk_stop_bodyR": {
   "slide_planted_mm": {
    "L": 1.61,
-   "R": 2.17
+   "R": 2.11
   },
-  "min_mesh_z_mm": -0.35,
+  "min_mesh_z_mm": -0.28,
   "foot_foot_overlap_tris": 0,
-  "double_support_pct": 15.3,
+  "double_support_pct": 39.8,
   "knee": {
    "L": {
     "stance_min_deg": 6.0,
@@ -366,7 +366,7 @@
    "apron_in_dress": 0,
    "arm_in_dress": 0,
    "arm_in_apron": 0,
-   "arm_in_torso": 1337,
+   "arm_in_torso": 1949,
    "arm_in_torso_dyn": 0
   },
   "clip_max_depth_mm": {
@@ -390,7 +390,7 @@
    "tri_leg_dress": 0,
    "tri_leg_apron": 0,
    "tri_dress_apron_new": 0,
-   "tri_arm_any": 5511,
+   "tri_arm_any": 8535,
    "tri_leg_dress_margin": 0,
    "tri_leg_apron_margin": 0,
    "tri_leg_back_panel": 0,
@@ -407,12 +407,12 @@
   "r2_min_gap_mm": {
    "sleeve_L->apron": 25.6,
    "sleeve_R->apron": 25.5,
-   "hand_L->apron": 54.1,
-   "hand_R->apron": 27.2,
+   "hand_L->apron": 54.2,
+   "hand_R->apron": 27.5,
    "sleeve_L->dress": 7.6,
    "sleeve_R->dress": 6.5,
    "hand_L->dress": 19.9,
-   "hand_R->dress": 28.2,
+   "hand_R->dress": 28.5,
    "legs->dress": 2.1,
    "legs->apron": 1.5
   }
