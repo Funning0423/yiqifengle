@@ -206,6 +206,111 @@ function drag(b, slot, target, o = {}) {
     n.emit(E.TOUCH_END, H.event(to));
     assert.deepEqual(log.commands.map(c => c[0]), ['previewAction', 'commitAction']);
   });
+  await ok('layout points and UI points both land on their cells; the reported bomb points are the top row', async () => {
+    const b = await board(), { H, u } = b, tiles = u.measureLayout().tiles, half = 18;
+    for (let i = 0; i < 49; i++) {
+      const lay = tiles[i], ui = H.point(u.cells[i]);
+      assert.equal(u.cellAt(lay.x, lay.y, true), i, 'layout ' + i);
+      assert.equal(u.cellAt(ui.x, ui.y, false), i, 'ui ' + i);
+      for (const dx of [-half, half]) for (const dy of [-half, half]) {
+        assert.equal(u.cellAt(lay.x + dx, lay.y + dy, true), i, 'layout offset ' + i);
+        assert.equal(u.cellAt(ui.x + dx, ui.y + dy, false), i, 'ui offset ' + i);
+      }
+    }
+    assert.equal(u.cellAt(1, 1, false), -1);
+    assert.equal(u.cellAt(1, 1, true), -1);
+    assert.equal(u.cellAt(67, 265, true), 0);
+    assert.equal(u.cellAt(110, 265, true), 1);
+    assert.equal(u.cellAt(152, 265, true), 2);
+    assert.equal(u.layoutYDown(u.cells[0], tiles[0].x, tiles[0].y), true);
+    assert.equal(u.layoutYDown(u.cells[0], H.point(u.cells[0]).x, H.point(u.cells[0]).y), false);
+  });
+  await ok('hold a piece and release on a layout-space neighbor swaps; a slide inside the cell stays a tap', async () => {
+    const b = await board(), { H, u, s, log } = b, E = H.cc.Node.EventType, info = u.layoutInfo;
+    const down = (q) => ({ x: q.x - info.width / 2, y: info.height / 2 - q.y });
+    const release = (from, to, id) => {
+      const n = u.cells[from], start = u.measureLayout().tiles[from], end = u.measureLayout().tiles[to];
+      log.commands.length = 0; H.cc.input.getAllTouches = () => [];
+      n.emit(E.TOUCH_START, H.event(start, id));
+      n.emit(E.TOUCH_MOVE, H.event(end, id));
+      const ghost = u.root.find('PieceDragGhost');
+      assert(ghost && ghost.active, 'piece follows in layout space');
+      assert(Math.abs(ghost.worldPosition.x - down(end).x) < 1e-4 && Math.abs(ghost.worldPosition.y - down(end).y) < 1e-4, 'ghost uses the y-down world');
+      assert.equal(log.commands.length, 0, 'no swap while the finger is down');
+      u.update(1 / 60);
+      assert.equal(log.commands.length, 0, 'a held frame does not swap');
+      n.emit(E.TOUCH_END, H.event(end, id));
+      assert.deepEqual(log.commands[0], ['previewAction', ['swap', from, to]]);
+      assert.deepEqual(log.commands[1], ['commitAction', 't']);
+      assert.equal(ghost.active, false);
+    };
+    release(0, 1, 21);
+    release(0, 7, 22);
+    release(1, 2, 23);
+    release(1, 8, 24);
+    const n = u.cells[0], start = u.measureLayout().tiles[0], field = { x: 110, y: 265 };
+    log.commands.length = 0;
+    n.emit(E.TOUCH_START, H.event(start, 25));
+    n.emit(E.TOUCH_MOVE, H.event(field, 25));
+    assert.equal(log.commands.length, 0);
+    n.emit(E.TOUCH_END, H.event(field, 25));
+    assert.deepEqual(log.commands[0], ['previewAction', ['swap', 0, 1]]);
+    log.commands.length = 0;
+    n.emit(E.TOUCH_START, H.event(start, 26));
+    n.emit(E.TOUCH_MOVE, H.event(field, 26));
+    n.emit(E.TOUCH_CANCEL, H.event(field, 26, E.TOUCH_END));
+    assert.equal(log.commands.length, 0, 'cancel over a neighbor does not swap');
+    assert.equal(u.dragStart, null);
+    n.emit(E.TOUCH_END, H.event(field, 26));
+    assert.equal(log.commands.length, 0, 'end after cancel does not swap');
+    const slide = (index, id) => {
+      const cell = u.cells[index], from = H.point(cell), mid = { x: from.x + 20, y: from.y };
+      cell.emit(E.TOUCH_START, H.event(from, id));
+      cell.emit(E.TOUCH_MOVE, H.event(mid, id));
+      cell.emit(E.TOUCH_END, H.event(mid, id));
+    };
+    s.state = 'run.ready'; b.render(); log.commands.length = 0; u.selected = -1;
+    slide(23, 27);
+    assert.equal(log.commands.length, 0, 'sliding inside the cell does not swap');
+    assert.equal(u.selected, 23);
+    slide(24, 28);
+    assert.deepEqual(log.commands[0], ['previewAction', ['swap', 23, 24]]);
+    assert.deepEqual(log.commands[1], ['commitAction', 't']);
+  });
+  await ok('drag a bomb from the tray onto the reported cells and release calls useTool', async () => {
+    const b = await board(), { H, u, s, log } = b, E = H.cc.Node.EventType, info = u.layoutInfo;
+    const n = u.tools[0], slot = u.measureLayout().targets.bomb;
+    const down = (q) => ({ x: q.x - info.width / 2, y: info.height / 2 - q.y });
+    const drops = [[67, 265, 0], [110, 265, 1], [152, 265, 2]];
+    for (const [x, y, index] of drops) {
+      s.state = 'run.ready'; s.active.bombs = 2; b.render(); log.tools.length = 0;
+      const id = 30 + index, point = { x, y };
+      n.emit(E.TOUCH_START, H.event(slot, id));
+      H.cc.input.getAllTouches = () => [{ getID: () => id, getUILocation: () => point }];
+      u.update(1 / 60);
+      const ghost = u.root.find('ToolDragGhost');
+      assert(ghost && ghost.active, 'bomb follows before release');
+      assert(Math.abs(ghost.worldPosition.x - down(point).x) < 1e-4 && Math.abs(ghost.worldPosition.y - down(point).y) < 1e-4);
+      assert.equal(log.tools.length, 0, 'holding over the cell does not use the bomb');
+      u.update(1 / 60);
+      assert.equal(log.tools.length, 0);
+      H.cc.input.getAllTouches = () => [];
+      n.emit(E.TOUCH_END, H.event(point, id));
+      assert.deepEqual(log.tools, [['bomb', index]]);
+      assert.equal(s.active.bombs, 1);
+      assert.equal(ghost.active, false);
+    }
+    s.state = 'run.ready'; s.active.bombs = 2; b.render(); log.tools.length = 0;
+    const point = { x: 67, y: 265 };
+    n.emit(E.TOUCH_START, H.event(slot, 40));
+    n.emit(E.TOUCH_MOVE, H.event(point, 40));
+    n.emit(E.TOUCH_CANCEL, H.event(point, 40, E.TOUCH_END));
+    assert.equal(log.tools.length, 0, 'cancel on a layout cell does not use the bomb');
+    assert.equal(u.toolDrag, null);
+    n.emit(E.TOUCH_END, H.event(point, 40));
+    assert.equal(log.tools.length, 0, 'end after cancel does not use the bomb');
+    assert.equal(s.active.bombs, 2);
+  });
   await ok('regional tools: one slot, tideAnchor / prismShift fire at once, sunSeed targets a cell', async () => {
     for (let region = 0; region < 3; region++) {
       const b = await board({ provider: 'regional-r05', region }), { H, u, log } = b;
