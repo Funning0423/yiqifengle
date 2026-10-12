@@ -178,7 +178,19 @@ ok('art inventory: board_art dirs (board, popup, r2, r3, chest, licenses) + regi
   for (const m of ts.matchAll(/'((?:popup\/reward_seal|r2\/chapter|r2\/region)_)'\s*\+/g)) for (const id of ['tide', 'meadow', 'sky']) keys.add(m[1] + id);
   for (const k of keys) assert(fs.existsSync(path.join(BUNDLES, 'board_art', k + '.png')), 'art key used in code but not shipped: ' + k);
   assert(keys.size > 60, 'scanned ' + keys.size + ' art keys');
-  assert(fs.existsSync(path.join(ROOT, 'creator-build-project/assets/resources/ui/tools-original.png')), 'regional tools deferred: legacy atlas kept');
+  assert(fs.existsSync(path.join(ROOT, 'creator-build-project/assets/resources/ui/tools-original.png')), 'mainline atlas kept; the sheet is not replaced');
+  const crypto = require('node:crypto');
+  const hash = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+  for (const n of ['tool_tidenet', 'tool_sunseed', 'tool_starshears']) {
+    const src = path.join(ROOT, 'art-src/board-ui/c-popups/r2/slices', n + '.png');
+    const dst = path.join(BUNDLES, 'board_art/r2', n + '.png');
+    assert.equal(hash(dst), hash(src), n + ' bundle copy matches the signed-off slice');
+  }
+  const Art = H.load('ui/BoardArt');
+  assert.equal(Art.TOOL_KEYS.bomb, 'board/tool_starlight');
+  assert.equal(Art.TOOL_KEYS.windBell, 'board/tool_windbell');
+  assert.equal(Art.TOOL_KEYS.tideBottle, 'board/tool_tidebottle');
+  assert.deepEqual([Art.TOOL_KEYS.tideNet, Art.TOOL_KEYS.sunSeed, Art.TOOL_KEYS.starShears], ['r2/tool_tidenet', 'r2/tool_sunseed', 'r2/tool_starshears']);
 });
 async function mountBackground(selection) {
   const { Cancellation } = H.load('world-r1/WorldFlowCore');

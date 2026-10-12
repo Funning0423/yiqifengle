@@ -60,6 +60,25 @@ function drag(b, slot, target, o = {}) {
     s.readOnly = true; u.render(s); H.tap(u.tools[1]); assert.equal(u.armedTool, null); drag(b, 2, 24); assert.equal(log.tools.length, 0);
     s.readOnly = false; u.render(s); H.tap(u.pause); assert.equal(s.state, 'run.paused'); drag(b, 2, 24); assert.equal(log.tools.length, 0);
   });
+  await ok('regional reward art: tideNet / sunSeed / starShears use the r2 slices; mainline stays on the square board slices', async () => {
+    const b = await board(), { H, u } = b, Art = H.load('ui/BoardArt'), lib = Art.BoardArt.shared();
+    const bomb = u.tools[0].find('OriginalToolArt'), bombUi = bomb.getComponent(H.cc.UITransform), slot = bombUi.width;
+    assert.equal(bomb.getComponent(H.cc.Sprite).spriteFrame, lib.frame('board/tool_starlight'));
+    assert.equal(bombUi.width, bombUi.height, 'square mainline art stays square');
+    b.s.journey.inventory.tools = { windBell: 0, tideBottle: 0, tideNet: 2, sunSeed: 0, starShears: 0 };
+    b.s.active.bombs = 0; b.s.active.attemptId = 'region-art'; b.render();
+    assert.deepEqual(u.diagnostics().toolBar, ['tideNet']);
+    const net = u.tools[0].find('OriginalToolArt'), netUi = net.getComponent(H.cc.UITransform), dim = lib.size('r2/tool_tidenet');
+    assert.equal(net.getComponent(H.cc.Sprite).spriteFrame, lib.frame('r2/tool_tidenet'));
+    assert.equal(netUi.width, slot);
+    assert(Math.abs(netUi.height / netUi.width - dim.height / dim.width) < 1e-9, 'tide net keeps the slice aspect');
+    const meadow = await board({ provider: 'regional-r05', region: 1 });
+    const seed = meadow.u.tools[0].find('OriginalToolArt');
+    assert.equal(seed.getComponent(meadow.H.cc.Sprite).spriteFrame, meadow.H.load('ui/BoardArt').BoardArt.shared().frame('r2/tool_sunseed'));
+    const tide = await board({ provider: 'regional-r05', region: 0 });
+    const anchor = tide.u.tools[0].find('OriginalToolArt').getComponent(tide.H.cc.Sprite);
+    assert.notEqual(anchor.spriteFrame, tide.H.load('ui/BoardArt').BoardArt.shared().frame('r2/tool_tidenet'));
+  });
   await ok('regional tools: one slot, tideAnchor / prismShift fire at once, sunSeed targets a cell', async () => {
     for (let region = 0; region < 3; region++) {
       const b = await board({ provider: 'regional-r05', region }), { H, u, log } = b;

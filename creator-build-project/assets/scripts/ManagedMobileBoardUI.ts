@@ -3,7 +3,7 @@ import { managedTools, TOOL_NAMES, type ManagedTool } from './world-r2/ManagedTo
 import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, isValid } from 'cc';
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
-import { BoardArt, PIECE_KEYS, TOOL_KEYS } from './ui/BoardArt';
+import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
 import { boardLayout, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, TintSet, artButton, makeLabel, measure, playSound } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
@@ -178,6 +178,7 @@ export class ManagedMobileBoardUI extends Component {
   private moveGhost(x: number, y: number) {
     const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); }
     const sprite = this.toolGhost.getComponent(Sprite)!; sprite.sizeMode = Sprite.SizeMode.CUSTOM; sprite.spriteFrame = this.toolFrame(this.toolDrag!.kind);
+    const ghost = toolDisplaySize(this.toolDrag!.kind, 56); this.toolGhost.getComponent(UITransform)!.setContentSize(ghost.width, ghost.height);
     this.toolGhost.active = true; this.toolGhost.setSiblingIndex(this.root.children.length - 1); this.toolGhost.setWorldPosition(x - d.width / 2, y - d.height / 2 + 28, 0);
   }
   private toolFrame(kind: string) { const key = TOOL_KEYS[kind]; return (key && BoardArt.shared().frame(key)) || this.toolArt?.frame(kind) || null; }
@@ -211,7 +212,8 @@ export class ManagedMobileBoardUI extends Component {
       const tool = bar[i]; n.active = !!tool; if (!tool) return;
       n.setPosition(xs[i] - d.width / 2, d.height / 2 - g.tools.y, 0); n.getComponent(UITransform)!.setContentSize(Math.max(64, g.tools.hit), Math.max(64, g.tools.hit));
       const size = g.tools.size, artNode = n.getChildByName('Face')!.getChildByName('OriginalToolArt')!, sprite = artNode.getComponent(Sprite)!, frame = this.toolFrame(tool.kind);
-      const legacy = !TOOL_KEYS[tool.kind]; artNode.getComponent(UITransform)!.setContentSize(legacy ? size * 0.72 : size, legacy ? size * 0.72 : size); artNode.setPosition(0, legacy ? 4 : 0, 0);
+      const legacy = !TOOL_KEYS[tool.kind], box = legacy ? size * 0.72 : size, fit = legacy ? { width: box, height: box } : toolDisplaySize(tool.kind, box);
+      artNode.getComponent(UITransform)!.setContentSize(fit.width, fit.height); artNode.setPosition(0, legacy ? 4 : 0, 0);
       sprite.spriteFrame = frame; sprite.grayscale = !tool.available; artNode.getComponent(UIOpacity)!.opacity = tool.available ? 255 : 140;
       const fallback = artNode.getComponent(Graphics)!; fallback.clear(); if (!frame) this.drawToolEmblem(fallback, tool.kind, tool.available);
       const badge = n.getChildByName('Face')!.getChildByName('ToolCount')!, bg = badge.getComponent(Graphics)!, night = this.tint.weight(), k = 1 - 0.38 * night, r = 11 * g.k;

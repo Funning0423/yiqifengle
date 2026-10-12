@@ -385,6 +385,21 @@
     "sha256": "166c2a629fccbfaa5738511a57df9c0f66584e949a181131990c2fe7244c154b"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_starshears.png",
+    "bytes": 10729,
+    "sha256": "347503436dad8c0f0a48690bfc6f33dbc7985fb25deb25682dec2dd0ff3a6a5b"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_sunseed.png",
+    "bytes": 11570,
+    "sha256": "3bce001f97c5e507b57645ac8058aab43f7b6d3d6720397332ce2804cd58b267"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_tidenet.png",
+    "bytes": 11528,
+    "sha256": "09f1e18ddd6176c19d9b1cd4a86adbfcd440de29935e3cb1f0277cbdd6b27492"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/r3/about_gamename.png",
     "bytes": 4503,
     "sha256": "3e44c0f9c4439663faf930ca1c9531b956cbe8bb98937ee55bb68f2fd53ab70c"

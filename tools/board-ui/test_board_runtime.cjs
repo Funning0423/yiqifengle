@@ -59,6 +59,11 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
   await ok('pause → 行囊 (level bag: tools, no pearl, earned chests open via openChest) and → 设置 (full settings); toggles drive GameAudio', async () => {
     const b = await board(), { H, u, s, log } = b; s.journey.chests = [{ level: 0, earned: true, opened: false, name: '潮声' }]; b.render();
     H.tap(u.pause); H.tap(inPopup(b, 'PausePanel', 'Tile-行囊')); assert.equal(top(b), 'BagPanel'); assert(!labels(b, 'BagPanel').some(t => /珍珠/.test(t)));
+    const Art = H.load('ui/BoardArt'), lib = Art.BoardArt.shared();
+    for (const [name, key] of [['tool_tidenet', 'r2/tool_tidenet'], ['tool_sunseed', 'r2/tool_sunseed'], ['tool_starshears', 'r2/tool_starshears']]) {
+      const n = inPopup(b, 'BagPanel', name); assert(n, name); assert.equal(n.getComponent(H.cc.Sprite).spriteFrame, lib.frame(key));
+    }
+    assert.equal(inPopup(b, 'BagPanel', 'tool_windbell').getComponent(H.cc.Sprite).spriteFrame, lib.frame('board/tool_windbell'), 'level bag mainline stays on the board slice');
     H.tap(inPopup(b, 'BagPanel', 'OpenChest-0')); b.step(0.3); assert.deepEqual(log.commands.at(-1), ['openChest', 0]);
     H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); assert.equal(top(b), 'SettingsPanel'); for (const n of ['MusicVolume', 'SfxToggle', 'ReducedMotion', 'AboutRow']) assert(inPopup(b, 'SettingsPanel', n), n);
     assert(labels(b, 'SettingsPanel').includes('v0.1 · 构建 dev'));
@@ -75,6 +80,9 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
     H.tap(inPopup(b, 'ResultPanel', 'Claim-chest')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
+    const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
+    const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');
+    assert.equal(net.getComponent(reg.H.cc.Sprite).spriteFrame, reg.H.load('ui/BoardArt').BoardArt.shared().frame('r2/tool_tidenet'));
     const lose = await board(); lose.s.state = 'result.saved'; lose.s.active.status = 'lost'; lose.render(); p = lose.u.popups.find('ResultPanel'); assert.equal(p.options.title, '差一点点'); assert.equal(p.options.titleArt, 'popup/title_5');
     lose.H.tap(inPopup(lose, 'ResultPanel', 'Replay')); assert.deepEqual(lose.log.commands.at(-1), ['startStage', 'test', {}]);
     const uns = await board(); uns.s.state = 'run.unsaved'; uns.s.active.status = 'won'; uns.render(); p = uns.u.popups.find('ResultPanel'); assert.equal(p.options.title, '还没存上');

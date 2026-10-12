@@ -460,6 +460,21 @@
     "sha256": "255886bec45c6e3a8d570099cab01bbc2016aeb33872306ed99f24cae141b187"
   },
   {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_starshears.png.meta",
+    "bytes": 999,
+    "sha256": "e3b30dd8e9ae23adb7081212062a0d4a64201b4f226cd9674898c93a0bda1e1f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_sunseed.png.meta",
+    "bytes": 996,
+    "sha256": "4f7e65394a2f5482655c2c16a7deb5c770ebd4d93e2c5144a031549ec86f87fa"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/board_art/r2/tool_tidenet.png.meta",
+    "bytes": 996,
+    "sha256": "b9258dc9ea9c4c09c01354bd03e384126a54e385a0f132cc5f05cdec2bdac284"
+  },
+  {
     "path": "creator-build-project/assets/bundles/board_art/r3.meta",
     "bytes": 169,
     "sha256": "849cfed6f3c3c23ecde30a869cff19ff5703248353cc021d166e1cbe4008cb00"
@@ -931,8 +946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 61387,
-    "sha256": "9dfb555f0939a54f43a0355ffcf50e215af71ec19e8b45a5e0ac594804e77483"
+    "bytes": 61633,
+    "sha256": "618a393bad6902c7597f32cb1d05be8c4db55cf56c972d6c66654d33d9cc8cea"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1631,8 +1646,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
-    "bytes": 6977,
-    "sha256": "72b170b93b0460e420e68d0d6127eb7abd76395d6c0df1e16ea7807f9fe5f3f5"
+    "bytes": 7677,
+    "sha256": "210b598d2f10d94d48a0f78c7ffc9054b10d39b9e9abd93c4d0d518c50742d3a"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
@@ -1681,8 +1696,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts",
-    "bytes": 18030,
-    "sha256": "02b6e5097d5539bfa9e1302cee9cfb564d878bcd2de9e2b23e9f8f1d0d0e66fe"
+    "bytes": 18106,
+    "sha256": "41e0af4efb53aa427ab13626cbc0d2a3112041440e8cb28f168129d612089ec4"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/CommonPanels.ts.meta",

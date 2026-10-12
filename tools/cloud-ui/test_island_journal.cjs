@@ -22,7 +22,9 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
    for(const n of p.body.children){if(n.name==='TitlePlank'||n.name==='Close'||n.name==='PanelFrame')continue;const lab=n.getComponent(Label);if(lab&&lab.overflow===Label.Overflow.NONE)continue;const r=n.getComponent(UITransform),x=n.position.x;assert(x-r.width*r.anchorX>=-p.width/2-1e-6&&x+r.width*(1-r.anchorX)<=p.width/2+1e-6,'child x '+page+'/'+n.name);}
    assert(p.root.getComponent(cc.BlockInputEvents),'popup blocks the island below');o.close();cases++;
   }
-  const before=JSON.stringify(data);o.open('bag');const texts=o.popups.top().root.getComponentsInChildren(Label).map(l=>l.string);for(const t of ['风语铃','潮汐瓶','潮汐网','×2','×0','×3'])assert(texts.includes(t),'bag text '+t);assert(!texts.some(t=>/珍珠/.test(t)),'no pearl in the bag');assert.equal(JSON.stringify(data),before);assert.equal(calls.length,0);o.dispose();o.dispose();
+  const before=JSON.stringify(data);await H.flush(8);o.open('bag');const texts=o.popups.top().root.getComponentsInChildren(Label).map(l=>l.string);for(const t of ['风语铃','潮汐瓶','潮汐网','×2','×0','×3'])assert(texts.includes(t),'bag text '+t);assert(!texts.some(t=>/珍珠/.test(t)),'no pearl in the bag');
+  if(w===390&&h===844){for(const n of ['tool_tidenet','tool_sunseed','tool_starshears'])assert(node(o,'BagPanel',n),'island bag '+n);assert(node(o,'BagPanel','ToolArt-windBell'),'island mainline stays on the atlas');assert(node(o,'BagPanel','ToolArt-tideBottle'));assert(!node(o,'BagPanel','tool_windbell'));}
+  assert.equal(JSON.stringify(data),before);assert.equal(calls.length,0);o.dispose();o.dispose();
  }
  checks.push(cases+' lite popup pages fit 5 portrait/landscape viewports (width 680 design px, BlockInputEvents); bag reads actual counts without writes, no pearl');
  {

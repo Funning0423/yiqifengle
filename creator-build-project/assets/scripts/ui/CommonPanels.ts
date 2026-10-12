@@ -3,7 +3,7 @@ import { GameAudio } from '../audio/GameAudio';
 import { BUILD_SHA, BUILD_VERSION } from '../BuildInfo';
 import { ResultChest3D } from '../ResultChest3D';
 import { TOOL_NAMES } from '../world-r2/ManagedTools';
-import { BoardArt, HERO_KEYS, TOOL_KEYS } from './BoardArt';
+import { BoardArt, HERO_KEYS, TOOL_KEYS, toolDisplaySize } from './BoardArt';
 import { CONTENT_BOTTOM, CONTENT_TOP, PopupPanel, PopupStack, makeLabel, measure, pressable, uiNode } from './PopupKit';
 import { markToolSeen, reducedMotion, setReducedMotion } from './UiPrefs';
 /** Panels shared by the board and the island (INTEGRATION §3 / r2 / r3): settings, about, licence text, bag, first-get
@@ -32,7 +32,7 @@ function iconRow(p: PopupPanel, icon: string, label: string, y: number, ih = 56)
 }
 export function toolArt(p: PopupPanel, kind: string, x: number, y: number, w: number, legacy?: ToolArtSource | null, parent?: Node): Sprite | null {
   const key = TOOL_KEYS[kind];
-  if (key && BoardArt.shared().frame(key)) return p.sprite(key, x, y, w, w, 'ui', parent);
+  if (key && BoardArt.shared().frame(key)) { const box = toolDisplaySize(kind, w); return p.sprite(key, x, y, box.width, box.height, 'ui', parent); }
   const f = legacy?.frame(kind); if (!f) return null;
   const pos = p.at(x, y), n = uiNode('ToolArt-' + kind, parent || p.body, w * 0.78, w * 0.78); n.setPosition(pos[0], pos[1], 0);
   const s = n.addComponent(Sprite); s.sizeMode = Sprite.SizeMode.CUSTOM; s.spriteFrame = f; p.tint.sprite(s, 'ui'); return s;
