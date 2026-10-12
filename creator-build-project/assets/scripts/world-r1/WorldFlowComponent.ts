@@ -379,6 +379,8 @@ export class WorldFlowComponent extends Component {
         // writes the end pose (see createCameraTrack); never continues silently.
         playEnterLevel:(token)=>{
           // Push in from the live island camera (including a finger pull). Not the exit arc.
+          // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.
+          console.info('[enter-level] shot', this.flow?.snapshot().mode);
           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
