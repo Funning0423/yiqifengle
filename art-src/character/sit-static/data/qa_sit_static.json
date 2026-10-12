@@ -116,15 +116,10 @@
       "below_floor": 0,
       "verts": 281,
       "tris": 454,
-      "material": "M_G2_APRON"
-    },
-    "LOD0_G2_BODY": {
-      "inside": 0,
-      "worst_m": 0.0,
-      "below_floor": 0,
-      "verts": 459,
-      "tris": 613,
-      "material": "M_G2_HAIR"
+      "material": "M_G2_APRON",
+      "materials": [
+        "M_G2_APRON"
+      ]
     },
     "LOD0_G2_BOW": {
       "inside": 0,
@@ -132,68 +127,40 @@
       "below_floor": 0,
       "verts": 186,
       "tris": 348,
-      "material": "M_G2_BODY"
+      "material": "M_G2_BODY",
+      "materials": [
+        "M_G2_BODY"
+      ]
     },
     "LOD0_G2_DRESS": {
       "inside": 0,
       "worst_m": 0.0,
       "below_floor": 0,
-      "verts": 1195,
-      "tris": 2359,
-      "material": "M_G2_DRESS"
+      "verts": 1243,
+      "tris": 2457,
+      "material": "M_G2_DRESS",
+      "materials": [
+        "M_G2_DRESS"
+      ]
     },
-    "LOD0_G2_BODY.001": {
+    "LOD0_G2_BODY": {
       "inside": 0,
       "worst_m": 0.0,
       "below_floor": 0,
-      "verts": 428,
-      "tris": 583,
-      "material": "M_G2_FACE"
-    },
-    "LOD0_G2_BODY.002": {
-      "inside": 22,
-      "worst_m": 0.01925,
-      "below_floor": 0,
-      "verts": 311,
-      "tris": 401,
-      "material": "M_G2_HEAD"
-    },
-    "LOD0_G2_BODY.003": {
-      "inside": 0,
-      "worst_m": 0.0,
-      "below_floor": 0,
-      "verts": 213,
-      "tris": 237,
-      "material": "M_G2_BODY"
-    },
-    "SitShoes": {
-      "inside": 0,
-      "worst_m": 0.0,
-      "below_floor": 0,
-      "verts": 484,
-      "tris": 862,
-      "material": "M_G2_FACE"
-    },
-    "SitHands": {
-      "inside": 0,
-      "worst_m": 0.0,
-      "below_floor": 0,
-      "verts": 442,
-      "tris": 812,
-      "material": "M_G2_FACE"
-    },
-    "SitFace": {
-      "inside": 0,
-      "worst_m": 0.0,
-      "below_floor": 0,
-      "verts": 786,
-      "tris": 1201,
-      "material": "M_G2_FACE"
+      "verts": 3123,
+      "tris": 4709,
+      "material": "M_G2_FACE+M_G2_HEAD+M_G2_BODY+M_G2_HAIR",
+      "materials": [
+        "M_G2_FACE",
+        "M_G2_HEAD",
+        "M_G2_BODY",
+        "M_G2_HAIR"
+      ]
     }
   },
   "source": "chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
-  "triangles": 7870,
+  "triangles": 7968,
   "cloth_inside_or_floor": 0,
-  "glb_bytes": 194108,
-  "runtime_plus_sit_bytes": 1567852
+  "glb_bytes": 193228,
+  "runtime_plus_sit_bytes": 1566972
 }

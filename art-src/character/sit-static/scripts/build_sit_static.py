@@ -6,8 +6,8 @@ poses sit_down's last frame, then only rewrites vertex positions of that mesh:
 
 - spine is set upright, arms put the real hands on the lap (palms down, fingers
   along the thighs, right hand stacked on the left)
-- the existing yellow skirt and apron vertices are slid onto a drape that covers
-  the knees and hangs past the seat front
+- the yellow skirt's existing side hem stays; a sheet of that same cloth closes
+  the front across the knees, flush with the side hem and no further forward
 - the existing bow is translated, not rebuilt
 - face, gloves, white calves and red boots stay the skinned vertices
 
@@ -882,6 +882,487 @@ def bridge_knees(dress):
     log('knee bridge faces %d' % made)
 
 
+def probe_front(dress):
+    """Log the knee gap: side hem versus the cloth between the knees, and how far the stockings sit in front of it."""
+    coords = [to_c(v.co) for v in dress.data.vertices]
+    mask = skirt_mask(dress)
+    log('PROBE skirt verts %d / %d' % (sum(1 for m in mask if m), len(mask)))
+    for y0 in (0.28, 0.36, 0.44, 0.52, 0.60):
+        parts = []
+        for x0, x1, label in ((-0.26, -0.12, 'L'), (-0.12, 0.08, 'C'), (0.08, 0.26, 'R')):
+            zs = [c.z for i, c in enumerate(coords) if mask[i] and y0 <= c.y < y0 + 0.08 and x0 <= c.x < x1 and c.z > -0.05]
+            if zs:
+                parts.append('%s n=%d z %.2f..%.2f' % (label, len(zs), min(zs), max(zs)))
+        log('PROBE dress y %.2f %s' % (y0, ' | '.join(parts)))
+    legs = leg_points()
+    log('PROBE stocking samples %d' % len(legs))
+    if legs:
+        log('PROBE stocking x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f' % (
+            min(p.x for p in legs), max(p.x for p in legs),
+            min(p.y for p in legs), max(p.y for p in legs),
+            min(p.z for p in legs), max(p.z for p in legs),
+        ))
+    # Hop distance from the seat (z<0.08) to the side hem, along skirt edges.
+    nbrs = mesh_neighbors(dress)
+    seeds = [i for i, c in enumerate(coords) if mask[i] and c.z < 0.08 and 0.30 < c.y < 0.60 and abs(c.x) < 0.16]
+    dist = {i: 0 for i in seeds}
+    wave = list(seeds)
+    while wave:
+        nxt = []
+        for i in wave:
+            for j in nbrs[i]:
+                if j in dist or not mask[j]:
+                    continue
+                dist[j] = dist[i] + 1
+                nxt.append(j)
+        wave = nxt
+    front = [i for i, c in enumerate(coords) if mask[i] and c.z > 0.45 and 0.34 < c.y < 0.56 and abs(c.x) < 0.22]
+    hops = [dist[i] for i in front if i in dist]
+    log('PROBE front hem reachable %d/%d hops %s' % (len(hops), len(front), (min(hops), max(hops)) if hops else None))
+
+
+def skirt_mask(obj):
+    """Dress vertices that are the skirt, not the sleeves lying on the lap."""
+    skirt_names = (
+        'skirt.front', 'skirt.front.low', 'skirt.front.low.mid', 'skirt.front.mid',
+        'skirt.left', 'skirt.left.low', 'skirt.back', 'skirt.back.low',
+        'skirt.right', 'skirt.right.low',
+    )
+    arm_names = ('upper_arm.L', 'forearm.L', 'hand.L', 'upper_arm.R', 'forearm.R', 'hand.R')
+    mask = []
+    for v in obj.data.vertices:
+        skirt_w = sum(group_weight(obj, v, name) for name in skirt_names)
+        arm_w = sum(group_weight(obj, v, name) for name in arm_names)
+        mask.append(skirt_w > 0.25 and arm_w < 0.4)
+    return mask
+
+
+def leg_points():
+    """White stocking vertices in the knee band. Boots (foot weight) stay out of this list."""
+    pts = []
+    for obj in mesh_objects():
+        if obj.type != 'MESH' or obj.name.startswith('LOD0_G2_DRESS') or obj.name.startswith('LOD0_G2_APRON') or obj.name.startswith('LOD0_G2_BOW'):
+            continue
+        for v in obj.data.vertices:
+            foot = group_weight(obj, v, 'foot.L') + group_weight(obj, v, 'foot.R')
+            leg = group_weight(obj, v, 'shin.L') + group_weight(obj, v, 'shin.R') + group_weight(obj, v, 'thigh.L') + group_weight(obj, v, 'thigh.R')
+            if foot > 0.45 or leg < 0.35:
+                continue
+            p = to_c(v.co)
+            if 0.30 <= p.y <= 0.58 and p.z > 0.05:
+                pts.append(p)
+    return pts
+
+
+def side_sheet_z(coords, mask):
+    """Front z of the side drape that already covers the knee in profile. The centre must not pass this."""
+    samples = []
+    for i, c in enumerate(coords):
+        if not mask[i]:
+            continue
+        if 0.11 <= abs(c.x) <= 0.26 and c.z > 0.38 and 0.28 <= c.y <= 0.60:
+            samples.append((c.y, c.z))
+    return samples
+
+
+def sheet_z(samples, y):
+    """Depth of the side hem's front edge. Most side verts sit back by the hip."""
+    band = [z for yy, z in samples if abs(yy - y) <= 0.045]
+    if len(band) < 3:
+        band = [z for yy, z in samples if abs(yy - y) <= 0.09]
+    if not band:
+        return None
+    band.sort()
+    front = [z for z in band if z >= band[-1] - 0.018]
+    return front[len(front) // 2]
+
+
+def stocking_covered(dress_coords, dress_tris, legs):
+    """A stocking point is covered when some skirt triangle sits in front of it in the front view."""
+    open_n = 0
+    for leg in legs:
+        hit = False
+        for tri in dress_tris:
+            xs = (tri[0].x, tri[1].x, tri[2].x)
+            ys = (tri[0].y, tri[1].y, tri[2].y)
+            if leg.x < min(xs) - 0.008 or leg.x > max(xs) + 0.008:
+                continue
+            if leg.y < min(ys) - 0.012 or leg.y > max(ys) + 0.012:
+                continue
+            # Reject triangles that still reach back between the legs.
+            if min(p.z for p in tri) < leg.z - 0.01:
+                continue
+            if max(p.z for p in tri) > leg.z + 0.004:
+                hit = True
+                break
+        if not hit:
+            open_n += 1
+    return open_n
+
+
+def dress_yellow_uv(dress):
+    """A texel on T_G2_DRESS that is the skirt yellow, not the black band in that atlas."""
+    fallback = Vector((0.35, 0.78))
+    mat = dress.material_slots[0].material if dress.material_slots else None
+    if mat is None or not mat.use_nodes:
+        return fallback
+    img = None
+    for node in mat.node_tree.nodes:
+        if node.type == 'TEX_IMAGE' and node.image is not None:
+            img = node.image
+            break
+    if img is None or img.size[0] < 8:
+        return fallback
+    w, h = img.size
+    px = list(img.pixels)
+    best = None
+    step = max(4, w // 64)
+    for y in range(0, h, step):
+        for x in range(0, w, step):
+            i = (y * w + x) * 4
+            r, g, b = px[i], px[i + 1], px[i + 2]
+            if r > 0.75 and g > 0.55 and b < 0.25 and r + g > 1.5:
+                score = r + g - b
+                if best is None or score > best[0]:
+                    best = (score, (x + 0.5) / float(w), (y + 0.5) / float(h))
+    if best is None:
+        return fallback
+    return Vector((best[1], best[2]))
+
+
+def cover_knees(dress):
+    """Fill the opening between the knees with a sheet of the skirt's own cloth.
+
+    The side hem already covers each knee and sets the depth. New vertices sit
+    on that same depth, from the left hem to the right hem. Nothing is pulled
+    past it, and the old skirt vertices stay where the sit drape put them.
+    """
+    mask = skirt_mask(dress)
+    coords = [to_c(v.co) for v in dress.data.vertices]
+    samples = side_sheet_z(coords, mask)
+    if len(samples) < 12:
+        log('cover_knees skipped, side samples %d' % len(samples))
+        return
+    cap = max(z for _, z in samples)
+    # Knee caps only. Calves below this stay in front of the hem, same as the side view.
+    legs = [p for p in leg_points() if p.y >= 0.42]
+    y0, y1, rows, segs = 0.30, 0.58, 8, 7
+    bands = []
+    for r in range(rows):
+        ya = y0 + (y1 - y0) * r / float(rows)
+        yb = y0 + (y1 - y0) * (r + 1) / float(rows)
+        yc = (ya + yb) * 0.5
+        target = sheet_z(samples, yc)
+        if target is None:
+            continue
+        ahead = [p.z for p in legs if abs(p.y - yc) <= 0.04 and abs(p.x) <= 0.18]
+        if ahead:
+            target = max(target, max(ahead) + 0.012)
+        target = min(target, cap)
+
+        def anchor(sign, ya=ya, yb=yb, target=target):
+            best_i = None
+            best_score = 1e9
+            for i, c in enumerate(coords):
+                if not mask[i] or c.y < ya or c.y >= yb or c.z < 0.40:
+                    continue
+                if sign < 0 and not (-0.26 <= c.x <= -0.05):
+                    continue
+                if sign > 0 and not (0.05 <= c.x <= 0.26):
+                    continue
+                # Prefer the vert already on the side hem, not a stray spike past it.
+                score = abs(c.z - target) + abs(c.y - yc) * 0.25
+                if score < best_score:
+                    best_score = score
+                    best_i = i
+            return best_i
+
+        left = anchor(-1)
+        right = anchor(1)
+        if left is None or right is None:
+            continue
+        # Flush with that front edge. cap is the foremost side hem, so the sheet
+        # cannot stick out past the profile that already covers the knee.
+        bands.append((left, right, target))
+    if len(bands) < 3:
+        log('cover_knees skipped, bands %d' % len(bands))
+        return
+    before = tris_of(dress)
+    bm = bmesh.new()
+    bm.from_mesh(dress.data)
+    uv_layer = bm.loops.layers.uv.active
+    bm.verts.ensure_lookup_table()
+    by_index = {v.index: v for v in bm.verts}
+
+    def loop_uv(vi):
+        if uv_layer is None:
+            return Vector((0.5, 0.5))
+        vert = by_index[vi]
+        for face in vert.link_faces:
+            for loop in face.loops:
+                if loop.vert == vert:
+                    return loop[uv_layer].uv.copy()
+        return Vector((0.5, 0.5))
+
+    grid = []
+    for left, right, z in bands:
+        row = [by_index[left]]
+        uv_l = loop_uv(left)
+        uv_r = loop_uv(right)
+        if (uv_l - uv_r).length > 0.15:
+            uv_r = uv_l
+        cl = coords[left]
+        cr = coords[right]
+        for k in range(1, segs):
+            t = k / float(segs)
+            x = cl.x * (1.0 - t) + cr.x * t
+            y = cl.y * (1.0 - t) + cr.y * t
+            row.append(bm.verts.new(to_b(Vector((x, y, z)))))
+        row.append(by_index[right])
+        grid.append((row, uv_l, uv_r))
+    made = []
+    yellow = dress_yellow_uv(dress)
+    log('cover uv %.3f %.3f' % (yellow.x, yellow.y))
+    for (row0, uv_l, uv_r), (row1, _, _) in zip(grid, grid[1:]):
+        for k in range(len(row0) - 1):
+            try:
+                face = bm.faces.new((row0[k], row0[k + 1], row1[k + 1], row1[k]))
+            except ValueError:
+                continue
+            face.material_index = 0
+            face.smooth = True
+            face.normal_update()
+            # Character forward is blender -Y. The sheet must face the camera.
+            if -face.normal.y < 0:
+                face.normal_flip()
+            if uv_layer is not None:
+                # One yellow texel. Averaging the two hems walks across the atlas into the black band.
+                for loop in face.loops:
+                    loop[uv_layer].uv = yellow
+            made.append(face)
+    bm.to_mesh(dress.data)
+    bm.free()
+    dress.data.update()
+    added = tris_of(dress) - before
+    coords = [to_c(v.co) for v in dress.data.vertices]
+    legs = leg_points()
+    tris = []
+    dress.data.calc_loop_triangles()
+    for lt in dress.data.loop_triangles:
+        tris.append([coords[i] for i in lt.vertices])
+    open_n = stocking_covered(coords, tris, legs) if legs else -1
+    log('cover_knees faces %d tris+%d stockings_open %d/%d' % (len(made), added, open_n, len(legs)))
+    if total_tris() > MAX_TRIS:
+        raise RuntimeError('cover pushed triangles to %d' % total_tris())
+
+
+def recalc_normals(obj):
+    activate(obj)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    try:
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()
+    except Exception as exc:
+        log('normal clear skipped %s' % exc)
+    bpy.ops.mesh.normals_make_consistent(inside=False)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def pin_patch_uvs(obj, bone_names, thresh, allowed):
+    """Keep boots and gloves on their colour patches. Anything else on those bones is the face tile."""
+    idxs = []
+    for name in bone_names:
+        g = obj.vertex_groups.get(name)
+        if g:
+            idxs.append(g.index)
+    if not idxs or not obj.data.uv_layers.active:
+        return 0
+    heavy = set()
+    for v in obj.data.vertices:
+        for sg in v.groups:
+            if sg.group in idxs and sg.weight > thresh:
+                heavy.add(v.index)
+                break
+    if not heavy:
+        return 0
+    uv = obj.data.uv_layers.active.data
+    snapped = 0
+    for poly in obj.data.polygons:
+        for li, vi in zip(poly.loop_indices, poly.vertices):
+            if vi not in heavy:
+                continue
+            u, v = uv[li].uv
+            nearest = min(allowed, key=lambda ab: (u - ab[0]) ** 2 + (v - ab[1]) ** 2)
+            if (u - nearest[0]) ** 2 + (v - nearest[1]) ** 2 > 0.03 ** 2:
+                uv[li].uv = nearest
+                snapped += 1
+    return snapped
+
+
+def canonical_material(name):
+    for mat in bpy.data.materials:
+        if mat.name == name:
+            return mat
+    for mat in bpy.data.materials:
+        if mat.name.split('.')[0] == name:
+            try:
+                mat.name = name
+            except Exception:
+                pass
+            return mat
+    raise RuntimeError('missing material ' + name)
+
+
+def use_material(obj, name):
+    mat = canonical_material(name)
+    obj.data.materials.clear()
+    obj.data.materials.append(mat)
+
+
+def material_names(obj):
+    names = []
+    for slot in obj.material_slots:
+        if not slot.material:
+            continue
+        name = slot.material.name.split('.')[0]
+        if name not in names:
+            names.append(name)
+    return names
+
+
+def assemble_body(bow):
+    """One LOD0_G2_BODY, with the same material slots the runtime body mesh uses.
+
+    separate() had left the hair chunk named LOD0_G2_BODY. Shoes and hands stay
+    on M_G2_FACE, which is the atlas the runtime boots and gloves sample, but
+    their UVs are the colour patches — not the face tile — so the rebind cannot
+    paint the portrait onto them. The bow keeps M_G2_BODY: that is the runtime
+    bow primitive (one white texel on T_G2_BODY).
+    """
+    skin = []
+    hair = []
+    hat = []
+    face_parts = []
+    for obj in mesh_objects():
+        if not obj.get('sit') or obj == bow or obj.name.startswith('LOD0_G2_DRESS') or obj.name.startswith('LOD0_G2_APRON'):
+            continue
+        key = mat_key(obj)
+        if key == 'M_G2_BODY':
+            skin.append(obj)
+        elif key == 'M_G2_HAIR':
+            hair.append(obj)
+        elif key == 'M_G2_HEAD':
+            hat.append(obj)
+        elif key == 'M_G2_FACE':
+            face_parts.append(obj)
+    if not skin:
+        raise RuntimeError('body skin chunk missing')
+    # Boots: leather / sole / sock. Gloves: the skin patch. Blender UV, v up.
+    boot_uv = ((0.75, 0.445), (0.75, 0.40), (0.75, 0.37))
+    hand_uv = ((0.80, 0.72),)
+    snapped = 0
+    for obj in face_parts:
+        snapped += pin_patch_uvs(obj, ('foot.L', 'foot.R'), 0.25, boot_uv)
+        snapped += pin_patch_uvs(obj, ('hand.L', 'hand.R'), 0.25, hand_uv)
+    log('uv pin snapped %d' % snapped)
+    use_material(skin[0], 'M_G2_BODY')
+    for obj in hair:
+        use_material(obj, 'M_G2_HAIR')
+    for obj in hat:
+        use_material(obj, 'M_G2_HEAD')
+    face_mat = canonical_material('M_G2_FACE')
+    for obj in face_parts:
+        use_material(obj, 'M_G2_FACE')
+        if obj.data.materials[0] != face_mat:
+            obj.data.materials[0] = face_mat
+    use_material(bow, 'M_G2_BODY')
+    base = skin[0]
+    others = skin[1:] + face_parts + hat + hair
+    activate(base)
+    for obj in others:
+        obj.select_set(True)
+    if others:
+        bpy.ops.object.join()
+    base.name = 'LOD0_G2_BODY'
+    base.data.name = 'LOD0_G2_BODY'
+    base['sit'] = 1
+    # Slot order follows the runtime body primitives: face, hat, body, hair.
+    # The skin chunk was active, so M_G2_BODY is slot 0 until we reorder.
+    order = ['M_G2_FACE', 'M_G2_HEAD', 'M_G2_BODY', 'M_G2_HAIR']
+    present = material_names(base)
+    log('body slots before reorder %s' % present)
+    reorder_slots(base, order)
+    log('body slots %s' % material_names(base))
+    return base
+
+
+def reorder_slots(obj, order):
+    """Reorder material slots. Clearing the slots drops face indices, so they are written back after."""
+    me = obj.data
+    old_names = []
+    for slot in obj.material_slots:
+        if slot.material:
+            old_names.append(slot.material.name.split('.')[0])
+    wanted = [name for name in order if name in old_names]
+    if not wanted or wanted == old_names:
+        return
+    remap = {old_names.index(name): new_i for new_i, name in enumerate(wanted)}
+    stored = [remap.get(poly.material_index, 0) for poly in me.polygons]
+    me.materials.clear()
+    for name in wanted:
+        me.materials.append(canonical_material(name))
+    for poly, mi in zip(me.polygons, stored):
+        poly.material_index = mi
+    counts = [0] * len(wanted)
+    for mi in stored:
+        if 0 <= mi < len(counts):
+            counts[mi] += 1
+    log('slot faces %s' % list(zip(wanted, counts)))
+
+
+def push_material(obj, mat_name):
+    """Push one material's vertices out of the chair. The hat brim is the 19 mm case."""
+    mi = None
+    for i, slot in enumerate(obj.material_slots):
+        if slot.material and slot.material.name.split('.')[0] == mat_name:
+            mi = i
+            break
+    if mi is None:
+        if mat_key(obj) == mat_name:
+            push_cloth(obj)
+        return
+    used = set()
+    for poly in obj.data.polygons:
+        if poly.material_index == mi:
+            used.update(poly.vertices)
+    moved = 0
+    worst = 0.0
+    for index in used:
+        v = obj.data.vertices[index]
+        p = v.co.copy()
+        best = nearest_box(p)
+        if best and best[0] < CLOTH_MARGIN:
+            d, lo, hi = best
+            g = Vector((0, 0, 0))
+            e = 1e-4
+            for k in range(3):
+                pp = p.copy()
+                pm = p.copy()
+                pp[k] += e
+                pm[k] -= e
+                g[k] = (box_sdf(pp, lo, hi) - box_sdf(pm, lo, hi)) / (2 * e)
+            if g.length < 1e-8:
+                g = Vector((0, 0, 1))
+            g.normalize()
+            p += g * (CLOTH_MARGIN - d)
+            moved += 1
+            if -d > worst:
+                worst = -d
+        v.co = p
+    obj.data.update()
+    log('push %s/%s moved %d worst %.4f' % (obj.name, mat_name, moved, worst))
+
+
 def warp_cloth(dress, apron, rest, sleeves, leg_segs):
     """Keep the skinned sit drape. The apron lap is spread so the bib stays closed."""
     if apron is None or apron.name not in rest:
@@ -1394,7 +1875,6 @@ def main():
     for obj in mesh_objects():
         if obj.name.startswith('LOD0') or obj.name.startswith('Sit') or mat_key(obj) in BASE_COLOR:
             obj['sit'] = 1
-            drop_groups(obj)
 
     total = total_tris()
     log('TOTAL TRIS %d' % total)
@@ -1422,16 +1902,32 @@ def main():
     if total > MAX_TRIS:
         raise RuntimeError('triangle budget exceeded: %d' % total)
 
+    # Dress decimate runs above. Close the knee gap on the verts that will ship.
+    if os.environ.get('SIT_DRY') == '1':
+        probe_front(dress)
+        return
+    cover_knees(dress)
     for obj in (dress, apron, bow):
         if obj:
             push_cloth(obj)
+    for obj in mesh_objects():
+        if obj.get('sit') and mat_key(obj) == 'M_G2_HEAD':
+            push_material(obj, 'M_G2_HEAD')
+    body_mesh = assemble_body(bow)
+    push_material(body_mesh, 'M_G2_HEAD')
+    for obj in mesh_objects():
+        if obj.get('sit'):
+            drop_groups(obj)
+            obj.data.name = obj.name
 
     report = {'bones_character_y_up': bones, 'parts': {}, 'source': os.path.basename(CHR)}
     for obj in mesh_objects():
         if not obj.get('sit'):
             continue
         stats = count_penetration(obj)
-        stats['material'] = mat_key(obj)
+        names = material_names(obj)
+        stats['material'] = names[0] if len(names) == 1 else '+'.join(names)
+        stats['materials'] = names
         report['parts'][obj.name] = stats
         log('part %s %s' % (obj.name, json.dumps(stats)))
     report['triangles'] = total_tris()
@@ -1462,13 +1958,19 @@ def main():
         'side': ((-2.15, 0.50, 0.18), target),
         'back': ((0.0, 0.52, -1.95), target),
     }
+    want = [s for s in os.environ.get('SIT_SHOTS', 'front,side,back').split(',') if s]
     for name, (eye, tgt) in shots.items():
+        if name not in want:
+            continue
         render_to(os.path.join(PREVIEW, name + '_chair.png'), cam, eye, tgt, 900, 1100)
-    for obj in chair:
-        obj.hide_render = True
-    floor.hide_render = True
-    for name, (eye, tgt) in shots.items():
-        render_to(os.path.join(PREVIEW, name + '_figure.png'), cam, eye, tgt, 720, 960)
+    if os.environ.get('SIT_FIGURE', '1') != '0':
+        for obj in chair:
+            obj.hide_render = True
+        floor.hide_render = True
+        for name, (eye, tgt) in shots.items():
+            if name not in want:
+                continue
+            render_to(os.path.join(PREVIEW, name + '_figure.png'), cam, eye, tgt, 720, 960)
 
     seen = {}
     for obj in mesh_objects():
@@ -1494,7 +1996,7 @@ def main():
         log('glb without normals %d' % size)
     if size > MAX_BYTES:
         for obj in mesh_objects():
-            if obj.get('sit') and obj.name not in ('SitShoes', 'SitHands', 'SitFace', dress.name, apron.name, bow.name) and tris_of(obj) > 400:
+            if obj.get('sit') and obj.name not in ('LOD0_G2_BODY', 'SitShoes', 'SitHands', 'SitFace', dress.name, apron.name, bow.name) and tris_of(obj) > 400:
                 decimate(obj, 0.8)
         export_glb(GLB_OUT, False)
         size = os.path.getsize(GLB_OUT)
