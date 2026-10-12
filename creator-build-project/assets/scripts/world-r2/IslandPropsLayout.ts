@@ -8,9 +8,13 @@
  *   - ui_signpost "继续旅程" in the shallows in front of the beach, bottom-right of the portrait island view.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
- * Screen props (bag / journal / settings): stand on the sea surface at a fixed SCREEN anchor (bottom row) for
- *   the current camera, so the row follows portrait/landscape without moving any world art. Their hit areas are
- *   the existing IslandJourneyOverlay buttons (same handlers).
+ * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
+ *   the current camera, so the row follows portrait/landscape without moving any world art. A lens pull
+ *   (IslandRail) only moves the world camera: these three keep the settled wide shot's screen position and
+ *   pixel size (screenPropPose). Their hit areas and the labels 行囊 / 旅程册 / 设置 stay on the existing
+ *   IslandJourneyOverlay buttons (same handlers, same screen slots, not scaled by the pull).
+ * The signpost "继续旅程" stays a world prop in the shallows. It is not a screen HUD and it does grow when the
+ *   lens comes closer.
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
  */
@@ -53,10 +57,10 @@ export const ISLAND_PROPS = Object.freeze({
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
   buttons: {
-    bag: { prefab: 'ui_satchel', label: '行囊', heightM: 0.915, widthM: 0.86 },
-    journal: { prefab: 'ui_notebook', label: '旅程册', heightM: 0.89, widthM: 0.665 },
-    settings: { prefab: 'ui_compass', label: '设置', heightM: 1.051, widthM: 0.84 },
-  } as Readonly<Record<PropRole, Readonly<{ prefab: string; label: string; heightM: number; widthM: number }>>>,
+    bag: { prefab: 'ui_satchel', label: '行囊', heightM: 0.915, widthM: 0.86, depthM: 0.514 },
+    journal: { prefab: 'ui_notebook', label: '旅程册', heightM: 0.89, widthM: 0.665, depthM: 0.314 },
+    settings: { prefab: 'ui_compass', label: '设置', heightM: 1.051, widthM: 0.84, depthM: 0.288 },
+  } as Readonly<Record<PropRole, Readonly<{ prefab: string; label: string; heightM: number; widthM: number; depthM: number }>>>,
   /** Cream rounded tag under each screen prop (mockup.py tag(): palette plaster / wood / dark wood). */
   tag: { fill: '#f8f2e2', edge: '#956737', text: '#633f21', shadow: '#14323c5a',
     /** T9n night end (same weight as the 3D props): darker warm grey card, deeper brown text/edge; >= 4.5:1 along the blend. */
@@ -130,6 +134,76 @@ export function seaAnchor(pose: CameraPose, aspect: number, sx: number, sy: numb
   // face the camera (yaw only; GLB front = +Z)
   const yawDeg = Math.atan2(pose.position[0] - point[0], pose.position[2] - point[2]) * 180 / Math.PI;
   return { point, scale, yawDeg, depth, onSea };
+}
+
+export type ScreenPropPose = {
+  /** World position of the mesh origin (bottom centre). */
+  point: V3;
+  /** Pivot scale in camera axes: x/y hold the screen size when fov changes, z holds the view-depth ratio. */
+  pivotScale: V3;
+  /** Pivot world rotation = the live camera, so the scale axes stay stuck to the lens. */
+  pivotRotation: readonly [number, number, number, number];
+  /** Mesh rotation inside the pivot, locked to the settled wide shot (upright, yawed toward that lens). */
+  localRotation: readonly [number, number, number, number];
+  depth: number;
+  onSea: boolean;
+};
+type Q4 = readonly [number, number, number, number];
+const quatMul = (a: Q4, b: Q4): [number, number, number, number] => {
+  const ax = a[0], ay = a[1], az = a[2], aw = a[3], bx = b[0], by = b[1], bz = b[2], bw = b[3];
+  return [aw * bx + ax * bw + ay * bz - az * by, aw * by - ax * bz + ay * bw + az * bx, aw * bz + ax * by - ay * bx + az * bw, aw * bw - ax * bx - ay * by - az * bz];
+};
+const quatConj = (q: Q4): [number, number, number, number] => [-q[0], -q[1], -q[2], q[3]];
+/** Yaw-only quaternion, same as Node.setRotationFromEuler(0, yawDeg, 0). Local +Z turns toward the camera on the horizontal. */
+function yawQuat(pose: CameraPose, point: V3): [number, number, number, number] {
+  const yaw = Math.atan2(pose.position[0] - point[0], pose.position[2] - point[2]), h = yaw * 0.5;
+  return [0, Math.sin(h), 0, Math.cos(h)];
+}
+/** How far above the sea a screen prop's lowest corner is kept, so the water plane cannot cover it when the lens drops. */
+const SCREEN_PROP_CLEAR_M = 0.015;
+type SeaHit = { point: V3; depth: number; onSea: boolean; along: number; origin: V3; dir: V3 };
+function seaHit(pose: CameraPose, aspect: number, sx: number, sy: number, seaY: number): SeaHit {
+  const r = screenRay(pose, aspect, sx, sy);
+  let dist = r.dir[1] < -1e-3 ? (seaY - r.origin[1]) / r.dir[1] : NaN;
+  const onSea = Number.isFinite(dist) && dist > 1 && dist < 200;
+  if (!onSea) dist = 20;
+  const point: V3 = [r.origin[0] + r.dir[0] * dist, r.origin[1] + r.dir[1] * dist, r.origin[2] + r.dir[2] * dist];
+  const fwd = rotate(pose.rotation, [0, 0, -1]);
+  const along = fwd[0] * r.dir[0] + fwd[1] * r.dir[1] + fwd[2] * r.dir[2];
+  return { point, depth: projectPoint(pose, aspect, point).depth, onSea, along: along > 1e-4 ? along : 1, origin: r.origin, dir: r.dir };
+}
+/**
+ * Bag / journal / settings for one frame. The settled `reference` pose (the island wide shot) is the screen
+ * they keep: same pixels, same face. A closer lens only changes where that picture sits in the world.
+ * Scale is non-uniform in camera space (parent pivot) so a fov change does not resize the picture; the mesh
+ * stays a child with the wide shot's upright yaw. The signpost does not use this.
+ */
+export function screenPropPose(pose: CameraPose, reference: CameraPose, aspect: number, sx: number, sy: number, pixels: number, screenH: number, model: { heightM: number; widthM: number; depthM: number }, seaY = ISLAND_PROPS.seaY): ScreenPropPose {
+  const hit = seaHit(pose, aspect, sx, sy, seaY);
+  const refA = seaAnchor(reference, aspect, sx, sy, pixels, screenH, model.heightM, seaY);
+  const t = Math.tan(pose.fovVerticalDeg * Math.PI / 360), tRef = Math.tan(reference.fovVerticalDeg * Math.PI / 360);
+  const refDepth = refA.depth > 0.05 ? refA.depth : 1;
+  const localRotation = quatMul(quatConj(reference.rotation), yawQuat(reference, refA.point));
+  const pivotRotation = pose.rotation;
+  const hx = model.widthM / 2, hz = model.depthM / 2, hy = model.heightM;
+  const xs = [-hx, hx], ys = [0, hy], zs = [-hz, hz];
+  const camY = pose.position[1];
+  let f = 1;
+  const sAt = (depth: number) => { const sDepth = refA.scale * (depth / refDepth), sPerp = sDepth * (t / tRef); return { sDepth, sPerp }; };
+  for (let ix = 0; ix < 2; ix++) for (let iy = 0; iy < 2; iy++) for (let iz = 0; iz < 2; iz++) {
+    const s = sAt(hit.depth);
+    const v1 = rotate(localRotation, [xs[ix], ys[iy], zs[iz]]);
+    const v3 = rotate(pivotRotation, [v1[0] * s.sPerp, v1[1] * s.sPerp, v1[2] * s.sDepth]);
+    const y = hit.point[1] + v3[1], dy = y - camY;
+    if (!(dy < -1e-8)) continue;
+    const lim = (seaY + SCREEN_PROP_CLEAR_M - camY) / dy;
+    if (lim < f) f = lim;
+  }
+  if (!(f > 0.25) || f > 1) f = 1;
+  const depth = hit.depth * f, dist = depth / hit.along;
+  const point: V3 = [hit.origin[0] + hit.dir[0] * dist, hit.origin[1] + hit.dir[1] * dist, hit.origin[2] + hit.dir[2] * dist];
+  const s = sAt(depth);
+  return { point, pivotScale: [s.sPerp, s.sPerp, s.sDepth], pivotRotation: [pivotRotation[0], pivotRotation[1], pivotRotation[2], pivotRotation[3]], localRotation, depth, onSea: hit.onSea };
 }
 
 /** World corners of a prop's local AABB after yaw + uniform scale + translation. */

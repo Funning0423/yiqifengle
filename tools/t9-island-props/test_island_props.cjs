@@ -236,4 +236,70 @@ ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light
   assert(/effectName: 'builtin-unlit', technique: 0 \}\); m\.setProperty\('mainColor', new Color\(S\.lampGlass\.nightColor\)\)/.test(src)&&/SignLampGlow/.test(src));
   assert(!/moon/i.test(src),'no moon (owned by 场景特效bot)');
 });
+ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels stay on those slots; the sea sign still grows',()=>{
+  const ref=C.fromLookAt(M.RegionCameraData.islandPoseEntry());
+  const {load:loadRail}=require('../camera-frame-test/load_ts.cjs');
+  const Rail=loadRail();
+  const cfg=Rail.FirstsliceRoutes.createFirstsliceRoutes(Rail.FirstsliceFacts.FIRSTSLICE,Rail.CharacterReference.CHARACTER_REFERENCE);
+  const rail=Rail.IslandRail.createIslandRail(cfg);
+  const verts=(a,model)=>{const hx=model.widthM/2,hz=model.depthM/2,hy=model.heightM,out=[];
+    for(const x of [-hx,hx])for(const y of [0,hy])for(const z of [-hz,hz]){
+      const v1=C.rotate(a.localRotation,[x,y,z]);
+      const v3=C.rotate(a.pivotRotation,[v1[0]*a.pivotScale[0],v1[1]*a.pivotScale[1],v1[2]*a.pivotScale[2]]);
+      out.push([a.point[0]+v3[0],a.point[1]+v3[1],a.point[2]+v3[2]]);}
+    return out;};
+  const px=(pose,aspect,w,h,p)=>{const q=C.projectPoint(pose,aspect,p);return [(q.x+1)/2*w,(1-q.y)/2*h];};
+  for(const [w,h] of [[402,874],[844,390]]){
+    const aspect=w/h,lay=L.propButtonLayout(w,h);
+    rail.restore(1);const far=rail.pose();
+    const settled={};
+    for(const s of lay.slots){
+      const model=P.buttons[s.role],[sx,sy]=L.uiToScreen(s.prop.x,s.prop.bottom,w,h);
+      const a=L.screenPropPose(far,ref,aspect,sx,sy,s.prop.height,h,model);
+      assert(a.onSea,'wide shot on the sea '+s.role);
+      const origin=px(far,aspect,w,h,a.point);
+      assert(Math.hypot(origin[0]-sx*w,origin[1]-sy*h)<0.5,'anchor stays on the slot '+s.role);
+      const got=verts(a,model),minY=Math.min(...got.map(v=>v[1]));
+      assert(minY>=P.seaY+0.015-1e-3,'above the sea '+s.role+' '+minY);
+      const sea=L.seaAnchor(far,aspect,sx,sy,s.prop.height,h,model.heightM);
+      const yaw=sea.yawDeg*Math.PI/180,hh=yaw/2,q=[0,Math.sin(hh),0,Math.cos(hh)];
+      const box=[[-model.widthM/2,0,-model.depthM/2],[model.widthM/2,model.heightM,model.depthM/2]];
+      let worst=0;const seaVerts=[];
+      for(const x of [box[0][0],box[1][0]])for(const y of [box[0][1],box[1][1]])for(const z of [box[0][2],box[1][2]]){
+        const l=C.rotate(q,[x*sea.scale,y*sea.scale,z*sea.scale]);seaVerts.push([sea.point[0]+l[0],sea.point[1]+l[1],sea.point[2]+l[2]]);
+      }
+      for(let i=0;i<8;i++){const A=px(far,aspect,w,h,got[i]),B=px(far,aspect,w,h,seaVerts[i]);worst=Math.max(worst,Math.hypot(A[0]-B[0],A[1]-B[1]));}
+      assert(worst<0.5,'wide shot matches the old upright prop '+worst.toFixed(3)+' '+s.role);
+      settled[s.role]=got.map(p=>px(far,aspect,w,h,p));
+    }
+    for(const u of [0.5,0]){
+      rail.restore(u);const pose=rail.pose();
+      for(const s of lay.slots){
+        const model=P.buttons[s.role],[sx,sy]=L.uiToScreen(s.prop.x,s.prop.bottom,w,h);
+        const old=L.seaAnchor(pose,aspect,sx,sy,s.prop.height,h,model.heightM);
+        const yaw=old.yawDeg*Math.PI/180,hh=yaw/2,q=[0,Math.sin(hh),0,Math.cos(hh)];
+        const left=C.projectPoint(pose,aspect,[old.point[0]-Math.cos(yaw)*model.widthM*old.scale/2,old.point[1],old.point[2]+Math.sin(yaw)*model.widthM*old.scale/2]);
+        const right=C.projectPoint(pose,aspect,[old.point[0]+Math.cos(yaw)*model.widthM*old.scale/2,old.point[1],old.point[2]-Math.sin(yaw)*model.widthM*old.scale/2]);
+        const oldW=Math.abs(right.x-left.x)/2*w;
+        const a=L.screenPropPose(pose,ref,aspect,sx,sy,s.prop.height,h,model);
+        const got=verts(a,model);
+        assert(Math.min(...got.map(v=>v[1]))>=P.seaY+0.015-1e-3,'pull stays above the sea '+s.role+' u='+u);
+        let worst=0;const base=settled[s.role];
+        for(let i=0;i<8;i++){const A=px(pose,aspect,w,h,got[i]);worst=Math.max(worst,Math.hypot(A[0]-base[i][0],A[1]-base[i][1]));}
+        assert(worst<0.5,'screen size held u='+u+' '+s.role+' drift '+worst.toFixed(3)+'px (old width '+oldW.toFixed(0)+')');
+        if(u===0&&s.role==='bag'&&w<h)assert(oldW>120,'the unfixed prop really does balloon, width '+oldW.toFixed(0));
+      }
+    }
+    const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
+    assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
+    assert.deepEqual(P.signpost.position,[-1.2,-1.15,18.8]);
+  }
+  const overlay=fs.readFileSync(path.join(SRC,'world-r2/IslandJourneyOverlay.ts'),'utf8');
+  const propsSrc=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(overlay.includes('ISLAND_PROPS.buttons[role].label')&&/l\.fontSize=s\.tag\.fontSize/.test(overlay),'tags use the screen slot, not the lens');
+  assert(!/screenPropPose|seaAnchor|fovVerticalDeg/.test(overlay),'labels are not parented to the world camera');
+  assert(/screenPropPose\(pose, this\.buttonRef/.test(propsSrc),'buttons take the screen lock');
+  assert(/sign\.setPosition\(S\.position\[0\], S\.position\[1\] - rise, S\.position\[2\]\)/.test(propsSrc),'sign stays on its sea post');
+  assert(!/IslandRail|ShoreBreak|chess|BoardPanels/.test(propsSrc),'pull, waves and the board are untouched here');
+});
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');
