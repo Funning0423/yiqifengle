@@ -1026,8 +1026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 71450,
-    "sha256": "55e3b70d1db9170cbf63783f288050000c6cfcc8b8fbb3b9d74d5fba93696b6a"
+    "bytes": 71535,
+    "sha256": "be4be0585f58ba93e6bc00fb90b4161ee668c54ed9a5fcd2b884bc391e65f49e"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1870,6 +1870,16 @@
     "sha256": "ad2e52c531d7fe7ae9d2932df3c2a898feebe6e31b80dba1af22372fc729a724"
   },
   {
+    "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts",
+    "bytes": 4399,
+    "sha256": "9a8811cf74b7f4d070bde9ccc5ae61b0c78e089a244879971c3329c09734651e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts.meta",
+    "bytes": 171,
+    "sha256": "c3a35edb686feb59fbed5450428f512227132bd217719ab2fba5c967b07292a8"
+  },
+  {
     "path": "creator-build-project/assets/scripts/world-r1/R4LevelBridge.ts",
     "bytes": 1561,
     "sha256": "eb2ea1e26a6b7e4a08d44772fbd4954dd7295a90a3063f4fcaea3130b3206adb"
@@ -1901,8 +1911,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 51302,
-    "sha256": "c5eb49d84bc2549302179a555d0c7f64522c31c26a6d6e47e9f5c095087bc8e9"
+    "bytes": 52171,
+    "sha256": "e95fc0c382d842a6f586774f9f10a6d06519f2b93991680b3dadcec00105a1c1"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
@@ -1956,8 +1966,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts",
-    "bytes": 6509,
-    "sha256": "8adc02a4fdd9330d5c3a691719a2fb7f421df0d98fa25f016750819670793877"
+    "bytes": 8998,
+    "sha256": "8be97a0e3794cbcf90223db42ef2e4c05e5263e6efc1d6d98c8774c99068ab2e"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandHomeInteraction.ts.meta",
