@@ -1,0 +1,3 @@
+[{"name":"P_front","az":0,"target":[0,0,0.95],"scale":1.30,"res":[500,600]},
+ {"name":"P_side","az":90,"target":[0,0,0.95],"scale":1.30,"res":[500,600]},
+ {"name":"P_leg_side","az":90,"target":[0,-0.05,0.28],"scale":0.62,"res":[500,500],"hide":["APRON"]}]

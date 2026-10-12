@@ -1,0 +1,50 @@
+{
+ "N_torso": {
+  "verts": 448,
+  "tris": 840
+ },
+ "N_sleeve_L": {
+  "verts": 520,
+  "tris": 1000
+ },
+ "N_sleeve_R": {
+  "verts": 520,
+  "tris": 1000
+ },
+ "N_bib": {
+  "verts": 99,
+  "tris": 160
+ },
+ "N_strap_L": {
+  "verts": 50,
+  "tris": 48
+ },
+ "N_strap_R": {
+  "verts": 50,
+  "tris": 48
+ },
+ "N_hand_L": {
+  "verts": 236,
+  "tris": 448
+ },
+ "N_hand_R": {
+  "verts": 236,
+  "tris": 448
+ },
+ "N_leg_L": {
+  "verts": 196,
+  "tris": 364
+ },
+ "N_leg_R": {
+  "verts": 196,
+  "tris": 364
+ },
+ "N_shoe_L": {
+  "verts": 257,
+  "tris": 496
+ },
+ "N_shoe_R": {
+  "verts": 257,
+  "tris": 496
+ }
+}

@@ -1,0 +1,5 @@
+[
+{"name":"side_herLeft","az":90,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"q34","az":-35,"el":8,"target":[0,0,0.87],"scale":1.95,"res":[560,800]},
+{"name":"front_low","az":-15,"el":-10,"target":[0,0,0.87],"scale":1.95,"res":[560,800]}
+]
