@@ -1,5 +1,6 @@
 'use strict';
-/** Shore wash: one flat sheet timed to amb_waves_loop (8.064 s), not a second ocean and not a second night sea.
+/** Shore swell: the authored sea heaves on amb_waves_loop (8.064 s); white water is only the beach lip
+ * while that crest is on the sand. Not a second ocean and not a second night sea.
  * CPU only. Usage: node tools/scene-fx/test_shore_break.cjs
  * Optional occlusion uses tools/camera-frame-test/glb_geometry.cjs (draco3d). */
 const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
@@ -56,40 +57,69 @@ function layersOf() {
     const t = i * 0.2, a = C.shorePhase(t), b = C5.shorePhase(t);
     phaseDiff = Math.max(phaseDiff, Math.abs(a.strength - b.strength), Math.abs(a.travel - b.travel), Math.abs(a.line01.strength - b.line01.strength), Math.abs(a.line02.travel - b.line02.travel));
   }
-  check('es5-phase', phaseDiff < 1e-9 && C.shoreBandGeometry(3).positions.length === C5.shoreBandGeometry(3).positions.length && C.farShoreGeometry().indices.length === C5.farShoreGeometry().indices.length, { phaseDiff: phaseDiff });
+  let seaDiff = 0;
+  for (let i = 0; i < 12; i++) {
+    const t = i * 0.67, x = Math.sin(i) * 12, z = Math.cos(i) * 14;
+    seaDiff = Math.max(seaDiff, Math.abs(C.seaHeight(x, z, t) - C5.seaHeight(x, z, t)), Math.abs(C.seaUvShift(t).u - C5.seaUvShift(t).u), Math.abs(C.shoreRadius(x, z) - C5.shoreRadius(x, z)));
+  }
+  check('es5-phase', phaseDiff < 1e-9 && seaDiff < 1e-9 && C.shoreWashGeometry(1, hitA).positions.length === C5.shoreWashGeometry(1, hitA).positions.length && C.farShoreGeometry().indices.length === C5.farShoreGeometry().indices.length, { phaseDiff: phaseDiff, seaDiff: seaDiff });
 
   const a = C.shorePhase(hitA), b = C.shorePhase(hitB), q = C.shorePhase(4.6), q2 = C.shorePhase(4.0);
-  check('hit-a-on-sand', a.line01.strength > 0.99 && a.line01.travel > 0.99 && a.line02.strength < 0.02 && a.strength > 0.99, { a: a });
-  check('hit-b-on-sand', b.line02.strength > 0.99 && b.line02.travel > 0.99 && b.line01.strength < 0.02, { b: b });
-  check('quiet-between-swells', q.strength < 0.02 && q.line01.strength < 0.02 && q.line02.strength < 0.02 && q2.strength < 0.02, { q: q, q2: q2 });
+  check('hit-a-on-sand', a.line01.strength > 0.99 && a.line01.travel > 0.99 && a.foamU > 0.99 && a.foamA > 0.99 && a.line02.strength < 0.02 && a.line02.foamA < 0.02, { a: a });
+  check('hit-b-on-sand', b.line02.strength > 0.99 && b.line02.travel > 0.99 && b.foamU > 0.99 && b.foamA > 0.99 && b.line01.strength < 0.02 && b.line01.foamA < 0.02, { b: b });
+  check('quiet-between-swells', q.strength < 0.02 && q.foamA < 0.02 && q.foamU < 0.02 && q.line01.foamA < 0.02 && q.line02.foamA < 0.02 && q2.foamA < 0.02, { q: q, q2: q2 });
   let period = 0;
   for (let i = 0; i < 20; i++) {
     const t = i * 0.37, p0 = C.shorePhase(t), p1 = C.shorePhase(t + S.loopS);
-    period = Math.max(period, Math.abs(p0.strength - p1.strength), Math.abs(p0.travel - p1.travel), Math.abs(p0.line01.strength - p1.line01.strength), Math.abs(p0.line02.strength - p1.line02.strength));
+    period = Math.max(period, Math.abs(p0.strength - p1.strength), Math.abs(p0.travel - p1.travel), Math.abs(p0.foamU - p1.foamU), Math.abs(p0.foamA - p1.foamA), Math.abs(C.seaHeight(3, 12, t) - C.seaHeight(3, 12, t + S.loopS)), Math.abs(C.seaUvShift(t).v - C.seaUvShift(t + S.loopS).v));
   }
   const plus12 = C.shorePhase(hitA + 12);
-  check('period-is-8.064', period < 1e-9, { period: period, loopS: S.loopS });
-  check('not-the-12s-clip', plus12.line01.strength < 0.05 && plus12.line02.strength > 0.9, { atHitPlus12: plus12 });
+  check('period-is-8.064', period < 1e-8, { period: period, loopS: S.loopS });
+  check('not-the-12s-clip', plus12.line01.strength < 0.05 && plus12.line01.foamA < 0.05 && plus12.line02.strength > 0.9 && plus12.line02.foamA > 0.9, { atHitPlus12: plus12 });
 
   const early = C.shorePhase(hitA - S.swells[0].attack * 0.70);
-  const waterE = C.bandAlpha(early.strength, early.travel, 0, S.shorePeak);
-  const sandE = C.bandAlpha(early.strength, early.travel, 1, S.shorePeak);
-  check('attack-starts-offshore', early.travel < 0.45 && early.travel > 0.05 && waterE > sandE * 8 && waterE > 0.02, { early: early, waterE: +waterE.toFixed(4), sandE: +sandE.toFixed(6) });
-  const mid = C.shorePhase(hitA - S.swells[0].attack * 0.5);
-  const m0 = C.bandAlpha(mid.strength, mid.travel, 0, S.shorePeak), m42 = C.bandAlpha(mid.strength, mid.travel, 0.42, S.shorePeak), m1 = C.bandAlpha(mid.strength, mid.travel, 1, S.shorePeak);
-  check('wash-crosses-mid-beach', m42 > m0 && m42 > m1, { mid: mid, m0: +m0.toFixed(4), m42: +m42.toFixed(4), m1: +m1.toFixed(4) });
-  const sandH = C.bandAlpha(1, 1, 1, S.shorePeak), waterH = C.bandAlpha(1, 1, 0, S.shorePeak);
-  const release = C.shorePhase(hitA + 0.45);
-  const sandR = C.bandAlpha(release.strength, release.travel, 1, S.shorePeak), waterR = C.bandAlpha(release.strength, release.travel, 0, S.shorePeak);
-  check('crash-lands-on-sand', sandH > 0.7 && sandH > waterH * 20 && release.travel > 0.99 && sandR > waterR * 10 && sandR < sandH, { sandH: +sandH.toFixed(3), waterH: +waterH.toFixed(5), release: release, sandR: +sandR.toFixed(3) });
+  check('attack-starts-offshore', early.travel < 0.45 && early.travel > 0.05 && early.foamA === 0 && early.foamU === 0 && C.farWashAlpha(early.foamA) === 0, { early: early });
+  const release = C.shorePhase(hitA + 0.55);
+  const later = C.shorePhase(hitA + 1.25);
+  const done = C.shorePhase(hitA + S.swells[0].release);
+  check('foam-recedes-after-hit', a.foamU > release.foamU && release.foamU > later.foamU && release.foamA > later.foamA && later.foamA > done.foamA && done.foamA < 0.02 && release.travel > 0.99 && release.foamU < 0.95 && release.foamU > 0.4, { release: release, later: later, done: done });
 
   const day = C.foamMultiply(0), night = C.foamMultiply(1), half = C.foamMultiply(0.5);
   check('night-is-multiply', day[0] === 1 && day[1] === 1 && day[2] === 1 && Math.abs(night[0] - 0.35) < 1e-12 && Math.abs(night[1] - 0.48) < 1e-12 && Math.abs(night[2] - 0.64) < 1e-12 && Math.abs(half[0] - (1 + 0.5 * (0.35 - 1))) < 1e-9 && Math.abs(half[1] - (1 + 0.5 * (0.48 - 1))) < 1e-9 && Math.abs(half[2] - (1 + 0.5 * (0.64 - 1))) < 1e-9, { day: day, night: night, half: half });
 
-  const sunk = C.waveLinePose(0, 0), up = C.waveLinePose(1, 1), tiny = C.waveLinePose(0.02, 1), midLine = C.waveLinePose(1, 0);
-  check('wave-line-follows-swell', Math.abs(sunk.y - S.sinkY) < 1e-9 && Math.abs(sunk.scale - S.sinkScale) < 1e-9 && Math.abs(up.y - S.riseY1) < 1e-9 && Math.abs(up.scale - S.riseScale) < 1e-9 && Math.abs(tiny.y - S.sinkY) < 1e-9 && Math.abs(midLine.y - S.riseY0) < 1e-9 && up.y > sunk.y && up.scale < sunk.scale, { sunk: sunk, up: up, tiny: tiny, midLine: midLine });
+  const sunk = C.waveLinePose(), up = C.waveLinePose(), tiny = C.waveLinePose();
+  check('wave-line-stays-under-sea', Math.abs(sunk.y - S.sinkY) < 1e-9 && Math.abs(sunk.scale - 1) < 1e-9 && sunk.y === up.y && sunk.y === tiny.y && sunk.y < S.seaBaseY - 0.2, { sunk: sunk, seaBaseY: S.seaBaseY });
 
   check('playhead-locks-clock', Math.abs(C.stepShoreClock(1, 0.5, 6.3) - C.wrapLoop(6.3)) < 1e-12 && Math.abs(C.stepShoreClock(1, 0.05, null) - 1.05) < 1e-12 && Math.abs(C.stepShoreClock(1, 0.5, null) - 1.1) < 1e-12 && Math.abs(C.stepShoreClock(0, 5, null) - 0.1) < 1e-12 && Math.abs(C.wrapLoop(-0.064) - (S.loopS - 0.064)) < 1e-6 && Math.abs(C.stepShoreClock(1, 0.2, NaN) - 1.1) < 1e-12 && C.wrapLoop(S.loopS) === 0, { integratedHalfSecond: C.stepShoreClock(1, 0.5, null), nanPlayhead: C.stepShoreClock(1, 0.2, NaN) });
+
+  const hitPhase = C.shorePhase(hitA);
+  let shoreSum = 0, offSum = 0, lipN = 0, radiusErr = 0;
+  for (let i = 0; i < S.lip.length; i++) {
+    const seg = S.lip[i], x = seg[1], z = seg[2], r = Math.hypot(x, z);
+    if (!(r > 1)) continue;
+    radiusErr = Math.max(radiusErr, Math.abs(C.shoreRadius(x, z) - r));
+    const ox = x / r, oz = z / r;
+    shoreSum += C.seaHeight(x, z, hitA, hitPhase);
+    offSum += C.seaHeight(x + ox * S.fetch, z + oz * S.fetch, hitA, hitPhase);
+    lipN++;
+  }
+  const earlyT = hitA - S.swells[0].attack * 0.7, earlyPhase = C.shorePhase(earlyT);
+  const crestOff = (1 - earlyPhase.travel) * S.fetch;
+  let crestSum = 0, shoreEarly = 0;
+  for (let i = 0; i < S.lip.length; i++) {
+    const seg = S.lip[i], x = seg[1], z = seg[2], r = Math.hypot(x, z);
+    if (!(r > 1)) continue;
+    const ox = x / r, oz = z / r;
+    crestSum += C.seaHeight(x + ox * crestOff, z + oz * crestOff, earlyT, earlyPhase);
+    shoreEarly += C.seaHeight(x, z, earlyT, earlyPhase);
+  }
+  check('crest-lands-with-the-beat', lipN > 20 && radiusErr < 0.6 && shoreSum / lipN > offSum / lipN + 0.06 && crestSum / lipN > shoreEarly / lipN + 0.02, { lipN: lipN, radiusErr: +radiusErr.toFixed(3), shore: +(shoreSum / lipN).toFixed(3), offshore: +(offSum / lipN).toFixed(3), earlyCrest: +(crestSum / lipN).toFixed(3), earlyShore: +(shoreEarly / lipN).toFixed(3), crestOff: +crestOff.toFixed(2) });
+  let quietMax = 0;
+  const quietPhase = C.shorePhase(4.6);
+  for (let i = 0; i < S.lip.length; i++) quietMax = Math.max(quietMax, Math.abs(C.seaHeight(S.lip[i][1], S.lip[i][2], 4.6, quietPhase)), Math.abs(C.seaHeight(S.lip[i][1] * 3, S.lip[i][2] * 3, 4.6, quietPhase)));
+  const uvA = C.seaUvShift(hitA), uvB = C.seaUvShift(hitB), uv0 = C.seaUvShift(0);
+  // v is two cycles per loop, so the two hits (half a loop apart) share v. u is one cycle, so it has flipped.
+  check('sea-keeps-moving-between-beats', quietPhase.foamA === 0 && quietMax > 0.01 && quietMax < S.ripple + S.heave + 0.02 && Math.abs(uvA.u - uvB.u) > 0.05 && Math.abs(uv0.u) < 1e-9 && Math.abs(uvA.u) < S.uvDrift + 1e-9, { quietMax: +quietMax.toFixed(3), uvA: uvA, uvB: uvB });
 
   const homeL = C.washVisible(false, true, 1), isleL = C.washVisible(true, true, 1), noneL = C.washVisible(false, false, 1), quietL = C.washVisible(true, true, 0), doorL = C.washVisible(true, true, 0.5);
   check('home-far-only', homeL.shore === false && homeL.far === true && isleL.shore === true && isleL.far === true && doorL.shore === true && noneL.shore === false && noneL.far === false && quietL.shore === false && quietL.far === false, { homeL: homeL, isleL: isleL, noneL: noneL, quietL: quietL });
@@ -98,42 +128,49 @@ function layersOf() {
   for (let i = 0; i < kept.length; i++) keptDeg[kept[i][0]] = 1;
   check('beach-kept-cliffs-dropped', keptDeg[-12] && keptDeg[-4] && keptDeg[4] && keptDeg[12] && keptDeg[20] && !keptDeg[-124] && !keptDeg[76] && !keptDeg[84] && kept.length < S.lip.length, { kept: kept.length, lip: S.lip.length });
 
-  const bands = []; let shoreVerts = 0, shoreTris = 0, badHouse = 0, badY = 0, badRgb = 0, badIndex = 0, negN = 0, posN = 0;
+  const sheetY = S.seaBaseY + S.foamLift;
+  const geos = [C.shoreWashGeometry(0, hitA), C.shoreWashGeometry(1, hitA)];
+  let shoreVerts = 0, shoreTris = 0, badHouse = 0, badY = 0, badRgb = 0, badIndex = 0, negN = 0, posN = 0, wide = 0;
   const H = S.house;
-  for (let i = 0; i < S.bands.length; i++) {
-    const g = C.shoreBandGeometry(i); bands.push(g); shoreVerts += g.positions.length / 3; shoreTris += g.indices.length / 3;
+  for (let i = 0; i < geos.length; i++) {
+    const g = geos[i]; shoreVerts += g.positions.length / 3; shoreTris += g.indices.length / 3;
     const n = normals(g); posN += n.pos; negN += n.neg;
     if (g.colors.length !== g.positions.length / 3 * 4 || g.indices.length % 3) badIndex++;
     for (let k = 0; k < g.indices.length; k++) if (g.indices[k] < 0 || g.indices[k] >= g.positions.length / 3) badIndex++;
     const vs = verts(g);
     for (let v = 0; v < vs.length; v++) {
       const p = vs[v].p;
-      if (!(p[1] > -0.9 && p[1] < 0.45) || !isFinite(p[0] + p[1] + p[2])) badY++;
+      if (!(p[1] > -1.2 && p[1] < 0.5) || !isFinite(p[0] + p[1] + p[2])) badY++;
       if (vs[v].a > 0.05 && p[0] >= H.minX && p[0] <= H.maxX && p[2] >= H.minZ && p[2] <= H.maxZ) badHouse++;
       if (Math.abs(vs[v].rgb[0] - S.foamRgb[0]) > 1e-6 || Math.abs(vs[v].rgb[1] - S.foamRgb[1]) > 1e-6 || Math.abs(vs[v].rgb[2] - S.foamRgb[2]) > 1e-6) badRgb++;
     }
   }
   const far = C.farShoreGeometry(); const fn = normals(far); posN += fn.pos; negN += fn.neg;
   const farVs = verts(far);
-  for (let v = 0; v < farVs.length; v++) if (!(farVs[v].p[1] > -0.9 && farVs[v].p[1] < 0) || Math.abs(farVs[v].p[1] - S.waterY) > 1e-6) badY++;
-  check('sheet-faces-up', negN === 0 && posN > 30 && badIndex === 0 && badY === 0 && badRgb === 0 && badHouse === 0 && shoreTris > 40 && shoreVerts < 4000, { posN: posN, negN: negN, shoreVerts: shoreVerts, shoreTris: shoreTris, farVerts: farVs.length, badHouse: badHouse, badY: badY, badRgb: badRgb, badIndex: badIndex });
+  for (let v = 0; v < farVs.length; v++) if (!(farVs[v].p[1] > -1.2 && farVs[v].p[1] < 0) || Math.abs(farVs[v].p[1] - sheetY) > 1e-6) badY++;
+  check('sheet-faces-up', negN === 0 && posN > 30 && badIndex === 0 && badY === 0 && badRgb === 0 && badHouse === 0 && shoreTris > 40 && shoreVerts < 4000 && geos[0].positions.length === geos[1].positions.length, { posN: posN, negN: negN, shoreVerts: shoreVerts, shoreTris: shoreTris, farVerts: farVs.length, badHouse: badHouse, badY: badY, badRgb: badRgb, badIndex: badIndex });
 
   function near(list, p) { let best = 1e9; for (let i = 0; i < list.length; i++) best = Math.min(best, dist2(list[i].p, p)); return best; }
-  const sandBand = verts(bands[3]), waterBand = verts(bands[0]);
+  const waterBand = verts(geos[0]), sandBand = verts(geos[1]);
+  const water4 = [1.14, S.seaBaseY + C.seaHeight(1.14, 16.36, hitA, hitPhase) + S.foamLift, 16.36];
   const sand4 = [0.56, 0.05 + S.sandLift, 8.03], sand12 = [-1.68, 0.102 + S.sandLift, 7.92];
   const cliff = [[-3.9, 0.331 + S.sandLift, -2.63], [7.03, 0.341 + S.sandLift, 1.75], [7.86, 0.35 + S.sandLift, 0.83]];
   let cliffNear = 0;
   for (let i = 0; i < cliff.length; i++) if (near(sandBand, cliff[i]) < 0.4 || near(waterBand, cliff[i]) < 0.4) cliffNear++;
-  const far157 = [Math.sin(157 * Math.PI / 180) * 48, S.waterY, Math.cos(157 * Math.PI / 180) * 48];
-  const far163 = [Math.sin(163 * Math.PI / 180) * 58, S.waterY, Math.cos(163 * Math.PI / 180) * 58];
-  check('sand-and-horizon-placed', near(sandBand, sand4) < 0.05 && near(sandBand, sand12) < 0.05 && cliffNear === 0 && near(farVs, far157) < 1e-3 && near(farVs, far163) < 1e-3, { dSand4: +near(sandBand, sand4).toFixed(4), dSand12: +near(sandBand, sand12).toFixed(4), cliffNear: cliffNear, d157: +near(farVs, far157).toFixed(5), d163: +near(farVs, far163).toFixed(5) });
+  for (let v = 0; v < sandBand.length; v++) if (sandBand[v].a > 0.45 && sandBand[v].p[2] > 8 && Math.hypot(sandBand[v].p[0], sandBand[v].p[2]) > 18) wide++;
+  const far157 = [Math.sin(157 * Math.PI / 180) * 48, sheetY, Math.cos(157 * Math.PI / 180) * 48];
+  const far163 = [Math.sin(163 * Math.PI / 180) * 58, sheetY, Math.cos(163 * Math.PI / 180) * 58];
+  check('sand-and-horizon-placed', near(sandBand, sand4) < 0.05 && near(sandBand, sand12) < 0.05 && near(waterBand, water4) < 0.05 && cliffNear === 0 && wide === 0 && near(farVs, far157) < 1e-3 && near(farVs, far163) < 1e-3, { dSand4: +near(sandBand, sand4).toFixed(4), dSand12: +near(sandBand, sand12).toFixed(4), dWater4: +near(waterBand, water4).toFixed(4), cliffNear: cliffNear, wide: wide, d157: +near(farVs, far157).toFixed(5), d163: +near(farVs, far163).toFixed(5) });
 
   const wf = fs.readFileSync(path.join(scripts, 'world-r1/WorldFlowComponent.ts'), 'utf8');
   const amb = fs.readFileSync(path.join(scripts, 'audio/AmbienceAudio.ts'), 'utf8');
   const wrap = fs.readFileSync(path.join(scripts, 'render/ShoreBreak.ts'), 'utf8');
   check('wired-into-world', (wf.match(/this\.shore\?\.dispose\(\)/g) || []).length === 3 && wf.includes('this.shore?.advance(dt)') && wf.includes('this.shore?.setView(this.exteriorVisible,this.backdropVisible,this.dayNightMode===\'night\')') && wf.includes('new ShoreBreak(director.getScene()!,model)') && /\[\s*\.35\s*,\s*\.48\s*,\s*\.64\s*\]/.test(wf), { disposes: (wf.match(/this\.shore\?\.dispose\(\)/g) || []).length });
   check('playhead-on-ambience', /static wavePlayhead\(/.test(amb) && amb.includes('wi.wavePlayhead = AmbienceAudio.wavePlayhead') && amb.includes('src.currentTime') && amb.includes('amb_waves_loop'));
-  check('no-second-sea', !/env_sea_surface/.test(wrap) && !/env_window_blind/.test(wrap) && wrap.includes('TECH_ALPHA_BLEND = 3') && wrap.includes('USE_VERTEX_COLOR') && wrap.includes('foamMultiply') && !/setProperty\('mainColor'/.test(fs.readFileSync(path.join(scripts, 'render/ShoreBreakCore.ts'), 'utf8')));
+  const coreSrc = fs.readFileSync(path.join(scripts, 'render/ShoreBreakCore.ts'), 'utf8');
+  const mainSets = wrap.match(/setProperty\('mainColor'/g) || [];
+  // Two foam mainColor writes (init alpha 0, then place). The sea material is never written.
+  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('createDynamicMesh') && wrap.includes('updateSubMesh') && wrap.includes('foamMultiply') && wrap.includes('seaHeight') && wrap.includes('tilingOffset') && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length });
 
   let codeBytes = 0;
   for (const f of ['render/ShoreBreak.ts', 'render/ShoreBreak.ts.meta', 'render/ShoreBreakCore.ts', 'render/ShoreBreakCore.ts.meta']) codeBytes += fs.statSync(path.join(scripts, f)).size;

@@ -331,7 +331,7 @@ export class WorldFlowComponent extends Component {
       this.roomLighting=new RoomLightingRig(director.getScene()!,model,director.getScene()?.getChildByName('FLOW_REFERENCE_PLACEHOLDER_NOT_B')??null);
       this.doorSpill=new DoorSpillHint(director.getScene()!); // T2+ room home camera option 1: door light-spill hint
       this.atmosphere=new IslandAtmosphereFx(director.getScene()!); // scene FX: chimney smoke + lighthouse beam + gulls
-      this.shore=new ShoreBreak(director.getScene()!,model); // flat shore wash on amb_waves_loop; one mesh, night is a colour multiply
+      this.shore=new ShoreBreak(director.getScene()!,model); // same sea heaves on amb_waves_loop; beach lip only while the crest is on the sand; night is a colour multiply
       const camera=this.worldCamera!;
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).

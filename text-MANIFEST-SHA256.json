@@ -1631,8 +1631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts",
-    "bytes": 8031,
-    "sha256": "3919a06625b9b95fa0983a4910a96fd2caca391b6a13365ee8266f4a545167c0"
+    "bytes": 18075,
+    "sha256": "0a1293958abd6e702e73928c535dbc2dfaf65e412dcccb78e878936b447c176b"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts.meta",
@@ -1641,8 +1641,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts",
-    "bytes": 14249,
-    "sha256": "d66a79b4de63297cefbc55a1570890c461b677cafac38f87a7579017992130a6"
+    "bytes": 17966,
+    "sha256": "0f75ebb0e3887cc3d85424f3c25fb1e61f6946258b67516260fb14dd0859b761"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts.meta",
@@ -1901,8 +1901,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 51265,
-    "sha256": "3f16197cb6ae9c58b8bf00641eb21cc05d449a9c11d466a433151ccbebcc2789"
+    "bytes": 51302,
+    "sha256": "c5eb49d84bc2549302179a555d0c7f64522c31c26a6d6e47e9f5c095087bc8e9"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
