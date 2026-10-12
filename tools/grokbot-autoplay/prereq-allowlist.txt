@@ -227,3 +227,5 @@ observe e88d468e214bfcaefcafc8d3cf358b79d9a106735399f48d2edd2e39bf45d980 audio/A
 # exit-camera pace (34fd323, merged 195159c): optional cameraSettle on the outbound settle clock. Glue reviewed:
 #  walk(path, cameras|null, token), config paths, onDoorShut and the island turn action are unchanged. Append only.
 observe 8a838a857e965a1da7c67ff0ebd47a55174c5593a28644c9e81e5510ff04e48a world-r1/WorldFlowCore.ts         exit-camera pace 34fd323 (int/v1 195159c)
+
+observe 02982ef5d3ae3bb0d0007ee96f037080711a3c8ff73082348d97278a5f24b344 world-r1/WorldFlowCore.ts         int/v1 doorway shows island while the door opens

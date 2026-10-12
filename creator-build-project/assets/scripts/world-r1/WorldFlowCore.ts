@@ -382,8 +382,10 @@ export class WorldFlow {
         t.check();this.change('turning-out');await this.action(turn,t);
       }
       this.change('walking-out');await this.walk(c.toDoor,c.cameraToDoor,t);
-      this.change('opening-door');await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
-      this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);this.change('crossing-out');
+      // Sea backdrop is already on indoors. The island has to come on with the swing, or this second shows the sea through the open doorway.
+      this.change('opening-door');this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);
+      await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
+      this.change('crossing-out');
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
         const end=c.toIsland[c.toIsland.length-1],settle=c.crane?.settleSeconds??0;

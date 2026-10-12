@@ -1866,8 +1866,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 49423,
-    "sha256": "8a838a857e965a1da7c67ff0ebd47a55174c5593a28644c9e81e5510ff04e48a"
+    "bytes": 49572,
+    "sha256": "02982ef5d3ae3bb0d0007ee96f037080711a3c8ff73082348d97278a5f24b344"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
