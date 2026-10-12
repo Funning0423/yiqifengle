@@ -1,0 +1,522 @@
+[
+ {
+  "clip": "sit_hold",
+  "t": 0.0,
+  "root_z": 0.0,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "apron-dress": 0,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 32,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 135,
+   "hand_R-apron": 215,
+   "hand_L-dress": 42,
+   "hand_R-dress": 5,
+   "sleeve_L-apron": 35,
+   "sleeve_R-apron": 25,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_hold",
+  "t": 0.5,
+  "root_z": 0.0,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "apron-dress": 6,
+   "dress-chair": 12,
+   "apron-chair": 0,
+   "bow-chair": 32,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 146,
+   "hand_R-dress": 73,
+   "sleeve_L-apron": 50,
+   "sleeve_R-apron": 15,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_hold",
+  "t": 1.0,
+  "root_z": 0.0,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "apron-dress": 6,
+   "dress-chair": 11,
+   "apron-chair": 0,
+   "bow-chair": 34,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 16,
+   "hand_L-dress": 155,
+   "hand_R-dress": 180,
+   "sleeve_L-apron": 42,
+   "sleeve_R-apron": 16,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_hold",
+  "t": 1.5,
+  "root_z": 0.0,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "apron-dress": 0,
+   "dress-chair": 16,
+   "apron-chair": 0,
+   "bow-chair": 34,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 66,
+   "hand_L-dress": 139,
+   "hand_R-dress": 173,
+   "sleeve_L-apron": 29,
+   "sleeve_R-apron": 13,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.2,
+  "root_z": 0.4117,
+  "weights": {
+   "sit_drape": 0.0
+  },
+  "overlaps": {
+   "legs-dress": 189,
+   "legs-apron": 76,
+   "apron-dress": 28,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 0,
+   "hand_R-dress": 0,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.4,
+  "root_z": 0.3293,
+  "weights": {
+   "sit_drape": 0.3
+  },
+  "overlaps": {
+   "legs-dress": 82,
+   "legs-apron": 0,
+   "apron-dress": 101,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 0,
+   "hand_R-dress": 0,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.5,
+  "root_z": 0.2882,
+  "weights": {
+   "sit_drape": 0.45
+  },
+  "overlaps": {
+   "legs-dress": 214,
+   "legs-apron": 0,
+   "apron-dress": 131,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 0,
+   "hand_R-dress": 0,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.6,
+  "root_z": 0.247,
+  "weights": {
+   "sit_drape": 0.6
+  },
+  "overlaps": {
+   "legs-dress": 213,
+   "legs-apron": 13,
+   "apron-dress": 157,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 0,
+   "hand_R-dress": 0,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.7,
+  "root_z": 0.2058,
+  "weights": {
+   "sit_drape": 0.75
+  },
+  "overlaps": {
+   "legs-dress": 443,
+   "legs-apron": 247,
+   "apron-dress": 241,
+   "dress-chair": 156,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 56,
+   "hand_R-apron": 58,
+   "hand_L-dress": 46,
+   "hand_R-dress": 68,
+   "sleeve_L-apron": 62,
+   "sleeve_R-apron": 106,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.8,
+  "root_z": 0.1647,
+  "weights": {
+   "sit_drape": 0.9
+  },
+  "overlaps": {
+   "legs-dress": 428,
+   "legs-apron": 33,
+   "apron-dress": 156,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 53,
+   "hand_R-apron": 101,
+   "hand_L-dress": 158,
+   "hand_R-dress": 123,
+   "sleeve_L-apron": 73,
+   "sleeve_R-apron": 79,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 0.8667,
+  "root_z": 0.1372,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 408,
+   "legs-apron": 17,
+   "apron-dress": 152,
+   "dress-chair": 29,
+   "apron-chair": 0,
+   "bow-chair": 31,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 12,
+   "hand_R-apron": 86,
+   "hand_L-dress": 239,
+   "hand_R-dress": 252,
+   "sleeve_L-apron": 65,
+   "sleeve_R-apron": 71,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 1.0,
+  "root_z": 0.0823,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 37,
+   "legs-apron": 0,
+   "apron-dress": 75,
+   "dress-chair": 75,
+   "apron-chair": 0,
+   "bow-chair": 38,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 100,
+   "hand_R-apron": 142,
+   "hand_L-dress": 94,
+   "hand_R-dress": 50,
+   "sleeve_L-apron": 43,
+   "sleeve_R-apron": 23,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "sit_down",
+  "t": 1.2,
+  "root_z": 0.0,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 10,
+   "legs-apron": 0,
+   "apron-dress": 4,
+   "dress-chair": 20,
+   "apron-chair": 0,
+   "bow-chair": 32,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 89,
+   "hand_R-apron": 144,
+   "hand_L-dress": 86,
+   "hand_R-dress": 5,
+   "sleeve_L-apron": 39,
+   "sleeve_R-apron": 24,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.1333,
+  "root_z": 0.052,
+  "weights": {
+   "sit_drape": 1.0
+  },
+  "overlaps": {
+   "legs-dress": 12,
+   "legs-apron": 0,
+   "apron-dress": 49,
+   "dress-chair": 6,
+   "apron-chair": 0,
+   "bow-chair": 34,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 71,
+   "hand_R-apron": 187,
+   "hand_L-dress": 150,
+   "hand_R-dress": 30,
+   "sleeve_L-apron": 25,
+   "sleeve_R-apron": 23,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.3,
+  "root_z": 0.117,
+  "weights": {
+   "sit_drape": 0.773
+  },
+  "overlaps": {
+   "legs-dress": 424,
+   "legs-apron": 90,
+   "apron-dress": 208,
+   "dress-chair": 173,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 50,
+   "hand_R-apron": 77,
+   "hand_L-dress": 3,
+   "hand_R-dress": 67,
+   "sleeve_L-apron": 65,
+   "sleeve_R-apron": 37,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.45,
+  "root_z": 0.1755,
+  "weights": {
+   "sit_drape": 0.568
+  },
+  "overlaps": {
+   "legs-dress": 405,
+   "legs-apron": 262,
+   "apron-dress": 62,
+   "dress-chair": 375,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 29,
+   "hand_L-dress": 131,
+   "hand_R-dress": 287,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.6,
+  "root_z": 0.234,
+  "weights": {
+   "sit_drape": 0.364
+  },
+  "overlaps": {
+   "legs-dress": 479,
+   "legs-apron": 296,
+   "apron-dress": 216,
+   "dress-chair": 340,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 78,
+   "hand_R-dress": 76,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.75,
+  "root_z": 0.2925,
+  "weights": {
+   "sit_drape": 0.159
+  },
+  "overlaps": {
+   "legs-dress": 172,
+   "legs-apron": 0,
+   "apron-dress": 24,
+   "dress-chair": 551,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 73,
+   "hand_R-dress": 32,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 0.8667,
+  "root_z": 0.338,
+  "weights": {
+   "sit_drape": 0.0
+  },
+  "overlaps": {
+   "legs-dress": 48,
+   "legs-apron": 0,
+   "apron-dress": 34,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 0,
+   "hand_R-apron": 0,
+   "hand_L-dress": 103,
+   "hand_R-dress": 72,
+   "sleeve_L-apron": 0,
+   "sleeve_R-apron": 0,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ },
+ {
+  "clip": "stand_up",
+  "t": 1.0,
+  "root_z": 0.39,
+  "weights": {
+   "sit_drape": 0.0
+  },
+  "overlaps": {
+   "legs-dress": 0,
+   "legs-apron": 0,
+   "apron-dress": 30,
+   "dress-chair": 0,
+   "apron-chair": 0,
+   "bow-chair": 0,
+   "legs-chair": 0,
+   "torso-chair": 0,
+   "hand_L-apron": 86,
+   "hand_R-apron": 0,
+   "hand_L-dress": 161,
+   "hand_R-dress": 4,
+   "sleeve_L-apron": 96,
+   "sleeve_R-apron": 24,
+   "dress-floor": 0,
+   "apron-floor": 0
+  }
+ }
+]
