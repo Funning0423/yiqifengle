@@ -1,6 +1,7 @@
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
 import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry } from 'cc';
 import { RoomLook } from './RoomLook';
+import { createIslandRail, IslandRail } from './IslandRail';
 import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
 import { RoomLightingRig } from '../render/RoomLightingRig';
 import { DoorSpillHint } from '../render/DoorSpillHint';
@@ -139,6 +140,7 @@ export class WorldFlowComponent extends Component {
   @property(Camera) worldCamera:Camera|null=null;
   private flow:WorldFlow|null=null;
   private roomLook=new RoomLook(homePoseEntry());
+  private islandRail:IslandRail|null=null;
   private readonly settledListeners=new Set<(place:'island'|'home')=>void>();
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
   private readonly doorShutListeners=new Set<()=>void>();
@@ -218,7 +220,8 @@ export class WorldFlowComponent extends Component {
     const cam=this.worldCamera.node,p=cam.worldPosition,q=cam.worldRotation;this.savedCamera={position:[p.x,p.y,p.z],rotation:[q.x,q.y,q.z,q.w],fovVerticalDeg:this.worldCamera.fov};
     this.installCameraDebug();
     this.dayNightMode=localNight(new Date())?'night':'day';
-    this.flow=new WorldFlow({config:createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE),mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
+    const routes=createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE);this.islandRail=createIslandRail(routes);
+    this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
@@ -227,7 +230,7 @@ export class WorldFlowComponent extends Component {
   /** UI receives this command facade, never scene/model/camera references. */
   commands() {
     const flow=()=>{if(!this.flow)throw Error('World not initialized');return this.flow;};
-    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
+    return Object.freeze({snapshot:()=>flow().snapshot(),leaveHome:()=>this.leaveRoom(),roomView:(aspect:number)=>this.roomView(aspect),lookRoom:(dx:number,dy:number)=>this.lookRoom(dx,dy),pullIsland:(dy:number,scale:number)=>this.pullIsland(dy,scale),returnHome:()=>flow().returnHome(),hitLighthouse:(x:number,y:number)=>this.hitLighthouse(x,y),hitCabin:(x:number,y:number)=>this.hitCabin(x,y),
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
@@ -248,6 +251,9 @@ export class WorldFlowComponent extends Component {
   }
   private roomView(aspect:number){const s=this.flow?.snapshot();return {enabled:!!s&&s.state==='home'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&!this.roomLookToken&&this.jobs.size===0,settling:!!this.roomLookToken,door:this.roomLook.door(FIRSTSLICE.anchors.door_handle.position,aspect),angles:this.roomLook.angles()};}
   private lookRoom(dx:number,dy:number):boolean {if(!this.roomView(1).enabled||!this.worldCamera||!this.roomLook.drag(dx,dy))return false;return applyCameraPose(this.worldCamera,this.roomLook.pose(),'room.look');}
+  /** Settled island only: the exit arc is finished (state is island) and no camera job is writing. */
+  private islandView(){const s=this.flow?.snapshot();return !!s&&s.state==='island'&&!s.hidden&&!s.needsResume&&s.characterReady&&!this.disposed&&!this.safetyFailure&&this.jobs.size===0;}
+  private pullIsland(dy:number,scale:number):boolean {const rail=this.islandRail;if(!rail||!this.islandView()||!this.worldCamera)return false;const before=rail.fraction();if(!rail.nudge(dy,scale))return false;if(applyCameraPose(this.worldCamera,rail.pose(),'island.pull'))return true;rail.restore(before);return false;}
   private cancelRoomLook(){const changed=this.roomLook.moved()||!!this.roomLookToken;this.roomLookToken?.cancel();this.roomLookToken=null;this.roomLook.reset();if(changed&&this.worldCamera&&!this.disposed)try{applyCameraPose(this.worldCamera,fromLookAt(homePoseEntry()),'room.cancel-reset');}catch(error){console.warn('Room view reset failed',String(error));}}
   /** Rejoin the existing authored opening from the same origin before character motion starts.
    * Only user-look adds this bounded horizon-locked settle; untouched default view follows the old track exactly. */
@@ -336,7 +342,7 @@ export class WorldFlowComponent extends Component {
       // 0007 v1.2: adapter only. Pose (look-at authoring form) -> CameraPose -> applyCameraPose (the single camera writer).
       // A pose without fovVerticalDeg keeps the current fov (legacy route waypoints).
       const toCameraPose=(pose:Pose):CameraPose=>fromLookAt(pose,camera.fov);
-      const setCamera=(pose:Pose)=>{this.roomLook.reset();if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
+      const setCamera=(pose:Pose)=>{this.roomLook.reset();this.islandRail?.reset();if(!applyCameraPose(camera,toCameraPose(pose),'world.setCamera'))console.error('[0007] stable camera pose rejected; camera unchanged',pose);};
       let alive=true;
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
