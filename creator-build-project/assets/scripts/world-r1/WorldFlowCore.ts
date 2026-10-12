@@ -56,7 +56,16 @@ export interface CharacterAdapter {
  *  state either: subscribers use WorldFlow.onDoorShut, which fires once when the leaf actually reaches 0. */
 export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress:number;seconds:number}>|Readonly<{kind:'settled';place:'island'|'home'}>;
 /** UI is granted commands/status only; never a world node or camera reference. */
-export interface LevelLease { requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void; }
+export interface LevelLease {
+  requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void;
+  /** Resolves when the board may be shown: run.ready and able to take a finger, or a settled pause/result screen.
+   *  Omitted = the lease is already playable when enter() resolves (older adapters). */
+  whenPlayable?():Promise<void>;
+  /** Puts the board on screen. Called only after the enter-level shot and whenPlayable. Omitted = already visible. */
+  reveal?():void;
+}
+/** Enter-level push (motion mode). Not the exit arc. Long enough to read as a move, not a multi-second hold after the board is ready. */
+export const ENTER_LEVEL_SHOT_S=0.78;
 export interface LevelAdapter { enter(stageId:string, token:Cancellation):Promise<LevelLease>; }
 /** A non-progressing region visit. No save, reward, level or character ownership. */
 export interface RegionVisitLease { show():void; hide():void; dispose():void; }
@@ -70,6 +79,8 @@ export interface WorldLease {
   /** progress (T2+, optional): track-timeline fraction 0..1 from a distance-travelled signal; null = use time. The lease
    *  keeps it monotone and ends on 1 with the job. */
   animateCamera(path:readonly Pose[],seconds:number,token:Cancellation,options?:TrackOptions,progress?:()=>number|null,onSample?:(keyProgress:number)=>void):Promise<void>;
+  /** Optional motion-mode enter-level shot from the live island camera. Must not run the exit arc. Omitted = no shot. */
+  playEnterLevel?(token:Cancellation):Promise<void>;
   // onSample (T2+, optional): called after every written sample with the eased track progress (the key-progress space of
   // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
@@ -425,8 +436,31 @@ export class WorldFlow {
     if(!stageId.trim())return {ok:false,reason:'empty-stage'};
     return this.operate('level-loading',async t=>{
       const pending=this.levels.enter(stageId,t).then(lease=>{if(t.cancelled){lease.dispose();throw new Cancelled();}return lease;});
-      const lease=await t.wait(pending);t.check();this.level=lease;this.stable='level';this.restore();this.change('level');
+      // Shot overlaps the load. The board stays off screen until it can take a finger, then the shot's remaining time.
+      // A fast load still plays the shot; a slow load does not add another wait after both are done.
+      const cover=this.playEnterCover(t);void cover.then(()=>{},()=>{});
+      let lease:LevelLease|null=null;
+      try {
+        lease=await t.wait(pending);t.check();
+        if(lease.whenPlayable)await t.wait(lease.whenPlayable());
+        t.check();await cover;t.check();
+        lease.reveal?.();
+        this.level=lease;this.stable='level';this.restore();this.change('level');
+      } catch(error) {
+        if(lease&&this.level!==lease){try{lease.dispose();}catch(disposeError){console.warn('enter-level dispose failed',String(disposeError));}}
+        throw error;
+      }
     });
+  }
+  /** Motion: the world lease plays the enter shot. Anything else (tests, fixed mode) keeps the old immediate handoff. */
+  private async playEnterCover(token:Cancellation):Promise<void> {
+    const play=this.mode==='motion'?this.world?.playEnterLevel:undefined;if(!play)return;
+    try{await token.wait(play(token));}
+    catch(err){
+      if(err instanceof Cancelled||token.cancelled)throw err instanceof Cancelled?err:new Cancelled();
+      if(!(err instanceof CameraTrackFailure))throw err;
+      console.warn('enter-level shot skipped',String(err));await this.waitSeconds(ENTER_LEVEL_SHOT_S,token);
+    }
   }
   exitLevel():Result {
     const fail=this.blocked('level');if(fail)return fail;
