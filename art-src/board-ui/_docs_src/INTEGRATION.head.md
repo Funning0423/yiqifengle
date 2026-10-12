@@ -95,7 +95,7 @@
 | 21 | 选中框、提示框 | 选中 = 抬起 + 柔光框；提示 = 呼吸光 |
 | 22 | 区域关连线 `RegionalFocusCue` | 保留，改配色（本轮没出图） |
 | 23 | 区域关格子标签 `RegionalFixedCell` | 保留功能；贝壳层数用 `obstacle_shell_2/1` 表示；其余视觉留到下一轮 |
-| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 |
+| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 。天空城关卡的背景 `bg_skycity_board.jpg` 已出图，放在 `region_skycity/board/`（夜间同样 × K_SEA）；草甸背景等场景模型 |
 | 25 | 连击鼓励字 `CheerText` | 保留（另外排） |
 | 26 | `retryPanel` / `bagPanel` / `resultPanel` | 换成统一弹窗（§3、§4） |
 | 27 | 微信胶囊（系统画的） | 避让 x ≥ 253 pt、y 51–83 pt |
@@ -179,7 +179,8 @@
   - **地区挑战单独用一个小标记「⚑ 挑战 x/4」**（r05 每个地区 4 关）。
   - 未解锁：去色 + 加雾 + 金锁 + 一行很淡的「主线解锁后开启」。
   - **潮汐小径的新描述**：「听潮声，捡起海浪送来的贝壳。」（代码 CHAPTERS 里的旧句子提到珍珠，要替换。路牌上不显示描述，留给章节详情页用）。
-  - 花粉草甸和天空回声的小图是**占位**，场景建好后用 `c-popups/src/round2/render_regions.py` 重渲。
+  - 天空回声的小图已用天空城模型 `env_skycity.glb` 实渲；花粉草甸还是**占位**（仓库里还没有草甸场景模型），场景建好后用 `c-popups/src/round2/render_regions.py` 重渲。
+  - 夜间版不另渲：小图跟其他 Sprite 一样乘 K_UI。
 - **海岛小憩** `r2/island_rest_day.png` / `r2/island_rest_night.png`：
   - **改成点小屋时弹出**（不是点灯塔）。
   - 两扇昼夜小窗（当前那扇金边）+ 主按钮：夜里是「迎接晴昼」，白天是「看看夜色」（`IslandJourneyOverlay.ts:93`）。
