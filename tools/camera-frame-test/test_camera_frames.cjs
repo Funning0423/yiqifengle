@@ -41,6 +41,12 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   if(envOpts.walkDuration){const c0=S.create().cfg;for(const k of ['toDoor','outCrossing','toIsland','toThreshold','inCrossing','toSeat'])if(c0[k])named.push([k,c0[k]]);}
   const env=S.create(envOpts),{C,cfg}=env,run=await S.run(env),F=run.frames,dt=run.dt;
   const checks=[];const check=(name,ok,detail)=>{checks.push({name,ok:!!ok,detail});};
+  // World startup builds this rail (WorldFlowComponent.initialize). A throw there is the load-failure screen.
+  {let err=null;try{const rail=env.M.IslandRail.createIslandRail(cfg),far=rail.pose();rail.nudge(-0.24,1);const mid=rail.pose();rail.nudge(-2,1);const near=rail.pose();rail.restore(1);const back=rail.pose();
+    const cap=cfg.cameraIsland.position[1]+1e-3,lower=mid.position[1]<=far.position[1]+1e-3&&near.position[1]<=far.position[1]-1&&near.position[1]<=mid.position[1]+1e-3;
+    const backOk=Math.abs(back.position[0]-far.position[0])<1e-4&&Math.abs(back.position[1]-far.position[1])<1e-4&&Math.abs(back.position[2]-far.position[2])<1e-4;
+    if(!(lower&&backOk&&far.position[1]<=cap&&mid.position[1]<=cap&&near.position[1]<=cap))err='pull does not lower into the close-up and return to the settled wide shot';
+  }catch(e){err=String(e&&e.message||e);}check('island-pull-startup',!err,{error:err});}
   // --- settle / stable poses
   const same=(a,b)=>Math.max(...a.position.map((v,i)=>Math.abs(v-b.position[i])),...a.rotation.map((v,i)=>Math.abs(v-b.rotation[i])),Math.abs(a.fovVerticalDeg-b.fovVerticalDeg));
   for(const [place,pose] of [['island',cfg.cameraIsland],['home',cfg.cameraHome]]){

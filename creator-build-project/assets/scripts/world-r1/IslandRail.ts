@@ -6,12 +6,41 @@ import type { RouteConfig } from './WorldFlowCore';
  * u = 1 is cameraIsland (the settled wide shot, never higher). u = 0 is span progress
  * ISLAND_PULL_NEAR: the nearest pose that still frames the lighthouse body and the door
  * in a phone portrait (~402/874) without entering the tower or the leaning palm.
- * The lamp may crop. Exit-arc generation, door angles and pace are not touched.
- * Finger down (dy < 0) and pinch apart (scale > 1) move toward the close-up, which is
- * also lower, because camera height rises along this suffix of the arc. */
+ * The lamp may crop. Finger down (dy < 0) and pinch apart (scale > 1) move toward the
+ * close-up, which is also lower. The doorway-speed landing sags a few centimetres; the
+ * pull uses a non-decreasing height of this suffix so that sag cannot fail startup or
+ * rise above the settled wide shot. Exit-arc generation, door angles and pace are not touched. */
 export const ISLAND_PULL_NEAR = 0.46;
 const DRAG_PER_SCREEN = 1.25;
 const PINCH_GAIN = 0.85;
+/** Non-decreasing height along span progress. Knots before the near pose are ignored.
+ *  A later knot that falls is held at the height already reached, and nothing is allowed
+ *  above the settled wide shot. Linear between knots, so every sample in between rises too. */
+function pullHeight(atY: (q: number) => number, progress: readonly number[], keyY: readonly number[], capY: number): (q: number) => number {
+  const qs: number[] = [], ys: number[] = [];
+  let floor = -Infinity;
+  const push = (q: number, y0: number) => {
+    if (qs.length && !(q > qs[qs.length - 1] + 1e-9)) return;
+    let y = y0;
+    if (y < floor) y = floor;
+    if (y > capY) y = capY;
+    floor = y;
+    qs.push(q);
+    ys.push(y);
+  };
+  push(ISLAND_PULL_NEAR, atY(ISLAND_PULL_NEAR));
+  for (let i = 0; i < progress.length; i++) push(progress[i], keyY[i]);
+  push(1, atY(1));
+  return (q: number) => {
+    if (q <= qs[0]) return ys[0];
+    const n = qs.length - 1;
+    if (q >= qs[n]) return ys[n];
+    let lo = 0, hi = n;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (qs[m] <= q) lo = m; else hi = m; }
+    const span = qs[hi] - qs[lo] || 1, u = (q - qs[lo]) / span;
+    return ys[lo] + (ys[hi] - ys[lo]) * u;
+  };
+}
 export class IslandRail {
   private u = 1;
   constructor(private readonly sample: (q: number) => CameraPose) {}
@@ -47,7 +76,17 @@ export function createIslandRail(config: RouteConfig): IslandRail {
     progress.push(p);
   }
   const sample = createPathSampler(path, progress, { interpolation: 'pchip' });
-  const at = (q: number) => sample(q, config.cameraIsland.fovVerticalDeg ?? 42);
+  const fov = config.cameraIsland.fovVerticalDeg ?? 42;
+  const arc = (q: number) => sample(q, fov);
+  const capY = config.cameraIsland.position[1];
+  const keyY: number[] = [];
+  for (let i = 0; i < path.length; i++) keyY.push(path[i].position[1]);
+  const heightAt = pullHeight(q => arc(q).position[1], progress, keyY, capY);
+  const at = (q: number): CameraPose => {
+    const raw = arc(q), y = heightAt(q);
+    if (q >= 1 - 1e-9 || Math.abs(y - raw.position[1]) <= 1e-6) return raw;
+    return { position: [raw.position[0], y, raw.position[2]], rotation: raw.rotation, fovVerticalDeg: raw.fovVerticalDeg };
+  };
   const near = at(ISLAND_PULL_NEAR), far = at(1), ip = config.cameraIsland.position;
   if (Math.abs(far.position[0] - ip[0]) > 1e-3 || Math.abs(far.position[1] - ip[1]) > 1e-3 || Math.abs(far.position[2] - ip[2]) > 1e-3) throw Error('Island pull far pose is not the settled island camera');
   if (Math.abs(far.fovVerticalDeg - (config.cameraIsland.fovVerticalDeg ?? 42)) > 1e-3) throw Error('Island pull far fov is not the settled island camera');
