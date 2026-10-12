@@ -355,6 +355,9 @@ def build_walk_start():
     rz = np.maximum.accumulate(rz)
     rz[0] = 0.0
     rx = np.zeros(N)
+    # Arms already follow the corrected walk blend. Planting puts the bad foot-Y pole back, so
+    # re-apply only the right-knee constraint, with the walk blend as the weight (0 on the idle start).
+    tr = (AL.correct_walk_pose(CB.ctx(), tr[0], tr[1], w_walk, arms=False), tr[1])
     track = to_root(tr, rx, rz)
     dur = (N - 1) / FPS
     at_s = round(dur - 0.2, 6)
@@ -449,6 +452,11 @@ def build_stop(body):
     rz = rz + (0 - rz[0]) * (1 - u) + (ze - rz[-1]) * u
     rx = rx + (0 - rx[0]) * (1 - u) + (xe - rx[-1]) * u
     rz = np.maximum.accumulate(rz)
+    # The walk blend already carries the forearm correction. Planting puts the bad foot-Y pole back.
+    # Restore her right knee across the whole clip (1 at the entry, 0 on the last frame, which is idle):
+    # the outward swing continues after the 8-frame walk blend has ended.
+    w_knee = 1.0 - AL.smootherstep(i / (N - 1.0))
+    tr = (AL.correct_walk_pose(CB.ctx(), tr[0], tr[1], w_knee, arms=False), tr[1])
     track = to_root(tr, rx, rz)
     ev = [dict(name='foot:' + E, time_s=0.0, bone='foot.' + E, body='R' if E == 'L' else 'L', type='heel_strike',
                entry_contact=True, note='same heel strike walk_loop fires at the entry; driver should not play it twice')]

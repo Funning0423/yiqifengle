@@ -201,6 +201,149 @@ def apply_leg_ik(ctx, Wr, hips, s, A_target, foot_rot):
     return out, clamped
 
 
+# Walk-cycle pose constraint on the retargeted track (not new keys). CMU wrist ry leaves both
+# palms turned out, and the foot-Y pole in apply_leg_ik swings her right knee sideways when
+# that foot points down. Twist about the forearm axis, and re-solve only bone side L
+# (her right) with a forward pole. Ankle target and foot world rotation stay put.
+# weight 0: no twist, and the knee IK is skipped (do not slerp thigh/shin — that slides the ankle).
+PALM_BACK = 0.28          # palm aim = medial + this much backward (matches the old hand-keyed walk)
+KNEE_POLE_M = 0.40        # metres, hip + this * hips-forward
+_PALM_LOCAL = {}
+
+
+def _palm_local(ctx):
+    """Unit palm normal in each hand bone's rest frame, medial at the rest pose (build_body: toward the body)."""
+    key = id(ctx.rig)
+    if key in _PALM_LOCAL:
+        return _PALM_LOCAL[key]
+    rig = ctx.rig
+    md = rig.mesh_data('LOD0_G2_BODY')
+    V = rig.skin(md, rig.rest_world)
+    dom = md['J'][np.arange(len(md['J'])), md['W'].argmax(1)]
+    out = {}
+    for s in 'LR':
+        fi = rig.idx['hand.' + s]
+        P = V[dom == fi]
+        _, _, vt = np.linalg.svd(P - P.mean(0), full_matrices=False)
+        n = vt[-1].copy()
+        sg = 1.0 if s == 'R' else -1.0
+        if float(np.dot(n, (-sg, 0.0, 0.0))) < 0.0:
+            n = -n
+        R = rig.rest_world[fi, :3, :3]
+        R = R / np.linalg.norm(R, axis=0)
+        out[s] = R.T @ n
+    _PALM_LOCAL[key] = out
+    return out
+
+
+def _correct_palms(ctx, Wr, weight):
+    local = _palm_local(ctx)
+    out = dict(Wr)
+    for s in 'LR':
+        sg = 1.0 if s == 'R' else -1.0
+        fa, ha = 'forearm.' + s, 'hand.' + s
+        axis = Wr[fa][:, :, 1]
+        axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
+        n = np.einsum('nij,j->ni', Wr[ha], local[s])
+        desired = np.array([-sg, 0.0, -PALM_BACK], float)
+        desired /= np.linalg.norm(desired)
+        d = desired - axis * np.sum(axis * desired, 1, keepdims=True)
+        p = n - axis * np.sum(axis * n, 1, keepdims=True)
+        dn = np.linalg.norm(d, axis=1, keepdims=True)
+        pn = np.linalg.norm(p, axis=1, keepdims=True)
+        d = d / np.maximum(dn, 1e-9)
+        p = p / np.maximum(pn, 1e-9)
+        ang = np.arctan2(np.sum(np.cross(p, d) * axis, 1), np.sum(p * d, 1)) * weight
+        ang = np.where((dn[:, 0] > 1e-6) & (pn[:, 0] > 1e-6), ang, 0.0)
+        Rd = RG.rotvec2m(axis * ang[:, None])
+        out[fa] = Rd @ Wr[fa]
+        out[ha] = Rd @ Wr[ha]
+    return out
+
+
+def _correct_right_knee(ctx, Wr, world, weight):
+    """bone side L = her right. Pole blends from the current knee (weight 0) to hip + forward (weight 1)."""
+    rig = ctx.rig
+    th, sh, ft = LEGS['L']
+    H = world[:, rig.idx[th], :3, 3]
+    K0 = world[:, rig.idx[sh], :3, 3]
+    A0 = world[:, rig.idx[ft], :3, 3]
+    fwd = Wr['hips'][:, :, 2].copy()
+    fwd[:, 1] = 0.0
+    fwd /= np.maximum(np.linalg.norm(fwd, axis=1, keepdims=True), 1e-9)
+    pole = (1.0 - weight)[:, None] * K0 + weight[:, None] * (H + KNEE_POLE_M * fwd)
+    K, A2, _ = two_bone(H, A0, pole, ctx.L1, ctx.L2)
+    R1 = RG.align(K0 - H, K - H)
+    Rt = R1 @ Wr[th]
+    Rs_tmp = R1 @ Wr[sh]
+    d_tmp = np.einsum('nij,nj->ni', R1, A0 - K0)
+    R2 = RG.align(d_tmp, A2 - K)
+    Rs = R2 @ Rs_tmp
+    mask = weight > 1e-8
+    Rt = np.where(mask[:, None, None], Rt, Wr[th])
+    Rs = np.where(mask[:, None, None], Rs, Wr[sh])
+    out = dict(Wr)
+    out[th], out[sh], out[ft] = Rt, Rs, Wr[ft]
+    return out
+
+
+def correct_walk_pose(ctx, Wr, hips, weight, arms=True, leg=True, world=None):
+    """Return a new world-rotation dict. hips is unused except for the frame count; positions come from world."""
+    n = len(hips)
+    weight = np.asarray(weight, float)
+    if weight.ndim == 0:
+        weight = np.full(n, float(weight))
+    else:
+        weight = np.broadcast_to(weight, (n,)).astype(float).copy()
+    if world is None:
+        world = ctx.fk(Wr, hips)
+    out = Wr
+    if leg:
+        out = _correct_right_knee(ctx, out, world, weight)
+    if arms:
+        out = _correct_palms(ctx, out, weight)
+    return out
+
+
+def locals_with_walk_pose(rig, ctx, Q, T, weight, arms=True, leg=True):
+    """Local quats with the walk constraint. Only forearm/hand (both) and her right leg
+    (thigh.L, shin.L, and foot.L so the foot world rotation survives the new shin) change.
+    Frames with weight 0 keep the input quats exactly."""
+    W = rig.fk(T, Q)
+
+    def rot_of(M):
+        return M / np.linalg.norm(M, axis=-2, keepdims=True)
+
+    mapped = ('hips', 'spine', 'chest', 'neck', 'head', 'upper_arm.L', 'forearm.L', 'hand.L', 'upper_arm.R',
+              'forearm.R', 'hand.R', 'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R')
+    Wr = {n: rot_of(W[:, rig.idx[n], :3, :3]) for n in mapped}
+    hips = W[:, rig.idx['hips'], :3, 3].copy()
+    Wr2 = correct_walk_pose(ctx, Wr, hips, weight, arms=arms, leg=leg, world=W)
+    worldR = {n: rot_of(W[:, rig.idx[n], :3, :3]) for n in rig.names}
+    changed = []
+    if leg:
+        worldR['thigh.L'] = Wr2['thigh.L']
+        worldR['shin.L'] = Wr2['shin.L']
+        changed += ['thigh.L', 'shin.L', 'foot.L']
+    if arms:
+        for n in ('forearm.L', 'hand.L', 'forearm.R', 'hand.R'):
+            worldR[n] = Wr2[n]
+        changed += ['forearm.L', 'hand.L', 'forearm.R', 'hand.R']
+    Q2 = np.array(Q, copy=True)
+    for n in changed:
+        i = rig.idx[n]
+        p = rig.parent[i]
+        pr = np.repeat(np.eye(3)[None], len(Q), 0) if p is None else worldR[rig.names[p]]
+        Q2[:, i] = RG.m2q(np.transpose(pr, (0, 2, 1)) @ worldR[n])
+    weight = np.asarray(weight, float)
+    if weight.ndim == 0:
+        weight = np.full(len(Q), float(weight))
+    same = weight <= 1e-8
+    if np.any(same):
+        Q2[same] = Q[same]
+    return Q2
+
+
 def knee_angle(ctx, Wr, hips, s):
     rig = ctx.rig
     th, sh, ft = LEGS[s]
