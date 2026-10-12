@@ -10,7 +10,7 @@ function typescript(){
     for(const p of [path.join(root,'..','..','character-core','lighthouse-island-astra-ultra','tools','vendor-node','node_modules','typescript')])if(fs.existsSync(p))return require(p);
     throw e;}
 }
-function load(files=['CameraPose','WorldFlowCore','FirstsliceRoutes','FirstsliceFacts','CharacterReference','RegionCameraData','TransitionCurves']){
+function load(files=['CameraPose','WorldFlowCore','FirstsliceRoutes','FirstsliceFacts','CharacterReference','RegionCameraData','TransitionCurves','IslandRail']){
   const ts=typescript(),src=path.join(root,'creator-build-project/assets/scripts/world-r1'),tmp=fs.mkdtempSync(path.join(os.tmpdir(),'camera-frame-test-'));
   const out={};
   for(const f of files){const file=path.join(src,f+'.ts');if(!fs.existsSync(file))continue;

@@ -1871,8 +1871,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts",
-    "bytes": 4399,
-    "sha256": "9a8811cf74b7f4d070bde9ccc5ae61b0c78e089a244879971c3329c09734651e"
+    "bytes": 6260,
+    "sha256": "81bf61ae7c40f8ead8dd1fc14a9c7645e6d3743ecbcd466da5eff3e85f7753bb"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/IslandRail.ts.meta",
