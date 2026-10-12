@@ -341,8 +341,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_sky.png",
-    "bytes": 4821,
-    "sha256": "a464f09ae7849fd5bd89c8074454583d545450c9a57d6b03ba61071a1392e863"
+    "bytes": 11421,
+    "sha256": "5667c53b0ac46a6ddfd0c7f17cc9a7728bd1f149058ccee948d915e2a2c84428"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/region_tide.png",
@@ -453,6 +453,11 @@
     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",
     "bytes": 432526,
     "sha256": "88016beea998d5993d6ad68a0013da269a1e3e32c7ee082b3df2e38baab2c3b5"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg",
+    "bytes": 37084,
+    "sha256": "b986c6f4a28ac88080294c6b176d70a2a7efdc3a3992583c292d408a75112457"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
