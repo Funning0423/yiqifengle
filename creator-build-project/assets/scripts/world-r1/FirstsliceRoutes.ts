@@ -28,7 +28,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
   return {position:[root[0]+d[0]*L,root[1]+d[1]*L,root[2]+d[2]*L],target:[ta[0]+(b.target[0]-ta[0])*w,ta[1]+(b.target[1]-ta[1])*w,ta[2]+(b.target[2]-ta[2])*w],
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
 }
-type PaceOpts=Readonly<{sampleMetres:number;craneRampSeconds:number}>;
+type PaceOpts=Readonly<{sampleMetres:number}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -58,9 +58,10 @@ function pchipScalar(t:readonly number[],y:readonly number[]):(x:number)=>number
  * Outbound lens along a centripetal spline through the authored span knots (crossing, railOut, equal-u crane steps,
  * cameraIsland). pchip on the five rail poses zeroed the reversing axis at the swing (~4.9 → ~2 → ~4.9 m/s); the spline
  * does not, and arc-length samples between those knots keep each knot on its walk progress (frontal pose, wind, crane
- * mark). From the crane knot the same spline is retimed with a smoothstep off the rail speed, then the track ease-out
- * settles it — the old one-segment settle climbed ~3 → ~12 m/s. Zoom is not that spline: a 1-D centripetal curve kinks
- * the fov rate at each rail knot (~−15 → ~−8 deg/s in one frame). Fov is a scalar pchip of the knot fovs against span
+ * mark). From the crane knot the same spline eases off the follow speed across the whole climb and crests as the
+ * track ease-out begins — a short ramp (1.2 s, ~3 → ~9 m/s) still read as a shove; the old one-segment settle climbed
+ * ~3 → ~12 m/s. Zoom is not that spline: a 1-D centripetal curve kinks the fov rate at each rail knot
+ * (~−15 → ~−8 deg/s in one frame). Fov is a scalar pchip of the knot fovs against span
  * progress, so the rate stays continuous and every knot keeps its authored fov. She does not wait.
  */
 function paceOutbound(opts:PaceOpts,span:readonly Pose[],cut:Readonly<{qCrossEnd:number;qCrane:number;qWalkEnd:number;frontalQ:number}>,track:Readonly<{easeIn?:number;easeOut?:number}>,totalSeconds:number,island:Pose):{cross:Pose[];toIsland:Pose[];settle:Pose[];frontalProgress:number}{
@@ -99,8 +100,15 @@ function paceOutbound(opts:PaceOpts,span:readonly Pose[],cut:Readonly<{qCrossEnd
     push(span[i+1],qK[i+1]);}
   const q0=qK[ic],sStart=knotS[ic],L=knotS[span.length-1]-sStart,D=1-q0;
   const C0=Math.max(1e-3,(SOfQ(q0)-SOfQ(q0-1e-4))/1e-4);
-  const slope=(remapProgress(.5,track)-remapProgress(.4,track))/.1;
-  let qr=opts.craneRampSeconds*slope/totalSeconds;qr=Math.min(Math.max(qr,.02),D*.7);
+  // Ease ds/dq from the follow slope up to a cruise, cresting exactly where the track ease-out starts.
+  // dq/dt is constant on that window, so a smoothstep in progress is a smoothstep in time, and acceleration
+  // is 0 on both sides of the join. The ease-out then brings the lens to rest. Do not clamp this short:
+  // 1.2 s tripled linear speed (~3 → ~9 m/s) before the climb had time to ease.
+  const easeOut=Math.max(0,Math.min(.5,track.easeOut??0));
+  const qEase=remapProgress(easeOut>0?1-easeOut:1,track);
+  let qr=qEase-q0;
+  if(!(qr>0.02))qr=Math.min(D*.4,.15);
+  if(qr>D*.95)qr=D*.95;
   const Cc=C0+(L-C0*D)/(D-.5*qr);
   if(!(C0>0&&Cc>0&&L>0&&Number.isFinite(Cc)))throw Error('outbound pace: crane speed');
   const sFromQ=(q:number)=>{const x=q-q0;if(x<=0)return 0;if(q>=1)return L;

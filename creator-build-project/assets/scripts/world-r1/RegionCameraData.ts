@@ -183,12 +183,13 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  stops (spherical about her root: direction slerp, log-distance; target eases from her chest to the island target).
    *  pace (FirstsliceRoutes.paceOutbound): five rail poses made pchip zero the reversing axis at the swing, so linear
    *  speed fell ~4.9 → ~2 → ~4.9 m/s. Equal-u steps (steps) only reached half the orbit by the end of the walk, then
-   *  one ~32 m settle segment climbed ~3 → ~12 m/s. pace draws a centripetal spline through those same knots, keeps
-   *  each knot on its walk progress, and smoothsteps off the rail speed onto the crane; the outbound ease-out still
-   *  ends at rest. Zoom is a scalar pchip of the knot fovs on that same span clock (a centripetal fov kinked the zoom
-   *  rate at the rail knots). She does not wait. */
+   *  one ~32 m settle segment climbed ~3 → ~12 m/s. pace draws a centripetal spline through those same knots and keeps
+   *  each knot on its walk progress. After the crane knot, speed eases off the follow across the whole climb and crests
+   *  as the outbound ease-out begins (a 1.2 s ramp still jumped ~3 → ~9 m/s). The ease-out still ends at rest. Zoom is
+   *  a scalar pchip of the knot fovs on that same span clock (a centripetal fov kinked the zoom rate at the rail knots).
+   *  She does not wait. */
   crane: { startProgress: 0.553, settleSeconds: 2.992, steps: 5,
-    pace: { sampleMetres: 0.15, craneRampSeconds: 1.2 } },
+    pace: { sampleMetres: 0.15 } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held -> rises from toIsland progress swingStart to exactly 1 at the
    *  frontal railOut key -> held to crane.startProgress -> eases to exactly 0 when the camera settles on cameraIsland.
