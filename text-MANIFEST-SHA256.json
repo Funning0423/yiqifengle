@@ -605,6 +605,16 @@
     "sha256": "3572bc950c3e344c165848a27021dae4ccdc2f5633d6817aa2c3ff9767094250"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/board.meta",
+    "bytes": 169,
+    "sha256": "0d1c9ae0810f0f64c4b47e40aebd855ffeba4b738bbd2016a460d7275b93e28f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta",
+    "bytes": 1001,
+    "sha256": "b3eaf722ce9c7ec2f67f2d60a8583913b7fe0086d57d5a4a707746a8ff43b599"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
     "bytes": 31927,
     "sha256": "0587f317ab810c0bcfb7f69fdf8fbe2c8b311bca50844ec507c29a49eca157de"
@@ -1621,8 +1631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts",
-    "bytes": 5697,
-    "sha256": "d066e8bdd04dc538618be0007169f15b4abcd481131d876ec44ac45b9b22e887"
+    "bytes": 6977,
+    "sha256": "72b170b93b0460e420e68d0d6127eb7abd76395d6c0df1e16ea7807f9fe5f3f5"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardArt.ts.meta",
@@ -1901,8 +1911,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts",
-    "bytes": 4778,
-    "sha256": "1b14cd347a567cd5099ef12ed841f7183271ff577ce2eebffa21644ee04a40af"
+    "bytes": 5034,
+    "sha256": "f25e803d21fb0ad268fa180233e2e0595bb95e4ed5dc41ef31dd1423da1f0cec"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandBoardBackground.ts.meta",
