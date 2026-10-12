@@ -1631,8 +1631,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts",
-    "bytes": 19360,
-    "sha256": "053f8da0eb3d3fc31618698050a0532432cb572c42756bb17864a213ea56c075"
+    "bytes": 14238,
+    "sha256": "45fa6769946567f72cb41c567c7ced936d9f286422de00fea51a6236e4e2a740"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts.meta",
@@ -1641,8 +1641,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts",
-    "bytes": 19177,
-    "sha256": "215f777bf7e17de530d6cf2bda6fe519e26d4fb6acdd8f1061afa22c5a8672d1"
+    "bytes": 20201,
+    "sha256": "7d3dfeb3d1aa47261b54f19e2f2b24a8188f02b6007b5e44449727952e5b58f5"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts.meta",
