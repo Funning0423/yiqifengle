@@ -8,8 +8,9 @@ Targets:
   assets/bundles/board_art/   subpackage bundle: board skin, popup kit, r2/r3 panels, reward chest GLB, licence texts
   assets/bundles/region_island/board/bg_island_board.jpg   level background (island bundle is always loaded)
   assets/bundles/region_skycity/board/bg_skycity_board.jpg  天空回声 (r05-sky) board background
-Not copied on purpose (handoff rules): slices/_rejected/, result_chest_preview.glb, cabin_bubble.png (PM: no bubble),
-the three regional tool renders (tool_tidenet/sunseed/starshears: not confirmed by Funning; tools-original.png stays).
+Not copied on purpose (handoff rules): slices/_rejected/, result_chest_preview.glb, cabin_bubble.png (PM: no bubble).
+tools-original.png is not replaced. The three signed-off regional reward slices are copied on their own
+(r2 tool_tidenet / tool_sunseed / tool_starshears). Mainline bomb / windBell / tideBottle stay on the board slices.
 """
 import hashlib, json, os, shutil, sys, uuid
 
@@ -35,6 +36,7 @@ R2_FILES = {'sign_plank_3s': 'sign_plank_3s', 'region_tide': 'region_tide', 'reg
             'region_sky': 'region_sky', 'hero_starlight': 'hero_starlight', 'hero_windbell': 'hero_windbell',
             'hero_tidebottle': 'hero_tidebottle', 'icon_charm': 'icon_charm', 'icon_lock': 'icon_lock',
             'beacon_lighthouse': 'beacon_lighthouse', 'beacon_ring': 'beacon_ring',
+            'tool_tidenet': 'tool_tidenet', 'tool_sunseed': 'tool_sunseed', 'tool_starshears': 'tool_starshears',
             'title_星光': 'title_starlight', 'title_旅人的行囊': 'title_bag', 'title_旅程册': 'title_journey',
             'title_海岛小憩': 'title_rest', 'title_还没存上': 'title_unsaved', 'title_旅途回顾': 'title_review',
             'chapter_潮汐小径': 'chapter_tide', 'chapter_花粉草甸': 'chapter_meadow', 'chapter_天空回声': 'chapter_sky'}

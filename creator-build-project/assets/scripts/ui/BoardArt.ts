@@ -35,8 +35,20 @@ export const SLICES: Record<string, readonly number[]> = {
 };
 /** Board piece art by engine tile type 0..5: strawberry / leaf / blueberry / flower / acorn / scallop shell. */
 export const PIECE_KEYS: readonly string[] = ['board/piece_strawberry', 'board/piece_leaf', 'board/piece_blueberry', 'board/piece_flower', 'board/piece_acorn', 'board/piece_shell'];
-/** Tool art for the board tray and panels; regional tools keep ManagedToolArt (tools-original.png) until Funning signs off. */
-export const TOOL_KEYS: Record<string, string> = { bomb: 'board/tool_starlight', windBell: 'board/tool_windbell', tideBottle: 'board/tool_tidebottle' };
+/** Tray and panel pictures. bomb / windBell / tideBottle stay on the board slices (tools-original.png is only their
+ *  fallback, and that atlas is not replaced). tideNet / sunSeed / starShears use the signed-off r2 slices. */
+export const TOOL_KEYS: Record<string, string> = {
+  bomb: 'board/tool_starlight', windBell: 'board/tool_windbell', tideBottle: 'board/tool_tidebottle',
+  tideNet: 'r2/tool_tidenet', sunSeed: 'r2/tool_sunseed', starShears: 'r2/tool_starshears',
+};
+/** Fit a tool picture to `slot` on the width (bag mock fitw). Square art stays square; cropped regional slices keep their aspect. */
+export function toolDisplaySize(kind: string, slot: number): { width: number; height: number } {
+  const key = TOOL_KEYS[kind];
+  if (!key) return { width: slot, height: slot };
+  const dim = BoardArt.shared().size(key);
+  if (!(dim.width > 0) || !(dim.height > 0)) return { width: slot, height: slot };
+  return { width: slot, height: slot * dim.height / dim.width };
+}
 export const HERO_KEYS: Record<string, string> = { bomb: 'r2/hero_starlight', windBell: 'r2/hero_windbell', tideBottle: 'r2/hero_tidebottle' };
 type Waiter = () => void;
 export class BoardArt {
