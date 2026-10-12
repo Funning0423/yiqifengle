@@ -7,6 +7,7 @@
 Targets:
   assets/bundles/board_art/   subpackage bundle: board skin, popup kit, r2/r3 panels, reward chest GLB, licence texts
   assets/bundles/region_island/board/bg_island_board.jpg   level background (island bundle is always loaded)
+  assets/bundles/region_skycity/board/bg_skycity_board.jpg  sky-city level background (not wired yet; island stays the default)
 Not copied on purpose (handoff rules): slices/_rejected/, result_chest_preview.glb, cabin_bubble.png (PM: no bubble),
 the three regional tool renders (tool_tidenet/sunseed/starshears: not confirmed by Funning; tools-original.png stays).
 """
@@ -50,6 +51,7 @@ def pairs():
     out.append(('../../tools/t6-cheer-text/font/OFL.txt', 'bundles/board_art/licenses/fredoka-ofl.txt'))
     out.append(('../../docs/MAINLINE-BABEL-HELPERS-LICENSE.txt', 'bundles/board_art/licenses/babel-helpers-mit.txt'))
     out.append((B + 'bg_island_board.jpg', 'bundles/region_island/board/bg_island_board.jpg'))
+    out.append((B + 'bg_skycity_board.jpg', 'bundles/region_skycity/board/bg_skycity_board.jpg'))
     return out
 
 def uid(rel): return str(uuid.uuid5(NS, rel))

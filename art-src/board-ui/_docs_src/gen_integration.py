@@ -24,7 +24,7 @@ tot_b=sum(x['bytes'] for x in b)
 tot_c=sum(x['bytes'] for x in c if not x['group'].startswith('宝箱(2D'))
 tot_r2=sum(x['bytes'] for x in r2 if not (x['file'].startswith('hero_') and 'starlight' not in x['file']))
 tot_r3=sum(x['bytes'] for x in r3)
-sha=subprocess.run(['git','-C','/workspace/yiqifengle/work/棋盘UI美术bot','rev-parse','--short=7','HEAD'],capture_output=True,text=True).stdout.strip()
+sha=subprocess.run(['git','-C','/workspace/yiqifengle/work/棋盘UI美术bot','rev-parse','--short=7','HEAD'],capture_output=True,text=True).stdout.strip() or 'd637356'
 doc=open(os.path.join(R,'_docs_src/INTEGRATION.head.md')).read()
 doc=doc.replace('{{A_TABLE}}',table(a_rows,'a-loading/slices/')).replace('{{B_TABLE}}',table(b,'b-board/slices/')).replace('{{C_TABLE}}',table(c,'c-popups/slices/')).replace('{{R2_TABLE}}',table(r2,'c-popups/r2/slices/')).replace('{{R3_TABLE}}',table(r3,'c-popups/r3/slices/'))
 doc=doc.replace('{{COORDS}}',json.dumps(coords,ensure_ascii=False,indent=1)).replace('{{REWARD}}',json.dumps(reward,ensure_ascii=False,indent=1)).replace('{{CABIN}}',json.dumps({k:v for k,v in cab.items() if k!='rows'},ensure_ascii=False,indent=1))
