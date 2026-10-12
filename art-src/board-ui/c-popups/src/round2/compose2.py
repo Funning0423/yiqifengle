@@ -109,8 +109,8 @@ def bag(where='island'):
 
 # ================= 3. 旅程册（每章一扇地区之窗） =================
 REG=os.path.join(HERE,'raw','regions')
-REG_CROP={'tide':(150,96,610,400),'meadow':(40,24,680,446),'sky':(40,16,680,438)}
-REG_SKY={'meadow':((172,214,232),(246,239,217)),'sky':((186,198,236),(247,236,220))}
+REG_CROP={'tide':(150,96,610,400),'meadow':(40,24,680,446),'sky':(16,0,704,440)}
+REG_SKY={'meadow':((172,214,232),(246,239,217))}
 def region_window(rid,w,h,lock=False,placeholder=False):
     src=Image.open(os.path.join(REG,'region_%s.png'%rid)).convert('RGBA')
     if rid in REG_SKY:
@@ -134,7 +134,7 @@ def region_window(rid,w,h,lock=False,placeholder=False):
         f=font(20,False); tw=od.textlength('占位',font=f)
         od.rounded_rectangle((w-tw-20,h-26,w+2,h+0),radius=11,fill=(255,250,238,200)); od.text((w-tw/2-9,h-13),'占位',font=f,fill=(140,124,100),anchor='mm')
     return o
-CHAPTERS=[('tide','潮汐小径','reward_seal_tide',10,1,False,False),('meadow','花粉草甸','reward_seal_meadow',3,0,False,True),('sky','天空回声','reward_seal_sky',0,0,True,True)]
+CHAPTERS=[('tide','潮汐小径','reward_seal_tide',10,1,False,False),('meadow','花粉草甸','reward_seal_meadow',3,0,False,True),('sky','天空回声','reward_seal_sky',0,0,True,False)]
 def journey():
     src=A2('sign_plank_clean'); SW,SH_,G=544,176,32; sign=_three(src,round(src.width*0.16),SW,SH_)
     ph=104+3*SH_+2*G+72; top=ctop(ph); bg,ui,x0,x1,d=frame(top,ph,'旅程册','island'); close_btn(ui,x1,top)

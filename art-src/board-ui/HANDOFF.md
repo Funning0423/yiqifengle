@@ -42,8 +42,9 @@
 | 关于页 | **已出图，等 PM 看** | `c-popups/r3/about.png` |
 | 小屋提示（呼吸光 + 月亮气泡） | **已出图，等 PM 看** | `c-popups/r3/cabin_hint*.png` |
 | 三件地区道具（潮汐网 / 日光籽 / 星剪）v2 | **等 Funning 确认**，没并进 (b) | `c-popups/r2/region_tools_compare.png` |
-| 花粉草甸、天空回声的地区小图 | **占位**，要等场景建好 | `c-popups/src/round2/raw/regions/` |
-| 草甸 / 天空城的棋盘背景 | **没做**（要等场景建好） | — |
+| 天空回声的地区小图 | **已重渲**（`env_skycity.glb` 实渲，2026-10-12，见 `cloud-tasks/RESULT-region-scenery.md`） | `c-popups/src/round2/raw/regions/region_sky.png`、`c-popups/r2/slices/region_sky*.png` |
+| 天空城的棋盘背景 | **已出图**，没接进代码（`BOARD_BACKGROUND` 仍固定读岛背景） | `b-board/slices/bg_skycity_board.jpg` → 工程 `bundles/region_skycity/board/`；预览 `b-board/preview_skycity.jpg` |
+| 花粉草甸的地区小图和棋盘背景 | **占位 / 没做**：仓库里还没有草甸场景模型 | `c-popups/src/round2/raw/regions/region_meadow.png`（占位） |
 | 横屏布局；区域关格子标签和连线的视觉；章节详情页；许可全文页；行囊分页；CheerText 中文化；其余地区道具（潮汐锚、棱镜移位） | **没做** | — |
 | 接入工程 | **没做**（按 INTEGRATION.md） | — |
 
@@ -56,7 +57,7 @@
 | `FK`（霞鹜文楷） | `c-popups/src/ui_kit.py:9`、`a-loading/src/gen.py` | `/workspace/la/LXGWWenKai-Medium.ttf` | 25 MB，**没提交**；在 tar 包的 `棋盘UI美术bot/_deps/fonts/` 里，也可以从 https://github.com/lxgw/LxgwWenKai/releases/tag/v1.522 下载（sha256 `d4bdeb38a39151d74d084cba5090f8cb7d20bf83eedb78c35939ae70b9f4e3f6`） |
 | 正文字体 | `c-popups/src/ui_kit.py:8` | `/usr/share/fonts/opentype/noto/NotoSansCJK-*.ttc` | 系统包 `fonts-noto-cjk`（只用于预览） |
 | 岛截图（弹窗底图） | `c-popups/src/compose.py` 的 `ISLAND` | `/workspace/yiqifengle/previews/pm-audit/C0_island_T9_props_reference.png` | 在 tar 包外，是本作的实机截图；也可以用环境变量 `ISLAND_IMG` 指定 |
-| 岛模型 | `c-popups/src/round2/render_regions.py` 的 `GLB` | 仓库 `creator-build-project/assets/bundles/region_island/combined_visual_m.glb` | 仓库里就有 |
+| 岛 / 天空城 / 草甸模型 | `render_regions.py` 的 `GLB` / `SKY_GLB` / `MEADOW_GLB`，`b-board/src/render_bg.py` | 已改成按脚本位置找仓库里的 `creator-build-project/assets/bundles/…`，不用改 | 草甸 GLB 还没有 |
 | 关卡代码 | `c-popups/src/round2/beacon.py` 读 `b-board/src/compose.py` | 同一个美术根目录 | — |
 
 **命令**（都在美术根目录下执行；Blender 一律用 `blender -b --factory-startup -P <脚本> -- <参数>`）：
@@ -65,7 +66,8 @@
 cd a-loading && python3 src/gen.py && python3 src/compose.py && python3 src/first_screen.py && cd ..
 # (b) 棋盘
 blender -b --factory-startup -P b-board/src/build_board.py -- /tmp/out 64        # → /tmp/out/raw/*.png + board_props.blend
-blender -b -P b-board/src/render_bg.py -- /tmp/bg_raw.png 64
+blender -b -P b-board/src/render_bg.py -- /tmp/bg_raw.png 64                    # 第三个参数 island（默认）/ skycity
+blender -b -P b-board/src/render_bg.py -- /tmp/bg_sky_raw.png 64 skycity && python3 b-board/src/region_bg.py /tmp/bg_sky_raw.png bg_skycity_board '…说明…'   # 只出天空城背景
 cp -r /tmp/out/raw/* b-board/src/raw/ && python3 b-board/src/fix_shadow.py b-board/src/raw   # fix_shadow 只能对刚渲出来的 raw 跑一次
 cd b-board && python3 src/slices.py src/raw src/bg_raw.jpg . && python3 src/compose.py src/raw src/bg_raw.jpg . && python3 src/sheets.py . && python3 src/shrink.py . && cd ..
 # (c) 弹窗：Blender 渲染全部模型（可以在末尾用逗号列表只渲指定的，例如 tool_tidenet,tool_sunseed）
@@ -74,7 +76,8 @@ cp /tmp/cpop/raw/*.png c-popups/src/raw/ && cp /tmp/cpop/glb/*.glb c-popups/glb/
 cd c-popups/src && python3 compose.py .. && python3 slices.py .. && python3 sheets.py .. && SKIP_BOARD=1 python3 night.py .. && cd ../..
 # r2（顺序不能乱：compose2 → slices2 → beacon → sheets2）
 cd c-popups/src/round2
-blender -b --factory-startup -P render_regions.py -- /tmp/fang_reg     # 地区小图 → 复制到 raw/regions/
+blender -b --factory-startup -P render_regions.py -- /tmp/fang_reg     # 地区小图 → 复制到 raw/regions/（没有草甸 GLB 时跳过草甸）
+python3 region_slices.py ../.. sky,sky_locked                            # 只重出地区之窗切图，不必重跑整套 slices2
 blender -b -P render_hero.py -- …                                        # 道具大图（见脚本头部注释）
 python3 compose2.py ../.. && NIGHT=1 python3 compose2.py ../.. && python3 slices2.py ../.. && mkdir -p /tmp/fang_bb && python3 beacon.py ../.. && python3 sheets2.py ../.. && python3 tools_compare.py ../..
 cd ../round3 && python3 cabin_hint.py ../.. && python3 about.py ../.. && NIGHT=1 python3 about.py ../..
@@ -125,7 +128,7 @@ INTEGRATION.md    接入文档      HANDOFF.md    本文件
 | 16 | 灯塔目标格（**后面几格的坐标从关卡数据读**） | UI 只画当前格的 2 px 框 | §13 第 12 条 | 关卡字段 **`config.beacons: number[]`**（有序，`index = row·7 + col`）、可选 **`config.beaconTypes: number[]`**、**`config.goals.beacons` = beacons.length**。样例：`"goals":{"beacons":3,…},"beacons":[22,24,26]`（`r4-cloud-compat/runtime/challenge-catalog.js` 关卡 `tide-c01-001`）。引擎有 `engine.beaconRoute` / `engine.beaconCursor`，`beaconTarget()` 返回 `{index,type,cursor,total,typed}`。**快照里要新增 `beaconRoute: Array.from(e.beaconRoute)`**（`challenge-controller.js:474` 和 `.d.ts`），UI 取 `beaconRoute.slice(cursor+1)` 画淡点 | `test_world_r5.cjs`、`test_cloud_integration_review.cjs`；对 `active` 做深比较的快照测试要补上 `beaconRoute` |
 | 17 | 夜间乘色和文字换色 | 只有岛上的道具有夜间权重 | §13 第 10 条 | §4 | `test_window_view_night.cjs`、`test_ui_contrast.cjs` |
 | 18 | 三件地区道具 | v2 等 Funning 确认 | 确认后切图换进 (b) 的道具栏 | `r2/slices/tool_*.png`，跟 (b) 道具同机位、同尺寸 | `test_tool_switch_*.cjs` |
-| 19 | 草甸 / 天空城的风景和背景 | 占位 / 没做 | 场景建好后用自有模型重渲 | `render_regions.py` 改 GLB 路径和相机 | — |
+| 19 | 草甸 / 天空城的风景和背景 | **天空城已重渲**（小图 + 棋盘背景）；**草甸仍是占位**，等场景bot 出 `region_meadow` 的场景 GLB | 场景建好后用自有模型重渲 | `render_regions.py` 已改成仓库相对路径 + 天空城相机；草甸 GLB 放到 `bundles/region_meadow/env_meadow.glb`（或 `MEADOW_GLB`）后补相机；背景要接进代码时，`BOARD_BACKGROUND` 按地区选 `region_skycity/board/bg_skycity_board` | `node tools/test_manifests.cjs`；`python3 tools/board_art_sync.py --check` |
 
 ## 8. 已知的坑
 - **Node 版本**：测试要 Node ≥ 22.13（要用 `stripTypeScriptTypes`）。

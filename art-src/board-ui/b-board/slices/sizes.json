@@ -182,5 +182,13 @@
   "h": 1624,
   "bytes": 23276,
   "note": "v2 更虚更淡；JPG q70 渐进"
+ },
+ {
+  "file": "bg_skycity_board.jpg",
+  "group": "背景",
+  "w": 750,
+  "h": 1624,
+  "bytes": 37084,
+  "note": "天空城 env_skycity.glb 实渲；同 bg_island_board 后期；JPG q70 渐进"
  }
 ]

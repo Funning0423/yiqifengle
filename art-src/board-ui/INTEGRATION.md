@@ -175,6 +175,7 @@
 | `b-board/slices/tool_windbell.png` | 192×192 | 9,320 | 道具 | 192²；无货用 Sprite.grayscale；焦点调色 |
 | `b-board/slices/tool_tidebottle.png` | 192×192 | 9,376 | 道具 | 192²；无货用 Sprite.grayscale；焦点调色 |
 | `b-board/slices/bg_island_board.jpg` | 750×1624 | 23,276 | 背景 | v2 更虚更淡；JPG q70 渐进 |
+| `b-board/slices/bg_skycity_board.jpg` | 750×1624 | 37,084 | 背景 | 天空城 env_skycity.glb 实渲；同 bg_island_board 后期；JPG q70 渐进 |
 
 **坐标和尺寸**（pt，竖屏；详见 `b-board/board_layout_guides.png`）
 - 暂停钮中心 (38, 67)，命中区 44×44。
@@ -221,7 +222,7 @@
 | 21 | 选中框、提示框 | 选中 = 抬起 + 柔光框；提示 = 呼吸光 |
 | 22 | 区域关连线 `RegionalFocusCue` | 保留，改配色（本轮没出图） |
 | 23 | 区域关格子标签 `RegionalFixedCell` | 保留功能；贝壳层数用 `obstacle_shell_2/1` 表示；其余视觉留到下一轮 |
-| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 |
+| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 。天空城关卡的背景 `bg_skycity_board.jpg` 已出图，放在 `region_skycity/board/`（夜间同样 × K_SEA）；草甸背景等场景模型 |
 | 25 | 连击鼓励字 `CheerText` | 保留（另外排） |
 | 26 | `retryPanel` / `bagPanel` / `resultPanel` | 换成统一弹窗（§3、§4） |
 | 27 | 微信胶囊（系统画的） | 避让 x ≥ 253 pt、y 51–83 pt |
@@ -359,7 +360,8 @@
   - **地区挑战单独用一个小标记「⚑ 挑战 x/4」**（r05 每个地区 4 关）。
   - 未解锁：去色 + 加雾 + 金锁 + 一行很淡的「主线解锁后开启」。
   - **潮汐小径的新描述**：「听潮声，捡起海浪送来的贝壳。」（代码 CHAPTERS 里的旧句子提到珍珠，要替换。路牌上不显示描述，留给章节详情页用）。
-  - 花粉草甸和天空回声的小图是**占位**，场景建好后用 `c-popups/src/round2/render_regions.py` 重渲。
+  - 天空回声的小图已用天空城模型 `env_skycity.glb` 实渲；花粉草甸还是**占位**（仓库里还没有草甸场景模型），场景建好后用 `c-popups/src/round2/render_regions.py` 重渲。
+  - 夜间版不另渲：小图跟其他 Sprite 一样乘 K_UI。
 - **海岛小憩** `r2/island_rest_day.png` / `r2/island_rest_night.png`：
   - **改成点小屋时弹出**（不是点灯塔）。
   - 两扇昼夜小窗（当前那扇金边）+ 主按钮：夜里是「迎接晴昼」，白天是「看看夜色」（`IslandJourneyOverlay.ts:93`）。
@@ -507,8 +509,8 @@
 | `c-popups/r2/slices/sign_plank_3s.png` | 196×176 | 9,098 | 旅程册 | 精简版（无钉）横幅章节牌，三宫格（横向）：左 90 px / 右 90 px（箭头）不拉伸；高 176，显示宽 544 |
 | `c-popups/r2/slices/region_tide.png` | 208×136 | 13,021 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；combined_visual_m.glb 实渲 |
 | `c-popups/r2/slices/region_meadow.png` | 208×136 | 7,930 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；占位图 |
-| `c-popups/r2/slices/region_sky.png` | 208×136 | 4,821 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；占位图 |
-| `c-popups/r2/slices/region_sky_locked.png` | 208×136 | 2,922 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；占位图；未解锁：去色 + 雾 |
+| `c-popups/r2/slices/region_sky.png` | 208×136 | 11,421 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；env_skycity.glb 实渲 |
+| `c-popups/r2/slices/region_sky_locked.png` | 208×136 | 4,950 | 旅程册 | 地区之窗 200×128（含 4 px 窗沿）；env_skycity.glb 实渲；未解锁：去色 + 雾 |
 | `c-popups/r2/slices/hero_starlight.png` | 400×400 | 27,628 | 首次获得 | 道具介绍大图 400 px（(b) v3.1 模型 720 px 重渲后缩） |
 | `c-popups/r2/slices/hero_windbell.png` | 400×400 | 25,359 | 首次获得 | 同上（可选：先只放星光） |
 | `c-popups/r2/slices/hero_tidebottle.png` | 400×400 | 26,253 | 首次获得 | 同上（可选：先只放星光） |
@@ -545,11 +547,11 @@
 | 部分 | 内容 | 字节 |
 |---|---|---|
 | a 加载页 | 切图（不含底图） | 29,247（+ 正式底图 37,025） |
-| b 棋盘 | 切图 + 背景 | 294,998 |
+| b 棋盘 | 切图 + 背景 | 332,082 |
 | c 弹窗 | 切图 + 宝箱 GLB（不含 2D 宝箱备选） | 210,163 |
-| r2 | 面板件、地区小图、标题（只放星光大图） | 145,174 |
+| r2 | 面板件、地区小图、标题（只放星光大图） | 153,802 |
 | r3 | 小屋提示 + 关于页 | 12,101 |
-| **新增合计** | | **691,683**（+ 加载底图 37,025） |
+| **新增合计** | | **737,395**（+ 加载底图 37,025） |
 | 可以删的旧资源 | 电影截图 129,312 + 临时标题图 13,167 + `pieces.png` 776,072 + `tools-original.png` 66,831 + `painted-cloud.png` 1,417,468 + 宝箱脚本和 effect 439,068 | **−2,841,918** |
 
 - 预算：图集 ≤ 600 KB，单张背景 ≤ 150 KB，加载页 ≤ 120 KB，宝箱 GLB ≤ 60 KB，单张预览图 ≤ 700 KB。全部达标。

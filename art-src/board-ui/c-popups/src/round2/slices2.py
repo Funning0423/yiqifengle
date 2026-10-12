@@ -20,8 +20,9 @@ def compact(im,l,t,mid=16):
         for (b0,b1,dy) in ys: o.alpha_composite(im.crop((a0,b0,a1,b1)),(dx,dy))
     return o
 src=C2.A2('sign_plank_clean'); sp=scaled(src,176/src.height); e=round(sp.width*0.16); save(compact(sp,e,0),'sign_plank_3s','旅程册',f'精简版（无钉）横幅章节牌，三宫格（横向）：左 {e} px / 右 {e} px（箭头）不拉伸；高 176，显示宽 544')
-for rid,lk,ph_ in (('tide',False,False),('meadow',False,True),('sky',False,True),('sky',True,True)):
-    save(C2.region_window(rid,200,128,lk,ph_),'region_%s%s'%(rid,'_locked' if lk else ''),'旅程册',('地区之窗 200×128（含 4 px 窗沿）'+('；占位图' if ph_ else '；combined_visual_m.glb 实渲')+('；未解锁：去色 + 雾' if lk else '')))
+REGION_GLB={'tide':'combined_visual_m.glb','sky':'env_skycity.glb'}
+for rid,lk,ph_ in (('tide',False,False),('meadow',False,True),('sky',False,False),('sky',True,False)):
+    save(C2.region_window(rid,200,128,lk,ph_),'region_%s%s'%(rid,'_locked' if lk else ''),'旅程册',('地区之窗 200×128（含 4 px 窗沿）'+('；占位图' if ph_ else '；%s 实渲'%REGION_GLB[rid])+('；未解锁：去色 + 雾' if lk else '')))
 save(fitw(C2.A2('tool_starlight_hero'),400),'hero_starlight','首次获得','道具介绍大图 400 px（(b) v3.1 模型 720 px 重渲后缩）')
 for t in ('windbell','tidebottle'): save(fitw(C2.A2('tool_%s_hero'%t),400),'hero_'+t,'首次获得','同上（可选：先只放星光）')
 for t,cn in (('tidenet','潮汐网'),('sunseed','日光籽'),('starshears','星剪')): save(C2.A2('tool_'+t),'tool_'+t,'行囊',cn+'：本轮补的 3D 道具（和 (b) tool_* 同机位同尺寸，道具栏也能直接用）')
