@@ -522,9 +522,23 @@ export class WorldFlow {
     if(this.state==='disposed'||this.hidden)return;this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
-  show():void {if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();this.emit(this.snapshot());}
+  /** Back from background: the place the player left is visible again, still paused until resume().
+   *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose). */
+  show():void {
+    if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();
+    if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
+  }
+  /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */
+  private presentPausedView():void {
+    if(!this.world)return;
+    const place=this.stable;
+    if(place==='home'||place==='island'){this.world.setLayers(place==='home'?HOME:ISLAND);if(this.characterReady())this.character?.setVisible(true);}
+    else if(place==='skycity')this.visit?.show();
+  }
   resume():Result {
-    if(this.state==='disposed'||this.state==='error'||this.hidden||!this.needsResume)return {ok:false,reason:'resume-not-allowed'};
+    if(this.state==='disposed'||this.state==='error')return {ok:false,reason:'resume-not-allowed'};
+    if(this.hidden)this.show();
+    if(this.hidden||!this.needsResume)return {ok:false,reason:'resume-not-allowed'};
     if(this.stable==='level'){const result=this.level!.resume();if(!result.ok){this.error=result.reason;this.emit(this.snapshot());return result;}}
     this.needsResume=false;this.restore();this.change(this.world?this.stable:'idle');return {ok:true};
   }

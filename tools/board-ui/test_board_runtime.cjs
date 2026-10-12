@@ -40,6 +40,17 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert.deepEqual(log.submits, []); assert(!log.commands.some(c => /hint/i.test(c[0])), 'hint is presentation only (no star penalty)');
     H.tap(u.pause); const before = log.hints; b.step(12); assert.equal(log.hints, before, 'no hints while paused');
   });
+  await ok('lock return: hidden→visible while paused opens the full pause panel on the next tick; leaving run.paused closes it', async () => {
+    const b = await board(), { u, s, log } = b;
+    s.hidden = true; s.state = 'run.paused'; b.render(); assert.equal(top(b), null, 'still hidden: no pause panel yet');
+    s.hidden = false; b.render(); assert.equal(top(b), null, 'panel waits for the board tick so a same-turn resume does not flash it');
+    u.update(0.016); assert.equal(top(b), 'PausePanel'); assert.equal(u.popups.find('PausePanel').options.title, '暂停一下');
+    for (const n of ['Tile-重来', 'Tile-行囊', 'Tile-设置', 'Resume', 'Home']) assert(inPopup(b, 'PausePanel', n), n);
+    assert.deepEqual(log.commands, [], 'already paused: opening the panel does not pause again');
+    s.state = 'run.ready'; b.render(); assert.equal(top(b), null, 'resume already happened: the pause panel closes');
+    const stayed = await board(); stayed.s.hidden = true; stayed.s.state = 'result.saved'; stayed.render(); stayed.s.hidden = false; stayed.render(); stayed.u.update(0.016);
+    assert.equal(names(stayed).includes('PausePanel'), false, 'a result page is not a pause panel');
+  });
   await ok('pause panel: pause → PausePanel (3 tiles, music + sfx toggles, resume, home); resume sends resume after the close animation', async () => {
     const b = await board(), { H, u, s, log } = b;
     H.tap(u.pause); assert.deepEqual(log.commands.map(c => c[0]), ['pause']); assert.equal(s.state, 'run.paused'); assert.equal(top(b), 'PausePanel');

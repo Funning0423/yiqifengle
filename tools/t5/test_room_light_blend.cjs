@@ -44,7 +44,8 @@ await test('A4 levels/skycity/hide keep the world loaded but setLayers(NONE) -> 
   const last=()=>x.log.filter(v=>v.startsWith('layers:')).at(-1);assert.equal(last(),'layers:ISLAND');
   assert.equal((await x.f.enterLevel('s1')).ok,true);assert.equal(last(),'layers:NONE');assert.equal(x.f.exitLevel().ok,true);assert.equal(last(),'layers:ISLAND');
   assert.equal((await x.f.enterSkycity()).ok,true);assert.equal(last(),'layers:NONE');assert.equal(x.f.exitSkycity().ok,true);assert.equal(last(),'layers:ISLAND');
-  x.f.hide();assert.equal(last(),'layers:NONE');x.f.show();assert.equal(last(),'layers:NONE');assert.equal(x.f.resume().ok,true);assert.equal(last(),'layers:ISLAND');
+  x.f.hide();assert.equal(last(),'layers:NONE');x.f.show();assert.equal(last(),'layers:ISLAND');assert.equal(x.f.snapshot().needsResume,true);assert.equal(x.f.snapshot().hidden,false);assert.equal(x.f.snapshot().state,'paused');assert.equal(x.f.resume().ok,true);assert.equal(last(),'layers:ISLAND');assert.equal(x.f.snapshot().needsResume,false);
+  assert.equal((await x.f.enterLevel('s1')).ok,true);x.f.hide();assert.equal(last(),'layers:NONE');x.f.show();assert.equal(last(),'layers:NONE');assert.equal(x.f.snapshot().state,'paused');assert.equal(x.f.snapshot().needsResume,true);assert.equal(x.f.resume().ok,true);assert.equal(x.f.snapshot().state,'level');assert.equal(last(),'layers:NONE');assert.equal(x.f.exitLevel().ok,true);assert.equal(last(),'layers:ISLAND');
 });
 // T2+ legitimately keeps changing WorldFlowCore (4bead5a: walk-duration contract, distance-driven camera), so the old
 // whole-file pin (sha256 9798…cc47 of 7f2b623/932570a) is retired. A5 now pins only the T5 lighting-blend parts, which

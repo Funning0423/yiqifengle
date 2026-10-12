@@ -188,6 +188,11 @@ export class WorldFlowComponent extends Component {
   private dayNightClock=0;
   private appliedBlend=0;
   private clock={updates:0,rawSeconds:0,appliedSeconds:0,maxDt:0,lastTickUtc:'',hideEvents:0,showEvents:0};
+  /** Frames the flow has stayed hidden while the director is still ticking. Two frames, then revealReturn(). */
+  private hiddenTicks=0;
+  /** One-shot return. Not cleared on hide: a same-turn hide after show must still reveal. */
+  private returnTimer:any=null;
+  private wxOff:[string,()=>void][]=[];
   private lastDiagnosticAt=0;
   private releaseRearGlass:(()=>void)|null=null;
   private unlitBackdrops=new Map<MeshRenderer,UnlitBackdropBinding>();
@@ -215,7 +220,7 @@ export class WorldFlowComponent extends Component {
     this.flow=new WorldFlow({config:createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE),mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
-    game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);
+    game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
     return this.flow.load();
   }
   /** UI receives this command facade, never scene/model/camera references. */
@@ -396,6 +401,9 @@ export class WorldFlowComponent extends Component {
     if(Number.isFinite(dt)&&dt>0){this.clock.rawSeconds+=dt;this.clock.maxDt=Math.max(this.clock.maxDt,dt);}
     try {identity(this.node);if(this.ownedModel){identity(this.ownedModel);identity(resolvePath(this.ownedModel,'scene_root'));}}
     catch(e){this.safetyFailure=String(e);this.flow.fault(this.safetyFailure);throw e;}
+    const snap=this.flow.snapshot();
+    if(snap.hidden&&snap.state!=='disposed'){this.hiddenTicks++;if(this.hiddenTicks>=2){this.hiddenTicks=0;this.revealReturn();}}
+    else this.hiddenTicks=0;
     if(!Number.isFinite(dt)||dt<=0||this.flow.snapshot().needsResume)return;
     // Deliberately cap one update to avoid a background/long-frame teleport.
     const frameDt=Math.min(dt,.1);
@@ -416,11 +424,49 @@ export class WorldFlowComponent extends Component {
   /** T5 read-only: true while a live rig exists (world loaded, not disposed); then getRoomLightWeight() is meaningful. */
   hasRoomLight():boolean {return !this.disposed&&!!this.roomLighting&&this.roomLighting.hasRoomLight();}
   /** T5 read-only: true when the island/home world is on screen (last setLayers had interior or exterior). False under
-   * levels/skycity/hidden/needs-resume, where the world stays loaded with layers NONE and w reads 0. */
+   * levels/skycity/hidden, where the world stays loaded with layers NONE and w reads 0. A paused return (needsResume)
+   * puts home/island layers back, so the room or island stays visible until resume(). */
   isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength());}}
-  private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.flow?.hide();this.reportRuntime('hide');}
-  private onShow():void {this.clock.showEvents++;if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);this.flow?.show();this.reportRuntime('show');}
+  private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
+  private onShow():void {this.revealReturn();this.scheduleReturn();}
+  /** wx.onShow and EVENT_SHOW both land here. The place comes back paused; resume() stays explicit.
+   *  A paused director is resumed so the return can paint. An error fault is left blank. */
+  private revealReturn():void {
+    if(this.disposed||!this.flow)return;
+    const g=game as any;
+    if(typeof g.isPaused==='function'&&g.isPaused()&&typeof g.resume==='function')g.resume();
+    const snap=this.flow.snapshot();
+    if(snap.state==='disposed'||snap.state==='error'||!snap.hidden)return;
+    this.clock.showEvents++;
+    if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);
+    this.flow.show();
+    this.reportRuntime('show');
+  }
+  private scheduleReturn():void {
+    if(this.returnTimer!=null||this.disposed)return;
+    this.returnTimer=setTimeout(()=>{this.returnTimer=null;if(!this.disposed)this.revealReturn();},0);
+  }
+  /** WeChat lock often delivers wx.onHide/onShow without Game.EVENT_HIDE/EVENT_SHOW. Same handlers, idempotent. */
+  private bindWxLifecycle():void {
+    const w:any=(typeof wx!=='undefined')?(wx as any):null;
+    if(!w)return;
+    const pairs:[string,string,()=>void][]=[['onHide','offHide',()=>this.onHide()],['onShow','offShow',()=>this.onShow()]];
+    for(let i=0;i<pairs.length;i++){
+      const on=w[pairs[i][0]];
+      if(typeof on!=='function')continue;
+      const cb=pairs[i][2];
+      try{on.call(w,cb);this.wxOff.push([pairs[i][1],cb]);}catch(error){console.warn('[OI_WORLD_FLOW] wx.'+pairs[i][0]+' failed',String(error));}
+    }
+  }
+  private unbindWxLifecycle():void {
+    const w:any=(typeof wx!=='undefined')?(wx as any):null;
+    for(let i=0;i<this.wxOff.length;i++){
+      const off=w&&w[this.wxOff[i][0]];
+      try{if(typeof off==='function')off.call(w,this.wxOff[i][1]);}catch(error){void error;}
+    }
+    this.wxOff.length=0;
+  }
   /** Does not read or write WorldFlow state. Night meshes stay off until mode is night and the exterior layer is on. */
   private applyDayNight():void {
     const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);this.appliedBlend=view.skyNightBlend;
@@ -441,6 +487,8 @@ export class WorldFlowComponent extends Component {
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
   onDestroy():void {
+    if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
+    this.unbindWxLifecycle();
     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
@@ -453,3 +501,4 @@ export class WorldFlowComponent extends Component {
     this.savedCamera=null;this.onStatus=undefined;
   }
 }
+declare const wx:any;
