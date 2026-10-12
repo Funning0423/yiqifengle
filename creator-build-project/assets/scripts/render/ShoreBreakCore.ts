@@ -1,14 +1,17 @@
 /**
- * Shore wash (engine-free). The sea surface stays the authored flat plane; this is one unlit white sheet
- * that slides from the waterline onto the sand and fades, on the same 8.064 s clock as amb_waves_loop
- * (two swells). Night is a mainColor multiply of that one sheet (the existing foam tint), not a second mesh.
- * Shore tongues draw only with the exterior layer (home hides the island). A faint far tongue on the back
- * horizon draws with the backdrop, so the rear window pulses with the same swell.
+ * Shore swell (engine-free). The authored env_sea_surface stays the only sea: its vertices heave and its
+ * wavelet UVs drift on the amb_waves_loop clock (8.064 s, crashes near 2.369 s and 6.300 s). White water is
+ * one thin lip along the beach, present only while that crest is actually on the sand, then it runs back
+ * down and disappears. Between the two beats the lip is gone (no sheet left hanging over a still sea).
+ * Night is a mainColor multiply of that same lip (the existing foam tint), not a second mesh or a second sea.
+ * The beach lip draws with the exterior layer (open door and island). A faint far lip draws with the backdrop
+ * so the rear window sees the same beat. Nothing is emitted inside the house footprint.
  * tools/scene-fx/test_shore_break.cjs
  */
 export type V3 = [number, number, number];
 export type ShoreGeometry = { positions: number[]; colors: number[]; indices: number[]; min: V3; max: V3 };
-export type Swell = { strength: number; travel: number };
+export type Swell = { strength: number; travel: number; foamU: number; foamA: number };
+export type SeaPhase = { strength: number; travel: number };
 
 export const SHORE = {
   /** amb_waves_loop.mp3 duration. Peaks sit at 0.294 and 0.781 of that loop. */
@@ -17,37 +20,46 @@ export const SHORE = {
     { hit: 2.369, attack: 1.15, release: 1.55 },
     { hit: 6.300, attack: 1.15, release: 1.55 },
   ],
-  /** Four stations from water (0) to sand (1). Material alpha carries the travelling gaussian; the mesh is static. */
-  bands: [0, 0.42, 0.78, 1],
-  bandHalf: 0.24,
-  gauss: 0.045,
+  /** Foam stays off until the crest is this far through the attack (already on the beach), then climbs 0→1. */
+  foamIn: 0.82,
+  /** Half-width of the white lip in water→sand units. A line, not a sheet over open water. */
+  washHalf: 0.08,
   shorePeak: 0.82,
   farPeak: 0.38,
-  /** Above env_sea_surface (y=-0.918) so the sheet does not z-fight the flat sea. */
-  waterY: -0.84,
-  sandLift: 0.05,
+  /** Authored env_sea_surface translation y. Vertex offsets are added in mesh-local space (local 0 = this). */
+  seaBaseY: -0.91854459,
+  foamLift: 0.03,
+  /** How far offshore (metres past the shoreline) the crest sits at the start of an attack. */
+  fetch: 13,
+  /** Short ripple near the island, metres. The long heave is one slow swell across the whole sea. */
+  ripple: 0.036,
+  heave: 0.055,
+  crest: 0.16,
+  waveLen: 7.6,
+  /** Long enough that a 13 m fetch does not turn the heave into a fake crest. */
+  heaveLen: 180,
+  crestSigma: 2.6,
+  /** Short waves fade out between these radii so the coarse far mesh does not alias. */
+  seaNear: 26,
+  seaFar: 72,
+  /** UV units. 1 unit = 8 m on env_sea_surface. Oscillates on the loop; does not replace the mesh. */
+  uvDrift: 0.16,
   /** Sand higher than this is cliff, not a beach the wash can climb. */
   sandCap: 0.32,
+  sandLift: 0.05,
   /** Break the ribbon here so a skipped cliff sample is not bridged. 8° table; one skip is 16°. */
   gapDeg: 12,
-  fanDeg: 4,
   house: { minX: -2.9, maxX: 5.1, minZ: -5.45, maxZ: 1.35 },
   /** Same linear multiply as env_sea_foam / the v22 foam lines in bindUnlitBackdrop. */
   night: [0.35, 0.48, 0.64] as V3,
   /** Warm flat white. Night darkens it by mainColor, the vertex colour does not change. */
   foamRgb: [0.96, 0.98, 0.99] as V3,
-  /** Horizon tongues in the rear-window sliver (deg 151–169, r 48 and 58 are the visible hits). */
+  /** Horizon lip in the rear-window sliver (deg 151–169, r 48 and 58 are the visible hits). */
   farDeg: [151, 157, 163, 169],
   farR: [44, 48, 53, 58, 64],
   farA: [0, 1, 1, 1, 0],
-  /** Wave-line override after the 12 s idle clip: sunk between swells, up on the sand at the hit. */
+  /** Authored wave-line rings stay under the opaque sea. The lip above is the only white water. */
   sinkY: -1.24,
-  sinkScale: 1.36,
-  riseY0: -1.05,
-  riseY1: -0.90,
-  riseScale: 1.04,
-  gate0: 0.04,
-  gate1: 0.18,
   /**
    * Baked waterline → sand samples from combined_visual_m.glb (deg = atan2(x,z) degrees).
    * [deg, waterX, waterZ, sandX, sandZ, sandY]. Gaps are cliffs / no lip, not a full ring.
@@ -93,6 +105,10 @@ export const SHORE = {
   ] as number[][],
 };
 
+const TAU = 6.283185307179586;
+const RAD2DEG = 57.29577951308232;
+let shoreLut: number[] | null = null;
+
 export const clamp01 = (v: number) => v < 0 ? 0 : v > 1 ? 1 : v;
 export function smoothstep(a: number, b: number, x: number): number {
   const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t);
@@ -110,6 +126,12 @@ export function stepShoreClock(clock: number, dt: number, playhead: number | nul
   const step = isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
   return wrapLoop((isFinite(clock) ? clock : 0) + step);
 }
+function foamClimb(s: number): { foamU: number; foamA: number } {
+  if (s <= SHORE.foamIn) return { foamU: 0, foamA: 0 };
+  const k = (s - SHORE.foamIn) / (1 - SHORE.foamIn);
+  const e = k * k * (3 - 2 * k);
+  return { foamU: e, foamA: e };
+}
 export function swellState(time: number, hit: number, attack: number, release: number): Swell {
   const t = wrapLoop(time);
   let dt = t - hit;
@@ -117,45 +139,101 @@ export function swellState(time: number, hit: number, attack: number, release: n
   if (dt < -SHORE.loopS * 0.5) dt += SHORE.loopS;
   if (dt >= -attack && dt <= 0) {
     const s = smoothstep(0, 1, (dt + attack) / attack);
-    return { strength: s, travel: s };
+    const foam = foamClimb(s);
+    return { strength: s, travel: s, foamU: foam.foamU, foamA: foam.foamA };
   }
-  if (dt > 0 && dt <= release) return { strength: 1 - smoothstep(0, 1, dt / release), travel: 1 };
-  return { strength: 0, travel: 0 };
+  if (dt > 0 && dt <= release) {
+    const s = 1 - smoothstep(0, 1, dt / release);
+    return { strength: s, travel: 1, foamU: s, foamA: s };
+  }
+  return { strength: 0, travel: 0, foamU: 0, foamA: 0 };
 }
-/** line01 follows the first swell, line02 the second. The sheet uses whichever is stronger (they do not overlap). */
-export function shorePhase(time: number): { strength: number; travel: number; line01: Swell; line02: Swell } {
+/** line01 follows the first swell, line02 the second. The lip uses whichever is stronger (they do not overlap). */
+export function shorePhase(time: number): { strength: number; travel: number; foamU: number; foamA: number; line01: Swell; line02: Swell } {
   const a = SHORE.swells[0], b = SHORE.swells[1];
   const line01 = swellState(time, a.hit, a.attack, a.release);
   const line02 = swellState(time, b.hit, b.attack, b.release);
   const pick = line01.strength >= line02.strength ? line01 : line02;
-  return { strength: pick.strength, travel: pick.travel, line01: line01, line02: line02 };
-}
-/** strength * exp(-(travel-u)^2 / gauss) * peak. At the hit, sand (u=1) is the bright band; at the start of the attack, water is. */
-export function bandAlpha(strength: number, travel: number, u: number, peak: number): number {
-  const d = travel - u; return strength * Math.exp(-(d * d) / SHORE.gauss) * peak;
+  return { strength: pick.strength, travel: pick.travel, foamU: pick.foamU, foamA: pick.foamA, line01: line01, line02: line02 };
 }
 export function foamMultiply(night: number): V3 {
   const k = clamp01(night), n = SHORE.night;
   return [1 + (n[0] - 1) * k, 1 + (n[1] - 1) * k, 1 + (n[2] - 1) * k];
 }
-/** Sunk under the sea between swells. During a swell, y rises -1.05 → -0.90 and xz scale falls 1.36 → 1.04 as travel goes 0 → 1. */
-export function waveLinePose(strength: number, travel: number): { y: number; scale: number } {
-  const S = SHORE, gate = smoothstep(S.gate0, S.gate1, strength);
-  const yRise = S.riseY0 + (S.riseY1 - S.riseY0) * clamp01(travel);
-  return { y: S.sinkY + (yRise - S.sinkY) * gate, scale: S.sinkScale + (S.riseScale - S.sinkScale) * clamp01(travel) * gate };
+/** Flat authored rings stay under the sea for the whole loop. scale 1 keeps the imported size. */
+export function waveLinePose(): { y: number; scale: number } {
+  return { y: SHORE.sinkY, scale: 1 };
 }
-/** Exterior owns the beach sheet (the island mesh is hidden indoors). Backdrop owns the far horizon, including the rear window. */
-export function washVisible(exterior: boolean, backdrop: boolean, strength: number): { shore: boolean; far: boolean } {
-  const on = strength > 1 / 255;
+/** Exterior owns the beach lip. Backdrop owns the far horizon, including the rear window. */
+export function washVisible(exterior: boolean, backdrop: boolean, foamA: number): { shore: boolean; far: boolean } {
+  const on = foamA > 1 / 255;
   return { shore: !!exterior && on, far: !!backdrop && on };
+}
+export function farWashAlpha(foamA: number): number {
+  return (foamA > 0 ? foamA : 0) * SHORE.farPeak;
+}
+/** Oscillating UV shift, one cycle per loop in u and two in v (the two crashes). Metres = shift * 8. */
+export function seaUvShift(time: number): { u: number; v: number } {
+  const w = wrapLoop(time) / SHORE.loopS * TAU;
+  return { u: Math.sin(w) * SHORE.uvDrift, v: Math.sin(w * 2) * SHORE.uvDrift * 0.7 };
+}
+
+function shoreRadiusRaw(deg: number): number {
+  const lip = SHORE.lip, n = lip.length;
+  let d = deg;
+  while (d < -180) d += 360;
+  while (d > 180) d -= 360;
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    const a0 = lip[i][0], a1 = lip[j][0];
+    const span = j === 0 ? (a1 + 360) - a0 : a1 - a0;
+    let rel = d - a0; if (rel < 0) rel += 360;
+    if (rel <= span + 1e-4) {
+      const t = span < 1e-6 ? 0 : rel / span;
+      const r0 = Math.sqrt(lip[i][1] * lip[i][1] + lip[i][2] * lip[i][2]);
+      const r1 = Math.sqrt(lip[j][1] * lip[j][1] + lip[j][2] * lip[j][2]);
+      return r0 + (r1 - r0) * t;
+    }
+  }
+  return 9;
+}
+/** Shoreline radius (metres) at this xz, from the baked lip. 0.5° table. */
+export function shoreRadius(x: number, z: number): number {
+  if (!shoreLut) {
+    shoreLut = new Array(720);
+    for (let i = 0; i < 720; i++) shoreLut[i] = shoreRadiusRaw(i / 2 - 180);
+  }
+  let i = Math.round((Math.atan2(x, z) * RAD2DEG + 180) * 2);
+  i = i % 720; if (i < 0) i += 720;
+  return shoreLut[i];
+}
+/**
+ * Mesh-local Y offset for one env_sea_surface vertex. Crest of each swell lands on the shoreline
+ * (travel 1) at that swell's hit; between beats only the small heave/ripple remain.
+ * Pass phase from shorePhase when sampling many vertices.
+ */
+export function seaHeight(x: number, z: number, time: number, phase?: SeaPhase): number {
+  const S = SHORE;
+  const ph = phase ? phase : shorePhase(time);
+  const r = Math.sqrt(x * x + z * z);
+  const off = r - shoreRadius(x, z);
+  const far = smoothstep(S.seaNear, S.seaFar, r);
+  // Along-shore phase, not a ring: a ring of chop can sit higher than the crest that is still offshore.
+  const ripple = Math.sin(off * (TAU / S.waveLen) + Math.atan2(x, z) * 2.5 + time * (TAU * 2 / S.loopS));
+  const heave = Math.sin(r * (TAU / S.heaveLen) + time * (TAU / S.loopS));
+  const crestOff = (1 - clamp01(ph.travel)) * S.fetch;
+  const d = off - crestOff;
+  const crest = Math.exp(-(d * d) / (S.crestSigma * S.crestSigma));
+  return (1 - far) * (S.ripple * ripple + S.crest * ph.strength * crest) + S.heave * heave;
 }
 
 function inHouse(x: number, z: number): boolean {
   const h = SHORE.house; return x >= h.minX && x <= h.maxX && z >= h.minZ && z <= h.maxZ;
 }
-function lipPoint(seg: number[], u: number): V3 {
+function lipPoint(seg: number[], u: number, time: number, phase: SeaPhase): V3 {
+  const y0 = SHORE.seaBaseY + seaHeight(seg[1], seg[2], time, phase) + SHORE.foamLift;
   const y1 = seg[5] + SHORE.sandLift;
-  return [seg[1] + (seg[3] - seg[1]) * u, SHORE.waterY + (y1 - SHORE.waterY) * u, seg[2] + (seg[4] - seg[2]) * u];
+  return [seg[1] + (seg[3] - seg[1]) * u, y0 + (y1 - y0) * u, seg[2] + (seg[4] - seg[2]) * u];
 }
 function rotXZ(p: V3, deg: number): V3 {
   if (Math.abs(deg) < 1e-6) return p;
@@ -222,16 +300,16 @@ function alongAlpha(i: number, n: number): number {
 }
 function emptyGeo(): ShoreGeometry { return { positions: [], colors: [], indices: [], min: [0, 0, 0], max: [0, 0, 0] }; }
 
-function appendStrip(positions: number[], colors: number[], indices: number[], columns: { seg: number[]; spin: number }[], rows: number[], center: number, u0: number, u1: number): void {
+function appendStrip(positions: number[], colors: number[], indices: number[], columns: { seg: number[]; spin: number }[], rows: number[], center: number, u0: number, u1: number, time: number, phase: SeaPhase): void {
   const n = columns.length, R = rows.length; if (n < 2 || R < 2) return;
   const base = positions.length / 3, rgb = SHORE.foamRgb;
   for (let i = 0; i < n; i++) {
     const along = alongAlpha(i, n);
     for (let r = 0; r < R; r++) {
       const u = rows[r];
-      const p = rotXZ(lipPoint(columns[i].seg, u), columns[i].spin);
+      const p = rotXZ(lipPoint(columns[i].seg, u, time, phase), columns[i].spin);
       const house = inHouse(p[0], p[2]) ? 0 : 1;
-      const lump = 0.9 + 0.1 * hash01(i * 17 + r * 3 + Math.round(center * 100));
+      const lump = 0.9 + 0.1 * hash01(i * 17 + r * 3);
       const a = acrossAlpha(u, center, u0, u1) * along * house * lump;
       positions.push(p[0], p[1], p[2]); colors.push(rgb[0], rgb[1], rgb[2], clamp01(a));
     }
@@ -241,43 +319,44 @@ function appendStrip(positions: number[], colors: number[], indices: number[], c
     pushTri(indices, positions, a, c, b); pushTri(indices, positions, b, c, d);
   }
 }
+/** A lone sample (one beach point between cliffs) is not fanned into a patch. That fan was the white water on the rocks. */
 function columnsOf(ribbon: number[][]): { seg: number[]; spin: number }[] {
   const out: { seg: number[]; spin: number }[] = [];
-  if (ribbon.length === 1) {
-    const s = ribbon[0], f = SHORE.fanDeg;
-    out.push({ seg: s, spin: -f }); out.push({ seg: s, spin: 0 }); out.push({ seg: s, spin: f });
-    return out;
-  }
+  if (ribbon.length < 2) return out;
   for (let i = 0; i < ribbon.length; i++) out.push({ seg: ribbon[i], spin: 0 });
   return out;
 }
-/** One static ribbon per u station. Vertex alpha is the soft edge; the wrapper multiplies mainColor.a by bandAlpha. */
-export function shoreBandGeometry(bandIndex: number): ShoreGeometry {
-  const bands = SHORE.bands; if (bandIndex < 0 || bandIndex >= bands.length) return emptyGeo();
-  const center = bands[bandIndex];
-  let u0 = center - SHORE.bandHalf, u1 = center + SHORE.bandHalf;
+/**
+ * Thin lip at water→sand coordinate u (0 = waterline, 1 = up the sand). Y follows the sea at this time
+ * so the white sits on the crest instead of hovering over a flat plane. Vertex alpha is the soft edge;
+ * the wrapper multiplies mainColor.a by foamA and hides the node when foamA is 0.
+ */
+export function shoreWashGeometry(u: number, time: number): ShoreGeometry {
+  const uu = clamp01(u);
+  let u0 = uu - SHORE.washHalf, u1 = uu + SHORE.washHalf;
   if (u0 < 0) u0 = 0; if (u1 > 1) u1 = 1;
-  const rows: number[] = [];
-  const pushU = function (v: number) { if (!rows.length || Math.abs(rows[rows.length - 1] - v) > 1e-4) rows.push(v); };
-  pushU(u0); pushU(center); pushU(u1);
+  const mid = (u0 + u1) * 0.5;
+  const rows = [u0, mid, u1];
+  const phase = shorePhase(time);
   const positions: number[] = [], colors: number[] = [], indices: number[] = [];
   const groups = ribbons(keptShoreLips());
-  for (let g = 0; g < groups.length; g++) appendStrip(positions, colors, indices, columnsOf(groups[g]), rows, center, u0, u1);
+  for (let g = 0; g < groups.length; g++) appendStrip(positions, colors, indices, columnsOf(groups[g]), rows, mid, u0, u1, time, phase);
   const b = boundsOf(positions);
   return { positions: positions, colors: colors, indices: indices, min: b.min, max: b.max };
 }
 function polar(deg: number, r: number, y: number): V3 {
   const a = deg * Math.PI / 180; return [Math.sin(a) * r, y, Math.cos(a) * r];
 }
-/** Faint horizon patch. Same sheet, same swell; peak alpha stays low so the wide shot is not a white bar. */
+/** Faint horizon lip at rest sea height. The wrapper lifts the node by seaHeight and fades it with the beach beat. */
 export function farShoreGeometry(): ShoreGeometry {
   const degs = SHORE.farDeg, rs = SHORE.farR, fa = SHORE.farA, rgb = SHORE.foamRgb;
+  const y = SHORE.seaBaseY + SHORE.foamLift;
   const positions: number[] = [], colors: number[] = [], indices: number[] = [];
   const n = degs.length, R = rs.length; if (n < 2 || R < 2) return emptyGeo();
   for (let i = 0; i < n; i++) {
     const along = alongAlpha(i, n);
     for (let r = 0; r < R; r++) {
-      const p = polar(degs[i], rs[r], SHORE.waterY);
+      const p = polar(degs[i], rs[r], y);
       positions.push(p[0], p[1], p[2]); colors.push(rgb[0], rgb[1], rgb[2], clamp01(fa[r] * along));
     }
   }
@@ -287,4 +366,9 @@ export function farShoreGeometry(): ShoreGeometry {
   }
   const b = boundsOf(positions);
   return { positions: positions, colors: colors, indices: indices, min: b.min, max: b.max };
+}
+/** Sample point the far lip lifts with, so the rear window's white sits on that sea. */
+export function farSeaPoint(): V3 {
+  const deg = 160, r = 53, a = deg * Math.PI / 180;
+  return [Math.sin(a) * r, SHORE.seaBaseY, Math.cos(a) * r];
 }
