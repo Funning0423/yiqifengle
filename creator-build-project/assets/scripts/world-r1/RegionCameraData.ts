@@ -184,7 +184,7 @@ export const TRANSITION_CAMERA = Object.freeze({
     pace: { sampleMetres: 0.15, craneRampSeconds: 1.2, sampleDt: 1 / 60, tSlow: 3.35, vSlow: 2.35, tCruise: 4.7, easeOut: 2.5, tFront: 4.74,
       lookTau: 0.05, lookHandoff: 0.4, lookBlendStart: 5.5, fovWide: 74, fovWideSeconds: 1.2, fovZoomStart: 0.15, fovZoomSpan: 0.7,
       course: [[-1.214, 1.694, -2.307], [-1.05, 1.7, -2.05], [-0.7, 1.66, -1.55], [-0.35, 1.64, -1.05], [-0.1, 1.72, -0.5],
-        [-0.28, 2.02, 0.16], [-0.7, 2.35, 0.48], [-1.25, 2.7, 0.82], [-2.15, 3.2, 1.35], [-3.55, 3.85, 2.35],
+        [-0.4, 2.08, 0.16], [-0.82, 2.42, 0.48], [-1.32, 2.78, 0.82], [-2.15, 3.2, 1.35], [-3.55, 3.85, 2.35],
         [-4.7, 4.75, 4.4], [-5.9, 6.15, 8.2], [-7.3, 8.15, 14.2], [-8.7, 10.3, 22.2], [-10, 12.6, 32],
         [-11.2, 14.25, 41], [-12, 15.5, 48]] } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
