@@ -1,4 +1,4 @@
-# blender -b -P render_seated.py -- <glb> <out_prefix> <clip> <t_s> [views] [res_h] [shape_weight] [engine]
+# blender -b -P render_seated.py -- <glb> <out_prefix> <clip> <t_s> [views] [res_h] [sit_drape] [engine] [sit_drape_mid]
 # Seated preview with the room chair: renders <out_prefix>_<view>.png.  shape_weight is written to every shape key of
 # LOD0_G2_DRESS / LOD0_G2_APRON whose name starts with sit_drape (anim_meta curve value at that time).
 import bpy, sys, os
@@ -13,6 +13,7 @@ VIEWS = (a[4] if len(a) > 4 else 'side,front,q34,back').split(',')
 RES = int(a[5]) if len(a) > 5 else 600
 SW = float(a[6]) if len(a) > 6 else 1.0
 ENGINE = a[7] if len(a) > 7 else 'workbench'
+SWM = float(a[8]) if len(a) > 8 else 0.0
 bpy.ops.wm.read_factory_settings(use_empty=True)
 CV, CF = S.extract_chair()
 ch = S.Character(GLB)
@@ -23,7 +24,7 @@ for n in ('LOD0_G2_DRESS', 'LOD0_G2_APRON'):
     o = ch.mesh[n]
     if o.data.shape_keys:
         for kb in o.data.shape_keys.key_blocks[1:]:
-            kb.value = SW if kb.name.startswith('sit_drape') else 0.0
+            kb.value = SW if kb.name == 'sit_drape' else (SWM if kb.name == 'sit_drape_mid' else 0.0)
             print('SHAPEKEY', n, kb.name, kb.value)
 R.setup_workbench()
 ch.pose(CLIP, T)

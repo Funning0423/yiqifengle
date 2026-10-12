@@ -18,7 +18,7 @@ RG = D.RG
 SKIRT = FIT + list(FOLLOW)
 DESCENT_T, MID_T, SETTLE_T = 0.2, 0.6, 0.8667
 STAND_HOLD_T, STAND_OFF_T = 0.1333, 0.8667
-KEY_DT = 1 / 15
+KEY_DT = 1 / 30
 CURVES = {
     'sit_down': {'sit_drape': [[0, 0], [DESCENT_T, 0], [SETTLE_T, 1], [1.2, 1]], 'sit_drape_mid': [[0, 0], [DESCENT_T, 0], [MID_T, 1], [SETTLE_T, 0], [1.2, 0]]},
     'sit_hold': {'sit_drape': [[0, 1], [2.0, 1]]},
@@ -80,9 +80,39 @@ def clip_curves(rig, clip, times, corr_at):
                 q = -q
             qs.append(q)
             ps.append(p)
-        rot[b] = (times, np.array(qs))
-        tra[b] = (times, np.array(ps))
+        rot[b] = reduce_keys(times, np.array(qs), ROT_TOL, True)
+        tra[b] = reduce_keys(times, np.array(ps), POS_TOL, False)
     return rot, tra
+
+
+ROT_TOL, POS_TOL = np.radians(0.4), 0.001
+
+
+def _err(times, V, keep, quat):
+    """max deviation of the LINEAR (slerp for quats) reconstruction from the dense samples."""
+    tk, Vk = times[keep], V[keep]
+    i = np.clip(np.searchsorted(tk, times, side='right') - 1, 0, len(tk) - 2)
+    u = ((times - tk[i]) / np.maximum(tk[i + 1] - tk[i], 1e-9))[:, None]
+    if quat:
+        R = RG.slerp(Vk[i], Vk[i + 1], u)
+        return 2 * np.arccos(np.clip(np.abs((R * V).sum(1)), 0, 1))
+    return np.linalg.norm(Vk[i] + (Vk[i + 1] - Vk[i]) * u - V, axis=1)
+
+
+def reduce_keys(times, V, tol, quat):
+    """greedy: start from the end keys, insert the worst sample until the curve is within tol."""
+    keep = np.zeros(len(times), bool)
+    keep[[0, -1]] = True
+    if len(times) <= 2:
+        return times, V
+    while True:
+        e = _err(times, V, keep, quat)
+        e[keep] = 0
+        k = int(e.argmax())
+        if e[k] <= tol:
+            break
+        keep[k] = True
+    return times[keep], V[keep]
 
 
 def key_times(dur, extra=()):

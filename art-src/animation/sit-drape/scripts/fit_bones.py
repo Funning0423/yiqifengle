@@ -112,17 +112,39 @@ def main():
     m = Model(c, W)
     bow0 = c.skin('BOW', W)
     x0 = np.load(a[3])['x'] if len(a) > 3 else np.zeros(6 * len(FIT))
-    wd = np.ones(len(tgt))
+    # waistband (rest y > WAIST_Y): dress -> the sim (pinned there, ~ its old place), apron -> stays put; the big skirt-bone
+    # rotations must not drag the partly skirt-weighted waistbands through each other
+    WAIST_Y = 1.0
+    wd = np.where(c.md['DRESS']['P'][:, 1] > WAIST_Y, 25.0, 1.0)
+    waist = c.md['DRESS']['P'][:, 1] > WAIST_Y
+    tgt = tgt.copy()
+    tgt[waist] = c.skin('DRESS', W)[waist]
+    apron0 = c.skin('APRON', W)
+    wa = np.where(c.md['APRON']['P'][:, 1] > WAIST_Y, 5.0, 0.0)
+
+    from compose import Colliders, LEG_M, CHAIR_M
+    col = Colliders(c, W)
+    KCOL = 0.0
 
     def res(x):
-        rd = (m.pos('DRESS', x) - tgt) * np.sqrt(wd)[:, None]
+        P = m.pos('DRESS', x)
+        rd = (P - tgt) * np.sqrt(wd)[:, None]
         rb = (m.pos('BOW', x) - bow0) * 10.0
-        return np.concatenate([rd.ravel(), rb.ravel(), 1e-3 * x])
-    sol = least_squares(res, x0, method='trf', x_scale=np.tile([0.3, 0.3, 0.3, 0.05, 0.05, 0.05], len(FIT)), max_nfev=400, verbose=1)
-    x = sol.x
+        ra = (m.pos('APRON', x) - apron0) * wa[:, None]
+        s, _, dist = col.legs.query(P)
+        rl = KCOL * np.maximum(0, LEG_M + 0.003 - s) * (dist < 0.06)
+        cs, _ = D.chair_sdf(P, col.boxes)
+        rc = KCOL * np.maximum(0, CHAIR_M + 0.003 - cs)
+        return np.concatenate([rd.ravel(), rb.ravel(), ra.ravel(), rl, rc, 1e-3 * x])
+    xs = np.tile([0.3, 0.3, 0.3, 0.05, 0.05, 0.05], len(FIT))
+    x = least_squares(res, x0, method='trf', x_scale=xs, max_nfev=400).x
+    KCOL = float(os.environ.get('SD_KCOL', '4'))
+    if KCOL > 0:
+        x = least_squares(res, x, method='trf', x_scale=xs, max_nfev=200).x
     err = np.linalg.norm(m.pos('DRESS', x) - tgt, axis=1)
     print('fit dress err mm: mean %.1f p90 %.1f max %.1f' % (err.mean() * 1e3, np.percentile(err, 90) * 1e3, err.max() * 1e3))
     print('bow drift mm max %.2f' % (np.linalg.norm(m.pos('BOW', x) - bow0, axis=1).max() * 1e3))
+    print('violations', col.violations(m.pos('DRESS', x)))
     R, t = m.transforms(x)
     for i, b in enumerate(FIT):
         print('%-18s rot %5.1f deg  t %s' % (b, np.degrees(np.linalg.norm(x[6 * i:6 * i + 3])), np.round(t[i] * 1000, 1)))

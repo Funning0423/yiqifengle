@@ -83,6 +83,40 @@ def chair_sdf(P, boxes=None):
     return d, arg
 
 
+TOP_BOXES = ('seat', 'seat_line_l', 'seat_line_r')
+
+
+def chair_margin(P, name, lo, hi, top_m, edge_m):
+    """per-point clearance: top_m straight above the seat's top face (she sits there: buttocks are 9.7 mm above it),
+    edge_m everywhere else, so a cloth triangle whose vertices clear an edge by edge_m does not cut the sharp edge."""
+    m = np.full(len(P), edge_m)
+    if name in TOP_BOXES:
+        over = (P[:, 0] > lo[0]) & (P[:, 0] < hi[0]) & (P[:, 2] > lo[2]) & (P[:, 2] < hi[2]) & (P[:, 1] > hi[1] - 0.004)
+        m[over] = top_m
+    return m
+
+
+def chair_push_faces(P, top_m, edge_m, boxes=None):
+    boxes = boxes or chair_boxes()
+    push = np.zeros_like(P)
+    for name, (lo, hi) in boxes.items():
+        d = box_sdf(P, lo, hi)
+        m = chair_margin(P, name, lo, hi, top_m, edge_m)
+        bad = d < m
+        if not bad.any():
+            continue
+        Q = P[bad]
+        g = np.zeros_like(Q)
+        e = 1e-4
+        for k in range(3):
+            dp = np.zeros(3)
+            dp[k] = e
+            g[:, k] = (box_sdf(Q + dp, lo, hi) - box_sdf(Q - dp, lo, hi)) / (2 * e)
+        g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-9)
+        push[bad] += g * (m[bad] - d[bad])[:, None]
+    return push
+
+
 def chair_push(P, margin, boxes=None):
     """displacement that moves each point to >= margin outside the nearest violated box (numerical gradient of the box sdf)."""
     boxes = boxes or chair_boxes()
