@@ -455,6 +455,11 @@
     "sha256": "88016beea998d5993d6ad68a0013da269a1e3e32c7ee082b3df2e38baab2c3b5"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg",
+    "bytes": 37084,
+    "sha256": "b986c6f4a28ac88080294c6b176d70a2a7efdc3a3992583c292d408a75112457"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
     "bytes": 1114604,
     "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7"

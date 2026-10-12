@@ -95,7 +95,7 @@
 | 21 | 选中框、提示框 | 选中 = 抬起 + 柔光框；提示 = 呼吸光 |
 | 22 | 区域关连线 `RegionalFocusCue` | 保留，改配色（本轮没出图） |
 | 23 | 区域关格子标签 `RegionalFixedCell` | 保留功能；贝壳层数用 `obstacle_shell_2/1` 表示；其余视觉留到下一轮 |
-| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 |
+| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用。天空回声（`r05-sky-*`）在 `IslandBoardBackground.ts` 里改读 `bg_skycity_board.jpg`（分包 `region_skycity/board/`，夜间仍 × K_SEA）。花粉草甸没有场景模型，棋盘继续用岛背景 |
 | 25 | 连击鼓励字 `CheerText` | 保留（另外排） |
 | 26 | `retryPanel` / `bagPanel` / `resultPanel` | 换成统一弹窗（§3、§4） |
 | 27 | 微信胶囊（系统画的） | 避让 x ≥ 253 pt、y 51–83 pt |

@@ -1,11 +1,13 @@
 import { _decorator, Component, assetManager, AssetManager, ImageAsset, Texture2D, SpriteFrame, Sprite, Node, Layers, UITransform, Color, isValid } from 'cc';
 import type { LevelBackgroundFactory, LevelBackgroundFrame } from './LevelBackground';
 import type { Cancellation } from '../world-r1/WorldFlowCore';
-import { BOARD_BACKGROUND } from '../ui/BoardArt';
+import { boardBackgroundFor, boardChapter } from '../ui/BoardArt';
 import { tintRgb, uiNightWeight } from '../ui/NightTint';
 const { ccclass } = _decorator;
-/** Board scenery: one painted picture (b-board bg_island_board.jpg, 750×1624), cover-fit behind the board HUD.
- *  Night multiplies it by K_SEA, following the island day/night weight. Meadow/sky pictures come later (Blender). */
+/** Board scenery: one painted picture (750×1624), cover-fit behind the board HUD.
+ *  天空回声 (r05-sky-*) loads region_skycity/board/bg_skycity_board.jpg. Tide, R4, mainline, and 花粉草甸
+ *  (no env_meadow.glb, so no meadow picture) load region_island/board/bg_island_board.jpg.
+ *  Night multiplies the same picture by K_SEA. There is no second night render. */
 export const BACKGROUND_SIZE = { width: 750, height: 1624 } as const;
 export function coverSize(width: number, height: number, iw = BACKGROUND_SIZE.width, ih = BACKGROUND_SIZE.height) {
   const s = Math.max(width / iw, height / ih); return { width: iw * s, height: ih * s, scale: s };
@@ -25,6 +27,7 @@ function loadBundle(name: string, token: Cancellation): Promise<AssetManager.Bun
 }
 export const createIslandBoardBackground: LevelBackgroundFactory = async ({ parent, selection, token }) => {
   let disposed = false, visible = false, node: Node | null = null, asset: ImageAsset | null = null, texture: Texture2D | null = null, frame: SpriteFrame | null = null, tint: IslandBoardBackgroundTint | null = null, lastKey = '';
+  const picture = boardBackgroundFor(selection), chapter = boardChapter(selection);
   let offCancel = () => { };
   const dispose = () => {
     if (disposed) return; disposed = true; offCancel();
@@ -34,8 +37,8 @@ export const createIslandBoardBackground: LevelBackgroundFactory = async ({ pare
   offCancel = token.onCancel(dispose);
   try {
     token.check();
-    const bundle = await loadBundle(BOARD_BACKGROUND.bundle, token); token.check();
-    asset = await token.wait(new Promise<ImageAsset>((resolve, reject) => bundle.load(BOARD_BACKGROUND.path, ImageAsset, (error, a) => error || !a ? reject(error || Error('Missing board background')) : resolve(a))));
+    const bundle = await loadBundle(picture.bundle, token); token.check();
+    asset = await token.wait(new Promise<ImageAsset>((resolve, reject) => bundle.load(picture.path, ImageAsset, (error, a) => error || !a ? reject(error || Error('Missing board background ' + picture.bundle + '/' + picture.path)) : resolve(a))));
     if (disposed) throw Error('Background disposed during image load'); asset.addRef();
     texture = new Texture2D(); texture.image = asset; frame = new SpriteFrame(); frame.texture = texture;
     return {
@@ -53,7 +56,7 @@ export const createIslandBoardBackground: LevelBackgroundFactory = async ({ pare
       },
       setVisible: (value: boolean) => { if (disposed) return; visible = value; if (node && isValid(node, true)) node.active = value; },
       setPaused: () => { },
-      diagnostics: () => ({ renderer: 'board-ui-static-picture', bundle: BOARD_BACKGROUND.bundle, path: BOARD_BACKGROUND.path, provider: selection.provider, stageId: selection.stageId, visible, night: tint?.night ?? 0, size: node ? { width: node.getComponent(UITransform)!.width, height: node.getComponent(UITransform)!.height } : null, dynamicTextureUploads: 0 }),
+      diagnostics: () => ({ renderer: 'board-ui-static-picture', bundle: picture.bundle, path: picture.path, chapter, provider: selection.provider, stageId: selection.stageId, visible, night: tint?.night ?? 0, size: node ? { width: node.getComponent(UITransform)!.width, height: node.getComponent(UITransform)!.height } : null, dynamicTextureUploads: 0 }),
       dispose,
     };
   } catch (error) { dispose(); throw error; }

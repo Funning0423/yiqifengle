@@ -2,7 +2,25 @@ import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset,
 /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
 export const BOARD_ART_BUNDLE = 'board_art';
+/** Island / tide / meadow / mainline / R4. Meadow has no scene GLB, so it keeps this picture. */
 export const BOARD_BACKGROUND = { bundle: 'region_island', path: 'board/bg_island_board' } as const;
+/** 天空回声 regional boards (r05-sky-*). Painted from env_skycity.glb. Night multiplies this same picture by K_SEA. */
+export const SKY_BOARD_BACKGROUND = { bundle: 'region_skycity', path: 'board/bg_skycity_board' } as const;
+export type BoardPicture = { readonly bundle: string; readonly path: string };
+/** '' | 'tide' | 'meadow' | 'sky'. Only r05-* stage ids are chapters here.
+ *  Mainline-09..12 are 月影古树 (继续旅程), not the 天空回声 board opened from the journey book. */
+export function boardChapter(selection: { provider?: string; stageId?: string } | null): string {
+  const id = selection && selection.stageId ? String(selection.stageId) : '';
+  if (id.indexOf('r05-tide-') === 0) return 'tide';
+  if (id.indexOf('r05-meadow-') === 0) return 'meadow';
+  if (id.indexOf('r05-sky-') === 0) return 'sky';
+  return '';
+}
+/** Picture createIslandBoardBackground loads. 天空回声 → sky city; meadow stays on the island (no env_meadow.glb). */
+export function boardBackgroundFor(selection: { provider?: string; stageId?: string } | null): BoardPicture {
+  if (boardChapter(selection) === 'sky') return SKY_BOARD_BACKGROUND;
+  return BOARD_BACKGROUND;
+}
 export type ArtDir = 'board' | 'popup' | 'r2' | 'r3';
 /** Source-pixel insets [left, top, right, bottom] of the 9- / 3-slice pieces (c-popups sizes.json, r2 sizes.json). */
 export const SLICES: Record<string, readonly number[]> = {

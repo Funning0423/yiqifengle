@@ -110,9 +110,45 @@ ok('journey book summary: mainline stars per chapter x/12, lock until the previo
   assert.equal(a.stars, 12); assert.equal(a.locked, false); assert.equal(a.challenges, 3); assert.equal(b.stars, 2); assert.equal(b.locked, false); assert.equal(b.challenges, 0); assert.equal(c.locked, true);
   assert.equal(chapterSummary(null, null, 0).stars, 0);
 });
-ok('board background: region_island/board/bg_island_board.jpg 750×1624 cover-fit; no painted-cloud / OriginalLevelEnvironment left', () => {
-  const B = H.load('world-r2/IslandBoardBackground'); assert.deepEqual(B.BACKGROUND_SIZE, { width: 750, height: 1624 });
-  assert(fs.existsSync(path.join(BUNDLES, 'region_island/board/bg_island_board.jpg')));
+function jpegSize(file) {
+  const b = fs.readFileSync(file); let i = 2;
+  while (i + 9 < b.length) {
+    if (b[i] !== 0xff) break;
+    const marker = b[i + 1];
+    if (marker === 0xd8 || marker === 0xd9 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+    const len = b.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xc2) return { width: b.readUInt16BE(i + 7), height: b.readUInt16BE(i + 5) };
+    i += 2 + len;
+  }
+  throw Error('jpeg SOF missing ' + file);
+}
+ok('board background: island jpg stays the default; 天空回声 (r05-sky) reads region_skycity/board/bg_skycity_board.jpg; meadow has no picture', () => {
+  const B = H.load('world-r2/IslandBoardBackground'), Art = H.load('ui/BoardArt');
+  assert.deepEqual(B.BACKGROUND_SIZE, { width: 750, height: 1624 });
+  assert.deepEqual(Art.BOARD_BACKGROUND, { bundle: 'region_island', path: 'board/bg_island_board' });
+  assert.deepEqual(Art.SKY_BOARD_BACKGROUND, { bundle: 'region_skycity', path: 'board/bg_skycity_board' });
+  const sky = { provider: 'r5', stageId: 'r05-sky-01', seed: 1 };
+  assert.equal(Art.boardChapter(sky), 'sky');
+  assert.deepEqual(Art.boardBackgroundFor(sky), Art.SKY_BOARD_BACKGROUND);
+  assert.deepEqual(Art.boardBackgroundFor({ provider: 'r5', stageId: 'r05-sky-04', seed: 1 }), Art.SKY_BOARD_BACKGROUND);
+  const meadow = { provider: 'r5', stageId: 'r05-meadow-01', seed: 1 };
+  assert.equal(Art.boardChapter(meadow), 'meadow');
+  assert.deepEqual(Art.boardBackgroundFor(meadow), Art.BOARD_BACKGROUND, 'no env_meadow.glb: meadow keeps the island picture');
+  assert.deepEqual(Art.boardBackgroundFor({ provider: 'r5', stageId: 'r05-tide-03', seed: 1 }), Art.BOARD_BACKGROUND);
+  assert.deepEqual(Art.boardBackgroundFor({ provider: 'r4', stageId: 'tide-c01-001', seed: 1 }), Art.BOARD_BACKGROUND);
+  assert.equal(Art.boardChapter({ provider: 'mainline', stageId: 'mainline-09', seed: 1 }), '');
+  assert.deepEqual(Art.boardBackgroundFor({ provider: 'mainline', stageId: 'mainline-12', seed: 1 }), Art.BOARD_BACKGROUND, '月影古树 is not the 天空回声 board');
+  const islandJpg = path.join(BUNDLES, 'region_island/board/bg_island_board.jpg');
+  const skyJpg = path.join(BUNDLES, 'region_skycity/board/bg_skycity_board.jpg');
+  assert(fs.existsSync(islandJpg)); assert.deepEqual(jpegSize(islandJpg), { width: 750, height: 1624 });
+  assert(fs.existsSync(skyJpg)); assert.deepEqual(jpegSize(skyJpg), { width: 750, height: 1624 });
+  assert(!fs.existsSync(path.join(BUNDLES, 'region_meadow/env_meadow.glb')), 'meadow bundle is BGM only');
+  assert(fs.existsSync(path.join(BUNDLES, 'region_meadow/audio/bgm_meadow.mp3')));
+  assert(!fs.existsSync(path.join(BUNDLES, 'region_skycity/board/bg_skycity_night.jpg')));
+  const bgSrc = read('world-r2/IslandBoardBackground.ts');
+  assert(bgSrc.includes('boardBackgroundFor(selection)'), 'the background read is boardBackgroundFor, not a fixed BOARD_BACKGROUND.path');
+  assert(bgSrc.includes("tintRgb('sea'"));
+  assert(!/bg_\w+_night/.test(bgSrc));
   for (const [w, h] of [[390, 844], [320, 568], [844, 390]]) { const s = B.coverSize(w, h); assert(s.width >= w - 1e-9 && s.height >= h - 1e-9); assert(Math.abs(s.width / s.height - 750 / 1624) < 1e-9); assert(Math.abs(s.width - w) < 1e-9 || Math.abs(s.height - h) < 1e-9); }
   assert(read('world-r2/WorldNativeComposition.ts').includes('createIslandBoardBackground'));
   const all = walk(SCRIPTS).filter(f => /\.(ts|js)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join('\n');
@@ -138,10 +174,40 @@ ok('art inventory: board_art dirs (board, popup, r2, r3, chest, licenses) + regi
   }
   const meta = JSON.parse(fs.readFileSync(path.join(BUNDLES, 'board_art.meta'), 'utf8')); assert.equal(meta.userData.isBundle, true);
   const ts = walk(SCRIPTS).filter(f => f.endsWith('.ts')).map(f => fs.readFileSync(f, 'utf8')).join('\n'), keys = new Set();
-  for (const m of ts.matchAll(/'((?:board|popup|r2|r3)\/[A-Za-z0-9_]+)'(\s*\+)?/g)) if (!m[2] && m[1] !== 'board/bg_island_board') keys.add(m[1]);
+  for (const m of ts.matchAll(/'((?:board|popup|r2|r3)\/[A-Za-z0-9_]+)'(\s*\+)?/g)) if (!m[2] && m[1] !== 'board/bg_island_board' && m[1] !== 'board/bg_skycity_board') keys.add(m[1]);
   for (const m of ts.matchAll(/'((?:popup\/reward_seal|r2\/chapter|r2\/region)_)'\s*\+/g)) for (const id of ['tide', 'meadow', 'sky']) keys.add(m[1] + id);
   for (const k of keys) assert(fs.existsSync(path.join(BUNDLES, 'board_art', k + '.png')), 'art key used in code but not shipped: ' + k);
   assert(keys.size > 60, 'scanned ' + keys.size + ' art keys');
   assert(fs.existsSync(path.join(ROOT, 'creator-build-project/assets/resources/ui/tools-original.png')), 'regional tools deferred: legacy atlas kept');
 });
-console.log(JSON.stringify({ status: 'PASS', checks: checks.length }));
+async function mountBackground(selection) {
+  const { Cancellation } = H.load('world-r1/WorldFlowCore');
+  const { createIslandBoardBackground } = H.load('world-r2/IslandBoardBackground');
+  const parent = new H.cc.Node('parent'), canvas = new H.cc.Node('NativeBoardCanvas');
+  parent.addChild(canvas);
+  const lease = await createIslandBoardBackground({ parent, selection, token: new Cancellation() });
+  lease.frame(true, { width: 390, height: 844, boardTop: 310 });
+  const bg = canvas.getChildByName('IslandBoardBackground');
+  return { lease, sprite: bg.getComponent(H.cc.Sprite), d: lease.diagnostics() };
+}
+(async () => {
+  const N = H.load('ui/NightTint');
+  N.resetUiNightWeight(); globalThis.__worldDayNight = { snapshot: () => ({ mode: 'night' }) };
+  const sky = await mountBackground({ provider: 'r5', stageId: 'r05-sky-01', seed: 1 });
+  assert.equal(sky.d.bundle, 'region_skycity'); assert.equal(sky.d.path, 'board/bg_skycity_board'); assert.equal(sky.d.chapter, 'sky');
+  assert.equal(sky.d.night, 1); assert.deepEqual([sky.sprite.color.r, sky.sprite.color.g, sky.sprite.color.b], N.tintRgb('sea', 1));
+  assert.equal(sky.sprite.spriteFrame.texture.image.path, 'board/bg_skycity_board');
+  sky.lease.dispose();
+  delete globalThis.__worldDayNight; N.resetUiNightWeight();
+  const meadow = await mountBackground({ provider: 'r5', stageId: 'r05-meadow-02', seed: 1 });
+  assert.equal(meadow.d.chapter, 'meadow'); assert.equal(meadow.d.bundle, 'region_island'); assert.equal(meadow.d.path, 'board/bg_island_board');
+  assert.equal(meadow.d.night, 0); assert.deepEqual([meadow.sprite.color.r, meadow.sprite.color.g, meadow.sprite.color.b], [255, 255, 255]);
+  assert.equal(meadow.sprite.spriteFrame.texture.image.path, 'board/bg_island_board');
+  meadow.lease.dispose();
+  const forest = await mountBackground({ provider: 'mainline', stageId: 'mainline-09', seed: 1 });
+  assert.equal(forest.d.chapter, ''); assert.equal(forest.d.path, 'board/bg_island_board');
+  forest.lease.dispose();
+  checks.push('mounted 天空回声 loads the sky-city jpg and night-multiplies it; meadow and 月影古树 stay on the island jpg');
+  console.log('PASS', checks[checks.length - 1]);
+  console.log(JSON.stringify({ status: 'PASS', checks: checks.length }));
+})().catch(error => { console.error(error); process.exitCode = 1; });

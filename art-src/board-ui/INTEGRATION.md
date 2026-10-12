@@ -175,6 +175,7 @@
 | `b-board/slices/tool_windbell.png` | 192×192 | 9,320 | 道具 | 192²；无货用 Sprite.grayscale；焦点调色 |
 | `b-board/slices/tool_tidebottle.png` | 192×192 | 9,376 | 道具 | 192²；无货用 Sprite.grayscale；焦点调色 |
 | `b-board/slices/bg_island_board.jpg` | 750×1624 | 23,276 | 背景 | v2 更虚更淡；JPG q70 渐进 |
+| `b-board/slices/bg_skycity_board.jpg` | 750×1624 | 37,084 | 背景 | 天空城 env_skycity.glb 实渲；同 bg_island_board 后期；JPG q70 渐进。夜间不另渲，棋盘乘 K_SEA |
 
 **坐标和尺寸**（pt，竖屏；详见 `b-board/board_layout_guides.png`）
 - 暂停钮中心 (38, 67)，命中区 44×44。
@@ -221,7 +222,7 @@
 | 21 | 选中框、提示框 | 选中 = 抬起 + 柔光框；提示 = 呼吸光 |
 | 22 | 区域关连线 `RegionalFocusCue` | 保留，改配色（本轮没出图） |
 | 23 | 区域关格子标签 `RegionalFixedCell` | 保留功能；贝壳层数用 `obstacle_shell_2/1` 表示；其余视觉留到下一轮 |
-| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用 |
+| 24 | 关卡背景 `OriginalLevelBackground` / `OriginalLevelEnvironment` | ⚠ **换成 `bg_island_board.jpg`**，删除 `painted-cloud.png` 的引用。天空回声（`r05-sky-*`）在 `IslandBoardBackground.ts` 里改读 `bg_skycity_board.jpg`（分包 `region_skycity/board/`，夜间仍 × K_SEA）。花粉草甸没有场景模型，棋盘继续用岛背景 |
 | 25 | 连击鼓励字 `CheerText` | 保留（另外排） |
 | 26 | `retryPanel` / `bagPanel` / `resultPanel` | 换成统一弹窗（§3、§4） |
 | 27 | 微信胶囊（系统画的） | 避让 x ≥ 253 pt、y 51–83 pt |
@@ -545,11 +546,11 @@
 | 部分 | 内容 | 字节 |
 |---|---|---|
 | a 加载页 | 切图（不含底图） | 29,247（+ 正式底图 37,025） |
-| b 棋盘 | 切图 + 背景 | 294,998 |
+| b 棋盘 | 切图 + 背景 | 332,082 |
 | c 弹窗 | 切图 + 宝箱 GLB（不含 2D 宝箱备选） | 210,163 |
 | r2 | 面板件、地区小图、标题（只放星光大图） | 145,174 |
 | r3 | 小屋提示 + 关于页 | 12,101 |
-| **新增合计** | | **691,683**（+ 加载底图 37,025） |
+| **新增合计** | | **728,767**（+ 加载底图 37,025） |
 | 可以删的旧资源 | 电影截图 129,312 + 临时标题图 13,167 + `pieces.png` 776,072 + `tools-original.png` 66,831 + `painted-cloud.png` 1,417,468 + 宝箱脚本和 effect 439,068 | **−2,841,918** |
 
 - 预算：图集 ≤ 600 KB，单张背景 ≤ 150 KB，加载页 ≤ 120 KB，宝箱 GLB ≤ 60 KB，单张预览图 ≤ 700 KB。全部达标。
