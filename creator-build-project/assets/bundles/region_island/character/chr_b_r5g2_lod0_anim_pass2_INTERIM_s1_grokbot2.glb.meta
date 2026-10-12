@@ -32,7 +32,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.25
+          "to": 1.266667
         },
         "events": []
       },
@@ -127,7 +127,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 4
+          "to": 1.8
         },
         "events": []
       },
@@ -173,7 +173,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.1333333253860474
+          "to": 1.433333
         },
         "events": []
       },
@@ -196,7 +196,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.2916666269302368
+          "to": 2.0
         },
         "events": []
       },
@@ -219,7 +219,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.25
+          "to": 1.2
         },
         "events": []
       },
@@ -242,7 +242,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1
+          "to": 2.0
         },
         "events": []
       },
@@ -609,7 +609,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.7000000476837158
+          "to": 1.933333
         },
         "events": []
       },
@@ -632,7 +632,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -655,7 +655,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -678,7 +678,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -701,7 +701,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -724,7 +724,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -747,7 +747,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.5
+          "to": 1.466667
         },
         "events": []
       },
@@ -786,13 +786,13 @@
     "animationImportSettings": [
       {
         "name": "idle_breathing_loop",
-        "duration": 4,
+        "duration": 1.8,
         "fps": 30,
         "splits": [
           {
             "name": "idle_breathing_loop",
             "from": 0,
-            "to": 4,
+            "to": 1.8,
             "wrapMode": 2,
             "previousId": "9b399"
           }
@@ -814,13 +814,13 @@
       },
       {
         "name": "walk_loop",
-        "duration": 1.1333333253860474,
+        "duration": 1.433333,
         "fps": 30,
         "splits": [
           {
             "name": "walk_loop",
             "from": 0,
-            "to": 1.1333333253860474,
+            "to": 1.433333,
             "wrapMode": 2,
             "previousId": "1adec"
           }
@@ -828,13 +828,13 @@
       },
       {
         "name": "sit_hold",
-        "duration": 1.2916666269302368,
+        "duration": 2.0,
         "fps": 30,
         "splits": [
           {
             "name": "sit_hold",
             "from": 0,
-            "to": 1.2916666269302368,
+            "to": 2.0,
             "wrapMode": 2,
             "previousId": "4c296"
           }
@@ -842,13 +842,13 @@
       },
       {
         "name": "stand_up",
-        "duration": 1.25,
+        "duration": 1.266667,
         "fps": 30,
         "splits": [
           {
             "name": "stand_up",
             "from": 0,
-            "to": 1.25,
+            "to": 1.266667,
             "wrapMode": 2,
             "previousId": "37781"
           }
@@ -856,13 +856,13 @@
       },
       {
         "name": "sit_down",
-        "duration": 1.25,
+        "duration": 1.2,
         "fps": 30,
         "splits": [
           {
             "name": "sit_down",
             "from": 0,
-            "to": 1.25,
+            "to": 1.2,
             "wrapMode": 2,
             "previousId": "724e8"
           }
@@ -870,13 +870,13 @@
       },
       {
         "name": "door_reach",
-        "duration": 1,
+        "duration": 2.0,
         "fps": 30,
         "splits": [
           {
             "name": "door_reach",
             "from": 0,
-            "to": 1,
+            "to": 2.0,
             "wrapMode": 2,
             "previousId": "b043a"
           }
@@ -884,13 +884,13 @@
       },
       {
         "name": "walk_start",
-        "duration": 1.7000000476837158,
+        "duration": 1.933333,
         "fps": 30,
         "splits": [
           {
             "name": "walk_start",
             "from": 0,
-            "to": 1.7000000476837158,
+            "to": 1.933333,
             "wrapMode": 1,
             "previousId": "e784c"
           }
@@ -898,13 +898,13 @@
       },
       {
         "name": "walk_stop_bodyL",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_stop_bodyL",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "f0225"
           }
@@ -912,13 +912,13 @@
       },
       {
         "name": "walk_stop_bodyR",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_stop_bodyR",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "d2c9e"
           }
@@ -926,13 +926,13 @@
       },
       {
         "name": "walk_turn_90_bodyL",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_90_bodyL",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "f3596"
           }
@@ -940,13 +940,13 @@
       },
       {
         "name": "walk_turn_90_bodyR",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_90_bodyR",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "3e86b"
           }
@@ -954,13 +954,13 @@
       },
       {
         "name": "walk_turn_180",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_180",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "9c8f5"
           }
@@ -968,13 +968,13 @@
       },
       {
         "name": "walk_turn_180_bodyR",
-        "duration": 1.5,
+        "duration": 1.466667,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_180_bodyR",
             "from": 0,
-            "to": 1.5,
+            "to": 1.466667,
             "wrapMode": 1,
             "previousId": "b2ace"
           }
