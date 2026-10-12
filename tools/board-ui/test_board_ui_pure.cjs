@@ -47,12 +47,17 @@ ok('GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks 
       game: new Events(), Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, input: new Events(), Input: { EventType: { TOUCH_END: 'te', MOUSE_UP: 'mu', KEY_DOWN: 'kd' } },
       sys: { localStorage: { getItem: k => data.has(k) ? data.get(k) : null, setItem: (k, v) => data.set(k, String(v)) } }, isValid: () => true, Number, Math, Map, Set, Array, Date, String, Object };
     vm.runInNewContext(code, ctx); const A = ctx.AudioClass; A.now = () => 10000; const a = A.ensure();
-    loads[0]?.(null, ['click', 'confirm', 'back'].map(n => ({ name: 'sfx_ui_' + n, addRef() {}, decRef() {} })));
+    loads[0]?.(null, ['sfx_ui_click', 'sfx_ui_confirm', 'sfx_ui_back', 'sfx_match_normal', 'sfx_combo_1', 'sfx_cheer_1_great'].map(n => ({ name: n, addRef() {}, decRef() {} })));
     return { a, played: () => [...a.sfxVoices.values()].map(v => v.name) };
   };
   const data = new Map(), h = make(data); assert.equal(h.a.isSfxMuted(), false); h.a.onButton(); assert.deepEqual(h.played(), ['sfx_ui_click']);
   for (const s of [...h.a.sfxVoices.keys()]) h.a.retireSfx(s);
-  h.a.setSfxMuted(true); assert.equal(data.get('qfl.audio.sfxMuted'), '1'); h.a.onButton(); h.a.onUiBack(); assert.deepEqual(h.played(), []);
+  h.a.onBoardFrame({ kind: 'clear' }); h.a.onBoardFrame({ kind: 'clear' });
+  assert.deepEqual([...h.played()].sort(), ['sfx_cheer_1_great', 'sfx_combo_1', 'sfx_match_normal']);
+  for (const s of [...h.a.sfxVoices.keys()]) h.a.retireSfx(s);
+  h.a.setSfxMuted(true); assert.equal(data.get('qfl.audio.sfxMuted'), '1'); h.a.onButton(); h.a.onUiBack();
+  h.a.onBoardFrame({ kind: 'clear' }); h.a.onBoardFrame({ kind: 'clear' });
+  assert.deepEqual(h.played(), [], 'muted: click, clear and cheer stay silent');
   assert.equal(h.a.isMuted?.() ?? h.a.muted, false, 'music mute untouched');
   const again = make(data); assert.equal(again.a.isSfxMuted(), true, 'restored'); again.a.setSfxMuted(false); assert.equal(data.get('qfl.audio.sfxMuted'), '0');
 });

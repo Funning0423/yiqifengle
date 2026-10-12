@@ -1041,8 +1041,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts",
-    "bytes": 30561,
-    "sha256": "094e076d2f819d7aff9883f606dc9f1ac0474bb313ac0feffdf19bcc8a0205f1"
+    "bytes": 31335,
+    "sha256": "0c9264df234acb6665e87c935fd40b5f5af901892e59f928c6b9a3e52843b8ab"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/AmbienceAudio.ts.meta",
@@ -1081,8 +1081,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 58886,
-    "sha256": "5c509e9ba41faad40cbe344b9c8acec8863da8c6f4e7d4c81454b4e6579358f9"
+    "bytes": 59455,
+    "sha256": "de044503731e2ac00f1850da6def8d9de95eb2eb267958650fc38df421b42f3e"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -1101,8 +1101,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts",
-    "bytes": 12670,
-    "sha256": "41a1f06e682b093ec5c7d16406d5b04d0c8e1e2f172b94f0d0fbeb27591418ac"
+    "bytes": 13401,
+    "sha256": "d9f3539691b0713548db0d712ace1af8d436d3e90d6632469b84d6a662513290"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/WindAudio.ts.meta",
@@ -1736,8 +1736,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 22016,
-    "sha256": "d6dcc9bdca4edde45ffe7313fcf0c058e313ff9ab3e07aea22ee575cb60b2d1f"
+    "bytes": 23516,
+    "sha256": "9f9a79bf5a2808667540ae66901a38a24156de773f83ca6eb3c3f35843590ca0"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",

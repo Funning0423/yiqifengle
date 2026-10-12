@@ -213,4 +213,18 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
   const f = env({ withAmbience: true }); f.flow.visible = false; ramp(f, 0, 1, 3); f.run(1);
   ok(f.gulls.length === 0 && !f.a.src.playing, 'world invisible -> no waves floor, no exit gulls');
 }
+// music slider scales the wind/wave bed: 0 is silence now, 1 is the design full level (duck stays inside that level)
+{ const e = env({ withAmbience: true }); let music = 1;
+  e.GameAudio.instance.getMusicVolume = () => music;
+  e.flow.w = 0; e.flow.wind = 1; e.run(3);
+  const full = { soft: e.w.snapshot().soft, strong: e.w.snapshot().strong, waves: e.a.src.volume };
+  ok(full.strong > 0.95 && full.soft > 0.7 && full.waves > 0.35, 'music 1: wind and waves at the design full level', full);
+  music = 0; e.run(1 / 60);
+  const z = e.w.snapshot();
+  ok(z.soft === 0 && z.strong === 0 && !z.softPlaying && !z.strongPlaying && e.a.src.volume === 0 && !e.a.src.playing, 'music 0: wind and waves inaudible on the next frame', { wind: z, waves: e.a.src.volume, playing: e.a.src.playing });
+  music = 1; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.w.snapshot().soft, full.soft, 0.02) && e.a.src.playing && near(e.a.src.volume, full.waves, 0.02), 'music back to 1 restores the design full level', { wind: e.w.snapshot(), waves: e.a.src.volume, full });
+  music = 0.5; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.5: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+}
 console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;

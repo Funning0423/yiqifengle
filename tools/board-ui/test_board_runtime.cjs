@@ -127,6 +127,25 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert.deepEqual(log.commands.map(c => c[0]), ['previewAction']); const shaken = new Set(H.cc._tweens.map(t => t.target.parent?.name)); assert(shaken.has('Tile-0') && shaken.has('Tile-1'), [...shaken].join());
     H.cc.sys.localStorage.setItem('forest-v33-reduced-motion', 'true'); H.cc._tweens.length = 0; u.cells[n].emit('touch-start', e); u.cells[n].emit('touch-move', to); u.cells[n].emit('touch-end', to); assert.equal(H.cc._tweens.filter(t => t.target.name === 'ProjectPieceArt').length, 0);
   });
+  await ok('settings music slider: drag updates the volume, release and cancel keep it', async () => {
+    const b = await board(), { H, u } = b;
+    H.tap(u.pause); H.tap(inPopup(b, 'PausePanel', 'Tile-设置')); b.step(0.3);
+    const slider = inPopup(b, 'SettingsPanel', 'MusicVolume'); assert(slider, 'MusicVolume');
+    const scale = (() => { let k = 1, n = slider; while (n) { k *= n.scale.x || 1; n = n.parent; } return k || 1; })();
+    const rail = 236, last = () => { const xs = H.audioLog.filter(x => x.startsWith('music:')); return xs.length ? Number(xs[xs.length - 1].slice(6)) : null; };
+    const knobX = () => slider.getChildByName('Knob').position.x;
+    const gesture = (dx, how) => {
+      const start = H.point(slider), id = 4, end = { x: start.x + dx, y: start.y };
+      slider.emit('touch-start', H.event(start, id)); slider.emit('touch-move', H.event(end, id)); slider.emit(how, H.event(end, id));
+    };
+    gesture(0.6 * rail * scale, 'touch-end');
+    assert(Math.abs(last() - 1) < 1e-6, 'drag to the right end is full volume ' + last());
+    assert(Math.abs(knobX() - rail / 2) < 1e-6, 'knob stays at the released end');
+    gesture(-rail * scale, 'touch-cancel');
+    assert(last() === 0, 'drag to zero sticks after the gesture is cancelled');
+    assert(Math.abs(knobX() + rail / 2) < 1e-6, 'knob stays at zero and does not snap back');
+    H.tap(inPopup(b, 'SettingsPanel', 'SfxToggle')); assert(H.audioLog.includes('sfx:true'), 'sfx toggle still mutes');
+  });
   await ok('teardown: onDestroy clears popups and host; later updates are inert', async () => {
     const b = await board(), { H, u } = b; H.tap(u.pause); u.onDestroy(); assert.deepEqual(u.popups.names(), []); u.update(1); u.onDestroy();
   });

@@ -4,6 +4,7 @@
 //   strong_gain(s) = smoothstep(0.3, 1.0, s)
 // 和海浪不同，风声不看室内外权重（出门那一刻就起风），只在 isWorldVisible() 为 false 时静音。
 // 静音 / 切后台 / 来电 / 还没有用户手势：跟随 GameAudio.canPlayAmbience()，和 AmbienceAudio 一样。
+// 音乐滑条乘在 soft/strong 曲线外面（0 无声，1 为现在的满音量）。BGM 让风仍走 setWindDuck，不改这条曲线。
 // 风力为 0 时什么都不播：两个循环的 AudioSource 直到第一次真正需要出声才创建，安静超过 1 秒就暂停。
 //
 // 围裙布料声（角色动画bot 接）：onApronLift(strength:'full'|'soft', durationSec:number)
@@ -21,6 +22,14 @@ import { _decorator, Component, AudioSource, AudioClip, resources, director, Dir
 import { GameAudio } from './GameAudio';
 import { AmbienceAudio } from './AmbienceAudio';
 const { ccclass } = _decorator;
+
+/** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
+function musicBed(): number {
+  const audio: any = GameAudio.instance;
+  if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
+  const value = Number(audio.getMusicVolume());
+  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
+}
 
 export type ApronLiftStrength = 'full' | 'soft';
 
@@ -248,7 +257,14 @@ export class WindAudio extends Component {
     if (this.sWind < 1e-4 && wind === 0) this.sWind = 0;
     AmbienceAudio.setWindExit(this.sWind);
     WindAudio.duckBgm(this.s);   // BGM 让风：GameAudio 里 -4 dB x smoothstep(0.2, 1, s)，0.5 s 平滑
-    const sv = softGain(this.s) * WIND_MAX_VOL, st = strongGain(this.s) * WIND_MAX_VOL;
+    const music = musicBed();
+    if (music <= 0) {
+      for (const src of [this.softSrc, this.strongSrc]) if (src) src.volume = 0;
+      this.pauseLoops();
+      this.quietFor = IDLE_PAUSE_S;
+      return;
+    }
+    const sv = softGain(this.s) * WIND_MAX_VOL * music, st = strongGain(this.s) * WIND_MAX_VOL * music;
     if (sv < ON_GAIN && st < ON_GAIN) {
       this.quietFor += dt;
       for (const src of [this.softSrc, this.strongSrc]) if (src) src.volume = 0;

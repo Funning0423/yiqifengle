@@ -141,19 +141,45 @@ export function artSlider(parent: Node, tint: TintSet, x: number, y: number, w: 
   const node = uiNode(name, parent, w + h * 2, Math.max(h * 2.6, 88)); node.setPosition(x, y, 0);
   const rail = artSprite(node, 'popup/toggle_off', 0, 0, w, h, 'Rail'); tint.sprite(rail, 'ui');
   const fill = artSprite(node, 'popup/toggle_on', 0, 0, w, h, 'Fill'); tint.sprite(fill, 'ui');
-  fill.node.getComponent(UITransform)!.setAnchorPoint(0, 0.5);
+  const fillUi = fill.node.getComponent(UITransform)!; fillUi.setAnchorPoint(0, 0.5);
   const knob = artSprite(node, 'popup/toggle_knob', 0, 0, h * 1.5, h * 1.5, 'Knob'); tint.sprite(knob, 'ui');
   let v = Math.max(0, Math.min(1, value));
-  const paint = () => { const fw = Math.max(h, w * v); fill.node.setPosition(-w / 2, 0, 0); fill.node.getComponent(UITransform)!.setContentSize(fw, h); knob.node.setPosition(-w / 2 + fw - h * 0.5, 0, 0); };
+  const paint = () => {
+    fill.node.active = v > 0.001; fill.node.setPosition(-w / 2, 0, 0);
+    if (v > 0.001) fillUi.setContentSize(Math.max(w * v, 0.01), h);
+    knob.node.setPosition(-w / 2 + w * v, 0, 0);
+  };
   paint();
-  let startX = 0, startV = v;
-  const scaleX = () => { let k = 1, n: Node | null = node; while (n) { k *= n.scale.x || 1; n = n.parent; } return k; };
-  node.on(Node.EventType.TOUCH_START, (e: EventTouch) => { e.propagationStopped = true; startX = e.getUILocation().x; startV = v; });
-  node.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => {
-    e.propagationStopped = true; const next = Math.max(0, Math.min(1, startV + (e.getUILocation().x - startX) / (w * scaleX())));
-    if (Math.abs(next - v) < 0.005) return; v = next; paint(); change(v);
+  let pointer: number | null = null, startX = 0, startV = v, startLocal: number | null = null;
+  const pointerId = (e: EventTouch) => (typeof e.getID === 'function' ? e.getID() : 0);
+  const worldScaleX = () => { let k = 1, n: Node | null = node; while (n) { const s = n.scale.x; k *= s ? s : 1; n = n.parent; } return k || 1; };
+  const localX = (e: EventTouch): number | null => {
+    const ui = node.getComponent(UITransform) as (UITransform & { convertToNodeSpaceAR?: (p: Vec3) => Vec3 }) | null;
+    const p = e.getUILocation(); if (!ui || !p || typeof ui.convertToNodeSpaceAR !== 'function') return null;
+    const n = ui.convertToNodeSpaceAR(new Vec3(p.x, p.y, 0)); return Number.isFinite(n.x) ? n.x : null;
+  };
+  // Relative to the grab point, so the knob does not jump. Local space when the UI transform can convert; otherwise screen delta / world scale.
+  const read = (e: EventTouch) => {
+    const lx = localX(e);
+    if (lx !== null && startLocal !== null) return startV + (lx - startLocal) / w;
+    return startV + (e.getUILocation().x - startX) / (w * worldScaleX());
+  };
+  const commit = (next: number) => { if (!Number.isFinite(next)) next = v; v = Math.max(0, Math.min(1, next)); paint(); change(v); };
+  node.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
+    e.propagationStopped = true; pointer = pointerId(e); startX = e.getUILocation().x; startV = v; startLocal = localX(e);
   });
-  node.on(Node.EventType.TOUCH_END, (e: EventTouch) => { e.propagationStopped = true; playSound('button'); });
+  node.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => {
+    if (pointerId(e) !== pointer) return;
+    e.propagationStopped = true; const next = Math.max(0, Math.min(1, read(e)));
+    if (Math.abs(next - v) < 0.001) return; commit(next);
+  });
+  // Release (and a drag that leaves the hit box, which Cocos reports as cancel) keeps the last value. It does not snap back.
+  const finish = (e: EventTouch, sound: boolean) => {
+    if (pointerId(e) !== pointer) return;
+    e.propagationStopped = true; pointer = null; commit(read(e)); if (sound) playSound('button');
+  };
+  node.on(Node.EventType.TOUCH_END, (e: EventTouch) => finish(e, true));
+  node.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => finish(e, false));
   return { node, set(next: number) { v = Math.max(0, Math.min(1, next)); paint(); }, value: () => v };
 }
 export interface PanelOptions {
