@@ -1,6 +1,6 @@
 import { ManagedToolArt } from './ManagedToolArt';
 import { managedTools, TOOL_NAMES, type ManagedTool } from './world-r2/ManagedTools';
-import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, isValid } from 'cc';
+import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid } from 'cc';
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
@@ -72,8 +72,8 @@ export class ManagedMobileBoardUI extends Component {
       const n = this.box('Tile-' + i, this.grid, 0, 0, 50, 50);
       this.tint.sprite(this.sprite(n, PIECE_KEYS[0], 'ProjectPieceArt'), 'ui');
       n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (this.modalOpen() || this.snapshot?.state !== 'run.ready' || this.snapshot?.readOnly) return; this.dragStart = { index: i, point: e.getLocation() }; }, this);
-      n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.dragStart; if (!d || d.consumed || d.index !== i) return; const p = e.getLocation(), dx = p.x - d.point.x, dy = p.y - d.point.y; if (Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(18, this.cell * .35)) return; d.consumed = true; if (this.armedTool) return; const j = i + (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : (dy > 0 ? -7 : 7)); if (j >= 0 && j < 49 && Math.abs(i % 7 - j % 7) + Math.abs(Math.floor(i / 7) - Math.floor(j / 7)) === 1) this.swap(i, j); }, this);
-      n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { const d = this.dragStart; this.dragStart = null; if (e && d && d.index === i) GameAudio.notifyUserGesture(); if (d && d.index === i && !d.consumed) this.tap(i); }, this);
+      n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.dragStart; if (!d || d.consumed || d.index !== i) return; const p = e.getLocation(), dx = p.x - d.point.x, dy = p.y - d.point.y; if (Math.max(Math.abs(dx), Math.abs(dy)) < Math.min(18, this.cell * .35)) return; d.consumed = true; if (this.armedTool) return; const j = i + (Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : (dy > 0 ? -7 : 7)); if (j >= 0 && j < 49 && Math.abs(i % 7 - j % 7) + Math.abs(Math.floor(i / 7) - Math.floor(j / 7)) === 1) d.aim = j; }, this);
+      n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { const d = this.dragStart; this.dragStart = null; if (e && d && d.index === i) GameAudio.notifyUserGesture(); if (!d || d.index !== i) return; if (d.consumed) { if (typeof d.aim === 'number') this.swap(i, d.aim); return; } this.tap(i); }, this);
       n.on(Node.EventType.TOUCH_CANCEL, () => { this.dragStart = null; this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this); this.cells.push(n);
     }
     for (const name of ['Over', 'Covers', 'Marks', 'BeaconArt']) this.layers[name] = this.box(name, this.grid, 0, 0, 1, 1);
@@ -138,7 +138,7 @@ export class ManagedMobileBoardUI extends Component {
   }
   // ---------------- tools ----------------
   private toolArt!: ManagedToolArt; private armedTool: string | null = null; private toolTapAccepted = false;
-  private toolDrag: { kind: string, slot: number, pointer: number, start: { x: number, y: number }, moved: boolean, version: string } | null = null; private toolGhost: Node | null = null;
+  private toolDrag: { kind: string, slot: number, pointer: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string } | null = null; private toolGhost: Node | null = null;
   private toolCatalog(): ManagedTool[] { return this.managed?.tools?.() || managedTools(this.snapshot); }
   private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = []; for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); } return out; }
   private toolVersion() { const a = this.snapshot?.active; return `${a?.attemptId || a?.stageId}:${a?.actions?.length ?? a?.turn ?? 0}:${a?.version ?? 0}`; }
@@ -179,7 +179,31 @@ export class ManagedMobileBoardUI extends Component {
     const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); }
     const sprite = this.toolGhost.getComponent(Sprite)!; sprite.sizeMode = Sprite.SizeMode.CUSTOM; sprite.spriteFrame = this.toolFrame(this.toolDrag!.kind);
     const ghost = toolDisplaySize(this.toolDrag!.kind, 56); this.toolGhost.getComponent(UITransform)!.setContentSize(ghost.width, ghost.height);
-    this.toolGhost.active = true; this.toolGhost.setSiblingIndex(this.root.children.length - 1); this.toolGhost.setWorldPosition(x - d.width / 2, y - d.height / 2 + 28, 0);
+    this.toolGhost.active = true; this.toolGhost.setSiblingIndex(this.root.children.length - 1); this.toolGhost.setWorldPosition(x - d.width / 2, y - d.height / 2, 0);
+  }
+  /** Pin the ghost to the pointer every frame while the finger is down. No fixed lift. */
+  private followGhost() {
+    const d = this.toolDrag;
+    if (!d || !d.moved || !d.point || this.disposing || !this.layoutInfo) return;
+    if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; }
+    const live = this.livePoint(d.pointer);
+    if (live) { d.point.x = live.x; d.point.y = live.y; }
+    this.moveGhost(d.point.x, d.point.y);
+    const i = this.cellAt(d.point.x, d.point.y);
+    if (i !== this.selected) { this.selected = i; this.paint(); }
+  }
+  /** Latest finger from the engine touch list. Headless doubles keep the last move point. */
+  private livePoint(id: number) {
+    let list: any = null;
+    try { const src: any = input; if (src && typeof src.getAllTouches === 'function') list = src.getAllTouches(); } catch (err) { list = null; }
+    if (!list || !list.length) return null;
+    for (let n = 0; n < list.length; n++) {
+      const t = list[n];
+      if (!t || typeof t.getID !== 'function' || t.getID() !== id || typeof t.getUILocation !== 'function') continue;
+      const p = t.getUILocation();
+      if (p && typeof p.x === 'number' && typeof p.y === 'number') return p;
+    }
+    return null;
   }
   private toolFrame(kind: string) { const key = TOOL_KEYS[kind]; return (key && BoardArt.shared().frame(key)) || this.toolArt?.frame(kind) || null; }
   private endToolDrag(e: EventTouch, slot?: number) {
@@ -197,10 +221,10 @@ export class ManagedMobileBoardUI extends Component {
     const sel = this.box('ToolSelection', face, 0, 0, 64, 64); sel.addComponent(Graphics);
     const art = this.box('OriginalToolArt', face, 0, 0, 60, 60); this.tint.sprite(art.addComponent(Sprite), 'ui'); art.addComponent(Graphics); art.addComponent(UIOpacity);
     const count = this.box('ToolCount', face, 22, 21, 24, 24); count.addComponent(Graphics); const q = makeLabel(count, '', 0, 0, 14, { width: 26, name: 'Quantity' }); this.tint.label(q, 'brown');
-    n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (this.toolDrag || !this.canUseTools()) return; const tool = this.barTools()[slot]; if (!tool?.available) { this.cancelToolInput(); this.paintToolTray(); this.paint(); this.say(tool?.reason || '本关没有可用道具'); return; } this.toolTapAccepted = false; const p = e.getUILocation(); face.setPosition(0, -3, 0); this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), start: { x: p.x, y: p.y }, moved: false, version: this.toolVersion() }; }, this);
-    n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.toolDrag; if (!d || d.pointer !== e.getID()) return; if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; } const p = e.getUILocation(); if (!d.moved && Math.hypot(p.x - d.start.x, p.y - d.start.y) < 12) return; d.moved = true; this.armedTool = null; this.moveGhost(p.x, p.y); const i = this.cellAt(p.x, p.y); if (i !== this.selected) { this.selected = i; this.paint(); } this.paintToolTray(); }, this);
+    n.on(Node.EventType.TOUCH_START, (e: EventTouch) => { this.input(); if (this.toolDrag || !this.canUseTools()) return; const tool = this.barTools()[slot]; if (!tool?.available) { this.cancelToolInput(); this.paintToolTray(); this.paint(); this.say(tool?.reason || '本关没有可用道具'); return; } this.toolTapAccepted = false; const p = e.getUILocation(); face.setPosition(0, -3, 0); this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, moved: false, version: this.toolVersion() }; }, this);
+    n.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => { const d = this.toolDrag; if (!d || d.pointer !== e.getID()) return; if (!this.canUseTools() || d.version !== this.toolVersion()) { this.cancelToolInput(); this.paintToolTray(); return; } const p = e.getUILocation(); d.point.x = p.x; d.point.y = p.y; if (!d.moved && Math.hypot(p.x - d.start.x, p.y - d.start.y) < 12) return; d.moved = true; this.armedTool = null; this.moveGhost(p.x, p.y); const i = this.cellAt(p.x, p.y); if (i !== this.selected) { this.selected = i; this.paint(); } this.paintToolTray(); }, this);
     n.on(Node.EventType.TOUCH_END, (e: EventTouch) => { face.setPosition(0, 0, 0); this.endToolDrag(e, slot); }, this);
-    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { face.setPosition(0, 0, 0); if (this.toolDrag?.pointer !== e.getID()) return; if (e.getEventCode() === Node.EventType.TOUCH_END) { this.endToolDrag(e, slot); return; } this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this);
+    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { face.setPosition(0, 0, 0); if (this.toolDrag?.pointer !== e.getID()) return; this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this);
     return n;
   }
   private paintToolTray() {
@@ -458,6 +482,7 @@ export class ManagedMobileBoardUI extends Component {
   }
   update(dt: number) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
+    this.followGhost();
     this.tint.update(); this.popups.update(dt);
     const s = this.snapshot, active = !!s && s.state === 'run.ready' && !s.readOnly && !this.modalOpen() && !this.armedTool && !this.toolDrag && !this.dragStart && (typeof this.managed?.hint === 'function' || !!s.active?.guide);
     if (this.hintClock.tick(dt, active)) this.autoHint();
