@@ -1996,8 +1996,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 18992,
-    "sha256": "29acf3b7e506ffa6bf8385370355cf7b3f499b3cec5a2e773fe33199db989ee9"
+    "bytes": 18796,
+    "sha256": "39e8c216566a4d359f34b89bdfcc9e54b9b3c2c6257a734b658aacdc24cad31d"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",
