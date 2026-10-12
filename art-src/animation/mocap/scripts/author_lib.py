@@ -410,10 +410,13 @@ def locals_with_walk_pose(rig, ctx, Q, T, weight, arms=True, leg=True):
     return Q2
 
 
-# The thin-axis _palm_local aims at the thigh is the face a side camera already sees as a
-# board. On the device that board reads as the palm (fingers spread, flat toward the lens).
-# The other face is the back of the hand. Roll both forearms so the palm faces the thigh
-# and a little downward: from the side the back of the hand shows, not the whole palm.
+# The thin-axis _palm_local that an earlier bake aimed at the thigh is the back of the hand.
+# The face a side camera sees as a board is the opposite one. Turning that face toward the
+# skirt by spinning the forearm ~180° shears the elbow (upper_arm and forearm share the
+# joint) and swings the forearm mesh. Spin the hand around the finger axis instead: the
+# fingers keep their direction, the wrist stays put, and the elbow is not rolled.
+# A forearm that is already ~180° off the upper arm is unrolled about its own long axis
+# first, hand included, so the elbow mesh meets again. upper_arm is never written.
 # Feet: her left boot stays toe-up through the whole plant, and the swing boot yaws out.
 # Lock a planted shoe flat and forward on the contact point's existing clip path (that path
 # already cancels root motion, so sole points do not pick up slide). Swing yaw is clamped
@@ -434,6 +437,46 @@ def _visual_palm_aim(side):
 
 def _code_aim_for_visual_palm(side):
     return -_visual_palm_aim(side)
+
+
+_FINGER_LOCAL = {}
+# The intact walk keeps this twist under about 35°. The broken bake sits near 180°.
+ELBOW_INTACT_RAD = np.radians(50.0)
+
+
+def _finger_local(rig):
+    """Unit fingertip direction in each hand bone's rest frame (wrist -> farthest hand vertices)."""
+    key = id(rig)
+    if key in _FINGER_LOCAL:
+        return _FINGER_LOCAL[key]
+    md = rig.mesh_data('LOD0_G2_BODY')
+    V = rig.skin(md, rig.rest_world)
+    dom = md['J'][np.arange(len(md['J'])), md['W'].argmax(1)]
+    out = {}
+    for s in 'LR':
+        fi = rig.idx['hand.' + s]
+        d = V[dom == fi] - rig.rest_world[fi, :3, 3]
+        far = d[np.argsort(np.linalg.norm(d, axis=-1))[-20:]].mean(0)
+        far = far / np.linalg.norm(far)
+        R = rig.rest_world[fi, :3, :3]
+        R = R / np.linalg.norm(R, axis=0)
+        out[s] = R.T @ far
+    _FINGER_LOCAL[key] = out
+    return out
+
+
+def _elbow_twist(Ru, Rf):
+    """Radians of forearm X relative to upper-arm X, about the forearm long axis.
+    Near 0 the elbow blend stays on the upper arm. ~180 shears it."""
+    axis = Rf[:, :, 1]
+    axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
+
+    def proj(v):
+        v = v - axis * np.sum(axis * v, 1, keepdims=True)
+        return v / np.maximum(np.linalg.norm(v, axis=1, keepdims=True), 1e-9)
+
+    ux, fx = proj(Ru[:, :, 0]), proj(Rf[:, :, 0])
+    return np.arctan2(np.sum(np.cross(ux, fx) * axis, 1), np.sum(ux * fx, 1))
 
 
 _SOLE_BAND = {}
@@ -517,11 +560,13 @@ def _limit_foot_yaw(R, toe_local, lim_deg):
     return np.einsum('nij,njk->nik', Ry, R)
 
 
-def correct_walk_side(rig, ctx, Q, T, weight, periodic=False):
+def correct_walk_side(rig, ctx, Q, T, weight, periodic=False, palms_only=False):
     """Local quats for one walk clip.
 
-    Palms: roll both forearms so the face the side camera was seeing (the player's palm)
-    points at the thigh and slightly down. The back of the hand turns outward.
+    Palms: roll each hand about the finger axis so the face the side camera was seeing
+    points at the thigh and slightly down. The back of the hand turns outward. The
+    forearm is only touched to undo a previous ~180° roll that sheared the elbow.
+    upper_arm is left alone. palms_only skips the feet (they are already planted).
     Feet: a planted shoe is set flat and forward, riding the contact point's original
     clip path (narrowed when the plant is wider than STANCE_X_M). A swinging shoe's
     yaw is clamped so it lands along that path. Frames with weight 0 are copied through.
@@ -537,7 +582,7 @@ def correct_walk_side(rig, ctx, Q, T, weight, periodic=False):
     bands = sole_band_local(rig)
     info = {}
 
-    for s in 'LR':
+    for s in (() if palms_only else 'LR'):
         ft = 'foot.' + s
         j = rig.idx[ft]
         R0 = Wr[ft]
@@ -689,20 +734,40 @@ def correct_walk_side(rig, ctx, Q, T, weight, periodic=False):
 
     # palms after the legs, so a foot IK cannot touch the arms
     local = _palm_local(ctx)
+    fingers = _finger_local(rig)
     for s in 'LR':
-        fa, ha = 'forearm.' + s, 'hand.' + s
+        fa, ha, ua = 'forearm.' + s, 'hand.' + s, 'upper_arm.' + s
+        twist = _elbow_twist(Wr[ua], Wr[fa])
+        # Undo a forearm spin that took the code normal off the thigh, but only where
+        # that spin is still in the curves (walk weight) and the undo lands back inside
+        # the intact elbow band. Idle frames are not at that aim; leave them.
         axis = Wr[fa][:, :, 1]
         axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
-        n = np.einsum('nij,j->ni', Wr[ha], local[s])
-        desired = _code_aim_for_visual_palm(s)
+        code_n = np.einsum('nij,j->ni', Wr[ha], local[s])
+        back_to = _palm_aim(s)
+        back_to = back_to / np.linalg.norm(back_to)
+        undo = _aim_angle(axis, code_n, back_to)
+        landed = (twist + undo + np.pi) % (2 * np.pi) - np.pi
+        inside = np.abs(landed) <= ELBOW_INTACT_RAD
+        use = np.where((weight > 0.15) & inside, undo, 0.0)
+        pull = -np.sign(twist) * (np.abs(twist) - np.radians(40.0))
+        use = np.where((weight > 0.15) & ~inside & (np.abs(twist) > np.radians(50.0)), pull, use)
+        if np.any(use != 0.0):
+            Rd = RG.rotvec2m(axis * use[:, None])
+            Wr[fa] = np.einsum('nij,njk->nik', Rd, Wr[fa])
+            Wr[ha] = np.einsum('nij,njk->nik', Rd, Wr[ha])
+        axis = np.einsum('nij,j->ni', Wr[ha], fingers[s])
+        axis = axis / np.maximum(np.linalg.norm(axis, axis=1, keepdims=True), 1e-9)
+        vis = -np.einsum('nij,j->ni', Wr[ha], local[s])
+        desired = _visual_palm_aim(s)
         desired = desired / np.linalg.norm(desired)
-        ang = _aim_angle(axis, n, desired) * weight
+        ang = _aim_angle(axis, vis, desired) * weight
         Rd = RG.rotvec2m(axis * ang[:, None])
-        Wr[fa] = np.einsum('nij,njk->nik', Rd, Wr[fa])
         Wr[ha] = np.einsum('nij,njk->nik', Rd, Wr[ha])
 
-    changed = ['thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R',
-               'forearm.L', 'hand.L', 'forearm.R', 'hand.R']
+    changed = ['forearm.L', 'hand.L', 'forearm.R', 'hand.R']
+    if not palms_only:
+        changed = ['thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R'] + changed
     worldR = {nm: np.array(Wr[nm] if nm in Wr else (W[:, rig.idx[nm], :3, :3] / np.linalg.norm(W[:, rig.idx[nm], :3, :3], axis=-2, keepdims=True)), copy=True)
               for nm in rig.names}
     # world_from_local stored every bone; Wr was that dict, mutated in place
