@@ -18,6 +18,7 @@ import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterM
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
 import {FIRSTSLICE} from './world-r1/FirstsliceFacts';
 import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/WorldFlowCore';
+import {SitStaticSwap,SIT_SWAP_FADE_S} from './world-r1/SitStaticSwap';
 import {StartupReadyGate,StartupAttempt,StartupCancelled} from './world-r2/StartupReadyGate';
 import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
 import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
@@ -44,6 +45,8 @@ class FlowReferenceStandin implements CharacterAdapter {
  private restAhead:((path:readonly (readonly number[])[])=>number|null)|null=null;private lastFoot:Body|null=null;private lastFootEmit:{bone:string;clip:string;t:number}|null=null;private footDeduped=0;private motionT=0;
  private lastSpeed=0;private stopRoot:{clip:string;end:[number,number,number];yaw:number;S:number;scale:number;forward:Array<[number,number]>;lateral:Array<[number,number]>|null}|null=null;private stopHold=0;private lastPlan:any=null;
  private morphs:MorphDriver[]=[];private morphW:{[target:string]:number}={};private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
+ private sitNode:Node|null=null;private sitSwap:SitStaticSwap|null=null;private skelRs:MeshRenderer[]=[];private sitRs:MeshRenderer[]=[];
+ private fadeRec:{r:MeshRenderer;slot:number;shared:Material;copy:Material|null}[]=[];
  constructor(private node:Node){}
  private motionEvents:any[]=[];
  private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
@@ -71,6 +74,29 @@ class FlowReferenceStandin implements CharacterAdapter {
   let rs:any[]=[];try{rs=typeof (visual as any).getComponentsInChildren==='function'?(visual as any).getComponentsInChildren(MeshRenderer)||[]:[];}catch{rs=[];}
   this.morphs=this.motionConfig.morphMeshes.map(b=>{const m=new MorphDriver(b.mesh,b.targets);m.bind(rs);return m;});
   this.playNamed('sit_hold',true,0);}
+ /** Boneless sitting mesh, sibling of the girl under the same controller. Missing asset leaves the skeletal sit_hold path. */
+ attachSit(girl:Node,sit:Node){if(this.disposed)return;this.sitNode=sit;this.sitSwap=new SitStaticSwap();
+  this.skelRs=this.meshRenderers(girl);this.sitRs=this.meshRenderers(sit);
+  const byName:any={};
+  for(let i=0;i<this.skelRs.length;i++){const mats=this.skelRs[i].sharedMaterials||[];for(let s=0;s<mats.length;s++){const m=mats[s];if(m&&m.name)byName[String(m.name).split('.')[0]]=m;}}
+  for(let i=0;i<this.sitRs.length;i++){const r=this.sitRs[i];const mats=r.sharedMaterials||[];for(let s=0;s<mats.length;s++){const m=mats[s];if(!m||!m.name)continue;const shared=byName[String(m.name).split('.')[0]];if(shared){try{r.setSharedMaterial(shared,s);}catch(e){console.warn('sit material rebind failed',String(e));}}}}
+  this.fadeRec=[];this.bindFade(this.skelRs);this.bindFade(this.sitRs);this.sitSwap.showStatic();this.applySitVisual();}
+ private meshRenderers(node:Node):MeshRenderer[]{const out:MeshRenderer[]=[];const stack:Node[]=[node];
+  while(stack.length){const n=stack.pop()!;const r=n.getComponent(MeshRenderer);if(r)out.push(r);const ch=n.children;for(let i=0;i<ch.length;i++)stack.push(ch[i]);}
+  return out;}
+ private bindFade(list:MeshRenderer[]){for(let i=0;i<list.length;i++){const r=list[i];const mats=r.sharedMaterials||[];for(let s=0;s<mats.length;s++){const shared=mats[s];if(shared)this.fadeRec.push({r,slot:s,shared,copy:null});}}}
+ private paintAlpha(r:MeshRenderer,alpha:number){if(alpha<=0.001){r.enabled=false;return;}r.enabled=true;
+  for(let i=0;i<this.fadeRec.length;i++){const f=this.fadeRec[i];if(f.r!==r)continue;
+   if(alpha>=0.999){if(f.copy){try{r.setSharedMaterial(f.shared,f.slot);}catch(e){}f.copy.destroy();f.copy=null;}continue;}
+   if(!f.copy){try{const tech=f.shared.effectAsset&&f.shared.effectAsset.techniques?f.shared.effectAsset.techniques.findIndex(t=>t&&t.name==='transparent'):-1;if(tech<0)continue;const m=new Material();m.copy(f.shared,{technique:tech});f.copy=m;r.setMaterial(m,f.slot);}catch(e){continue;}}
+   try{const m=f.copy;if(!m)continue;let c:any=null;try{c=m.getProperty('mainColor');}catch{c=null;}if(!c)try{c=m.getProperty('albedo');}catch{c=null;}
+    if(c&&c.clone){const n=c.clone();n.a=Math.round(255*alpha);try{m.setProperty('mainColor',n);}catch{try{m.setProperty('albedo',n);}catch{/* alpha unsupported: the 0.3s still elapses, then the renderer toggles */}}}}catch{/* keep the delay */}}}
+ private applySitVisual(){const s=this.sitSwap;if(!s)return;for(let i=0;i<this.skelRs.length;i++)this.paintAlpha(this.skelRs[i],s.skel);for(let i=0;i<this.sitRs.length;i++)this.paintAlpha(this.sitRs[i],s.stat);
+  if(this.sitNode)this.sitNode.active=s.stat>0.001;}
+ /** sit_down last frame (same pose as stand_up frame 0) so the crossfade does not jump. */
+ private holdSitEnd(){const d=this.actionSeconds('sit');if(d)this.playNamed(CLIP_ROLES.sitDown,false,0,false,Math.max(0,d-1/60));}
+ /** Seconds to fade the fixed mesh off before stand_up. 0 when the skeleton is already showing (leave snaps). */
+ beginStandFade():number{if(!this.sitNode||!this.sitSwap||this.sitSwap.phase==='skeletal'||this.sitSwap.phase==='to-skeletal')return 0;this.holdSitEnd();this.sitSwap.fadeToSkeletal();this.applySitVisual();return SIT_SWAP_FADE_S;}
  private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
  /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
  private playNamed(name:string,loop:boolean,fade=-1,keep=false,time=0){if(this.disposed||!this.clock)return;
@@ -191,9 +217,12 @@ class FlowReferenceStandin implements CharacterAdapter {
   else if(r.ended&&(!this.job||this.job.foldS>0||this.isStopClip(r.ended))&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp){if(this.isStopClip(r.ended))this.beginStopHold();else{const hm=c.meta(r.ended);if(this.stopRoot&&this.stopRoot.clip===r.ended)this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,hm&&hm.handoff&&hm.handoff.crossfade!==undefined?hm.handoff.crossfade:-1,true);}}
   this.idleGustTick(step);
   this.render();
-  if(j&&j.elapsed+1e-6>=j.duration){if(j.action.kind==='turn'&&j.foldS>0){j.elapsed=j.duration;this.setYaw(j.fromYaw+j.deltaYaw);this.yaw.reset(this.yawRad);}const kind=j.action.kind;j.off();this.job=null;
+  if(this.sitSwap&&this.sitSwap.busy()){this.sitSwap.advance(step);this.applySitVisual();}
+  if(j&&j.elapsed+1e-6>=j.duration){if(j.action.kind==='turn'&&j.foldS>0){j.elapsed=j.duration;this.setYaw(j.fromYaw+j.deltaYaw);this.yaw.reset(this.yawRad);}const kind=j.action.kind;
+   if(kind==='sit'&&this.sitNode&&this.sitSwap&&this.sitSwap.phase!=='static'){if(!j.sitFade){j.sitFade=1;this.holdSitEnd();this.sitSwap.fadeToStatic();this.applySitVisual();}this.tickStopHold(step);return;}
+   j.off();this.job=null;
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
-   else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
+   else if(kind==='sit'){if(!(this.sitNode&&this.sitSwap))this.playNamed(CLIP_ROLES.sitHold,true);}else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
    j.resolve();}
   this.tickStopHold(step);
  }
@@ -214,7 +243,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   }
   let duration:number;const extra:any={};
   try{
-   if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
+   if(action.kind==='stand'){if(this.sitNode&&this.sitSwap&&this.sitSwap.phase!=='skeletal'){this.holdSitEnd();this.sitSwap.showSkeletal();this.applySitVisual();}duration=this.playNamed(CLIP_ROLES.standUp,false)!;}
    else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
    else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;
     extra.plan=Number.isFinite(duration)&&duration>0?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
@@ -241,11 +270,12 @@ class FlowReferenceStandin implements CharacterAdapter {
   const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
   this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
   if(!inPlace||pose.kind==='seated')this.stopRoot=null;
-  if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
+  if(pose.kind==='seated'){this.pendingIdle=false;if(this.sitNode&&this.sitSwap){this.holdSitEnd();this.sitSwap.showStatic();this.applySitVisual();}else this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
   else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
   else{this.pendingIdle=false;this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
  setVisible(v:boolean){if(!this.disposed)this.node.active=v;}
- dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
+ dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];
+  for(let i=0;i<this.fadeRec.length;i++){const c=this.fadeRec[i].copy;if(c){try{c.destroy();}catch(e){}}}this.fadeRec=[];this.sitSwap=null;this.sitNode=null;this.node.destroy();}
 }
 /** Cocos side of the pose pipeline. Blend mode (useBakedAnimation=false): the evaluator writes joint nodes synchronously
  * (AnimationClip.enableTrsBlending=false, states never played), so the driver samples, captures and mixes itself:
@@ -297,7 +327,7 @@ export class WorldIntegrationBoot extends Component {
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
- private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private characterPrefab:Prefab|null=null;private sitPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private doorReached=false;
@@ -315,8 +345,8 @@ export class WorldIntegrationBoot extends Component {
    if(this.loadingBackdrop)this.loadingBackdrop.active=true;if(this.loadingMask)this.loadingMask.active=true;
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
-    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta()]);attempt.check();const character=loaded[0];
-    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
+    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),this.loadSitStatic()]);attempt.check();const character=loaded[0];
+    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.sitPrefab=loaded[2];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
     this.revealRoom();this.paintNavigation();this.resize();
@@ -342,6 +372,8 @@ export class WorldIntegrationBoot extends Component {
   * checks the effect is registered, falls back to builtin-unlit, and never blocks startup. */
  /** Optional walk-driver data (docs/walk-driver.md): region_island character/anim_meta.json. Never blocks or fails startup. */
  private loadAnimMeta(){return new Promise<any>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('character/anim_meta',JsonAsset,(e:any,a:any)=>ok(e||!a?null:a.json));}catch{ok(null);}});}
+ /** Fixed sitting mesh. A missing file must not fail startup (the skeletal sit_hold path stays). */
+ private loadSitStatic(){return new Promise<Prefab|null>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('sit-static/chr_sit_static',Prefab,(e:any,a:any)=>ok(e||!a?null:a));}catch{ok(null);}});}
  private loadCharacter(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Character bundle missing'));b.loadDir('character',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one interim character prefab'));ok(list[0]);});});}
  private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
   try{const pick=(n:string)=>EffectAsset.get(n)?n:null;const effect=pick('builtin-standard')||pick('builtin-unlit');
@@ -366,6 +398,7 @@ export class WorldIntegrationBoot extends Component {
  for(const a of animations){a.playOnLoad=false;a.stop();}
  for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
  (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
+ if(this.sitPrefab){try{const sit=instantiate(this.sitPrefab);sit.name='SIT_STATIC';sit.setPosition(0,0,0);sit.setRotationFromEuler(0,0,0);sit.setScale(1,1,1);reference.addChild(sit);(this as any)._referenceAdapter.attachSit(girl,sit);}catch(e){console.warn('sit static unavailable',String(e));}}
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
  await composition.initializeWorld();attempt.check();

@@ -206,14 +206,16 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
       if(o>90&&!fo.ahead)fo.ahead={t:+f.t.toFixed(3),state:f.state,offBehindDeg:+o.toFixed(1)};
       if((o>FL.maxOffBehindDeg||d<dMin||d>dMax||h<hMin||h>hMax)&&!fo.first)fo.first={t:+f.t.toFixed(3),state:f.state,offBehindDeg:+o.toFixed(1),distance:+d.toFixed(3),height:+h.toFixed(3)};}
     const leadS=f0>0&&ci>0?(ci-f0)*dt:0,follow=f0>0&&si>f0&&!fo.first&&!fo.ahead&&fo.dStep<=FL.maxDistStepM&&leadS>=FL.minLeadS;
-    // (3) home landing: the sit segment is the runtime sit length; the lens leaves the follow band only once she sits
-    const seated=cfg.seat.seatedControllerRoot,sd=si>0?F.findIndex((f,k)=>k>=si&&Math.hypot(f.root[0]-seated[0],f.root[1]-seated[1],f.root[2]-seated[2])<1e-3):-1;
-    const sitS=si>0&&hm>si?(hm-si)*dt:null,seatedS=sd>0?(sd-si)*dt:null,landing=sitS!==null&&seatedS!==null&&Math.abs(sitS-seatedS)<=1.5*dt;
+    // (3) home landing: the sitting segment keeps the runtime sit length (turn + sit clip). She stays at the
+    // window (standingControllerRoot) for that whole segment; the lens still lands when the segment ends.
+    const standing=cfg.seat.standingControllerRoot;let maxAway=0;
+    if(si>0&&hm>si)for(let i=si;i<hm;i++){const f=F[i];maxAway=Math.max(maxAway,Math.hypot(f.root[0]-standing[0],f.root[1]-standing[1],f.root[2]-standing[2]));}
+    const sitS=si>0&&hm>si?(hm-si)*dt:null,landing=sitS!==null&&maxAway<0.05;
     check('return-entry-continuous',cont&&follow&&landing,{window:win.length?{from:+F[a].t.toFixed(3),to:+F[hm].t.toFixed(3)}:null,maxTurnPerFrameDeg:mt,maxMovePerFrameM:mm,maxFovPerFrameDeg:mf,
       maxAngAccelDegS2:aw,maxLinAccelMS2:av,longestStandstillS:+(stillMax*dt).toFixed(3),standstillEndsAt:stillAt,
       follow:{from:f0>0?+F[f0].t.toFixed(3):null,to:si>0?+F[si].t.toFixed(3):null,leadBeforeCrossingInS:+leadS.toFixed(2),maxOffBehindDeg:+fo.offBehindDeg.toFixed(1),distanceM:fo.dRange.map(v=>+v.toFixed(3)),band:[+dMin.toFixed(2),+dMax.toFixed(2)],
         maxDistStepM:+fo.dStep.toFixed(4),heightM:fo.hRange.map(v=>+v.toFixed(3)),aheadOfHer:fo.ahead,firstViolation:fo.first},
-      homeLanding:{sitStart:si>0?+F[si].t.toFixed(3):null,settledHome:hm>0?+F[hm].t.toFixed(3):null,lensLandsAfterSitStartS:sitS===null?null:+sitS.toFixed(3),sheIsSeatedAfterS:seatedS===null?null:+seatedS.toFixed(3)},limits:E});}
+      homeLanding:{sitStart:si>0?+F[si].t.toFixed(3):null,settledHome:hm>0?+F[hm].t.toFixed(3):null,lensLandsAfterSitStartS:sitS===null?null:+sitS.toFixed(3),maxRootAwayFromWindowM:+maxAway.toFixed(4)},limits:E});}
   // --- T5 w driven by camera segments: monotone within each transition (Voice bot polls getRoomLightWeight per frame)
   {let bad=null;const seg=(f)=>f.op+':'+(f.state==='crossing-out'||f.state==='island'?'out':f.state==='walking-home'||f.state==='crossing-in'?'in':f.state);
     for(let i=2;i<F.length;i++){const a=F[i-2].weight,b=F[i-1].weight,c=F[i].weight;if(seg(F[i])!==seg(F[i-2]))continue;if((b-a)*(c-b)<-1e-9&&!bad)bad={frame:i,t:+F[i].t.toFixed(3),state:F[i].state};}
