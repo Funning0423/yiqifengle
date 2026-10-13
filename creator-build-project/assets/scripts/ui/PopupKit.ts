@@ -1,4 +1,4 @@
-import { BlockInputEvents, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
+import { _decorator, Component, game, Game, BlockInputEvents, Color, EventTouch, Graphics, Label, Layers, Node, Sprite, UIOpacity, UITransform, Vec3, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
 import { ART_PX, BoardArt } from './BoardArt';
 import { textRgb, tintRgb, uiNightWeight, type TextRole, type TintKind } from './NightTint';
@@ -79,21 +79,57 @@ export interface ArtButtonHandle {
   setKind(kind: 'primary' | 'secondary'): void;
 }
 export interface ButtonOptions { icon?: string; iconScale?: number; fontSize?: number; sound?: Sound; name?: string }
-/** Touch handling shared by every art button: press sinks 3 px and darkens 6 %, release inside fires `tap`. */
-export function pressable(node: Node, content: Node, tap: () => void, opts: { sound?: Sound; enabled?: () => boolean; onPress?: (down: boolean) => void } = {}) {
-  let down = false; const base = new Vec3();
+/** Button/slider ownership is scoped to the originating finger and one visible lifetime. */
+export interface PressHandle { cancel(): void; dispose(): void }
+const blockedPressRoots = new WeakSet<Node>();
+function pressNodeReady(node: Node) {
+  for (let n: Node | null = node; n; n = n.parent) if (!isValid(n, true) || !n.activeInHierarchy || blockedPressRoots.has(n)) return false;
+  return true;
+}
+@_decorator.ccclass('QfTouchInputLifecycle')
+class TouchInputLifecycle extends Component {
+  reset: () => void = () => {}; cleanup: () => void = () => {};
+  onDisable() { this.reset(); }
+  onDestroy() { try { this.reset(); } finally { this.cleanup(); } }
+}
+export function resetPresses(root: Node) {
+  if (!isValid(root, true)) return;
+  for (const guard of root.getComponentsInChildren(TouchInputLifecycle)) if (isValid(guard, true)) guard.reset();
+}
+function bindInputLifetime(node: Node, cancel: () => void) {
+  const guard = node.addComponent(TouchInputLifecycle); guard.reset = cancel;
+  const hide = () => cancel(); game.on(Game.EVENT_HIDE, hide);
+  const detach = () => { game.off(Game.EVENT_HIDE, hide); }; guard.cleanup = detach;
+  // The component itself may already have been destructed when its owner releases
+  // this handle. Keep detach in the closure rather than dereferencing its fields.
+  return () => { try { cancel(); } finally { detach(); } if (isValid(guard, true)) { guard.reset = () => {}; guard.cleanup = () => {}; } };
+}
+function pointerId(e: EventTouch | undefined) {
+  const id = e && typeof e.getID === 'function' ? e.getID() : null;
+  return typeof id === 'number' && Number.isFinite(id) ? id : null;
+}
+/** Press sinks 3px; leaving/re-entering changes feedback, but only an owner release inside activates. */
+export function pressable(node: Node, content: Node, tap: () => void, opts: { sound?: Sound; enabled?: () => boolean; onPress?: (down: boolean) => void } = {}): PressHandle {
+  let owner: number | null = null, down = false, disposed = false; const base = new Vec3();
+  const ready = () => !disposed && pressNodeReady(node) && (!opts.enabled || opts.enabled());
+  const hit = (e: EventTouch) => {
+    const p = e && typeof e.getLocation === 'function' ? e.getLocation() : null;
+    return !!p && Number.isFinite(p.x) && Number.isFinite(p.y) && !!node.getComponent(UITransform)?.hitTest(p, e.windowId);
+  };
   const press = (on: boolean) => {
     if (on === down) return; down = on;
-    if (on) { base.set(content.position); content.setPosition(base.x, base.y - 3, base.z); } else content.setPosition(base.x, base.y, base.z);
-    opts.onPress?.(on);
+    if (isValid(content, true)) { if (on) { base.set(content.position); content.setPosition(base.x, base.y - 3, base.z); } else content.setPosition(base.x, base.y, base.z); }
+    if (isValid(node, true) && isValid(content, true)) opts.onPress?.(on);
   };
-  node.on(Node.EventType.TOUCH_START, (e: EventTouch) => { e.propagationStopped = true; if (opts.enabled && !opts.enabled()) return; press(true); });
-  node.on(Node.EventType.TOUCH_CANCEL, () => press(false));
-  node.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
-    e.propagationStopped = true; const was = down; press(false);
-    if (!was || (opts.enabled && !opts.enabled())) return;
-    playSound(opts.sound || 'button'); tap();
-  });
+  const cancel = () => { owner = null; press(false); };
+  const start = (e: EventTouch) => { if (!e) return; e.propagationStopped = true; const id = pointerId(e); if (owner !== null || id === null || !ready() || !hit(e)) return; owner = id; press(true); };
+  const move = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; if (!ready()) { cancel(); return; } press(hit(e)); };
+  const abort = (e: EventTouch) => { if (owner !== null && pointerId(e) === owner) cancel(); };
+  const end = (e: EventTouch) => { if (owner === null || pointerId(e) !== owner) return; e.propagationStopped = true; const activate = ready() && hit(e); cancel(); if (!activate) return; GameAudio.notifyUserGesture(); playSound(opts.sound || 'button'); tap(); };
+  node.on(Node.EventType.TOUCH_START, start); node.on(Node.EventType.TOUCH_MOVE, move);
+  node.on(Node.EventType.TOUCH_CANCEL, abort); node.on(Node.EventType.TOUCH_END, end);
+  const cleanup = bindInputLifetime(node, cancel);
+  return { cancel, dispose() { if (disposed) return; disposed = true; cleanup(); if (isValid(node, true)) { node.off(Node.EventType.TOUCH_START, start); node.off(Node.EventType.TOUCH_MOVE, move); node.off(Node.EventType.TOUCH_CANCEL, abort); node.off(Node.EventType.TOUCH_END, end); } } };
 }
 export function artButton(parent: Node, tint: TintSet, kind: 'primary' | 'secondary', text: string, x: number, y: number, width: number, height: number, tap: () => void, opts: ButtonOptions = {}): ArtButtonHandle {
   const node = uiNode(opts.name || 'Button-' + text, parent, width, Math.max(height, 88)); node.setPosition(x, y, 0);
@@ -111,10 +147,10 @@ export function artButton(parent: Node, tint: TintSet, kind: 'primary' | 'second
   };
   layoutContent();
   let on = true; const op = node.addComponent(UIOpacity);
-  pressable(node, face, tap, { sound: opts.sound, enabled: () => on, onPress: d => tint.setBase(bg, d ? [240, 240, 240] : [255, 255, 255]) });
+  const inputGuard = pressable(node, face, tap, { sound: opts.sound, enabled: () => on, onPress: d => tint.setBase(bg, d ? [240, 240, 240] : [255, 255, 255]) });
   return {
     node, label,
-    setEnabled(v: boolean) { on = v; op.opacity = v ? 255 : 140; bg.grayscale = !v; if (icon) icon.grayscale = !v; },
+    setEnabled(v: boolean) { if (!v) inputGuard.cancel(); on = v; op.opacity = v ? 255 : 140; bg.grayscale = !v; if (icon) icon.grayscale = !v; },
     enabled: () => on,
     setText(t: string) { if (label) { label.string = t; layoutContent(); } },
     setKind(next) { if (next === k) return; k = next; const f = BoardArt.shared().frame(key()); if (f) bg.spriteFrame = f; if (label) tint.setRole(label, k === 'primary' ? 'white' : 'brown'); },
@@ -169,17 +205,19 @@ export function artSlider(parent: Node, tint: TintSet, x: number, y: number, w: 
     return startV + (e.getUILocation().x - startX) / (w * worldScaleX());
   };
   const commit = (next: number) => { if (!Number.isFinite(next)) next = v; v = Math.max(0, Math.min(1, next)); paint(); change(v); };
+  bindInputLifetime(node, () => { pointer = null; });
   node.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
+    if (pointer !== null || !pressNodeReady(node)) return;
     e.propagationStopped = true; pointer = pointerId(e); startX = e.getUILocation().x; startV = v; startLocal = localX(e);
   });
   node.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => {
-    if (pointerId(e) !== pointer) return;
+    if (pointer === null || pointerId(e) !== pointer || !pressNodeReady(node)) return;
     e.propagationStopped = true; const next = Math.max(0, Math.min(1, read(e)));
     if (Math.abs(next - v) < 0.001) return; commit(next);
   });
   // Release (and a drag that leaves the hit box, which Cocos reports as cancel) keeps the last value. It does not snap back.
   const finish = (e: EventTouch, sound: boolean) => {
-    if (pointerId(e) !== pointer) return;
+    if (pointer === null || pointerId(e) !== pointer || !pressNodeReady(node)) return;
     e.propagationStopped = true; pointer = null; commit(read(e)); if (sound) playSound('button');
   };
   node.on(Node.EventType.TOUCH_END, (e: EventTouch) => finish(e, true));
@@ -256,6 +294,7 @@ export class PopupPanel {
     const g = this.shade; g.clear(); g.fillColor = new Color(SHADE.rgb[0], SHADE.rgb[1], SHADE.rgb[2], Math.round(255 * SHADE.alpha * a));
     g.rect(-this.viewW / 2, -this.viewH / 2, this.viewW, this.viewH); g.fill();
   }
+  setInputEnabled(on: boolean) { if (on) blockedPressRoots.delete(this.root); else { blockedPressRoots.add(this.root); resetPresses(this.root); } }
   get isClosing() { return this.closing >= 0; }
   get alive() { return isValid(this.root, true); }
   update(dt: number) {
@@ -268,11 +307,11 @@ export class PopupPanel {
     this.tint.update();
   }
   close(done?: () => void) {
-    if (this.closing >= 0 || !isValid(this.root, true)) return; this.done = done || null; this.closing = CLOSE_S;
+    if (this.closing >= 0 || !isValid(this.root, true)) return; this.done = done || null; this.closing = CLOSE_S; this.setInputEnabled(false);
     this.options.onClose?.();
   }
   /** Remove at once (no animation): host teardown. */
-  destroy() { if (isValid(this.root, true)) this.root.destroy(); this.tint.clear(); }
+  destroy() { if (isValid(this.root, true)) { this.setInputEnabled(false); this.root.destroy(); } this.tint.clear(); }
   private finish() { const d = this.done; this.done = null; this.destroy(); d?.(); }
 }
 /** Ordered popups of one canvas: the last one is on top; closed panels drop out after their close animation. */
@@ -280,7 +319,7 @@ export class PopupStack {
   private list: PopupPanel[] = [];
   constructor(readonly parent: Node, private readonly viewport: () => { width: number; height: number }) {}
   open(options: PanelOptions): PopupPanel {
-    const p = new PopupPanel(this.parent, options, this.viewport()); p.root.setSiblingIndex(this.parent.children.length - 1); this.list.push(p); return p;
+    const p = new PopupPanel(this.parent, options, this.viewport()); p.root.setSiblingIndex(this.parent.children.length - 1); this.list.push(p); this.syncInput(); return p;
   }
   top(): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (!this.list[i].isClosing) return this.list[i]; return null; }
   find(name: string): PopupPanel | null { this.prune(); for (let i = this.list.length - 1; i >= 0; i--) if (this.list[i].options.name === name && !this.list[i].isClosing) return this.list[i]; return null; }
@@ -291,5 +330,6 @@ export class PopupStack {
   layout() { const v = this.viewport(); for (let i = 0; i < this.list.length; i++) this.list[i].layout(v.width, v.height); }
   close(name: string) { const p = this.find(name); if (p) p.close(); }
   clear() { for (let i = 0; i < this.list.length; i++) this.list[i].destroy(); this.list.length = 0; }
-  private prune() { this.list = this.list.filter(p => p.alive); }
+  private syncInput() { const top = this.list.length ? this.list[this.list.length - 1] : null; for (const p of this.list) p.setInputEnabled(p === top && !p.isClosing); }
+  private prune() { this.list = this.list.filter(p => p.alive); this.syncInput(); }
 }

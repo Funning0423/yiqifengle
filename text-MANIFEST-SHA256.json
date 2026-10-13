@@ -916,8 +916,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts",
-    "bytes": 60661,
-    "sha256": "123239ecae754a00ae173d98bd6063e090d70fa775113f932477a987d3d155ea"
+    "bytes": 61007,
+    "sha256": "129a28e17be8b2fb715ec9b9f47d6fe3720d8f3f73446484b2cef7abce150cf6"
   },
   {
     "path": "creator-build-project/assets/scripts/CharacterMotion.ts.meta",
@@ -946,8 +946,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 85246,
-    "sha256": "7af091c3cf3f28f43a794e79cbb58021e62d6b77e4b4b83be9e0566dcc8d1092"
+    "bytes": 84507,
+    "sha256": "290237131d0a57e95eb065cfb7c3525b67c6483b8c94c43eb7de30fc2341a891"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1026,8 +1026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 71535,
-    "sha256": "be4be0585f58ba93e6bc00fb90b4161ee668c54ed9a5fcd2b884bc391e65f49e"
+    "bytes": 74328,
+    "sha256": "49aa82ade7227afd3ab993c8c126bf73b10078664872169e086a41094c44f5d2"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -1186,8 +1186,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js",
-    "bytes": 16598,
-    "sha256": "2a2ab612da07e42eddb36a93133892f95068e93f898acbd953f074b2ff6ad424"
+    "bytes": 16835,
+    "sha256": "7b326cdb181e786ecc54280c32bd5d19e63564418e554a14c4dd7faa52f3233f"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1/runtime/mainline-controller.js.meta",
@@ -1431,8 +1431,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js",
-    "bytes": 16449,
-    "sha256": "a5860d8f2c6e23cae92684b02826144dec14202d465abfce62cee80793d7612f"
+    "bytes": 16611,
+    "sha256": "bbb3485c7bde4b21bfbab1b19af87b2de6d9673e37a7a232e26f7902211c65b7"
   },
   {
     "path": "creator-build-project/assets/scripts/regional-r05/runtime/board-session-provider.js.meta",
@@ -1756,8 +1756,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 23728,
-    "sha256": "5755117d32b4ff103a299e63129dbbad47a84704a118acc89c20c94c1eea8515"
+    "bytes": 27401,
+    "sha256": "4bf8d46c7a17ecb62acfcff855db5ba04a73d0adfe9ecb45196aaf9f527e8833"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",
@@ -1921,8 +1921,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts",
-    "bytes": 53172,
-    "sha256": "f73740722aa234da0d89425fe8d1fcaf238d88095cb6438b25fef0dc32d25ded"
+    "bytes": 54275,
+    "sha256": "7c87a40cf98b4d5940f52dae29f3ebb3f7f38fc6649386078c3f4e966307b41b"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts.meta",
@@ -2056,8 +2056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts",
-    "bytes": 9073,
-    "sha256": "bf83eab4c610d269ca95d7612df029d7ad5670d5237641b33d0528053e469049"
+    "bytes": 10115,
+    "sha256": "3e45000c463c00918ccd1ba83c212c76b7e9673d1a8b49d0307503b84e2124a8"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/ManagedBoardSession.ts.meta",
@@ -2496,8 +2496,8 @@
   },
   {
     "path": "tools/test_startup_ready_gate.cjs",
-    "bytes": 14626,
-    "sha256": "a9d929318694e2729ebfd4ded78f8fe5a66cdcd945d237f7010c65eaef22630b"
+    "bytes": 14705,
+    "sha256": "aad3ed07d09bdd7d8f302c384012198fc351108728a07cdb10923e91e28d3c14"
   },
   {
     "path": "tools/test_ui_contrast.cjs",

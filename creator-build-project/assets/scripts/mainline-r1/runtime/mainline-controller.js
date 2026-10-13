@@ -443,7 +443,10 @@ Controller.prototype.resume = function () {
 };
 Controller.prototype.resumeActive = Controller.prototype.resume;
 Controller.prototype.requestExit = function () {
-  return this.pause();
+  var result = this.pause();
+  // Navigation may leave a protected record without clearing protection or
+  // attempting any write. A later explicit entry creates a fresh reader.
+  return this.readOnly ? { ok: true, readOnly: true, preserved: true } : result;
 };
 Controller.prototype.retrySave = function () {
   if (this.readOnly || !this.work) return {

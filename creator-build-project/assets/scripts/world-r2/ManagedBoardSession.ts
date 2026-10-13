@@ -78,11 +78,28 @@ export function createManagedBoardSession(selection:Selection,deps:Dependencies,
     else result=controller.startStage(selection.stageId,{seed:selection.seed});
     if(!result.ok)throw Error('R4 open failed: '+result.reason);
   }
+  // Selecting a saved failed R5 stage is an explicit new attempt, not a restore loop.
+  // Leave playing, unsaved, read-only and completed-win records untouched.
+  if(selection.provider==='r5'){
+    const s=controller.snapshot();
+    if(s.state==='result.saved'&&s.active?.status==='lost'&&s.active.stageId===selection.stageId){
+      const opened=controller.startStage(selection.stageId,{seed:selection.seed});
+      if(!opened.ok)throw Error('R5 retry could not be saved; existing record retained: '+opened.reason);
+    }
+  }
   const initial=controller.snapshot();if(!initial.active||initial.active.stageId!==selection.stageId||initial.state==='error.readonly')throw Error('Provider refused selected stage; existing data retained');
   const presenter=new FramePresenter();presenter.present(initial);
   let host:any=null,view:any=null,disposed=false,epoch=0;
   const safeCommand=(name:string,...args:any[]):Reply=>{
     if(disposed)return {ok:false,reason:'disposed'};
+    // Do not expose arbitrary stage navigation through the board UI. Retry only
+    // the selected, durably saved loss using the provider's existing transaction.
+    if(name==='retryStage'){
+      const s=controller.snapshot();
+      if(args.length||selection.provider!=='r5'||s.state!=='result.saved'||s.active?.status!=='lost'||s.active.stageId!==selection.stageId)
+        return {ok:false,reason:'retry-not-available'};
+      return host.command('startStage',selection.stageId,{seed:selection.seed});
+    }
     if(!BOARD_COMMANDS.has(name))return {ok:false,reason:'host-navigation-only'};
     return host.command(name,...args);
   };

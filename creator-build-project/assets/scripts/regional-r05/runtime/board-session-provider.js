@@ -64,7 +64,8 @@ Provider.prototype.pause=function(){if(this.session)this.session.cancelPreview()
 Provider.prototype.onHide=function(){this.hidden=true;return this.pause();};
 Provider.prototype.onShow=function(){this.hidden=false;return {ok:true};};
 Provider.prototype.resume=function(){if(this.hidden||this.work||this.readOnly||!this.session)return {ok:false,reason:'resume-blocked'};this.paused=false;return {ok:true};};
-Provider.prototype.requestExit=function(){return this.pause();};
+// Safe navigation is allowed in protection mode; never retry, clear or rewrite the record here.
+Provider.prototype.requestExit=function(){var out=this.pause();return this.readOnly?{ok:true,readOnly:true,preserved:true}:out;};
 Provider.prototype.retrySave=function(){if(this.readOnly||!this.work)return {ok:false,reason:'nothing-retryable'};var out=this._drain();this.paused=true;return out&&out.ok?out:{ok:false,reason:this.error&&this.error.code||'save-failed',newlyGranted:[]};};
 Provider.prototype.finish=function(){if(this.readOnly||!this.session||this.session.engine.status!=='won')return {ok:false,reason:'not-won'};if(this.work)return this.retrySave();if(this._completed())return {ok:true,saved:true,duplicate:true,firstClear:false,newlyGranted:[]};this.work={kind:'complete'};var done=this._drain();return done&&typeof done==='object'?done:{ok:false,reason:this.error&&this.error.code||'save-failed',newlyGranted:[]};};
 Provider.prototype.discardActive=function(){if(this.readOnly||this.work||!this.session)return {ok:false,reason:'discard-blocked'};if(this.session.engine.status==='won'&&!this._completed())return {ok:false,reason:'unsaved-win'};this.pause();this.work={kind:'discard'};var done=this._drain();return done&&typeof done==='object'?done:{ok:false,reason:this.error&&this.error.code||'save-failed',newlyGranted:[]};};
