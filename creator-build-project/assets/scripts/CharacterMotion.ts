@@ -517,3 +517,39 @@ export class MorphDriver {
     this.calls+=n;return n;}
   diagnostics(){return {status:this.status,reason:this.reason,mesh:this.mesh,node:this.node,meshName:this.meshName,targets:this.targets,need:this.need,subMeshes:this.subMeshes.slice(),targetCounts:this.targetCounts.slice(),targetNames:this.targetNames,weights:this.weights,setWeightCalls:this.calls};}
 }
+
+/** Post-blend, world-space rigid sole contacts. Controller travel/yaw is already written before this solve.
+ * Contact points come from the committed shoe's rigid skin + inverse binds, in foot-local metres.
+ * Lock supported vertices, preserve authored foot orientation and knee bend plane; never translate the root/hips/arms. */
+export class SoleContactSolver {
+ private anchors:{[bone:string]:Array<number[]|null>}={};private previous:{[bone:string]:number[]}={};
+ maxCorrectionMm=0;unreachable=0;
+ constructor(private geometry:any){}
+ reset(){this.anchors={};this.previous={};}
+ apply(joints:ReadonlyArray<Joint>,root:readonly number[],yaw:number,enabled:boolean){
+  if(!enabled||!this.geometry){this.reset();return;}
+  const nodes:any={};for(let i=0;i<joints.length;i++)nodes[joints[i].name]=joints[i].node;
+  const mul=(a:number[],b:number[])=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
+  const inv=(q:number[])=>[-q[0],-q[1],-q[2],q[3]];
+  const rot=(q:number[],v:number[])=>mul(mul(q,[v[0],v[1],v[2],0]),inv(q)).slice(0,3);
+  const add=(a:number[],b:number[])=>a.map((x,i)=>x+b[i]),sub=(a:number[],b:number[])=>a.map((x,i)=>x-b[i]),dot=(a:number[],b:number[])=>a.reduce((s,x,i)=>s+x*b[i],0),norm=(v:number[])=>Math.sqrt(dot(v,v)),unit=(v:number[])=>v.map(x=>x/Math.max(norm(v),1e-12));
+  const cross=(a:number[],b:number[])=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const between=(v:number[],w:number[])=>{const a=unit(v),b=unit(w),d=dot(a,b);if(d<-.999999){const ax=unit(cross(a,Math.abs(a[0])<.9?[1,0,0]:[0,1,0]));return [ax[0],ax[1],ax[2],0];}const q=cross(a,b).concat(1+d);const l=Math.hypot(q[0],q[1],q[2],q[3]);return l<1e-10?[0,0,0,1]:q.map(x=>x/l);};
+  const memo:any={};const fk=(nd:any):any=>{if(!nd||!nodes[nd.name]||nodes[nd.name]!==nd)return {p:[0,0,0],q:[0,0,0,1],s:[1,1,1]};if(memo[nd.name])return memo[nd.name];const w=fk(nd.parent),p=nd.position,r=nd.rotation,s=nd.scale;return memo[nd.name]={p:add(w.p,rot(w.q,[p.x*w.s[0],p.y*w.s[1],p.z*w.s[2]])),q:mul(w.q,[r.x,r.y,r.z,r.w]),s:[w.s[0]*s.x,w.s[1]*s.y,w.s[2]*s.z]};};
+  const yq=[0,Math.sin(yaw/2),0,Math.cos(yaw/2)];
+  for(let side=0;side<2;side++){
+   const suffix=side?'R':'L',b='foot.'+suffix,points=this.geometry.points[b],foot=nodes[b],thigh=nodes['thigh.'+suffix],shin=nodes['shin.'+suffix];if(!points||!foot||!shin||!thigh)continue;
+   const fw=fk(foot),tw=fk(thigh),sw=fk(shin),world=points.map((p:number[])=>add(root.slice() as number[],rot(yq,add(fw.p,rot(fw.q,p.map((x,i)=>x*fw.s[i]))))));
+   const anchors=this.anchors[b]||(this.anchors[b]=points.map(()=>null));const residual:number[][]=[];const active=world.map((p:number[])=>p[1]<root[1]+this.geometry.floor[b]+.006);
+   for(let k=0;k<points.length;k++){if(!active[k])anchors[k]=null;else if(anchors[k])residual.push(sub(anchors[k]!,world[k]));}
+   let shift=[0,0,0];if(residual.length){for(const axis of [0,2]){let lo=Infinity,hi=-Infinity;for(let k=0;k<residual.length;k++){lo=Math.min(lo,residual[k][axis]);hi=Math.max(hi,residual[k][axis]);}shift[axis]=(lo+hi)/2;}}
+   else if(!active.some((x:boolean)=>x)&&this.previous[b])shift=this.previous[b].map(x=>x*.8);
+   for(let k=0;k<points.length;k++)if(active[k]&&!anchors[k])anchors[k]=add(world[k],shift);
+   this.previous[b]=shift;this.maxCorrectionMm=Math.max(this.maxCorrectionMm,norm(shift)*1000);const delta=rot(inv(yq),shift);if(norm(delta)<1e-9)continue;
+   let target=add(fw.p,delta),v=sub(target,tw.p),d=norm(v),axis=unit(v),l1=norm(sub(sw.p,tw.p)),l2=norm(sub(fw.p,sw.p));const clamp=Math.max(Math.abs(l1-l2)+1e-7,Math.min(l1+l2-1e-7,d));if(Math.abs(clamp-d)>1e-6){this.unreachable++;d=clamp;target=add(tw.p,axis.map(x=>x*d));}
+   const x=(d*d+l1*l1-l2*l2)/(2*d),h=Math.sqrt(Math.max(0,l1*l1-x*x)),bend=sub(sw.p,tw.p),projection=dot(bend,axis);let perp=sub(bend,axis.map(x=>x*projection));if(norm(perp)<1e-8)perp=cross(axis,[0,0,1]);perp=unit(perp);
+   const knee=add(tw.p,add(axis.map(v=>v*x),perp.map(v=>v*h))),upper=mul(between(sub(sw.p,tw.p),sub(knee,tw.p)),tw.q),sr=shin.rotation,base=mul(upper,[sr.x,sr.y,sr.z,sr.w]),ft=foot.position,lower=mul(between(rot(base,[ft.x,ft.y,ft.z]),sub(target,knee)),base);
+   const tq=mul(inv(fk(thigh.parent).q),upper),sq=mul(inv(upper),lower),fq=mul(inv(lower),fw.q);thigh.setRotation(tq[0],tq[1],tq[2],tq[3]);shin.setRotation(sq[0],sq[1],sq[2],sq[3]);foot.setRotation(fq[0],fq[1],fq[2],fq[3]);
+  }
+ }
+}

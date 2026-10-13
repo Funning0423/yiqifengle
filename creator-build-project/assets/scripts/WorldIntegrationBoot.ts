@@ -12,7 +12,7 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
-import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
@@ -38,7 +38,7 @@ const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walkin
 class FlowReferenceStandin implements CharacterAdapter {
  readonly calibrated=true;
  readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot,seatedRoot:REF.seatedRoot,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
- private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
+ private support:SoleContactSolver|null=null;private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
  private motionConfig:MotionConfig=defaultMotionConfig();private pendingIdle=false;private pendingFor=0;private yaw=new YawFollower();private yawRad=0;
  private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
  private restAhead:((path:readonly (readonly number[])[])=>number|null)|null=null;private lastFoot:Body|null=null;private lastFootEmit:{bone:string;clip:string;t:number}|null=null;private footDeduped=0;private motionT=0;
@@ -58,7 +58,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(ms.length)all=ms.map(m=>m.diagnostics());else all=this.motionConfig.morphMeshes.map(b=>({status:'unbound',reason:'no visual bound',mesh:b.mesh,targets:b.targets,setWeightCalls:0}));
   d={};for(const k in all[0])if(Object.prototype.hasOwnProperty.call(all[0],k))d[k]=all[0][k];d.meshes=all;return d;}
  /** anim_meta.json (character/anim_meta in region_island) parsed before bindVisual; null/invalid = built-in defaults. */
- setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);}
+ setAnimMeta(json:any){this.motionConfig=parseAnimMeta(json);this.support=new SoleContactSolver(json?.sole_contact);}
  /** Per-frame wind strength 0..1 (运镜bot WorldFlowComponent.getWindStrength); absent/null = 0. */
  setWindSource(fn:(()=>number|null)|null){this.windSource=fn;}
  /** Rest look-ahead (docs/walk-driver.md §9.2): metres still walked after this path before she rests; 0 = this walk ends at
@@ -85,8 +85,8 @@ class FlowReferenceStandin implements CharacterAdapter {
    plan.out.controllerOffset=[cy*dx-sy*dz,dy,sy*dx+cy*dz];
    // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
    // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
-   plan.out.preserveIncomingLowerBody=j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle&&!!this.clock.meta(CLIP_ROLES.sitDown)?.root?.forward;}
-  this.rig.apply(plan);this.applyMorph(plan);}
+   plan.out.preserveIncomingLowerBody=(j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle||j.action.kind==='stand'&&plan.out.clip===CLIP_ROLES.sitHold);}
+  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&/^walk_(loop|start|stop_body[LR])$/.test(plan.base.clip));this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}

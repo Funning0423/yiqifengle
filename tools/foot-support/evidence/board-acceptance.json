@@ -1,0 +1,22 @@
+{
+  "restored_paused_exact": true,
+  "resumed_state": "run.ready",
+  "resumed_active_exact": true,
+  "moves": 21,
+  "bombs": 1,
+  "goals": {
+    "type0": 11
+  },
+  "actions": [
+    [
+      "swap",
+      23,
+      24
+    ],
+    [
+      "bomb",
+      24
+    ]
+  ],
+  "presentationError": null
+}
