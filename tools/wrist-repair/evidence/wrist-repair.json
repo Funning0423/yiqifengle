@@ -1,0 +1,481 @@
+{
+  "changedVertices": 68,
+  "changes": [
+    {
+      "vertex": 2759,
+      "side": "L",
+      "handWeightBefore": 0.5084236264228821,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2760,
+      "side": "L",
+      "handWeightBefore": 0.5007503032684326,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2762,
+      "side": "L",
+      "handWeightBefore": 0.46876636147499084,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2764,
+      "side": "L",
+      "handWeightBefore": 0.41907405853271484,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2766,
+      "side": "L",
+      "handWeightBefore": 0.3622754216194153,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2768,
+      "side": "L",
+      "handWeightBefore": 0.3103320598602295,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2770,
+      "side": "L",
+      "handWeightBefore": 0.2732148766517639,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2772,
+      "side": "L",
+      "handWeightBefore": 0.256955087184906,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2774,
+      "side": "L",
+      "handWeightBefore": 0.26378461718559265,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2776,
+      "side": "L",
+      "handWeightBefore": 0.2928001582622528,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2778,
+      "side": "L",
+      "handWeightBefore": 0.3396352231502533,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2780,
+      "side": "L",
+      "handWeightBefore": 0.39583882689476013,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2782,
+      "side": "L",
+      "handWeightBefore": 0.449897825717926,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2784,
+      "side": "L",
+      "handWeightBefore": 0.49024802446365356,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2786,
+      "side": "L",
+      "handWeightBefore": 0.906190812587738,
+      "handWeightAfter": 0.4393855132721403,
+      "extended": false
+    },
+    {
+      "vertex": 2787,
+      "side": "L",
+      "handWeightBefore": 0.9001376032829285,
+      "handWeightAfter": 0.4245531512422509,
+      "extended": false
+    },
+    {
+      "vertex": 2788,
+      "side": "L",
+      "handWeightBefore": 0.8754602670669556,
+      "handWeightAfter": 0.3681939677298276,
+      "extended": false
+    },
+    {
+      "vertex": 2789,
+      "side": "L",
+      "handWeightBefore": 0.8333867788314819,
+      "handWeightAfter": 0.2846100195601727,
+      "extended": false
+    },
+    {
+      "vertex": 2790,
+      "side": "L",
+      "handWeightBefore": 0.7795872688293457,
+      "handWeightAfter": 0.19606403036204456,
+      "extended": false
+    },
+    {
+      "vertex": 2791,
+      "side": "L",
+      "handWeightBefore": 0.7250680923461914,
+      "handWeightAfter": 0.1241064302276801,
+      "extended": false
+    },
+    {
+      "vertex": 2792,
+      "side": "L",
+      "handWeightBefore": 0.6830613017082214,
+      "handWeightAfter": 0.07988345721192319,
+      "extended": false
+    },
+    {
+      "vertex": 2793,
+      "side": "L",
+      "handWeightBefore": 0.664280116558075,
+      "handWeightAfter": 0.0631900452949869,
+      "extended": false
+    },
+    {
+      "vertex": 2794,
+      "side": "L",
+      "handWeightBefore": 0.6735074520111084,
+      "handWeightAfter": 0.07115464224661583,
+      "extended": false
+    },
+    {
+      "vertex": 2795,
+      "side": "L",
+      "handWeightBefore": 0.708397388458252,
+      "handWeightAfter": 0.10541182344009531,
+      "extended": false
+    },
+    {
+      "vertex": 2796,
+      "side": "L",
+      "handWeightBefore": 0.760034441947937,
+      "handWeightAfter": 0.1683080683370428,
+      "extended": false
+    },
+    {
+      "vertex": 2797,
+      "side": "L",
+      "handWeightBefore": 0.8155438303947449,
+      "handWeightAfter": 0.2531543142183384,
+      "extended": false
+    },
+    {
+      "vertex": 2798,
+      "side": "L",
+      "handWeightBefore": 0.8626319169998169,
+      "handWeightAfter": 0.3411852102298427,
+      "extended": false
+    },
+    {
+      "vertex": 2799,
+      "side": "L",
+      "handWeightBefore": 0.8936635255813599,
+      "handWeightAfter": 0.4091554236108281,
+      "extended": false
+    },
+    {
+      "vertex": 2805,
+      "side": "L",
+      "handWeightBefore": 0.9892624020576477,
+      "handWeightAfter": 0.7266695879801705,
+      "extended": false
+    },
+    {
+      "vertex": 2806,
+      "side": "L",
+      "handWeightBefore": 0.9746846556663513,
+      "handWeightAfter": 0.6540960520461585,
+      "extended": false
+    },
+    {
+      "vertex": 2807,
+      "side": "L",
+      "handWeightBefore": 0.9667624235153198,
+      "handWeightAfter": 0.6220741680873104,
+      "extended": false
+    },
+    {
+      "vertex": 2808,
+      "side": "L",
+      "handWeightBefore": 0.9712138772010803,
+      "handWeightAfter": 0.639638596523526,
+      "extended": false
+    },
+    {
+      "vertex": 2809,
+      "side": "L",
+      "handWeightBefore": 0.9848488569259644,
+      "handWeightAfter": 0.701898707782562,
+      "extended": false
+    },
+    {
+      "vertex": 2810,
+      "side": "L",
+      "handWeightBefore": 0.9974894523620605,
+      "handWeightAfter": 0.7904382773146799,
+      "extended": false
+    },
+    {
+      "vertex": 2996,
+      "side": "R",
+      "handWeightBefore": 0.5007413625717163,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2997,
+      "side": "R",
+      "handWeightBefore": 0.5084152817726135,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 2999,
+      "side": "R",
+      "handWeightBefore": 0.46875742077827454,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3001,
+      "side": "R",
+      "handWeightBefore": 0.41906458139419556,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3003,
+      "side": "R",
+      "handWeightBefore": 0.36226630210876465,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3005,
+      "side": "R",
+      "handWeightBefore": 0.31032371520996094,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3007,
+      "side": "R",
+      "handWeightBefore": 0.2732073962688446,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3009,
+      "side": "R",
+      "handWeightBefore": 0.25694841146469116,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3011,
+      "side": "R",
+      "handWeightBefore": 0.2637782692909241,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3013,
+      "side": "R",
+      "handWeightBefore": 0.29279404878616333,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3015,
+      "side": "R",
+      "handWeightBefore": 0.33962926268577576,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3017,
+      "side": "R",
+      "handWeightBefore": 0.39583253860473633,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3019,
+      "side": "R",
+      "handWeightBefore": 0.44989073276519775,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3021,
+      "side": "R",
+      "handWeightBefore": 0.4902404546737671,
+      "handWeightAfter": 0.0,
+      "extended": true
+    },
+    {
+      "vertex": 3022,
+      "side": "R",
+      "handWeightBefore": 0.9001320600509644,
+      "handWeightAfter": 0.42453975758480555,
+      "extended": false
+    },
+    {
+      "vertex": 3023,
+      "side": "R",
+      "handWeightBefore": 0.9061858057975769,
+      "handWeightAfter": 0.4393730451123108,
+      "extended": false
+    },
+    {
+      "vertex": 3024,
+      "side": "R",
+      "handWeightBefore": 0.8754538893699646,
+      "handWeightAfter": 0.36818017749042853,
+      "extended": false
+    },
+    {
+      "vertex": 3025,
+      "side": "R",
+      "handWeightBefore": 0.8333812952041626,
+      "handWeightAfter": 0.28460009852141804,
+      "extended": false
+    },
+    {
+      "vertex": 3026,
+      "side": "R",
+      "handWeightBefore": 0.7795814871788025,
+      "handWeightAfter": 0.1960554380638937,
+      "extended": false
+    },
+    {
+      "vertex": 3027,
+      "side": "R",
+      "handWeightBefore": 0.7250604033470154,
+      "handWeightAfter": 0.12409741324465631,
+      "extended": false
+    },
+    {
+      "vertex": 3028,
+      "side": "R",
+      "handWeightBefore": 0.6830539107322693,
+      "handWeightAfter": 0.0798765186659519,
+      "extended": false
+    },
+    {
+      "vertex": 3029,
+      "side": "R",
+      "handWeightBefore": 0.664273202419281,
+      "handWeightAfter": 0.06318424979370375,
+      "extended": false
+    },
+    {
+      "vertex": 3030,
+      "side": "R",
+      "handWeightBefore": 0.6735010743141174,
+      "handWeightAfter": 0.07114897240266499,
+      "extended": false
+    },
+    {
+      "vertex": 3031,
+      "side": "R",
+      "handWeightBefore": 0.7083916068077087,
+      "handWeightAfter": 0.10540556033595794,
+      "extended": false
+    },
+    {
+      "vertex": 3032,
+      "side": "R",
+      "handWeightBefore": 0.7600273489952087,
+      "handWeightAfter": 0.16829837433321362,
+      "extended": false
+    },
+    {
+      "vertex": 3033,
+      "side": "R",
+      "handWeightBefore": 0.8155357241630554,
+      "handWeightAfter": 0.2531404823528761,
+      "extended": false
+    },
+    {
+      "vertex": 3034,
+      "side": "R",
+      "handWeightBefore": 0.8626270890235901,
+      "handWeightAfter": 0.3411752362361598,
+      "extended": false
+    },
+    {
+      "vertex": 3035,
+      "side": "R",
+      "handWeightBefore": 0.8936586976051331,
+      "handWeightAfter": 0.40914416018968197,
+      "extended": false
+    },
+    {
+      "vertex": 3041,
+      "side": "R",
+      "handWeightBefore": 0.989261269569397,
+      "handWeightAfter": 0.7266629417618535,
+      "extended": false
+    },
+    {
+      "vertex": 3042,
+      "side": "R",
+      "handWeightBefore": 0.9746838808059692,
+      "handWeightAfter": 0.6540927102286538,
+      "extended": false
+    },
+    {
+      "vertex": 3043,
+      "side": "R",
+      "handWeightBefore": 0.9667603373527527,
+      "handWeightAfter": 0.6220660900511211,
+      "extended": false
+    },
+    {
+      "vertex": 3044,
+      "side": "R",
+      "handWeightBefore": 0.9712114334106445,
+      "handWeightAfter": 0.6396286943997983,
+      "extended": false
+    },
+    {
+      "vertex": 3045,
+      "side": "R",
+      "handWeightBefore": 0.9848471879959106,
+      "handWeightAfter": 0.7018898290554714,
+      "extended": false
+    },
+    {
+      "vertex": 3046,
+      "side": "R",
+      "handWeightBefore": 0.9974889159202576,
+      "handWeightAfter": 0.7904326669379053,
+      "extended": false
+    }
+  ]
+}

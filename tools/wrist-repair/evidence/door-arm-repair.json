@@ -1,0 +1,11 @@
+{
+  "handWorldMaxErrorMm": 0.0005527441968463982,
+  "handWorldRotationMaxMatrixError": 3.3928903788171816e-06,
+  "wristAngleBeforeMax": 78.8659597430905,
+  "wristAngleAfterMax": 74.6880067049177,
+  "onlyChannels": [
+    "door_reach/forearm.L/rotation",
+    "door_reach/hand.L/rotation"
+  ],
+  "keys": 121
+}
