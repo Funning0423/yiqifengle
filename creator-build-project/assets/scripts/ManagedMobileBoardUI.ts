@@ -94,7 +94,7 @@ export class ManagedMobileBoardUI extends Component {
         const axis = this.cellAt(p.x, p.y, yDown) === i ? 'ui' : 'screen';
         const loc = typeof e.getLocation === 'function' ? e.getLocation() : null;
         if (axis === 'screen' && this.cellHit(loc, e.windowId) !== i) return;
-        this.dragStart = { index: i, pointer: e.getID(), start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
+        this.dragStart = { index: i, pointer: e.getID(), originWindow: e.windowId, start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
           yDown, axis, version: this.toolVersion(), prior: this.selected, sx: loc?.x, sy: loc?.y, startSX: loc?.x, startSY: loc?.y, sw: e.windowId,
           legacyLayoutAlias: yDown && !!loc && Math.hypot(loc.x - p.x, loc.y - p.y) <= 1 && this.cellHit(loc, e.windowId) !== i, latestHit: i };
       }, this);
@@ -109,6 +109,11 @@ export class ManagedMobileBoardUI extends Component {
       }, this);
       n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => {
         if (!this.owns(this.dragStart, e) && !this.owns(this.toolDrag, e)) return;
+        if (!isValid(n, true) || this.cells[i] !== n) { this.dragStart = null; this.cancelToolInput(); return; }
+        const d = this.dragStart;
+        if (d?.index === i && this.nodeCancelIsRelease(n, d, e) && this.beside(i, this.cellFromEvent(e, d))) {
+          this.dragStart = null; GameAudio.notifyUserGesture(); this.releasePiece(i, d, e); return;
+        }
         this.resetInput();
       }, this); this.cells.push(n);
     }
@@ -183,8 +188,31 @@ export class ManagedMobileBoardUI extends Component {
       { sound, enabled: () => this.inputVisible() && !this.modalOpen() && !this.dragStart && !this.toolDrag }));
   }
   private inputVisible() { return !this.disposing && !this.entryReleased && this.enabled !== false && this.node?.activeInHierarchy !== false && this.root?.activeInHierarchy !== false && this.presented && !this.snapshot?.hidden; }
-  private pointerEvent(e?: EventTouch) { const p = e && typeof e.getUILocation === 'function' ? e.getUILocation() : null; return !!e && typeof e.getID === 'function' && Number.isFinite(e.getID()) && !!p && Number.isFinite(p.x) && Number.isFinite(p.y); }
-  private owns(d: any, e?: EventTouch) { return !!d && !!e && typeof e.getID === 'function' && d.pointer === e.getID(); }
+  private pointerEvent(e?: EventTouch) { const p = e && typeof e.getUILocation === 'function' ? e.getUILocation() : null; return !!e && typeof e.getID === 'function' && Number.isFinite(e.getID()) && Number.isFinite(e.windowId) && !!p && Number.isFinite(p.x) && Number.isFinite(p.y); }
+  // Window identity belongs to START, not the latest observed coordinate sample.
+  private owns(d: any, e?: EventTouch) { return !!d && !!e && typeof e.getID === 'function' && d.pointer === e.getID() && d.originWindow === e.windowId; }
+  /** Cocos 3.8.8 changes node type to CANCEL for a normal release outside the
+   * source hit box; getEventCode() retains the original input type. Its deprecated
+   * API is intentionally version-scoped. Missing evidence stays a cancellation. */
+  private nodeCancelIsRelease(source: Node, d: any, e: EventTouch) {
+    if (!this.owns(d, e) || !this.pointerEvent(e) || !this.canUseTools() || d.version !== this.toolVersion()
+      || !isValid(source, true) || !source.activeInHierarchy || e.type !== Node.EventType.TOUCH_CANCEL
+      || e.target !== source || e.currentTarget !== source || e.windowId !== d.originWindow) return false;
+    try {
+      if (typeof e.getEventCode !== 'function' || e.getEventCode() !== Node.EventType.TOUCH_END) return false;
+      const screen = e.getLocation();
+      if (!screen || !Number.isFinite(screen.x) || !Number.isFinite(screen.y)
+        || source.getComponent(UITransform)?.hitTest(screen, e.windowId) !== false) return false;
+      // No old aim, receiving-cell hint or PR52 origin rollback may authorize a
+      // cancel adaptation. Also verify the destination in the engine's screen
+      // hit-test channel; UI-coordinate calculations alone are not independent.
+      const hit = this.cellFromEvent(e, d);
+      const target = hit >= 0 ? this.cells[hit] : null;
+      return !!target && isValid(target, true) && target.activeInHierarchy
+        && this.releaseHit(d, e) === hit
+        && target.getComponent(UITransform)?.hitTest(screen, d.originWindow) === true;
+    } catch { return false; }
+  }
   private resetInput() {
     this.dragStart = null; this.cancelToolInput(); for (const h of this.pressHandles) h.cancel();
     if (this.root && isValid(this.root, true)) resetPresses(this.root);
@@ -193,7 +221,7 @@ export class ManagedMobileBoardUI extends Component {
   onDisable() { this.resetInput(); }
   // ---------------- tools ----------------
   private toolArt!: ManagedToolArt; private armedTool: string | null = null; private toolTapAccepted = false;
-    private toolDrag: { x?: number, y?: number, axis?: string, startSX?: number, startSY?: number, latestHit?: number, legacyLayoutAlias?: boolean, kind: string, slot: number, pointer: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string, yDown?: boolean, sx?: number, sy?: number, sw?: number, hover?: number, hx?: number, hy?: number, mx?: number, my?: number } | null = null; private toolGhost: Node | null = null; private pieceGhost: Node | null = null;
+    private toolDrag: { x?: number, y?: number, axis?: string, startSX?: number, startSY?: number, latestHit?: number, legacyLayoutAlias?: boolean, kind: string, slot: number, pointer: number, readonly originWindow: number, start: { x: number, y: number }, point: { x: number, y: number }, moved: boolean, version: string, yDown?: boolean, sx?: number, sy?: number, sw?: number, hover?: number, hx?: number, hy?: number, mx?: number, my?: number } | null = null; private toolGhost: Node | null = null; private pieceGhost: Node | null = null;
   private toolCatalog(): ManagedTool[] { return this.managed?.tools?.() || managedTools(this.snapshot); }
   private barTools(): ManagedTool[] { const c = this.toolCatalog(), out: ManagedTool[] = []; for (const k of this.toolBar) { const t = c.find(x => x.kind === k); if (t) out.push(t); } return out; }
   private toolVersion() { const a = this.snapshot?.active; return `${a?.attemptId || a?.stageId}:${a?.actions?.length ?? a?.turn ?? 0}:${a?.version ?? 0}`; }
@@ -464,7 +492,7 @@ export class ManagedMobileBoardUI extends Component {
       const uiHit = n.getComponent(UITransform)!.hitTest(uiScreen, e.windowId), axis = uiHit ? 'ui' : 'screen';
       if (!uiHit && !n.getComponent(UITransform)!.hitTest(loc, e.windowId)) return;
       this.toolTapAccepted = false; face.setPosition(0, -3, 0);
-      this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
+      this.toolDrag = { kind: tool.kind, slot, pointer: e.getID(), originWindow: e.windowId, start: { x: p.x, y: p.y }, point: { x: p.x, y: p.y }, x: p.x, y: p.y,
         moved: false, version: this.toolVersion(), yDown, axis, sx: loc.x, sy: loc.y, startSX: loc.x, startSY: loc.y, sw: e.windowId, latestHit: -1,
         legacyLayoutAlias: yDown && Math.hypot(loc.x - p.x, loc.y - p.y) <= 1 && !n.getComponent(UITransform)!.hitTest(loc, e.windowId) };
     }, this);
@@ -477,7 +505,12 @@ export class ManagedMobileBoardUI extends Component {
       if (d.latestHit !== this.selected) { this.selected = d.latestHit!; this.paint(); } this.paintToolTray();
     }, this);
     n.on(Node.EventType.TOUCH_END, (e: EventTouch) => this.endToolDrag(e, slot), this);
-    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => { if (this.toolDrag?.slot !== slot || !this.owns(this.toolDrag, e)) return; this.cancelToolInput(); this.paintToolTray(); this.paint(); }, this);
+    n.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => {
+      const d = this.toolDrag; if (d?.slot !== slot || !this.owns(d, e)) return;
+      if (!isValid(n, true) || this.tools[slot] !== n) { this.cancelToolInput(); return; }
+      if (this.nodeCancelIsRelease(n, d, e)) { this.endToolDrag(e, slot); return; }
+      this.cancelToolInput(); this.paintToolTray(); this.paint();
+    }, this);
     return n;
   }
   private paintToolTray() {
@@ -531,7 +564,9 @@ export class ManagedMobileBoardUI extends Component {
   private layout() {
     const frame = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); const w = Math.max(240, frame.width), h = Math.max(320, frame.height);
     if (!this.managed) view.setDesignResolutionSize(w, h, ResolutionPolicy.EXACT_FIT); if (game.canvas) director.root?.resize(game.canvas.width, game.canvas.height); this.camera.orthoHeight = h / 2; this.root.getComponent(UITransform)!.setContentSize(w, h);
-    const safe = this.safeInsets(w, h), g = boardLayout(w, h, safe, Math.max(2, this.goalKeys.length)); this.geo = g;
+    const safe = this.safeInsets(w, h), g = boardLayout(w, h, safe, Math.max(2, this.goalKeys.length));
+    if (this.geo && JSON.stringify(this.geo) !== JSON.stringify(g)) this.resetInput();
+    this.geo = g;
     const X = (x: number) => x - w / 2, Y = (y: number) => h / 2 - y, P = g.pitch; this.cell = P;
     this.boardCenter.set(X(g.grid.x), Y(g.grid.y), 0); this.grid.setPosition(this.boardCenter); this.grid.getComponent(UITransform)!.setContentSize(g.grid.size, g.grid.size);
     this.regionalFocus.setPosition(this.boardCenter); this.boardFrame.setPosition(this.boardCenter);
