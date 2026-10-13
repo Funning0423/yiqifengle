@@ -179,14 +179,16 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  seaward bearing in front of her, radial grows the distance, climb raises the lens, all on that one curve.
    *  handle / lead are the cubic that continues that same arc to cameraIsland. Rotation, dolly-back and the
    *  lift overlap on that arc. blendMetres stays as a non-negative tune (the portal tangents are fixed).
-   *  paceOutbound plays that arc at cruiseMps after the doorway. rampSeconds is the smoothstep off the
-   *  doorway follow (about 1.3 m/s) onto that cruise: short, then flat. It is not a one-second run from
-   *  about 1.4 m/s up to 9. settleSeconds is the time after she stops, chosen so the flat cruise is
-   *  cruiseMps rather than the doorway gear. Outbound ease-in is a short leave from rest before the door;
-   *  ease-out is only the landing brake, onto cameraIsland near height 15.5.
+   *  paceOutbound plays that arc at cruiseMps after the doorway, on the walk-distance clock the game
+   *  actually plays (the island stop is slower than 0.7 m/s, so the middle of the same walkDuration is
+   *  faster than the span's time clock). rampSeconds is the smoothstep off the doorway follow (about
+   *  1 m/s) onto that cruise: short, then flat. It is not a one-second run from about 1.4 m/s up to 9.
+   *  settleSeconds is the time after she stops, chosen so that distance clock's flat cruise is cruiseMps
+   *  rather than the doorway gear or a faster overshoot. Outbound ease-in is a short leave from rest
+   *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
    *  frontalDeg: wind reaches 1 the first time the lens is within this many
    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
-  crane: { settleSeconds: 2.5,
+  crane: { settleSeconds: 4.02,
     pace: { sampleMetres: 0.05, rampSeconds: 0.92, cruiseMps: 7,
       depart: { blendMetres: 0.5, aimDeg: 14, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36 } },
