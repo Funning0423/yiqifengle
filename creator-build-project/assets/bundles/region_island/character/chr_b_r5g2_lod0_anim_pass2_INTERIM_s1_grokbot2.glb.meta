@@ -742,6 +742,38 @@
       ],
       "subMetas": {}
     },
+    "5991d": {
+      "importer": "gltf-material",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@5991d",
+      "displayName": "",
+      "id": "5991d",
+      "name": "ReferenceBrownBootLeather.material",
+      "userData": {
+        "gltfIndex": 6
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d4667": {
+      "importer": "gltf-material",
+      "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@d4667",
+      "displayName": "",
+      "id": "d4667",
+      "name": "ReferenceBrownBootSole.material",
+      "userData": {
+        "gltfIndex": 7
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
     "6af54": {
       "importer": "gltf-scene",
       "uuid": "dce9f061-7913-4893-9eb9-35e039adda3c@6af54",
@@ -1022,7 +1054,9 @@
         "dce9f061-7913-4893-9eb9-35e039adda3c@4dcdf",
         "dce9f061-7913-4893-9eb9-35e039adda3c@788e3",
         "dce9f061-7913-4893-9eb9-35e039adda3c@c16e8",
-        "dce9f061-7913-4893-9eb9-35e039adda3c@ad91e"
+        "dce9f061-7913-4893-9eb9-35e039adda3c@ad91e",
+        "dce9f061-7913-4893-9eb9-35e039adda3c@5991d",
+        "dce9f061-7913-4893-9eb9-35e039adda3c@d4667"
       ],
       "scenes": [
         "dce9f061-7913-4893-9eb9-35e039adda3c@6af54"

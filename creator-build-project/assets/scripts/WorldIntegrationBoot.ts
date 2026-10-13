@@ -368,8 +368,8 @@ export class WorldIntegrationBoot extends Component {
  private loadHomeSeated(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('static_seat_preview');if(!b)return fail(Error('Home seated bundle missing'));b.loadDir('actor',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one static home prefab'));ok(list[0]);});});}
  private loadTransitionChair(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Transition support bundle missing'));b.loadDir('character_support',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one independent transition chair'));ok(list[0]);});});}
  private syncHomeSeated(state:string,hidden:boolean){const seated=this.homeSeatedVisual;if(!seated)return;const home=state==='home'&&!hidden;seated.active=home;
-  // The home shell includes its stool. The original animated seated pose needs the original
-  // calibrated chair after that shell is hidden. Support belongs to the world, never the moving rig.
+  // The home shell includes its round stool; the transition uses a matching independent round stool.
+  // Support belongs to the world, never the moving rig. The stand/sit pelvis is calibrated in the asset.
   if(this.transitionChairVisual)this.transitionChairVisual.active=!home;
   // Keep the original rig/clock live: only rendering is exchanged. No fake stand/walk promises.
   if(this.startupGirl)for(const r of this.startupGirl.getComponentsInChildren(MeshRenderer))r.enabled=!home;
@@ -402,12 +402,14 @@ export class WorldIntegrationBoot extends Component {
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
  if(!this.homeSeatedPrefab)throw Error('Required static home visual missing');
  if(!this.transitionChairPrefab)throw Error('Required transition support missing');
- const chair=instantiate(this.transitionChairPrefab);this.transitionChairVisual=chair;chair.name='StationaryTransitionChair';owner.addChild(chair);chair.active=false;
+ const chair=instantiate(this.transitionChairPrefab);this.transitionChairVisual=chair;chair.name='StationaryReferenceRoundStool';owner.addChild(chair);chair.active=false;
  for(const r of chair.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
  const home=new Node('StationaryHomeSeatedVisual');this.homeSeatedVisual=home;owner.addChild(home);const seatedActor=instantiate(this.homeSeatedPrefab);home.addChild(seatedActor);
  if(seatedActor.getComponentsInChildren(SkeletalAnimation).length)throw Error('Static home asset unexpectedly contains a rig');
  const scale=1.2,sx=.00037,sz=-.09094,yaw=-2,a=FIRSTSLICE.anchors.seat_anchor.position;
  home.setPosition(a[0]-scale*(Math.cos(yaw)*sx+Math.sin(yaw)*sz),.000126,a[2]-scale*(-Math.sin(yaw)*sx+Math.cos(yaw)*sz));home.setRotationFromEuler(0,yaw*180/Math.PI,0);home.setScale(scale,scale,scale);
+ // Both stationary stool visuals share the reference shell transform. No controller/root-Y correction.
+ chair.setPosition(home.position);chair.setRotation(home.rotation);chair.setScale(home.scale);
  for(const r of seatedActor.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);

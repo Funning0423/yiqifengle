@@ -5,15 +5,15 @@
   "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f",
   "files": [],
   "subMetas": {
-    "c187f": {
+    "fe6ae": {
       "importer": "gltf-mesh",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@c187f",
+      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@fe6ae",
       "displayName": "",
-      "id": "c187f",
-      "name": "RecoveredOriginalReadingChair.mesh",
+      "id": "fe6ae",
+      "name": "Cone.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 512
+        "triangleCount": 2556
       },
       "ver": "1.1.1",
       "imported": true,
@@ -23,98 +23,12 @@
       ],
       "subMetas": {}
     },
-    "c952d": {
-      "importer": "gltf-embeded-image",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@c952d",
-      "displayName": "",
-      "id": "c952d",
-      "name": "env_palette_emissive_256.image",
-      "userData": {
-        "gltfIndex": 0,
-        "fixAlphaTransparencyArtifacts": true,
-        "hasAlpha": false,
-        "type": "texture"
-      },
-      "ver": "1.0.3",
-      "imported": true,
-      "files": [
-        ".json",
-        ".png"
-      ],
-      "subMetas": {}
-    },
-    "e7e58": {
-      "importer": "gltf-embeded-image",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@e7e58",
-      "displayName": "",
-      "id": "e7e58",
-      "name": "env_palette_256.image",
-      "userData": {
-        "gltfIndex": 1,
-        "fixAlphaTransparencyArtifacts": true,
-        "hasAlpha": false,
-        "type": "texture"
-      },
-      "ver": "1.0.3",
-      "imported": true,
-      "files": [
-        ".json",
-        ".png"
-      ],
-      "subMetas": {}
-    },
-    "3effa": {
-      "importer": "texture",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@3effa",
-      "displayName": "",
-      "id": "3effa",
-      "name": "UnnamedTexture-0.texture",
-      "userData": {
-        "wrapModeS": "repeat",
-        "wrapModeT": "repeat",
-        "minfilter": "linear",
-        "magfilter": "linear",
-        "mipfilter": "linear",
-        "anisotropy": 0,
-        "isUuid": true,
-        "imageUuidOrDatabaseUri": "41eae56b-6046-4203-a072-56a1ddb2378f@c952d"
-      },
-      "ver": "1.0.22",
-      "imported": true,
-      "files": [
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "221a5": {
-      "importer": "texture",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@221a5",
-      "displayName": "",
-      "id": "221a5",
-      "name": "UnnamedTexture-1.texture",
-      "userData": {
-        "wrapModeS": "clamp-to-edge",
-        "wrapModeT": "clamp-to-edge",
-        "minfilter": "linear",
-        "magfilter": "linear",
-        "mipfilter": "linear",
-        "anisotropy": 0,
-        "isUuid": true,
-        "imageUuidOrDatabaseUri": "41eae56b-6046-4203-a072-56a1ddb2378f@e7e58"
-      },
-      "ver": "1.0.22",
-      "imported": true,
-      "files": [
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "18b7e": {
+    "569e7": {
       "importer": "gltf-material",
-      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@18b7e",
+      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@569e7",
       "displayName": "",
-      "id": "18b7e",
-      "name": "M_env_palette.material",
+      "id": "569e7",
+      "name": "ReferenceStoolWood.material",
       "userData": {
         "gltfIndex": 0
       },
@@ -143,16 +57,7 @@
     }
   },
   "userData": {
-    "imageMetas": [
-      {
-        "name": "env_palette_emissive_256",
-        "uri": "41eae56b-6046-4203-a072-56a1ddb2378f@c952d"
-      },
-      {
-        "name": "env_palette_256",
-        "uri": "41eae56b-6046-4203-a072-56a1ddb2378f@e7e58"
-      }
-    ],
+    "imageMetas": [],
     "lods": {
       "enable": false,
       "hasBuiltinLOD": false,
@@ -173,15 +78,12 @@
     },
     "assetFinder": {
       "meshes": [
-        "41eae56b-6046-4203-a072-56a1ddb2378f@c187f"
+        "41eae56b-6046-4203-a072-56a1ddb2378f@fe6ae"
       ],
       "skeletons": [],
-      "textures": [
-        "41eae56b-6046-4203-a072-56a1ddb2378f@3effa",
-        "41eae56b-6046-4203-a072-56a1ddb2378f@221a5"
-      ],
+      "textures": [],
       "materials": [
-        "41eae56b-6046-4203-a072-56a1ddb2378f@18b7e"
+        "41eae56b-6046-4203-a072-56a1ddb2378f@569e7"
       ],
       "scenes": [
         "41eae56b-6046-4203-a072-56a1ddb2378f@4d4cb"
