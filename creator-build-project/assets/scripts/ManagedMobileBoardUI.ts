@@ -22,13 +22,15 @@ export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? 
  *  plate; ≤3 tool slots; transient toast; idle auto-hint (5 s, then every 8 s); every dialog is a lite popup. */
 @ccclass('ManagedMobileBoardUI')
 export class ManagedMobileBoardUI extends Component {
-  private managed: any = null; private disposing = false; private frameKinds = new Set<string>();
+  private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
   initializeManaged(fixture: any, binding: any, backgroundFrame?: (portrait: boolean, layout?: LevelBackgroundFrame) => void, backgroundStatus?: () => LevelBackgroundStatus) {
     if (this.managed || this.root) throw Error('Already initialized'); if (this.deferPresentation) this.presented = false; this.managed = binding; this.backgroundStatus = backgroundStatus; this.initialize(fixture, backgroundFrame);
   }
   managedViewVersion() { return 'mobile-managed-v2-board-ui'; }
   diagnostics() {
-    return { background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
+    return { presentationError: this.presentationError,
+      inputGate: { presented: this.presented, active: this.inputVisible(), state: this.snapshot?.state, piecePointer: this.dragStart?.pointer ?? null, toolPointer: this.toolDrag?.pointer ?? null,
+        visualPending: !!this.visualDone, visualLeft: this.visualLeft, entryPending: !!this.entryFinish }, background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
       layout: this.measureLayout(), storage: this.managed?.storageEntries?.() || [], frameKinds: Array.from(this.frameKinds), goalSemantics: this.goalKeys.map((key, i) => ({ key, value: this.goalLabels[i]?.string, icon: goalArt(key) })),
       toolBar: this.toolBar.slice(), popups: this.popups ? this.popups.names() : [], hintCells: this.hintCells.slice(), hints: this.hintClock.count(), toast: this.toastLabel?.string || '', art: BoardArt.shared().diagnostics() };
   }
@@ -50,11 +52,11 @@ export class ManagedMobileBoardUI extends Component {
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {};
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
-  private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null;
+  private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
   deferPresentation = false;
   /** Managed entry keeps the board off-screen until the island shot ends and a finger can land. Standalone boards start presented. */
-  private presented = true; private readyWait: (() => void) | null = null; private entryFinish: (() => void) | null = null; private entryTimer: any = null;
+  private presented = true; private entryReleased = false; private readyWait: (() => void) | null = null; private entryFinish: (() => void) | null = null; private entryTimer: any = null;
   /** Clear/drop frames advance on the component clock. A stalled setTimeout must not leave the pre-clear board on screen. */
   private visualStamp = 0; private visualDone: (() => void) | null = null; private visualLeft = -1;
   /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
@@ -142,7 +144,7 @@ export class ManagedMobileBoardUI extends Component {
     this.stagePanel = this.box('NativeStageSelection', this.root, 0, 0, 1, 1);
     this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844 }));
     const art = BoardArt.shared(); this.artOff = art.onChange(() => { if (!this.disposing && isValid(this.root, true)) this.refreshArt(); });
-    void art.load('board'); void art.load('popup'); void art.load('r2');
+    this.boardArtRequest = art.load('board'); void art.load('popup'); void art.load('r2');
     this.layout(); this.bind(); game.on(Game.EVENT_HIDE, this.resetOnHide); if (!this.managed) { game.on(Game.EVENT_HIDE, this.hide); game.on(Game.EVENT_SHOW, this.show); } view.on('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.addEventListener('resize', this.resize);
     this.refreshArt();
     if (this.deferPresentation) { this.holdBoardCamera(); this.node.active = false; }
@@ -180,7 +182,7 @@ export class ManagedMobileBoardUI extends Component {
     this.pressHandles.push(bindPressable(node, face, () => { this.input(); tap(); },
       { sound, enabled: () => this.inputVisible() && !this.modalOpen() && !this.dragStart && !this.toolDrag }));
   }
-  private inputVisible() { return !this.disposing && this.enabled !== false && this.node?.activeInHierarchy !== false && this.root?.activeInHierarchy !== false && this.presented && !this.snapshot?.hidden; }
+  private inputVisible() { return !this.disposing && !this.entryReleased && this.enabled !== false && this.node?.activeInHierarchy !== false && this.root?.activeInHierarchy !== false && this.presented && !this.snapshot?.hidden; }
   private pointerEvent(e?: EventTouch) { const p = e && typeof e.getUILocation === 'function' ? e.getUILocation() : null; return !!e && typeof e.getID === 'function' && Number.isFinite(e.getID()) && !!p && Number.isFinite(p.x) && Number.isFinite(p.y); }
   private owns(d: any, e?: EventTouch) { return !!d && !!e && typeof e.getID === 'function' && d.pointer === e.getID(); }
   private resetInput() {
@@ -200,20 +202,23 @@ export class ManagedMobileBoardUI extends Component {
   private entryShowable(s = this.snapshot) {
     if (!s || !this.geo || this.cells.length !== 49) return false;
     if (s.state === 'run.ready' && !s.readOnly) return true;
-    if (s.readOnly || s.state === 'error.readonly' || s.state === 'run.unsaved' || s.state === 'run.paused' || s.state === 'book.ready' || s.state === 'stage.detail') return true;
+    if (s.readOnly || s.state === 'error.readonly' || s.state === 'run.unsaved' || s.state === 'storage.unsaved' || s.state === 'run.paused' || s.state === 'book.ready' || s.state === 'stage.detail') return true;
     return typeof s.state === 'string' && s.state.indexOf('result.') === 0;
   }
   private wakeEntry() { if (!this.readyWait || !this.entryShowable()) return; const go = this.readyWait; this.readyWait = null; go(); }
-  private pieceArtReady() { const art = BoardArt.shared(); return art.loaded('board') && !!art.frame(PIECE_KEYS[0]); }
+  private pieceArtReady() { const art = BoardArt.shared(); return art.loaded('board') && PIECE_KEYS.every(key => !!art.frame(key)); }
   /** Piece art and a showable session (run.ready, or a settled pause/result). A hung load rejects so the island can take the finger again. */
   whenInteractive(): Promise<void> {
+    if (this.entryReleased || this.disposing) return Promise.reject(Error('enter-level-not-ready'));
     const cap = 8000;
     return new Promise<void>((resolve, reject) => {
       let settled = false;
+      const art = BoardArt.shared(), loaded = this.boardArtRequest = art.load('board');
       const finish = (err?: Error) => {
         if (settled) return;
         settled = true; this.entryFinish = null; this.readyWait = null;
         if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
+        if (err || this.disposing || this.entryReleased) art.cancelLoad('board', loaded);
         if (err && !this.disposing) reject(err); else resolve();
       };
       this.entryFinish = () => finish();
@@ -225,20 +230,34 @@ export class ManagedMobileBoardUI extends Component {
       this.entryTimer = setTimeout(() => {
         this.entryTimer = null;
         if (settled) return;
-        if (this.disposing || this.entryShowable()) finish();
+        if (this.disposing) finish();
+        else if (this.entryShowable() && this.pieceArtReady()) finish();
         else finish(Error('enter-level-not-ready'));
       }, cap);
-      const art = BoardArt.shared(), loaded = art.loaded('board') ? Promise.resolve(true) : art.load('board');
       loaded.then(ok => {
         if (settled || this.disposing) { finish(); return; }
-        if (this.entryShowable() && (!ok || this.pieceArtReady())) { finish(); return; }
+        if (!ok) { finish(Error('enter-level-not-ready')); return; }
+        if (this.entryShowable() && this.pieceArtReady()) { finish(); return; }
         consider();
-      }, () => { if (settled || this.disposing) finish(); else if (this.entryShowable()) finish(); else consider(); });
+      }, () => { if (settled || this.disposing) finish(); else finish(Error('enter-level-not-ready')); });
       consider();
     });
   }
+  /** Release this lease's pending entry synchronously, before Cocos' deferred onDestroy.
+   * A later UI must never inherit a request that this old UI can still cancel. */
+  releaseEntryResources() {
+    if (this.entryReleased) return;
+    this.entryReleased = true;
+    const pending = this.boardArtRequest; this.boardArtRequest = null;
+    this.artOff?.(); this.artOff = null;
+    if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
+    if (pending) BoardArt.shared().cancelLoad('board', pending);
+    if (this.entryFinish) { const finish = this.entryFinish; this.entryFinish = null; this.readyWait = null; finish(); }
+    else this.readyWait = null;
+  }
   /** Called once the enter shot has finished and whenInteractive has resolved. The camera stays dark until this turn. */
   presentForPlay() {
+    if (this.entryReleased || this.disposing) return;
     this.presented = true; this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
     if (!this.disposing && this.root && isValid(this.root, true)) this.layout();
@@ -606,7 +625,10 @@ export class ManagedMobileBoardUI extends Component {
         if (this.disposing || !this.root || !isValid(this.root, true)) { done(); return; }
         for (const c of this.cells) tween(c).to(0.08, { scale: new Vec3(.94, .94, 1) }).to(.08, { scale: Vec3.ONE }).start();
         this.armVisual(done);
-      }, cancelAnimations: () => this.cancelAnimations()
+      }, cancelAnimations: () => this.cancelAnimations(), onError: (error: Error) => {
+        this.presentationError = String(error?.stack || error);
+        if (!this.disposing) { this.returnPause = true; this.say('画面刷新中断，已暂停 · 可继续或返回小岛'); }
+      }
     });
   }
   /** One visual step. update() and setTimeout share this so a dropped timer still reveals the clear. */
@@ -628,7 +650,7 @@ export class ManagedMobileBoardUI extends Component {
     if (!this.disposing) this.paintToolTray();
   }
   private coldReload() { const before = this.controller.snapshot(); this.host.dispose(); this.bind(); return { before: before.state, after: this.controller.snapshot().state }; }
-  private command(name: string, ...args: any[]) { this.cancelToolInput(); this.paintToolTray(); this.selected = -1; this.dragStart = null; const r = this.managed?.intercept?.(name, ...args) ?? this.host.command(name, ...args); if (r && r.ok === false) this.say('暂不可操作 · ' + r.reason); return r; }
+  private command(name: string, ...args: any[]) { this.cancelToolInput(); if (!this.presentationError) this.paintToolTray(); this.selected = -1; this.dragStart = null; const r = this.managed?.intercept?.(name, ...args) ?? this.host.command(name, ...args); if (r && r.ok === false) this.say('暂不可操作 · ' + r.reason); return r; }
   private swap(a: number, b: number) {
     if (!this.presented || this.modalOpen() || this.snapshot.state !== 'run.ready' || this.snapshot.readOnly) return;
     this.selected = -1; const p = this.host.command('previewAction', ['swap', a, b]);
@@ -651,7 +673,7 @@ export class ManagedMobileBoardUI extends Component {
   hostLayout() { return this.layoutInfo; }
   setHostActions(a: HostResultActions | null) { this.hostActions = a || {}; if (this.snapshot && this.isResult(this.snapshot)) this.paintResult(this.snapshot); }
   private modalOpen() { return !!this.popups && this.popups.names().some(n => n !== 'ResultPanel'); }
-  private isResult(s: any) { return s.state.startsWith('result.') || s.state === 'run.unsaved' || s.state === 'error.readonly'; }
+  private isResult(s: any) { return s.state.startsWith('result.') || s.state === 'run.unsaved' || s.state === 'storage.unsaved' || (s.state === 'error.readonly' || s.state === 'storage.readOnly'); }
   private playing() { const s = this.snapshot; return !!s?.active && !this.isResult(s) && !['book.ready', 'stage.detail'].includes(s.state); }
   private render(s: any) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
@@ -791,7 +813,9 @@ export class ManagedMobileBoardUI extends Component {
   // ---------------- dialogs ----------------
   private openPausePanel() {
     const s = this.snapshot; if (!s?.active || this.modalOpen() || (s.state !== 'run.ready' && s.state !== 'run.paused')) return;
-    this.cancelToolInput(); this.dragStart = null; this.paintToolTray(); this.paint();
+    this.cancelToolInput(); this.dragStart = null;
+    // Recovery controls must not call the same failed board painter before opening.
+    if (!this.presentationError) { this.paintToolTray(); this.paint(); }
     if (s.state === 'run.ready') this.command('pause');
     const name = s.active.name ? `${String((s.active.level ?? 0) + 1).padStart(2, '0')} ${s.active.name}` : '';
     const mainline = s.provider === 'mainline-v33';
@@ -817,7 +841,7 @@ export class ManagedMobileBoardUI extends Component {
   private closeResult() { const p = this.popups.find('ResultPanel'); if (p) p.destroy(); }
   private resultModel(s: any): ResultModel {
     const a = s.active || {}, mainline = s.provider === 'mainline-v33', won = a.status === 'won', h = this.hostActions;
-    const kind = s.state === 'error.readonly' ? 'readonly' : (s.state === 'result.unsaved' || s.state === 'run.unsaved') ? 'unsaved' : won ? 'win' : 'lose';
+    const kind = (s.state === 'error.readonly' || s.state === 'storage.readOnly') ? 'readonly' : (s.state === 'result.unsaved' || s.state === 'run.unsaved' || s.state === 'storage.unsaved') ? 'unsaved' : won ? 'win' : 'lose';
     const stars = typeof s.result?.stars === 'number' ? s.result.stars : typeof s.result?.earnedStars === 'number' ? s.result.earnedStars : won ? 1 : 0;
     const goalsLeft = Object.keys(a.goals || {}).filter(k => (a.goals[k] || 0) > 0).map(k => ({ art: goalArt(k), count: a.goals[k] }));
     const chest = mainline ? s.journey?.chests?.find((x: any) => x.level === a.level) : null, rewards: ResultReward[] = [];
@@ -858,9 +882,7 @@ export class ManagedMobileBoardUI extends Component {
     // before cleanup and never assume a child still owns its event/child arrays.
     game.off(Game.EVENT_HIDE, this.resetOnHide); game.off(Game.EVENT_HIDE, this.hide); game.off(Game.EVENT_SHOW, this.show); view.off('canvas-resize', this.resize, this);
     this.resetInput(); for (const h of this.pressHandles) h.dispose(); this.pressHandles.length = 0;
-    if (this.entryTimer != null) { clearTimeout(this.entryTimer); this.entryTimer = null; }
-    if (this.entryFinish) { const go = this.entryFinish; this.entryFinish = null; this.readyWait = null; go(); }
-    else if (this.readyWait) { const go = this.readyWait; this.readyWait = null; go(); }
+    this.releaseEntryResources();
     this.cancelAnimations(); this.backgroundFrame = undefined; this.backgroundStatus = undefined; this.artOff?.(); this.artOff = null;
     if (this.root && isValid(this.root, true)) this.root.off(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, this.presentationActive); if (typeof window !== 'undefined') window.removeEventListener('resize', this.resize);
     try { this.popups?.clear(); this.host?.dispose(); } finally { this.tint.clear(); if (!this.managed) delete (globalThis as any).__nativeBoard; }

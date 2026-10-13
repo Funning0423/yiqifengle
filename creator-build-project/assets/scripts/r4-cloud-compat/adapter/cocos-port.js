@@ -19,6 +19,15 @@ function bindChallengeController(controller, view, lifecycle) {
   if (!controller || typeof controller.snapshot !== 'function' || !view || typeof view.render !== 'function' || typeof view.animate !== 'function') throw Error('Controller and render/animate view are required');
   var disposed = false,
     animating = null;
+  function presentationFailed(error) {
+    if (disposed) return;
+    animating = null;
+    controller.pause();
+    try { if (view.cancelAnimations) view.cancelAnimations(); } catch (_) {}
+    try { view.render(controller.snapshot()); } catch (_) {}
+    console.error('[QF_BOARD_PRESENTATION_ERROR]', String(error && error.stack || error));
+    if (view.onError) { try { view.onError(error); } catch (_) {} }
+  }
   function refresh() {
     var _snapshot$visual;
     if (disposed) return;
@@ -28,7 +37,7 @@ function bindChallengeController(controller, view, lifecycle) {
       animating = null;
       (_view$cancelAnimation = view.cancelAnimations) === null || _view$cancelAnimation === void 0 || _view$cancelAnimation.call(view);
     }
-    view.render(snapshot);
+    try { view.render(snapshot); } catch (error) { presentationFailed(error); return; }
     var visual = snapshot.visual;
     if (snapshot.state !== 'run.resolving' || !visual || animating === visual.token) return;
     var token = visual.token;
@@ -37,17 +46,14 @@ function bindChallengeController(controller, view, lifecycle) {
       view.animate(visual, snapshot, function () {
         if (disposed) return;
         if (animating === token) animating = null;
-        var result = controller.finishVisualStep(token);
-        // A stale completion is a no-op, including when it arrives during a newer animation.
-        if (result.ok || result.reason !== 'stale-token') refresh();
+        try {
+          var result = controller.finishVisualStep(token);
+          // A stale completion is a no-op, including during a newer animation.
+          if (result.ok || result.reason !== 'stale-token') refresh();
+        } catch (error) { presentationFailed(error); }
       });
     } catch (error) {
-      var _view$cancelAnimation2, _view$onError;
-      controller.onHide();
-      animating = null;
-      (_view$cancelAnimation2 = view.cancelAnimations) === null || _view$cancelAnimation2 === void 0 || _view$cancelAnimation2.call(view);
-      view.render(controller.snapshot());
-      (_view$onError = view.onError) === null || _view$onError === void 0 || _view$onError.call(view, error);
+      presentationFailed(error);
     }
   }
   function hide() {

@@ -29,14 +29,33 @@ export function createNativeWorldLevelAdapter(options:{
     const background=new LevelBackgroundBinding(Object.freeze({...selection}));
     const modalNodes:Node[]=[];let presentationPaused=true;
     const syncPaused=()=>background.setPaused(presentationPaused||modalNodes.some(node=>node.active));
+    let ui:NativeBoardUI|null=null;
     let session:ReturnType<typeof createManagedBoardSession>|null=null,disposed=false,ownedLease:LevelLease|null=null;
     const dispose=()=>{
       if(disposed)return;disposed=true;
-      try{try{for(const node of modalNodes)node.off(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED,syncPaused);modalNodes.length=0;}finally{background.dispose();}}
-      finally{try{session?.dispose();}finally{try{options.onSession?.(null);}finally{root.destroy();if(active===ownedLease)active=null;}}}
+      // Node.destroy() may defer onDestroy until frame end. Surrender the old
+      // entry request now, before another lease can attach to the shared loader.
+      try{(ui as any)?.releaseEntryResources?.();}
+      finally {
+        try {
+          try { for(const node of modalNodes)node.off(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED,syncPaused);modalNodes.length=0; }
+          finally { background.dispose(); }
+        } finally {
+          try { session?.dispose(); }
+          finally { try { options.onSession?.(null); } finally { root.destroy();if(active===ownedLease)active=null; } }
+        }
+      }
     };
     try {
-      await background.load(options.background,root,token);token.check();
+      // The board's whenInteractive timeout starts only AFTER background.load.
+      // Bound this earlier callback too, so a missing resource callback cannot own input forever.
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([background.load(options.background,root,token),new Promise<never>((_,reject)=>{
+          timer=setTimeout(()=>{console.error('[QF_BOARD_ENTRY_TIMEOUT] background',stageId);reject(Error('enter-level-not-ready'));},12000);
+        })]);
+      } finally { if(timer!==undefined)clearTimeout(timer); }
+      token.check();
       session=createManagedBoardSession(selection,{R4:R4 as any,R5:R5 as any,port:Port,r5Persistence:options.r5Persistence,mainlinePort:options.mainlinePort,r4Persistence:options.r4Persistence},stores,options.navigation,paintRegionalOverlay);
       // Observe the existing presentation callback, never poll/clone controller snapshots each frame.
       // The view owns modal/pause state; the background owns only its presentation clock.
@@ -47,7 +66,7 @@ export function createNativeWorldLevelAdapter(options:{
           return view.render(snapshot);
         },
       });
-      const ui=root.addComponent(NativeBoardUI);
+      ui=root.addComponent(NativeBoardUI);
       if(typeof (ui as any).initializeManaged!=='function')throw Error('Apply NativeBoardUI managed-mode patch before use');
       // Hold touches until WorldFlow reveals, after the shot and a finger-ready board. Test boards leave this unset.
       (ui as any).deferPresentation=true;

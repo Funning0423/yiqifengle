@@ -110,8 +110,17 @@ export function createManagedBoardSession(selection:Selection,deps:Dependencies,
       host=deps.port.bindChallengeController(controller,{
         render:(s:any)=>view.render(Object.assign(presenter.present(s),selection.provider==='r5'?(CampaignHost as any).resultPresentation(s):{})),
         animate:(v:any,s:any,done:()=>void)=>{const ownEpoch=epoch;let used=false;
-          view.animate(v,presenter.present(s),()=>{if(used||disposed||ownEpoch!==epoch)return;used=true;view.render(presenter.present(s,'after'));done();});},
+          view.animate(v,presenter.present(s),()=>{
+            if(used||disposed||ownEpoch!==epoch)return;used=true;
+            // This presenter runs before the port's done callback, possibly on a later tick.
+            try{view.render(presenter.present(s,'after'));done();}
+            catch(error){
+              controller.pause();
+              try{host.refresh();}finally{view.onError?.(error);console.error('[QF_BOARD_PRESENTATION_ERROR]',String(error));}
+            }
+          });},
         cancelAnimations:()=>{epoch++;view.cancelAnimations();},
+        onError:(error:Error)=>view.onError?.(error),
       });
       return {command:safeCommand,hide:()=>{epoch++;return host.hide();},show:()=>host.show(),dispose:()=>dispose()};
     },

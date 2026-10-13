@@ -461,7 +461,7 @@ export class WorldFlow {
         if(lease&&this.level!==lease){try{lease.dispose();}catch(disposeError){console.warn('enter-level dispose failed',String(disposeError));}}
         // A hung board must not stay on screen with input frozen. The island is still the stable place.
         const notReady=!!error&&typeof (error as {message?:unknown}).message==='string'&&(error as {message:string}).message==='enter-level-not-ready';
-        if(notReady){console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
+        if(notReady){t.cancel();console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
         throw error;
       }
     });

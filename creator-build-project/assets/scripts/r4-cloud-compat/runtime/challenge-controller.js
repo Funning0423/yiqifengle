@@ -667,6 +667,12 @@ var ChallengeController = /*#__PURE__*/function () {
     key: "requestExit",
     value: function requestExit() {
       var s = state(this);
+      // Navigation out of an already confirmed protected reader needs no save.
+      // Retain its checkpoint/readonly flag; only a later explicit entry rereads.
+      if (s.screen === 'storage.readOnly' && s.readOnly) return ok({
+        readOnly: true,
+        preserved: true
+      });
       if (blocked(s)) return fail('read-only');
       if (!this.pause().ok || s.screen === 'result.unsaved') return fail('save-failed');
       if (s.run && s.run.engine.status !== 'playing') {
