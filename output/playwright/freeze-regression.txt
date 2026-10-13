@@ -1,0 +1,122 @@
+PASS normal first swap drains on component clock even with all timers withheld
+[QF_BOARD_PRESENTATION_ERROR] Error: injected first-render
+    at b.u.render (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1365:29)
+    at ManagedMobileBoardUI.tap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1405:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:855:18)
+    at ManagedMobileBoardUI.eval (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:204:22)
+    at Node.emit (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:190:91)
+PASS first-render fault pauses without fake OS hide, preserves saved bytes, explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected completion-render
+    at b.u.render (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:20:111)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:69:16
+    at ManagedMobileBoardUI.finishVisual (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1331:9)
+    at ManagedMobileBoardUI.update (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1729:22)
+    at step (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:13:49)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:22:48
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:18:74
+PASS completion-render fault pauses without fake OS hide, preserves saved bytes, explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected tween start
+    at b.H.cc.tween (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:21:108)
+    at Object.animate (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1300:36)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:63:12)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1365:29)
+    at ManagedMobileBoardUI.tap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1405:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:855:18)
+    at ManagedMobileBoardUI.eval (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:204:22)
+    at Node.emit (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:15:335)
+    at Object.tap (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:190:91)
+PASS animate-start fault pauses without fake OS hide, preserves saved bytes, explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected render
+    at b.u.paint (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:24:244)
+    at ManagedMobileBoardUI.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1475:14)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at ManagedMobileBoardUI.swap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1365:29)
+    at ManagedMobileBoardUI.tap (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1405:18)
+    at ManagedMobileBoardUI.releasePiece (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:855:18)
+    at ManagedMobileBoardUI.eval (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:204:22)
+    at Node.emit (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:15:335)
+PASS presentation failure allows explicit Home without another gameplay action
+[QF_BOARD_PRESENTATION_ERROR] Error: persistent board paint
+    at b.u.paint (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:25:203)
+    at ManagedMobileBoardUI.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1475:14)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:56:16)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js:118:7)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:25:355
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:25:2
+PASS persistent board-paint fault still exposes Home and does not auto-retry gameplay
+PASS save failure uses RetrySave protection, never silently resumes or starts another attempt
+PASS real OS hide/show stays paused and late visual callback does not consume another action
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 first-render
+    at u.render (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:31:412)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+PASS R5 first-render fault through real managed presenter preserves actions and explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 completion-render
+PASS R5 completion-render fault through real managed presenter preserves actions and explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R5 tween
+    at H.cc.tween (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:31:571)
+    at Object.animate (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1300:36)
+    at Object.animate (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:31:637
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:28:74
+PASS R5 animate-start fault through real managed presenter preserves actions and explicit resume
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 first-render
+    at u.render (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:1422)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1294:33)
+    at Object.render (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:160:37)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:40:16)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+PASS legacy R4 first-render error reaches explicit recovery
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 completion-render
+PASS legacy R4 completion-render error reaches explicit recovery
+[QF_BOARD_PRESENTATION_ERROR] Error: injected R4 tween
+    at H.cc.tween (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:1581)
+    at Object.animate (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:1300:36)
+    at Object.animate (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:164:26)
+    at refresh (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:46:12)
+    at Object.command (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/creator-build-project/assets/scripts/r4-cloud-compat/adapter/cocos-port.js:93:7)
+    at safeCommand (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:151:21)
+    at Object.submit (eval at load (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/harness.cjs:183:5), <anonymous>:153:108)
+    at /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:1647
+    at async test (/Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:9:47)
+    at async /Users/shineanl/Documents/Codex/2026-10-14/task-3/board-input-fix/tools/board-ui/test_board_freeze_recovery.cjs:33:74
+PASS legacy R4 animate-start error reaches explicit recovery
+PASS required board art failure rejects readiness, explicit reload can recover
+PASS failed whole bundle is not permanently cached across an explicit retry
+PASS missing any required piece rejects 8s readiness deadline
+[enter-level] cover fixed true
+[QF_BOARD_ENTRY_TIMEOUT] background mainline-01
+[enter-level] not ready; staying on the island
+[enter-level] cover fixed true
+PASS Native adapter hung background expires; WorldFlow returns island; late lease disposed; retry succeeds
+PASS all 12 mainline wins through actual UI tap and component visual clocks
+{"status":"PASS","checks":19,"failed":[]}

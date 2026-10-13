@@ -1,0 +1,24 @@
+{
+  "mainBytes": 1861856,
+  "totalBytes": 28709293,
+  "decimalGatePassed": true,
+  "subpackageBytes": {
+    "subpackages/internal/": 297535,
+    "subpackages/resources/": 433034,
+    "subpackages/main/": 985607,
+    "subpackages/audio_bgm_island/": 502421,
+    "subpackages/board_art/": 2675272,
+    "subpackages/region_island/": 2819224,
+    "subpackages/region_meadow/": 437368,
+    "subpackages/region_skycity/": 7492206,
+    "subpackages/static_seat_preview/": 11204770
+  },
+  "artifactTreeSha256": "72bfecee08ac8af94a4f0c60fc17920f7de012a329d5ad40e77c6e4396cf6202",
+  "sourceSha256": "d66b1c9f4ac429d8cfdb9ebd5b4dad34e2f8f636f8df8fcceabef4020baea377",
+  "settings": {
+    "launchScene": "db://assets/scenes/WorldR5Integration.scene"
+  },
+  "buildInfo": "dev; use hashes and build log, not version label",
+  "wechatOpened": false,
+  "previewUploaded": false
+}
