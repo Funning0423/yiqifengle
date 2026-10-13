@@ -19,7 +19,7 @@ export interface RegionDef {
   ambientClipUuids?:string[];
 }
 export const REGIONS:Record<string,RegionDef>={
-  island:{bundle:'region_island',prefabUuid:'498b3fa5-2dd3-4e86-93b8-637ae51438fe@87291',ambientClipUuids:['498b3fa5-2dd3-4e86-93b8-637ae51438fe@f2bf2']},
+  island:{bundle:'static_seat_preview',prefabUuid:'61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9',ambientClipUuids:['61fa04e2-644b-5997-bfd1-812b61d3586b@f2bf2']},
   // Exact prefab UUID from Creator 3.8.8 import; the .glb.meta is committed.
   skycity:{bundle:'region_skycity',prefabUuid:'0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae',prefabName:'env_skycity',ambientClips:['sky_ambient_loop','robot_idle'],gestureClips:['robot_watering','robot_give_flower']},
 };

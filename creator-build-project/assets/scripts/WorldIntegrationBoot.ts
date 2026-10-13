@@ -318,7 +318,7 @@ export class WorldIntegrationBoot extends Component {
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
- private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
@@ -336,8 +336,9 @@ export class WorldIntegrationBoot extends Component {
    if(this.loadingBackdrop)this.loadingBackdrop.active=true;if(this.loadingMask)this.loadingMask.active=true;
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
-    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta()]);attempt.check();const character=loaded[0];
-    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
+    if(!assetManager.getBundle('region_island'))await new Promise<void>((ok,fail)=>assetManager.loadBundle('region_island',(e,b)=>e||!b?fail(e||Error('Dynamic character bundle missing')):ok()));attempt.check();
+    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),this.loadHomeSeated()]);attempt.check();const character=loaded[0];
+    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.homeSeatedPrefab=loaded[2];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
     this.revealRoom();this.paintNavigation();this.resize();
@@ -348,7 +349,7 @@ export class WorldIntegrationBoot extends Component {
    console.error('World startup failed',error);this.setStatus(this.error,true);this.loadingLayer?.showError(this.error);
   });
  }
- private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
+ private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.homeSeatedVisual=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
  /** Ready: fade the startup layer out (OUTRO_FADE_S, ease-out) above everything; room hints wait (roomExplore allowed()).
   * Without the layer (unit-test stubs) it is the old immediate hide. update() finishes the fade and deactivates the nodes. */
  private revealRoom(){const l=this.loadingLayer;
@@ -363,6 +364,12 @@ export class WorldIntegrationBoot extends Component {
   * checks the effect is registered, falls back to builtin-unlit, and never blocks startup. */
  /** Optional walk-driver data (docs/walk-driver.md): region_island character/anim_meta.json. Never blocks or fails startup. */
  private loadAnimMeta(){return new Promise<any>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('character/anim_meta',JsonAsset,(e:any,a:any)=>ok(e||!a?null:a.json));}catch{ok(null);}});}
+ /** The fused heroine/stool is a stationary home visual, never a CharacterAdapter. */
+ private loadHomeSeated(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('static_seat_preview');if(!b)return fail(Error('Home seated bundle missing'));b.loadDir('actor',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one static home prefab'));ok(list[0]);});});}
+ private syncHomeSeated(state:string,hidden:boolean){const seated=this.homeSeatedVisual;if(!seated)return;const home=state==='home'&&!hidden;seated.active=home;
+  // Keep the original rig/clock live: only rendering is exchanged. No fake stand/walk promises.
+  if(this.startupGirl)for(const r of this.startupGirl.getComponentsInChildren(MeshRenderer))r.enabled=!home;
+ }
  private loadCharacter(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Character bundle missing'));b.loadDir('character',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one interim character prefab'));ok(list[0]);});});}
  private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
   try{const pick=(n:string)=>EffectAsset.get(n)?n:null;const effect=pick('builtin-standard')||pick('builtin-unlit');
@@ -389,6 +396,12 @@ export class WorldIntegrationBoot extends Component {
  (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
+ if(!this.homeSeatedPrefab)throw Error('Required static home visual missing');
+ const home=new Node('StationaryHomeSeatedVisual');this.homeSeatedVisual=home;owner.addChild(home);const seatedActor=instantiate(this.homeSeatedPrefab);home.addChild(seatedActor);
+ if(seatedActor.getComponentsInChildren(SkeletalAnimation).length)throw Error('Static home asset unexpectedly contains a rig');
+ const scale=1.2,sx=.00037,sz=-.09094,yaw=-2,a=FIRSTSLICE.anchors.seat_anchor.position;
+ home.setPosition(a[0]-scale*(Math.cos(yaw)*sx+Math.sin(yaw)*sz),.000126,a[2]-scale*(-Math.sin(yaw)*sx+Math.cos(yaw)*sz));home.setRotationFromEuler(0,yaw*180/Math.PI,0);home.setScale(scale,scale,scale);
+ for(const r of seatedActor.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
  // Walk driver wind input: 运镜bot WorldFlowComponent.getWindStrength() (0..1); missing = 0.
@@ -397,7 +410,7 @@ export class WorldIntegrationBoot extends Component {
  try{(this as any)._referenceAdapter.setWalkRestAhead(restAheadFromRoutes(createFirstsliceRoutes(FIRSTSLICE,REF)));}catch(e){console.warn('walk stop predicate unavailable',String(e));}
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
- this.ready=true;girl.active=true;this.error='';
+ this.ready=true;girl.active=true;this.syncHomeSeated('home',false);this.error='';console.info('HOME_SEATED_VISUAL',{stationary:true,dynamicAdapter:'original-skeletal-character',transitionAcceptance:false,reason:'Static fused stool/heroine has no matched stand or sit animation'});
  // T9: optional 3D UI props (signpost / bag / journal / compass / beach palms). Never blocks startup; on failure the flat buttons stay.
  try{const props=new IslandProps(scene,camera);this.islandProps=props;void props.load().then(ok=>{if(this.islandProps!==props||!ok)return;this.islandJourney?.setPropMode(true);});}catch(e){this.islandProps=null;console.warn('[T9_PROPS] host unavailable, flat buttons stay',String(e));}
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
@@ -490,6 +503,7 @@ export class WorldIntegrationBoot extends Component {
  }
  private paintNavigation(dt=0){this.status.node.parent!.active=false; // status bar removed (Funning final): never on screen once ready, any early return included
  let s:any;try{s=this.composition.worldCommands().snapshot();}catch{return;}if(s.state==='home'&&!this.ready){const r=this.composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!r.ok){this.error=r.reason;this.logSuppressedStatus('error',this.error);return;}this.ready=true;}
+ this.syncHomeSeated(s.state,!!s.hidden||!!s.needsResume);
  // 0007 v1.3 (GGbot): home camera is pose DATA now (world-r1/RegionCameraData.ts homePoseSource='oi-interim-standing', same -1.1,1.5,-2.4 -> .1,.86,-4.35, fov 55); only CameraPose.applyCameraPose writes the camera.
  this.notice.node.parent!.active=false;this.status.string='';
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));

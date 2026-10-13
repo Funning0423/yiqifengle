@@ -1,0 +1,37 @@
+{
+  "sourceSha": "6667393b50aa9876eb760af6f229c3a2a83ccc70729c4015b7beb5f9e920b478",
+  "outputSha": "6fbe7a26a140469298e7d8d63d89459cdab4335b96b3a5e812166301c4fa6810",
+  "beforeBytes": 7925240,
+  "afterBytes": 3477896,
+  "geometryMaterialsAndNodesUnchanged": true,
+  "normalMapRenormalized": true,
+  "textures": [
+    {
+      "name": "texture_pbr_20250901_normal",
+      "beforeBytes": 1314192,
+      "afterBytes": 386185,
+      "resolution": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "texture_pbr_20250901",
+      "beforeBytes": 3523529,
+      "afterBytes": 1204814,
+      "resolution": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "texture_pbr_20250901_metallic-texture_pbr_20250901_roughness",
+      "beforeBytes": 1690445,
+      "afterBytes": 489823,
+      "resolution": [
+        1024,
+        1024
+      ]
+    }
+  ]
+}

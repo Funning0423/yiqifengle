@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "realImportedUuidNames": {
+    "61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9": "room_no_original_chair.prefab",
+    "61fa04e2-644b-5997-bfd1-812b61d3586b@f2bf2": "idle_loop.animation",
+    "61fa04e2-644b-5997-bfd1-812b61d3586b@18b7e": "M_env_palette.material"
+  },
+  "duplicateWorldOutsideCreatorAssets": true,
+  "requiredBundlesRetained": true,
+  "actorTangentsRetained": true,
+  "roomSha": "8ae5efeb5f318b22411c0033f450b6de7a935fa3a27fb45d3f3cf240f88e2e42",
+  "scope": "Source and imported-meta integrity only; no rebuilt or rendered acceptance"
+}

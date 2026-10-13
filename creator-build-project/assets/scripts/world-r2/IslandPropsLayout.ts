@@ -28,7 +28,7 @@ export const ISLAND_PROPS = Object.freeze({
   bundle: 'region_island',
   dir: 'ui-props',
   /** combined_visual_m.glb sub-asset "M_env_palette.material" (the island's shared palette material). */
-  paletteMaterialUuid: '498b3fa5-2dd3-4e86-93b8-637ae51438fe@18b7e',
+  paletteMaterialUuid: '61fa04e2-644b-5997-bfd1-812b61d3586b@18b7e',
   paletteMaterialName: 'M_env_palette',
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
