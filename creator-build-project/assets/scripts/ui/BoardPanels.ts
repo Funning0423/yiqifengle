@@ -1,6 +1,6 @@
 import { Color, Graphics, Label, Node, UIOpacity, UITransform, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
-import { PopupPanel, PopupStack, popupScale, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
+import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
 import { toolArt, type ToolArtSource } from './CommonPanels';
 import { reducedMotion } from './UiPrefs';
 /** Board-only panels (c-popups compose.py / compose2.py): pause (layout frozen by PM, only the lite frame and width 680
@@ -121,11 +121,6 @@ function captureResultNodes(root: Node, descendants: boolean): ResultPose[] {
     if (descendants) for (const child of n.children) visit(child);
   }; visit(root); return out;
 }
-function restoreResultNodes(saved: ResultPose[]) {
-  for (const v of saved) { const n = v.node; if (n.name !== 'Face') n.setPosition(v.x, v.y, 0); n.setScale(v.sx, v.sy, 1); n.getComponent(UITransform)?.setContentSize(v.width, v.height);
-    const l = n.getComponent(Label); if (l && v.font !== undefined) { l.fontSize = v.font; l.lineHeight = v.line!; l.enableWrapText = v.wrap!; l.overflow = v.overflow!; }
-  }
-}
 function fitResultButton(node: Node, width: number, height: number, font?: number) {
   node.getComponent(UITransform)!.setContentSize(width, height);
   const face = node.getChildByName('Face')!; face.getComponent(UITransform)!.setContentSize(width, height);
@@ -133,100 +128,205 @@ function fitResultButton(node: Node, width: number, height: number, font?: numbe
   const label = face.getChildByName('Label')?.getComponent(Label);
   if (label) { if (font) { label.fontSize = font; label.lineHeight = Math.round(font * 1.4); } label.node.getComponent(UITransform)!.setContentSize(width - 40, label.lineHeight); }
 }
-/** Result-specific responsive reflow. Buttons retain the kit's pointer/modal guards.
- * The title protrusion participates in viewport fitting; touch minima are physical
- * UI pixels and include the smallest 0.92 opening scale. No other popup is resized. */
-function configureResultLayout(p: PopupPanel, originalHeight: number, m: ResultModel, groups: Record<string, ResultSection>, actions: ResultAction[], rewards: ResultSection[]) {
-  const safe = 12, titleOverhang = 52.5; let landscape = false, short = false, portraitY: number[] = [];
-  const actionPositions = (s: number) => {
-    const hit = 44 / (s * 0.92), gap = 8 / (s * 0.92), ys: number[] = [];
-    let prev = m.kind === 'win' && rewards.length ? 712 : -Infinity, prevH = Math.max(88, hit);
-    for (const a of actions) { const h = Math.max(a.height, hit), y = Math.max(a.y, prev + (prevH + h) / 2 + gap); ys.push(y); prev = y; prevH = h; }
-    return ys;
+/** Readable result flow in logical UI units. The title and navigation stay fixed;
+ * dense content uses finite, explicit pages instead of making its text smaller.
+ * 48-unit buttons and 16-unit text include the 0.92 opening animation allowance.
+ * This is not a guarantee about camera projection or physical device pixels. */
+function configureResultLayout(p: PopupPanel, _originalHeight: number, m: ResultModel, groups: Record<string, ResultSection>, actions: ResultAction[], rewards: ResultSection[]) {
+  type Row = { node: Node; height: number; keepWithNext?: boolean };
+  const pool = new Map<string, Node>();
+  const original = new Map<Node, ResultPose>();
+  const scoreLabel = groups.ResultScore.node.getComponentInChildren(Label)!;
+  const scoreText = scoreLabel.string;
+  const rewardIcons = rewards.map(g => g.node.children.filter(n => !n.name.startsWith('Claim-') && !n.getComponent(Label)));
+  const goalIcons = groups.ResultGoals?.node.children.filter(n => !n.getComponent(Label)) || [];
+  const frame = p.body.getChildByName('PanelFrame')!; frame.setScale(frame.scale.x * 0.45, frame.scale.y * 0.45, 1);
+  const plateScales = new Map<Node, number>();
+  for (const g of Object.values(groups)) for (const v of g.original) original.set(v.node, v);
+  for (const g of Object.values(groups)) g.node.active = false;
+  const getRow = (id: string, height: number): Row => {
+    let node = pool.get(id); if (!node) { node = uiNode('ResultFlow-' + id, p.body); pool.set(id, node); }
+    node.active = false; return { node, height };
   };
-  p.setLayoutStrategy((width, height) => {
-    landscape = width > height;
-    let s: number, w: number, h: number;
-    if (landscape) {
-      // Wider columns use available width instead of shrinking a tall single column.
-      s = Math.min(0.62, Math.max(0.5, (height - safe * 2) / (516 + titleOverhang)));
-      w = Math.min(1000, (width - safe * 2) / s); h = Math.min(516, (height - safe * 2) / s - titleOverhang);
-      // The long layout must fit claim→Next even at the 0.92 opening scale.
-      // Growing 44px hit boxes after layout cannot be allowed to overlap here.
-      const openingScale = s * 0.92, minimumHit = 44 / openingScale;
-      const claimToNext = (Math.max(88, minimumHit) + Math.max(104, minimumHit)) / 2 + 8 / openingScale;
-      short = h < 218 + 180 + claimToNext;
-    } else {
-      s = Math.min(popupScale(width, height), (width - safe * 2) / 680); w = 680; h = originalHeight;
-      for (let i = 0; i < 12; i++) { portraitY = actionPositions(s); h = originalHeight + (portraitY[portraitY.length - 1] - actions[actions.length - 1].y); s = Math.min(s, (height - safe * 2) / (h + titleOverhang)); }
-      portraitY = actionPositions(s); h = originalHeight + (portraitY[portraitY.length - 1] - actions[actions.length - 1].y); short = false;
+  const add = (row: Row, n: Node, x: number, y = 0) => { row.node.addChild(n); n.active = true; n.setPosition(x, y, 0); };
+  const fitArt = (n: Node, w: number, h: number) => {
+    const v = original.get(n), ui = n.getComponent(UITransform)!;
+    const ow = v ? v.width * v.sx : ui.width * n.scale.x, oh = v ? v.height * v.sy : ui.height * n.scale.y;
+    const k = Math.min(w / Math.max(1, ow), h / Math.max(1, oh));
+    n.setScale((v?.sx ?? 1) * k, (v?.sy ?? 1) * k, 1);
+  };
+  const layoutButton = (n: Node, w: number, text?: string) => {
+    const plate = n.getChildByName('Face')!.getChildByName('Plate')!;
+    if (!plateScales.has(plate)) plateScales.set(plate, plate.scale.x);
+    const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : 0.45); plate.setScale(artScale, artScale, 1);
+    fitResultButton(n, w, 48, 16); n.setScale(1, 1, 1);
+    const face = n.getChildByName('Face')!, label = face.getChildByName('Label')?.getComponent(Label);
+    const icon = face.getChildByName('Icon'); if (icon) icon.active = false;
+    if (label) {
+      if (text !== undefined) label.string = text;
+      label.node.setScale(1, 1, 1); label.node.setPosition(0, 0, 0);
+      label.node.getComponent(UITransform)!.setAnchorPoint(0.5, 0.5);
+      label.node.getComponent(UITransform)!.setContentSize(w - 16, 40);
+      label.horizontalAlign = Label.HorizontalAlign.CENTER; label.lineHeight = 20;
+      label.enableWrapText = false; label.overflow = Label.Overflow.CLAMP;
     }
-    const lower = -height / 2 + safe + h * s / 2, upper = height / 2 - safe - (h / 2 + titleOverhang) * s;
-    return { width: w, height: h, scale: s, offsetY: Math.max(lower, Math.min(upper, 0)) };
+  };
+  // Canvas measurement is used where available, with a conservative code-point
+  // bound as the fallback (including wide Latin and CJK, rather than .56em Latin).
+  let context: any = null;
+  try { const canvas = typeof document !== 'undefined' ? document.createElement('canvas') : (globalThis as any).wx?.createCanvas?.(); context = canvas?.getContext?.('2d'); } catch { }
+  const textWidth = (text: string, size: number) => {
+    const fallback = Array.from(text).reduce((w, ch) => w + (ch === ' ' ? size * 0.5 : size), 0);
+    if (!context) return fallback;
+    try { context.font = `${size}px Arial`; const measured = context.measureText(text).width; return Math.max(fallback, Number.isFinite(measured) ? measured + 1 : 0); } catch { return fallback; }
+  };
+  const wrap = (text: string, width: number, size: number) => {
+    const lines: string[] = [];
+    for (const paragraph of text.split('\n')) {
+      let line = '';
+      for (const ch of Array.from(paragraph)) { if (line && textWidth(line + ch, size) > width) { lines.push(line); line = ''; } line += ch; }
+      lines.push(line);
+    }
+    return lines;
+  };
+  let page = 0, pages: Row[][] = [], layoutKey = '', contentTop = 58, available = 0;
+  const previous = p.button('secondary', '‹', 0, 0, 48, 48, () => changePage(-1), { name: 'ResultPreviousPage', fontSize: 24 });
+  const next = p.button('secondary', '›', 0, 0, 48, 48, () => changePage(1), { name: 'ResultNextPage', fontSize: 24 });
+  const counter = p.text('', 0, 0, 16, 'brown2', { width: 100, name: 'ResultPageNumber', bold: false });
+  const readableTitle = p.text(TITLES[m.kind][0], 0, 0, 18, 'brown', { width: 160, name: 'ResultReadableTitle' }); readableTitle.node.active = false;
+  const spaceNotice = p.text('', 0, 0, 16, 'brown2', { width: 160, name: 'ResultSpaceNotice', bold: false }); spaceNotice.node.active = false;
+  const showPage = () => {
+    for (const n of pool.values()) n.active = false;
+    const rows = pages[page] || []; const used = rows.reduce((sum, row) => sum + row.height + 1, -1);
+    let y = contentTop + Math.max(0, (available - used) / 2);
+    for (const row of rows) { row.node.active = true; row.node.setPosition(0, p.height / 2 - y - row.height / 2, 0); y += row.height + 1; }
+    previous.node.active = next.node.active = counter.node.active = pages.length > 1;
+    previous.setEnabled(page > 0); next.setEnabled(page + 1 < pages.length);
+    counter.string = `${page + 1} / ${pages.length}`;
+  };
+  function changePage(delta: number) {
+    const target = Math.max(0, Math.min(pages.length - 1, page + delta));
+    if (target === page) return;
+    resetPresses(p.root); page = target; showPage();
+  }
+  p.setLayoutStrategy((width, height, safeInsets) => {
+    const number = (v: number | undefined) => Number.isFinite(v) ? Math.max(0, v!) : 0;
+    const left = number(safeInsets?.left), right = number(safeInsets?.right), bottom = number(safeInsets?.bottom);
+    // Reserve the capsule's whole top band: the result title and pager never
+    // overlap the system menu even when its horizontal position is asymmetric.
+    const top = Math.max(number(safeInsets?.top), number(safeInsets?.capsule?.bottom));
+    const w = Math.min(680, Math.max(1, width - left - right - 24));
+    const h = Math.min(720, Math.max(1, height - top - bottom - 24));
+    return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
   }, geometry => {
-    for (const g of Object.values(groups)) { restoreResultNodes(g.original); const pos = p.at(g.x, g.y); g.node.setPosition(pos[0], pos[1], 0); }
-    for (const a of actions) restoreResultNodes(a.original);
-    const place = (name: string, x: number, y: number, scale = 1) => { const g = groups[name]; if (!g) return; const pos = p.at(x, y); g.node.setPosition(pos[0], pos[1], 0); g.node.setScale(scale, scale, 1); };
-    const labelSize = (name: string, size: number, width: number) => { const n = p.body.getChildByName(name) || Object.values(groups).map(g => g.node.getChildByName(name)).find(Boolean); const l = n?.getComponent(Label); if (l) { l.fontSize = Math.min(size, (width - 8) / Math.max(1, measure(l.string, 1))); l.lineHeight = Math.round(l.fontSize * 1.4); n!.getComponent(UITransform)!.setContentSize(width, l.lineHeight); } };
-    if (!landscape) {
-      for (let i = 0; i < actions.length; i++) { const pos = p.at(0, portraitY[i]); actions[i].handle.node.setPosition(pos[0], pos[1], 0); }
+    const key = `${geometry.width}/${geometry.height}`;
+    // Opening animation must not rebuild the pages or reset a held finger.
+    if (layoutKey === key) return; layoutKey = key;
+    resetPresses(p.root);
+    const w = geometry.width, h = geometry.height, inner = w - 16, dense = h < 400;
+    // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
+    const supported = w >= 192 && h >= 172;
+    p.body.getChildByName('TitlePlank')!.active = supported;
+    for (const a of actions) a.handle.node.active = supported;
+    spaceNotice.node.active = !supported; readableTitle.node.active = false;
+    if (!supported) {
+      // A bounded host fallback, not another text shrink. Keep the modal guard,
+      // cancel every old gesture and require a larger safe rectangle to act.
+      for (const n of pool.values()) n.active = false;
+      previous.node.active = next.node.active = counter.node.active = false;
+      const lines = wrap('空间不足\n请旋转屏幕\n或放大窗口', Math.max(1, inner), 16);
+      spaceNotice.string = lines.join('\n'); spaceNotice.fontSize = 16; spaceNotice.lineHeight = 22;
+      spaceNotice.enableWrapText = false; spaceNotice.overflow = Label.Overflow.CLAMP;
+      spaceNotice.node.getComponent(UITransform)!.setContentSize(Math.max(1, inner), lines.length * 22);
+      spaceNotice.node.setPosition(0, 0, 0);
+      spaceNotice.node.active = inner >= 16 && lines.length * 22 <= h - 8;
+      return;
+    }
+    available = h - contentTop - 60;
+    const rows: Row[] = [];
+    const labelRows = (id: string, text: string, size = 16, role: 'brown' | 'brown2' | 'teal' | 'grey' = 'brown') => {
+      const lines = wrap(text, inner - 4, size);
+      for (let i = 0; i < lines.length; i++) {
+        const row = getRow(id + '-' + i, Math.ceil(size * 1.35)); row.keepWithNext = ['Score', 'ResultNotice', 'ResultMessage', 'ResultChestHint'].includes(id) && i + 1 < lines.length;
+        let l = row.node.getComponentInChildren(Label);
+        if (!l) l = p.text('', 0, 0, size, role, { name: id + (i ? '-continued-' + i : ''), bold: size >= 20, width: inner, parent: row.node });
+        l.string = lines[i]; l.fontSize = size; l.lineHeight = Math.ceil(size * 1.35); l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+        l.node.getComponent(UITransform)!.setContentSize(inner, l.lineHeight); l.node.setPosition(0, 0, 0); rows.push(row);
+      }
+    };
+    const plank = p.body.getChildByName('TitlePlank')!, plankUI = plank.getComponent(UITransform)!;
+    const titleWidth = Math.max(1, w - 112), titleScale = Math.min(0.42, titleWidth / plankUI.width);
+    plank.setScale(titleScale, titleScale, 1); plank.setPosition(0, h / 2 - 23, 0);
+    const title = plank.getChildByName('Title')!, titleLabel = title.getComponent(Label);
+    const replaceTitleArt = !titleLabel && title.getComponent(UITransform)!.height * titleScale < 20;
+    title.active = !replaceTitleArt; readableTitle.node.active = replaceTitleArt;
+    if (replaceTitleArt) { readableTitle.node.setPosition(0, h / 2 - 23, 0); readableTitle.node.getComponent(UITransform)!.setContentSize(titleWidth, 24); }
+    if (titleLabel) { titleLabel.fontSize = 18 / titleScale; titleLabel.lineHeight = 22 / titleScale; title.getComponent(UITransform)!.setContentSize(titleWidth / titleScale, 24 / titleScale); }
+    counter.node.setPosition(0, h / 2 - 46, 0); counter.node.getComponent(UITransform)!.setContentSize(titleWidth, 20);
+    for (const [b, x] of [[previous, -w / 2 + 24], [next, w / 2 - 24]] as const) { layoutButton(b.node, 48); b.node.setPosition(x, h / 2 - 28, 0); }
+    for (let i = 0; i < actions.length; i++) {
+      const a = actions[i], width = actions.length === 1 ? Math.min(320, inner) : (inner - 8) / 2;
+      const x = actions.length === 1 ? 0 : (i - 0.5) * (width + 8);
+      layoutButton(a.handle.node, width); a.handle.node.setPosition(x, -h / 2 + 32, 0);
+    }
+    const stars = groups.ResultStars.node;
+    if (m.kind !== 'lose' && dense && textWidth(scoreText, 20) <= inner - 100) {
+      const row = getRow('summary', 48); stars.setScale(0.14, 0.14, 1); add(row, stars, -inner / 2 + 45, -4);
+      add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
+      scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
     } else {
-      const w = geometry.width, h = geometry.height, left = -w / 4, right = w / 4, lane = w / 2 - 32;
-      place('ResultStars', left, short ? 112 : 154, short ? 0.45 : 0.7);
-      place('ResultScore', m.kind === 'lose' ? right : left, m.kind === 'lose' ? 112 : short ? 174 : 272);
-      labelSize('Score', short ? 40 : 64, lane); labelSize('ResultMessage', short ? 24 : 28, lane);
-      labelSize('MovesInfo', 28, Math.min(400, lane / 2 + 118));
-      place('ResultDetails', left, short ? 224 : 350);
-      if (short && groups.ResultDetails) {
-        const g = groups.ResultDetails.node;
-        labelSize('MovesInfo', 24, lane - 40); labelSize('SavedText', 24, lane);
-        for (const name of ['SavedText', 'SavedWell']) { const n = g.getChildByName(name); if (n) n.setPosition(n.position.x, -28, 0); }
-        const well = g.getChildByName('SavedWell'); well?.setScale(0.8, 0.75, 1);
-        const moves = g.getChildByName('MovesInfo')!; moves.setPosition(-lane / 2 + 40, 0, 0);
-        const icon = g.getChildByName('MovesSymbol')!; icon.setPosition(-lane / 2 + 16, 0, 0); icon.setScale(0.5, 0.5, 1);
-      }
-      place('ResultGoals', left, short ? 178 : 326, short ? 0.65 : 0.9);
-      place('ResultChest', left, short ? 244 : 430);
-      if (groups.ResultChest) for (const n of groups.ResultChest.node.children) {
-        if (n.getComponent(Label)) { n.setPosition(-lane / 2 + (short ? 64 : 84), 0, 0); n.getComponent(UITransform)!.setContentSize(lane - (short ? 80 : 100), 40); }
-        else { n.setPosition(-lane / 2 + 24, 0, 0); n.setScale(short ? 0.33 : 0.6, short ? 0.33 : 0.6, 1); }
-      }
-      place('ResultNotice', right, short ? 132 : 160, Math.min(short ? 0.8 : 1, lane / 510));
-      for (let i = 0; i < rewards.length; i++) {
-        const g = rewards[i], n = rewards.length, cell = (lane - (n - 1) * 16) / n, x = right + (i - (n - 1) / 2) * (cell + 16);
-        place(g.node.name, x, short ? 136 : 154);
-        for (const child of g.node.children) {
-          if (child.name.startsWith('Claim-')) { child.setPosition(0, -64, 0); const text = child.getChildByName('Face')?.getChildByName('Label')?.getComponent(Label)?.string || ''; fitResultButton(child, Math.min(248, cell), 64, Math.min(28, (cell - 40) / Math.max(1, text.length))); }
-          else if (child.getComponent(Label)) { child.setPosition(0, -64, 0); child.getComponent(UITransform)!.setContentSize(cell, 40); }
-          else child.setScale(child.scale.x * (short ? 0.6 : 0.8), child.scale.y * (short ? 0.6 : 0.8), 1);
+      const row = getRow('stars', dense ? 44 : 116); stars.setScale(dense ? 0.14 : 0.32, dense ? 0.14 : 0.32, 1); add(row, stars, 0, dense ? -4 : -12); rows.push(row);
+      scoreLabel.node.active = false;
+      // Keep a long numeric score together on a compact page. The readable floor
+      // is the same 16-unit body size; ordinary compact scores remain 20 units.
+      const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 24;
+      labelRows(m.kind === 'lose' ? 'ResultMessage' : 'Score', scoreText, scoreSize);
+    }
+    if (m.kind === 'win') {
+      labelRows('MovesInfo', (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步');
+      labelRows('SavedText', '成绩已保存', 16, 'teal');
+    } else if (m.kind === 'lose') {
+      const goals = groups.ResultGoals;
+      if (goals) {
+        const sourceLabels = goals.original.filter(v => v.font !== undefined);
+        for (let i = 0; i < sourceLabels.length; i++) {
+          const value = sourceLabels[i].node.getComponent(Label)!;
+          const row = getRow('goal-' + i, 40), icon = goalIcons[i];
+          if (icon) { fitArt(icon, 32, 32); add(row, icon, -inner / 2 + 24); }
+          let l = row.node.getComponentInChildren(Label); if (!l) l = p.text('', 0, 0, 16, 'brown', { name: 'ResultGoalCount-' + i, parent: row.node });
+          const long = textWidth(value.string, 16) > inner - 64;
+          l.string = long ? '剩余目标' : value.string; l.fontSize = 16; l.lineHeight = 22; l.node.getComponent(UITransform)!.setContentSize(inner - 64, 24); add(row, l.node, 30); rows.push(row);
+          if (long) labelRows('ResultGoalCountFull-' + i, value.string);
         }
       }
-      for (let i = 0; i < actions.length; i++) {
-        const a = actions[i], x = short ? (actions.length === 1 ? 0 : (i - 0.5) * w / 2) : right;
-        const y = short ? h - 60 : actions.length === 1 ? h - 70 : h - 180 + i * 120, pos = p.at(x, y);
-        a.handle.node.setPosition(pos[0], pos[1], 0); fitResultButton(a.handle.node, Math.min(a.width, lane), short ? 96 : a.height);
+    } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
+    if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
+    const paired = rewards.length === 2 && inner >= 400 && m.rewards.every(r => textWidth(r.label, 16) <= (inner - 12) / 2 - 72);
+    const cell = paired ? (inner - 12) / 2 : inner;
+    for (let i = 0; i < rewards.length; i++) {
+      const columnX = paired ? (i - 0.5) * (cell + 12) : 0;
+      const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
+      const label = r.label, long = textWidth(label, 16) > cell - 72;
+      if (long) labelRows('ResultRewardLabel-' + i, label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+      const row = getRow(paired ? 'reward-pair' : 'reward-' + i, 48);
+      const art = rewardIcons[i];
+      for (const n of art) { fitArt(n, 44, 36); add(row, n, columnX - cell / 2 + 24); }
+      if (claim) { layoutButton(claim, cell - 60, long ? '领取奖励' : label); add(row, claim, columnX + 30); }
+      else {
+        let l = row.node.getChildByName('ResultRewardState-' + i)?.getComponent(Label); if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { width: cell - 64, name: 'ResultRewardState-' + i, parent: row.node });
+        l.string = long ? (r.state === 'claimed' ? '已经领取' : '暂未解锁') : label; l.fontSize = 16; l.lineHeight = 22;
+        l.node.getComponent(UITransform)!.setContentSize(cell - 64, 24); add(row, l.node, columnX + 30);
       }
+      if (!paired || i === 0) rows.push(row);
     }
-    // Compact decoration may shrink; explanatory words must not inherit that scale.
-    for (const name of ['ResultChest', 'ResultNotice']) {
-      const group = groups[name]; if (!group) continue;
-      for (const n of group.node.children) { const label = n.getComponent(Label); if (!label) continue;
-        let scale = 1; for (let a: Node | null = n; a; a = a.parent) scale *= a.scale.y;
-        label.fontSize = Math.max(label.fontSize, 12 / Math.abs(scale)); label.lineHeight = Math.round(label.fontSize * 1.4);
-        const ui = n.getComponent(UITransform)!, lines = Math.max(1, Math.ceil(measure(label.string, label.fontSize) / Math.max(1, ui.width)));
-        label.enableWrapText = lines > 1; label.overflow = lines > 1 ? Label.Overflow.CLAMP : Label.Overflow.NONE;
-        ui.setContentSize(ui.width, label.lineHeight * lines);
-      }
+    pages = [[]]; let used = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]; let needed = row.height;
+      if (row.keepWithNext) for (let j = i + 1; j < rows.length; j++) { needed += rows[j].height + 1; if (!rows[j].keepWithNext) break; }
+      if (used && used + 1 + needed > available) { pages.push([]); used = 0; }
+      pages[pages.length - 1].push(row); used += row.height + (used ? 1 : 0);
     }
-    // Only hit nodes grow: the original art is not globally scaled down to make room.
-    const buttons = actions.map(a => a.handle.node).concat(rewards.reduce((all, g) => all.concat(g.node.children.filter(n => n.name.startsWith('Claim-'))), [] as Node[]));
-    for (const n of buttons) { let sx = 1, sy = 1; for (let a: Node | null = n; a; a = a.parent) { sx *= a.scale.x; sy *= a.scale.y; }
-      const ui = n.getComponent(UITransform)!; ui.setContentSize(Math.max(ui.width, 44 / Math.abs(sx)), Math.max(ui.height, 44 / Math.abs(sy)));
-      const face = n.getChildByName('Face')!, label = face.getChildByName('Label')?.getComponent(Label);
-      if (label) { const width = face.getComponent(UITransform)!.width, available = label.horizontalAlign === Label.HorizontalAlign.LEFT ? width / 2 - label.node.position.x - 12 : width - 24;
-        label.fontSize = Math.min(Math.max(label.fontSize, 12 / Math.abs(sy)), Math.max(1, available) / Math.max(1, measure(label.string, 1))); label.lineHeight = Math.round(label.fontSize * 1.4);
-        label.node.getComponent(UITransform)!.setContentSize(Math.max(1, available), label.lineHeight); }
-    }
+    page = Math.min(page, pages.length - 1); showPage();
   });
 }
 function chestLine(p: PopupPanel, y: number, text: string) {

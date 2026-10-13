@@ -224,7 +224,11 @@ export function artSlider(parent: Node, tint: TintSet, x: number, y: number, w: 
   node.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => finish(e, false));
   return { node, set(next: number) { v = Math.max(0, Math.min(1, next)); paint(); }, value: () => v };
 }
-export interface PanelGeometry { width: number; height: number; scale: number; offsetY?: number }
+/** Logical UI units, in the same coordinate space as width/height. Capsule is excluded
+ * conservatively across the result header; callers without insets retain zero insets. */
+export interface PopupSafeInsets { top: number; bottom: number; left: number; right: number; capsule?: { top: number; bottom: number; left: number; right: number } | null }
+export interface PopupViewport { width: number; height: number; safeInsets?: PopupSafeInsets }
+export interface PanelGeometry { width: number; height: number; scale: number; offsetX?: number; offsetY?: number; titleY?: number }
 export interface PanelOptions {
   name: string; height: number; title: string; titleArt?: string | null; closable?: boolean; onClose?: () => void;
   width?: number; dy?: number; tint?: TintSet;
@@ -234,12 +238,13 @@ export class PopupPanel {
   readonly root: Node; readonly body: Node; readonly tint: TintSet;
   width: number; height: number;
   private frame: Node; private plank: Node;
-  private layoutStrategy: ((width: number, height: number) => PanelGeometry) | null = null;
+  private layoutStrategy: ((width: number, height: number, safeInsets?: PopupSafeInsets) => PanelGeometry) | null = null;
   private reflow: ((geometry: PanelGeometry) => void) | null = null;
   private shade: Graphics; private opacity: UIOpacity; private t = 0; private closing = -1; private done: (() => void) | null = null;
   private toggles: ToggleHandle[] = []; private viewW = 0; private viewH = 0; private dy: number;
   private reduced = reducedMotion();
-  constructor(parent: Node, readonly options: PanelOptions, viewport: { width: number; height: number }) {
+  private safeInsets: PopupSafeInsets | undefined; private safeKey = '';
+  constructor(parent: Node, readonly options: PanelOptions, viewport: PopupViewport) {
     this.tint = options.tint || new TintSet(); this.width = options.width || PANEL_WIDTH; this.height = options.height; this.dy = options.dy || 0;
     this.root = uiNode(options.name, parent, viewport.width, viewport.height); this.root.addComponent(BlockInputEvents);
     const shadeNode = uiNode('PopupShade', this.root, viewport.width, viewport.height); this.shade = shadeNode.addComponent(Graphics);
@@ -247,7 +252,7 @@ export class PopupPanel {
     const frame = artSprite(this.body, 'popup/panel_frame_9s', 0, 0, this.width, this.height, 'PanelFrame'); this.frame = frame.node; this.tint.sprite(frame, 'ui');
     const plank = this.titlePlank(options.title, options.titleArt || null); this.plank = plank; plank.setPosition(0, this.height / 2, 0);
     if (options.closable) this.closeButton();
-    this.layout(viewport.width, viewport.height); this.tint.update(true); this.paintShade(0);
+    this.layout(viewport.width, viewport.height, viewport.safeInsets); this.tint.update(true); this.paintShade(0);
   }
   private titlePlank(title: string, art: string | null): Node {
     const lib = BoardArt.shared(), titleSize = art ? lib.size(art) : { width: measure(title, 46), height: 50 };
@@ -287,20 +292,22 @@ export class PopupPanel {
     return n;
   }
   /** Opt-in geometry for dense result pages. Other popup designs keep their original sizing. */
-  setLayoutStrategy(strategy: (width: number, height: number) => PanelGeometry, reflow: (geometry: PanelGeometry) => void) {
-    this.layoutStrategy = strategy; this.reflow = reflow; this.layout(this.viewW, this.viewH);
+  setLayoutStrategy(strategy: (width: number, height: number, safeInsets?: PopupSafeInsets) => PanelGeometry, reflow: (geometry: PanelGeometry) => void) {
+    this.layoutStrategy = strategy; this.reflow = reflow; this.layout(this.viewW, this.viewH, this.safeInsets);
   }
-  layout(width: number, height: number) {
-    if (this.layoutStrategy && this.viewW && (width !== this.viewW || height !== this.viewH)) resetPresses(this.root);
-    const geometry = this.layoutStrategy?.(width, height) || { width: this.width, height: this.height, scale: popupScale(width, height) };
+  layout(width: number, height: number, safeInsets?: PopupSafeInsets) {
+    const key = JSON.stringify(safeInsets || null);
+    if (this.layoutStrategy && this.viewW && (width !== this.viewW || height !== this.viewH || key !== this.safeKey)) resetPresses(this.root);
+    this.safeInsets = safeInsets; this.safeKey = key;
+    const geometry = this.layoutStrategy?.(width, height, safeInsets) || { width: this.width, height: this.height, scale: popupScale(width, height) };
     this.viewW = width; this.viewH = height; const s = geometry.scale;
     this.width = geometry.width; this.height = geometry.height;
     this.body.getComponent(UITransform)!.setContentSize(this.width, this.height);
     this.frame.getComponent(UITransform)!.setContentSize(this.width / this.frame.scale.x, this.height / this.frame.scale.y);
-    this.plank.setPosition(0, this.height / 2, 0);
+    this.plank.setPosition(0, geometry.titleY ?? this.height / 2, 0);
     this.root.getComponent(UITransform)!.setContentSize(width, height); this.shade.node.getComponent(UITransform)!.setContentSize(width, height);
     const k = this.reduced ? 1 : this.closing >= 0 ? 1 - 0.04 * easeOut(1 - this.closing / CLOSE_S) : 0.92 + 0.08 * easeOut(this.t / OPEN_S);
-    this.body.setScale(s * k, s * k, 1); this.body.setPosition(0, geometry.offsetY ?? -this.dy * s, 0);
+    this.body.setScale(s * k, s * k, 1); this.body.setPosition(geometry.offsetX ?? 0, geometry.offsetY ?? -this.dy * s, 0);
     this.reflow?.(geometry);
     this.paintShade(this.alpha());
   }
@@ -317,7 +324,7 @@ export class PopupPanel {
     const step = Math.max(0, Math.min(dt, 0.1));
     if (this.closing >= 0) { this.closing = Math.max(0, this.closing - step); if (this.closing <= 0) { this.finish(); return; } }
     else if (this.t < OPEN_S) this.t = Math.min(OPEN_S, this.t + step);
-    const a = this.alpha(); this.opacity.opacity = Math.round(255 * easeOut(a)); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH);
+    const a = this.alpha(); this.opacity.opacity = Math.round(255 * easeOut(a)); this.tint.setAlpha(a); this.layout(this.viewW, this.viewH, this.safeInsets);
     for (let i = 0; i < this.toggles.length; i++) this.toggles[i].update(step);
     this.tint.update();
   }
@@ -332,7 +339,7 @@ export class PopupPanel {
 /** Ordered popups of one canvas: the last one is on top; closed panels drop out after their close animation. */
 export class PopupStack {
   private list: PopupPanel[] = [];
-  constructor(readonly parent: Node, private readonly viewport: () => { width: number; height: number }) {}
+  constructor(readonly parent: Node, private readonly viewport: () => PopupViewport) {}
   open(options: PanelOptions): PopupPanel {
     const p = new PopupPanel(this.parent, options, this.viewport()); p.root.setSiblingIndex(this.parent.children.length - 1); this.list.push(p); this.syncInput(); return p;
   }
@@ -342,7 +349,7 @@ export class PopupStack {
   any(): boolean { this.prune(); return this.list.length > 0; }
   names(): string[] { this.prune(); return this.list.filter(p => !p.isClosing).map(p => p.options.name); }
   update(dt: number) { const l = this.list.slice(); for (let i = 0; i < l.length; i++) l[i].update(dt); this.prune(); }
-  layout() { const v = this.viewport(); for (let i = 0; i < this.list.length; i++) this.list[i].layout(v.width, v.height); }
+  layout() { const v = this.viewport(); for (let i = 0; i < this.list.length; i++) this.list[i].layout(v.width, v.height, v.safeInsets); }
   close(name: string) { const p = this.find(name); if (p) p.close(); }
   clear() { for (let i = 0; i < this.list.length; i++) this.list[i].destroy(); this.list.length = 0; }
   private syncInput() { const top = this.list.length ? this.list[this.list.length - 1] : null; for (const p of this.list) p.setInputEnabled(p === top && !p.isClosing); }
