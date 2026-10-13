@@ -525,8 +525,9 @@ export class SoleContactSolver {
  private anchors:{[bone:string]:Array<number[]|null>}={};private previous:{[bone:string]:number[]}={};
  maxCorrectionMm=0;unreachable=0;
  constructor(private geometry:any){}
+ hasContacts(){return Object.keys(this.anchors).some(b=>this.anchors[b].some(a=>a!==null));}
  reset(){this.anchors={};this.previous={};}
- apply(joints:ReadonlyArray<Joint>,root:readonly number[],yaw:number,enabled:boolean){
+ apply(joints:ReadonlyArray<Joint>,root:readonly number[],yaw:number,enabled:boolean,dt=0){
   if(!enabled||!this.geometry){this.reset();return;}
   const nodes:any={};for(let i=0;i<joints.length;i++)nodes[joints[i].name]=joints[i].node;
   const mul=(a:number[],b:number[])=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
@@ -540,10 +541,10 @@ export class SoleContactSolver {
   for(let side=0;side<2;side++){
    const suffix=side?'R':'L',b='foot.'+suffix,points=this.geometry.points[b],foot=nodes[b],thigh=nodes['thigh.'+suffix],shin=nodes['shin.'+suffix];if(!points||!foot||!shin||!thigh)continue;
    const fw=fk(foot),tw=fk(thigh),sw=fk(shin),world=points.map((p:number[])=>add(root.slice() as number[],rot(yq,add(fw.p,rot(fw.q,p.map((x,i)=>x*fw.s[i]))))));
-   const anchors=this.anchors[b]||(this.anchors[b]=points.map(()=>null));const residual:number[][]=[];const active=world.map((p:number[])=>p[1]<root[1]+this.geometry.floor[b]+.006);
+   const anchors=this.anchors[b]||(this.anchors[b]=points.map(()=>null));const residual:number[][]=[];const active=world.map((p:number[],k:number)=>p[1]<root[1]+(anchors[k]?.012:.006));
    for(let k=0;k<points.length;k++){if(!active[k])anchors[k]=null;else if(anchors[k])residual.push(sub(anchors[k]!,world[k]));}
    let shift=[0,0,0];if(residual.length){for(const axis of [0,2]){let lo=Infinity,hi=-Infinity;for(let k=0;k<residual.length;k++){lo=Math.min(lo,residual[k][axis]);hi=Math.max(hi,residual[k][axis]);}shift[axis]=(lo+hi)/2;}}
-   else if(!active.some((x:boolean)=>x)&&this.previous[b])shift=this.previous[b].map(x=>x*.8);
+   else if(!active.some((x:boolean)=>x)&&this.previous[b])shift=this.previous[b].map(x=>x*Math.pow(.8,dt*60));
    for(let k=0;k<points.length;k++)if(active[k]&&!anchors[k])anchors[k]=add(world[k],shift);
    this.previous[b]=shift;this.maxCorrectionMm=Math.max(this.maxCorrectionMm,norm(shift)*1000);const delta=rot(inv(yq),shift);if(norm(delta)<1e-9)continue;
    let target=add(fw.p,delta),v=sub(target,tw.p),d=norm(v),axis=unit(v),l1=norm(sub(sw.p,tw.p)),l2=norm(sub(fw.p,sw.p));const clamp=Math.max(Math.abs(l1-l2)+1e-7,Math.min(l1+l2-1e-7,d));if(Math.abs(clamp-d)>1e-6){this.unreachable++;d=clamp;target=add(tw.p,axis.map(x=>x*d));}

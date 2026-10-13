@@ -77,7 +77,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.stopHold>0&&this.clock.base&&name!==this.clock.base.clip){this.stopHold=0;this.clock.releaseHold();}
   const d=this.requireClip(name);
   if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
- private render(){if(!this.rig||!this.clock)return;const plan=this.clock.plan(),j=this.job;
+ private render(dt=0){if(!this.rig||!this.clock)return;const plan=this.clock.plan(),j=this.job;
   // A held outgoing pose was authored in the controller frame at action entry. Reproject it into the moving
   // controller frame before blending; otherwise the first 0.2 s of sit/stand drags the planted feet ~20 mm.
   // +Z forward, +Y up, unit-scale visual; translation is applied only to the outgoing root joint pose buffer.
@@ -86,7 +86,7 @@ class FlowReferenceStandin implements CharacterAdapter {
    // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
    // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
    plan.out.preserveIncomingLowerBody=(j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle||j.action.kind==='stand'&&plan.out.clip===CLIP_ROLES.sitHold);}
-  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&/^walk_(loop|start|stop_body[LR])$/.test(plan.base.clip));this.applyMorph(plan);}
+  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(/^walk_(loop|start|stop_body[LR])$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&this.support.hasContacts()),dt);this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
@@ -162,7 +162,10 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.startsWalkStart(cur)&&(plan.start||!(sm&&sm.root&&sm.root.forward))){this.playNamed(CLIP_ROLES.walkStart,false);c.setRate(plan.start?plan.start.rate:1);}else{this.playNamed(CLIP_ROLES.walk,true);c.setRate(plan.rate);}return !continuing;}
  /** Root offset (her left, metres) of a stop clip's lateral_m curve at clip time t (CharacterMotion.stopLateralAt). */
  private stopLateral(t:number):number {const r=this.stopRoot;return r?stopLateralAt(r.lateral,r.forward,t):0;}
- advance(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
+ /** Integrate pose, controller and contact together at <= 1/120 s. Consume the actual caller time
+  * (including a partial final interval), rather than dropping long frames or solving only their endpoint. */
+ advance(dt:number){if(!Number.isFinite(dt)||dt<=0)return;let left=dt;while(left>1e-10){const step=Math.min(left,1/120);this.advanceStep(step);left-=step;}}
+ private advanceStep(dt:number){if(this.disposed||!Number.isFinite(dt)||dt<=0||!this.clock)return;const step=Math.min(dt,.1);const j=this.job;const c=this.clock;
   this.motionT+=step;
   if(this.pendingIdle&&!(j&&j.action.kind==='walk')){this.pendingFor+=step;if(j||this.pendingFor>=WALK_JOIN_GRACE_S){this.pendingIdle=false;if(!j)this.settleFromWalk();}}
   let ds:number|null=null;let entry:{dt1:number;ds1:number}|null=null;
@@ -206,7 +209,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   // a planned stop clip may end on the walk's last frame (CMU stops: root travel until the clip end) - idle anyway
   else if(r.ended&&(!this.job||this.job.foldS>0||this.isStopClip(r.ended))&&r.ended!==CLIP_ROLES.sitDown&&r.ended!==CLIP_ROLES.standUp){if(this.isStopClip(r.ended))this.beginStopHold();else{const hm=c.meta(r.ended);if(this.stopRoot&&this.stopRoot.clip===r.ended)this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,hm&&hm.handoff&&hm.handoff.crossfade!==undefined?hm.handoff.crossfade:-1,true);}}
   this.idleGustTick(step);
-  this.render();
+  this.render(step);
   if(j&&j.elapsed+1e-6>=j.duration){if(j.action.kind==='turn'&&j.foldS>0){j.elapsed=j.duration;this.setYaw(j.fromYaw+j.deltaYaw);this.yaw.reset(this.yawRad);}const kind=j.action.kind;j.off();this.job=null;
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
    else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
