@@ -185,6 +185,15 @@ ok('night sign text: day ink stays #633f21; night ink stays #3a220f',()=>{
   const S=P.signpost.text;
   assert.equal(S.color,'#633f21','day sign unchanged');
   assert.equal(S.nightColor,'#3a220f');
+  assert.equal(L.mixHex(S.color,S.nightColor,1),'#3a220f');
+  let w=0; for(let i=0;i<8;i++) w=L.nightWeightStep(w,true,0,0.1,false);
+  assert.equal(w,1,'stuck game.totalTime still reaches night ink');
+  assert.equal(L.nightWeightStep(0,true,0.05,9,false),L.approachNight(0,true,0.05),'live totalTime wins over wall time');
+  assert.equal(L.nightWeightStep(0.2,false,0,0,false),0.2,'no clock, weight stays');
+  assert.equal(L.nightWeightStep(0,true,0,0,true),1,'first sync snaps to night');
+  const props=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/nightWeightStep\(this\.nightW, o\.night, totalDt, wallDt, first\)/.test(props),'sync uses the wall-time step');
+  assert(/mixHex\(S\.text\.color, S\.text\.nightColor, w\)/.test(props),'ink still blends the locked night colour');
 });
 ok('T9n night tags: day = T9 cream colours, night = warm grey card + deeper brown text; contrast >= 4.5:1 at every step of the blend; night card about as dark as the 0.35 night light',()=>{
   const T=P.tag,d=L.tagColorsAt(0),n=L.tagColorsAt(1);

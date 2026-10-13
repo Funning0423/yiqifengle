@@ -136,6 +136,24 @@ export function stepShoreClock(clock: number, dt: number, playhead: number | nul
   const step = isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
   return wrapLoop((isFinite(clock) ? clock : 0) + step);
 }
+/**
+ * A live playhead still locks the swell. WeChat devtools can leave AudioSource.currentTime unchanged while
+ * `playing` stays true, which pins the sheet and the lip on one crest. After this much frame time on the
+ * same reading, the local clock takes over. A new reading snaps back. This is not a foam or reach threshold.
+ */
+export const SHORE_PLAYHEAD_STALL_S = 0.2;
+export type PlayheadFollow = { playhead: number | null; heard: number | null; sameFor: number };
+export function followShorePlayhead(playhead: number | null, heard: number | null, sameFor: number, dt: number): PlayheadFollow {
+  const step = isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
+  if (playhead === null || typeof playhead !== 'number' || !isFinite(playhead)) return { playhead: null, heard: null, sameFor: 0 };
+  const wrapped = wrapLoop(playhead);
+  if (heard !== null && Math.abs(wrapped - heard) < 1e-4) {
+    const held = sameFor + step;
+    if (held >= SHORE_PLAYHEAD_STALL_S) return { playhead: null, heard: heard, sameFor: held };
+    return { playhead: wrapped, heard: heard, sameFor: held };
+  }
+  return { playhead: wrapped, heard: wrapped, sameFor: 0 };
+}
 /** Foam follows how close the crest center is to the waterline, not how far the attack has progressed. */
 function foamClimb(travel: number): { foamU: number; foamA: number } {
   const reach = SHORE.foamReach;
