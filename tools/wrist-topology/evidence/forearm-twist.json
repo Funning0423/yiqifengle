@@ -1,0 +1,608 @@
+{
+  "method": "rest-relative quaternion swing/twist decomposition about forearm bind local Y",
+  "minDeg": -44.02555521447303,
+  "maxDeg": 42.628529796491364,
+  "unchangedByThisRepair": true,
+  "rows": [
+    {
+      "frame": 527,
+      "t": 8.783333333333333,
+      "twistAboutBindForearmYDeg": -12.327171266468355
+    },
+    {
+      "frame": 528,
+      "t": 8.8,
+      "twistAboutBindForearmYDeg": -12.280822195189046
+    },
+    {
+      "frame": 529,
+      "t": 8.816666666666666,
+      "twistAboutBindForearmYDeg": -12.18592958121792
+    },
+    {
+      "frame": 530,
+      "t": 8.833333333333334,
+      "twistAboutBindForearmYDeg": -12.042443723907809
+    },
+    {
+      "frame": 531,
+      "t": 8.85,
+      "twistAboutBindForearmYDeg": -11.85031108189608
+    },
+    {
+      "frame": 532,
+      "t": 8.866666666666667,
+      "twistAboutBindForearmYDeg": -11.282227025780202
+    },
+    {
+      "frame": 533,
+      "t": 8.883333333333333,
+      "twistAboutBindForearmYDeg": -10.534342283847252
+    },
+    {
+      "frame": 534,
+      "t": 8.9,
+      "twistAboutBindForearmYDeg": -9.2987806746861
+    },
+    {
+      "frame": 535,
+      "t": 8.916666666666666,
+      "twistAboutBindForearmYDeg": -7.793776679003827
+    },
+    {
+      "frame": 536,
+      "t": 8.933333333333334,
+      "twistAboutBindForearmYDeg": -6.016842608786732
+    },
+    {
+      "frame": 537,
+      "t": 8.95,
+      "twistAboutBindForearmYDeg": -4.112921291074457
+    },
+    {
+      "frame": 538,
+      "t": 8.966666666666667,
+      "twistAboutBindForearmYDeg": -2.2706575036812637
+    },
+    {
+      "frame": 539,
+      "t": 8.983333333333333,
+      "twistAboutBindForearmYDeg": -0.5201273193418103
+    },
+    {
+      "frame": 540,
+      "t": 9,
+      "twistAboutBindForearmYDeg": -0.5398667413398357
+    },
+    {
+      "frame": 541,
+      "t": 9.016666666666666,
+      "twistAboutBindForearmYDeg": -0.6530326337206134
+    },
+    {
+      "frame": 542,
+      "t": 9.033333333333333,
+      "twistAboutBindForearmYDeg": -1.6675779502793375
+    },
+    {
+      "frame": 543,
+      "t": 9.05,
+      "twistAboutBindForearmYDeg": -2.600789262147998
+    },
+    {
+      "frame": 544,
+      "t": 9.066666666666666,
+      "twistAboutBindForearmYDeg": -5.03283404039999
+    },
+    {
+      "frame": 545,
+      "t": 9.083333333333334,
+      "twistAboutBindForearmYDeg": -7.523334270068574
+    },
+    {
+      "frame": 546,
+      "t": 9.1,
+      "twistAboutBindForearmYDeg": -12.144907663025293
+    },
+    {
+      "frame": 547,
+      "t": 9.116666666666667,
+      "twistAboutBindForearmYDeg": -16.792270691595235
+    },
+    {
+      "frame": 548,
+      "t": 9.133333333333333,
+      "twistAboutBindForearmYDeg": -20.82770718450172
+    },
+    {
+      "frame": 549,
+      "t": 9.15,
+      "twistAboutBindForearmYDeg": -24.555932405562118
+    },
+    {
+      "frame": 550,
+      "t": 9.166666666666666,
+      "twistAboutBindForearmYDeg": -27.11444880328557
+    },
+    {
+      "frame": 551,
+      "t": 9.183333333333334,
+      "twistAboutBindForearmYDeg": -29.703724318649563
+    },
+    {
+      "frame": 552,
+      "t": 9.2,
+      "twistAboutBindForearmYDeg": -31.95114900461772
+    },
+    {
+      "frame": 553,
+      "t": 9.216666666666667,
+      "twistAboutBindForearmYDeg": -34.30935862699914
+    },
+    {
+      "frame": 554,
+      "t": 9.233333333333333,
+      "twistAboutBindForearmYDeg": -35.519936736207455
+    },
+    {
+      "frame": 555,
+      "t": 9.25,
+      "twistAboutBindForearmYDeg": -36.69824692020933
+    },
+    {
+      "frame": 556,
+      "t": 9.266666666666666,
+      "twistAboutBindForearmYDeg": -37.57505074445757
+    },
+    {
+      "frame": 557,
+      "t": 9.283333333333333,
+      "twistAboutBindForearmYDeg": -38.40604196156821
+    },
+    {
+      "frame": 558,
+      "t": 9.3,
+      "twistAboutBindForearmYDeg": -39.535096263126206
+    },
+    {
+      "frame": 559,
+      "t": 9.316666666666666,
+      "twistAboutBindForearmYDeg": -40.59805963862942
+    },
+    {
+      "frame": 560,
+      "t": 9.333333333333334,
+      "twistAboutBindForearmYDeg": -41.643362138053874
+    },
+    {
+      "frame": 561,
+      "t": 9.35,
+      "twistAboutBindForearmYDeg": -42.604463213115366
+    },
+    {
+      "frame": 562,
+      "t": 9.366666666666667,
+      "twistAboutBindForearmYDeg": -43.33787295928539
+    },
+    {
+      "frame": 563,
+      "t": 9.383333333333333,
+      "twistAboutBindForearmYDeg": -43.9879846822123
+    },
+    {
+      "frame": 564,
+      "t": 9.4,
+      "twistAboutBindForearmYDeg": -44.02555521447303
+    },
+    {
+      "frame": 565,
+      "t": 9.416666666666666,
+      "twistAboutBindForearmYDeg": -43.99802117062137
+    },
+    {
+      "frame": 566,
+      "t": 9.433333333333334,
+      "twistAboutBindForearmYDeg": -43.077974767855125
+    },
+    {
+      "frame": 567,
+      "t": 9.45,
+      "twistAboutBindForearmYDeg": -42.096563269406914
+    },
+    {
+      "frame": 568,
+      "t": 9.466666666666667,
+      "twistAboutBindForearmYDeg": -40.20826070669986
+    },
+    {
+      "frame": 569,
+      "t": 9.483333333333333,
+      "twistAboutBindForearmYDeg": -38.222681766988075
+    },
+    {
+      "frame": 570,
+      "t": 9.5,
+      "twistAboutBindForearmYDeg": -35.52842682914468
+    },
+    {
+      "frame": 571,
+      "t": 9.516666666666666,
+      "twistAboutBindForearmYDeg": -32.68459249348743
+    },
+    {
+      "frame": 572,
+      "t": 9.533333333333333,
+      "twistAboutBindForearmYDeg": -24.627320279137138
+    },
+    {
+      "frame": 573,
+      "t": 9.55,
+      "twistAboutBindForearmYDeg": -16.601365441366028
+    },
+    {
+      "frame": 574,
+      "t": 9.566666666666666,
+      "twistAboutBindForearmYDeg": -9.532905575012194
+    },
+    {
+      "frame": 575,
+      "t": 9.583333333333334,
+      "twistAboutBindForearmYDeg": -2.5981066287015437
+    },
+    {
+      "frame": 576,
+      "t": 9.6,
+      "twistAboutBindForearmYDeg": 3.389651104761498
+    },
+    {
+      "frame": 577,
+      "t": 9.616666666666667,
+      "twistAboutBindForearmYDeg": 9.19827815055666
+    },
+    {
+      "frame": 578,
+      "t": 9.633333333333333,
+      "twistAboutBindForearmYDeg": 13.98820179589012
+    },
+    {
+      "frame": 579,
+      "t": 9.65,
+      "twistAboutBindForearmYDeg": 18.581858516593627
+    },
+    {
+      "frame": 580,
+      "t": 9.666666666666666,
+      "twistAboutBindForearmYDeg": 22.27910494573166
+    },
+    {
+      "frame": 581,
+      "t": 9.683333333333334,
+      "twistAboutBindForearmYDeg": 25.79507573946654
+    },
+    {
+      "frame": 582,
+      "t": 9.7,
+      "twistAboutBindForearmYDeg": 29.127934471650462
+    },
+    {
+      "frame": 583,
+      "t": 9.716666666666667,
+      "twistAboutBindForearmYDeg": 32.30980375567333
+    },
+    {
+      "frame": 584,
+      "t": 9.733333333333333,
+      "twistAboutBindForearmYDeg": 34.79454220474821
+    },
+    {
+      "frame": 585,
+      "t": 9.75,
+      "twistAboutBindForearmYDeg": 37.14901248456249
+    },
+    {
+      "frame": 586,
+      "t": 9.766666666666666,
+      "twistAboutBindForearmYDeg": 38.31896380216489
+    },
+    {
+      "frame": 587,
+      "t": 9.783333333333333,
+      "twistAboutBindForearmYDeg": 39.38608632808189
+    },
+    {
+      "frame": 588,
+      "t": 9.8,
+      "twistAboutBindForearmYDeg": 40.82340956462298
+    },
+    {
+      "frame": 589,
+      "t": 9.816666666666666,
+      "twistAboutBindForearmYDeg": 42.16367617607625
+    },
+    {
+      "frame": 590,
+      "t": 9.833333333333334,
+      "twistAboutBindForearmYDeg": 42.397389172309886
+    },
+    {
+      "frame": 591,
+      "t": 9.85,
+      "twistAboutBindForearmYDeg": 42.55713332700472
+    },
+    {
+      "frame": 592,
+      "t": 9.866666666666667,
+      "twistAboutBindForearmYDeg": 42.62567029578764
+    },
+    {
+      "frame": 593,
+      "t": 9.883333333333333,
+      "twistAboutBindForearmYDeg": 42.628529796491364
+    },
+    {
+      "frame": 594,
+      "t": 9.9,
+      "twistAboutBindForearmYDeg": 42.45021061491326
+    },
+    {
+      "frame": 595,
+      "t": 9.916666666666666,
+      "twistAboutBindForearmYDeg": 42.208800190535015
+    },
+    {
+      "frame": 596,
+      "t": 9.933333333333334,
+      "twistAboutBindForearmYDeg": 41.884395773285235
+    },
+    {
+      "frame": 597,
+      "t": 9.95,
+      "twistAboutBindForearmYDeg": 41.48778181044267
+    },
+    {
+      "frame": 598,
+      "t": 9.966666666666667,
+      "twistAboutBindForearmYDeg": 40.86997024701702
+    },
+    {
+      "frame": 599,
+      "t": 9.983333333333333,
+      "twistAboutBindForearmYDeg": 40.183288891582265
+    },
+    {
+      "frame": 600,
+      "t": 10,
+      "twistAboutBindForearmYDeg": 39.86215045215812
+    },
+    {
+      "frame": 601,
+      "t": 10.016666666666666,
+      "twistAboutBindForearmYDeg": 39.5126296122869
+    },
+    {
+      "frame": 602,
+      "t": 10.033333333333333,
+      "twistAboutBindForearmYDeg": 39.575633967692625
+    },
+    {
+      "frame": 603,
+      "t": 10.05,
+      "twistAboutBindForearmYDeg": 39.47076996518112
+    },
+    {
+      "frame": 604,
+      "t": 10.066666666666666,
+      "twistAboutBindForearmYDeg": 38.70360877573984
+    },
+    {
+      "frame": 605,
+      "t": 10.083333333333334,
+      "twistAboutBindForearmYDeg": 37.81676484898355
+    },
+    {
+      "frame": 606,
+      "t": 10.1,
+      "twistAboutBindForearmYDeg": 36.195256978309715
+    },
+    {
+      "frame": 607,
+      "t": 10.116666666666667,
+      "twistAboutBindForearmYDeg": 34.4736319258798
+    },
+    {
+      "frame": 608,
+      "t": 10.133333333333333,
+      "twistAboutBindForearmYDeg": 31.722085722888295
+    },
+    {
+      "frame": 609,
+      "t": 10.15,
+      "twistAboutBindForearmYDeg": 28.864713414361006
+    },
+    {
+      "frame": 610,
+      "t": 10.166666666666666,
+      "twistAboutBindForearmYDeg": 25.613578595561194
+    },
+    {
+      "frame": 611,
+      "t": 10.183333333333334,
+      "twistAboutBindForearmYDeg": 22.26112776066131
+    },
+    {
+      "frame": 612,
+      "t": 10.2,
+      "twistAboutBindForearmYDeg": 18.89232227233009
+    },
+    {
+      "frame": 613,
+      "t": 10.216666666666667,
+      "twistAboutBindForearmYDeg": 15.431909008760783
+    },
+    {
+      "frame": 614,
+      "t": 10.233333333333333,
+      "twistAboutBindForearmYDeg": 11.573130859842962
+    },
+    {
+      "frame": 615,
+      "t": 10.25,
+      "twistAboutBindForearmYDeg": 7.639777211221826
+    },
+    {
+      "frame": 616,
+      "t": 10.266666666666666,
+      "twistAboutBindForearmYDeg": 3.7500332614669105
+    },
+    {
+      "frame": 617,
+      "t": 10.283333333333333,
+      "twistAboutBindForearmYDeg": -0.21523033465931007
+    },
+    {
+      "frame": 618,
+      "t": 10.3,
+      "twistAboutBindForearmYDeg": -4.352668852369334
+    },
+    {
+      "frame": 619,
+      "t": 10.316666666666666,
+      "twistAboutBindForearmYDeg": -8.567190332217962
+    },
+    {
+      "frame": 620,
+      "t": 10.333333333333334,
+      "twistAboutBindForearmYDeg": -12.260417112745358
+    },
+    {
+      "frame": 621,
+      "t": 10.35,
+      "twistAboutBindForearmYDeg": -16.047773077549806
+    },
+    {
+      "frame": 622,
+      "t": 10.366666666666667,
+      "twistAboutBindForearmYDeg": -18.722953318381656
+    },
+    {
+      "frame": 623,
+      "t": 10.383333333333333,
+      "twistAboutBindForearmYDeg": -21.52869177398901
+    },
+    {
+      "frame": 624,
+      "t": 10.4,
+      "twistAboutBindForearmYDeg": -23.98552270289852
+    },
+    {
+      "frame": 625,
+      "t": 10.416666666666666,
+      "twistAboutBindForearmYDeg": -26.607152206010255
+    },
+    {
+      "frame": 626,
+      "t": 10.433333333333334,
+      "twistAboutBindForearmYDeg": -28.928908368543716
+    },
+    {
+      "frame": 627,
+      "t": 10.45,
+      "twistAboutBindForearmYDeg": -31.040665366726614
+    },
+    {
+      "frame": 628,
+      "t": 10.466666666666667,
+      "twistAboutBindForearmYDeg": -31.202827455514438
+    },
+    {
+      "frame": 629,
+      "t": 10.483333333333333,
+      "twistAboutBindForearmYDeg": -30.534467115113728
+    },
+    {
+      "frame": 630,
+      "t": 10.5,
+      "twistAboutBindForearmYDeg": -26.508190964693597
+    },
+    {
+      "frame": 631,
+      "t": 10.516666666666666,
+      "twistAboutBindForearmYDeg": -22.30082390197157
+    },
+    {
+      "frame": 632,
+      "t": 10.533333333333333,
+      "twistAboutBindForearmYDeg": -17.004467781396613
+    },
+    {
+      "frame": 633,
+      "t": 10.55,
+      "twistAboutBindForearmYDeg": -12.090942024764786
+    },
+    {
+      "frame": 634,
+      "t": 10.566666666666666,
+      "twistAboutBindForearmYDeg": -9.103550498668
+    },
+    {
+      "frame": 635,
+      "t": 10.583333333333334,
+      "twistAboutBindForearmYDeg": -6.7012459530239425
+    },
+    {
+      "frame": 636,
+      "t": 10.6,
+      "twistAboutBindForearmYDeg": -5.63015469143906
+    },
+    {
+      "frame": 637,
+      "t": 10.616666666666667,
+      "twistAboutBindForearmYDeg": -5.175444078712047
+    },
+    {
+      "frame": 638,
+      "t": 10.633333333333333,
+      "twistAboutBindForearmYDeg": -5.860566795168211
+    },
+    {
+      "frame": 639,
+      "t": 10.65,
+      "twistAboutBindForearmYDeg": -6.835143174392812
+    },
+    {
+      "frame": 640,
+      "t": 10.666666666666666,
+      "twistAboutBindForearmYDeg": -8.024603666577377
+    },
+    {
+      "frame": 641,
+      "t": 10.683333333333334,
+      "twistAboutBindForearmYDeg": -9.210308154838742
+    },
+    {
+      "frame": 642,
+      "t": 10.7,
+      "twistAboutBindForearmYDeg": -10.146229519008926
+    },
+    {
+      "frame": 643,
+      "t": 10.716666666666667,
+      "twistAboutBindForearmYDeg": -11.081081546770065
+    },
+    {
+      "frame": 644,
+      "t": 10.733333333333333,
+      "twistAboutBindForearmYDeg": -11.326146661872656
+    },
+    {
+      "frame": 645,
+      "t": 10.75,
+      "twistAboutBindForearmYDeg": -11.571144047825356
+    },
+    {
+      "frame": 646,
+      "t": 10.766666666666666,
+      "twistAboutBindForearmYDeg": -11.816076810376018
+    }
+  ]
+}

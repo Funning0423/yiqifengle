@@ -1,0 +1,43 @@
+{
+  "finalGLBSHA256": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "viewedDoorEveryFrame": {
+    "frames": 60,
+    "frameRange": [
+      528,
+      646
+    ],
+    "step": 2,
+    "pages": [
+      "door-every-frame/page-00.jpg",
+      "door-every-frame/page-01.jpg",
+      "door-every-frame/page-02.jpg",
+      "door-every-frame/page-03.jpg",
+      "door-every-frame/page-04.jpg"
+    ]
+  },
+  "normalCompareRenderedPoses": 15,
+  "normalCompareViewedPoses": [
+    0,
+    40,
+    110,
+    300,
+    530,
+    550,
+    580,
+    590,
+    600,
+    630,
+    2510,
+    2600,
+    2630,
+    2650
+  ],
+  "conclusions": [
+    "topological cuff/palm connection has consistent welded edge directions; this is not visual acceptance",
+    "dark root seam remains in custom-normal comparisons, notably frame2510",
+    "elbow puff/folding remains in recovery, notably frame580/600",
+    "no confirmed significant elimination of broken-hand impression",
+    "final GPU/full-game-scene not tested; s8 videos use rejected SHA544cd656"
+  ],
+  "acceptance": "FAIL_VISUAL_GOAL_PARTIAL_STRUCTURAL_REPAIR_ONLY"
+}

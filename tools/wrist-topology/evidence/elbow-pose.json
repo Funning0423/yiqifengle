@@ -1,0 +1,66 @@
+[
+  {
+    "frame": 530,
+    "time": 8.833333333333334,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 143.88729110743606,
+    "elbowFlexionDeg": 36.112708892563944,
+    "shoulderHandDistanceMm": 417.0974697046367
+  },
+  {
+    "frame": 550,
+    "time": 9.166666666666666,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 91.1936855699155,
+    "elbowFlexionDeg": 88.8063144300845,
+    "shoulderHandDistanceMm": 315.75204811094756
+  },
+  {
+    "frame": 570,
+    "time": 9.5,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 71.36488352687218,
+    "elbowFlexionDeg": 108.63511647312782,
+    "shoulderHandDistanceMm": 259.9593062001191
+  },
+  {
+    "frame": 580,
+    "time": 9.666666666666666,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 64.91696465814627,
+    "elbowFlexionDeg": 115.08303534185373,
+    "shoulderHandDistanceMm": 240.265577859209
+  },
+  {
+    "frame": 590,
+    "time": 9.833333333333334,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 73.07828503472368,
+    "elbowFlexionDeg": 106.92171496527632,
+    "shoulderHandDistanceMm": 265.07734713785834
+  },
+  {
+    "frame": 600,
+    "time": 10,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 84.58600246223595,
+    "elbowFlexionDeg": 95.41399753776405,
+    "shoulderHandDistanceMm": 298.04302687785776
+  },
+  {
+    "frame": 610,
+    "time": 10.166666666666666,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 69.95164305557098,
+    "elbowFlexionDeg": 110.04835694442902,
+    "shoulderHandDistanceMm": 255.7001916052991
+  },
+  {
+    "frame": 630,
+    "time": 10.5,
+    "state": "opening-door",
+    "elbowInsideAngleDeg": 89.78087363587098,
+    "elbowFlexionDeg": 90.21912636412902,
+    "shoulderHandDistanceMm": 312.0457314870495
+  }
+]
