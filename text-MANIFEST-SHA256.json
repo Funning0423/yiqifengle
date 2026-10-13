@@ -1686,8 +1686,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts",
-    "bytes": 11070,
-    "sha256": "a41ef6653b2670c456cc7205dd3eef5ce6892097e1fd1352be83dc4baac24642"
+    "bytes": 23187,
+    "sha256": "e12de3e7df8219cda94f5b405805eae1ab9f974c3a34fef856ff1602c0e82fec"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/BoardPanels.ts.meta",
@@ -1756,8 +1756,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 27401,
-    "sha256": "4bf8d46c7a17ecb62acfcff855db5ba04a73d0adfe9ecb45196aaf9f527e8833"
+    "bytes": 28670,
+    "sha256": "bce7dac994cb69943c1fc9d8940252e61d5519cc9b6e35b59b961adec5b55984"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",

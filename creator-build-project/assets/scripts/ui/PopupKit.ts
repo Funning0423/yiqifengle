@@ -224,6 +224,7 @@ export function artSlider(parent: Node, tint: TintSet, x: number, y: number, w: 
   node.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => finish(e, false));
   return { node, set(next: number) { v = Math.max(0, Math.min(1, next)); paint(); }, value: () => v };
 }
+export interface PanelGeometry { width: number; height: number; scale: number; offsetY?: number }
 export interface PanelOptions {
   name: string; height: number; title: string; titleArt?: string | null; closable?: boolean; onClose?: () => void;
   width?: number; dy?: number; tint?: TintSet;
@@ -231,7 +232,10 @@ export interface PanelOptions {
 /** Full-screen modal: shade (35 % darken) + BlockInputEvents + framed panel. Opens 0.22 s fade + 0.92→1 ease-out, closes 0.15 s. */
 export class PopupPanel {
   readonly root: Node; readonly body: Node; readonly tint: TintSet;
-  readonly width: number; readonly height: number;
+  width: number; height: number;
+  private frame: Node; private plank: Node;
+  private layoutStrategy: ((width: number, height: number) => PanelGeometry) | null = null;
+  private reflow: ((geometry: PanelGeometry) => void) | null = null;
   private shade: Graphics; private opacity: UIOpacity; private t = 0; private closing = -1; private done: (() => void) | null = null;
   private toggles: ToggleHandle[] = []; private viewW = 0; private viewH = 0; private dy: number;
   private reduced = reducedMotion();
@@ -240,8 +244,8 @@ export class PopupPanel {
     this.root = uiNode(options.name, parent, viewport.width, viewport.height); this.root.addComponent(BlockInputEvents);
     const shadeNode = uiNode('PopupShade', this.root, viewport.width, viewport.height); this.shade = shadeNode.addComponent(Graphics);
     this.body = uiNode('PopupPanel', this.root, this.width, this.height); this.opacity = this.body.addComponent(UIOpacity); this.opacity.opacity = 0;
-    const frame = artSprite(this.body, 'popup/panel_frame_9s', 0, 0, this.width, this.height, 'PanelFrame'); this.tint.sprite(frame, 'ui');
-    const plank = this.titlePlank(options.title, options.titleArt || null); plank.setPosition(0, this.height / 2, 0);
+    const frame = artSprite(this.body, 'popup/panel_frame_9s', 0, 0, this.width, this.height, 'PanelFrame'); this.frame = frame.node; this.tint.sprite(frame, 'ui');
+    const plank = this.titlePlank(options.title, options.titleArt || null); this.plank = plank; plank.setPosition(0, this.height / 2, 0);
     if (options.closable) this.closeButton();
     this.layout(viewport.width, viewport.height); this.tint.update(true); this.paintShade(0);
   }
@@ -282,11 +286,22 @@ export class PopupPanel {
     this.tint.shape(g, (gr, night, alpha) => { const c = tintRgb('ui', night, rgb); gr.fillColor = new Color(c[0], c[1], c[2], Math.round(255 * alpha)); gr.roundRect(-w / 2, -h / 2, w, h, radius); gr.fill(); });
     return n;
   }
+  /** Opt-in geometry for dense result pages. Other popup designs keep their original sizing. */
+  setLayoutStrategy(strategy: (width: number, height: number) => PanelGeometry, reflow: (geometry: PanelGeometry) => void) {
+    this.layoutStrategy = strategy; this.reflow = reflow; this.layout(this.viewW, this.viewH);
+  }
   layout(width: number, height: number) {
-    this.viewW = width; this.viewH = height; const s = popupScale(width, height);
+    if (this.layoutStrategy && this.viewW && (width !== this.viewW || height !== this.viewH)) resetPresses(this.root);
+    const geometry = this.layoutStrategy?.(width, height) || { width: this.width, height: this.height, scale: popupScale(width, height) };
+    this.viewW = width; this.viewH = height; const s = geometry.scale;
+    this.width = geometry.width; this.height = geometry.height;
+    this.body.getComponent(UITransform)!.setContentSize(this.width, this.height);
+    this.frame.getComponent(UITransform)!.setContentSize(this.width / this.frame.scale.x, this.height / this.frame.scale.y);
+    this.plank.setPosition(0, this.height / 2, 0);
     this.root.getComponent(UITransform)!.setContentSize(width, height); this.shade.node.getComponent(UITransform)!.setContentSize(width, height);
     const k = this.reduced ? 1 : this.closing >= 0 ? 1 - 0.04 * easeOut(1 - this.closing / CLOSE_S) : 0.92 + 0.08 * easeOut(this.t / OPEN_S);
-    this.body.setScale(s * k, s * k, 1); this.body.setPosition(0, -this.dy * s, 0);
+    this.body.setScale(s * k, s * k, 1); this.body.setPosition(0, geometry.offsetY ?? -this.dy * s, 0);
+    this.reflow?.(geometry);
     this.paintShade(this.alpha());
   }
   private alpha() { return this.closing >= 0 ? Math.max(0, this.closing / CLOSE_S) : Math.min(1, this.t / OPEN_S); }
