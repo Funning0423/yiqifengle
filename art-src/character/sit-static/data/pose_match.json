@@ -1,0 +1,191 @@
+{
+ "runtime_glb": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "sit_down_duration_s": 1.2,
+ "stand_up_duration_s": 1.266667,
+ "compare": "sit_down last sample vs stand_up first sample",
+ "max_rotation_deg": 0.0396,
+ "max_translation_mm": 0.0,
+ "note": "Static body is sit_down last frame, armature applied, no body verts moved. Skirt bones cannot follow the sculpted sheet; the 0.3 s camera fade covers that swap. Clips are not rewritten.",
+ "channels": [
+  {
+   "node": "head",
+   "path": "rotation",
+   "delta": 0.0396,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.front",
+   "path": "rotation",
+   "delta": 0.0396,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.front.low",
+   "path": "rotation",
+   "delta": 0.0396,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.back",
+   "path": "rotation",
+   "delta": 0.0396,
+   "unit": "deg"
+  },
+  {
+   "node": "root",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "root",
+   "path": "translation",
+   "delta": 0.0,
+   "unit": "mm"
+  },
+  {
+   "node": "hips",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "hips",
+   "path": "translation",
+   "delta": 0.0,
+   "unit": "mm"
+  },
+  {
+   "node": "spine",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "chest",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "neck",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "upper_arm.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "forearm.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "hand.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "upper_arm.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "forearm.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "hand.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "thigh.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "shin.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "foot.L",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "thigh.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "shin.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "foot.R",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.front.low.mid",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.front.mid",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.left",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.left.low",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.back.low",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.right",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  },
+  {
+   "node": "skirt.right.low",
+   "path": "rotation",
+   "delta": 0.0,
+   "unit": "deg"
+  }
+ ]
+}
