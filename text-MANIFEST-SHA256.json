@@ -635,6 +635,31 @@
     "sha256": "0587f317ab810c0bcfb7f69fdf8fbe2c8b311bca50844ec507c29a49eca157de"
   },
   {
+    "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
+    "bytes": 375,
+    "sha256": "7420a21738fc64178ab1ff561495be66de1d9d4498cf1cf7c72bfd7262d1dde0"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/actor.meta",
+    "bytes": 169,
+    "sha256": "6667ac95517aa006c4b45c88a3aa416eefc5dcb42f9805063c6d12fc88e0801d"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb.meta",
+    "bytes": 166,
+    "sha256": "7c289556267bdc2e72214c56b9c736031fbc392aa2f1edbe37a19c224806281f"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/room.meta",
+    "bytes": 169,
+    "sha256": "6b39b700217cf7a18290b83f6d2c05f81a7fe5e476cdd5dd6c5113f6ddabaf37"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb.meta",
+    "bytes": 166,
+    "sha256": "8071902f9968006b72838e8b8dec6888f17b36bd0da36dafdd69627aa19d12e1"
+  },
+  {
     "path": "creator-build-project/assets/resources.meta",
     "bytes": 404,
     "sha256": "b975420e601b77869eea1c4955294cb11684ab4813c118d40de645e4817f61ca"
@@ -870,6 +895,16 @@
     "sha256": "33f6b072eedd485927a262cd2049f579c61385435cab97abca918614baef2e5c"
   },
   {
+    "path": "creator-build-project/assets/scenes/StaticSeatedPreview.scene",
+    "bytes": 5382,
+    "sha256": "2ecdf807417e76ac4ccf6cf5d9ad3330b5f4c7390cfa472ea0cd39d94009fdb1"
+  },
+  {
+    "path": "creator-build-project/assets/scenes/StaticSeatedPreview.scene.meta",
+    "bytes": 181,
+    "sha256": "3b3c26c0daec185fd98ee3f5a6b936ec39325c91c6cdaece5151406edc65d823"
+  },
+  {
     "path": "creator-build-project/assets/scenes/WorldR5Integration.scene",
     "bytes": 5508,
     "sha256": "76002d6089390a458ba270a1e4e078cc9500c19f398ccac23ba65532de5f75dc"
@@ -1013,6 +1048,16 @@
     "path": "creator-build-project/assets/scripts/SpecularCandidate.ts.meta",
     "bytes": 171,
     "sha256": "7a2c2038d104930e3714ddb9b72de7581ca5c75f846c22a9c19b66eb0943f924"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts",
+    "bytes": 5303,
+    "sha256": "00c79b5e298073b36bb09d673492d7c4c70c0ba938bb69aca0d4af4dad3d7f58"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/StaticSeatedPreviewBoot.ts.meta",
+    "bytes": 171,
+    "sha256": "c43974aaea7d8caa6f5476219c5557f7833e2e29ecfdd025ef6940ec890b9c9a"
   },
   {
     "path": "creator-build-project/assets/scripts/WarmButton.ts",
@@ -1658,6 +1703,21 @@
     "path": "creator-build-project/assets/scripts/render/SkyNightTexture.ts.meta",
     "bytes": 171,
     "sha256": "d8116f9b57480fe36f5a714370bb121a1a0bfb355e55c8a1f67a27a11875d8a4"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/static-seat.meta",
+    "bytes": 169,
+    "sha256": "16752a9110998f37ffba2f92871fec42254351e15df672ee70c868fdd1e8653e"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/static-seat/PreviewLease.ts",
+    "bytes": 1807,
+    "sha256": "19b79cf1dcad041f292f54942828371d20d62ac58426b8169d85b1c66b6707a5"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/static-seat/PreviewLease.ts.meta",
+    "bytes": 171,
+    "sha256": "623e67db10fea817e4a36a6c0aba21cd1d347497d7838c2ade120c600cb3bc93"
   },
   {
     "path": "creator-build-project/assets/scripts/ui.meta",

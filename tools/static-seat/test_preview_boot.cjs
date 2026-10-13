@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),vm=require('vm');
+const {createHarness}=require('../board-ui/harness.cjs');
+function fixture(){const H=createHarness(),cc=H.cc,log=[],timers=[];cc.SkeletalAnimation=class{};cc.instantiate=p=>{const n=new cc.Node(p.role);n.addComponent(cc.MeshRenderer);return n;};const camNode=new cc.Node('Camera');cc._scene.addChild(camNode);const camera=camNode.addComponent(cc.Camera);let providers=[];
+ const b={loadDir:(role,klass,cb)=>providers.push({role,cb})};cc.assetManager.getBundle=()=>b;let lightingDisposed=0;class Light{constructor(){log.push('light-created')}setView(...a){log.push(a)}dispose(){lightingDisposed++}}
+ const sources=path.resolve(__dirname,'../../creator-build-project/assets/scripts'),cache={};
+ function load(name){if(cache[name])return cache[name].exports;const m={exports:{}};cache[name]=m;const text=fs.readFileSync(path.join(sources,name+'.ts'),'utf8');const out=H.ts.transpileModule(text,{compilerOptions:{module:H.ts.ModuleKind.CommonJS,target:H.ts.ScriptTarget.ES2020,experimentalDecorators:true},reportDiagnostics:true});assert.equal(out.diagnostics.length,0);const req=s=>s==='cc'?cc:s.endsWith('RoomLightingRig')?{RoomLightingRig:Light}:load(path.posix.normalize(path.posix.join(path.posix.dirname(name),s)));vm.runInNewContext(out.outputText,{module:m,exports:m.exports,require:req,console:{info(){},error(){}},setTimeout,clearTimeout,Promise,Error,Math,JSON,globalThis:global}, {filename:name});return m.exports;}
+ const C=load('StaticSeatedPreviewBoot').StaticSeatedPreviewBoot,u=new C();u.node=new cc.Node('Preview');cc._scene.addChild(u.node);
+ const resolve=()=>{const q=providers;providers=[];for(const p of q)p.cb(null,[{role:p.role}]);};return{u,H,cc,camera,resolve,providers:()=>providers,light:()=>lightingDisposed};}
+const next=()=>new Promise(r=>setImmediate(r));let checks=0;
+(async()=>{
+ {const f=fixture();const r=f.u.reload(1.2);await next();assert.deepEqual(f.providers().map(x=>x.role),['room','actor']);f.resolve();await r;assert.equal(f.u.status.state,'ready');const own=f.u.node.children[0],girl=own.getChildByName('SeatedWholeShell');assert.equal(girl.scale.x,1.2);assert(Math.abs(girl.position.y-.000126)<1e-12);assert.equal(f.camera.fov,75);assert.equal(f.H.cc._storage.size,0);checks+=5;await assert.rejects(f.u.reload(1.1),/measured/);checks++;f.u.onDestroy();assert.equal(own.isValid,false);assert.equal(f.light(),1);checks++;}
+ {const f=fixture();const r=f.u.reload();await next();f.u.onDestroy();f.resolve();await r;await next();assert.equal(f.u.node.children.length,0);assert.notEqual(f.u.status.state,'ready');checks+=2;}
+ {const f=fixture();const a=f.u.reload();await next();const old=f.providers().splice(0);const b=f.u.reload();await next();f.resolve();await b;assert.equal(f.u.status.state,'ready');for(const p of old)p.cb(null,[{role:p.role}]);await a;await next();assert.equal(f.u.node.children.length,1);f.u.onDestroy();checks+=2;}
+ {const f=fixture();const p=f.u.reload();await next();const jobs=f.providers().splice(0);jobs[0].cb(Error('bad'));jobs[1].cb(null,[{role:'actor'}]);await p;assert.equal(f.u.status.state,'error');const q=f.u.reload(1);await next();f.resolve();await q;assert.equal(f.u.status.state,'ready');f.u.onDestroy();checks+=2;}
+ {const f=fixture();f.cc._scene.children=f.cc._scene.children.filter(n=>n.name!=='Camera');const p=f.u.reload();await next();f.resolve();await p;assert.equal(f.u.status.state,'error');assert.equal(f.u.node.children.length,0);f.u.onDestroy();checks+=2;}
+ console.log(JSON.stringify({status:'PASS',checks,scope:'Actual boot TS with node/asset/lighting doubles; no Cocos import/render/font/GPU test'}));
+})().catch(e=>{console.error(e);process.exitCode=1});

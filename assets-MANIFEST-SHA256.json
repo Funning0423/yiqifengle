@@ -480,6 +480,16 @@
     "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7"
   },
   {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb",
+    "bytes": 7925240,
+    "sha256": "6667393b50aa9876eb760af6f229c3a2a83ccc70729c4015b7beb5f9e920b478"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
+    "bytes": 5306012,
+    "sha256": "8ae5efeb5f318b22411c0033f450b6de7a935fa3a27fb45d3f3cf240f88e2e42"
+  },
+  {
     "path": "creator-build-project/assets/resources/audio_amb/amb_waves_loop.mp3",
     "bytes": 48644,
     "sha256": "53e5d05a698c5faaa064531d818e7941a6c9236282ebaff990396498d1066c55"
