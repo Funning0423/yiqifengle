@@ -525,5 +525,92 @@ function drag(b, slot, target, o = {}) {
       expectClear(u, controller, from, to, opening, moves);
     } finally { u.onDestroy(); }
   });
+  function splitEvent(ui, screen, id) {
+    return { getLocation: () => ({ x: screen.x, y: screen.y }), getUILocation: () => ({ x: ui.x, y: ui.y }), getID: () => id, windowId: 0, getEventCode: () => undefined, propagationStopped: false };
+  }
+  await ok('a stale screen hit and a live finger pulled back to the press still swap the cell the move reached', async () => {
+    for (const [from, to] of [[23, 24], [16, 23], [24, 31]]) {
+      const { H, u, controller, seen } = await level(0, 1);
+      try {
+        const n = u.cells[from], id = 200 + from;
+        const startL = u.measureLayout().tiles[from], endL = u.measureLayout().tiles[to], startS = H.point(u.cells[from]);
+        n.emit(E(n).TOUCH_START, splitEvent(startL, startS, id));
+        n.emit(E(n).TOUCH_MOVE, splitEvent(endL, startS, id));
+        u.update(1 / 60);
+        assert.equal(seen.length, 0, 'holding does not swap');
+        assert.equal(u.snapshot.state, 'run.ready');
+        H.cc.input.getAllTouches = () => [{ getID: () => id, getUILocation: () => ({ x: startL.x, y: startL.y }), getLocation: () => ({ x: startS.x, y: startS.y }) }];
+        u.update(1 / 60);
+        assert.equal(seen.length, 0, 'a live sample back on the press does not swap');
+        H.cc.input.getAllTouches = () => [];
+        n.emit(E(n).TOUCH_END, splitEvent(startL, startS, id));
+        assert.deepEqual(seen[0], ['swap', from, to]);
+        expectClear(u, controller, from, to, OPENING, 22);
+      } finally { u.onDestroy(); H.cc.input.getAllTouches = undefined; }
+    }
+  });
+  await ok('touch end on the neighbor cell swaps that cell, the same identity as the second tap', async () => {
+    const { H, u, controller, seen } = await level(0, 1);
+    try {
+      const from = 38, to = 39, id = 210;
+      const n = u.cells[from], start = u.measureLayout().tiles[from], end = u.measureLayout().tiles[to];
+      n.emit(E(n).TOUCH_START, H.event(start, id));
+      n.emit(E(n).TOUCH_MOVE, H.event(end, id));
+      u.update(1 / 60);
+      assert.equal(seen.length, 0);
+      u.cells[to].emit(E(n).TOUCH_END, H.event(start, id));
+      assert.deepEqual(seen[0], ['swap', from, to]);
+      expectClear(u, controller, from, to, OPENING, 22);
+      assert.equal(u.dragStart, null);
+    } finally { u.onDestroy(); }
+  });
+  await ok('a bomb drop uses the cell the finger reached when the release point falls back to the tray', async () => {
+    for (const [x, y, index] of [[67, 265, 0], [110, 265, 1], [152, 265, 2]]) {
+      const { H, u, controller, seen } = await level(0, 1);
+      try {
+        const n = u.tools[0], id = 220 + index, point = { x, y }, slot = u.measureLayout().targets.bomb;
+        n.emit(E(n).TOUCH_START, H.event(slot, id));
+        n.emit(E(n).TOUCH_MOVE, H.event(point, id));
+        H.cc.input.getAllTouches = () => [{ getID: () => id, getUILocation: () => ({ x: slot.x, y: slot.y }) }];
+        u.update(1 / 60);
+        assert.equal(seen.length, 0, 'holding the bomb does not use it');
+        assert.equal(controller.snapshot().active.bombs, 2);
+        H.cc.input.getAllTouches = () => [];
+        n.emit(E(n).TOUCH_END, H.event(slot, id));
+        assert.deepEqual(seen[0], ['bomb', index]);
+        assert.equal(controller.snapshot().active.bombs, 1);
+        assert.equal(controller.snapshot().active.moves, 22);
+        assert(drain(u) > 0);
+        assert.equal(u.snapshot.state, 'run.ready');
+        assert.notEqual(piecesOf(u.snapshot), OPENING);
+        assert.equal(u.moves.string, '22');
+      } finally { u.onDestroy(); H.cc.input.getAllTouches = undefined; }
+    }
+  });
+  await ok('touch end on the bomb cell uses that cell, and a later move off the board still retracts', async () => {
+    const dropped = await level(0, 1);
+    try {
+      const { H, u, controller, seen } = dropped;
+      const n = u.tools[0], id = 230, point = { x: 67, y: 265 }, slot = u.measureLayout().targets.bomb;
+      n.emit(E(n).TOUCH_START, H.event(slot, id));
+      n.emit(E(n).TOUCH_MOVE, H.event(point, id));
+      u.cells[0].emit(E(n).TOUCH_END, H.event({ x: 1, y: 1 }, id));
+      assert.deepEqual(seen[0], ['bomb', 0], 'the cell that received the release is the drop');
+      n.emit(E(n).TOUCH_END, H.event(point, id));
+      assert.equal(seen.length, 1, 'the tray end after the cell end does not use a second bomb');
+      assert.equal(controller.snapshot().active.moves, 22);
+    } finally { dropped.u.onDestroy(); }
+    const again = await level(0, 1);
+    try {
+      const n = again.u.tools[0], id = 231, point = { x: 110, y: 265 }, slot = again.u.measureLayout().targets.bomb;
+      n.emit(E(n).TOUCH_START, again.H.event(slot, id));
+      n.emit(E(n).TOUCH_MOVE, again.H.event(point, id));
+      n.emit(E(n).TOUCH_MOVE, again.H.event({ x: 1, y: 1 }, id));
+      n.emit(E(n).TOUCH_END, again.H.event({ x: 1, y: 1 }, id));
+      assert.equal(again.seen.length, 0, 'releasing off the board after leaving the cell does not use the bomb');
+      assert.equal(again.controller.snapshot().active.bombs, 2);
+      assert.equal(again.u.diagnostics().toast, '已收回，道具没有消耗');
+    } finally { again.u.onDestroy(); }
+  });
   console.log(JSON.stringify({ status: 'PASS', checks: checks.length, scope: 'Real board-ui ManagedMobileBoardUI tool bar on Cocos memory doubles; no rendering or device touch' }));
 })().catch(e => { console.error(e); process.exit(1); });
