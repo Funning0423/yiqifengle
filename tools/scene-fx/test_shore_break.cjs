@@ -1,6 +1,6 @@
 'use strict';
-/** Shore swell: the authored sea heaves on amb_waves_loop (8.064 s); white water is only the beach lip
- * while that crest is on the sand. Not a second ocean and not a second night sea.
+/** Shore swell: the authored sea lifts on amb_waves_loop (8.064 s); white water is only the beach lip
+ * once that crest is on the sand. Not a second ocean and not a second night sea.
  * CPU only. Usage: node tools/scene-fx/test_shore_break.cjs
  * Optional occlusion uses tools/camera-frame-test/glb_geometry.cjs (draco3d). */
 const fs = require('fs'), path = require('path'), os = require('os'), cp = require('child_process');
@@ -79,6 +79,10 @@ function layersOf() {
 
   const early = C.shorePhase(hitA - S.swells[0].attack * 0.70);
   check('attack-starts-offshore', early.travel < 0.45 && early.travel > 0.05 && early.foamA === 0 && early.foamU === 0 && C.farWashAlpha(early.foamA) === 0, { early: early });
+  const lead = 0.22;
+  const approaching = C.shorePhase(hitA - lead), approachingB = C.shorePhase(hitB - lead);
+  const offNow = (1 - approaching.travel) * S.fetch, offB = (1 - approachingB.travel) * S.fetch;
+  check('foam-meets-the-crest', approaching.foamA === 0 && approaching.foamU === 0 && offNow > 1 && approachingB.foamA === 0 && offB > 1 && a.foamA > 0.99 && a.travel > 0.99 && b.foamA > 0.99 && b.travel > 0.99 && (1 - a.travel) * S.fetch < 0.01 && Math.abs(C.seaSheetLift(hitA, a) - C.seaHeight(S.sheetX, S.sheetZ, hitA, a)) < 1e-12 && Math.abs(C.seaSheetLift(hitB, b) - C5.seaSheetLift(hitB, b)) < 1e-9, { offNow: +offNow.toFixed(2), offB: +offB.toFixed(2), reach: S.foamReach });
   const release = C.shorePhase(hitA + 0.55);
   const later = C.shorePhase(hitA + 1.25);
   const done = C.shorePhase(hitA + S.swells[0].release);
@@ -121,8 +125,8 @@ function layersOf() {
   // v is two cycles per loop, so the two hits (half a loop apart) share v. u is one cycle, so it has flipped.
   check('sea-keeps-moving-between-beats', quietPhase.foamA === 0 && quietMax > 0.01 && quietMax < S.ripple + S.heave + 0.02 && Math.abs(uvA.u - uvB.u) > 0.05 && Math.abs(uv0.u) < 1e-9 && Math.abs(uvA.u) < S.uvDrift + 1e-9, { quietMax: +quietMax.toFixed(3), uvA: uvA, uvB: uvB });
 
-  // Daytime blue is COLOR_0 RGB on env_sea_surface (wavelet texture is nearly white). RGB must become RGBA with alpha 1.
-  // Dropping it leaves a_color at 0, and builtin-standard multiplies the sea to black while the vertices still heave.
+  // Daytime blue is COLOR_0 RGB on env_sea_surface (wavelet texture is nearly white). A rebuilt mesh that
+  // drops it leaves a_color at 0, and builtin-standard multiplies the sea to black. The sea mesh is not rebuilt.
   const rgbSea = [0.3045, 0.7404, 0.8833, 0.3633, 0.8028, 0.898, 0.4673, 0.9134, 0.924];
   const albedo = C.seaAlbedoColors(rgbSea, 3, 4), albedo5 = C5.seaAlbedoColors(rgbSea, 3, 4);
   let cdiff = 0;
@@ -161,7 +165,9 @@ function layersOf() {
 
   function near(list, p) { let best = 1e9; for (let i = 0; i < list.length; i++) best = Math.min(best, dist2(list[i].p, p)); return best; }
   const waterBand = verts(geos[0]), sandBand = verts(geos[1]);
-  const water4 = [1.14, S.seaBaseY + C.seaHeight(1.14, 16.36, hitA, hitPhase) + S.foamLift, 16.36];
+  const waterLift = C.seaSheetLift(hitA, hitPhase);
+  const water4 = [1.14, S.seaBaseY + waterLift + S.foamLift, 16.36];
+  const waterM4 = [-1.1, S.seaBaseY + waterLift + S.foamLift, 15.76];
   const sand4 = [0.56, 0.05 + S.sandLift, 8.03], sand12 = [-1.68, 0.102 + S.sandLift, 7.92];
   const cliff = [[-3.9, 0.331 + S.sandLift, -2.63], [7.03, 0.341 + S.sandLift, 1.75], [7.86, 0.35 + S.sandLift, 0.83]];
   let cliffNear = 0;
@@ -169,7 +175,7 @@ function layersOf() {
   for (let v = 0; v < sandBand.length; v++) if (sandBand[v].a > 0.45 && sandBand[v].p[2] > 8 && Math.hypot(sandBand[v].p[0], sandBand[v].p[2]) > 18) wide++;
   const far157 = [Math.sin(157 * Math.PI / 180) * 48, sheetY, Math.cos(157 * Math.PI / 180) * 48];
   const far163 = [Math.sin(163 * Math.PI / 180) * 58, sheetY, Math.cos(163 * Math.PI / 180) * 58];
-  check('sand-and-horizon-placed', near(sandBand, sand4) < 0.05 && near(sandBand, sand12) < 0.05 && near(waterBand, water4) < 0.05 && cliffNear === 0 && wide === 0 && near(farVs, far157) < 1e-3 && near(farVs, far163) < 1e-3, { dSand4: +near(sandBand, sand4).toFixed(4), dSand12: +near(sandBand, sand12).toFixed(4), dWater4: +near(waterBand, water4).toFixed(4), cliffNear: cliffNear, wide: wide, d157: +near(farVs, far157).toFixed(5), d163: +near(farVs, far163).toFixed(5) });
+  check('sand-and-horizon-placed', near(sandBand, sand4) < 0.05 && near(sandBand, sand12) < 0.05 && near(waterBand, water4) < 0.05 && near(waterBand, waterM4) < 0.05 && cliffNear === 0 && wide === 0 && near(farVs, far157) < 1e-3 && near(farVs, far163) < 1e-3, { dSand4: +near(sandBand, sand4).toFixed(4), dSand12: +near(sandBand, sand12).toFixed(4), dWater4: +near(waterBand, water4).toFixed(4), dWaterM4: +near(waterBand, waterM4).toFixed(4), cliffNear: cliffNear, wide: wide, d157: +near(farVs, far157).toFixed(5), d163: +near(farVs, far163).toFixed(5) });
 
   const wf = fs.readFileSync(path.join(scripts, 'world-r1/WorldFlowComponent.ts'), 'utf8');
   const amb = fs.readFileSync(path.join(scripts, 'audio/AmbienceAudio.ts'), 'utf8');
@@ -178,10 +184,10 @@ function layersOf() {
   check('playhead-on-ambience', /static wavePlayhead\(/.test(amb) && amb.includes('wi.wavePlayhead = AmbienceAudio.wavePlayhead') && amb.includes('src.currentTime') && amb.includes('amb_waves_loop'));
   const coreSrc = fs.readFileSync(path.join(scripts, 'render/ShoreBreakCore.ts'), 'utf8');
   const mainSets = wrap.match(/setProperty\('mainColor'/g) || [];
-  const meshAt = wrap.indexOf('mr.mesh = dynamic'), guardAt = wrap.indexOf('if (!colors)');
   // Two foam mainColor writes (init alpha 0, then place). The sea material is never written.
-  // Vertex colour is copied before the mesh swap. Without it the heaving sea draws black.
-  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('createDynamicMesh') && wrap.includes('updateSubMesh') && wrap.includes('foamMultiply') && wrap.includes('seaHeight') && wrap.includes('tilingOffset') && wrap.includes('seaAlbedoColors') && wrap.includes('ATTR_COLOR') && wrap.includes('colors: s.colors') && wrap.includes('ny = 1') && guardAt >= 0 && meshAt > guardAt && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && !/length < count \* 4/.test(coreSrc) && coreSrc.includes('seaAlbedoColors') && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length, guardAt: guardAt, meshAt: meshAt });
+  // The imported mesh stays. Rebuilding it (RGBA color stream included) still drew the device sea black.
+  const swaps = wrap.includes('mr.mesh = dynamic') || wrap.includes('seaAlbedoColors') || wrap.includes('ATTR_COLOR') || wrap.includes('displaceSea') || wrap.includes('readAttribute');
+  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('seaSheetLift') && wrap.includes('stepShoreClock') && wrap.includes('this.playhead()') && wrap.includes('foamMultiply') && wrap.includes('tilingOffset') && wrap.includes('setPosition') && wrap.includes('this.exterior && phase.foamA') && !swaps && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && !/length < count \* 4/.test(coreSrc) && coreSrc.includes('seaAlbedoColors') && coreSrc.includes('seaSheetLift') && coreSrc.includes('foamReach') && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length, swaps: swaps });
 
   let codeBytes = 0;
   for (const f of ['render/ShoreBreak.ts', 'render/ShoreBreak.ts.meta', 'render/ShoreBreakCore.ts', 'render/ShoreBreakCore.ts.meta']) codeBytes += fs.statSync(path.join(scripts, f)).size;

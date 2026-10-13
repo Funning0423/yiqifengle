@@ -1,13 +1,15 @@
 /**
- * Shore swell (engine-free). The authored env_sea_surface stays the only sea: its vertices heave and its
- * wavelet UVs drift on the amb_waves_loop clock (8.064 s, crashes near 2.369 s and 6.300 s). Daytime blue
- * is the mesh COLOR_0 (RGB floats), not mainColor and not the shared M_env_sea. A dynamic copy must keep
- * that color (alpha 1). White water is one thin lip along the beach, present only while that crest is
- * actually on the sand, then it runs back down and disappears. Between the two beats the lip is gone
- * (no sheet left hanging over a still sea). Night is a mainColor multiply of that same lip (the existing
- * foam tint), not a second mesh or a second sea. The sea material's mainColor is never written here.
- * The beach lip draws with the exterior layer (open door and island). A faint far lip draws with the backdrop
- * so the rear window sees the same beat. Nothing is emitted inside the house footprint.
+ * Shore swell (engine-free). The authored env_sea_surface stays the only sea. Daytime blue is that mesh's
+ * COLOR_0 (RGB floats about 0.37, 0.81, 0.90), not mainColor and not a second material. A dynamic copy
+ * uploaded those floats as a new color stream and the device still shaded the sea black, so this module
+ * does not rebuild the sea mesh. The whole sheet lifts by seaSheetLift — seaHeight at the door-facing
+ * waterline — on the amb_waves_loop clock (8.064 s, crashes at 2.369 s and 6.300 s). The white lip uses
+ * that same lift, so it sits on the surface instead of leading it. White water stays off while the crest
+ * center is still offshore, then runs back down and disappears. Between the two beats the lip is gone.
+ * Night is a mainColor multiply of that same lip (foamMultiply), not a second mesh or a second sea.
+ * The sea material's mainColor is never written here. The beach lip draws with the exterior layer.
+ * A faint far lip draws with the backdrop so the rear window sees the same beat. Nothing is emitted
+ * inside the house footprint.
  * tools/scene-fx/test_shore_break.cjs
  */
 export type V3 = [number, number, number];
@@ -22,14 +24,20 @@ export const SHORE = {
     { hit: 2.369, attack: 1.15, release: 1.55 },
     { hit: 6.300, attack: 1.15, release: 1.55 },
   ],
-  /** Foam stays off until the crest is this far through the attack (already on the beach), then climbs 0→1. */
-  foamIn: 0.82,
+  /**
+   * White water stays off while the crest center is still this far offshore (metres).
+   * Opening the lip at 82% of the attack put white water on the sand while the crest was still ~2.3 m out.
+   */
+  foamReach: 0.15,
   /** Half-width of the white lip in water→sand units. A line, not a sheet over open water. */
   washHalf: 0.08,
   shorePeak: 0.82,
   farPeak: 0.38,
-  /** Authored env_sea_surface translation y. Vertex offsets are added in mesh-local space (local 0 = this). */
+  /** Authored env_sea_surface translation y. The sheet lift is added on top of this (mesh local y stays 0). */
   seaBaseY: -0.91854459,
+  /** Door-facing beach waterline (lip deg 4). The rigid sheet and every lip water-edge share seaHeight here. */
+  sheetX: 1.14,
+  sheetZ: 16.36,
   foamLift: 0.03,
   /** How far offshore (metres past the shoreline) the crest sits at the start of an attack. */
   fetch: 13,
@@ -128,9 +136,12 @@ export function stepShoreClock(clock: number, dt: number, playhead: number | nul
   const step = isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
   return wrapLoop((isFinite(clock) ? clock : 0) + step);
 }
-function foamClimb(s: number): { foamU: number; foamA: number } {
-  if (s <= SHORE.foamIn) return { foamU: 0, foamA: 0 };
-  const k = (s - SHORE.foamIn) / (1 - SHORE.foamIn);
+/** Foam follows how close the crest center is to the waterline, not how far the attack has progressed. */
+function foamClimb(travel: number): { foamU: number; foamA: number } {
+  const reach = SHORE.foamReach;
+  const off = (1 - clamp01(travel)) * SHORE.fetch;
+  if (!(reach > 0) || off >= reach) return { foamU: 0, foamA: 0 };
+  const k = 1 - off / reach;
   const e = k * k * (3 - 2 * k);
   return { foamU: e, foamA: e };
 }
@@ -180,10 +191,11 @@ export function seaUvShift(time: number): { u: number; v: number } {
   return { u: Math.sin(w) * SHORE.uvDrift, v: Math.sin(w * 2) * SHORE.uvDrift * 0.7 };
 }
 /**
- * COLOR_0 → RGBA floats for a dynamic mesh. env_sea_surface stores the daytime blue as RGB (3 floats).
- * builtin-standard multiplies albedo by a_color; a missing color attribute is (0,0,0,1), so the sea draws black.
+ * COLOR_0 → RGBA floats. env_sea_surface stores the daytime blue as RGB (3 floats). builtin-standard
+ * multiplies albedo by a_color; a missing color attribute is (0,0,0,1), so a rebuilt sea draws black.
  * RGB gets alpha 1 (the glTF w default). Byte colors (BYTES_PER_ELEMENT 1) are scaled from 0..255.
- * Returns null when the stream is too short — the caller must leave the authored mesh in place.
+ * The sea is not rebuilt: uploading this stream still left the device sea black, so the authored mesh
+ * keeps its own COLOR_0. Returns null when the stream is too short to be the blue.
  */
 export function seaAlbedoColors(src: ArrayLike<number> | null, count: number, bytesPerElement: number): Float32Array | null {
   if (!src || !(count > 0) || src.length < count * 3) return null;
@@ -230,9 +242,10 @@ export function shoreRadius(x: number, z: number): number {
   return shoreLut[i];
 }
 /**
- * Mesh-local Y offset for one env_sea_surface vertex. Crest of each swell lands on the shoreline
- * (travel 1) at that swell's hit; between beats only the small heave/ripple remain.
- * Pass phase from shorePhase when sampling many vertices.
+ * Mesh-local Y offset of the swell at one xz. Crest of each swell lands on the shoreline
+ * (travel 1, crestOff 0) at that swell's hit; between beats only the small heave/ripple remain.
+ * Pass phase from shorePhase when sampling many points. The visible sea does not rewrite vertices
+ * (that replacement shaded black); seaSheetLift samples this at the waterline and moves the node.
  */
 export function seaHeight(x: number, z: number, time: number, phase?: SeaPhase): number {
   const S = SHORE;
@@ -248,12 +261,16 @@ export function seaHeight(x: number, z: number, time: number, phase?: SeaPhase):
   const crest = Math.exp(-(d * d) / (S.crestSigma * S.crestSigma));
   return (1 - far) * (S.ripple * ripple + S.crest * ph.strength * crest) + S.heave * heave;
 }
+/** One height for the whole sheet, the lip, and the far wash. Peaks when the crest is on this waterline. */
+export function seaSheetLift(time: number, phase?: SeaPhase): number {
+  return seaHeight(SHORE.sheetX, SHORE.sheetZ, time, phase);
+}
 
 function inHouse(x: number, z: number): boolean {
   const h = SHORE.house; return x >= h.minX && x <= h.maxX && z >= h.minZ && z <= h.maxZ;
 }
 function lipPoint(seg: number[], u: number, time: number, phase: SeaPhase): V3 {
-  const y0 = SHORE.seaBaseY + seaHeight(seg[1], seg[2], time, phase) + SHORE.foamLift;
+  const y0 = SHORE.seaBaseY + seaSheetLift(time, phase) + SHORE.foamLift;
   const y1 = seg[5] + SHORE.sandLift;
   return [seg[1] + (seg[3] - seg[1]) * u, y0 + (y1 - y0) * u, seg[2] + (seg[4] - seg[2]) * u];
 }
@@ -349,9 +366,9 @@ function columnsOf(ribbon: number[][]): { seg: number[]; spin: number }[] {
   return out;
 }
 /**
- * Thin lip at water→sand coordinate u (0 = waterline, 1 = up the sand). Y follows the sea at this time
- * so the white sits on the crest instead of hovering over a flat plane. Vertex alpha is the soft edge;
- * the wrapper multiplies mainColor.a by foamA and hides the node when foamA is 0.
+ * Thin lip at water→sand coordinate u (0 = waterline, 1 = up the sand). The water edge is seaBaseY +
+ * seaSheetLift, the same height the sea node uses, so the white sits on the sheet. Vertex alpha is the
+ * soft edge; the wrapper multiplies mainColor.a by foamA and hides the node when foamA is 0.
  */
 export function shoreWashGeometry(u: number, time: number): ShoreGeometry {
   const uu = clamp01(u);
@@ -369,7 +386,7 @@ export function shoreWashGeometry(u: number, time: number): ShoreGeometry {
 function polar(deg: number, r: number, y: number): V3 {
   const a = deg * Math.PI / 180; return [Math.sin(a) * r, y, Math.cos(a) * r];
 }
-/** Faint horizon lip at rest sea height. The wrapper lifts the node by seaHeight and fades it with the beach beat. */
+/** Faint horizon lip at rest sea height. The wrapper lifts the node by seaSheetLift and fades it with the beach beat. */
 export function farShoreGeometry(): ShoreGeometry {
   const degs = SHORE.farDeg, rs = SHORE.farR, fa = SHORE.farA, rgb = SHORE.foamRgb;
   const y = SHORE.seaBaseY + SHORE.foamLift;
