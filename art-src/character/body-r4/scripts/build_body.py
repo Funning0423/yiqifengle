@@ -288,6 +288,8 @@ def shoe(side):
             x=cx+hw*tp*math.copysign(abs(s)**ee,s); y=cy+(bk if c>0 else fr)*math.copysign(abs(c)**ee,c)
             out.append(bm.verts.new(Vector((x,y,z))))
         return out
+    # High-top short boot. The top rings are the shaft, pulled up so the collar sits above the ankle.
+    # The bottom rings stay a flat welt. Do not raise the sole or add a heel (that is not 高帮).
     for z,fr,bk,hw in LG['shoe_rings']: R.append(ring(z,fr,bk,hw))
     for r0,r1 in zip(R,R[1:]):
         for k in range(N): bm.faces.new((r0[k],r0[(k+1)%N],r1[(k+1)%N],r1[k]))
@@ -351,7 +353,7 @@ for o in [obib]+ostraps:
 for side,(o,_,_) in hands.items(): flat_uv(o,lambda co,p:(0.80,0.72))
 SOCK=(0.75,0.37); LEATHER=(0.75,0.445); SOLE=(0.75,0.40)
 for o in legs.values(): flat_uv(o,lambda co,p:SOCK)
-for o in shoes.values(): flat_uv(o,lambda co,p:(SOLE if co.z<0.012+LG['heel'][0]*smooth((co.y-LG['heel'][1])/0.03) else LEATHER))   # thin welt + low heel block
+for o in shoes.values(): flat_uv(o,lambda co,p:(SOLE if co.z<LG['sole_z'] else LEATHER))   # flat welt, same height front and back
 # ---------------- materials ----------------
 for o in new_parts: o.data.materials.clear(); o.data.materials.append(MAT['M_G2_FACE'])
 # ---------------- weights ----------------
