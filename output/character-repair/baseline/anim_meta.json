@@ -1,0 +1,2840 @@
+{
+ "schema": "anim_meta/v1",
+ "glb": "chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+ "status": "mocap-v1: all 13 character clips replaced by retargeted CMU motion capture (walk_loop, walk_start, walk_stop_bodyL/R, walk_turn_90_bodyL/R, walk_turn_180(_bodyR), idle_breathing_loop, sit_hold, sit_down, stand_up, door_reach); wind_sway_loop unchanged",
+ "clip_names_planned": [
+  "walk_loop",
+  "walk_start",
+  "walk_stop_bodyL",
+  "walk_stop_bodyR",
+  "walk_turn_90_bodyL",
+  "walk_turn_90_bodyR",
+  "walk_turn_180",
+  "walk_turn_180_bodyR",
+  "idle_breathing_loop",
+  "sit_hold",
+  "sit_down",
+  "stand_up",
+  "wind_flutter_loop",
+  "apron_lift"
+ ],
+ "side_convention": "bodyL/bodyR and event.body = the girl's actual body side. Bone suffix is mirrored: bone .L = her RIGHT, bone .R = her LEFT.",
+ "clips": {
+  "walk_loop": {
+   "version": "mocap-v1",
+   "loop": true,
+   "duration_s": 1.433333,
+   "frames": 43,
+   "fps": 30,
+   "keys": "557 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.433333,
+    "note": "split 0..clip length in the GLB .meta (loop)"
+   },
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:R",
+     "time_s": 0.0,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike",
+     "frame": 0
+    },
+    {
+     "name": "foot:L",
+     "time_s": 0.733333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike",
+     "frame": 22
+    }
+   ],
+   "native_speed_mps": 0.7,
+   "cycle_duration_s": 1.433333,
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     5.4333,
+     6.6917
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "time_stretch": 1.1391,
+    "stride_scale": 0.6984
+   },
+   "forward_axis": {
+    "blender": "-Y",
+    "gltf_cocos_local": "+Z"
+   },
+   "distance_per_cycle_m": 1.003333,
+   "step_length_m": 0.501667,
+   "playback_rate_formula": "rate = actual_speed / 0.7",
+   "root_motion": "none (root bone static); driver translates the character forward at native_speed_mps",
+   "phases_fraction_of_cycle": {
+    "foot.R": {
+     "body": "L",
+     "heel_strike": 0.0,
+     "toe_off": 0.512
+    },
+    "foot.L": {
+     "body": "R",
+     "heel_strike": 0.512,
+     "toe_off": 0.07
+    },
+    "double_support": [
+     [
+      0.0,
+      0.07
+     ]
+    ],
+    "double_support_pct": 7.0
+   }
+  },
+  "idle_breathing_loop": {
+   "version": "mocap-v1",
+   "loop": true,
+   "duration_s": 1.8,
+   "frames": 54,
+   "fps": 30,
+   "keys": "173 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.8,
+    "note": "split 0..clip length in the GLB .meta (loop)"
+   },
+   "in_place": true,
+   "events": [],
+   "root_motion": "none (root static)",
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     0.3,
+     2.1
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md"
+   }
+  },
+  "sit_hold": {
+   "version": "mocap-v1",
+   "loop": true,
+   "duration_s": 2.0,
+   "frames": 60,
+   "fps": 30,
+   "keys": "80 keys, 2 identical LINEAR keys per channel, held at frame 0",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 2.0,
+    "note": "split 0..clip length in the GLB .meta (loop)"
+   },
+   "in_place": true,
+   "events": [],
+   "root_motion": "none (root static at the seated controller root)",
+   "source": {
+    "database": "CMU",
+    "trial": "113_15",
+    "window_s": [
+     2.6,
+     4.6
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "hands": "wrists IK-placed on the thighs (CMU chair had armrests; ours has none)",
+    "hold": "sit_hold is frame 0 for the whole 2 s (cloud-tasks/RESULT-sit-still.md): the CMU hip rock is not played"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       1
+      ],
+      [
+       2.0,
+       1
+      ]
+     ]
+    }
+   }
+  },
+  "walk_start": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.933333,
+   "frames": 58,
+   "fps": 30,
+   "keys": "702 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.933333,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:L",
+     "time_s": 0.633333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 1.533333,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      0.002496
+     ],
+     [
+      0.066667,
+      0.005644
+     ],
+     [
+      0.1,
+      0.009497
+     ],
+     [
+      0.133333,
+      0.014077
+     ],
+     [
+      0.166667,
+      0.019376
+     ],
+     [
+      0.2,
+      0.02536
+     ],
+     [
+      0.233333,
+      0.031969
+     ],
+     [
+      0.266667,
+      0.039135
+     ],
+     [
+      0.3,
+      0.046789
+     ],
+     [
+      0.333333,
+      0.054875
+     ],
+     [
+      0.366667,
+      0.06336
+     ],
+     [
+      0.4,
+      0.072231
+     ],
+     [
+      0.433333,
+      0.081504
+     ],
+     [
+      0.466667,
+      0.091214
+     ],
+     [
+      0.5,
+      0.101412
+     ],
+     [
+      0.533333,
+      0.112151
+     ],
+     [
+      0.566667,
+      0.123484
+     ],
+     [
+      0.6,
+      0.135451
+     ],
+     [
+      0.633333,
+      0.148076
+     ],
+     [
+      0.666667,
+      0.161365
+     ],
+     [
+      0.7,
+      0.175301
+     ],
+     [
+      0.733333,
+      0.189851
+     ],
+     [
+      0.766667,
+      0.204968
+     ],
+     [
+      0.8,
+      0.220596
+     ],
+     [
+      0.833333,
+      0.236678
+     ],
+     [
+      0.866667,
+      0.253164
+     ],
+     [
+      0.9,
+      0.270023
+     ],
+     [
+      0.933333,
+      0.28725
+     ],
+     [
+      0.966667,
+      0.304885
+     ],
+     [
+      1.0,
+      0.323008
+     ],
+     [
+      1.033333,
+      0.341748
+     ],
+     [
+      1.066667,
+      0.361269
+     ],
+     [
+      1.1,
+      0.381753
+     ],
+     [
+      1.133333,
+      0.403383
+     ],
+     [
+      1.166667,
+      0.426307
+     ],
+     [
+      1.2,
+      0.450618
+     ],
+     [
+      1.233333,
+      0.47697
+     ],
+     [
+      1.266667,
+      0.507484
+     ],
+     [
+      1.3,
+      0.542263
+     ],
+     [
+      1.333333,
+      0.579369
+     ],
+     [
+      1.366667,
+      0.616101
+     ],
+     [
+      1.4,
+      0.65021
+     ],
+     [
+      1.433333,
+      0.680643
+     ],
+     [
+      1.466667,
+      0.707622
+     ],
+     [
+      1.5,
+      0.732212
+     ],
+     [
+      1.533333,
+      0.755707
+     ],
+     [
+      1.566667,
+      0.77904
+     ],
+     [
+      1.6,
+      0.802373
+     ],
+     [
+      1.633333,
+      0.825707
+     ],
+     [
+      1.666667,
+      0.84904
+     ],
+     [
+      1.7,
+      0.872373
+     ],
+     [
+      1.733333,
+      0.895707
+     ],
+     [
+      1.766667,
+      0.91904
+     ],
+     [
+      1.8,
+      0.942373
+     ],
+     [
+      1.833333,
+      0.965707
+     ],
+     [
+      1.866667,
+      0.98904
+     ],
+     [
+      1.9,
+      1.012373
+     ],
+     [
+      1.933333,
+      1.035707
+     ]
+    ]
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "handoff": {
+    "next": "walk_loop",
+    "at_s": 1.733333,
+    "next_time_s": 0.2,
+    "crossfade_s": 0.2,
+    "note": "from 1.533 s the clip IS walk_loop (time t - 1.533); the driver cross-fades 0.2 s from at_s"
+   },
+   "root_speed_end_mps": 0.7,
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     2.7583,
+     4.4395
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "time_stretch": 1.15
+   }
+  },
+  "walk_stop_bodyL": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "625 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:R",
+     "time_s": 0.0,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike",
+     "entry_contact": true,
+     "note": "same heel strike walk_loop fires at the entry; driver should not play it twice"
+    },
+    {
+     "name": "foot:L",
+     "time_s": 0.866667,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    },
+    {
+     "name": "settle:R",
+     "time_s": 1.333333,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "settle",
+     "note": "small settling step (feet end side by side): named settle:* so onFoot (foot:* only) does not emit it; softer footstep sound if wanted"
+    }
+   ],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      0.014652
+     ],
+     [
+      0.066667,
+      0.027767
+     ],
+     [
+      0.1,
+      0.039416
+     ],
+     [
+      0.133333,
+      0.049779
+     ],
+     [
+      0.166667,
+      0.059121
+     ],
+     [
+      0.2,
+      0.067764
+     ],
+     [
+      0.233333,
+      0.076051
+     ],
+     [
+      0.266667,
+      0.084305
+     ],
+     [
+      0.3,
+      0.092796
+     ],
+     [
+      0.333333,
+      0.101718
+     ],
+     [
+      0.366667,
+      0.111179
+     ],
+     [
+      0.4,
+      0.121208
+     ],
+     [
+      0.433333,
+      0.131768
+     ],
+     [
+      0.466667,
+      0.142782
+     ],
+     [
+      0.5,
+      0.154157
+     ],
+     [
+      0.533333,
+      0.165801
+     ],
+     [
+      0.566667,
+      0.177641
+     ],
+     [
+      0.6,
+      0.189631
+     ],
+     [
+      0.633333,
+      0.201756
+     ],
+     [
+      0.666667,
+      0.214034
+     ],
+     [
+      0.7,
+      0.226514
+     ],
+     [
+      0.733333,
+      0.239272
+     ],
+     [
+      0.766667,
+      0.2524
+     ],
+     [
+      0.8,
+      0.265991
+     ],
+     [
+      0.833333,
+      0.280135
+     ],
+     [
+      0.866667,
+      0.294907
+     ],
+     [
+      0.9,
+      0.310344
+     ],
+     [
+      0.933333,
+      0.326423
+     ],
+     [
+      0.966667,
+      0.343051
+     ],
+     [
+      1.0,
+      0.360055
+     ],
+     [
+      1.033333,
+      0.377186
+     ],
+     [
+      1.066667,
+      0.394136
+     ],
+     [
+      1.1,
+      0.410559
+     ],
+     [
+      1.133333,
+      0.426104
+     ],
+     [
+      1.166667,
+      0.44045
+     ],
+     [
+      1.2,
+      0.453337
+     ],
+     [
+      1.233333,
+      0.464585
+     ],
+     [
+      1.266667,
+      0.474112
+     ],
+     [
+      1.3,
+      0.481928
+     ],
+     [
+      1.333333,
+      0.488127
+     ],
+     [
+      1.366667,
+      0.492867
+     ],
+     [
+      1.4,
+      0.496346
+     ],
+     [
+      1.433333,
+      0.498777
+     ],
+     [
+      1.466667,
+      0.500374
+     ]
+    ],
+    "lateral_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      0.002575
+     ],
+     [
+      0.066667,
+      0.005644
+     ],
+     [
+      0.1,
+      0.009224
+     ],
+     [
+      0.133333,
+      0.013312
+     ],
+     [
+      0.166667,
+      0.017884
+     ],
+     [
+      0.2,
+      0.022899
+     ],
+     [
+      0.233333,
+      0.028294
+     ],
+     [
+      0.266667,
+      0.033995
+     ],
+     [
+      0.3,
+      0.039915
+     ],
+     [
+      0.333333,
+      0.045961
+     ],
+     [
+      0.366667,
+      0.05204
+     ],
+     [
+      0.4,
+      0.058057
+     ],
+     [
+      0.433333,
+      0.063921
+     ],
+     [
+      0.466667,
+      0.069547
+     ],
+     [
+      0.5,
+      0.074853
+     ],
+     [
+      0.533333,
+      0.079764
+     ],
+     [
+      0.566667,
+      0.084207
+     ],
+     [
+      0.6,
+      0.088108
+     ],
+     [
+      0.633333,
+      0.091392
+     ],
+     [
+      0.666667,
+      0.093981
+     ],
+     [
+      0.7,
+      0.095797
+     ],
+     [
+      0.733333,
+      0.096761
+     ],
+     [
+      0.766667,
+      0.0968
+     ],
+     [
+      0.8,
+      0.095848
+     ],
+     [
+      0.833333,
+      0.093859
+     ],
+     [
+      0.866667,
+      0.09081
+     ],
+     [
+      0.9,
+      0.086712
+     ],
+     [
+      0.933333,
+      0.081611
+     ],
+     [
+      0.966667,
+      0.075595
+     ],
+     [
+      1.0,
+      0.068789
+     ],
+     [
+      1.033333,
+      0.061357
+     ],
+     [
+      1.066667,
+      0.053492
+     ],
+     [
+      1.1,
+      0.045406
+     ],
+     [
+      1.133333,
+      0.037315
+     ],
+     [
+      1.166667,
+      0.029428
+     ],
+     [
+      1.2,
+      0.021933
+     ],
+     [
+      1.233333,
+      0.014988
+     ],
+     [
+      1.266667,
+      0.008707
+     ],
+     [
+      1.3,
+      0.003167
+     ],
+     [
+      1.333333,
+      -0.001603
+     ],
+     [
+      1.366667,
+      -0.005609
+     ],
+     [
+      1.4,
+      -0.008892
+     ],
+     [
+      1.433333,
+      -0.011516
+     ],
+     [
+      1.466667,
+      -0.01356
+     ]
+    ]
+   },
+   "entry": {
+    "from": "walk_loop",
+    "at_event": "foot:R",
+    "body": "L",
+    "walk_time_s": 0.0,
+    "crossfade_s": 0.0,
+    "note": "start at the walk_loop heel strike of her left foot (bone foot.R); clip frame 0 == walk_loop at that time"
+   },
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.466667,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0,
+    "note": "end pose == idle_breathing_loop frame 0 relative to the root (after root_motion)"
+   },
+   "driver_note": "root decelerates 0.7 -> 0 m/s (total 0.500 m forward, -0.014 m sideways); drive the root by root_motion.",
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     15.4667,
+     16.45
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "time_stretch": 1.15,
+    "mirrored": true
+   }
+  },
+  "walk_stop_bodyR": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "596 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:L",
+     "time_s": 0.0,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike",
+     "entry_contact": true,
+     "note": "same heel strike walk_loop fires at the entry; driver should not play it twice"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 0.866667,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    },
+    {
+     "name": "settle:L",
+     "time_s": 1.333333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "settle",
+     "note": "small settling step (feet end side by side): named settle:* so onFoot (foot:* only) does not emit it; softer footstep sound if wanted"
+    }
+   ],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      0.013263
+     ],
+     [
+      0.066667,
+      0.024816
+     ],
+     [
+      0.1,
+      0.034764
+     ],
+     [
+      0.133333,
+      0.043335
+     ],
+     [
+      0.166667,
+      0.050852
+     ],
+     [
+      0.2,
+      0.057698
+     ],
+     [
+      0.233333,
+      0.064275
+     ],
+     [
+      0.266667,
+      0.070955
+     ],
+     [
+      0.3,
+      0.078043
+     ],
+     [
+      0.333333,
+      0.085755
+     ],
+     [
+      0.366667,
+      0.094202
+     ],
+     [
+      0.4,
+      0.103404
+     ],
+     [
+      0.433333,
+      0.113303
+     ],
+     [
+      0.466667,
+      0.123798
+     ],
+     [
+      0.5,
+      0.134764
+     ],
+     [
+      0.533333,
+      0.14608
+     ],
+     [
+      0.566667,
+      0.157642
+     ],
+     [
+      0.6,
+      0.169376
+     ],
+     [
+      0.633333,
+      0.181237
+     ],
+     [
+      0.666667,
+      0.193212
+     ],
+     [
+      0.7,
+      0.205314
+     ],
+     [
+      0.733333,
+      0.217577
+     ],
+     [
+      0.766667,
+      0.230042
+     ],
+     [
+      0.8,
+      0.242746
+     ],
+     [
+      0.833333,
+      0.255719
+     ],
+     [
+      0.866667,
+      0.268976
+     ],
+     [
+      0.9,
+      0.282505
+     ],
+     [
+      0.933333,
+      0.296248
+     ],
+     [
+      0.966667,
+      0.310102
+     ],
+     [
+      1.0,
+      0.323912
+     ],
+     [
+      1.033333,
+      0.337482
+     ],
+     [
+      1.066667,
+      0.350589
+     ],
+     [
+      1.1,
+      0.362996
+     ],
+     [
+      1.133333,
+      0.374478
+     ],
+     [
+      1.166667,
+      0.384846
+     ],
+     [
+      1.2,
+      0.39396
+     ],
+     [
+      1.233333,
+      0.401743
+     ],
+     [
+      1.266667,
+      0.408186
+     ],
+     [
+      1.3,
+      0.413341
+     ],
+     [
+      1.333333,
+      0.417312
+     ],
+     [
+      1.366667,
+      0.42024
+     ],
+     [
+      1.4,
+      0.422283
+     ],
+     [
+      1.433333,
+      0.423604
+     ],
+     [
+      1.466667,
+      0.424359
+     ]
+    ],
+    "lateral_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      -0.0018
+     ],
+     [
+      0.066667,
+      -0.004009
+     ],
+     [
+      0.1,
+      -0.006665
+     ],
+     [
+      0.133333,
+      -0.009796
+     ],
+     [
+      0.166667,
+      -0.013414
+     ],
+     [
+      0.2,
+      -0.01752
+     ],
+     [
+      0.233333,
+      -0.022096
+     ],
+     [
+      0.266667,
+      -0.027108
+     ],
+     [
+      0.3,
+      -0.032504
+     ],
+     [
+      0.333333,
+      -0.03822
+     ],
+     [
+      0.366667,
+      -0.044176
+     ],
+     [
+      0.4,
+      -0.050281
+     ],
+     [
+      0.433333,
+      -0.056435
+     ],
+     [
+      0.466667,
+      -0.062533
+     ],
+     [
+      0.5,
+      -0.068465
+     ],
+     [
+      0.533333,
+      -0.07412
+     ],
+     [
+      0.566667,
+      -0.079386
+     ],
+     [
+      0.6,
+      -0.084148
+     ],
+     [
+      0.633333,
+      -0.088292
+     ],
+     [
+      0.666667,
+      -0.091705
+     ],
+     [
+      0.7,
+      -0.094277
+     ],
+     [
+      0.733333,
+      -0.095902
+     ],
+     [
+      0.766667,
+      -0.096486
+     ],
+     [
+      0.8,
+      -0.09595
+     ],
+     [
+      0.833333,
+      -0.094239
+     ],
+     [
+      0.866667,
+      -0.091327
+     ],
+     [
+      0.9,
+      -0.087226
+     ],
+     [
+      0.933333,
+      -0.081986
+     ],
+     [
+      0.966667,
+      -0.075706
+     ],
+     [
+      1.0,
+      -0.068528
+     ],
+     [
+      1.033333,
+      -0.060632
+     ],
+     [
+      1.066667,
+      -0.052232
+     ],
+     [
+      1.1,
+      -0.043559
+     ],
+     [
+      1.133333,
+      -0.034853
+     ],
+     [
+      1.166667,
+      -0.026343
+     ],
+     [
+      1.2,
+      -0.018236
+     ],
+     [
+      1.233333,
+      -0.010705
+     ],
+     [
+      1.266667,
+      -0.003878
+     ],
+     [
+      1.3,
+      0.002162
+     ],
+     [
+      1.333333,
+      0.007377
+     ],
+     [
+      1.366667,
+      0.011774
+     ],
+     [
+      1.4,
+      0.015394
+     ],
+     [
+      1.433333,
+      0.018304
+     ],
+     [
+      1.466667,
+      0.020589
+     ]
+    ]
+   },
+   "entry": {
+    "from": "walk_loop",
+    "at_event": "foot:L",
+    "body": "R",
+    "walk_time_s": 0.733333,
+    "crossfade_s": 0.0,
+    "note": "start at the walk_loop heel strike of her right foot (bone foot.L); clip frame 0 == walk_loop at that time"
+   },
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.466667,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0,
+    "note": "end pose == idle_breathing_loop frame 0 relative to the root (after root_motion)"
+   },
+   "driver_note": "root decelerates 0.7 -> 0 m/s (total 0.424 m forward, 0.021 m sideways); drive the root by root_motion.",
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     15.4667,
+     16.45
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "time_stretch": 1.15,
+    "mirrored": false
+   }
+  },
+  "walk_turn_90_bodyL": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "512 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:R",
+     "time_s": 0.633333,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:L",
+     "time_s": 1.333333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "yaw_deg": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      2.0455
+     ],
+     [
+      0.066667,
+      4.0909
+     ],
+     [
+      0.1,
+      6.1364
+     ],
+     [
+      0.133333,
+      8.1818
+     ],
+     [
+      0.166667,
+      10.2273
+     ],
+     [
+      0.2,
+      12.2727
+     ],
+     [
+      0.233333,
+      14.3182
+     ],
+     [
+      0.266667,
+      16.3636
+     ],
+     [
+      0.3,
+      18.4091
+     ],
+     [
+      0.333333,
+      20.4545
+     ],
+     [
+      0.366667,
+      22.5
+     ],
+     [
+      0.4,
+      24.5455
+     ],
+     [
+      0.433333,
+      26.5909
+     ],
+     [
+      0.466667,
+      28.6364
+     ],
+     [
+      0.5,
+      30.6818
+     ],
+     [
+      0.533333,
+      32.7273
+     ],
+     [
+      0.566667,
+      34.7727
+     ],
+     [
+      0.6,
+      36.8182
+     ],
+     [
+      0.633333,
+      38.8636
+     ],
+     [
+      0.666667,
+      40.9091
+     ],
+     [
+      0.7,
+      42.9545
+     ],
+     [
+      0.733333,
+      45.0
+     ],
+     [
+      0.766667,
+      47.0455
+     ],
+     [
+      0.8,
+      49.0909
+     ],
+     [
+      0.833333,
+      51.1364
+     ],
+     [
+      0.866667,
+      53.1818
+     ],
+     [
+      0.9,
+      55.2273
+     ],
+     [
+      0.933333,
+      57.2727
+     ],
+     [
+      0.966667,
+      59.3182
+     ],
+     [
+      1.0,
+      61.3636
+     ],
+     [
+      1.033333,
+      63.4091
+     ],
+     [
+      1.066667,
+      65.4545
+     ],
+     [
+      1.1,
+      67.5
+     ],
+     [
+      1.133333,
+      69.5455
+     ],
+     [
+      1.166667,
+      71.5909
+     ],
+     [
+      1.2,
+      73.6364
+     ],
+     [
+      1.233333,
+      75.6818
+     ],
+     [
+      1.266667,
+      77.7273
+     ],
+     [
+      1.3,
+      79.7727
+     ],
+     [
+      1.333333,
+      81.8182
+     ],
+     [
+      1.366667,
+      83.8636
+     ],
+     [
+      1.4,
+      85.9091
+     ],
+     [
+      1.433333,
+      87.9545
+     ],
+     [
+      1.466667,
+      90.0
+     ]
+    ],
+    "mode": "linear over 1.5 s (= current driver turn action)"
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.5,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0
+   },
+   "turn_deg": 90.0,
+   "body": "L",
+   "driver_note": "root yaw: linear 0..turn over 1.5 s = current driver turn action, so feet stay planted with the driver as is.",
+   "source": {
+    "database": "CMU",
+    "trial": "69_16",
+    "window_s": [
+     1.7,
+     3.2
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "yaw_scale": 1.0238
+   },
+   "mirror": "walk_turn_90_bodyR"
+  },
+  "walk_turn_90_bodyR": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "543 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:L",
+     "time_s": 0.4,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 1.4,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "yaw_deg": [
+     [
+      0.0,
+      -0.0
+     ],
+     [
+      0.033333,
+      -2.0455
+     ],
+     [
+      0.066667,
+      -4.0909
+     ],
+     [
+      0.1,
+      -6.1364
+     ],
+     [
+      0.133333,
+      -8.1818
+     ],
+     [
+      0.166667,
+      -10.2273
+     ],
+     [
+      0.2,
+      -12.2727
+     ],
+     [
+      0.233333,
+      -14.3182
+     ],
+     [
+      0.266667,
+      -16.3636
+     ],
+     [
+      0.3,
+      -18.4091
+     ],
+     [
+      0.333333,
+      -20.4545
+     ],
+     [
+      0.366667,
+      -22.5
+     ],
+     [
+      0.4,
+      -24.5455
+     ],
+     [
+      0.433333,
+      -26.5909
+     ],
+     [
+      0.466667,
+      -28.6364
+     ],
+     [
+      0.5,
+      -30.6818
+     ],
+     [
+      0.533333,
+      -32.7273
+     ],
+     [
+      0.566667,
+      -34.7727
+     ],
+     [
+      0.6,
+      -36.8182
+     ],
+     [
+      0.633333,
+      -38.8636
+     ],
+     [
+      0.666667,
+      -40.9091
+     ],
+     [
+      0.7,
+      -42.9545
+     ],
+     [
+      0.733333,
+      -45.0
+     ],
+     [
+      0.766667,
+      -47.0455
+     ],
+     [
+      0.8,
+      -49.0909
+     ],
+     [
+      0.833333,
+      -51.1364
+     ],
+     [
+      0.866667,
+      -53.1818
+     ],
+     [
+      0.9,
+      -55.2273
+     ],
+     [
+      0.933333,
+      -57.2727
+     ],
+     [
+      0.966667,
+      -59.3182
+     ],
+     [
+      1.0,
+      -61.3636
+     ],
+     [
+      1.033333,
+      -63.4091
+     ],
+     [
+      1.066667,
+      -65.4545
+     ],
+     [
+      1.1,
+      -67.5
+     ],
+     [
+      1.133333,
+      -69.5455
+     ],
+     [
+      1.166667,
+      -71.5909
+     ],
+     [
+      1.2,
+      -73.6364
+     ],
+     [
+      1.233333,
+      -75.6818
+     ],
+     [
+      1.266667,
+      -77.7273
+     ],
+     [
+      1.3,
+      -79.7727
+     ],
+     [
+      1.333333,
+      -81.8182
+     ],
+     [
+      1.366667,
+      -83.8636
+     ],
+     [
+      1.4,
+      -85.9091
+     ],
+     [
+      1.433333,
+      -87.9545
+     ],
+     [
+      1.466667,
+      -90.0
+     ]
+    ],
+    "mode": "linear over 1.5 s (= current driver turn action)"
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.5,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0
+   },
+   "turn_deg": -90.0,
+   "body": "R",
+   "driver_note": "root yaw: linear 0..turn over 1.5 s = current driver turn action, so feet stay planted with the driver as is.",
+   "source": {
+    "database": "CMU",
+    "trial": "69_18",
+    "window_s": [
+     1.1,
+     2.7
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "yaw_scale": 1.0396
+   },
+   "mirror": "walk_turn_90_bodyL"
+  },
+  "walk_turn_180": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "602 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:L",
+     "time_s": 0.366667,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 1.1,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:L",
+     "time_s": 1.3,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "yaw_deg": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      4.0909
+     ],
+     [
+      0.066667,
+      8.1818
+     ],
+     [
+      0.1,
+      12.2727
+     ],
+     [
+      0.133333,
+      16.3636
+     ],
+     [
+      0.166667,
+      20.4545
+     ],
+     [
+      0.2,
+      24.5455
+     ],
+     [
+      0.233333,
+      28.6364
+     ],
+     [
+      0.266667,
+      32.7273
+     ],
+     [
+      0.3,
+      36.8182
+     ],
+     [
+      0.333333,
+      40.9091
+     ],
+     [
+      0.366667,
+      45.0
+     ],
+     [
+      0.4,
+      49.0909
+     ],
+     [
+      0.433333,
+      53.1818
+     ],
+     [
+      0.466667,
+      57.2727
+     ],
+     [
+      0.5,
+      61.3636
+     ],
+     [
+      0.533333,
+      65.4545
+     ],
+     [
+      0.566667,
+      69.5455
+     ],
+     [
+      0.6,
+      73.6364
+     ],
+     [
+      0.633333,
+      77.7273
+     ],
+     [
+      0.666667,
+      81.8182
+     ],
+     [
+      0.7,
+      85.9091
+     ],
+     [
+      0.733333,
+      90.0
+     ],
+     [
+      0.766667,
+      94.0909
+     ],
+     [
+      0.8,
+      98.1818
+     ],
+     [
+      0.833333,
+      102.2727
+     ],
+     [
+      0.866667,
+      106.3636
+     ],
+     [
+      0.9,
+      110.4545
+     ],
+     [
+      0.933333,
+      114.5455
+     ],
+     [
+      0.966667,
+      118.6364
+     ],
+     [
+      1.0,
+      122.7273
+     ],
+     [
+      1.033333,
+      126.8182
+     ],
+     [
+      1.066667,
+      130.9091
+     ],
+     [
+      1.1,
+      135.0
+     ],
+     [
+      1.133333,
+      139.0909
+     ],
+     [
+      1.166667,
+      143.1818
+     ],
+     [
+      1.2,
+      147.2727
+     ],
+     [
+      1.233333,
+      151.3636
+     ],
+     [
+      1.266667,
+      155.4545
+     ],
+     [
+      1.3,
+      159.5455
+     ],
+     [
+      1.333333,
+      163.6364
+     ],
+     [
+      1.366667,
+      167.7273
+     ],
+     [
+      1.4,
+      171.8182
+     ],
+     [
+      1.433333,
+      175.9091
+     ],
+     [
+      1.466667,
+      180.0
+     ]
+    ],
+    "mode": "linear over 1.5 s (= current driver turn action)"
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.5,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0
+   },
+   "turn_deg": 180.0,
+   "body": "L",
+   "driver_note": "root yaw: linear 0..turn over 1.5 s = current driver turn action, so feet stay planted with the driver as is.",
+   "note": "turns to her LEFT (+180 yaw). Name kept without suffix because CharacterMotion.ts CLIP_ROLES.turn180 = walk_turn_180; walk_turn_180_bodyR is the right turn (-180).",
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     8.25,
+     9.75
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "yaw_scale": 0.9484
+   },
+   "mirror": "walk_turn_180_bodyR"
+  },
+  "walk_turn_180_bodyR": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.466667,
+   "frames": 44,
+   "fps": 30,
+   "keys": "632 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.466667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [
+    {
+     "name": "foot:R",
+     "time_s": 0.3,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:L",
+     "time_s": 0.933333,
+     "bone": "foot.L",
+     "body": "R",
+     "type": "heel_strike"
+    },
+    {
+     "name": "foot:R",
+     "time_s": 1.3,
+     "bone": "foot.R",
+     "body": "L",
+     "type": "heel_strike"
+    }
+   ],
+   "root_motion": {
+    "yaw_deg": [
+     [
+      0.0,
+      -0.0
+     ],
+     [
+      0.033333,
+      -4.0909
+     ],
+     [
+      0.066667,
+      -8.1818
+     ],
+     [
+      0.1,
+      -12.2727
+     ],
+     [
+      0.133333,
+      -16.3636
+     ],
+     [
+      0.166667,
+      -20.4545
+     ],
+     [
+      0.2,
+      -24.5455
+     ],
+     [
+      0.233333,
+      -28.6364
+     ],
+     [
+      0.266667,
+      -32.7273
+     ],
+     [
+      0.3,
+      -36.8182
+     ],
+     [
+      0.333333,
+      -40.9091
+     ],
+     [
+      0.366667,
+      -45.0
+     ],
+     [
+      0.4,
+      -49.0909
+     ],
+     [
+      0.433333,
+      -53.1818
+     ],
+     [
+      0.466667,
+      -57.2727
+     ],
+     [
+      0.5,
+      -61.3636
+     ],
+     [
+      0.533333,
+      -65.4545
+     ],
+     [
+      0.566667,
+      -69.5455
+     ],
+     [
+      0.6,
+      -73.6364
+     ],
+     [
+      0.633333,
+      -77.7273
+     ],
+     [
+      0.666667,
+      -81.8182
+     ],
+     [
+      0.7,
+      -85.9091
+     ],
+     [
+      0.733333,
+      -90.0
+     ],
+     [
+      0.766667,
+      -94.0909
+     ],
+     [
+      0.8,
+      -98.1818
+     ],
+     [
+      0.833333,
+      -102.2727
+     ],
+     [
+      0.866667,
+      -106.3636
+     ],
+     [
+      0.9,
+      -110.4545
+     ],
+     [
+      0.933333,
+      -114.5455
+     ],
+     [
+      0.966667,
+      -118.6364
+     ],
+     [
+      1.0,
+      -122.7273
+     ],
+     [
+      1.033333,
+      -126.8182
+     ],
+     [
+      1.066667,
+      -130.9091
+     ],
+     [
+      1.1,
+      -135.0
+     ],
+     [
+      1.133333,
+      -139.0909
+     ],
+     [
+      1.166667,
+      -143.1818
+     ],
+     [
+      1.2,
+      -147.2727
+     ],
+     [
+      1.233333,
+      -151.3636
+     ],
+     [
+      1.266667,
+      -155.4545
+     ],
+     [
+      1.3,
+      -159.5455
+     ],
+     [
+      1.333333,
+      -163.6364
+     ],
+     [
+      1.366667,
+      -167.7273
+     ],
+     [
+      1.4,
+      -171.8182
+     ],
+     [
+      1.433333,
+      -175.9091
+     ],
+     [
+      1.466667,
+      -180.0
+     ]
+    ],
+    "mode": "linear over 1.5 s (= current driver turn action)"
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.5,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.0
+   },
+   "turn_deg": -180.0,
+   "body": "R",
+   "driver_note": "root yaw: linear 0..turn over 1.5 s = current driver turn action, so feet stay planted with the driver as is.",
+   "source": {
+    "database": "CMU",
+    "trial": "91_29",
+    "window_s": [
+     16.0,
+     17.5
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "yaw_scale": 0.9308
+   },
+   "mirror": "walk_turn_180"
+  },
+  "sit_down": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.2,
+   "frames": 36,
+   "fps": 30,
+   "keys": "550 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.2,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      -0.0
+     ],
+     [
+      0.033333,
+      -0.013722
+     ],
+     [
+      0.066667,
+      -0.027444
+     ],
+     [
+      0.1,
+      -0.041167
+     ],
+     [
+      0.133333,
+      -0.054889
+     ],
+     [
+      0.166667,
+      -0.068611
+     ],
+     [
+      0.2,
+      -0.082333
+     ],
+     [
+      0.233333,
+      -0.096056
+     ],
+     [
+      0.266667,
+      -0.109778
+     ],
+     [
+      0.3,
+      -0.1235
+     ],
+     [
+      0.333333,
+      -0.137222
+     ],
+     [
+      0.366667,
+      -0.150944
+     ],
+     [
+      0.4,
+      -0.164667
+     ],
+     [
+      0.433333,
+      -0.178389
+     ],
+     [
+      0.466667,
+      -0.192111
+     ],
+     [
+      0.5,
+      -0.205833
+     ],
+     [
+      0.533333,
+      -0.219556
+     ],
+     [
+      0.566667,
+      -0.233278
+     ],
+     [
+      0.6,
+      -0.247
+     ],
+     [
+      0.633333,
+      -0.260722
+     ],
+     [
+      0.666667,
+      -0.274444
+     ],
+     [
+      0.7,
+      -0.288167
+     ],
+     [
+      0.733333,
+      -0.301889
+     ],
+     [
+      0.766667,
+      -0.315611
+     ],
+     [
+      0.8,
+      -0.329333
+     ],
+     [
+      0.833333,
+      -0.343056
+     ],
+     [
+      0.866667,
+      -0.356778
+     ],
+     [
+      0.9,
+      -0.3705
+     ],
+     [
+      0.933333,
+      -0.384222
+     ],
+     [
+      0.966667,
+      -0.397944
+     ],
+     [
+      1.0,
+      -0.411667
+     ],
+     [
+      1.033333,
+      -0.425389
+     ],
+     [
+      1.066667,
+      -0.439111
+     ],
+     [
+      1.1,
+      -0.452833
+     ],
+     [
+      1.133333,
+      -0.466556
+     ],
+     [
+      1.166667,
+      -0.480278
+     ],
+     [
+      1.2,
+      -0.494
+     ]
+    ],
+    "mode": "linear between the standing and seated controller roots over the clip (= current driver sit/stand action)"
+   },
+   "start_pose": "idle_breathing_loop frame 0",
+   "settle_time_s": 0.8667,
+   "handoff": {
+    "next": "sit_hold",
+    "at_s": 1.2,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.2
+   },
+   "source": {
+    "database": "CMU",
+    "trial": "113_15",
+    "window_s": [
+     1.4,
+     2.6
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "hands": "wrists blended onto the thighs while seated (CMU chair had armrests)"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       0
+      ],
+      [
+       0.8667,
+       1
+      ],
+      [
+       1.2,
+       1
+      ]
+     ]
+    },
+    "settle_time_s": 0.8667
+   }
+  },
+  "stand_up": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 1.266667,
+   "frames": 38,
+   "fps": 30,
+   "keys": "574 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 1.266667,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [],
+   "root_motion": {
+    "forward_m": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.033333,
+      0.013
+     ],
+     [
+      0.066667,
+      0.026
+     ],
+     [
+      0.1,
+      0.039
+     ],
+     [
+      0.133333,
+      0.052
+     ],
+     [
+      0.166667,
+      0.065
+     ],
+     [
+      0.2,
+      0.078
+     ],
+     [
+      0.233333,
+      0.091
+     ],
+     [
+      0.266667,
+      0.104
+     ],
+     [
+      0.3,
+      0.117
+     ],
+     [
+      0.333333,
+      0.13
+     ],
+     [
+      0.366667,
+      0.143
+     ],
+     [
+      0.4,
+      0.156
+     ],
+     [
+      0.433333,
+      0.169
+     ],
+     [
+      0.466667,
+      0.182
+     ],
+     [
+      0.5,
+      0.195
+     ],
+     [
+      0.533333,
+      0.208
+     ],
+     [
+      0.566667,
+      0.221
+     ],
+     [
+      0.6,
+      0.234
+     ],
+     [
+      0.633333,
+      0.247
+     ],
+     [
+      0.666667,
+      0.26
+     ],
+     [
+      0.7,
+      0.273
+     ],
+     [
+      0.733333,
+      0.286
+     ],
+     [
+      0.766667,
+      0.299
+     ],
+     [
+      0.8,
+      0.312
+     ],
+     [
+      0.833333,
+      0.325
+     ],
+     [
+      0.866667,
+      0.338
+     ],
+     [
+      0.9,
+      0.351
+     ],
+     [
+      0.933333,
+      0.364
+     ],
+     [
+      0.966667,
+      0.377
+     ],
+     [
+      1.0,
+      0.39
+     ],
+     [
+      1.033333,
+      0.403
+     ],
+     [
+      1.066667,
+      0.416
+     ],
+     [
+      1.1,
+      0.429
+     ],
+     [
+      1.133333,
+      0.442
+     ],
+     [
+      1.166667,
+      0.455
+     ],
+     [
+      1.2,
+      0.468
+     ],
+     [
+      1.233333,
+      0.481
+     ],
+     [
+      1.266667,
+      0.494
+     ]
+    ],
+    "mode": "linear between the standing and seated controller roots over the clip (= current driver sit/stand action)"
+   },
+   "start_pose": "sit_hold frame 0",
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 1.266667,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.2
+   },
+   "source": {
+    "database": "CMU",
+    "trial": "113_15",
+    "window_s": [
+     4.7,
+     5.95
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "hands": "wrists blended onto the thighs while seated (CMU chair had armrests)"
+   },
+   "morph": {
+    "curves": {
+     "sit_drape": [
+      [
+       0,
+       1
+      ],
+      [
+       0.1333,
+       1
+      ],
+      [
+       0.8667,
+       0
+      ],
+      [
+       1.2667,
+       0
+      ]
+     ]
+    },
+    "release_time_s": 0.8667
+   }
+  },
+  "door_reach": {
+   "version": "mocap-v1",
+   "loop": false,
+   "duration_s": 2.0,
+   "frames": 60,
+   "fps": 30,
+   "keys": "662 keys, reduced per channel (see top-level compression), LINEAR",
+   "cocos_meta_split": {
+    "from_s": 0.0,
+    "to_s": 2.0,
+    "note": "split 0..clip length in the GLB .meta (one-shot)"
+   },
+   "clock": "time",
+   "in_place": true,
+   "events": [],
+   "root_motion": "none (root static)",
+   "start_pose": "idle_breathing_loop frame 0",
+   "handle_contact_s": 0.6333,
+   "handle_local_m": [
+    -0.115,
+    1.13,
+    0.34
+   ],
+   "handoff": {
+    "next": "idle_breathing_loop",
+    "at_s": 2.0,
+    "next_time_s": 0.0,
+    "crossfade_s": 0.2
+   },
+   "source": {
+    "database": "CMU",
+    "trial": "15_06",
+    "window_s": [
+     15.05,
+     17.05
+    ],
+    "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+    "doc": "art-src/animation/mocap/SOURCES.md",
+    "edits": "hips travel x0.5, spine/neck 60% of the performer lean, her left arm 15% of the performer (idle-like), right arm IK keeps the palm centre on the handle and turns the palm to face the door on the performer's reach timing"
+   }
+  }
+ },
+ "wind": {
+  "windToFlutter": [
+   [
+    0,
+    0
+   ],
+   [
+    0.04,
+    0.18
+   ],
+   [
+    0.15,
+    0.38
+   ],
+   [
+    0.5,
+    0.7
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "windToFlutter_note": "recommended strength->wind_flutter_loop weight (piecewise linear; ~38% already at 0.15 so hem/apron edge/bangs visibly flutter at the door exit). Same as the driver default; wind clips not authored yet.",
+  "apronLiftThreshold": 0.95,
+  "mask": [
+   "skirt*",
+   "apron*",
+   "hair*"
+  ]
+ },
+ "driver_contract": "GGbot work/GGbot-walk afb5d7b docs/walk-driver.md; deploy path bundles/region_island/character/anim_meta.json",
+ "compression": {
+  "clips": "keys reduced per channel (greedy; slerp / lerp error <= 0.03 deg hips+legs, 0.20 deg spine/chest/neck, 0.20 deg head/arms/hands, 0.30 deg skirt, root/hips translation 0.1 mm), rest translations / scales omitted, float32, LINEAR; source mocap low-passed (gauss sigma 4 frames at 120 fps) before retargeting. walk_loop / walk_start / walk_stop_bodyL / walk_stop_bodyR: each hand is turned about the finger axis so the face a side camera sees points at the skirt and a little down (the back of the hand turns outward). The forearm is not rolled past the elbow, and upper_arm is untouched. Her left shoe (bone .R) is planted flat and forward on its existing contact path, and pulled in when that plant is wider than 50 mm. Swing yaw is clamped. Her right shoe keeps its heel-to-toe roll. Turns, idle, door, wind, bow, and the sit clips are unchanged. door_reach right arm (upper_arm.L, forearm.L, hand.L): palm aimed at the closed door with the same two-bone IK, key tolerance 0.20 deg on those three curves",
+  "anim_bytes_total": 148096,
+  "anim_bytes_per_clip": {
+   "idle_breathing_loop": 3304,
+   "wind_sway_loop": 14700,
+   "walk_loop": 10588,
+   "sit_hold": 1192,
+   "stand_up": 13352,
+   "sit_down": 12748,
+   "door_reach": 12672,
+   "walk_start": 13584,
+   "walk_stop_bodyL": 12124,
+   "walk_stop_bodyR": 11212,
+   "walk_turn_90_bodyL": 9656,
+   "walk_turn_90_bodyR": 10396,
+   "walk_turn_180": 11328,
+   "walk_turn_180_bodyR": 11240
+  },
+  "budget_bytes": 150000
+ },
+ "events_note": "events: name foot:L|foot:R, bone foot.L|foot.R, body = her actual side (bone .L = her right); type heel_strike | settle (small settling step: softer sound)",
+ "mocap": {
+  "sources": "art-src/animation/mocap/SOURCES.md",
+  "license": "CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217: free to use, including commercial products; the raw data may not be resold",
+  "pipeline": "art-src/animation/mocap/scripts (export_clips.py -> solve_skirts.py in Blender -> write_glb.py)"
+ },
+ "morph": {
+  "mesh": "LOD0_G2_APRON",
+  "meshes": {
+   "LOD0_G2_APRON": {
+    "targets": {
+     "sit_drape": 0,
+     "sit_drape_mid": 1
+    }
+   },
+   "LOD0_G2_DRESS": {
+    "targets": {
+     "sit_drape": 0,
+     "sit_drape_mid": 1
+    }
+   }
+  },
+  "note": "seated drape (cloud-tasks/03-sit-drape.md): sparse POSITION targets, weights driven by CharacterMotion.morphWeights; skirt bones of sit_down / sit_hold / stand_up re-posed with the same weight curve (art-src/animation/sit-drape). sit_hold holds frame 0, including those skirt bones (art-src/animation/sit-still)."
+ }
+}

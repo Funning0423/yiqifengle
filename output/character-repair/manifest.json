@@ -1,0 +1,610 @@
+{
+  "base_commit": "b31cfa544562aaae2b1d25cd03e9e31bb231e310",
+  "status": "LOCAL_WRIST_HEEL_CANDIDATE_FULL_STYLE_AND_DEVICE_NOT_PASSED",
+  "reference_sha256": "4771351fb5e200a21cc4c03ab44ff6b9067237ef16b64568d255a47343adb942",
+  "final_render_identity": {
+    "candidate_sha256": "7df192cbe4461901112a13a4d4abf4029c31b6b732292abc7133337f080be3e1",
+    "unchanged_other_clips": true,
+    "door_rerendered_after_ik": true
+  },
+  "source_code_hashes": {
+    "creator-build-project/assets/scripts/WorldIntegrationBoot.ts": "ba7a34f6f7ed9f5d5284ff7ec25e891b080a5a100aa31d98446d0cc2a885058b",
+    "creator-build-project/assets/scripts/CharacterMotion.ts": "129a28e17be8b2fb715ec9b9f47d6fe3720d8f3f73446484b2cef7abce150cf6",
+    "tools/character-repair/validate_asset.py": "ec02dd10aa4d13a77b12f5746a141b7e622e06845fe365d188677f29724c7e47",
+    "tools/character-repair/render_audit.py": "89fb1f0b6a0afba8461fc1adf554907a4254444a48bbd677e97b3176d4a5d9e5",
+    "tools/character-repair/make_sheets.py": "ecf78385253d02c7d0ff7b5d192046446a45cf0573464a4e54dd5eef1ab552d4",
+    "tools/character-repair/render_probe.py": "9f756c81bb750ad579cef777bd6f1d6742be051584bd189497086ef7b701cf3e",
+    "tools/character-repair/door_ik.py": "3defc2eb5ae68744b43b9361fa54580c2e866b5044f35aeeffa025478c0adce8",
+    "tools/character-repair/repair_asset.py": "11c040524294c786c571346560489cb6bc237204d7e7c5ba84111cee5ee6ff90"
+  },
+  "files": {
+    "creator-build-project/assets/bundles/region_island/character/anim_meta.json": {
+      "bytes": 45570,
+      "sha256": "7f219158a562a33381fc6072bd816996066f9f87296021e61a8a103a1c68682d"
+    },
+    "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb": {
+      "bytes": 1426060,
+      "sha256": "7df192cbe4461901112a13a4d4abf4029c31b6b732292abc7133337f080be3e1"
+    },
+    "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta": {
+      "bytes": 24415,
+      "sha256": "37df1b34b531eaf05d88c70d5f97e1aaab4960b986ceba5187d9d041f6e198da"
+    },
+    "creator-build-project/assets/scripts/CharacterMotion.ts": {
+      "bytes": 61007,
+      "sha256": "129a28e17be8b2fb715ec9b9f47d6fe3720d8f3f73446484b2cef7abce150cf6"
+    },
+    "creator-build-project/assets/scripts/WorldIntegrationBoot.ts": {
+      "bytes": 77844,
+      "sha256": "ba7a34f6f7ed9f5d5284ff7ec25e891b080a5a100aa31d98446d0cc2a885058b"
+    },
+    "docs/CHARACTER-WRIST-HEEL-LOCAL-20261014.md": {
+      "bytes": 6394,
+      "sha256": "a9d67a0d60e8ec787eadcff2558909e612734202ac24ffaf72b9125cacf179d2"
+    },
+    "output/character-repair/action-tests.err": {
+      "bytes": 53,
+      "sha256": "a197c9c7a35d22897883eec14b8f7c11693da45276aa7af31982294f0251aa4d"
+    },
+    "output/character-repair/action-tests.json": {
+      "bytes": 3051,
+      "sha256": "d30060c3ce03d9aecdb140905ca4b1446a553c1b0d21d7dbfbef0a654e1c7a17"
+    },
+    "output/character-repair/baseline/anim_meta.json": {
+      "bytes": 45570,
+      "sha256": "7f219158a562a33381fc6072bd816996066f9f87296021e61a8a103a1c68682d"
+    },
+    "output/character-repair/baseline/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb": {
+      "bytes": 1426060,
+      "sha256": "1364896733341c1dcc43deb1b6cd6a3bbaa147b7830ec36475404b6664e37c68"
+    },
+    "output/character-repair/baseline/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta": {
+      "bytes": 24415,
+      "sha256": "37df1b34b531eaf05d88c70d5f97e1aaab4960b986ceba5187d9d041f6e198da"
+    },
+    "output/character-repair/baseline-walk-tests.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "output/character-repair/baseline-walk-tests.json": {
+      "bytes": 21691,
+      "sha256": "8ca0c8ccee203eaa93f792140420f995c14bcf8c48e024269e323f6be48bfd84"
+    },
+    "output/character-repair/blender-audit.json": {
+      "bytes": 17764,
+      "sha256": "642a0ce8fe2626d318f1b68cdb54db38881e506dc6e3da154ab6fff0c3d766a8"
+    },
+    "output/character-repair/candidate-probe/door_reach-wrist.png": {
+      "bytes": 475955,
+      "sha256": "be09764fb3dbb98e29466c22bf9d0e4ff70feffb19688ed7ac4406688f4550b6"
+    },
+    "output/character-repair/candidate-probe/idle_breathing_loop-feet.png": {
+      "bytes": 347749,
+      "sha256": "f6b3bc7315929ec3843238cd957d42b3e375e090f5401764c9f95fe10edbbb5e"
+    },
+    "output/character-repair/candidate-probe/sit_hold-full.png": {
+      "bytes": 340687,
+      "sha256": "804ea75fbac908bf263b3532690770e83298bbda116966e2fed50a82b6977b11"
+    },
+    "output/character-repair/candidate-probe/walk_loop-full.png": {
+      "bytes": 358829,
+      "sha256": "7ca19d1d3c6f736839be41c46daf96b7317ceaa7e20cbdc24ddc988798b0e381"
+    },
+    "output/character-repair/candidate-probe/walk_loop-wrist.png": {
+      "bytes": 389670,
+      "sha256": "75ed12bcbc8dd15b18472d40bbaa82bbf13908916a79a9bb8bba9d1ad433418b"
+    },
+    "output/character-repair/candidate-probe.log": {
+      "bytes": 1231,
+      "sha256": "0f8074372f5b65916df5a206b06ba0300c0d369278fb11b5a76a0034f6766e5b"
+    },
+    "output/character-repair/comparisons/door_reach.jpg": {
+      "bytes": 83399,
+      "sha256": "b4ddf6ff4bbe32ba0ce34786ece61a3b408703fb5b8d3268eaf5b2a88496e5f6"
+    },
+    "output/character-repair/comparisons/idle_breathing_loop.jpg": {
+      "bytes": 83187,
+      "sha256": "397eccf055132fa759942ebfa275f7f4efcc1d76048f85e3ecd020e931270069"
+    },
+    "output/character-repair/comparisons/sit_down.jpg": {
+      "bytes": 84534,
+      "sha256": "31b5120b508fdd3bef2e89d336987c3e3556c53aeeb4f8a304e5eb0350536bb0"
+    },
+    "output/character-repair/comparisons/sit_hold.jpg": {
+      "bytes": 90306,
+      "sha256": "302753c935a1405283080a7558e902c5bcf0c5edfff12df75cbbc17e7f4a5dff"
+    },
+    "output/character-repair/comparisons/stand_up.jpg": {
+      "bytes": 84713,
+      "sha256": "513834e5c861d06b6abb7ab07325d5a74d539bd8d88f1d96b7e473df574e9aa4"
+    },
+    "output/character-repair/comparisons/walk_loop.jpg": {
+      "bytes": 85546,
+      "sha256": "fac739bbac66c4a3528e05f4a5fbe30592a06d07ca902813c0a47fe179fcc743"
+    },
+    "output/character-repair/comparisons/walk_start.jpg": {
+      "bytes": 84822,
+      "sha256": "85f00620c930aafa72d03dd3f2071e93cdc9a63eef79b3edb41e6920a4bab0ac"
+    },
+    "output/character-repair/comparisons/walk_stop_bodyL.jpg": {
+      "bytes": 89025,
+      "sha256": "efc405e7095c30896e5e665d34936d06f3d20844b3a6a3f12fed791a7d324613"
+    },
+    "output/character-repair/comparisons/walk_stop_bodyR.jpg": {
+      "bytes": 84619,
+      "sha256": "3bcde4128f2ac604fcec71444a0a8c5608ac1018cbd704f45e212584a1e7d61d"
+    },
+    "output/character-repair/comparisons/walk_turn_180.jpg": {
+      "bytes": 86601,
+      "sha256": "0cfbe7ac3472efc4ad49f6c77180000f613694b6b3a6f88ad80950ad09049732"
+    },
+    "output/character-repair/comparisons/walk_turn_180_bodyR.jpg": {
+      "bytes": 91751,
+      "sha256": "592445ffd4909bf266b516a0880d7a74b7a6011eeb728ce85c3140aba001ca32"
+    },
+    "output/character-repair/comparisons/walk_turn_90_bodyL.jpg": {
+      "bytes": 88846,
+      "sha256": "c1fce12e0c40a85aa034c8b3abb78ae0828a5c8ee903c17e30debd52d0c46c1c"
+    },
+    "output/character-repair/comparisons/walk_turn_90_bodyR.jpg": {
+      "bytes": 89395,
+      "sha256": "74e7fbf1c106a09ae9920e390c3bdaa6a125c71f5d315ec37c097f088fb4d5c6"
+    },
+    "output/character-repair/comparisons/wind_sway_loop.jpg": {
+      "bytes": 84403,
+      "sha256": "a9b07d78b508c058823c4fbd60cedf3e846abfc67b3965e0aa12de5aa16ed495"
+    },
+    "output/character-repair/first-change.json": {
+      "bytes": 8946,
+      "sha256": "fdbcf4dcb575e16a4d4add07689f45e18f80c1ed5ebe6d7cbad893c243e9913a"
+    },
+    "output/character-repair/frames/after-door_reach-full.png": {
+      "bytes": 150718,
+      "sha256": "e0c62061de6e03512fe1b8bed36b1d13e3d860aba23b6bc076903c8120d920a3"
+    },
+    "output/character-repair/frames/after-door_reach-heel.png": {
+      "bytes": 95684,
+      "sha256": "5b57466f670b8df6f82155445e8e33088b7c46dff66080f0e02f8dcf8d230e2f"
+    },
+    "output/character-repair/frames/after-door_reach-wrist.png": {
+      "bytes": 111344,
+      "sha256": "ab16ecf7b948cbaf70adb6d659da1abb954af38db4942ff9eb327a57c793defa"
+    },
+    "output/character-repair/frames/after-idle_breathing_loop-full.png": {
+      "bytes": 152518,
+      "sha256": "d998e11efcc3d63c0d00618f1565da74ca1c063bb5bc8cd729bd2cb28d9ff492"
+    },
+    "output/character-repair/frames/after-idle_breathing_loop-heel.png": {
+      "bytes": 95431,
+      "sha256": "8f8359d0c587d8a2e2c08a70dcb1164935e996acb22d07b5cdcea8f26ac6b73e"
+    },
+    "output/character-repair/frames/after-idle_breathing_loop-wrist.png": {
+      "bytes": 117122,
+      "sha256": "222c3ce032c9fcb4fb81cef7797ce77ab991261b1e027468e2de6b62d6a2d70b"
+    },
+    "output/character-repair/frames/after-sit_down-full.png": {
+      "bytes": 147291,
+      "sha256": "493479e76814ff5c5f39b5bc2339a0b623667d6b4e98c4d7e569c262cc4906b1"
+    },
+    "output/character-repair/frames/after-sit_down-heel.png": {
+      "bytes": 102436,
+      "sha256": "90e7f82137588c858791202136e939622de107dd99103d72311c09c2e6121f7c"
+    },
+    "output/character-repair/frames/after-sit_down-wrist.png": {
+      "bytes": 124489,
+      "sha256": "cc42d75709592985fc4d1ef7833f60a41d9e7bd73b31d602388a0a12784d7d15"
+    },
+    "output/character-repair/frames/after-sit_hold-full.png": {
+      "bytes": 144767,
+      "sha256": "2b0b5b5d337f5f2db40946825675524279509677010f10e3d09b25c29d311d6c"
+    },
+    "output/character-repair/frames/after-sit_hold-heel.png": {
+      "bytes": 103360,
+      "sha256": "ea48e56041a4fa25d4ba788d5d3a581f0dd9b9a2f7ca6d1b4a6bb871a695cda9"
+    },
+    "output/character-repair/frames/after-sit_hold-wrist.png": {
+      "bytes": 135475,
+      "sha256": "1ef262d2593ef8287be3ddf6d3717f267f253c5260587f72f80d93972c993336"
+    },
+    "output/character-repair/frames/after-stand_up-full.png": {
+      "bytes": 154156,
+      "sha256": "5afb690cfd04cd3ab4943bcb9467abf3d3569fc32f97a64e454388ed8915ead6"
+    },
+    "output/character-repair/frames/after-stand_up-heel.png": {
+      "bytes": 104043,
+      "sha256": "2efcb37add8da458940296128f614fa36f6eaeb507834134bff480580936d633"
+    },
+    "output/character-repair/frames/after-stand_up-wrist.png": {
+      "bytes": 114224,
+      "sha256": "e381802b16ff9f10efc00b7eb1dbc78568908cc269fbba361e25015d2aed648d"
+    },
+    "output/character-repair/frames/after-walk_loop-full.png": {
+      "bytes": 153619,
+      "sha256": "3eba9c34c35f128eb16bc04f4144ce2c3f25ee14dbf5d2d98351043429d5b3f9"
+    },
+    "output/character-repair/frames/after-walk_loop-heel.png": {
+      "bytes": 96510,
+      "sha256": "a824a5acc7e07266f3ad0b9c7d69b87722e2a60cfa7439901ca33a7dc0339c82"
+    },
+    "output/character-repair/frames/after-walk_loop-wrist.png": {
+      "bytes": 123617,
+      "sha256": "c4d1629ca623e5fe226f313a574d3532eb221d70a6b1313eb01ca2a14a886df9"
+    },
+    "output/character-repair/frames/after-walk_start-full.png": {
+      "bytes": 160005,
+      "sha256": "f55f56419ef17ff85e85f23d2cc47f1a01458b5a8fd2d11a918a4c169b41c4e2"
+    },
+    "output/character-repair/frames/after-walk_start-heel.png": {
+      "bytes": 93748,
+      "sha256": "b1f717b4ce6c9951679fd389200581f96a286228977a9045c9ccec22a482704a"
+    },
+    "output/character-repair/frames/after-walk_start-wrist.png": {
+      "bytes": 117046,
+      "sha256": "aa07e498c1c0366a8f05018e27d5e9c9fab738bf596c209126ab685d79445e01"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyL-full.png": {
+      "bytes": 159274,
+      "sha256": "c53254cb29aeafe51b54455b785ffd620036137b666e452140593d0c032cfd07"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyL-heel.png": {
+      "bytes": 95808,
+      "sha256": "a43c0579e13c9220d9b76e8287a5687f77ae0721b48adfc6ab905b18d5349b14"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyL-wrist.png": {
+      "bytes": 127237,
+      "sha256": "5cd3dba8a3b5d33953164ee133a6b5140734608d89d97280fb6b5029748ba923"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyR-full.png": {
+      "bytes": 158121,
+      "sha256": "dd2465a4ceb7b868bad6263121d5f3f909ff618bd02f69ea770138d8ae37570c"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyR-heel.png": {
+      "bytes": 94768,
+      "sha256": "6e5d9d46813b278a98777636749231025e6541d60b7c73fae7a2a16090d8e61a"
+    },
+    "output/character-repair/frames/after-walk_stop_bodyR-wrist.png": {
+      "bytes": 114603,
+      "sha256": "72bb615155da7e04d444d31663ea77fcde19453a8b75ebb6fc35dc1059523685"
+    },
+    "output/character-repair/frames/after-walk_turn_180-full.png": {
+      "bytes": 155498,
+      "sha256": "5c45b18ae74d37c0f1f9a0ad41fa21241cf1c1decdbb311a89d70b48c4fc45bd"
+    },
+    "output/character-repair/frames/after-walk_turn_180-heel.png": {
+      "bytes": 97581,
+      "sha256": "6ec2b932e258b630824b70e01c3ddf10bd1b1d762dc5a1d10ea8d5fd14df533e"
+    },
+    "output/character-repair/frames/after-walk_turn_180-wrist.png": {
+      "bytes": 119341,
+      "sha256": "6d934c6f0f7d339678691cee38c62a13dd6672f93c54a839f02f6076a643b6a3"
+    },
+    "output/character-repair/frames/after-walk_turn_180_bodyR-full.png": {
+      "bytes": 156331,
+      "sha256": "641e2408e9c1281c53eb150f1ea16308846014ba79536a819e9e6f34e67d2d0f"
+    },
+    "output/character-repair/frames/after-walk_turn_180_bodyR-heel.png": {
+      "bytes": 95293,
+      "sha256": "5ed6c17a49f1ddc80fb52a32018c36d2103e7b6011536e41b9ed6a68d93bdc7e"
+    },
+    "output/character-repair/frames/after-walk_turn_180_bodyR-wrist.png": {
+      "bytes": 134589,
+      "sha256": "487b285a281bdb68129d780d763f5305a5796af1984dfa17a4fa293570c48cea"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyL-full.png": {
+      "bytes": 157366,
+      "sha256": "461cda02d2acc54bf6bbdd250448c38d79013a4a0bdc57b04cd2d58c2f0ed7b0"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyL-heel.png": {
+      "bytes": 95692,
+      "sha256": "250663be6a1d688314045cc2568e3affc3af9e333844e6e786ffa32d83163d54"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyL-wrist.png": {
+      "bytes": 127919,
+      "sha256": "1e265e7a288193c245f94d2cb8eb377dd0a069a27a2e78e1e050d74782e4fafe"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyR-full.png": {
+      "bytes": 157130,
+      "sha256": "24435b5afc47101249277bc99be952cdd7e858fb6751c4369a50eeb96b0afb2a"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyR-heel.png": {
+      "bytes": 95689,
+      "sha256": "7d4ed6e8f835377234df7c768c92487a8f946d04ba98940c17cc4e4d35f1c10d"
+    },
+    "output/character-repair/frames/after-walk_turn_90_bodyR-wrist.png": {
+      "bytes": 129961,
+      "sha256": "d97b4186a3271c9c1a7c576d0ceca35936cc148bf147b3f3f72775793e0ecdfc"
+    },
+    "output/character-repair/frames/after-wind_sway_loop-full.png": {
+      "bytes": 154286,
+      "sha256": "1983774b5951c295bb18f16427773d355a3a2c356e229713dba5b72244d7068d"
+    },
+    "output/character-repair/frames/after-wind_sway_loop-heel.png": {
+      "bytes": 92427,
+      "sha256": "6f7fe752725ccd73c07a0db3b7cd61f5c54a002e8cc9a259b691b135a1da0f89"
+    },
+    "output/character-repair/frames/after-wind_sway_loop-wrist.png": {
+      "bytes": 120017,
+      "sha256": "56caae9b85e32e87cc989b345134b43c69d4743049ad57a54842ec0e42189b59"
+    },
+    "output/character-repair/frames/before-door_reach-full.png": {
+      "bytes": 152369,
+      "sha256": "d23a21cf5455d586ea322860c91b9e8ea78dcb434ae2df887e40bd7b774583f1"
+    },
+    "output/character-repair/frames/before-door_reach-heel.png": {
+      "bytes": 95495,
+      "sha256": "4d1affca17bef5e14f77c629c2ce9290ad1b7f4a2e9b3bb73d920856d37ff3d3"
+    },
+    "output/character-repair/frames/before-door_reach-wrist.png": {
+      "bytes": 110973,
+      "sha256": "a27478e4e88d878c0a87053bce83b37571bbab2af74183202f2e4ec6389c4335"
+    },
+    "output/character-repair/frames/before-idle_breathing_loop-full.png": {
+      "bytes": 152210,
+      "sha256": "c3a96cdadaa7f16fa0f443145efce7c4e2ca1e905fcf1a0fba90e0de9252fec0"
+    },
+    "output/character-repair/frames/before-idle_breathing_loop-heel.png": {
+      "bytes": 94770,
+      "sha256": "37bb15d3dbfe895ceec44d4ce04fdbf02f9bb4cf37fa5c38f9eea0d11ce8fd72"
+    },
+    "output/character-repair/frames/before-idle_breathing_loop-wrist.png": {
+      "bytes": 117098,
+      "sha256": "982c631d2352f9ee690d830b3e91925f5b94e4d8f4583e3b78ce8288cf7f9707"
+    },
+    "output/character-repair/frames/before-sit_down-full.png": {
+      "bytes": 146700,
+      "sha256": "cd687cf09a05067c21b75afea5cf8ab8154f096cdf9468de85f5bdaa173bf9ab"
+    },
+    "output/character-repair/frames/before-sit_down-heel.png": {
+      "bytes": 102570,
+      "sha256": "71d251a6e4d3d2f5f91dc674437888337fe1b82cd0442d65206544a3be861dbb"
+    },
+    "output/character-repair/frames/before-sit_down-wrist.png": {
+      "bytes": 123255,
+      "sha256": "f744ab82459e9073705d9839e87632c55acec63bf9d4696a485707e65e3019d7"
+    },
+    "output/character-repair/frames/before-sit_hold-full.png": {
+      "bytes": 144206,
+      "sha256": "3267f5623fe79b72155a32951fa4e7297576b2aecbd2d8271207571006338d25"
+    },
+    "output/character-repair/frames/before-sit_hold-heel.png": {
+      "bytes": 102298,
+      "sha256": "d117a7cf15744e0dc1529841d7d3cb43a0ca2b22e012d13b937783d2b3303adc"
+    },
+    "output/character-repair/frames/before-sit_hold-wrist.png": {
+      "bytes": 135526,
+      "sha256": "eba1d6bf446f36d7a78d36b2eb5a6ccdda14b51e559931d87593d979561a4a38"
+    },
+    "output/character-repair/frames/before-stand_up-full.png": {
+      "bytes": 154837,
+      "sha256": "7ebd4713c3617c3c4202c0fa081b3733bb11c0da978d4383426c949b198fb979"
+    },
+    "output/character-repair/frames/before-stand_up-heel.png": {
+      "bytes": 104057,
+      "sha256": "2b2a0539f6e420a9fa5acb7dd1b5c61bd876f73cc6fe2327cb0c3e811921d823"
+    },
+    "output/character-repair/frames/before-stand_up-wrist.png": {
+      "bytes": 113092,
+      "sha256": "93ddc793a45ad556739bd11eb82bc9fdb57c1129eb35e2a5eb3915c8089e4f43"
+    },
+    "output/character-repair/frames/before-walk_loop-full.png": {
+      "bytes": 153870,
+      "sha256": "df65a8351217cfabbb7c6602e9d219a7cef7c097ba6456639ed2f01fc7660d0e"
+    },
+    "output/character-repair/frames/before-walk_loop-heel.png": {
+      "bytes": 96600,
+      "sha256": "a07e046ed3ef5677881f412a4b05f90660288d2e3cb8bab19c09eea517f9749c"
+    },
+    "output/character-repair/frames/before-walk_loop-wrist.png": {
+      "bytes": 125152,
+      "sha256": "97b7950e117df4c814d42593eeb5e9ab646cf468e469e166fbae51aacd9a7174"
+    },
+    "output/character-repair/frames/before-walk_start-full.png": {
+      "bytes": 160081,
+      "sha256": "8c77f512ccc054cd2ac082bdd44b701a454dd92cacb770c570d4e79e0502b90d"
+    },
+    "output/character-repair/frames/before-walk_start-heel.png": {
+      "bytes": 93887,
+      "sha256": "d9a97252f31cfb5f04932dff1575335c9a567dbb3772960cdcc75af6683e6f38"
+    },
+    "output/character-repair/frames/before-walk_start-wrist.png": {
+      "bytes": 117975,
+      "sha256": "82169396b9bcbb2737620d3df4dfb838eed62a50c972716a88437fc002573f6a"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyL-full.png": {
+      "bytes": 158700,
+      "sha256": "b0594c7a35cafc8a22113425ffbcdd4601c00254f8c54079153f08868b5888b5"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyL-heel.png": {
+      "bytes": 95726,
+      "sha256": "1206bc73e65207727f26619da7b187d2460a3b019bf3344b857c20904a7b23ac"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyL-wrist.png": {
+      "bytes": 127591,
+      "sha256": "735b0477403da1dde317b501e5ace92b2ea8ba67b816a209a98039a4593a06db"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyR-full.png": {
+      "bytes": 158276,
+      "sha256": "4ba889cda78c71baac288d42dc9de1f9bf1dcadfea1ac2572f606bc51ec4af00"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyR-heel.png": {
+      "bytes": 93844,
+      "sha256": "f7a9938c2b51d2d2640972245010dfed16877720d3553d9b5cb9e6532eb87e45"
+    },
+    "output/character-repair/frames/before-walk_stop_bodyR-wrist.png": {
+      "bytes": 118366,
+      "sha256": "902e62379aeaba1349c42705d6f7ee63258882c4062976502d7e8d235b9170a2"
+    },
+    "output/character-repair/frames/before-walk_turn_180-full.png": {
+      "bytes": 155133,
+      "sha256": "ceaa966374caa1860a1a7ba68e74dd82965099c34b045eda81b186001525207a"
+    },
+    "output/character-repair/frames/before-walk_turn_180-heel.png": {
+      "bytes": 96455,
+      "sha256": "03f649fcbbc09a7ad6953a289a0ad2f2d08c16e85fb342ed268f00a9505b83cf"
+    },
+    "output/character-repair/frames/before-walk_turn_180-wrist.png": {
+      "bytes": 119539,
+      "sha256": "17f18c7034a51b2a541444395bf97fb8ba9311dce5cf5591755db546d61a363c"
+    },
+    "output/character-repair/frames/before-walk_turn_180_bodyR-full.png": {
+      "bytes": 156066,
+      "sha256": "727dbe685becc463ed1e6778748086b4652e3a942656fb99180b86ff5efac4e1"
+    },
+    "output/character-repair/frames/before-walk_turn_180_bodyR-heel.png": {
+      "bytes": 95067,
+      "sha256": "a23ce695b9a6a1d4884695924b9607056e3b63966ef7c9dd73ccf1e3559955ea"
+    },
+    "output/character-repair/frames/before-walk_turn_180_bodyR-wrist.png": {
+      "bytes": 134442,
+      "sha256": "a096345f2ba90b2b7934838fff623b3ec34a746080428966521cd6dde18c7027"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyL-full.png": {
+      "bytes": 156775,
+      "sha256": "c42f93e10f6d3afeff5f46a02ba8fbdee091439a8ded3f41b1e9e62e86831b88"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyL-heel.png": {
+      "bytes": 94964,
+      "sha256": "5ccc1f375094ad5c7e067c0e08c93d5d8765e2cf3d8c7b082fddc9ecf60f35a4"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyL-wrist.png": {
+      "bytes": 127420,
+      "sha256": "814917283640611bb097d4fa326756394ff27b76a3756789c0b38031aa145606"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyR-full.png": {
+      "bytes": 156819,
+      "sha256": "c6fd8b9bafec56b5b9a7e5dcd9c3ab2ea3762654632f5ba7467aa7137e2d9bd1"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyR-heel.png": {
+      "bytes": 95017,
+      "sha256": "1248288e12d6a70ecd3927e138fc00b728c9c7846f9c79ad4eb7902711413464"
+    },
+    "output/character-repair/frames/before-walk_turn_90_bodyR-wrist.png": {
+      "bytes": 130095,
+      "sha256": "07108b64514f2644bd4d41fd73f30979276921d7230b0ef8de49b655ba5571ae"
+    },
+    "output/character-repair/frames/before-wind_sway_loop-full.png": {
+      "bytes": 154354,
+      "sha256": "c202d2fc15d8c6ee1643fae0c872990c904a3d2b245e9aff9ca5f823292c8318"
+    },
+    "output/character-repair/frames/before-wind_sway_loop-heel.png": {
+      "bytes": 92468,
+      "sha256": "63a32c5462a3d437ef35ed3853294b149b77e159cfbe94aa7d4b8304a4eb9404"
+    },
+    "output/character-repair/frames/before-wind_sway_loop-wrist.png": {
+      "bytes": 119916,
+      "sha256": "532f0f47d5d258a2856b2d924fbb44c32c60a7191939cd2cf72b617533f2c593"
+    },
+    "output/character-repair/frames/reference-boots.png": {
+      "bytes": 171255,
+      "sha256": "46f6ecba236c617b1c03d154ce9edf4f832773b1b3129d956e10ff94816e3206"
+    },
+    "output/character-repair/frames/reference-full.png": {
+      "bytes": 242934,
+      "sha256": "3cdc5bbb8c35467c4932a9c483bd119ee1c3f1c8e0a021542c4dabe68db3da88"
+    },
+    "output/character-repair/frames/reference-head_cuff.png": {
+      "bytes": 187821,
+      "sha256": "4f128f3868965e82628527df18283c75c01a6755c2a68d76a3a0ed4e76284c6b"
+    },
+    "output/character-repair/original.glb": {
+      "bytes": 1426060,
+      "sha256": "1364896733341c1dcc43deb1b6cd6a3bbaa147b7830ec36475404b6664e37c68"
+    },
+    "output/character-repair/pose-review.json": {
+      "bytes": 11755,
+      "sha256": "ccfc7e152ebcd6cc76ea3fb57ba7bbb3421b110ade51281261507388fdccf9ab"
+    },
+    "output/character-repair/pose-sheet-1.jpg": {
+      "bytes": 200572,
+      "sha256": "d28e1349008805c092f69dd33339acac7062bebf91d4c9818328d078db1bae08"
+    },
+    "output/character-repair/pose-sheet-2.jpg": {
+      "bytes": 215127,
+      "sha256": "b05cef00ff6da007aad990c58403da804f3909ece9b953bf05770a7d9aa9a24b"
+    },
+    "output/character-repair/probe/door_reach-wrist.png": {
+      "bytes": 472647,
+      "sha256": "74062f7dee75ae294c2054b189be5742d07e84cc96edd8502d0badf97ba599eb"
+    },
+    "output/character-repair/probe/idle_breathing_loop-feet.png": {
+      "bytes": 343217,
+      "sha256": "94889976e1a68d5fd55b3679f992089a6de48b07e612026719ce8eb3718f8771"
+    },
+    "output/character-repair/probe/sit_hold-full.png": {
+      "bytes": 339548,
+      "sha256": "5b39cbfa5e8ed24b57aa092b660baa1bb95218f40ececcb33ab19fad3e2bf529"
+    },
+    "output/character-repair/probe/walk_loop-full.png": {
+      "bytes": 358801,
+      "sha256": "5f0a278d82d00523bb2b1185691d442032ad69b29d17a19d9f38ccc0949fe0a2"
+    },
+    "output/character-repair/probe/walk_loop-wrist.png": {
+      "bytes": 394580,
+      "sha256": "cf6615afee60349d6cc9efd57b72cbe19e40e6726ca2ac9b25f7323f2c735dc4"
+    },
+    "output/character-repair/probe.log": {
+      "bytes": 1181,
+      "sha256": "683332d88a80e9dc8ded01c209d3875ca64b1f5516416104f15003862749c5dc"
+    },
+    "output/character-repair/render-audit.log": {
+      "bytes": 15138,
+      "sha256": "5b8b76dc7f2a8acc969ea6108d4af2fc39af648ef30d0a5bbf0eb42e12e4f0f7"
+    },
+    "output/character-repair/render-door-final.log": {
+      "bytes": 876,
+      "sha256": "80ea8670e3dc516bde20f6e35b010ddb6a44292802995e8b410c41b73f8f4de6"
+    },
+    "output/character-repair/render-identity.json": {
+      "bytes": 161,
+      "sha256": "d27f0fcc9c69e751290c7764d42b3d43b7438b50aa8c24f5af21fdd739f320b0"
+    },
+    "output/character-repair/skin-audit.json": {
+      "bytes": 25412,
+      "sha256": "1c32d1bf5f422cf1cea89c114f5233d5b5508b59cc0be1c673918c4bf8fe3f56"
+    },
+    "output/character-repair/skin-audit.log": {
+      "bytes": 132,
+      "sha256": "b22975a944aa265ac0f431b7abc94ffae24089381a2ec1656f1ece151dd9a587"
+    },
+    "output/character-repair/source-structure.json": {
+      "bytes": 275111,
+      "sha256": "3b40ed42aad056ffb5753c0d81f0bf11f268526b0f69510d98b4df6240b5243f"
+    },
+    "output/character-repair/walk-tests.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "output/character-repair/walk-tests.json": {
+      "bytes": 21719,
+      "sha256": "d4c17013a484d01cfd02bc4be90110c7ed9ccea1f66475452217f7afffb0f583"
+    },
+    "output/character-repair/wrist-bind-probe.npz": {
+      "bytes": 232582,
+      "sha256": "615b82a51e63ece17207ea09dae8c8c0b17c906919d268bdf7d25701debac708"
+    },
+    "tools/character-repair/door_ik.py": {
+      "bytes": 4305,
+      "sha256": "3defc2eb5ae68744b43b9361fa54580c2e866b5044f35aeeffa025478c0adce8"
+    },
+    "tools/character-repair/make_sheets.py": {
+      "bytes": 1750,
+      "sha256": "ecf78385253d02c7d0ff7b5d192046446a45cf0573464a4e54dd5eef1ab552d4"
+    },
+    "tools/character-repair/render_audit.py": {
+      "bytes": 4589,
+      "sha256": "89fb1f0b6a0afba8461fc1adf554907a4254444a48bbd677e97b3176d4a5d9e5"
+    },
+    "tools/character-repair/render_probe.py": {
+      "bytes": 2141,
+      "sha256": "9f756c81bb750ad579cef777bd6f1d6742be051584bd189497086ef7b701cf3e"
+    },
+    "tools/character-repair/repair_asset.py": {
+      "bytes": 5989,
+      "sha256": "11c040524294c786c571346560489cb6bc237204d7e7c5ba84111cee5ee6ff90"
+    },
+    "tools/character-repair/validate_asset.py": {
+      "bytes": 6447,
+      "sha256": "ec02dd10aa4d13a77b12f5746a141b7e622e06845fe365d188677f29724c7e47"
+    }
+  }
+}
