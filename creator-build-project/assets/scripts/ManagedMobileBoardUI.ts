@@ -142,7 +142,7 @@ export class ManagedMobileBoardUI extends Component {
     this.toastBg = this.box('ToastPlate', this.toast, 0, 0, 300, 40).addComponent(Graphics);
     this.toastLabel = makeLabel(this.toast, '', 0, 0, 15, { width: 320, name: 'ToastText' }); this.tint.label(this.toastLabel, 'brown');
     this.stagePanel = this.box('NativeStageSelection', this.root, 0, 0, 1, 1);
-    this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844 }));
+    this.popups = new PopupStack(this.root, () => ({ width: this.layoutInfo?.width || 390, height: this.layoutInfo?.height || 844, safeInsets: this.layoutInfo?.safe }));
     const art = BoardArt.shared(); this.artOff = art.onChange(() => { if (!this.disposing && isValid(this.root, true)) this.refreshArt(); });
     this.boardArtRequest = art.load('board'); void art.load('popup'); void art.load('r2');
     this.layout(); this.bind(); game.on(Game.EVENT_HIDE, this.resetOnHide); if (!this.managed) { game.on(Game.EVENT_HIDE, this.hide); game.on(Game.EVENT_SHOW, this.show); } view.on('canvas-resize', this.resize, this); if (typeof window !== 'undefined') window.addEventListener('resize', this.resize);
