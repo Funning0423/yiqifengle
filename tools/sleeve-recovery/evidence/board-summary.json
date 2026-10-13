@@ -1,0 +1,32 @@
+{
+  "states": [
+    "run.paused",
+    "run.paused",
+    "run.ready"
+  ],
+  "activeExactThroughPauseReentryResume": true,
+  "presentationErrors": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "storageMode": "fresh-memory-only",
+  "moves": [
+    22,
+    21,
+    21
+  ],
+  "bombs": [
+    2,
+    2,
+    1
+  ],
+  "goals": [
+    15,
+    12,
+    11
+  ]
+}

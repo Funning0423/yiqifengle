@@ -1,0 +1,74 @@
+{
+  "inputSHA": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "finalSHA": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8",
+  "skeletonInverseBindTopologyUVColorsWeightsMorphAndOtherClipDataUnchanged": true,
+  "changedAttributes": [
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 0,
+      "attribute": "POSITION",
+      "count": 360,
+      "range": [
+        1663,
+        2362
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 0,
+      "attribute": "NORMAL",
+      "count": 440,
+      "range": [
+        1643,
+        2382
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 1,
+      "attribute": "POSITION",
+      "count": 360,
+      "range": [
+        1663,
+        2362
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 1,
+      "attribute": "NORMAL",
+      "count": 440,
+      "range": [
+        1643,
+        2382
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 2,
+      "attribute": "POSITION",
+      "count": 360,
+      "range": [
+        1663,
+        2362
+      ]
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 2,
+      "attribute": "NORMAL",
+      "count": 440,
+      "range": [
+        1643,
+        2382
+      ]
+    }
+  ],
+  "changedChannels": [
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L"
+  ],
+  "contactThroughReleasePoseEqualTolerance": 2e-07,
+  "lowerBodyGeometryUnchanged": true
+}

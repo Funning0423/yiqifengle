@@ -1,0 +1,124 @@
+{
+  "input": "245e923f668a4e570d1021ef58aacd871305129b152c30a08e6ea9ffc4969e72",
+  "output": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8",
+  "channels": [
+    {
+      "node": "upper_arm.L",
+      "keysBefore": 53,
+      "keysAfter": 100,
+      "unchangedThroughSec": 0.6833333333333333,
+      "endSec": 2.0
+    },
+    {
+      "node": "forearm.L",
+      "keysBefore": 121,
+      "keysAfter": 122,
+      "unchangedThroughSec": 0.6833333333333333,
+      "endSec": 2.0
+    },
+    {
+      "node": "hand.L",
+      "keysBefore": 121,
+      "keysAfter": 122,
+      "unchangedThroughSec": 0.6833333333333333,
+      "endSec": 2.0
+    }
+  ],
+  "geometryUnchanged": false,
+  "contactAtSec": 0.6333,
+  "sleeveShape": [
+    {
+      "side": "L",
+      "ring": 9,
+      "maxDisplacementMm": 2.825213152899318
+    },
+    {
+      "side": "L",
+      "ring": 10,
+      "maxDisplacementMm": 5.499614552036473
+    },
+    {
+      "side": "L",
+      "ring": 11,
+      "maxDisplacementMm": 7.920146753452503
+    },
+    {
+      "side": "L",
+      "ring": 12,
+      "maxDisplacementMm": 10.291831055778175
+    },
+    {
+      "side": "L",
+      "ring": 13,
+      "maxDisplacementMm": 12.000000000000002
+    },
+    {
+      "side": "L",
+      "ring": 14,
+      "maxDisplacementMm": 10.392699962673943
+    },
+    {
+      "side": "L",
+      "ring": 15,
+      "maxDisplacementMm": 7.794789188421244
+    },
+    {
+      "side": "L",
+      "ring": 16,
+      "maxDisplacementMm": 5.253989460377361
+    },
+    {
+      "side": "L",
+      "ring": 17,
+      "maxDisplacementMm": 2.6414488157984795
+    },
+    {
+      "side": "R",
+      "ring": 9,
+      "maxDisplacementMm": 2.772493817669248
+    },
+    {
+      "side": "R",
+      "ring": 10,
+      "maxDisplacementMm": 5.447865829418915
+    },
+    {
+      "side": "R",
+      "ring": 11,
+      "maxDisplacementMm": 8.001105145463988
+    },
+    {
+      "side": "R",
+      "ring": 12,
+      "maxDisplacementMm": 10.077321152600907
+    },
+    {
+      "side": "R",
+      "ring": 13,
+      "maxDisplacementMm": 12.000000000000002
+    },
+    {
+      "side": "R",
+      "ring": 14,
+      "maxDisplacementMm": 10.37707794602874
+    },
+    {
+      "side": "R",
+      "ring": 15,
+      "maxDisplacementMm": 7.637751896571491
+    },
+    {
+      "side": "R",
+      "ring": 16,
+      "maxDisplacementMm": 5.247451063125182
+    },
+    {
+      "side": "R",
+      "ring": 17,
+      "maxDisplacementMm": 2.644976585586078
+    }
+  ],
+  "changedSleeveVertices": 360,
+  "normalVertices": 440,
+  "maxShapeDisplacementMm": 12.000000000000002
+}
