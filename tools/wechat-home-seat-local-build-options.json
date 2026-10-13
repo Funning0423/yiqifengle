@@ -14,7 +14,7 @@
   "packages": {
     "wechatgame": {
       "appid": "wx3bdd911c5c06f591",
-      "separateEngine": true
+      "separateEngine": false
     }
   }
 }

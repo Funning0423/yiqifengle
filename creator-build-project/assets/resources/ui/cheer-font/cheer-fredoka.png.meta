@@ -71,15 +71,61 @@
         "pivotY": 0.5,
         "meshType": 0,
         "vertices": {
-          "rawPosition": [],
-          "indexes": [],
-          "uv": [],
-          "nuv": [],
-          "minPos": [],
-          "maxPos": []
+          "rawPosition": [
+            -64,
+            -50,
+            0,
+            64,
+            -50,
+            0,
+            -64,
+            50,
+            0,
+            64,
+            50,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            0,
+            100,
+            128,
+            100,
+            0,
+            0,
+            128,
+            0
+          ],
+          "nuv": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "minPos": [
+            -64,
+            -50,
+            0
+          ],
+          "maxPos": [
+            64,
+            50,
+            0
+          ]
         }
       },
-      "ver": "1.0.9",
+      "ver": "1.0.12",
       "imported": true,
       "files": [
         ".json"
@@ -91,6 +137,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "47ab18e4-c2ba-5cf3-b79a-3a972360ba9b@f9941"
+    "redirect": "47ab18e4-c2ba-5cf3-b79a-3a972360ba9b@6c48a"
   }
 }
