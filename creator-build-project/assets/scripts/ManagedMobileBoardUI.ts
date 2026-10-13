@@ -289,6 +289,10 @@ export class ManagedMobileBoardUI extends Component {
     this.presented = true; this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
     if (!this.disposing && this.root && isValid(this.root, true)) this.layout();
+    // Restored attempts intentionally stay paused. Unlike an OS hide/show,
+    // a new view has no boardWasHidden edge to request the recovery controls.
+    // Offer explicit Resume on its first visible update; never unlock silently.
+    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) this.returnPause = true;
   }
   private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
