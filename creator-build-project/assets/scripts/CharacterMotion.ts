@@ -92,6 +92,8 @@ export type ClipMeta={duration?:number;nativeSpeed?:number;loop?:boolean;events:
   root?:RootMotion;entry?:{from?:string;atEvent?:string;body?:Body;walkTime?:number;crossfade?:number};turnDeg?:number;
   /** apron_lift: lift frame and settle frame (s). */
   liftTime?:number;settleTime?:number;
+  /** door_reach: time of the first handle contact, in authored clip seconds. */
+  contactTime?:number;
   /** layer clips: blend mode + mask (bone names / globs) + additive reference time (default 0 = first frame). */
   layerMode?:LayerMode;mask?:string[];referenceTime?:number;
   /** Morph weight curves keyed by target name, time in CLIP seconds: [[t,w],...] (piecewise linear, w clamped 0..1). */
@@ -122,6 +124,7 @@ function parseClip(c:any):ClipMeta {const duration=num(c.cycle_duration_s)??num(
     root:parseRoot(c.root_motion),turnDeg:num(c.turn_deg)??num(c.turnDeg),
     entry:en?{from:typeof en.from==='string'?en.from:undefined,atEvent:typeof en.at_event==='string'?en.at_event:undefined,body:en.body==='L'||en.body==='R'?en.body:undefined,
       walkTime:num(en.walk_time_s)??num(en.walkTime),crossfade:num(en.crossfade_s)??num(en.crossfade)}:undefined,
+    contactTime:num(c.handle_contact_s)??num(c.contactTime),
     liftTime:num(lift.lift_time_s)??num(lift.liftTime)??(num(lift.lift_frame)!==undefined&&num(c.fps)?lift.lift_frame/c.fps:undefined),
     settleTime:num(lift.settle_time_s)??num(lift.settleTime)??(num(lift.settle_frame)!==undefined&&num(c.fps)?lift.settle_frame/c.fps:undefined),
     layerMode:(layer.mode||c.layer_mode)==='override'?'override':(layer.mode||c.layer_mode)==='additive'?'additive':undefined,
@@ -241,7 +244,7 @@ type Track={clip:string;abs:number;loop:boolean;distance:boolean;nativeSpeed:num
 export type PlanLayer={clip:string;time:number;weight:number;mode:LayerMode;mask:ReadonlyArray<string>;referenceTime:number};
 /** morph: every layer the morph curves read (same clip/time/weight as `layers`, plus a curve-only apron_lift timeline when the
  *  glb has no apron_lift clip yet but anim_meta has its morph curves). */
-export type Plan={base:{clip:string;time:number;loop:boolean}|null;out:{clip:string;time:number;weight:number}|null;layers:PlanLayer[];morph:{clip:string;time:number;weight:number}[]};
+export type Plan={base:{clip:string;time:number;loop:boolean}|null;out:{clip:string;time:number;weight:number;controllerOffset?:readonly [number,number,number];preserveIncomingLowerBody?:boolean}|null;layers:PlanLayer[];morph:{clip:string;time:number;weight:number}[]};
 export type TickResult={foot:{def:MotionEventDef;cycle:number;abs:number;clip:string;duration:number}[];ended:string|null;apronLift:{durationSec:number}|null};
 /** Engine-free scheduler. Base clip time advances by distance (Δs / native_speed) for clips with a native speed (walk_loop,
  *  or any clip whose anim_meta has native_speed_mps), by time otherwise. Foot events come from phase crossings here,
@@ -260,7 +263,7 @@ export class MotionClock {
         if(root)root={forward:scaleCurve(root.forward,k),lateral:scaleCurve(root.lateral,k),yaw:scaleCurve(root.yaw,k)};
         this.notes.push(name+': anim_meta '+m.duration.toFixed(4)+'s != clip '+d.toFixed(4)+'s, events'+(root?' + root_motion':'')+' rescaled');}
       let morph=m.morph;if(morph&&d>0&&m.duration&&Math.abs(m.duration-d)>1e-3){const k=d/m.duration,cv:MorphCurves={};for(const t in morph.curves)if(Object.prototype.hasOwnProperty.call(morph.curves,t))cv[t]=morph.curves[t].map(p=>[p[0]*k,p[1]] as [number,number]);morph={mesh:morph.mesh,curves:cv};}
-      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph,root,entry:m.entry,turnDeg:m.turnDeg};}
+      clips[name]={duration:m.duration,nativeSpeed:m.nativeSpeed,loop:m.loop,events,handoff:m.handoff,liftTime:m.liftTime,settleTime:m.settleTime,contactTime:m.contactTime!==undefined&&d>0&&m.duration?m.contactTime*d/m.duration:m.contactTime,layerMode:m.layerMode,mask:m.mask,referenceTime:m.referenceTime,morph,root,entry:m.entry,turnDeg:m.turnDeg};}
     const w=clips[CLIP_ROLES.walk],wd=info.has(CLIP_ROLES.walk)?info.duration(CLIP_ROLES.walk):0;
     if(w&&!w.events.length&&wd>0){w.events=[{time:0,name:'foot:R',bone:'foot.R',body:'L'},{time:wd/2,name:'foot:L',bone:'foot.L',body:'R'}];this.notes.push('walk_loop: default foot events (no anim_meta events)');}
     const morphMeshes=cfg.morphMeshes&&cfg.morphMeshes.length?cfg.morphMeshes:[{mesh:cfg.morphMesh,targets:cfg.morphTargets}];const bound=morphMeshes.map(b=>b.mesh);

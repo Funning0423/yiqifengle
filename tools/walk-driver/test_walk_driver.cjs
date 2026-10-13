@@ -24,11 +24,11 @@ const GLB=pick();const metaPath=path.join(path.dirname(GLB),'anim_meta.json');co
 const KNOWN_FAIL_ON_INTV1=new Set(['phase continuity across outCrossing->toIsland and toThreshold->inCrossing (no reset, no leg swap)',
  'onFoot timing: the event bone leads (heel strike in front) on every step',
  'morph: morphTargets {curl:1,flutter:0} remaps shape indices; written to every sub-mesh with enough targets (counts 3,0,2 -> 0,2)']);
-const results=[];const check=(name,fn)=>{const known=KNOWN_FAIL_ON_INTV1.has(name)?{knownFailOnIntV1:true}:{};try{const info=fn();results.push({name,ok:true,...known,info});}catch(e){results.push({name,ok:false,...known,error:String(e&&e.stack||e)});}};
+const results=[];const check=(name,fn)=>{const known=KNOWN_FAIL_ON_INTV1.has(name)?{knownFailOnIntV1:true}:{};try{const info=fn();results.push(info&&info.skipped?{name,ok:null,skipped:true,...known,info}:{name,ok:true,...known,info});}catch(e){results.push({name,ok:false,...known,error:String(e&&e.stack||e)});}};
 /** Foot events on a short straight walk: one per walk_loop step (anim_meta step_length_m; 0.50 m mocap, 0.40 m hand-keyed), minus the step taken by the start/stop. */
 const STEP_M=META?.clips?.walk_loop?.step_length_m||0.3967;const minFootEvents=L=>Math.round(L/STEP_M)-1;
 const deg=r=>r*180/Math.PI,wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-const qang=(a,b)=>2*Math.acos(Math.min(1,Math.abs(a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w)))*180/Math.PI;
+const qang=(a,b)=>2*Math.acos(Math.min(1,Math.abs(a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w)/(Math.hypot(a.x,a.y,a.z,a.w)*Math.hypot(b.x,b.y,b.z,b.w))))*180/Math.PI;
 /** Synthetic wind layers for the additive check: skirt/apron/hair bones swing +-AMP about local X; thigh.L also swings (must be masked off). */
 const FLUTTER_AMP=20;
 function syntheticLayer(rig,name,duration,fn){return {name,duration,apply(t){for(const n of rig.nodes){const a=fn(n.name,t);if(a===null)continue;const r=rig.rest[rig.nodes.indexOf(n)].r;const h=a*Math.PI/360,d=[Math.sin(h),0,0,Math.cos(h)];const q=G.qmul([r.x,r.y,r.z,r.w],d);n.setRotation(q[0],q[1],q[2],q[3]);}
@@ -45,7 +45,8 @@ function makeCharacter(opts={}){const rig=G.loadRig(opts.glb||GLB);const clipDef
 const foot=(c,name)=>G.worldOf(c.rig.byName(name),[c.node.worldPosition.x,c.node.worldPosition.y,c.node.worldPosition.z],c.node.yaw).pos;
 /** Foot-flat windows (cycle fractions) from anim_meta phases; default walk-v1 values. Ankle must stay put in world here. */
 const phases=META?.clips?.walk_loop?.phases_fraction_of_cycle||{'foot.R':{foot_flat:.1,heel_off:.4},'foot.L':{foot_flat:.6,heel_off:.9}};
-function slideTracker(){const open={},worst={mm:0,where:null},all=[],corner={mm:0,where:null,windows:0};return {worst,all,corner,frame(c,label){const ph=c.s.diagnostics();if(ph.clip!=='walk_loop'||ph.motion.fade){for(const k in open)delete open[k];return;}
+const ankleStanceSupported=['foot.L','foot.R'].every(b=>Number.isFinite(phases[b]?.foot_flat)&&Number.isFinite(phases[b]?.heel_off));
+function slideTracker(){const open={},worst={mm:0,where:null},all=[],corner={mm:0,where:null,windows:0};return {supported:ankleStanceSupported,worst,all,corner,frame(c,label){if(!ankleStanceSupported)return;const ph=c.s.diagnostics();if(ph.clip!=='walk_loop'||ph.motion.fade){for(const k in open)delete open[k];return;}
   for(const bone of ['foot.L','foot.R']){const w=phases[bone];const f=ph.motion.phase;const inside=w.foot_flat<w.heel_off?f>=w.foot_flat&&f<=w.heel_off:(f>=w.foot_flat||f<=w.heel_off);
    const p=foot(c,bone);if(inside){if(!open[bone])open[bone]={start:p,max:0,label,yaw0:c.node.yaw,dyaw:0};else{const o=open[bone];o.dyaw=Math.max(o.dyaw,Math.abs(wrap(c.node.yaw-o.yaw0))*180/Math.PI);o.max=Math.max(o.max,Math.hypot(p[0]-o.start[0],p[2]-o.start[2])*1000);}}
    else if(open[bone]){const o=open[bone];delete open[bone];if(o.dyaw>1){corner.windows++;if(o.max>corner.mm){corner.mm=o.max;corner.where=bone+' '+o.label+' yaw '+o.dyaw.toFixed(1)+'deg';}}else{all.push(o.max);if(o.max>worst.mm){worst.mm=o.max;worst.where=bone+' '+o.label;}}}}}};}
@@ -77,9 +78,9 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
 (async()=>{
  const runs={};
  for(const speed of [0.45,0.7,1.0]){runs['dist'+speed]=await straight(speed,'dist');runs['time'+speed]=await straight(speed,'time');}
- check('distance-driven phase: no foot slide at 0.45 / 0.7 / 1.0 m/s (vs old time-driven clock)',()=>{const out={};for(const sp of [0.45,0.7,1.0]){out[sp]={newMaxMm:+runs['dist'+sp].worst.mm.toFixed(1),oldMaxMm:+runs['time'+sp].worst.mm.toFixed(1)};assert(runs['dist'+sp].worst.mm<15,'slide '+sp+' '+runs['dist'+sp].worst.mm);}return out;});
+ check('distance-driven phase: no foot slide at 0.45 / 0.7 / 1.0 m/s (vs old time-driven clock)',()=>{if(!ankleStanceSupported)return {skipped:true,reason:'Current meta has no foot_flat/heel_off windows; use sole-vertex contact tests. Zero windows are not a pass.'};const out={};for(const sp of [0.45,0.7,1.0]){out[sp]={newMaxMm:+runs['dist'+sp].worst.mm.toFixed(1),oldMaxMm:+runs['time'+sp].worst.mm.toFixed(1)};assert(runs['dist'+sp].worst.mm<15,'slide '+sp+' '+runs['dist'+sp].worst.mm);}return out;});
  const fr=await flowRun(process.env.WALK_WIND||'real');const {rec,feet,apron,tr,cfg}=fr;
- check('full out-and-back: foot-flat ankle drift (world) with real routes, 60 fps (straight stance windows; corner windows reported)',()=>{assert(tr.worst.mm<15,JSON.stringify(tr.worst));return {straightMaxMm:+tr.worst.mm.toFixed(1),where:tr.worst.where,straightWindows:tr.all.length,cornerWindows:tr.corner.windows,cornerMaxMm:+tr.corner.mm.toFixed(1),cornerWhere:tr.corner.where,note:'corner drift = body yaw turning over the planted foot (root must stay on the path; old code snapped yaw in one frame)'};});
+ check('full out-and-back: foot-flat ankle drift (world) with real routes, 60 fps (straight stance windows; corner windows reported)',()=>{if(!tr.supported)return {skipped:true,reason:'Current meta has no foot_flat/heel_off windows; no ankle-stance coverage.'};assert(tr.all.length+tr.corner.windows>0,'no stance windows measured');assert(tr.worst.mm<15,JSON.stringify(tr.worst));return {straightMaxMm:+tr.worst.mm.toFixed(1),where:tr.worst.where,straightWindows:tr.all.length,cornerWindows:tr.corner.windows,cornerMaxMm:+tr.corner.mm.toFixed(1),cornerWhere:tr.corner.where,note:'corner drift = body yaw turning over the planted foot (root must stay on the path; old code snapped yaw in one frame)'};});
  // joins = continuous walks WorldFlow runs back to back (motion.restChainsFor): outCrossing->toIsland, toThreshold->inCrossing,
  // and on the follow return (运镜bot 0b6202e: no stop at the entrance) inCrossing->toSeat as well
  const chainJoins=motion.restChainsFor(cfg).reduce((n,ch)=>n+ch.length-1,0);
@@ -232,6 +233,6 @@ const locomotionTests=()=>require('./test_locomotion.cjs').run();
    const ss=maxStep(stand.filter(v=>v!==undefined)),st=maxStep(sit.filter(v=>v!==undefined));assert(ss.m<.06&&st.m<.06,'jumps '+ss.m+' '+st.m);
    return {held,stood,sat,standMaxStep:+ss.m.toFixed(4),sitMaxStep:+st.m.toFixed(4),settleTime:m.clips.sit_down.settleTime};});}
  await locomotionTests();
- const failed=results.filter(r=>!r.ok);const report={status:failed.length?'FAIL':'PASS',failedKnownOnIntV1:failed.filter(r=>r.knownFailOnIntV1).length,failedOther:failed.filter(r=>!r.knownFailOnIntV1).length,glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
+ const failed=results.filter(r=>!r.ok&&!r.skipped);const report={status:failed.length?'FAIL':'PASS_WITH_EXPLICIT_SKIPS',skipped:results.filter(r=>r.skipped).length,failedKnownOnIntV1:failed.filter(r=>r.knownFailOnIntV1).length,failedOther:failed.filter(r=>!r.knownFailOnIntV1).length,glb:path.relative('/workspace/yiqifengle',GLB),animMeta:!!META,flowRoot:path.relative('/workspace/yiqifengle',flowRoot)||'.',results};
  console.log(JSON.stringify(report,null,1));if(failed.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1;});

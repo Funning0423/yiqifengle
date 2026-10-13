@@ -77,13 +77,29 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.stopHold>0&&this.clock.base&&name!==this.clock.base.clip){this.stopHold=0;this.clock.releaseHold();}
   const d=this.requireClip(name);
   if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
- private render(){if(!this.rig||!this.clock)return;const plan=this.clock.plan();this.rig.apply(plan);this.applyMorph(plan);}
+ private render(){if(!this.rig||!this.clock)return;const plan=this.clock.plan(),j=this.job;
+  // A held outgoing pose was authored in the controller frame at action entry. Reproject it into the moving
+  // controller frame before blending; otherwise the first 0.2 s of sit/stand drags the planted feet ~20 mm.
+  // +Z forward, +Y up, unit-scale visual; translation is applied only to the outgoing root joint pose buffer.
+  if(plan.out&&j&&(j.action.kind==='sit'||j.action.kind==='stand')){const p=this.node.worldPosition,dx=j.from[0]-p.x,dy=j.from[1]-p.y,dz=j.from[2]-p.z,sy=Math.sin(this.yawRad),cy=Math.cos(this.yawRad);
+   plan.out.controllerOffset=[cy*dx-sy*dz,dy,sy*dx+cy*dz];
+   // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
+   // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
+   plan.out.preserveIncomingLowerBody=j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle&&!!this.clock.meta(CLIP_ROLES.sitDown)?.root?.forward;}
+  this.rig.apply(plan);this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
   for(let i=0;i<ms.length;i++){const m=ms[i];if(m.status!=='ok')continue;try{m.apply(this.morphW);}catch(e){m.status='error';m.reason=String(e);}}}
  private setYaw(rad:number){this.yawRad=rad;this.node.setRotationFromEuler(0,rad*180/Math.PI,0);}
- playDoorReach(){if(this.disposed||this.job||!this.node.active||!this.rig?.has(CLIP_ROLES.doorReach))return false;this.pendingIdle=false;this.playNamed('door_reach',false);return true;}
+ playDoorReach(){if(this.disposed||this.job||!this.node.active||!this.rig?.has(CLIP_ROLES.doorReach))return false;this.pendingIdle=false;this.playNamed(CLIP_ROLES.doorReach,false);return true;}
+ /** Optional WorldFlow contract. Missing door clip retains the legacy one-second door-only fallback. */
+ doorReachTiming(){if(!this.rig?.has(CLIP_ROLES.doorReach))return null;const durationSec=this.rig.duration(CLIP_ROLES.doorReach),m=this.clock?.meta(CLIP_ROLES.doorReach),contact=m?.contactTime;
+  return {durationSec,contactSec:contact!==undefined&&Number.isFinite(contact)?Math.max(0,Math.min(durationSec,contact)):0};}
+ performDoorReach(token:Cancellation):Promise<void>{token.check();const timing=this.doorReachTiming();if(!timing)return Promise.reject(Error('Character clip missing: '+CLIP_ROLES.doorReach));
+  if(!this.playDoorReach())return Promise.reject(Error('Character door reach unavailable'));
+  return new Promise((resolve,reject)=>{const p=this.node.worldPosition,j:any={action:{kind:'door-reach'},duration:timing.durationSec,from:[p.x,p.y,p.z],elapsed:0,resolve,reject,off:()=>{}};this.job=j;
+   j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});}
  private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
  /** One contact = one event: entry_contact events (the walk_loop heel strike a stop clip starts on, already emitted by
   *  walk_loop) and a same-bone event on another clip within FOOT_DEDUPE_S are skipped (logged as foot-dedupe). */
@@ -169,7 +185,7 @@ class FlowReferenceStandin implements CharacterAdapter {
      else this.setYaw(this.yaw.step(target,j.elapsed-before));}
    }
    else if(j.action.kind==='turn'){this.lastSpeed=0;let u=p;if(j.foldS>0){u=Math.min(1,j.elapsed/j.foldS);u=u*u*(3-2*u);}this.setYaw(j.fromYaw+j.deltaYaw*u);this.yaw.reset(this.yawRad);}
-   else{const target=j.action.kind==='stand'?j.action.seat.standingControllerRoot:j.action.seat.seatedControllerRoot;this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));}
+   else if(j.action.kind==='stand'||j.action.kind==='sit'){const target=j.action.kind==='stand'?j.action.seat.standingControllerRoot:j.action.seat.seatedControllerRoot;this.node.setWorldPosition(...j.from.map((v:number,i:number)=>v+(target[i]-v)*p));}
   }
   if((!j||j.foldS>0)&&this.stopRoot&&c.base&&c.base.clip===this.stopRoot.clip){// walk resolved, stop clip still settling (also under a folded turn): rest of its root curves (lateral settle step)
    const r0=this.stopRoot,t=c.localTime(c.base),f=r0.scale*(piecewise(r0.forward,t)-r0.forward[0][1]-r0.S),lat=this.stopLateral(t),sy=Math.sin(r0.yaw),cy=Math.cos(r0.yaw);
@@ -252,14 +268,14 @@ class FlowReferenceStandin implements CharacterAdapter {
  * crossfade = slerp between two sampled poses; wind layers = additive/override on the masked joints only. Baked mode:
  * one clip, play+pause+setTime+sample (the original path), hard cuts, layers ignored. */
 class AnimRig {
- readonly joints:Joint[]=[];private A:Float64Array;private B:Float64Array;private P:Float64Array;private L:Float64Array;private refs:{[clip:string]:Float64Array}={};private masks:{[clip:string]:number[]}={};private bakedName='';
+ readonly joints:Joint[]=[];private A:Float64Array;private B:Float64Array;private P:Float64Array;private L:Float64Array;private refs:{[clip:string]:Float64Array}={};private masks:{[clip:string]:number[]}={};private bakedName='';private rootJoint=-1;private Rest:Float64Array;private lowerBody:number[]=[];
  /** States rebuilt because they had no clip evaluator (created while baked; see repairStates). */
  readonly repaired:string[]=[];
  constructor(private anim:SkeletalAnimation,readonly blend:boolean){
   for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
-  if(blend){anim.useBakedAnimation=false;this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);}
+  if(blend){anim.useBakedAnimation=false;this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);this.rootJoint=this.joints.findIndex(j=>j.name==='root');for(let i=0;i<this.joints.length;i++)if(/^(root|hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(this.joints[i].name))this.lowerBody.push(i);}
   else anim.useBakedAnimation=true;
-  const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);}
+  const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);this.Rest=new Float64Array(size);capture(this.joints,this.Rest);}
  /** Creator 3.8.8: a SkeletalAnimationState initialized while useBakedAnimation was true keeps _doNotCreateEval=true
   *  (skeletal-animation-state.ts:75-76); a later setUseBaked(false) re-runs AnimationState.initialize (:108-111) but the
   *  evaluator is only built when !_doNotCreateEval (animation-state.ts:370-379), so sample() writes no joints
@@ -275,7 +291,10 @@ class AnimRig {
  has(name:string){const c=this.clip(name);return !!c&&Number.isFinite(c.duration)&&c.duration>0;}
  duration(name:string){const c=this.clip(name);return c&&c.duration>0?c.duration:0;}
  private state(name:string){const c=this.clip(name)!;return this.anim.getState(name)||this.anim.createState(c,name);}
- private sample(name:string,time:number){const s=this.state(name);s.setTime(time);s.sample();}
+ private sample(name:string,time:number){const s=this.state(name);
+  // glTF clips omit rest-valued channels. Each sample must start from the imported defaults, not the last
+  // clip's writes (notably seated skirt translations leaking into idle/walk after cancellation).
+  if(this.blend)writePose(this.joints,this.Rest);s.setTime(time);s.sample();}
  private mask(clip:string,patterns:ReadonlyArray<string>){let m=this.masks[clip];if(!m){m=[];for(let i=0;i<this.joints.length;i++)if(globMatch(patterns,this.joints[i].name))m.push(i);this.masks[clip]=m;}return m;}
  apply(plan:Plan){const b=plan.base;if(!b)return;
   if(!this.blend){const anim=this.anim,clip=this.clip(b.clip)!;
@@ -283,7 +302,9 @@ class AnimRig {
     const st=this.state(b.clip);st.wrapMode=clip.wrapMode;st.repeatCount=b.loop?Infinity:1;anim.play(b.clip);st.pause();this.bakedName=b.clip;}
    this.sample(b.clip,b.time);return;}
   const n=this.joints.length;if(!plan.out&&!plan.layers.length){this.sample(b.clip,b.time);return;}
-  if(plan.out){this.sample(plan.out.clip,plan.out.time);capture(this.joints,this.A);this.sample(b.clip,b.time);capture(this.joints,this.B);blendPose(this.A,this.B,1-plan.out.weight,this.P,n);}
+  if(plan.out){this.sample(plan.out.clip,plan.out.time);capture(this.joints,this.A);
+   const shift=plan.out.controllerOffset;if(shift&&this.rootJoint>=0){const o=this.rootJoint*STRIDE;this.A[o]+=shift[0];this.A[o+1]+=shift[1];this.A[o+2]+=shift[2];}
+   this.sample(b.clip,b.time);capture(this.joints,this.B);blendPose(this.A,this.B,1-plan.out.weight,this.P,n);if(plan.out.preserveIncomingLowerBody)for(let i=0;i<this.lowerBody.length;i++){const o=this.lowerBody[i]*STRIDE;for(let k=0;k<STRIDE;k++)this.P[o+k]=this.B[o+k];}}
   else{this.sample(b.clip,b.time);capture(this.joints,this.P);}
   for(let k=0;k<plan.layers.length;k++){const l=plan.layers[k],mask=this.mask(l.clip,l.mask);if(!mask.length)continue;let ref:Float64Array|null=null;
    if(l.mode==='additive'){ref=this.refs[l.clip]||null;if(!ref){ref=new Float64Array(this.P.length);this.sample(l.clip,l.referenceTime);capture(this.joints,ref,mask);this.refs[l.clip]=ref;}}
@@ -300,7 +321,7 @@ export class WorldIntegrationBoot extends Component {
  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private doorReached=false;
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -356,7 +377,7 @@ export class WorldIntegrationBoot extends Component {
  // Pose-blend mode needs every SkeletalAnimationState built NON-baked: states are created in SkeletalAnimation.onLoad
  // (animation-component.ts:162-163 clips setter -> createState -> initialize), which runs when the girl enters the active
  // scene below. Set the flag first (setter :144-146; no states yet), else the states never get an evaluator (AnimRig.repairStates).
- {const pre=girl.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<pre.length;i++)pre[i].useBakedAnimation=!CHARACTER_POSE_BLEND;}
+ {const pre=girl.getComponentsInChildren(SkeletalAnimation);for(let i=0;i<pre.length;i++){pre[i].playOnLoad=false;pre[i].useBakedAnimation=!CHARACTER_POSE_BLEND;}}
  reference.addChild(girl);girl.setScale(1,1,1);
  // The parent owns seatedRoot/seatYaw. The old standing-minus-seated child offset kept B standing.
  girl.setPosition(0,0,0);girl.setRotationFromEuler(0,0,0);
@@ -364,7 +385,7 @@ export class WorldIntegrationBoot extends Component {
  if(!seated.length)throw Error('Required initial seated clip missing: '+this.initialSeatedClip);
  this.selectedSeatedClip=this.initialSeatedClip;this.characterAnimations=seated;
  for(const a of animations){a.playOnLoad=false;a.stop();}
- for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip;a.play(clip.name);const state=a.getState(clip.name);if(!state)throw Error('Initial seated animation state unavailable');state.time=0;state.sample();}
+ for(const a of seated){a.useBakedAnimation=!CHARACTER_POSE_BLEND;const clip=a.clips.find(x=>x?.name===this.selectedSeatedClip)!;clip.wrapMode=AnimationClip.WrapMode.Loop;a.defaultClip=clip; /* bindVisual captures imported rest TRS before sampling the initial seated pose. */}
  (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
@@ -483,7 +504,7 @@ export class WorldIntegrationBoot extends Component {
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
- const adapter=(this as any)._referenceAdapter;if(s.state==='opening-door'){if(!this.doorReached){this.doorReached=true;adapter?.playDoorReach?.();}}else this.doorReached=false;
+ // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
  }
  update(dt:number){this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}

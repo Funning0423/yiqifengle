@@ -128,7 +128,7 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
     for(const e of d.events)if(!seen.has(e)){seen.add(e);allEv.push(Object.assign({t:+t.toFixed(3),state},e));}
     if(d.motion.walkPlan!==prevPlan){prevPlan=d.motion.walkPlan;if(prevPlan)plans.push({t:+t.toFixed(3),state,...prevPlan});}if(d.clip!==prevClip&&/walk_stop|walk_turn/.test(d.clip))(/stop/.test(d.clip)?stops:turns).push({t:+t.toFixed(3),state,clip:d.clip,root:[+c.node.worldPosition.x.toFixed(4),+c.node.worldPosition.z.toFixed(4)],plan:d.motion.walkPlan});prevClip=d.clip;}});
   const pathLen=p=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1],p[i][2]-p[i-1][2]);return L;};
-  check('loco: out-and-back flow (real WorldFlow + routes; rest chains from the routes: toDoor | outCrossing->toIsland | toThreshold->inCrossing->toSeat on the follow return, no stop at the entrance): a planned stop inside exactly the walks that end at rest, none at the continuous joins, no unplanned stop, slide bounded',()=>{
+  check('loco: out-and-back flow (real WorldFlow + routes; rest chains from the routes: toDoor | outCrossing->toIsland | toThreshold->inCrossing->toSeat on the follow return, no stop at the entrance): a planned stop inside exactly the walks that end at rest, none at the continuous joins, no unplanned stop; ankle stance coverage reported separately',()=>{
     const cfg=fr.cfg,chains=motion.restChainsFor(cfg);assert.equal(chains,motion.REST_CHAINS_FOLLOW,'follow return routes (cameraEntry.doorSeconds '+(cfg.cameraEntry&&cfg.cameraEntry.doorSeconds)+')');
     const ends={};for(const ch of chains)ends[ch[ch.length-1]]=cfg[ch[ch.length-1]];
     // continuous walks: planned as joins (aheadM = rest of the chain), never as a rest
@@ -140,9 +140,9 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
     const near=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[2])<stopS+.1;assert.equal(stops.length,3,JSON.stringify({stops,plans}));
     const where=stops.map(s=>Object.keys(ends).find(k=>near(s.root,ends[k][ends[k].length-1]))||'?');assert.deepEqual(where,['toDoor','toIsland','toSeat'],JSON.stringify(stops));
     for(const s of stops)assert(s.plan&&s.plan.rest&&s.plan.stop===s.clip,'stop planned in its walk '+JSON.stringify(s));
-    const unplanned=allEv.filter(e=>e.kind==='stop-unplanned');assert.equal(unplanned.length,0,JSON.stringify(unplanned));assert(fr.tr.worst.mm<15,JSON.stringify(fr.tr.worst));
+    const unplanned=allEv.filter(e=>e.kind==='stop-unplanned');assert.equal(unplanned.length,0,JSON.stringify(unplanned));if(fr.tr.supported){assert(fr.tr.all.length+fr.tr.corner.windows>0,'no stance windows');assert(fr.tr.worst.mm<15,JSON.stringify(fr.tr.worst));}
     return {chains,stops:stops.map((s,i)=>({walk:where[i],t:s.t,clip:s.clip,warp:s.plan&&s.plan.warp,cruiseMps:s.plan&&s.plan.cruiseMps,start:s.plan&&s.plan.start,startRate:s.plan&&s.plan.startRate})),joins:{inCrossingAheadM:+ic.aheadM.toFixed(3),toThresholdAheadM:+tt.aheadM.toFixed(3)},
-      turns:allEv.filter(e=>e.kind==='turn-choice').map(e=>({t:e.t,state:e.state,clip:e.clip,deg:+e.deg.toFixed(1),lastFoot:e.lastFoot,reason:e.reason})),walkLoopStanceMaxMm:+fr.tr.worst.mm.toFixed(2),cornerMaxMm:+fr.tr.corner.mm.toFixed(1)};});
+      turns:allEv.filter(e=>e.kind==='turn-choice').map(e=>({t:e.t,state:e.state,clip:e.clip,deg:+e.deg.toFixed(1),lastFoot:e.lastFoot,reason:e.reason})),ankleStanceCoverage:fr.tr.supported?'measured':'SKIPPED: missing foot_flat/heel_off metadata',walkLoopStanceMaxMm:fr.tr.supported?+fr.tr.worst.mm.toFixed(2):null,cornerMaxMm:fr.tr.supported?+fr.tr.corner.mm.toFixed(1):null};});
   // r5 #5: at the island she stopped walk_loop -> idle and turned ~25 deg in place on the breathing loop
   check('loco: island arrival: the < 45 deg turn after the toIsland stop is folded into the stop clip (yaw only changes while the stop clip plays, done by its end, then idle; never on idle, no turn clip)',()=>{
     const isl=stops[1],seg=[];let k=fr.rec.findIndex(r=>r.t>=isl.t);while(k<fr.rec.length&&fr.rec[k].action!=='turn')k++;assert(k<fr.rec.length,'turn after the toIsland stop');
