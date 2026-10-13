@@ -318,7 +318,7 @@ export class WorldIntegrationBoot extends Component {
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
- private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
+ private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
@@ -337,8 +337,8 @@ export class WorldIntegrationBoot extends Component {
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
     if(!assetManager.getBundle('region_island'))await new Promise<void>((ok,fail)=>assetManager.loadBundle('region_island',(e,b)=>e||!b?fail(e||Error('Dynamic character bundle missing')):ok()));attempt.check();
-    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),this.loadHomeSeated()]);attempt.check();const character=loaded[0];
-    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.homeSeatedPrefab=loaded[2];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
+    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),this.loadHomeSeated(),this.loadTransitionChair()]);attempt.check();const character=loaded[0];
+    this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.homeSeatedPrefab=loaded[2];this.transitionChairPrefab=loaded[3];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
     this.revealRoom();this.paintNavigation();this.resize();
@@ -349,7 +349,7 @@ export class WorldIntegrationBoot extends Component {
    console.error('World startup failed',error);this.setStatus(this.error,true);this.loadingLayer?.showError(this.error);
   });
  }
- private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.homeSeatedVisual=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
+ private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.homeSeatedVisual=null;this.transitionChairVisual=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
  /** Ready: fade the startup layer out (OUTRO_FADE_S, ease-out) above everything; room hints wait (roomExplore allowed()).
   * Without the layer (unit-test stubs) it is the old immediate hide. update() finishes the fade and deactivates the nodes. */
  private revealRoom(){const l=this.loadingLayer;
@@ -366,7 +366,11 @@ export class WorldIntegrationBoot extends Component {
  private loadAnimMeta(){return new Promise<any>(ok=>{try{const b:any=assetManager.getBundle('region_island');if(!b||typeof b.load!=='function')return ok(null);b.load('character/anim_meta',JsonAsset,(e:any,a:any)=>ok(e||!a?null:a.json));}catch{ok(null);}});}
  /** The fused heroine/stool is a stationary home visual, never a CharacterAdapter. */
  private loadHomeSeated(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('static_seat_preview');if(!b)return fail(Error('Home seated bundle missing'));b.loadDir('actor',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one static home prefab'));ok(list[0]);});});}
+ private loadTransitionChair(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Transition support bundle missing'));b.loadDir('character_support',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one independent transition chair'));ok(list[0]);});});}
  private syncHomeSeated(state:string,hidden:boolean){const seated=this.homeSeatedVisual;if(!seated)return;const home=state==='home'&&!hidden;seated.active=home;
+  // The home shell includes its stool. The original animated seated pose needs the original
+  // calibrated chair after that shell is hidden. Support belongs to the world, never the moving rig.
+  if(this.transitionChairVisual)this.transitionChairVisual.active=!home;
   // Keep the original rig/clock live: only rendering is exchanged. No fake stand/walk promises.
   if(this.startupGirl)for(const r of this.startupGirl.getComponentsInChildren(MeshRenderer))r.enabled=!home;
  }
@@ -397,6 +401,9 @@ export class WorldIntegrationBoot extends Component {
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
  if(!this.homeSeatedPrefab)throw Error('Required static home visual missing');
+ if(!this.transitionChairPrefab)throw Error('Required transition support missing');
+ const chair=instantiate(this.transitionChairPrefab);this.transitionChairVisual=chair;chair.name='StationaryTransitionChair';owner.addChild(chair);chair.active=false;
+ for(const r of chair.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
  const home=new Node('StationaryHomeSeatedVisual');this.homeSeatedVisual=home;owner.addChild(home);const seatedActor=instantiate(this.homeSeatedPrefab);home.addChild(seatedActor);
  if(seatedActor.getComponentsInChildren(SkeletalAnimation).length)throw Error('Static home asset unexpectedly contains a rig');
  const scale=1.2,sx=.00037,sz=-.09094,yaw=-2,a=FIRSTSLICE.anchors.seat_anchor.position;

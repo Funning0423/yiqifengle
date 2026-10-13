@@ -1,0 +1,169 @@
+{
+  "static": {
+    "objects": [
+      {
+        "name": "node_0",
+        "type": "MESH",
+        "vertices": 34222,
+        "polygons": 50000,
+        "min": [
+          -0.16940200328826904,
+          -0.29493004083633423,
+          -1.9605510104270252e-08
+        ],
+        "max": [
+          0.17000800371170044,
+          0.22993890941143036,
+          1.061894178390503
+        ]
+      }
+    ],
+    "actions": []
+  },
+  "dynamic": {
+    "objects": [
+      {
+        "name": "B_SINGLE_WORLD_ROOT_SOURCE_K",
+        "type": "EMPTY",
+        "vertices": null,
+        "polygons": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "name": "R5G2_RIG_22P4",
+        "type": "ARMATURE",
+        "vertices": null,
+        "polygons": null,
+        "min": null,
+        "max": null
+      },
+      {
+        "name": "LOD0_G2_APRON",
+        "type": "MESH",
+        "vertices": 282,
+        "polygons": 456,
+        "min": [
+          -0.1744399219751358,
+          -0.21008244156837463,
+          0.5052866339683533
+        ],
+        "max": [
+          0.1745973825454712,
+          0.07901403307914734,
+          1.1344702243804932
+        ]
+      },
+      {
+        "name": "LOD0_G2_BODY",
+        "type": "MESH",
+        "vertices": 6990,
+        "polygons": 11998,
+        "min": [
+          -0.2678222060203552,
+          -0.20331689715385437,
+          2.1029991614796018e-07
+        ],
+        "max": [
+          0.26782238483428955,
+          0.169346421957016,
+          1.7564964294433594
+        ]
+      },
+      {
+        "name": "LOD0_G2_BOW",
+        "type": "MESH",
+        "vertices": 186,
+        "polygons": 348,
+        "min": [
+          -0.10360000282526016,
+          0.07120846956968307,
+          0.9039999842643738
+        ],
+        "max": [
+          0.10360000282526016,
+          0.10516326129436493,
+          1.1519999504089355
+        ]
+      },
+      {
+        "name": "LOD0_G2_DRESS",
+        "type": "MESH",
+        "vertices": 5323,
+        "polygons": 9774,
+        "min": [
+          -0.24217890202999115,
+          -0.2047620415687561,
+          0.41107258200645447
+        ],
+        "max": [
+          0.24212701618671417,
+          0.1277337521314621,
+          1.1566591262817383
+        ]
+      },
+      {
+        "name": "Icosphere",
+        "type": "MESH",
+        "vertices": 42,
+        "polygons": 80,
+        "min": [
+          -0.9510578513145447,
+          -0.9999999403953552,
+          -1.0
+        ],
+        "max": [
+          0.9510578513145447,
+          0.9999999403953552,
+          1.0
+        ]
+      }
+    ],
+    "actions": [
+      "door_reach",
+      "idle_breathing_loop",
+      "sit_down",
+      "sit_hold",
+      "stand_up",
+      "walk_loop",
+      "walk_start",
+      "walk_stop_bodyL",
+      "walk_stop_bodyR",
+      "walk_turn_180",
+      "walk_turn_180_bodyR",
+      "walk_turn_90_bodyL",
+      "walk_turn_90_bodyR",
+      "wind_sway_loop"
+    ],
+    "bones": [
+      "root",
+      "hips",
+      "spine",
+      "chest",
+      "neck",
+      "head",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R",
+      "skirt.front",
+      "skirt.front.low",
+      "skirt.front.low.mid",
+      "skirt.front.mid",
+      "skirt.left",
+      "skirt.left.low",
+      "skirt.back",
+      "skirt.back.low",
+      "skirt.right",
+      "skirt.right.low"
+    ]
+  }
+}
