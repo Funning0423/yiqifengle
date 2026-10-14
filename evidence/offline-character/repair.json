@@ -1,0 +1,205 @@
+{
+  "inputSHA256": "2f98cf0e1ee1a1213008397e2fd369868576317cd53e718333f7158d2c4de19f",
+  "animation": [
+    {
+      "clip": "stand_up",
+      "bone": "spine",
+      "keys": 24,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "stand_up",
+      "bone": "chest",
+      "keys": 15,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "stand_up",
+      "bone": "neck",
+      "keys": 23,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "stand_up",
+      "bone": "head",
+      "keys": 21,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "stand_up",
+      "bone": "upper_arm.L",
+      "keys": 153,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "stand_up",
+      "bone": "upper_arm.R",
+      "keys": 153,
+      "endpointsPreserved": true
+    },
+    {
+      "clip": "idle_breathing_loop",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 52.207131063446965,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "idle_breathing_loop",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 44.29178639867069,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "wind_sway_loop",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 0.0,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "wind_sway_loop",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 0.0,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_loop",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 59.99975507164589,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_loop",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 59.99988496827212,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "stand_up",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 116.1166477520761,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "stand_up",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 108.09597039496192,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_start",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 59.99975042795848,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_start",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 59.99986820542617,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_stop_bodyL",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 59.9999335954759,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_stop_bodyL",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 59.99993464713142,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_stop_bodyR",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 59.999535810541744,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_stop_bodyR",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 59.99985393902859,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_90_bodyL",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 52.20714311732946,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_90_bodyL",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 44.29178144996999,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_90_bodyR",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 52.20714311732946,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_90_bodyR",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 44.29178144996999,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_180",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 53.61002319986899,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_180",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 49.13510722367628,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_180_bodyR",
+      "bone": "hand.L",
+      "maxSourceRestDeltaDeg": 52.20714311732946,
+      "relaxedLimitDeg": 28
+    },
+    {
+      "clip": "walk_turn_180_bodyR",
+      "bone": "hand.R",
+      "maxSourceRestDeltaDeg": 50.38530172144323,
+      "relaxedLimitDeg": 28
+    }
+  ],
+  "skin": [
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 0,
+      "shaftBlendBeginM": 0.074,
+      "shaftBlendEndM": 0.176,
+      "rigidHeelThroughM": 0.074
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 1,
+      "shaftBlendBeginM": 0.074,
+      "shaftBlendEndM": 0.176,
+      "rigidHeelThroughM": 0.074
+    },
+    {
+      "mesh": "LOD0_G2_BODY",
+      "primitive": 2,
+      "shaftBlendBeginM": 0.074,
+      "shaftBlendEndM": 0.176,
+      "rigidHeelThroughM": 0.074
+    }
+  ],
+  "cloth": [
+    {
+      "mesh": "LOD0_G2_BODY",
+      "target": "corrective_stand_up_0",
+      "changedVertices": 171,
+      "maxBindDeltaM": 0.04187152752300074
+    }
+  ],
+  "outputSHA256": "885cabb17a7ff8cae5629a9cc950545edde8c4cec5541bfdc4e0c7d9b98af332"
+}

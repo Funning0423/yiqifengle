@@ -636,13 +636,32 @@ export class SoleContactSolver {
    }
 
    if(stepTarget){shift=rot(yq,sub(stepTarget.p,fw.p));fw.q=stepTarget.q;for(let k=0;k<anchors.length;k++)anchors[k]=null;}
+   // A free forward foot relaxes before landing. Gate by physical clearance,
+   // not a frame number; no change to support contacts or authored turns.
+   const relax=this.geometry.relaxed_swing;let relaxed=false;
+   if(relax&&!retarget&&(ss||/^walk_(loop|start|stop_body[LR])$/.test(baseClip))){
+    const freeP=stepTarget?stepTarget.p:fw.p,scaled=points.map((p:number[])=>p.map((x:number,i:number)=>x*fw.s[i]));
+    const clearance=freeP[1]+Math.min(...scaled.map((p:number[])=>rot(fw.q,p)[1]));
+    const calf=sub(freeP,sw.p),lean=Math.atan2(Math.hypot(calf[0],calf[2]),Math.abs(calf[1]));
+    const forwardLocal=relax.forward[b];
+    if(forwardLocal&&(stepTarget||!active.some((x:boolean)=>x))&&clearance>.008&&(stepTarget||lean>.10)){
+     const forward=unit(rot(fw.q,forwardLocal)),pitch=Math.asin(Math.max(-1,Math.min(1,forward[1])));
+     const weight=smooth((clearance-.008)/.028)*(stepTarget?1:smooth((lean-.10)/.30)),goal=-relax.toe_down_deg*Math.PI/180;
+     const angle=Math.max(0,pitch-goal)*weight,right=unit(cross([0,1,0],forward));
+     const correction=[right[0]*Math.sin(angle/2),right[1]*Math.sin(angle/2),right[2]*Math.sin(angle/2),Math.cos(angle/2)];
+     const oldQ=fw.q;fw.q=mul(correction,fw.q);relaxed=angle>1e-8;
+     // Preserve the same lowest sole clearance while the foot rotates.
+     const dy=Math.min(...scaled.map((p:number[])=>rot(oldQ,p)[1]))-Math.min(...scaled.map((p:number[])=>rot(fw.q,p)[1]));
+     shift[1]+=dy;
+    }
+   }
    this.previous[b]=shift;this.maxCorrectionMm=Math.max(this.maxCorrectionMm,norm(shift)*1000);const delta=rot(inv(yq),shift);
    // Isolated corridor trial. Only middle swing; zero value/velocity/acceleration at support boundaries.
    // This does not raise the ankle, change the foot orientation, or accumulate an anchor offset.
    if(!ss&&posePlan){const bump=(clip:string,time:number)=>{if(clip!=='walk_loop')return 0;const phase=((time%1.433333)+1.433333)%1.433333,center=b==='foot.L'?.45:1.16,u=(phase-center)/.20;return Math.abs(u)<1?Math.cos(Math.PI*u/2)**4:0;},out=posePlan.out,w=out?out.weight:0,base=posePlan.base,v=(base?bump(base.clip,base.time)*(1-w):0)+(out?bump(out.clip,out.time)*w:0);const other=b==='foot.L'?'foot.R':'foot.L',otherShift=solvedLateral[other]||0,inward=b==='foot.L'?Math.min(0,otherShift):Math.max(0,otherShift);delta[0]+=((b==='foot.L'?-1:1)*(b==='foot.L'?0.006:0.0095)+inward)*v;
     if(v>0)if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__corridorDynamic ||= []).push({bone:b,phase,otherShiftM:otherShift,inwardFollowM:inward*v});
     if(v>0)if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__corridorEvidence ||= []).push({bone:b,offsetM:(b==='foot.L'?-1:1)*(b==='foot.L'?0.006:0.0095)*v});}
-   if(norm(delta)<1e-9&&!stepTarget)continue;
+   if(norm(delta)<1e-9&&!stepTarget&&!relaxed)continue;
    
    // Isolated first-return fixture: actual preplanned forefoot support edge, no MTP joint.
    const j26=TURN_JOINT26_DIAGNOSTIC,j26active=retarget&&baseClip===tp.clip&&b==='foot.R'&&Math.abs(tp.fromYaw)<1e-10&&Math.abs(tp.deltaYaw-j26.deltaYaw)<1e-10&&tp.root.every((x:number,i:number)=>Math.abs(x-j26.root[i])<1e-9)&&turnTime>=j26.begin-1e-10&&turnTime<=j26.end+1e-10;

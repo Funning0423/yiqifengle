@@ -1,0 +1,135 @@
+{
+  "scope": "Source stand_up clip FK + metadata morph at five times; not runtime transitions or complete collision acceptance",
+  "rows": [
+    {
+      "candidate": "before",
+      "seconds": 0.1666667,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 14
+      }
+    },
+    {
+      "candidate": "before",
+      "seconds": 0.3,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 8,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 23,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "before",
+      "seconds": 0.601,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 53,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "before",
+      "seconds": 0.9,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "before",
+      "seconds": 1.2,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "after",
+      "seconds": 0.1666667,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 14
+      }
+    },
+    {
+      "candidate": "after",
+      "seconds": 0.3,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 23,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "after",
+      "seconds": 0.601,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 53,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "after",
+      "seconds": 0.9,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 0
+      }
+    },
+    {
+      "candidate": "after",
+      "seconds": 1.2,
+      "crossingPairs": {
+        "sleeveLOD0_G2_APRON": 0,
+        "handLOD0_G2_APRON": 0,
+        "legsLOD0_G2_APRON": 0,
+        "sleeveLOD0_G2_DRESS": 0,
+        "handLOD0_G2_DRESS": 0,
+        "legsLOD0_G2_DRESS": 0,
+        "apronDress": 0
+      }
+    }
+  ]
+}
