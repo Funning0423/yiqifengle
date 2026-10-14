@@ -19,6 +19,8 @@ export interface RegionDef {
   ambientClipUuids?:string[];
 }
 export const REGIONS:Record<string,RegionDef>={
+  // Exact current GLB derivative; use its sole named scene until Creator generates the subasset UUID.
+  meadow:{bundle:'region_meadow',prefabName:'env_meadow'},
   island:{bundle:'static_seat_preview',prefabUuid:'61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9',ambientClipUuids:['61fa04e2-644b-5997-bfd1-812b61d3586b@f2bf2']},
   // Exact prefab UUID from Creator 3.8.8 import; the .glb.meta is committed.
   skycity:{bundle:'region_skycity',prefabUuid:'0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae',prefabName:'env_skycity',ambientClips:['sky_ambient_loop','robot_idle'],gestureClips:['robot_watering','robot_give_flower']},

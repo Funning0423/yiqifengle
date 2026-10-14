@@ -113,7 +113,11 @@ function snapshot(H, panel, meta, model) {
     if (!safe(b, width, height, SAFE_MARGIN)) record('hit-outside-safe-viewport', { box: b });
   }
   for (let i = 0; i < buttons.length; i++) for (let j = i + 1; j < buttons.length; j++) if (overlap(buttons[i], buttons[j])) record('hit-overlap', { names: [buttons[i].name, buttons[j].name], boxes: [buttons[i], buttons[j]] });
-  const actual = buttons.map(b => b.name).sort(), expected = expectedActions(model);
+  // Page-local hit geometry. Complete action/text coverage across every page
+  // is separately required by test_result_safe_area.cjs.
+  const actual = buttons.map(b => b.name).sort(), expected = expectedActions(model).filter(name => panel.root.find(name)?.activeInHierarchy);
+  for (const name of ['ResultPreviousPage', 'ResultNextPage']) if (panel.root.find(name)?.activeInHierarchy) expected.push(name);
+  expected.sort();
   if (JSON.stringify(actual) !== JSON.stringify(expected)) record('action-contract', { actual, expected });
   for (const name of [panel.root.name, 'PopupShade']) {
     const n = name === panel.root.name ? panel.root : panel.root.find(name), b = n && rect(H, n);
@@ -157,7 +161,7 @@ async function runMatrix() {
       const before = JSON.stringify(settled.boxes.map(b => [b.name, rounded(b.x), rounded(b.y), rounded(b.w), rounded(b.h)]));
       for (let j = 0; j < 3; j++) { stack.layout(); stack.update(.016); }
       const after = []; panel.root.walk(n => { if (n.activeInHierarchy && n.listeners('touch-start')) { const b = rect(H, n); after.push([b.name, rounded(b.x), rounded(b.y), rounded(b.w), rounded(b.h)]); } });
-      const beforeHits = JSON.parse(before).filter(b => expectedActions(model).includes(b[0]));
+      const beforeHits = JSON.parse(before).filter(b => expectedActions(model).includes(b[0]) || ['ResultPreviousPage', 'ResultNextPage'].includes(b[0]));
       if (JSON.stringify(after) !== JSON.stringify(beforeHits)) settled.failures.push({ type: 'unstable-settled-hit-layout', before: beforeHits, after });
       stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0, 'matrix panel leaked Game.EVENT_HIDE listener');
     }
@@ -166,6 +170,15 @@ async function runMatrix() {
   delete globalThis.__worldDayNight;
 }
 
+function revealAction(H, panel, target) {
+  const node = panel.root.find(target); assert(node, target);
+  for (let i = 0; i < 100 && panel.root.find('ResultPreviousPage')?.activeInHierarchy; i++) {
+    const text = panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string;
+    if (text.startsWith('1 /')) break; H.tap(panel.root.find('ResultPreviousPage'));
+  }
+  for (let i = 0; i < 100 && !node.activeInHierarchy; i++) H.tap(panel.root.find('ResultNextPage'));
+  assert(node.activeInHierarchy, target + ' is reachable on an explicit content page');
+}
 function send(H, node, type, point = H.point(node), pointer = 1) { node.emit('touch-' + type, H.event(point, pointer)); }
 const targetCases = [
   ['Claim-chest', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
@@ -184,7 +197,7 @@ async function runInputChecks() {
   const modes = ['foreign-end', 'foreign-move', 'foreign-cancel', 'second-start', 'outside-end', 'outside-positive-end', 'out-in', 'cancel-late-end', 'node-hide', 'ancestor-hide', 'component-disable', 'game-hide', 'unchanged-layout', 'modal-cover', 'modal-cover-rotation', 'closing', 'closing-rotation', 'destroy', 'teardown-after-reflow'];
   for (const viewport of [[320, 568], [568, 320], [480, 240]]) for (const [target, spec] of targetCases) for (const mode of modes) await check(`${target} ${mode} ${viewport.join('x')}`, () => {
     H.setViewport(...viewport); const calls = [], panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
-    const node = panel.root.find(target); assert(node, target + ' is real Result action');
+    const node = panel.root.find(target); assert(node, target + ' is real Result action'); revealAction(H, panel, target);
     const point = H.point(node); send(H, node, 'start', point);
     try {
       if (mode === 'foreign-end') send(H, node, 'end', point, 2);
@@ -208,7 +221,7 @@ async function runInputChecks() {
         if (mode === 'modal-cover-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
         send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(calls, [], 'covered result must reject old and fresh input');
         upper.close(); stack.update(.05); H.tap(node); assert.deepEqual(calls, [], 'closing upper modal still covers result');
-        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); H.tap(node); assert.deepEqual(calls, [target]);
+        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
       }
       else if (mode === 'closing' || mode === 'closing-rotation') {
         panel.close(); if (mode === 'closing-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
@@ -224,6 +237,7 @@ async function runInputChecks() {
   });
   for (const [target, spec] of targetCases) for (const pair of [[[320, 568], [568, 320]], [[568, 320], [480, 240]], [[480, 240], [390, 844]], [[480, 297], [480, 299]], [[480, 307], [480, 309]], [[390, 844], [320, 568]]]) await check(`${target} same-panel rotation ${pair.map(v => v.join('x')).join(' -> ')}`, () => {
     const calls = []; H.setViewport(...pair[0]); const panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
+    revealAction(H, panel, target);
     const node = panel.root.find(target), root = panel.root, body = panel.body, point = H.point(node);
     const meta = { case: 'same-panel-' + target + '-' + pair.map(v => v.join('x')).join('-to-'), loadedArt: true, reducedMotion: false, tint: 'day', primaryViewport: true };
     snapshot(H, panel, { ...meta, phase: 'rotation-before' }, makeModel(spec)); send(H, node, 'start', point);
@@ -233,9 +247,9 @@ async function runInputChecks() {
       assert.equal(stack.find('ResultPanel'), panel); assert.equal(panel.root, root); assert.equal(panel.body, body); assert.equal(panel.root.find(target), node, 'reflow retains real action identity');
       send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'pre-reflow owned press must not activate at the new hit center');
       send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
-      H.tap(node); assert.deepEqual(calls, [target]);
+      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
       send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, [target]);
-      H.tap(node, 5); assert.deepEqual(calls, [target, target]);
+      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, [target, target]);
     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
   });
   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {

@@ -1,0 +1,26 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": false,
+  "uuid": "bb978abb-d907-5dba-be5a-14cc64f5e596",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "tangents": 1,
+    "animationImportSettings": [
+      {
+        "name": "windmill_sails_loop",
+        "duration": 8,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "windmill_sails_loop",
+            "from": 0,
+            "to": 8,
+            "wrapMode": 2
+          }
+        ]
+      }
+    ]
+  }
+}

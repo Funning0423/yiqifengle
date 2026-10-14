@@ -2,7 +2,7 @@
 //   - WorldFlow 在 skycity（天空城参观）            -> 天空之城 BGM（region_skycity 分包）
 //   - 地区棋盘 regional-r05，region = 'sky'          -> 天空之城 BGM
 //   - 地区棋盘 regional-r05，region = 'meadow'       -> 草原 BGM（region_meadow 分包）
-//   - 其他（家里、小岛、潮汐 tide、主线、R4）         -> 小岛 BGM（audio_bgm_island 分包 audio/bgm_main，原默认）
+//   - 其他（家里、小岛、潮汐 tide、非草原主线、R4）         -> 小岛 BGM（audio_bgm_island 分包 audio/bgm_main，原默认）
 //   - skycity-loading / 进关卡还没找到棋盘等过渡状态：保持当前曲目不动。
 // 切换由 GameAudio.setMusic(path, bundle) 负责（正在播时 1.5 s 等功率交叉）。场景曲加载失败（例如分包缺失）时
 // 回落到小岛 BGM，同一个场景只回落一次，不来回重试；离开该场景后重置。
@@ -10,6 +10,7 @@
 // （起播后 1.5 s 淡入）。判定：场景里有 WorldIntegrationBoot 时看 globalThis.__worldLoading.snapshot().phase === 'ready'
 // —— 就是加载页隐藏、RoomExploreOverlay 开始接受滑动 / 点门的那一刻（WorldIntegrationBoot.loadWorld 里 loadPhase='ready'）；
 // 场景里没有 WorldIntegrationBoot（没有加载页的场景）就直接算可操作。加载页从不等音乐；分包下载失败只记 warn，不重试、不阻塞。
+import { requiresMeadowScene } from '../world-r2/LevelRegion';
 import { _decorator, Component, director, Director, isValid } from 'cc';
 import { GameAudio, DEFAULT_BGM_PATH, DEFAULT_BGM_BUNDLE } from './GameAudio';
 const { ccclass } = _decorator;
@@ -32,13 +33,14 @@ export function roomInteractiveFrom(hasWorldBoot: boolean, loading: any): boolea
   return !!snap && snap.phase === 'ready';
 }
 
-export type SceneProbe = { state?: string | null; stable?: string | null; boardProvider?: string | null; boardRegion?: string | null; boardPresent?: boolean };
+export type SceneProbe = { state?: string | null; stable?: string | null; boardProvider?: string | null; boardRegion?: string | null; boardPresent?: boolean; boardStageId?:string|null };
 /** Pure mapping (tested). null = transitional: keep whatever is playing. */
 export function sceneTrackFor(p: SceneProbe): SceneTrackId | null {
   const state = p.state || '', stable = p.stable || '';
   if (state === 'skycity' || (stable === 'skycity' && state !== 'skycity-loading')) return 'skycity';
   if (state === 'skycity-loading' || state === 'level-loading') return null;
   if (p.boardPresent) {
+    if (requiresMeadowScene({stageId:p.boardStageId||''})) return 'meadow';
     if (p.boardProvider === 'regional-r05' || p.boardRegion) {
       if (p.boardRegion === 'meadow') return 'meadow';
       if (p.boardRegion === 'sky') return 'skycity';
@@ -85,7 +87,7 @@ export class SceneMusic extends Component {
     let s: any = null;
     try { s = board && typeof board.hostPresentation === 'function' ? board.hostPresentation() : null; } catch (e) { s = null; }
     return { state: snap ? snap.state : null, stable: snap ? snap.stable : null, boardPresent: !!board,
-      boardProvider: s ? (s.provider || null) : null, boardRegion: s && s.active ? (s.active.region || null) : null };
+      boardProvider: s ? (s.provider || null) : null, boardRegion: s && s.active ? (s.active.region || null) : null, boardStageId:s?.active?.stageId||null };
   }
   /** v0.5: true once the room accepts input (see header). Until then no music is requested at all. */
   roomInteractive(): boolean {

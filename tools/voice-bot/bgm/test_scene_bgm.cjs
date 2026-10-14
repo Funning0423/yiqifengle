@@ -9,7 +9,7 @@ const path = require('path'), fs = require('fs'), Module = require('module'), cr
 const ROOT = path.resolve(__dirname, '../../..'), P = path.join(ROOT, 'creator-build-project'), S = path.join(P, 'assets/scripts');
 const ts = require(process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript');
 const tr = f => ts.transpileModule(fs.readFileSync(path.join(S, f), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true, downlevelIteration: false } }).outputText;
-const CODE = { 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
+const CODE = { 'world-r2/LevelRegion.ts':tr('world-r2/LevelRegion.ts'), 'audio/GameAudio.ts': tr('audio/GameAudio.ts'), 'audio/SceneMusic.ts': tr('audio/SceneMusic.ts') };
 let fail = 0, pass = 0; const ok = (c, m, d) => { console.log((c ? 'PASS ' : 'FAIL ') + m + (d === undefined ? '' : ' ' + JSON.stringify(d))); if (c) pass++; else fail++; };
 const near = (a, b, e) => Math.abs(a - b) <= e;
 
@@ -42,7 +42,7 @@ function world(opts = {}) {
     game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' }, sys: { localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)) } },
     input, Input: { EventType: { TOUCH_END: 'touch', MOUSE_UP: 'mouse', KEY_DOWN: 'key' } } };
   const mods = {};
-  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
+  const req = from => id => { if (id === 'cc') return cc; const key = { './GameAudio': 'audio/GameAudio.ts', '../world-r2/LevelRegion':'world-r2/LevelRegion.ts' }[id]; if (!key) throw Error('unexpected import ' + id + ' from ' + from); return load(key); };
   function load(key) { if (mods[key]) return mods[key].exports; const m = new Module(key); m.filename = path.join(S, key); m.paths = []; mods[key] = m; m.require = req(key); m._compile(CODE[key], m.filename); return m.exports; }
   const GA = load('audio/GameAudio.ts'), SM = load('audio/SceneMusic.ts');
   GA.GameAudio.now = () => now;
@@ -195,6 +195,7 @@ for (const gate of ['mute', 'hide', 'interrupt', 'volume0']) { const { w } = loo
     [{ state: 'skycity-loading', stable: 'island' }, null], [{ state: 'skycity', stable: 'skycity' }, 'skycity'],
     [{ state: 'level-loading', stable: 'island' }, null], [{ state: 'level', stable: 'level' }, null],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'meadow' }, 'meadow'],
+    [{state:'level',stable:'level',boardPresent:true,boardProvider:'mainline-v33',boardStageId:'mainline-05'},'meadow'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'sky' }, 'skycity'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'regional-r05', boardRegion: 'tide' }, 'island'],
     [{ state: 'level', stable: 'level', boardPresent: true, boardProvider: 'mainline-v33' }, 'island'], [{}, 'island']];

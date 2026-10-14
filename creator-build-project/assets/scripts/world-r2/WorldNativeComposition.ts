@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
 import { DEBUG } from 'cc/env';
+import { requiresMeadowScene } from './LevelRegion';
+import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
@@ -38,7 +40,7 @@ export class WorldNativeComposition extends Component {
     const fixture:any=this.smokeFixture.json;
     this.selection={provider:'r4',stageId:fixture.stageId,seed:fixture.seed};
     const composition=this;
-    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:createIslandBoardBackground,get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
+    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?createMeadowBoardBackground(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
       select:id=>{if(!this.selection||id!==this.selection.stageId)throw Error('Select provider/stage explicitly first');return {...this.selection};},
       navigation:{exit:()=>world.commands().exitLevel(),resume:()=>world.commands().snapshot().needsResume?world.commands().resume():undefined},
     });
@@ -94,10 +96,11 @@ export class WorldNativeComposition extends Component {
   challengeGates(){return {r4:new (R4 as any)({platform:this.r4.platform,journey:this.mainline.journey}).snapshot().stages,r5:(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>({id:x.id,region:x.region,...(CampaignHost as any).inspectSelection(this.persistence,{stageId:x.id,seed:x.seedBank[0]})}))};}
   async enterMainline(){const s=this.mainlineStatus();const id=s.active?.status==='playing'?s.active.stageId:s.nextStageId||s.stages.find((x:any)=>x.unlocked&&!x.record?.bestStars)?.id||'mainline-12';return this.enterMainlineStage(id);}
   async enterMainlineStage(stageId:string,seed=1){const selected=this.selectProvider({provider:'mainline',stageId,seed});return selected.ok?this.enterSelectedLevel():selected;}
-  async advanceMainline(){const s=this.activeSession?.snapshot();if(s?.provider!=='mainline-v33'||!s.result?.completionRecorded||!s.nextStageId||s.state!=='result.saved')return {ok:false,reason:'next-requires-registered-win'};const exited=this.world!.commands().exitLevel();return exited.ok?this.enterMainlineStage(s.nextStageId):exited;}
+  async advanceMainline(){const s=this.activeSession?.snapshot();if(s?.provider!=='mainline-v33'||!s.result?.completionRecorded||!s.nextStageId||s.state!=='result.saved')return {ok:false,reason:'next-requires-registered-win'};if(requiresMeadowScene({stageId:s.nextStageId})){try{await preflightMeadowScene();}catch{return {ok:false,reason:'meadow-scene-load-failed'};}}const exited=this.world!.commands().exitLevel();return exited.ok?this.enterMainlineStage(s.nextStageId):exited;}
   mainlineReward(command:'openChest'|'claimRegion',index:number){if(this.activeSession?.snapshot().provider!=='mainline-v33')return {ok:false,reason:'not-mainline'};const snapshot=this.activeSession.snapshot();if(command==='openChest'){const chest=snapshot.journey.chests?.find((x:any)=>x.level===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==snapshot.active.level||!chest?.earned)return this.hostReply={ok:false,reason:'chest-not-earned-or-unsaved'};}else{const region=snapshot.journey.regionRewards?.find((x:any)=>x.region===index);if(snapshot.readOnly||snapshot.state!=='result.saved'||!snapshot.result?.completionRecorded||index!==Math.floor(snapshot.active.level/4)||!region?.unlocked)return this.hostReply={ok:false,reason:'region-tool-not-earned-or-unsaved'};}return this.hostReply=this.activeSession.command(command,index);}
   async enterR4(){const f:any=this.smokeFixture!.json;const selected=this.selectProvider({provider:'r4',stageId:f.stageId,seed:f.seed});return selected.ok?this.enterSelectedLevel():selected;}
   async advanceRegistered(){const s=this.activeSession?.snapshot();if(!s||s.state!=='result.saved'||!s.result?.completionRecorded||!s.nextStageId)return {ok:false,reason:'next-requires-registered-win'};
+    if(requiresMeadowScene({stageId:s.nextStageId})){try{await preflightMeadowScene();}catch{return {ok:false,reason:'meadow-scene-load-failed'};}}
     const next=(RegionalAPI as any).getStage(s.nextStageId),permission=(CampaignHost as any).inspectSelection(this.persistence,{stageId:next.id,seed:next.seedBank[0]});if(!permission.ok)return permission;
     const exited=this.world!.commands().exitLevel();if(!exited.ok)return exited;
     const selected=this.selectProvider({provider:'r5',stageId:next.id,seed:next.seedBank[0]});return selected.ok?this.enterSelectedLevel():selected;

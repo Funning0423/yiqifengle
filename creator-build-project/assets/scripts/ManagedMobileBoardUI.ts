@@ -50,7 +50,7 @@ export class ManagedMobileBoardUI extends Component {
   private tools: Node[] = []; private toolBar: string[] = []; private toolBarKey = ''; private spriteReady = false;
   private toast!: Node; private toastLabel!: Label; private toastBg!: Graphics; private toastT = -1;
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
-  private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {};
+  private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
   private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
@@ -710,6 +710,7 @@ export class ManagedMobileBoardUI extends Component {
   /** Dialogs that block the world host. The result page itself is not one: its actions are host commands. */
   hostModalOpen() { return this.modalOpen(); }
   hostLayout() { return this.layoutInfo; }
+  showHostResultError(text:string) { this.hostResultError=text; if(this.snapshot&&this.isResult(this.snapshot)&&this.root?.activeInHierarchy&&!this.modalOpen())this.paintResult(this.snapshot); }
   setHostActions(a: HostResultActions | null) { this.hostActions = a || {}; if (this.snapshot && this.isResult(this.snapshot)) this.paintResult(this.snapshot); }
   private modalOpen() { return !!this.popups && this.popups.names().some(n => n !== 'ResultPanel'); }
   private isResult(s: any) { return s.state.startsWith('result.') || s.state === 'run.unsaved' || s.state === 'storage.unsaved' || (s.state === 'error.readonly' || s.state === 'storage.readOnly'); }
@@ -889,12 +890,12 @@ export class ManagedMobileBoardUI extends Component {
     if (kind === 'win' && s.provider === 'regional-r05' && (h.claim?.visible || s.progress?.claimedRegions?.includes(a.region))) { const owned = !!s.progress?.claimedRegions?.includes(a.region); rewards.push({ id: 'claim', label: owned ? '地区印记已领取' : '领取地区印记', icon: 'popup/reward_seal_' + (a.region || 'tide'), iconKind: 'seal', state: owned ? 'claimed' : 'ready', claim: h.claim?.run }); }
     const next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : null;
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
-      unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；草甸挑战需通关主线 08' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined,
+      unlockHint: this.hostResultError || (mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；前往风车草甸' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined),
       next, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
       retrySave: () => this.command('retrySave'), home: () => { this.popups.clear(); this.resultKey = ''; this.command('requestExit'); } };
   }
   private paintResult(s: any) {
-    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
+    const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
     this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
     const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));

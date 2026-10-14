@@ -1,0 +1,17 @@
+{
+  "defects": [
+    {
+      "id": "DEBUG-CAPSULE",
+      "status": "OPEN",
+      "codeCommit": "19d719d",
+      "acceptance": "Actual native test menu marker and all controls clear WeChat capsule and safe area without text clipping."
+    },
+    {
+      "id": "R5-INSPECT",
+      "status": "OPEN",
+      "sourceReport": "2026-10-14/task-26/PLAYWRIGHT-RESULT.md",
+      "codeCommit": "19d719d",
+      "acceptance": "Current test profile board diagnostics returns without inspect-not-a-function; exact root scope and zero inspection writes verified again in native run."
+    }
+  ]
+}
