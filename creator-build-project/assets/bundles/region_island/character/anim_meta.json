@@ -11321,6 +11321,24 @@
               1.266667,
               0
             ]
+          ],
+          "cloth_waist_rise_seam": [
+            [
+              0,
+              1
+            ],
+            [
+              0.1333,
+              1
+            ],
+            [
+              0.8667,
+              0
+            ],
+            [
+              1.2667,
+              0
+            ]
           ]
         },
         "release_time_s": 0.8667
@@ -11493,7 +11511,8 @@
           "hand_rest_support": 2,
           "sit_clearance_rise": 3,
           "cloth_return_clearance": 4,
-          "cloth_rise_clearance": 5
+          "cloth_rise_clearance": 5,
+          "cloth_waist_rise_seam": 6
         }
       },
       "LOD0_G2_DRESS": {
@@ -11503,7 +11522,8 @@
           "hand_rest_support": 2,
           "sit_clearance_rise": 3,
           "cloth_return_clearance": 4,
-          "cloth_rise_clearance": 5
+          "cloth_rise_clearance": 5,
+          "cloth_waist_rise_seam": 6
         }
       },
       "LOD0_G2_BODY": {
