@@ -6,9 +6,9 @@ if out.exists():raise RuntimeError('fresh output directory required')
 s=(src/'subpackages/main/game.js').read_text()
 if '地区流程测试' not in s:raise RuntimeError('debug test entry missing')
 shutil.copytree(src,out)
-prefix='task25-'+uuid.uuid4().hex+':'
-shutil.copyfile(root/'native-storage-isolation.cjs',out/'native-storage-isolation.cjs')
-p=out/'game.js';p.write_text("require('./native-storage-isolation.cjs')(wx,"+json.dumps(prefix)+");\n"+p.read_text())
+prefix='task26-'+uuid.uuid4().hex+':'
+shutil.copyfile(root/'native-storage-isolation.cjs',out/'native-storage-isolation.js')
+p=out/'game.js';p.write_text("require('./native-storage-isolation.js')(wx,"+json.dumps(prefix)+");\n"+p.read_text())
 # Creator emits mini-program-only, empty custom compilation conditions for this game.
 p=out/'project.config.json';cfg=json.loads(p.read_text());condition=cfg.get('condition',{})
 if any(v.get('list') for v in condition.values()):raise RuntimeError('nonempty custom condition requires inspection')
