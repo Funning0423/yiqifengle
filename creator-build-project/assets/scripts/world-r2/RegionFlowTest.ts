@@ -2,6 +2,7 @@ import { sys } from 'cc';
 import { DEBUG } from 'cc/env';
 import MainlinePort from '../mainline-r1/adapter/mainline-port.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
+import { R5_KEYS } from './PersistentR5Port';
 import { REGION_FLOW_WITNESSES } from './RegionFlowWitnesses';
 let serial=0;
 /** Test build only. All progress is derived by original engine/controller operations in a fresh root. */
@@ -23,6 +24,7 @@ export function createRegionFlowCheckpoint(completed: number) {
  requireOK(controller.pause());
  const stage=REGION_FLOW_WITNESSES[completed-1];
  const r4={platform:R4Port.createSynchronousStorage(storage('r4')),journey:mainline.journey};
- const r5={platform:R4Port.createSynchronousStorage(storage('r5')),journey:mainline.journey,namespace:namespace+'r5:'};
+ const r5Platform=R4Port.createSynchronousStorage(storage('r5'));
+ const r5={platform:r5Platform,journey:mainline.journey,namespace:namespace+'r5:',inspect:()=>R5_KEYS.map(key=>[key,r5Platform.load(key)])};
  return {namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:stage.actions[stage.actions.length-1],completed};
 }

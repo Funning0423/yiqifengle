@@ -1,3 +1,4 @@
+import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { DEBUG } from 'cc/env';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
@@ -434,7 +435,7 @@ export class WorldIntegrationBoot extends Component {
  }
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
- private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-not-integrated':'草原场景暂未就绪，成绩与奖励已保留','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;this.paintNavigation();}}
+ private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
  private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
@@ -443,8 +444,8 @@ export class WorldIntegrationBoot extends Component {
  if(DEBUG){
  this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
  this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
- for(const n of [4,8,12])this.button('flowTest'+n,'主线 '+String(n).padStart(2,'0')+' · 胜利前最后一步',()=>{this.flowTestMenu=false;return this.composition.startRegionFlowTest(n);});
- this.button('flowTestExit','退出测试 · 恢复正常进度',()=>{const r=this.composition.exitRegionFlowTest();if(r.ok)this.flowTestMenu=false;return r;});
+ for(const n of [4,8,12])this.button('flowTest'+n,String(n).padStart(2,'0')+' · 最后一步',()=>{this.flowTestMenu=false;return this.composition.startRegionFlowTest(n);});
+ this.button('flowTestExit','退出测试',()=>{const r=this.composition.exitRegionFlowTest();if(r.ok)this.flowTestMenu=false;return r;});
  }
  }
  /** Cabin tap: the island rest (海岛小憩). The first tap also retires the cabin hint for good. */
@@ -543,12 +544,16 @@ export class WorldIntegrationBoot extends Component {
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
  if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
- const put=(id:string,y:number,on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on;n.setPosition(0,f.height/2-y,0);}};
- put('flowTests',104,outside);let row=0;for(const n of [4,8,12])put('flowTest'+n,160+(row++)*54,outside&&this.flowTestMenu);
- put('flowTestExit',322,outside&&this.flowTestMenu&&!!test);
+ const testLayout=flowTestLayout(f.width,f.height,readFlowTestHost());
+ const put=(id:string,r:{x:number;y:number;width:number;height:number},on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on&&testLayout.supported;this.placeNavigationControl(n,r);}};
+ put('flowTests',testLayout.entry,outside);for(const r of testLayout.stages)put(r.id,r,outside&&this.flowTestMenu);
+ put('flowTestExit',testLayout.exit,outside&&this.flowTestMenu&&!!test);
  if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
  this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(test.checkpoint).padStart(2,'0')+(b?.state==='run.ready'&&b?.active?.stageId==='mainline-'+String(test.checkpoint).padStart(2,'0')?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
- this.flowTestMark.node.parent!.setPosition(0,f.height/2-76,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
+ const r=testLayout.mark,plate=this.flowTestMark.node.parent!;
+ this.flowTestMark.node.getComponent(UITransform)!.setContentSize(r.width-12,r.height);this.flowTestMark.enableWrapText=true;this.flowTestMark.lineHeight=17;
+ const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}plate.active=testLayout.supported;
+ plate.setPosition(r.x,r.y,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
  }
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 

@@ -5,7 +5,7 @@ import { tintRgb } from './NightTint';
  *  the island rest opened from the cabin. Layout numbers are 750-design px. */
 export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky'; name: string; description: string }> = [
   { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。' },
-  { id: 'meadow', name: '花粉草甸', description: '草原场景暂未就绪，当前不可进入。' },
+  { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。' },
   { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。' },
 ];
 export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
