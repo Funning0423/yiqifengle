@@ -1,1 +1,2 @@
 GameGlobal.__task19Isolation = require('./native-storage-isolation')(wx, "task19-438d23e95ee06e3eca25e0c10b2d4df2:");
+require('./native-test-observer');
