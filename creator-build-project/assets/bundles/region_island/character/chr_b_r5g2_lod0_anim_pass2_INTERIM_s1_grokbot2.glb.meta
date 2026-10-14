@@ -69,7 +69,7 @@
       "name": "LOD0_G2_APRON.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 456
+        "triangleCount": 1240
       },
       "ver": "1.1.1",
       "imported": true,
@@ -87,7 +87,7 @@
       "name": "LOD0_G2_BODY.mesh",
       "userData": {
         "gltfIndex": 1,
-        "triangleCount": 12038
+        "triangleCount": 12688
       },
       "ver": "1.1.1",
       "imported": true,
@@ -105,7 +105,7 @@
       "name": "LOD0_G2_DRESS.mesh",
       "userData": {
         "gltfIndex": 3,
-        "triangleCount": 9774
+        "triangleCount": 10560
       },
       "ver": "1.1.1",
       "imported": true,
@@ -334,7 +334,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.4666666984558105
+          "to": 1.5
         },
         "events": []
       },
@@ -380,7 +380,7 @@
         "sample": 30,
         "span": {
           "from": 0,
-          "to": 1.4666666984558105
+          "to": 1.5
         },
         "events": []
       },
@@ -958,13 +958,13 @@
       },
       {
         "name": "walk_turn_90_bodyL",
-        "duration": 1.4666666984558105,
+        "duration": 1.5,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_90_bodyL",
             "from": 0,
-            "to": 1.4666666984558105,
+            "to": 1.5,
             "wrapMode": 1,
             "previousId": "f3596"
           }
@@ -986,13 +986,13 @@
       },
       {
         "name": "walk_turn_180",
-        "duration": 1.4666666984558105,
+        "duration": 1.5,
         "fps": 30,
         "splits": [
           {
             "name": "walk_turn_180",
             "from": 0,
-            "to": 1.4666666984558105,
+            "to": 1.5,
             "wrapMode": 1,
             "previousId": "9c8f5"
           }

@@ -13,7 +13,7 @@ import {IslandProps} from './world-r2/IslandProps';
 import {emitPropTap,setPropTapLook,onPropTap} from './world-r2/IslandPropTaps';
 import {CHARACTER_REFERENCE as REF} from './world-r1/CharacterReference';
 import {pointOnPath,Cancelled} from './world-r1/WorldFlowCore';
-import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,
+import {CHARACTER_POSE_BLEND,CROSSFADE_S,WALK_JOIN_GRACE_S,WALK_YAW_LOOKAHEAD_M,WALK_YAW_SNAP_DEG,TURN_FOLD_MIN_S,foldedTurnDuration,CLIP_ROLES,MotionClock,YawFollower,parseAnimMeta,defaultMotionConfig,stopTail,chooseTurn,wrapAngle,globMatch,capture,writePose,blendPose,applyLayer,STRIDE,MorphDriver,morphWeights,SoleContactSolver,supportPose,
   planWalk,walkDistanceAt,stopCandidates,stopLateralAt,piecewise,restAheadFromRoutes,FOOT_DEDUPE_S,DEFAULT_NATIVE_SPEED} from './CharacterMotion';
 import type {MotionConfig,FootEvent,Joint,Plan,WalkPlan,Body} from './CharacterMotion';
 import {createFirstsliceRoutes} from './world-r1/FirstsliceRoutes';
@@ -36,9 +36,11 @@ const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walkin
  * advances by distance (Δs / native_speed), keeps its phase across back-to-back walks, yaw follows the path tangent
  * rate-limited (WALK_YAW_MAX_DEG_S); onFoot from phase crossings; crossfades + masked wind layers (CHARACTER_POSE_BLEND);
  * apron morph targets (MorphDriver: anim_meta curves, written with setWeight after the pose, baked and blend paths alike). */
+// Isolated handoff candidate. Per-frame evidence is opt-in; default never appends diagnostic global arrays.
 class FlowReferenceStandin implements CharacterAdapter {
  readonly calibrated=true;
  readonly coordinates={units:'m' as const,up:'+Y' as const,forward:'+Z' as const,rootMotion:'controller-only' as const,standingRoot:REF.standingRoot,seatedRoot:REF.seatedRoot,seatYawRad:REF.seatYawRad,clearanceRadiusM:.15};
+ private settleQueued:any=null;
  private support:SoleContactSolver|null=null;private job:any=null;private anim:SkeletalAnimation|null=null;private rig:AnimRig|null=null;private clock:MotionClock|null=null;private disposed=false;
  private motionConfig:MotionConfig=defaultMotionConfig();private pendingIdle=false;private pendingFor=0;private yaw=new YawFollower();private yawRad=0;
  private windSource:(()=>number|null)|null=null;private wind=0;private idleFor=0;private nextGust=-1;
@@ -46,7 +48,7 @@ class FlowReferenceStandin implements CharacterAdapter {
  private lastSpeed=0;private stopRoot:{clip:string;end:[number,number,number];yaw:number;S:number;scale:number;forward:Array<[number,number]>;lateral:Array<[number,number]>|null}|null=null;private stopHold=0;private lastPlan:any=null;
  private morphs:MorphDriver[]=[];private morphW:{[target:string]:number}={};private footListeners:Array<(e:FootEvent)=>void>=[];private apronListeners:Array<(strength:'full'|'soft',durationSec:number)=>void>=[];
  constructor(private node:Node){}
- private motionEvents:any[]=[];
+ private ninetyLandingSamples:any[]=[];private turnLandingSamples:any[]=[];private turnLandingIdle:any=null;private motionEvents:any[]=[];
  private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
  diagnostics(){const p=this.node.worldPosition,c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
   return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
@@ -71,6 +73,8 @@ class FlowReferenceStandin implements CharacterAdapter {
   // Morph meshes (apron, yellow dress): renderer found by node / mesh name under the visual (SkinnedMeshRenderer is a MeshRenderer). Missing / no morph = status only.
   let rs:any[]=[];try{rs=typeof (visual as any).getComponentsInChildren==='function'?(visual as any).getComponentsInChildren(MeshRenderer)||[]:[];}catch{rs=[];}
   this.morphs=this.motionConfig.morphMeshes.map(b=>{const m=new MorphDriver(b.mesh,b.targets);m.bind(rs);return m;});
+  if(this.rig.has('walk_turn_90_bodyL')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.35,.75,1.3333333333333333])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of [...times].sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_90_bodyL',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_90_bodyL',time);this.ninetyLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
+  if(this.rig.has('walk_turn_180_bodyR')){const saved=new Float64Array(this.rig.joints.length*STRIDE);capture(this.rig.joints,saved);const times=new Set<number>();for(const t of [.075,.38,.4,.98,1.02,1.4])for(const dt of [-1/240,0,1/240])times.add(t+dt);for(const time of [...times].sort((a,b)=>a-b)){if(time<.2)this.rig.apply({base:{clip:'walk_turn_180_bodyR',time,loop:false},out:{clip:CLIP_ROLES.idle,time,weight:1-time/.2},layers:[],morph:[]});else (this.rig as any).sample('walk_turn_180_bodyR',time);this.turnLandingSamples.push({time,pose:supportPose(this.rig.joints)});}(this.rig as any).sample(CLIP_ROLES.idle,0);this.turnLandingIdle=supportPose(this.rig.joints);writePose(this.rig.joints,saved);}
   this.playNamed('sit_hold',true,0);}
  private requireClip(name:string){const anim=this.anim;const clip=anim?.clips.find(c=>c?.name===name);if(!anim||!clip)throw Error('Character clip missing: '+name);if(!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid character clip duration: '+name);return clip.duration;}
  /** The controller is the sole clock (Creator 3.8.8: paused/unplayed states, public setTime/sample). keep: same clip stays at its phase. */
@@ -87,7 +91,7 @@ class FlowReferenceStandin implements CharacterAdapter {
    // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
    // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
    plan.out.preserveIncomingLowerBody=(j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle||j.action.kind==='stand'&&plan.out.clip===CLIP_ROLES.sitHold);}
-  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(/^walk_(loop|start|stop_body[LR])$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&this.support.hasContacts()),dt);this.applyMorph(plan);}
+  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
@@ -128,12 +132,15 @@ class FlowReferenceStandin implements CharacterAdapter {
  /** Walk ended without a planned stop (the walk was not known to end at rest): the stop clip's tail (CharacterMotion.stopTail:
   *  entered where its root travel ends, so no slide and no overshoot past the path end), crossfaded from the walk pose; no
   *  stop clip -> idle. Runs after WALK_JOIN_GRACE_S with nothing queued, or right away when a turn follows (perform). */
- private settleFromWalk(){const c=this.clock!;this.lastSpeed=0;const tail=stopTail(this.rig!,c.cfg,c.planted());this.stopRoot=null;
+ private settleFromWalk(){
+  const start=supportPose(this.rig!.joints),saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);
+  (this.rig as any).sample(CLIP_ROLES.idle,0);const end=supportPose(this.rig!.joints);writePose(this.rig!.joints,saved);this.support?.startSettle(start,end);
+  const c=this.clock!;this.lastSpeed=0;const tail=stopTail(this.rig!,c.cfg,c.planted());this.stopRoot=null;
   if(!tail){this.playNamed(CLIP_ROLES.idle,true,-1,true);return;}
   if(tail.time>0)this.logEvent({kind:'stop-unplanned',clip:tail.clip,from:tail.time,plan:this.lastPlan});this.playNamed(tail.clip,false,-1,false,tail.time);
   const left=c.base?c.base.duration-c.localTime(c.base):0;
   // CMU stops have no static tail: hold the settled pose so the crossfade and a following small turn have something to fold into.
-  if(left<TURN_FOLD_MIN_S){this.noteTailSettle(tail.clip,tail.time);this.stopHold=TURN_FOLD_MIN_S;c.holdBase();}}
+  if(left<TURN_FOLD_MIN_S){if(!this.support?.settling())this.noteTailSettle(tail.clip,tail.time);this.stopHold=this.support?.settleSeconds()||.12;c.holdBase();}}
  /** settle:* of a tail entered at the root-settle frame (CMU: the step is at 1.33 s, the root settles at 1.47 s, so the clock never crosses it). */
  private noteTailSettle(clip:string,time:number){const m=this.clock?.meta(clip);if(!m)return;
   for(let i=0;i<m.events.length;i++){const e=m.events[i];if((e.type==='settle'||e.name.indexOf('settle:')===0)&&e.time<=time+1e-3)this.noteSettle({def:e,clip});}}
@@ -215,7 +222,7 @@ class FlowReferenceStandin implements CharacterAdapter {
    if(kind==='walk'){if(!j.stopEntered){this.pendingIdle=true;this.pendingFor=0;}} // keep the walk pose/phase; resolved next frame unless another walk starts (planned stop: already playing)
    else if(kind==='sit')this.playNamed(CLIP_ROLES.sitHold,true);else if(!(j.foldS>0&&this.isStopClip(c.base?.clip)))this.playNamed(CLIP_ROLES.idle,true,-1,true);
    j.resolve();}
-  this.tickStopHold(step);
+  this.tickStopHold(step);this.resumeAfterSettle();
  }
  private idleGustTick(step:number){const g=this.motionConfig.idleGust,c=this.clock!;if(!g||this.job||c.base?.clip!==CLIP_ROLES.idle||this.wind>0||c.gust){this.idleFor=0;return;}
   if(this.nextGust<0)this.nextGust=g.minS+Math.random()*Math.max(0,g.maxS-g.minS);this.idleFor+=step;if(this.idleFor>=this.nextGust){this.idleFor=0;this.nextGust=-1;this.apronGust(g.durationS);}}
@@ -226,7 +233,14 @@ class FlowReferenceStandin implements CharacterAdapter {
   *  settle_frame / fps), rescaled like the events when anim_meta's duration disagrees with the clip; clamped to the clip. */
  actionSettleSeconds(kind:'sit'){const d=this.actionSeconds(kind),m=this.motionConfig.clips[CLIP_ROLES.sitDown];let s=m?m.settleTime:undefined;
   if(d===undefined||s===undefined||!(s>0))return undefined;if(m!.duration&&Math.abs(m!.duration-d)>1e-3)s*=d/m!.duration;return Math.min(s,d);}
+ private queueAfterSettle(action:Action,token:Cancellation):Promise<void>{
+  if(this.settleQueued)return Promise.reject(Error('Character settle action already queued'));
+  return new Promise((resolve,reject)=>{const q:any={action,token,resolve,reject,off:()=>{}};this.settleQueued=q;q.off=token.onCancel(()=>{if(this.settleQueued===q)this.settleQueued=null;reject(new Cancelled());});});}
+ private clearSettleQueue(){const q=this.settleQueued;this.settleQueued=null;if(q){q.off();q.reject(new Cancelled());}this.support?.reset();}
+ private resumeAfterSettle(){const q=this.settleQueued;if(!q||this.support?.settling())return;this.settleQueued=null;q.off();try{q.token.check();this.perform(q.action,q.token).then(q.resolve,q.reject);}catch(e){q.reject(e);}}
  perform(action:Action,token:Cancellation):Promise<void>{token.check();if(this.disposed)return Promise.reject(Error('Character disposed'));if(this.job)return Promise.reject(Error('Character action busy'));
+  if(this.support?.settling())return this.queueAfterSettle(action,token);
+  const turnBridgeStart=this.pendingIdle&&action.kind==='turn'?supportPose(this.rig!.joints):null;if(turnBridgeStart)this.pendingIdle=false;else if(this.pendingIdle&&action.kind!=='walk'){this.pendingIdle=false;this.settleFromWalk();if(this.support?.settling())return this.queueAfterSettle(action,token);}
   if(action.kind==='sit'){
    const from=this.yawRad,delta=wrapAngle(action.seat.yawRad-from);
    // Return routes end facing the chair. Turn in place before the original sit animation.
@@ -247,15 +261,33 @@ class FlowReferenceStandin implements CharacterAdapter {
     // is held (stopHold) and the yaw uses that hold. The action ends with the hold (not the 1.5 s WorldFlow budgets via
     // actionSeconds): otherwise idle_breathing_loop inherits act=turn for the rest of that 1.5 s.
     const b=c.base;let left=0;if(b&&!ch.role&&this.isStopClip(b.clip)){const authored=b.duration-c.localTime(b);left=authored>this.stopHold?authored:this.stopHold;
-     if(left<TURN_FOLD_MIN_S){this.stopHold=TURN_FOLD_MIN_S;c.holdBase();left=TURN_FOLD_MIN_S;}}
+     if(left<TURN_FOLD_MIN_S){this.stopHold=this.support?.settleSeconds()||.12;c.holdBase();left=TURN_FOLD_MIN_S;}}
     extra.foldS=foldedTurnDuration(left,duration);if(extra.foldS>0)duration=extra.foldS;
     this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:extra.foldS?'folded into '+b!.clip+' over '+extra.foldS.toFixed(3)+' s':ch.reason});
-    if(ch.role){this.stopRoot=null;this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
+    if(ch.role==='walk_turn_90_bodyL'&&this.ninetyLandingSamples.length){const pos=this.node.worldPosition;this.support?.startNinetyLanding(supportPose(this.rig!.joints),this.ninetyLandingSamples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}
+    if(ch.role==='walk_turn_180_bodyR'&&c.base?.clip===CLIP_ROLES.idle&&this.turnLandingSamples.length){
+     // Isolated phase30: only first-swing boundary cache; never advance formal clock or morph driver.
+     const pre=c.plan(),incomingIdle=c.base,evidenceEnabled=(globalThis as any).__characterMotionEvidence===true;const evidenceNow=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now(),sampleStart=evidenceEnabled?evidenceNow():0;
+     // A safe layer may be a descendant of hips (for example skirt). Reject only layers
+     // writing a lower-body bone or an ancestor on its actual FK chain.
+     const lowerDependencies=new Set<any>();for(const j of this.rig!.joints)if(/^(hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(j.name))for(let n:any=j.node;n;n=n.parent)lowerDependencies.add(n);
+     const unsafeLayerBones:string[]=[];for(const layer of pre.layers)if(layer.weight>0)for(const i of (this.rig as any).mask(layer.clip,layer.mask))if(lowerDependencies.has(this.rig!.joints[i].node))unsafeLayerBones.push(this.rig!.joints[i].name);
+     const entryPosition=this.node.worldPosition,shapeDomain=!!this.support?.canStartTurnLanding(this.yawRad,extra.deltaYaw,[entryPosition.x,entryPosition.y,entryPosition.z]);const eligible=shapeDomain&&!(unsafeLayerBones.length||incomingIdle.distance||!incomingIdle.loop||!(this.rig as any).blend);
+     if(!eligible){this.support?.reset();this.logEvent({kind:'turn-support-domain-warning',clip:ch.role,reason:!shapeDomain?'outside verified right180 shape domain: original motion retained':'lower-body layer or unsupported track evaluator: original motion retained',fromYaw:this.yawRad,deltaYaw:extra.deltaYaw,root:[entryPosition.x,entryPosition.y,entryPosition.z],unsafeLayerBones});}
+     else {
+     const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);const abs=incomingIdle.abs,rate=incomingIdle.rate,samples=this.turnLandingSamples.slice(),times:number[]=[],outgoingTimes:number[]=[];
+     try{for(const time of this.turnLandingSamples.map((x:any)=>x.time).filter((t:number)=>t<c.crossfadeS)){const idleTime=c.localTime({...incomingIdle,abs:abs+time*rate});this.rig!.apply({base:{clip:ch.role,time,loop:false},out:{clip:CLIP_ROLES.idle,time:idleTime,weight:Math.max(0,1-time/c.crossfadeS)},layers:pre.layers,morph:pre.morph});const entry={time,pose:supportPose(this.rig!.joints)},index=samples.findIndex((x:any)=>Math.abs(x.time-time)<1e-12);if(index<0)throw Error('phase30 boundary cache missing');samples[index]=entry;times.push(time);outgoingTimes.push(idleTime);}}
+     finally{writePose(this.rig!.joints,saved);}
+     if(evidenceEnabled){const restored=new Float64Array(saved.length);capture(this.rig!.joints,restored);let restoreMax=0;for(let i=0;i<saved.length;i++)restoreMax=Math.max(restoreMax,Math.abs(saved[i]-restored[i]));
+     if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__phase30Evidence ||= []).push({baseAbs:abs,rate,times,outgoingTimes,sampleCount:times.length,safeLayerClips:pre.layers.map((l:any)=>l.clip),unsafeLayerBones,samplingMs:evidenceNow()-sampleStart,restoreMax,clockAbsAfter:incomingIdle.abs,phasePlanUnchanged:JSON.stringify(pre)===JSON.stringify(c.plan())});}
+     const pos=this.node.worldPosition;this.support?.startTurnLanding(supportPose(this.rig!.joints),samples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}}
+
+    if(ch.role){this.stopRoot=null;if(turnBridgeStart){const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);(this.rig as any).sample(ch.role,.65);const end=supportPose(this.rig!.joints);(this.rig as any).sample(CLIP_ROLES.idle,0);const flat=supportPose(this.rig!.joints);const predictions:any[]=[];for(let k=0;k<=16;k++){const time=.25+.4*k/16;(this.rig as any).sample(ch.role,time);const u=(time-.25)/.4,v=u*u*(3-2*u),h=turnBridgeStart.hip.map((x:number,i:number)=>x+(end.hip[i]-x)*v);if(time>.45&&time<.75)h[1]-=.0044*Math.sin(Math.PI*(time-.45)/.30)**2;const hips=this.rig!.joints.find(x=>x.name==='hips')!.node;hips.setPosition(h[0],h[1],h[2]);predictions.push({time,pose:supportPose(this.rig!.joints)});}writePose(this.rig!.joints,saved);this.support?.startTurnBridge(turnBridgeStart,end,this.yawRad,extra.deltaYaw,flat,predictions);}this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
    if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
   return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
-   j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});
+   j.off=token.onCancel(()=>{if(this.job===j){this.job=null;this.support?.reset();}reject(new Cancelled());});});
  }
- cancelAndReset(pose:StablePose){if(this.disposed)return;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
+ cancelAndReset(pose:StablePose){if(this.disposed)return;this.clearSettleQueue();this.stopHold=0;this.clock?.releaseHold();if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
   const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.node.worldPosition;
   // Stable arrival right after a walk (same spot): keep the pose and settle through stop/idle with a crossfade, no pop.
   const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
@@ -265,7 +297,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   else if(inPlace&&this.isWalkClip(this.clock?.base?.clip)){if((this.clock?.base?.clip===CLIP_ROLES.walk||this.clock?.base?.clip===CLIP_ROLES.walkStart)&&!this.pendingIdle){this.pendingIdle=true;this.pendingFor=0;}}
   else{this.pendingIdle=false;this.playNamed(CLIP_ROLES.idle,true,inPlace?-1:0,true);}}
  setVisible(v:boolean){if(!this.disposed)this.node.active=v;}
- dispose(){if(this.disposed)return;this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
+ dispose(){if(this.disposed)return;this.clearSettleQueue();this.disposed=true;if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}this.rig?.dispose();this.rig=null;this.clock=null;this.morphs=[];this.anim=null;this.footListeners=[];this.apronListeners=[];this.node.destroy();}
 }
 /** Cocos side of the pose pipeline. Blend mode (useBakedAnimation=false): the evaluator writes joint nodes synchronously
  * (AnimationClip.enableTrsBlending=false, states never played), so the driver samples, captures and mixes itself:
@@ -343,7 +375,7 @@ export class WorldIntegrationBoot extends Component {
    try{
     const prefab=await loadRegionPrefab(REGIONS.island);attempt.check();
     if(!assetManager.getBundle('region_island'))await new Promise<void>((ok,fail)=>assetManager.loadBundle('region_island',(e,b)=>e||!b?fail(e||Error('Dynamic character bundle missing')):ok()));attempt.check();
-    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),this.loadHomeSeated(),this.loadTransitionChair()]);attempt.check();const character=loaded[0];
+    this.loadingLayer?.setStage(1);this.setStatus('正在准备角色与动画',false);const loaded=await Promise.all([this.loadCharacter(),this.loadAnimMeta(),Promise.resolve(null),this.loadTransitionChair()]);attempt.check();const character=loaded[0];
     this.model=prefab;this.characterPrefab=character;this.animMeta=loaded[1];this.homeSeatedPrefab=loaded[2];this.transitionChairPrefab=loaded[3];this.loadingLayer?.setStage(2);this.setStatus('正在准备房间',false);
     await this.mountWorld(attempt);attempt.check();
     this.loadPhase='ready';this.loadProgress=1;this.loading=false;this.error='';
@@ -373,12 +405,11 @@ export class WorldIntegrationBoot extends Component {
  /** The fused heroine/stool is a stationary home visual, never a CharacterAdapter. */
  private loadHomeSeated(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('static_seat_preview');if(!b)return fail(Error('Home seated bundle missing'));b.loadDir('actor',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one static home prefab'));ok(list[0]);});});}
  private loadTransitionChair(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Transition support bundle missing'));b.loadDir('character_support',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one independent transition chair'));ok(list[0]);});});}
- private syncHomeSeated(state:string,hidden:boolean){const seated=this.homeSeatedVisual;if(!seated)return;const home=state==='home'&&!hidden;seated.active=home;
-  // The home shell includes its round stool; the transition uses a matching independent round stool.
-  // Support belongs to the world, never the moving rig. The stand/sit pelvis is calibrated in the asset.
-  if(this.transitionChairVisual)this.transitionChairVisual.active=!home;
-  // Keep the original rig/clock live: only rendering is exchanged. No fake stand/walk promises.
-  if(this.startupGirl)for(const r of this.startupGirl.getComponentsInChildren(MeshRenderer))r.enabled=!home;
+ private syncHomeSeated(state:string,hidden:boolean){
+  // Unified candidate stays visible through home, stand, walk and return. No static heroine substitution.
+  if(this.homeSeatedVisual)this.homeSeatedVisual.active=false;
+  if(this.transitionChairVisual)this.transitionChairVisual.active=true;
+  if(this.startupGirl)for(const r of this.startupGirl.getComponentsInChildren(MeshRenderer))r.enabled=true;
  }
  private loadCharacter(){return new Promise<Prefab>((ok,fail)=>{const b=assetManager.getBundle('region_island');if(!b)return fail(Error('Character bundle missing'));b.loadDir('character',Prefab,(e,list:Prefab[])=>{if(e||list.length!==1)return fail(e||Error('Expected one interim character prefab'));ok(list[0]);});});}
  private applyMarkerMaterial(){const r=this.markerRenderer;if(!r||!isValid(r.node,true))return;
@@ -406,17 +437,12 @@ export class WorldIntegrationBoot extends Component {
  (this as any)._referenceAdapter.setAnimMeta(this.animMeta);(this as any)._referenceAdapter.bindVisual(girl);
  const camera=scene.getComponentsInChildren(Camera)[0];if(!camera)throw Error('World camera missing');
  const owner=new Node('IsolatedWorldComposition');this.startupOwner=owner;scene.addChild(owner);const composition=owner.addComponent(WorldNativeComposition);this.composition=composition;composition.firstsliceModel=this.model;composition.worldCamera=camera;composition.smokeFixture=this.smokeFixture;
- if(!this.homeSeatedPrefab)throw Error('Required static home visual missing');
  if(!this.transitionChairPrefab)throw Error('Required transition support missing');
  const chair=instantiate(this.transitionChairPrefab);this.transitionChairVisual=chair;chair.name='StationaryReferenceRoundStool';owner.addChild(chair);chair.active=false;
  for(const r of chair.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
- const home=new Node('StationaryHomeSeatedVisual');this.homeSeatedVisual=home;owner.addChild(home);const seatedActor=instantiate(this.homeSeatedPrefab);home.addChild(seatedActor);
- if(seatedActor.getComponentsInChildren(SkeletalAnimation).length)throw Error('Static home asset unexpectedly contains a rig');
+ // Retain the existing independent stool transform; no fused static heroine is instantiated.
  const scale=1.2,sx=.00037,sz=-.09094,yaw=-2,a=FIRSTSLICE.anchors.seat_anchor.position;
- home.setPosition(a[0]-scale*(Math.cos(yaw)*sx+Math.sin(yaw)*sz),.000126,a[2]-scale*(-Math.sin(yaw)*sx+Math.cos(yaw)*sz));home.setRotationFromEuler(0,yaw*180/Math.PI,0);home.setScale(scale,scale,scale);
- // Both stationary stool visuals share the reference shell transform. No controller/root-Y correction.
- chair.setPosition(home.position);chair.setRotation(home.rotation);chair.setScale(home.scale);
- for(const r of seatedActor.getComponentsInChildren(MeshRenderer)){r.shadowCastingMode=MeshRenderer.ShadowCastingMode.ON;r.receiveShadow=MeshRenderer.ShadowReceivingMode.ON;}
+ chair.setPosition(a[0]-scale*(Math.cos(yaw)*sx+Math.sin(yaw)*sz),.000126,a[2]-scale*(-Math.sin(yaw)*sx+Math.cos(yaw)*sz));chair.setRotationFromEuler(0,yaw*180/Math.PI,0);chair.setScale(scale,scale,scale);
  await composition.initializeWorld();attempt.check();
  const bound=composition.attachCalibratedCharacter((this as any)._referenceAdapter);if(!bound.ok)throw Error(bound.reason);
  // Walk driver wind input: 运镜bot WorldFlowComponent.getWindStrength() (0..1); missing = 0.
@@ -425,11 +451,13 @@ export class WorldIntegrationBoot extends Component {
  try{(this as any)._referenceAdapter.setWalkRestAhead(restAheadFromRoutes(createFirstsliceRoutes(FIRSTSLICE,REF)));}catch(e){console.warn('walk stop predicate unavailable',String(e));}
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
- this.ready=true;girl.active=true;this.syncHomeSeated('home',false);this.error='';console.info('HOME_SEATED_VISUAL',{stationary:true,dynamicAdapter:'original-skeletal-character',transitionAcceptance:false,reason:'Static fused stool/heroine has no matched stand or sit animation'});
+ this.ready=true;girl.active=true;this.syncHomeSeated('home',false);this.error='';console.info('HOME_SEATED_VISUAL',{stationary:false,dynamicAdapter:'unified-posture105-foot35',visualAcceptance:false});
  // T9: optional 3D UI props (signpost / bag / journal / compass / beach palms). Never blocks startup; on failure the flat buttons stay.
  try{const props=new IslandProps(scene,camera);this.islandProps=props;void props.load().then(ok=>{if(this.islandProps!==props||!ok)return;this.islandJourney?.setPropMode(true);});}catch(e){this.islandProps=null;console.warn('[T9_PROPS] host unavailable, flat buttons stay',String(e));}
+ (globalThis as any).__characterCandidateIdentity={candidate:'posture105-foot35',glbSHA256:'2f98cf0e1ee1a1213008397e2fd369868576317cd53e718333f7158d2c4de19f',metadataSHA256:'2704032c193bd872f2ce554c6f851d4237c38468bf12d28d19e59d578718ee2e',motionSHA256:'ea445a6cc120def6915ea8773bc852d58647b0ed8dc22d666efb81b34420e72d',prefabUUID:(this.characterPrefab as any)._uuid,metadataSource:((this as any)._referenceAdapter).diagnostics().motion.metaSource,visualName:girl.name,staticHomeInstantiated:!!this.homeSeatedVisual,meshNames:girl.getComponentsInChildren(MeshRenderer).map(r=>r.node.name),acceptance:'OPEN'};
+ console.info('UNIFIED_CHARACTER_CANDIDATE_LOADED',(globalThis as any).__characterCandidateIdentity);
  console.info('WORLD_STARTUP_READY',{initialClip:this.selectedSeatedClip,controllerRoot:REF.seatedRoot,childOffset:[0,0,0],scale:1,motionAcceptance:false});
- (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. Verified pass2g SHA 05cfc06aba010924e606530f9fdf9716ac5e3743b41b84bf254d0d6902aaabe0; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
+ (globalThis as any).__worldIntegration={snapshot:()=>this.composition.worldCommands().snapshot(),props:()=>this.islandProps?.diagnostics()??null,onPropTap,hostResult:()=>this.composition.lastHostReply(),useTestFixture:(namespace:string,journeyNamespace:string)=>this.composition.useIsolatedTestProfile(namespace,journeyNamespace),board:()=>this.board()?.diagnostics()||null,layout:()=>this.navLayout(),select:(stageId:string,seed:number)=>this.select(stageId,seed),leave:()=>this.composition.worldCommands().leaveHome(),returnHome:()=>this.composition.worldCommands().returnHome(),hide:()=>game.emit(Game.EVENT_HIDE),show:()=>game.emit(Game.EVENT_SHOW),resume:()=>this.composition.worldCommands().resume(),lateEnd:(index:number)=>this.board()?.lateEnd(index),navigationStatus:()=>({error:this.error,text:this.status.string}),mainline:()=>this.composition.mainlineStatus(),mainlineStorage:()=>this.composition.mainlineStorage(),gates:()=>this.composition.challengeGates(),enterMainlineStage:(id:string,seed:number)=>this.composition.enterMainlineStage(id,seed),onFoot:(cb:(e:any)=>void)=>(this as any)._referenceAdapter.onFoot(cb),onApronLift:(cb:(strength:'full'|'soft',durationSec:number)=>void)=>(this as any)._referenceAdapter.onApronLift(cb),apronGust:(durationSec?:number)=>(this as any)._referenceAdapter.apronGust(durationSec),motion:()=>(this as any)._referenceAdapter.diagnostics().motion,morph:()=>(this as any)._referenceAdapter.morphDiagnostics(),scope:'Mainline new-player isolated Cocos storage; R5 isolated Cocos localStorage v1.2; read-only real mainline schema v1/v2/v3; missing or protected journey keeps new stages locked. UNACCEPTED posture105 foot35 GLB SHA 2f98cf0e1ee1a1213008397e2fd369868576317cd53e718333f7158d2c4de19f; scale1; controller owns world movement; motion/contact acceptance requires runtime evidence.'};
  if(this.validationScenario==='skycity')this.scheduleOnce(()=>validateSkycity(this),3);
  }
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
