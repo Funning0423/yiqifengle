@@ -57,5 +57,19 @@
     "actualUIAndMeadowVisual": "NOT_RUN"
   },
   "foot36": "NOT_RECEIVED",
-  "noFreeze": true
+  "noFreeze": true,
+  "packagingUpdate": {
+    "codeCommit": "86a57ad1ea4b26657c441fbad619812606712ad4",
+    "baselineBytes": 37403163,
+    "losslessBuildBytes": 30155688,
+    "isolatedRuntimeBytes": 30161359,
+    "limitBytes": 31457280,
+    "gate": "PASS",
+    "all72MeshesOfflineDecodedSHA256Exact": true,
+    "all72ActualEngineBufferLengthAndCRCMatch": true,
+    "roleVisual": "FAIL_OPEN_UNCHANGED",
+    "fullUIAndMeadowVisual": "NOT_ACCEPTED",
+    "sourceAssetsDeleted": false,
+    "quantizationOrQualityReduction": false
+  }
 }
