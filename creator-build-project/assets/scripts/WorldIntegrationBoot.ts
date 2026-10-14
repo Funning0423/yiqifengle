@@ -542,7 +542,7 @@ export class WorldIntegrationBoot extends Component {
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
  if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
- const put=(id:string,y:number,on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on;n.setPosition(0,f.height/2-y,0);}};
+ const put=(id:string,y:number,on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on;n.setPosition(0,f.height/2-y,0);if(on)n.setSiblingIndex(this.canvas.children.length-1);}};
  put('flowTests',64,outside);let row=0;for(const n of [4,8,12])put('flowTest'+n,120+(row++)*54,outside&&this.flowTestMenu);
  put('flowTestExit',282,outside&&this.flowTestMenu&&!!test);
  if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
