@@ -457,7 +457,7 @@ export class WorldFlowComponent extends Component {
    * levels/skycity/hidden, where the world stays loaded with layers NONE and w reads 0. A paused return (needsResume)
    * puts home/island layers back, so the room or island stays visible until resume(). */
   isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
-  lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength());this.shore?.advance(dt);}}
+  lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.shore?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength(),this.shore?.surfaceWorldY());}}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.revealReturn();this.scheduleReturn();}
   /** wx.onShow and EVENT_SHOW both land here. The place comes back paused; resume() stays explicit.
