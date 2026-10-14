@@ -10,7 +10,9 @@
 const CHAR=require('path').resolve(__dirname,'..','..','creator-build-project/assets/bundles/region_island/character')+'/';
 let H=null;function install(h){H=h;}
 const clone=o=>JSON.parse(JSON.stringify(o));
-function stripRoot(meta){const m=clone(meta);for(const k in m.clips)if(m.clips[k]&&typeof m.clips[k].root_motion==='object')delete m.clips[k].root_motion;return m;}
+// Legacy comparison must omit the current sole solver as well as root curves.
+// Keeping sole_contact on both paths masks the old travel error; product thresholds stay unchanged.
+function legacyConstantRootMeta(meta){const m=clone(meta);delete m.sole_contact;for(const k in m.clips)if(m.clips[k]&&typeof m.clips[k].root_motion==='object')delete m.clips[k].root_motion;return m;}
 /** Planted-sole drift: per foot, every shoe sole point (glb_rig solePoints) whose world height is within STANCE_MM of that
  *  foot's lowest sole point over the run is in contact; drift = max horizontal distance from where the point touched down (mm).
  *  Contacts shorter than 4 frames ignored. Not the ankle bone: the CMU mocap shoes roll heel -> toe through the whole stance,
@@ -92,8 +94,8 @@ async function run(){const {check,motion,assert,fs,makeCharacter,Token,flush,flo
      assert.equal(ded.length,1,JSON.stringify(ded));assert.equal(ded[0].reason,'same contact');for(let k=1;k<r.fe.length;k++)assert(r.fe[k].bone!==r.fe[k-1].bone,'same foot twice '+JSON.stringify([r.fe[k-1],r.fe[k]]));
      return {stop:st,deduped:ded.map(e=>e.reason+':'+e.clip+':'+e.event)};});}
   // ---------- real clips: foot slide, curves vs old constant root ----------
-  const slides={};for(const [k,meta,stop] of [['new',META,true],['oldConstantRoot',stripRoot(META),true]]){const r=await straightRun(meta,{glb,L:4.198,dur:4.198/0.7,stopAtEnd:stop});r.label=k;slides[k]=r;}
-  check('loco: foot slide rest -> walk_start -> walk_loop -> stop -> idle on the real clips (4.198 m / 5.997 s = toDoor), root_motion curves vs the old constant 0.7 m/s root',()=>{const n=slides.new,o=slides.oldConstantRoot;
+  const slides={};for(const [k,meta,stop] of [['new',META,true],['oldConstantRoot',legacyConstantRootMeta(META),true]]){const r=await straightRun(meta,{glb,L:4.198,dur:4.198/0.7,stopAtEnd:stop});r.label=k;slides[k]=r;}
+  check('loco: foot slide rest -> walk_start -> walk_loop -> stop -> idle on the real clips (4.198 m / 5.997 s = toDoor), current root_motion + sole contacts vs legacy constant 0.7 m/s root without sole contacts',()=>{const n=slides.new,o=slides.oldConstantRoot;
     const sn=slideOf(n.samples),so=slideOf(o.samples);const worstN=Math.max(sn['foot.L'].worstMm,sn['foot.R'].worstMm),worstO=Math.max(so['foot.L'].worstMm,so['foot.R'].worstMm);
     assert(n.plan.start&&n.plan.stop,'planned '+JSON.stringify(n.plan));assert(worstN<12,'slide '+JSON.stringify(sn));assert(worstO>worstN*2,'old should slide clearly more '+worstO);
     const seq=[...new Set(n.clips)];assert.deepEqual(seq.slice(0,3),['walk_start','walk_loop',n.plan.stop]);assert(seq.indexOf('idle_breathing_loop')>seq.indexOf(n.plan.stop));
