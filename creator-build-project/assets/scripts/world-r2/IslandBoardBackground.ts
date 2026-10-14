@@ -6,7 +6,7 @@ import { tintRgb, uiNightWeight } from '../ui/NightTint';
 const { ccclass } = _decorator;
 /** Board scenery: one painted picture (750×1624), cover-fit behind the board HUD.
  *  天空回声 (r05-sky-*) loads region_skycity/board/bg_skycity_board.jpg. Tide, R4, mainline, and 花粉草甸
- *  (no env_meadow.glb, so no meadow picture) load region_island/board/bg_island_board.jpg.
+ *  (meadow entry is blocked until its real scene is integrated) load region_island/board/bg_island_board.jpg.
  *  Night multiplies the same picture by K_SEA. There is no second night render. */
 export const BACKGROUND_SIZE = { width: 750, height: 1624 } as const;
 export function coverSize(width: number, height: number, iw = BACKGROUND_SIZE.width, ih = BACKGROUND_SIZE.height) {

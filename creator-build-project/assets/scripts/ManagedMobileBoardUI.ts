@@ -1,3 +1,4 @@
+import { requiresMeadowScene } from './world-r2/LevelRegion';
 import { ManagedToolArt } from './ManagedToolArt';
 import { managedTools, TOOL_NAMES, type ManagedTool } from './world-r2/ManagedTools';
 import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpacity, Graphics, Color, Label, Vec3, EventTouch, game, Game, view, ResolutionPolicy, tween, Tween, profiler, Sprite, director, input, isValid } from 'cc';
@@ -889,7 +890,8 @@ export class ManagedMobileBoardUI extends Component {
     if (kind === 'win' && s.provider === 'regional-r05' && (h.claim?.visible || s.progress?.claimedRegions?.includes(a.region))) { const owned = !!s.progress?.claimedRegions?.includes(a.region); rewards.push({ id: 'claim', label: owned ? '地区印记已领取' : '领取地区印记', icon: 'popup/reward_seal_' + (a.region || 'tide'), iconKind: 'seal', state: owned ? 'claimed' : 'ready', claim: h.claim?.run }); }
     const next = h.mainNext?.visible ? h.mainNext.run : h.next?.visible ? h.next.run : null;
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
-      unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；草甸挑战需通关主线 08' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined,
+      unlockHint: mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? requiresMeadowScene({stageId:s.nextStageId}) ? '草原场景暂未就绪，下一关暂不可进入；成绩和奖励已保留' : a.level === 3 ? '潮汐挑战已开放；草原场景暂未就绪' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined,
+      nextUnavailable: next && requiresMeadowScene({stageId:s.nextStageId}) ? '草原场景暂未就绪' : undefined,
       next, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
       retrySave: () => this.command('retrySave'), home: () => { this.popups.clear(); this.resultKey = ''; this.command('requestExit'); } };
   }

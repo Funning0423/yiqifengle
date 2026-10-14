@@ -1,8 +1,9 @@
+import { requiresMeadowScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
 import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset, Texture2D } from 'cc';
 /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
 export const BOARD_ART_BUNDLE = 'board_art';
-/** Island / tide / meadow / mainline / R4. Meadow has no scene GLB, so it keeps this picture. */
+/** Island/tide board art. Meadow must never silently select this picture. */
 export const BOARD_BACKGROUND = { bundle: 'region_island', path: 'board/bg_island_board' } as const;
 /** 天空回声 regional boards (r05-sky-*). Painted from env_skycity.glb. Night multiplies this same picture by K_SEA. */
 export const SKY_BOARD_BACKGROUND = { bundle: 'region_skycity', path: 'board/bg_skycity_board' } as const;
@@ -12,12 +13,13 @@ export type BoardPicture = { readonly bundle: string; readonly path: string };
 export function boardChapter(selection: { provider?: string; stageId?: string } | null): string {
   const id = selection && selection.stageId ? String(selection.stageId) : '';
   if (id.indexOf('r05-tide-') === 0) return 'tide';
-  if (id.indexOf('r05-meadow-') === 0) return 'meadow';
+  if (requiresMeadowScene(selection)) return 'meadow';
   if (id.indexOf('r05-sky-') === 0) return 'sky';
   return '';
 }
-/** Picture createIslandBoardBackground loads. 天空回声 → sky city; meadow stays on the island (no env_meadow.glb). */
+/** Exact supported picture; missing meadow scenery is an explicit entry failure. */
 export function boardBackgroundFor(selection: { provider?: string; stageId?: string } | null): BoardPicture {
+  if (requiresMeadowScene(selection)) throw Error(MEADOW_UNAVAILABLE);
   if (boardChapter(selection) === 'sky') return SKY_BOARD_BACKGROUND;
   return BOARD_BACKGROUND;
 }
