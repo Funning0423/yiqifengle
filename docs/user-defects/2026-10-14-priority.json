@@ -1,0 +1,12 @@
+{
+  "source": { "requestedAtUTC": "2026-10-14T18:37:00Z", "sentinel": "Sentinel_8d97ad9a339881919e4e7159d9af69b8", "screenshotLibraryId": "libfile_de982f0859608191a2899cb99cb4eee8", "parentThread": "01a125dd-f84e-7336-8001-a618425fa0fd", "quote": "这个页面的设计就是有问题的呀……图标那么小……后面的那个关卡他也不会跳到……第二个场景草原那里去啊，还是在那个小岛那里……把这些问题先提交去修复，然后待会儿测试报告回来之后你不要覆盖这些问题去修就好了" },
+  "policy": "All four user defects remain open until their own current acceptance evidence passes. Older functional test reports cannot close or overwrite these defects.",
+  "baseline": "d8dafa166fe9789ffbca7fbaca600ee97f9bc75c",
+  "branch": "fix/ui-scale-region-meadow",
+  "defects": [
+    {"id":"UI-SCALE","status":"OPEN","scope":"Result panel proportions and integrated, readable reward icons","acceptance":["Portrait and landscape result panel have bounded content-driven height without large empty upper/lower areas", "Chest and regional-tool icons are visibly larger and integrated inside reward controls/cards, not floating against the screen edge", "Labels, icons and hit targets do not overlap or clip; ready/claimed/locked states remain readable", "Actual current-build visual evidence and user design acceptance are required; clickability alone cannot pass"]},
+    {"id":"REGION-MEADOW","status":"OPEN","scope":"Real transition into second meadow 3D scene after region boundary win","acceptance":["Completing the island region and choosing next genuinely mounts the approved meadow prefab through RegionLoader", "Mounted region identity, camera and ambient configuration match the meadow asset", "Loading failure is explicit and retryable; island or old art must not masquerade as meadow", "Current meadow asset provenance/import UUID and current-build transition evidence are required; a changed level number or unlock flag alone cannot pass"]},
+    {"id":"CHARACTER-FEET","status":"OPEN","owner":"Existing cloud character fix task","scope":"Character feet issue","localAction":"Do not duplicate or modify character assets; preserve separate acceptance"},
+    {"id":"CHARACTER-SITTING","status":"OPEN","owner":"Existing cloud character fix task","scope":"Character seated pose issue","localAction":"Do not duplicate or modify character assets; preserve separate acceptance"}
+  ]
+}
