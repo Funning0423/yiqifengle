@@ -544,11 +544,11 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
  if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
  const put=(id:string,y:number,on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on;n.setPosition(0,f.height/2-y,0);}};
- put('flowTests',64,outside);let row=0;for(const n of [4,8,12])put('flowTest'+n,120+(row++)*54,outside&&this.flowTestMenu);
- put('flowTestExit',282,outside&&this.flowTestMenu&&!!test);
+ put('flowTests',104,outside);let row=0;for(const n of [4,8,12])put('flowTest'+n,160+(row++)*54,outside&&this.flowTestMenu);
+ put('flowTestExit',322,outside&&this.flowTestMenu&&!!test);
  if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
  this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(test.checkpoint).padStart(2,'0')+(b?.state==='run.ready'&&b?.active?.stageId==='mainline-'+String(test.checkpoint).padStart(2,'0')?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
- this.flowTestMark.node.parent!.setPosition(0,f.height/2-20,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
+ this.flowTestMark.node.parent!.setPosition(0,f.height/2-76,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
  }
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
