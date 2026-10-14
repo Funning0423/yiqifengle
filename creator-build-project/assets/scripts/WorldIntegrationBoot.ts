@@ -309,7 +309,7 @@ class AnimRig {
  readonly repaired:string[]=[];
  constructor(private anim:SkeletalAnimation,readonly blend:boolean){
   for(const c of anim.clips){if(c)anim.getState(c.name)?.stop();}
-  if(blend){anim.useBakedAnimation=false;this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);this.rootJoint=this.joints.findIndex(j=>j.name==='root');for(let i=0;i<this.joints.length;i++)if(/^(root|hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(this.joints[i].name))this.lowerBody.push(i);}
+  if(blend){anim.useBakedAnimation=false;this.requireDirectTrsStates();this.repairStates();const walk=(n:Node)=>{const kids=n.children||[];for(let i=0;i<kids.length;i++){this.joints.push({name:kids[i].name,node:kids[i] as any});walk(kids[i]);}};walk(anim.node);this.rootJoint=this.joints.findIndex(j=>j.name==='root');for(let i=0;i<this.joints.length;i++)if(/^(root|hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(this.joints[i].name))this.lowerBody.push(i);}
   else anim.useBakedAnimation=true;
   const size=Math.max(1,this.joints.length)*STRIDE;this.A=new Float64Array(size);this.B=new Float64Array(size);this.P=new Float64Array(size);this.L=new Float64Array(size);this.Rest=new Float64Array(size);capture(this.joints,this.Rest);}
  /** Creator 3.8.8: a SkeletalAnimationState initialized while useBakedAnimation was true keeps _doNotCreateEval=true
@@ -318,6 +318,12 @@ class AnimRig {
   *  (_sampleCurves :546-552 needs _clipEval). Boot sets the flag before the girl enters the scene (mountWorld); this is the
   *  defensive net: any state still without an evaluator is removed and created again (createState -> _doCreateState ->
   *  initialize with the flag now false, animation-component.ts:284-288/:438-446). */
+ /** Imported clips default to buffered TRS blending. This driver samples several clips synchronously,
+  * captures their Node transforms, then blends itself, so every evaluator must bind directly to TRS.
+  * Changing the clip flag after state creation is insufficient: rebuild those states once. */
+ private requireDirectTrsStates(){const anim=this.anim;
+  for(const clip of anim.clips){if(!clip||clip.enableTrsBlending!==true)continue;
+   clip.enableTrsBlending=false;anim.getState(clip.name)?.stop();anim.removeState(clip.name);anim.createState(clip,clip.name);this.repaired.push(clip.name+':direct-trs');}}
  private repairStates(){const anim:any=this.anim;if(typeof anim.removeState!=='function'||typeof anim.createState!=='function')return;
   for(const c of this.anim.clips){if(!c)continue;const st:any=anim.getState(c.name);if(!st||st._clipEval)continue;try{st.stop();anim.removeState(c.name);anim.createState(c,c.name);this.repaired.push(c.name);}catch(e){console.warn('[walk-driver] state repair failed',c.name,String(e));}}
   if(this.repaired.length)console.warn('[walk-driver] rebuilt states without clip evaluator: '+this.repaired.join(','));}
