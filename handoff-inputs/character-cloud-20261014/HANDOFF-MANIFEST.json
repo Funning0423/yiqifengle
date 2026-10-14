@@ -1,0 +1,217 @@
+{
+  "signedBy": "Oi，Funning 的助手（不是 Funning 本人）",
+  "purpose": "同一最新动态模型/必要脚本/清单，供现有私有仓库的云端角色修复接续；不是整项目或存档",
+  "repository": "https://github.com/Funning0423/yiqifengle",
+  "branch": "handoff/character-cloud-20261014",
+  "remoteBaseCommit": "01e25e3eb707db3cd5c9a269a31f5fd6e3f104d5",
+  "archive": {
+    "path": "Oi-20261014-latest-character-handoff.zip",
+    "bytes": 1406118,
+    "sha256": "2c90df4afc5660f5ff182891199c052fdcd0feb5081018c114db09a97fd7d5e9"
+  },
+  "model": {
+    "path": "character-fix/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+    "bytes": 1849188,
+    "sha256": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8"
+  },
+  "sourceCheckouts": [
+    {
+      "role": "product",
+      "path": "/Users/shineanl/Documents/Codex/2026-10-14/task-13/character-fix",
+      "commit": "7ddd667d33abdfa5ccff103233cbb960cb7725da",
+      "branch": "fix/sleeve-recovery-20261014",
+      "dirtyPorcelain": ""
+    },
+    {
+      "role": "latest-test-only",
+      "path": "/Users/shineanl/Documents/Codex/2026-10-14/task-15/suite-fix",
+      "commit": "09bfd44cebf1a552492dbf1874505d6668471ff9",
+      "branch": "fix/legacy-walk-baseline-20261014",
+      "dirtyPorcelain": ""
+    }
+  ],
+  "fileCount": 36,
+  "files": [
+    {
+      "path": "MANIFEST-SHA256.json",
+      "bytes": 6513,
+      "sha256": "1f3af34f1aa06aa6e43b42462e7b8e9f548b88765a48bc9a4deab26503b9ce89"
+    },
+    {
+      "path": "READ-FIRST.txt",
+      "bytes": 2482,
+      "sha256": "ce7739aad90bc13b56d79d600d7bfa9678cb397dda9841b13fb13f9013b688b5"
+    },
+    {
+      "path": "SHA256SUMS.txt",
+      "bytes": 4254,
+      "sha256": "08e8683d087e32b0c7d488db9102c9e9b3934eafe9d835f82f3b5ada5a092d7c"
+    },
+    {
+      "path": "SOURCE-IDENTITY.json",
+      "bytes": 12645,
+      "sha256": "ec45d89f800924ef506b8b15c0e3a0925a797752444537f3882e1f5c18eb28a8"
+    },
+    {
+      "path": "capture-tools/diagnose_door.py",
+      "bytes": 1503,
+      "sha256": "e5bcb9ce857f651872333f1194eeec44d96446cedee5031bbdfa3be1443a411f"
+    },
+    {
+      "path": "capture-tools/diagnose_door_selected.py",
+      "bytes": 1532,
+      "sha256": "b5aa5f09adbb721b8048551828bb45489fa8619105ee520a42600633aed48738"
+    },
+    {
+      "path": "capture-tools/inspect_structure.py",
+      "bytes": 1972,
+      "sha256": "e255a5b6a450b92bef80777cb3a52bec962dd8d92acc592b0ea48ceaa28a7329"
+    },
+    {
+      "path": "capture-tools/render.py",
+      "bytes": 6117,
+      "sha256": "a895321a3fb5e0377e66434d601b57ffe85480c774b8e649420b6f186f05e870"
+    },
+    {
+      "path": "character-fix/art-src/animation/mocap/scripts/rig.py",
+      "bytes": 11426,
+      "sha256": "0bde7ce0da40346eb2785bb951afa109372766ee4b155c284551069bdc588b47"
+    },
+    {
+      "path": "character-fix/creator-build-project/assets/bundles/region_island/character/anim_meta.json",
+      "bytes": 81513,
+      "sha256": "a4899f069807c63ff81efca5e07f40735ecb88d30577ddcf513c19df0ba18369"
+    },
+    {
+      "path": "character-fix/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+      "bytes": 1849188,
+      "sha256": "6e4342028c11b43f2bf1834825e40e70cc3d6176052c95894f88b715e76495a8"
+    },
+    {
+      "path": "character-fix/creator-build-project/assets/scripts/CharacterMotion.ts",
+      "bytes": 65616,
+      "sha256": "16b21e72a7ee7c58284862a25fcff97045f5dc33fb4be1aa5bf932e973fc1d50"
+    },
+    {
+      "path": "character-fix/tools/repair_wrist_topology.py",
+      "bytes": 5654,
+      "sha256": "9dda6d37685c51a75c1157786255d195fab092b78aa28efbf09a0b38e860d363"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/README.md",
+      "bytes": 4346,
+      "sha256": "536ab6bd624c1fb91261c5d5371ae457b79807f549a7102855c21bd707fc5204"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/compare-0.jpg",
+      "bytes": 144089,
+      "sha256": "400a6373e9e0a2ffdad5c008ed391b04d0ee02c09f43ac50e82667ca0c87ebdb"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/compare-1.jpg",
+      "bytes": 149959,
+      "sha256": "afc02e4e3b30073fe460c07266473c35035965233eda42531d6ab63699c55e73"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/door-intersections-before-summary.json",
+      "bytes": 3720,
+      "sha256": "aef1a1410f52ba19e979724241eba42ae3ad7c581835cfa4939117676b4bb643"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/door-intersections-summary.json",
+      "bytes": 3691,
+      "sha256": "55987e6823e3402c98cc1e5c41f7ef28b86082d25f17f50f795986ae80fc655a"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/imported-animation-match.json",
+      "bytes": 656,
+      "sha256": "fd3b490ac0e583a93a5a4f2019e74407d95388673129699000f059f93d838cb4"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/native-match.json",
+      "bytes": 665,
+      "sha256": "306ec7037ebd15bbd2f70216353e051fe96f14fe894b41aff38475b9807fb284"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/preservation.json",
+      "bytes": 1448,
+      "sha256": "adb0fa89cc4211d3c5c9fc37009bdc7996d75c507ca62cc5ab6a415664483cc5"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/evidence/repair-final.json",
+      "bytes": 2551,
+      "sha256": "14f2e54ec4236a80e962de0e4d863481015dd119a413d4e9068049b7fbfdbe30"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/repair.py",
+      "bytes": 4977,
+      "sha256": "d7295d89fadeb666e4bfc2dd25ef31d8f43bd59ed282290be3208d1b9396ebcf"
+    },
+    {
+      "path": "character-fix/tools/sleeve-recovery/verify.py",
+      "bytes": 2434,
+      "sha256": "021ffa4eaa23007ea4b29e2ffe6ace0b1593c231449189535de649773d9c2d32"
+    },
+    {
+      "path": "character-fix/tools/verify_wrist_candidate.py",
+      "bytes": 2574,
+      "sha256": "cc60f21a8fc9513b70354c7163297f64ce267d8a479ba24291fd95f243474755"
+    },
+    {
+      "path": "character-fix/tools/verify_wrist_topology.py",
+      "bytes": 3258,
+      "sha256": "8166b85826f369a3a3fb0c70baf06fbd817c5f725eb88cb4cf430f0d558fb2ec"
+    },
+    {
+      "path": "character-fix/tools/walk-driver/glb_rig.cjs",
+      "bytes": 6252,
+      "sha256": "2be9b5998d503cd4554965d7433b482b857932b7fa99b30d559c5eb4a3156ed0"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/README.md",
+      "bytes": 4297,
+      "sha256": "dc81c901e9cb4391eb139a82ac2f8f1199d4e12b17032255cf7578de705b556d"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/elbow-intersections-final-scope.json",
+      "bytes": 9080,
+      "sha256": "9d491e2abe167135232ee4ddd41c6f51368a6c4823cbb649169cb2a302cb9aac"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/elbow-pose.json",
+      "bytes": 1751,
+      "sha256": "972c8bbea2e40518ec9e2b215fe6f17842e1414f0f662f44652b6248bd89f89b"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/forearm-twist.json",
+      "bytes": 13757,
+      "sha256": "7d6b9b6d72260b48f51fcfec203e5333522f3ba517a112eeb0aae6ece54fc729"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/topology-repair-final.json",
+      "bytes": 2245,
+      "sha256": "b2083d1296bc21429c5c2333f2ac7fa377170279689488a9bc69e04fc54690a2"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/topology-verification-final.json",
+      "bytes": 10884,
+      "sha256": "e48d574fc0bd54135aa06ac6b62e2535dbbfd935d4cd4c02c149643f9da2d939"
+    },
+    {
+      "path": "character-fix/tools/wrist-topology/evidence/visual-review-final.json",
+      "bytes": 1108,
+      "sha256": "a74244d1abfb725684934ade9fb6fb4ab5ab8c3bacdff97e17c67ae07c1aed8a"
+    },
+    {
+      "path": "poses/door-pose-camera-samples.json",
+      "bytes": 1029811,
+      "sha256": "f96babc94f6ecd415763adb1d2685a22f1e2bd089604f1e4dd320794881ac0b1"
+    },
+    {
+      "path": "runtime-excerpts/WorldIntegrationBoot-character.ts.txt",
+      "bytes": 37552,
+      "sha256": "7986f9f434940a5e3c2e6b0267c228fa408be09d59842f41e5b7d09e9b0f0746"
+    }
+  ],
+  "validation": "All ZIP entries/SHA manifest verified locally; no new game/build/browser test; remaining visual failures recorded inside READ-FIRST.txt."
+}
