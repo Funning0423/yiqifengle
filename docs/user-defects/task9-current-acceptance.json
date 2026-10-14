@@ -1,0 +1,61 @@
+{
+  "status": "UNACCEPTED",
+  "fourIssues": [
+    {
+      "id": "UI-SCALE",
+      "status": "OPEN"
+    },
+    {
+      "id": "REGION-MEADOW",
+      "status": "OPEN"
+    },
+    {
+      "id": "CHARACTER-FEET",
+      "status": "OPEN"
+    },
+    {
+      "id": "CHARACTER-SITTING",
+      "status": "OPEN"
+    }
+  ],
+  "additionalFailures": [
+    {
+      "id": "HEEL-CONTOUR",
+      "status": "OPEN",
+      "reference": "IMG_4968",
+      "currentEvidence": [
+        "current-short500.jpg",
+        "current-short508.jpg"
+      ]
+    },
+    {
+      "id": "STAND-TORSO-NECK",
+      "status": "OPEN",
+      "reference": "IMG_4970",
+      "firstFrameNumericalContinuity": "PASS_SUBTEST_ONLY",
+      "visualAcceptance": "FAIL"
+    },
+    {
+      "id": "WRIST-CUFF-CONNECTION",
+      "status": "OPEN",
+      "reference": "IMG_4971",
+      "visualAcceptance": "FAIL"
+    }
+  ],
+  "seatedNativePairs": {
+    "cuffApron": 118,
+    "legsDress": 30,
+    "handApron": 0
+  },
+  "combinedBuild": {
+    "task8Commit": "406738a03e7f04f814ddbb9a82d2d06de683e488",
+    "mergedCommit": "b2cfc2ec5d2866a78c4c7c2720b32608f0974814",
+    "buildExit": 36,
+    "totalBytes": 37403163,
+    "limitBytes": 31457280,
+    "gate": "FAIL",
+    "actualUIAndMeadowVisual": "NOT_RUN"
+  },
+  "foot36": "NOT_RECEIVED",
+  "noFreeze": true
+}
