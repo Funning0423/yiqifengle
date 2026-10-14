@@ -26,6 +26,7 @@ def normals(V,F,rep):
 for md in [ds[0],ds[-1]]:
  mesh=next(m for m in g.j['meshes'] if m['name']==md['name']);_,rep=np.unique(np.round(md['P'],6),axis=0,return_inverse=True);rep=rep.ravel();entry=meta['morph']['meshes'][md['name']];entry=entry.get('targets',entry)
  for name,D in zip(names,fields[md['name']]):
+  if not np.any(abs(D)>1e-8):continue
   affected=np.unique(md['F'][np.any((np.linalg.norm(D,axis=1)>1e-8)[md['F']],axis=1)]);N=np.zeros_like(md['N']);N[affected]=(normals(md['P']+D,md['F'],rep)-normals(md['P'],md['F'],rep))[affected]
   entry[name]=len(md['pr']['targets']);md['pr']['targets'].append(dict(POSITION=sparse(None,D),NORMAL=sparse(None,N)));mesh['extras']['targetNames'].append(name);mesh['weights'].append(0.)
   for node in g.j['nodes']:
@@ -42,6 +43,8 @@ for clip in keys:
   m=(a+b)/2;error=abs(fn(m)-(fn(a)+fn(b))/2)
   return subdivide(a,m,fn)[:-1]+subdivide(m,b,fn) if error>1e-5 else [a,b]
  for k in range(9):
+  name=names[(0 if clip=='stand_up' else 9)+k]
+  if not any(name in m.get('extras',{}).get('targetNames',[]) for m in g.j['meshes']):continue
   values=np.eye(9)[k];fn=lambda t:float(np.interp(t,keys[clip],values)*gain(clip,t));sub=[]
   for a,b in zip(ts[:-1],ts[1:]):sub+=subdivide(a,b,fn)[:-1]
   sub.append(ts[-1]);meta['clips'][clip]['morph']['curves'][names[(0 if clip=='stand_up' else 9)+k]]=[[float(t),fn(t)] for t in sub]
