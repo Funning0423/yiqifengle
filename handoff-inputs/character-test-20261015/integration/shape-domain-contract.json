@@ -1,0 +1,18 @@
+{
+  "clip": "walk_turn_180_bodyR",
+  "entryBase": "idle_breathing_loop",
+  "fromYawRad": 0,
+  "fromYawToleranceRad": 1e-10,
+  "deltaYawRad": -2.8195243286854854,
+  "deltaYawToleranceRad": 1e-10,
+  "controllerRoot": [
+    -2.1135000586509705,
+    0.0,
+    5.281400203704834
+  ],
+  "rootComponentToleranceM": 1e-09,
+  "inside": "Run audited full turn landing plan and first/second swing shapes; four idle phases covered.",
+  "outside": "Reset custom plan; log turn-support-domain-warning; retain original action and runtime ground correction. Contact quality remains unaccepted outside this domain.",
+  "safeLayers": "Actual mask writes must not intersect a hip/thigh/shin/foot node or an FK ancestor; unrelated skirt/apron/hair children are permitted.",
+  "scope": "Fixed actual current return route, not arbitrary global transform or arbitrary turn retarget."
+}

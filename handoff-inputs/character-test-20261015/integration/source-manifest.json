@@ -1,0 +1,16 @@
+{
+  "CharacterMotion.ts": {
+    "sha256": "ea445a6cc120def6915ea8773bc852d58647b0ed8dc22d666efb81b34420e72d",
+    "frozen34SHA256": "19ef939cf1d327c158ce7583620f0441b235d63f2665f58c5021200fd97fa147",
+    "baseline": "/workspace/shared/character-art-repair-latest-20261014/source/character-fix/creator-build-project/assets/scripts/CharacterMotion.ts",
+    "baselineSHA256": "16b21e72a7ee7c58284862a25fcff97045f5dc33fb4be1aa5bf932e973fc1d50",
+    "guardedEvidenceSites": 9
+  },
+  "WorldIntegrationBoot-character.txt": {
+    "sha256": "4da9dfcb0bb3fce03cf6462713678cd595747d48dd483fcf610279b248de8ceb",
+    "frozen34SHA256": "7e6ed227b7107e400d78c5786ca3160247aa8b9b4ce1998f0823ca4417f7eda5",
+    "baseline": "/workspace/shared/character-art-repair-latest-20261014/source/runtime-excerpts/WorldIntegrationBoot-character.ts.txt",
+    "baselineSHA256": "7986f9f434940a5e3c2e6b0267c228fa408be09d59842f41e5b7d09e9b0f0746",
+    "guardedEvidenceSites": 1
+  }
+}
