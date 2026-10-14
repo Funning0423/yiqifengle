@@ -16,7 +16,15 @@ def prepare(source,destination):
  size=struct.unpack_from('<I',raw,12)[0];g=json.loads(raw[20:20+size]);offset=20+size;blob=bytearray(raw[offset+8:offset+8+struct.unpack_from('<I',raw,offset)[0]])
  def read(i):
   a=g['accessors'][i];v=g['bufferViews'][a['bufferView']];cnt={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']];fmt={5126:'f',5125:'I',5123:'H',5121:'B'}[a['componentType']];w=struct.calcsize(fmt)*cnt;stride=v.get('byteStride',w);start=v.get('byteOffset',0)+a.get('byteOffset',0)
-  return [list(struct.unpack_from('<'+fmt*cnt,blob,start+j*stride))for j in range(a['count'])]
+  values=[list(struct.unpack_from('<'+fmt*cnt,blob,start+j*stride))for j in range(a['count'])]
+  # glTF normalized integer attributes carry unit values, not raw codes.
+  # In particular source COLOR_0 is UNORM16 wind weight/phase/amplitude.
+  # Copying its codes to float UV1/alpha amplifies the wind by billions.
+  if a.get('normalized'):
+   divisor={5121:255,5123:65535}.get(a['componentType'])
+   if divisor is None:raise ValueError('Unsupported normalized component type: '+str(a['componentType']))
+   values=[[v/divisor for v in row]for row in values]
+  return values
  def write(values,typ,ctype=5126):
   while len(blob)%4:blob.append(0)
   offset=len(blob);fmt={5126:'f',5125:'I',5123:'H'}[ctype]

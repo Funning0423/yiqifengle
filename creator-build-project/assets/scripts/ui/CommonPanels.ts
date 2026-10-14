@@ -180,30 +180,32 @@ export function spin(p: PopupPanel, n: Node, secondsPerTurn: number) {
 // ---------------- reward claim ("获得") ----------------
 export interface RewardItem { kind: string; count: number; label: string; art?: string | null; seal?: string | null }
 export function openReward(stack: PopupStack, items: RewardItem[], legacy: ToolArtSource | null, opts: { chest?: boolean; description?: string; done?: () => void } = {}): PopupPanel {
-  const ph = 884, p = stack.open({ name: 'RewardPanel', height: ph, title: '获得', titleArt: 'popup/title_3', dy: 30, onClose: opts.done });
-  const mouthY = 300, chestY = 320, size = 340;
-  const rays = p.sprite('popup/fx_rays', 0, mouthY, 560, 560, 'half'); const raysOp = rays.node.addComponent(UIOpacity); raysOp.opacity = 0; spin(p, rays.node, 12);
-  const shadow = uiNode('ChestShadow', p.body, 300, 60); const sp = p.at(0, chestY + 140); shadow.setPosition(sp[0], sp[1], 0);
+  const hasChest = opts.chest !== false, n = Math.min(3, items.length);
+  const ph = hasChest ? 748 : 652, heroY = hasChest ? 258 : 252, heroSize = n === 1 ? 276 : n === 2 ? 220 : 182, p = stack.open({ name: 'RewardPanel', height: ph, title: '获得', titleArt: 'popup/title_3', dy: 30, onClose: opts.done });
+  const mouthY = heroY, chestY = 308, size = 276;
+  const rays = p.sprite('popup/fx_rays', 0, mouthY, hasChest ? 460 : 420, hasChest ? 460 : 420, 'half'); const raysOp = rays.node.addComponent(UIOpacity); raysOp.opacity = 0; spin(p, rays.node, 12);
+  const shadow = uiNode('ChestShadow', p.body, 300, 60); const sp = p.at(0, chestY + 110); shadow.setPosition(sp[0], sp[1], 0);
   p.tint.shape(shadow.addComponent(Graphics), (g, _n, a) => { for (let i = 0; i < 4; i++) { g.fillColor = new Color(60, 40, 20, Math.round((40 - i * 9) * a)); g.ellipse(0, 0, 150 - i * 18, 26 - i * 4); g.fill(); } });
+  shadow.active = hasChest;
   let chest: ResultChest3D | null = null; const fallback = opts.chest === false ? null : (() => { const s = p.sprite('popup/chest_closed', 0, chestY + 30, 300, undefined, 'half'); return s; })();
   if (opts.chest !== false) {
     chest = new ResultChest3D(p.body, size); const cp = p.at(0, chestY); chest.node.setPosition(cp[0], cp[1], 0); p.tint.sprite(chest.sprite, 'half');
     chest.node.active = false;
     void chest.load().then(ok => { if (!ok || !chest || !isValid(chest.node, true)) return; chest.node.active = true; if (fallback && isValid(fallback.node, true)) fallback.node.active = false; chest.open(!reducedMotion()); });
   }
-  const n = Math.min(3, items.length), xs = n === 1 ? [0] : n === 2 ? [-110, 110] : [-180, 0, 180], ys = n === 3 ? [220, 186, 220] : [200, 200];
+  const xs = n === 1 ? [0] : n === 2 ? [-140, 140] : [-204, 0, 204], ys = n === 3 ? [heroY + 16, heroY - 16, heroY + 16] : [heroY, heroY];
   const itemNodes: Node[] = [];
   for (let i = 0; i < n; i++) {
-    const it = items[i], holder = uiNode('Gain-' + it.kind, p.body, 140, 140); itemNodes.push(holder);
-    if (it.seal) p.sprite(it.seal, 0, 0, undefined, 116, 'half', holder).node.setPosition(0, 0, 0);
-    else { const s = toolArt(p, it.kind, 0, 0, 108, legacy, holder); s?.node.setPosition(0, 0, 0); }
-    if (!it.seal && it.count > 0) { const b = uiNode('Count', holder, 48, 48); b.setPosition(38, -38, 0); badge(p, b, '×' + it.count); }
+    const it = items[i], holder = uiNode('Gain-' + it.kind, p.body, heroSize, heroSize); itemNodes.push(holder);
+    if (it.seal) p.sprite(it.seal, 0, 0, undefined, heroSize, 'half', holder).node.setPosition(0, 0, 0);
+    else { const s = toolArt(p, it.kind, 0, 0, heroSize, legacy, holder); s?.node.setPosition(0, 0, 0); }
+    if (!it.seal && it.count > 0) { const b = uiNode('Count', holder, 48, 48); b.setPosition(heroSize * .34, -heroSize * .34, 0); badge(p, b, '×' + it.count); }
     holder.active = false; (holder as any).__to = p.at(xs[i], ys[i % ys.length]);
   }
   const t1 = items.map(it => it.label).join('  ·  ');
-  p.text(t1, 0, 568, 32, 'brown', { width: 620, name: 'GainList' });
-  p.text(opts.description || '海风吹开了宝箱，收进行囊吧。', 0, 641, 28, 'brown2', { bold: false, width: 620 });
-  p.button('primary', '收下', 0, 776, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept' });
+  p.text(t1, 0, hasChest ? 492 : 426, 32, 'brown', { width: 620, name: 'GainList' });
+  p.text(opts.description || '海风吹开了宝箱，收进行囊吧。', 0, hasChest ? 551 : 485, 28, 'brown2', { bold: false, width: 620 });
+  p.button('primary', '收下', 0, ph - 98, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept' });
   const update = p.update.bind(p); let t = 0; const from = p.at(0, mouthY);
   p.update = (dt: number) => {
     update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (chest) chest.update(dt);
