@@ -10841,6 +10841,28 @@
               1.2000000476837158,
               1.0
             ]
+          ],
+          "cloth_return_clearance": [
+            [
+              0,
+              0
+            ],
+            [
+              0.2,
+              1
+            ],
+            [
+              0.61,
+              1
+            ],
+            [
+              0.95,
+              0.25
+            ],
+            [
+              1.2,
+              0
+            ]
           ]
         },
         "settle_time_s": 0.8667
@@ -11277,6 +11299,28 @@
               1.2666670083999634,
               0
             ]
+          ],
+          "cloth_rise_clearance": [
+            [
+              0,
+              0
+            ],
+            [
+              0.211111,
+              1
+            ],
+            [
+              0.422222,
+              0.5
+            ],
+            [
+              0.633333,
+              0
+            ],
+            [
+              1.266667,
+              0
+            ]
           ]
         },
         "release_time_s": 0.8667
@@ -11447,7 +11491,9 @@
           "sit_drape": 0,
           "sit_drape_mid": 1,
           "hand_rest_support": 2,
-          "sit_clearance_rise": 3
+          "sit_clearance_rise": 3,
+          "cloth_return_clearance": 4,
+          "cloth_rise_clearance": 5
         }
       },
       "LOD0_G2_DRESS": {
@@ -11455,7 +11501,9 @@
           "sit_drape": 0,
           "sit_drape_mid": 1,
           "hand_rest_support": 2,
-          "sit_clearance_rise": 3
+          "sit_clearance_rise": 3,
+          "cloth_return_clearance": 4,
+          "cloth_rise_clearance": 5
         }
       },
       "LOD0_G2_BODY": {

@@ -1,0 +1,11 @@
+# Task14 local waist candidate — OPEN
+
+Pinned input cf88d7ed2f83df66464c59f53657735ca514f933, ankle task13 retained. This is a partial candidate, not a full character acceptance.
+
+The previous native sit_down .610s screenshot's white waist fragments are BODY primitive4 thigh surface crossing DRESS, not apron or bow. Exact reconstructed native pose has 257 BODY4/DRESS pairs and 0 BODY0/DRESS or APRON/DRESS pairs. Removing upper-body correctives does not change 257. The white mesh's upper ring is above the thigh pivot and entirely thigh-weighted; the outer dress waist is dominated by hips/skirt bones. Their two deformation fields do not preserve a garment envelope during descent. Changing only proximal thigh weights failed, so it is not sufficient to label the weights alone the cause.
+
+Broad distance-field envelope candidates were rejected: they inflated the apron and introduced hand/sleeve crossings despite zero crossings in selected training poses. They are not shipped. This candidate keeps only the exact-face fitter's waist correction above bind y=.94m, with a smooth transition to full weight at .99m. No body/boot/sleeve positions, skin weights, skeleton, inverse binds, animation channel bytes, textures, UV, topology or material changes. Static waist shifts are at most 1.565mm for dress and .237mm for apron; pose corrections at most 20.594mm and 12.012mm. A separate return/rise cloth corrective prevents the reverse path from being forced through the same limited basis. Only affected face neighborhoods have updated base and morph normals.
+
+Reproduce from repository root: `python3 tools/offline-character/repair_waist_task14.py`. Pinned input and coefficient data live with the script. Coefficients affect only the waist; existing lower skirt and apron intersections are deliberately still reported as OPEN, not accepted.
+
+Previous native pose CPU geometry: stand_up .612 50→0 leg/dress; sit_down .610 257→0 leg/dress, all other tested clothing pairs 0 in those two poses. Return walk_start .630 remains legs/apron22, legs/dress47, apron/dress25. These are CPU checks, not simulator screenshots or all-motion acceptance. Dense validation and actual full-package results must be consulted before retaining this candidate. Task12 UI/meadow/reward fixes and task13 ankle envelope remain intact.
