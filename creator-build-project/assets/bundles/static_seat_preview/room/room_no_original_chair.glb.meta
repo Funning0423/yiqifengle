@@ -1842,6 +1842,12 @@
         "61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9"
       ]
     },
-    "tangents": 1
+    "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    }
   }
 }
