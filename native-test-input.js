@@ -23,7 +23,8 @@ setInterval(async()=>{
   try {
     command=JSON.parse(raw);
     let result;
-    if(command.op==='stage'){
+    if(command.op==='probe'){wx.setStorageSync('__test_persistence_probe',command.value);result={readback:wx.getStorageSync('__test_persistence_probe')};}
+    else if(command.op==='stage'){
       if(h.snapshot().state==='home')result=await h.leave();
       if(h.snapshot().state==='island')result=await h.enterMainlineStage('mainline-01',1);
       else throw Error('world did not enter island: '+JSON.stringify(result));

@@ -1,3 +1,7 @@
-GameGlobal.__task19Isolation = require('./native-storage-isolation')(wx, "task19-438d23e95ee06e3eca25e0c10b2d4df2:");
+GameGlobal.__task19Isolation = require('./native-storage-isolation')(wx, "task20-c4f1947898ed45c9943f2a3fa0566fc6:");
+GameGlobal.__task20Early={prefix:GameGlobal.__task19Isolation.prefix,bootId:Date.now(),active:wx.getStorageSync('dot-mainline-r1-isolated-20261009:forest-mainline-cocos-r1-active'),probe:wx.getStorageSync('__test_persistence_probe')};
+
 require('./native-test-input');
 require('./native-test-observer');
+function __initApp () {  // init app
+globalThis.__wxRequire = require;  // FIX: require cannot work in separate engine 

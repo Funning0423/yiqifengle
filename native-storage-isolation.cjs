@@ -1,10 +1,10 @@
 'use strict';
 // Test-copy only. Must run before web-adapter, engine, or any game module.
 module.exports = function install(wx, prefix) {
-  if (!wx || !/^task19-[a-f0-9]{32}:$/.test(prefix)) throw Error('invalid isolation boundary');
+  if (!wx || !/^task20-[a-f0-9]{32}:$/.test(prefix)) throw Error('invalid isolation boundary');
   const names = ['getStorageSync','setStorageSync','removeStorageSync','getStorageInfoSync','clearStorageSync',
     'getStorage','setStorage','removeStorage','getStorageInfo','clearStorage'];
-  const native = Object.create(null), wrappers = Object.create(null), audit = [];
+  const native = Object.create(null), wrappers = Object.create(null), audit = [], traces=[];
   const found = new Set();
   for (let p = wx; p; p = Object.getPrototypeOf(p)) {
     for (const n of Object.getOwnPropertyNames(p)) if (/storage/i.test(n)) found.add(n);
@@ -34,7 +34,7 @@ module.exports = function install(wx, prefix) {
     return {keys:physical.map(k=>k.slice(prefix.length)),currentSize:Math.ceil(bytes/1024),limitSize:info.limitSize,errMsg:'getStorageInfo:ok'};
   };
   for (const n of ['getStorageSync','setStorageSync','removeStorageSync']) {
-    wrappers[n] = function(k,...rest) { const mapped=key(k); record(n,mapped); return native[n](mapped,...rest); };
+    wrappers[n] = function(k,...rest) { const mapped=key(k); record(n,mapped); const result=native[n](mapped,...rest); if(k.endsWith('forest-mainline-cocos-r1-active') || k==='__test_persistence_probe') { if(traces.length<120) traces.push({op:n,key:mapped,value:n==='setStorageSync'?rest[0]:result,stack:new Error().stack}); } return result; };
   }
   wrappers.getStorageInfoSync = () => filtered(native.getStorageInfoSync());
   wrappers.clearStorageSync = () => {
@@ -89,5 +89,5 @@ module.exports = function install(wx, prefix) {
     if(wx[n]!==wrappers[n]) throw Error('storage interception failed: '+n);
   }
   // Nothing calls storage during installation. Failure throws out of game.js before initialization.
-  return Object.freeze({prefix,covered:names.slice(),rejected:[...found].filter(n=>!names.includes(n)),snapshot:()=>audit.map(x=>({...x}))});
+  return Object.freeze({prefix,covered:names.slice(),rejected:[...found].filter(n=>!names.includes(n)),trace:()=>traces.map(x=>({...x})),snapshot:()=>audit.map(x=>({...x}))});
 };
