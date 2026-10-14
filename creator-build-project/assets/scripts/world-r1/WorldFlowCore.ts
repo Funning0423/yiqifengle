@@ -62,6 +62,8 @@ export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress
 /** UI is granted commands/status only; never a world node or camera reference. */
 export interface LevelLease {
   requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void;
+  /** Saved terminal page has no gameplay to resume. Errors/unsaved/playing keep the explicit pause gate. */
+  isSettledResult?():boolean;
   /** Resolves when the board may be shown: run.ready and able to take a finger, or a settled pause/result screen.
    *  Omitted = the lease is already playable when enter() resolves (older adapters). */
   whenPlayable?():Promise<void>;
@@ -577,6 +579,9 @@ export class WorldFlow {
    *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose). */
   show():void {
     if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();
+    if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
+      this.needsResume=false;this.restore();this.change('level');return;
+    }
     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
   }
   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */

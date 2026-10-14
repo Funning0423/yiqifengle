@@ -526,7 +526,9 @@ export class WorldIntegrationBoot extends Component {
  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
- if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}board.setHostActions(actions);}
+ // Do not rebuild the result behind a live RewardPanel while the app is hidden.
+ // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
+ if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}if(!s.hidden)board.setHostActions(actions);}
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);

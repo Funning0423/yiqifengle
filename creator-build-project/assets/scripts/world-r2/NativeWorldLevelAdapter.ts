@@ -80,6 +80,7 @@ export function createNativeWorldLevelAdapter(options:{
       const lease:LevelLease={requestExit:()=>session!.requestExit() as Result,
         hide:()=>{root.active=false;background.setPaused(true);try{session!.hide();}finally{background.setVisible(false);}},showPaused:()=>{background.setPaused(true);try{session!.show();}finally{root.active=true;background.setVisible(true);}},
         resume:()=>session!.resume() as Result,dispose,
+        isSettledResult:()=>{const s=session!.snapshot();return !s.readOnly&&s.state==='result.saved'&&!!s.active&&(s.active.status==='won'||s.active.status==='lost');},
         whenPlayable:()=>typeof (ui as any).whenInteractive==='function'?(ui as any).whenInteractive():Promise.resolve(),
         reveal};
       // Host stays inactive so the island shot is what the player sees. setVisible keeps the background lease armed.
