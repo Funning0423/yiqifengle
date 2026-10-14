@@ -46,7 +46,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  unlockHint?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
@@ -83,7 +83,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
         section(name, x, y, () => rewardSlot(p, m.rewards[i], x, y, legacy, wideReward)); rewards.push(groups[name]); }
       y += rewardsH;
     }
-    if (m.next) { button('primary', '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
+    if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
     section('ResultGoals', 0, 440, () => {
@@ -142,7 +142,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const goalIcons = groups.ResultGoals?.node.children.filter(n => !n.getComponent(Label)) || [];
   const frame = p.body.getChildByName('PanelFrame')!; frame.setScale(frame.scale.x * 0.45, frame.scale.y * 0.45, 1);
   const plateScales = new Map<Node, number>();
-  const buttonTextInset = 16, rewardIconLane = 60;
+  const buttonTextInset = 16, rewardIconLane = 96;
+  let rowGap = 6;
   const buttonTextWidth = (width: number) => width - buttonTextInset;
   const rewardTextWidth = (cell: number) => buttonTextWidth(cell - rewardIconLane);
   for (const g of Object.values(groups)) for (const v of g.original) original.set(v.node, v);
@@ -158,11 +159,11 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const k = Math.min(w / Math.max(1, ow), h / Math.max(1, oh));
     n.setScale((v?.sx ?? 1) * k, (v?.sy ?? 1) * k, 1);
   };
-  const layoutButton = (n: Node, w: number, text?: string) => {
+  const layoutButton = (n: Node, w: number, text?: string, height = 48) => {
     const plate = n.getChildByName('Face')!.getChildByName('Plate')!;
     if (!plateScales.has(plate)) plateScales.set(plate, plate.scale.x);
     const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : 0.45); plate.setScale(artScale, artScale, 1);
-    fitResultButton(n, w, 48, 16); n.setScale(1, 1, 1);
+    fitResultButton(n, w, height, 16); n.setScale(1, 1, 1);
     const face = n.getChildByName('Face')!, label = face.getChildByName('Label')?.getComponent(Label);
     const icon = face.getChildByName('Icon'); if (icon) icon.active = false;
     if (label) {
@@ -200,9 +201,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const spaceNotice = p.text('', 0, 0, 16, 'brown2', { width: 160, name: 'ResultSpaceNotice', bold: false }); spaceNotice.node.active = false;
   const showPage = () => {
     for (const n of pool.values()) n.active = false;
-    const rows = pages[page] || []; const used = rows.reduce((sum, row) => sum + row.height + 1, -1);
+    const rows = pages[page] || []; const used = rows.reduce((sum, row) => sum + row.height + rowGap, -rowGap);
     let y = contentTop + Math.max(0, (available - used) / 2);
-    for (const row of rows) { row.node.active = true; row.node.setPosition(0, p.height / 2 - y - row.height / 2, 0); y += row.height + 1; }
+    for (const row of rows) { row.node.active = true; row.node.setPosition(0, p.height / 2 - y - row.height / 2, 0); y += row.height + rowGap; }
     previous.node.active = next.node.active = counter.node.active = pages.length > 1;
     previous.setEnabled(page > 0); next.setEnabled(page + 1 < pages.length);
     counter.string = `${page + 1} / ${pages.length}`;
@@ -212,6 +213,25 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     if (target === page) return;
     resetPresses(p.root); page = target; showPage();
   }
+  let compactViewport = false;
+  const pairedRewards = (inner: number) => rewards.length === 2 && inner >= 400 && m.rewards.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2));
+  // Measure the same content used by reflow. Tall phones no longer turn a short
+  // result into a near-full-screen panel with a vertically centred empty area.
+  const naturalHeight = (w: number) => {
+    const inner = w - 16, heights: number[] = [];
+    const lines = (text: string, size: number) => { for (const _ of wrap(text, inner - 4, size)) heights.push(Math.ceil(size * 1.35)); };
+    heights.push(88); lines(scoreText, m.kind === 'lose' ? 16 : 30);
+    if (m.kind === 'win') {
+      lines((m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步', 16);
+      lines('成绩已保存', 16);
+      if (m.unlockHint) lines(m.unlockHint, 16);
+    } else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
+    else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
+    if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
+    const paired = pairedRewards(inner), cell = paired ? (inner - 12) / 2 : inner;
+    m.rewards.forEach((r, i) => { if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); if (!paired || i === 0) heights.push(96); });
+    return contentTop + 60 + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
+  };
   p.setLayoutStrategy((width, height, safeInsets) => {
     const number = (v: number | undefined) => Number.isFinite(v) ? Math.max(0, v!) : 0;
     const left = number(safeInsets?.left), right = number(safeInsets?.right), bottom = number(safeInsets?.bottom);
@@ -219,14 +239,16 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // overlap the system menu even when its horizontal position is asymmetric.
     const top = Math.max(number(safeInsets?.top), number(safeInsets?.capsule?.bottom));
     const w = Math.min(680, Math.max(1, width - left - right - 24));
-    const h = Math.min(720, Math.max(1, height - top - bottom - 24));
+    const maxHeight = Math.max(1, height - top - bottom - 24);
+    compactViewport = maxHeight < 400; rowGap = compactViewport ? 1 : 6;
+    const h = Math.min(maxHeight, naturalHeight(w));
     return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
   }, geometry => {
-    const key = `${geometry.width}/${geometry.height}`;
+    const key = `${geometry.width}/${geometry.height}/${compactViewport}`;
     // Opening animation must not rebuild the pages or reset a held finger.
     if (layoutKey === key) return; layoutKey = key;
     resetPresses(p.root);
-    const w = geometry.width, h = geometry.height, inner = w - 16, dense = h < 400;
+    const w = geometry.width, h = geometry.height, inner = w - 16, dense = compactViewport;
     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
@@ -278,11 +300,11 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
       scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
     } else {
-      const row = getRow('stars', dense ? 44 : 116); stars.setScale(dense ? 0.14 : 0.32, dense ? 0.14 : 0.32, 1); add(row, stars, 0, dense ? -4 : -12); rows.push(row);
+      const row = getRow('stars', dense ? 44 : 88); stars.setScale(dense ? 0.14 : 0.32, dense ? 0.14 : 0.32, 1); add(row, stars, 0, dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
       // Keep a long numeric score together on a compact page. The readable floor
       // is the same 16-unit body size; ordinary compact scores remain 20 units.
-      const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 24;
+      const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 30;
       labelRows(m.kind === 'lose' ? 'ResultMessage' : 'Score', scoreText, scoreSize);
     }
     if (m.kind === 'win') {
@@ -305,7 +327,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
     if (m.kind === 'win' && m.unlockHint) labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
-    const paired = rewards.length === 2 && inner >= 400 && m.rewards.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2));
+    const paired = pairedRewards(inner);
     const cell = paired ? (inner - 12) / 2 : inner;
     for (let i = 0; i < rewards.length; i++) {
       const columnX = paired ? (i - 0.5) * (cell + 12) : 0;
@@ -313,25 +335,50 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       // Use the actual CLAMP label width, including its padding and icon lane.
       const label = r.label, long = textWidth(label, 16) > rewardTextWidth(cell);
       if (long) labelRows('ResultRewardLabel-' + i, label, 16, r.state === 'locked' ? 'grey' : 'brown2');
-      const row = getRow(paired ? 'reward-pair' : 'reward-' + i, 48);
+      const cardHeight = Math.min(dense ? 64 : 96, Math.max(48, available));
+      const row = getRow(paired ? 'reward-pair' : 'reward-' + i, cardHeight);
       const art = rewardIcons[i];
-      for (const n of art) { fitArt(n, 44, 36); add(row, n, columnX - cell / 2 + 24); }
-      if (claim) { layoutButton(claim, cell - rewardIconLane, long ? '领取奖励' : label); add(row, claim, columnX + rewardIconLane / 2); }
-      else {
-        let l = row.node.getChildByName('ResultRewardState-' + i)?.getComponent(Label); if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { width: cell - 64, name: 'ResultRewardState-' + i, parent: row.node });
-        l.string = long ? (r.state === 'claimed' ? '已经领取' : '暂未解锁') : label; l.fontSize = 16; l.lineHeight = 22;
-        l.node.getComponent(UITransform)!.setContentSize(cell - 64, 24); add(row, l.node, columnX + 30);
+      let card: Node;
+      if (claim) {
+        layoutButton(claim, cell, long ? '领取' : label, cardHeight); add(row, claim, columnX);
+        card = claim.getChildByName('Face')!;
+        const l = card.getChildByName('Label')!.getComponent(Label)!;
+        l.node.setPosition(rewardIconLane / 2, 0, 0);
+        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40);
+      } else {
+        let well = row.node.getChildByName('ResultRewardCard-' + i);
+        if (!well) {
+          well = uiNode('ResultRewardCard-' + i, row.node, cell, cardHeight);
+          const cardNode = well;
+          p.tint.shape(well.addComponent(Graphics), (g, night, alpha) => {
+            const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
+            g.fillColor = new Color(Math.round(236 * k), Math.round(229 * k), Math.round(207 * k), Math.round(255 * alpha));
+            g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
+          });
+        }
+        well.getComponent(UITransform)!.setContentSize(cell, cardHeight); add(row, well, columnX); card = well;
+        let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
+        if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
+        l.string = long ? (r.state === 'claimed' ? '已领取' : '未解锁') : label; l.fontSize = 16; l.lineHeight = 22;
+        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40); l.node.setPosition(rewardIconLane / 2, 0, 0);
+      }
+      // Art shares the card/pressed-face transform and stays inside its hit area.
+      // Claimed stamps get their own small badge, rather than covering the icon.
+      for (let j = 0; j < art.length; j++) {
+        const n = art[j], badge = j > 0, size = badge ? 24 : Math.min(72, cardHeight - 12);
+        fitArt(n, size, size); card.addChild(n); n.active = true;
+        n.setPosition(-cell / 2 + rewardIconLane / 2 + (badge ? 25 : 0), badge ? -cardHeight / 2 + 18 : 0, 0);
       }
       if (!paired || i === 0) rows.push(row);
     }
     pages = [[]]; let used = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]; let needed = row.height;
-      if (row.keepWithNext) for (let j = i + 1; j < rows.length; j++) { needed += rows[j].height + 1; if (!rows[j].keepWithNext) break; }
-      if (used && used + 1 + needed > available) { pages.push([]); used = 0; }
-      pages[pages.length - 1].push(row); used += row.height + (used ? 1 : 0);
+      if (row.keepWithNext) for (let j = i + 1; j < rows.length; j++) { needed += rows[j].height + rowGap; if (!rows[j].keepWithNext) break; }
+      if (used && used + rowGap + needed > available) { pages.push([]); used = 0; }
+      pages[pages.length - 1].push(row); used += row.height + (used ? rowGap : 0);
     }
-    page = Math.min(page, pages.length - 1); showPage();
+    page = Math.min(page, pages.length - 1); showPage(); p.tint.update(true);
   });
 }
 function chestLine(p: PopupPanel, y: number, text: string) {
