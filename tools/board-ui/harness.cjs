@@ -179,7 +179,7 @@ function createHarness(options = {}) {
     if (cache.has(file)) return cache.get(file).exports;
     const out = ts.transpileModule(fs.readFileSync(file, 'utf8'), { fileName: file, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019, experimentalDecorators: true, esModuleInterop: true, isolatedModules: true } }).outputText;
     const module = { exports: {} }; cache.set(file, module);
-    const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: false, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
+    const req = spec => { const r = resolve(file, spec); return r.kind === 'cc' ? cc : r.kind === 'env' ? { DEBUG: !!options.debug, EDITOR: false, PREVIEW: false, WECHAT: false } : r.kind === 'override' ? overrides[r.rel] : r.kind === 'ts' ? load(r.file) : require(r.id); };
     new Function('exports', 'require', 'module', '__filename', '__dirname', out)(module.exports, req, module, file, path.dirname(file));
     return module.exports;
   }

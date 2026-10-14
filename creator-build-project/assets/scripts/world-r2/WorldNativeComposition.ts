@@ -1,4 +1,6 @@
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
+import { DEBUG } from 'cc/env';
+import { createRegionFlowCheckpoint } from './RegionFlowTest';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -20,6 +22,7 @@ export class WorldNativeComposition extends Component {
   @property(JsonAsset) smokeFixture:JsonAsset|null=null;
   private owner:Node|null=null;private uiParent:Node|null=null;private world:WorldFlowComponent|null=null;
   private selection:Selection|null=null;private mainline=createPersistentMainlinePort();private persistence=createPersistentR5Port(this.mainline.journey);private r4=this.createR4Port();private previousCameraVisibility:number|null=null;private activeSession:any=null;private hostReply:any=null;
+  private testProfile:any=null;private normalPorts:any=null;
   private initialization:Promise<void>|null=null;
   /** Boot awaits actual world validation; Creator start shares the same promise. */
   initializeWorld():Promise<void>{if(!this.initialization)this.initialization=this.initializeOnce();return this.initialization;}
@@ -107,6 +110,21 @@ export class WorldNativeComposition extends Component {
   useIsolatedTestProfile(namespace:string,journeyNamespace:string):Result {
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-profile-only-outside-level'};
     this.persistence=createIsolatedTestPort(namespace,journeyNamespace);return {ok:true};
+  }
+  regionFlowTestStatus(){return DEBUG&&this.testProfile?{namespace:this.testProfile.namespace,checkpoint:this.testProfile.completed,lastAction:this.testProfile.lastAction}:null;}
+  async startRegionFlowTest(checkpoint:number):Promise<Result>{
+    if(!DEBUG)return {ok:false,reason:'test-build-only'};
+    if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};
+    let profile:any;try{profile=createRegionFlowCheckpoint(checkpoint);}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+    this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+    if(this.world.commands().snapshot().state==='home'){const r=await this.world.commands().leaveHome();if(!r.ok)return r;}
+    return this.enterMainlineStage(profile.stageId,profile.seed);
+  }
+  exitRegionFlowTest():Result{
+    if(!DEBUG||!this.normalPorts)return {ok:false,reason:'no-test-profile'};
+    if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'return-to-island-before-exiting-test'};
+    Object.assign(this,this.normalPorts);this.normalPorts=null;this.testProfile=null;this.activeSession=null;this.hostReply=null;return {ok:true};
   }
   attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');return this.world.bindCharacter(adapter);}
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}

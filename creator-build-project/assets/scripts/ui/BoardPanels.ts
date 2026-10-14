@@ -46,7 +46,7 @@ export interface ResultReward { id: string; label: string; icon: string; iconKin
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
-  next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
+  unlockHint?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
@@ -303,6 +303,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
       }
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
+    if (m.kind === 'win' && m.unlockHint) labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
     const paired = rewards.length === 2 && inner >= 400 && m.rewards.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2));
     const cell = paired ? (inner - 12) / 2 : inner;

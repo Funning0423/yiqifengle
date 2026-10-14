@@ -1,7 +1,7 @@
 'use strict';
 // Test-copy only. Must run before web-adapter, engine, or any game module.
 module.exports = function install(wx, prefix) {
-  if (!wx || !/^task20-[a-f0-9]{32}:$/.test(prefix)) throw Error('invalid isolation boundary');
+  if (!wx || !/^task(?:20|25)-[a-f0-9]{32}:$/.test(prefix)) throw Error('invalid isolation boundary');
   const names = ['getStorageSync','setStorageSync','removeStorageSync','getStorageInfoSync','clearStorageSync',
     'getStorage','setStorage','removeStorage','getStorageInfo','clearStorage'];
   const native = Object.create(null), wrappers = Object.create(null), audit = [], traces=[];
