@@ -1,3 +1,5 @@
+> **Updated continuation:** the missing-asset containment described below has been superseded by the verified v0.8 live meadow candidate in `19d719d`. See `2026-10-14-meadow-integration.md`. All defects still OPEN; actual import/render acceptance remains queued. The earlier receipt is preserved as historical evidence.
+
 # Priority user defects — isolated candidate
 
 All four defects in `2026-10-14-priority.json` remain **OPEN**. Current or older functional reports cannot close UI-SCALE by clickability, or REGION-MEADOW by a changed level/unlock flag. Character feet and seated pose remain owned by their existing cloud fix task; no character resource or code was changed here.
