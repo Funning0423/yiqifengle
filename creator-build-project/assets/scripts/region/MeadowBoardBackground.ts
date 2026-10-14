@@ -10,6 +10,24 @@ export const MEADOW_LAYER = 1 << 20;
 function find(n:Node,name:string):Node|null { if(n.name===name)return n;for(const child of n.children){const hit=find(child,name);if(hit)return hit;}return null; }
 function setLayer(n:Node) { n.layer=MEADOW_LAYER;for(const child of n.children)setLayer(child); }
 function grassRenderer(r:MeshRenderer) { for(let n:Node|null=r.node;n;n=n.parent)if(n.name.startsWith('meadow_grass_instances.'))return true;return false; }
+/** Imported palette material is shared by colour-bearing flowers and colourless
+ * path/river/windmill meshes. A missing vertex colour defaults to black on GPU;
+ * use a renderer-owned variant, preserving the authored texture and lighting. */
+export function configureMeadowVertexColors(model:Node):string[] {
+ const changed:string[]=[];
+ for(const r of model.getComponentsInChildren(MeshRenderer)) {
+  if(!r.mesh)continue;
+  const hasColor=r.mesh.struct.vertexBundles.some(b=>b.attributes.some(a=>a.name==='a_color'));
+  if(hasColor)continue;
+  for(let i=0;i<r.sharedMaterials.length;i++) {
+   const m=r.sharedMaterials[i];
+   if(m?.passes.some(p=>p.defines.USE_VERTEX_COLOR)) {
+    r.getMaterialInstance(i)?.recompileShaders({USE_VERTEX_COLOR:false});changed.push(r.node.name);
+   }
+  }
+ }
+ return changed;
+}
 function loadWindEffect():Promise<EffectAsset> {
  const bundle=assetManager.getBundle(REGIONS.meadow.bundle);if(!bundle)return Promise.reject(Error('Meadow bundle missing'));
  return new Promise((ok,fail)=>bundle.load('meadow-grass-wind',EffectAsset,(error,effect)=>error||!effect?fail(error||Error('Meadow grass shader missing')):ok(effect)));
@@ -73,6 +91,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   for(const c of model.getComponentsInChildren(Camera))c.enabled=false;
   for(const a of model.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
   const grass=validateModel(model);
+  configureMeadowVertexColors(model);
   material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('Meadow wind material unavailable');
   for(const r of grass){for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);r.shadowCastingMode=MeshRenderer.ShadowCastingMode.OFF;}
   const lightNode=new Node('MeadowKeyLight');lightNode.layer=MEADOW_LAYER;rig.addChild(lightNode);lightNode.setPosition(-25,80,25);
