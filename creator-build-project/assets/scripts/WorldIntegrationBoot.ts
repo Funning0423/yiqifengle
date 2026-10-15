@@ -74,8 +74,8 @@ class FlowReferenceStandin implements CharacterAdapter {
  constructor(private node:Node){}
  private ninetyLandingSamples:any[]=[];private turnLandingSamples:any[]=[];private turnLandingIdle:any=null;private motionEvents:any[]=[];
  private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
- diagnostics(){const p=this.node.worldPosition,c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
-  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
+ diagnostics(){const p=this.rootMetres(),c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
+  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:p,disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
    motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
     walkPlan:this.lastPlan,lastFoot:this.lastFoot,footDeduped:this.footDeduped,stopRoot:this.stopRoot?this.stopRoot.clip:null,yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
     apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics()}};}
@@ -106,16 +106,20 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.stopHold>0&&this.clock.base&&name!==this.clock.base.clip){this.stopHold=0;this.clock.releaseHold();}
   const d=this.requireClip(name);
   if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
+ /** Controller root in metres. worldPosition does not exist until the node is in a scene, and reading it throws after destroy. */
+ private rootMetres():[number,number,number]{const n:any=this.node;if(!n)return [0,0,0];try{if(n.isValid===false)return [0,0,0];}catch{return [0,0,0];}let p:any=null;try{p=n.worldPosition;}catch{p=null;}
+  if(!p||!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.z)){try{p=n.position;}catch{p=null;}}
+  if(!p||!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.z))return [0,0,0];return [p.x,p.y,p.z];}
  private render(dt=0){if(!this.rig||!this.clock)return;const plan=this.clock.plan(),j=this.job;
   // A held outgoing pose was authored in the controller frame at action entry. Reproject it into the moving
   // controller frame before blending; otherwise the first 0.2 s of sit/stand drags the planted feet ~20 mm.
   // +Z forward, +Y up, unit-scale visual; translation is applied only to the outgoing root joint pose buffer.
-  if(plan.out&&j&&(j.action.kind==='sit'||j.action.kind==='stand')){const p=this.node.worldPosition,dx=j.from[0]-p.x,dy=j.from[1]-p.y,dz=j.from[2]-p.z,sy=Math.sin(this.yawRad),cy=Math.cos(this.yawRad);
+  if(plan.out&&j&&(j.action.kind==='sit'||j.action.kind==='stand')){const p=this.rootMetres(),dx=j.from[0]-p[0],dy=j.from[1]-p[1],dz=j.from[2]-p[2],sy=Math.sin(this.yawRad),cy=Math.cos(this.yawRad);
    plan.out.controllerOffset=[cy*dx-sy*dz,dy,sy*dx+cy*dz];
    // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
    // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
    plan.out.preserveIncomingLowerBody=(j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle||j.action.kind==='stand'&&plan.out.clip===CLIP_ROLES.sitHold);}
-  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
+  this.rig.apply(plan);const p=this.rootMetres();this.support?.apply(this.rig.joints,p,this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
@@ -127,7 +131,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   return {durationSec,contactSec:contact!==undefined&&Number.isFinite(contact)?Math.max(0,Math.min(durationSec,contact)):0};}
  performDoorReach(token:Cancellation):Promise<void>{token.check();const timing=this.doorReachTiming();if(!timing)return Promise.reject(Error('Character clip missing: '+CLIP_ROLES.doorReach));
   if(!this.playDoorReach())return Promise.reject(Error('Character door reach unavailable'));
-  return new Promise((resolve,reject)=>{const p=this.node.worldPosition,j:any={action:{kind:'door-reach'},duration:timing.durationSec,from:[p.x,p.y,p.z],elapsed:0,resolve,reject,off:()=>{}};this.job=j;
+  return new Promise((resolve,reject)=>{const p=this.rootMetres(),j:any={action:{kind:'door-reach'},duration:timing.durationSec,from:[p[0],p[1],p[2]],elapsed:0,resolve,reject,off:()=>{}};this.job=j;
    j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});}
  private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
  /** One contact = one event: entry_contact events (the walk_loop heel strike a stop clip starts on, already emitted by
@@ -135,7 +139,7 @@ class FlowReferenceStandin implements CharacterAdapter {
  private emitFoot(f:any){const def=f.def,prev=this.lastFootEmit;
   if(def.entryContact||prev&&prev.bone===def.bone&&prev.clip!==f.clip&&this.motionT-prev.t<FOOT_DEDUPE_S){this.footDeduped++;this.logEvent({kind:'foot-dedupe',event:def.name,clip:f.clip,reason:def.entryContact?'entry_contact':'same contact'});return;}
   this.lastFootEmit={bone:def.bone,clip:f.clip,t:this.motionT};this.lastFoot=def.body;
-  const p=this.node.worldPosition;const e:FootEvent={event:def.name,bone:def.bone,body:def.body,clip:f.clip,phase:def.time/f.duration,time:def.time,cycle:f.cycle,pos:[p.x,p.y,p.z],type:def.type||'heel_strike'};
+  const p=this.rootMetres();const e:FootEvent={event:def.name,bone:def.bone,body:def.body,clip:f.clip,phase:def.time/f.duration,time:def.time,cycle:f.cycle,pos:[p[0],p[1],p[2]],type:def.type||'heel_strike'};
   this.logEvent({kind:'foot',type:e.type,event:e.event,bone:e.bone,body:e.body,clip:e.clip,phase:e.phase,cycle:e.cycle,pos:[p.x,p.z]});const list=this.footListeners.slice();for(let i=0;i<list.length;i++){try{list[i](e);}catch(err){console.warn('onFoot listener failed',String(err));}}}
  /** settle:* (stop clips: small step that brings the feet side by side, < 0.25 m): not a footstep, so not on onFoot
   *  (anim_meta: onFoot is foot:* only). It is the last foot to land, so it counts for lastFoot (180 choice), and is logged. */
@@ -288,7 +292,7 @@ class FlowReferenceStandin implements CharacterAdapter {
      if(left<TURN_FOLD_MIN_S){this.stopHold=this.support?.settleSeconds()||.12;c.holdBase();left=TURN_FOLD_MIN_S;}}
     extra.foldS=foldedTurnDuration(left,duration);if(extra.foldS>0)duration=extra.foldS;
     this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:extra.foldS?'folded into '+b!.clip+' over '+extra.foldS.toFixed(3)+' s':ch.reason});
-    if(ch.role==='walk_turn_90_bodyL'&&this.ninetyLandingSamples.length){const pos=this.node.worldPosition;this.support?.startNinetyLanding(supportPose(this.rig!.joints),this.ninetyLandingSamples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}
+    if(ch.role==='walk_turn_90_bodyL'&&this.ninetyLandingSamples.length){const pos=this.rootMetres();this.support?.startNinetyLanding(supportPose(this.rig!.joints),this.ninetyLandingSamples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,pos);}
     if(ch.role==='walk_turn_180_bodyR'&&c.base?.clip===CLIP_ROLES.idle&&this.turnLandingSamples.length){
      // Isolated phase30: only first-swing boundary cache; never advance formal clock or morph driver.
      const pre=c.plan(),incomingIdle=c.base,evidenceEnabled=(globalThis as any).__characterMotionEvidence===true;const evidenceNow=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now(),sampleStart=evidenceEnabled?evidenceNow():0;
@@ -296,25 +300,25 @@ class FlowReferenceStandin implements CharacterAdapter {
      // writing a lower-body bone or an ancestor on its actual FK chain.
      const lowerDependencies=new Set<any>();for(const j of this.rig!.joints)if(/^(hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(j.name))for(let n:any=j.node;n;n=n.parent)lowerDependencies.add(n);
      const unsafeLayerBones:string[]=[];for(const layer of pre.layers)if(layer.weight>0)for(const i of (this.rig as any).mask(layer.clip,layer.mask))if(lowerDependencies.has(this.rig!.joints[i].node))unsafeLayerBones.push(this.rig!.joints[i].name);
-     const entryPosition=this.node.worldPosition,shapeDomain=!!this.support?.canStartTurnLanding(this.yawRad,extra.deltaYaw,[entryPosition.x,entryPosition.y,entryPosition.z]);const eligible=shapeDomain&&!(unsafeLayerBones.length||incomingIdle.distance||!incomingIdle.loop||!(this.rig as any).blend);
-     if(!eligible){this.support?.reset();this.logEvent({kind:'turn-support-domain-warning',clip:ch.role,reason:!shapeDomain?'outside verified right180 shape domain: original motion retained':'lower-body layer or unsupported track evaluator: original motion retained',fromYaw:this.yawRad,deltaYaw:extra.deltaYaw,root:[entryPosition.x,entryPosition.y,entryPosition.z],unsafeLayerBones});}
+     const entryPosition=this.rootMetres(),shapeDomain=!!this.support?.canStartTurnLanding(this.yawRad,extra.deltaYaw,entryPosition);const eligible=shapeDomain&&!(unsafeLayerBones.length||incomingIdle.distance||!incomingIdle.loop||!(this.rig as any).blend);
+     if(!eligible){this.support?.reset();this.logEvent({kind:'turn-support-domain-warning',clip:ch.role,reason:!shapeDomain?'outside verified right180 shape domain: original motion retained':'lower-body layer or unsupported track evaluator: original motion retained',fromYaw:this.yawRad,deltaYaw:extra.deltaYaw,root:entryPosition.slice(),unsafeLayerBones});}
      else {
      const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);const abs=incomingIdle.abs,rate=incomingIdle.rate,samples=this.turnLandingSamples.slice(),times:number[]=[],outgoingTimes:number[]=[];
      try{for(const time of this.turnLandingSamples.map((x:any)=>x.time).filter((t:number)=>t<c.crossfadeS)){const idleTime=c.localTime({...incomingIdle,abs:abs+time*rate});this.rig!.apply({base:{clip:ch.role,time,loop:false},out:{clip:CLIP_ROLES.idle,time:idleTime,weight:Math.max(0,1-time/c.crossfadeS)},layers:pre.layers,morph:pre.morph});const entry={time,pose:supportPose(this.rig!.joints)},index=samples.findIndex((x:any)=>Math.abs(x.time-time)<1e-12);if(index<0)throw Error('phase30 boundary cache missing');samples[index]=entry;times.push(time);outgoingTimes.push(idleTime);}}
      finally{writePose(this.rig!.joints,saved);}
      if(evidenceEnabled){const restored=new Float64Array(saved.length);capture(this.rig!.joints,restored);let restoreMax=0;for(let i=0;i<saved.length;i++)restoreMax=Math.max(restoreMax,Math.abs(saved[i]-restored[i]));
      if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__phase30Evidence ||= []).push({baseAbs:abs,rate,times,outgoingTimes,sampleCount:times.length,safeLayerClips:pre.layers.map((l:any)=>l.clip),unsafeLayerBones,samplingMs:evidenceNow()-sampleStart,restoreMax,clockAbsAfter:incomingIdle.abs,phasePlanUnchanged:JSON.stringify(pre)===JSON.stringify(c.plan())});}
-     const pos=this.node.worldPosition;this.support?.startTurnLanding(supportPose(this.rig!.joints),samples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}}
+     const pos=this.rootMetres();this.support?.startTurnLanding(supportPose(this.rig!.joints),samples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,pos);}}
 
     if(ch.role){this.stopRoot=null;if(turnBridgeStart){const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);(this.rig as any).sample(ch.role,.65);const end=supportPose(this.rig!.joints);(this.rig as any).sample(CLIP_ROLES.idle,0);const flat=supportPose(this.rig!.joints);const predictions:any[]=[];for(let k=0;k<=16;k++){const time=.25+.4*k/16;(this.rig as any).sample(ch.role,time);const u=(time-.25)/.4,v=u*u*(3-2*u),h=turnBridgeStart.hip.map((x:number,i:number)=>x+(end.hip[i]-x)*v);if(time>.45&&time<.75)h[1]-=.0044*Math.sin(Math.PI*(time-.45)/.30)**2;const hips=this.rig!.joints.find(x=>x.name==='hips')!.node;hips.setPosition(h[0],h[1],h[2]);predictions.push({time,pose:supportPose(this.rig!.joints)});}writePose(this.rig!.joints,saved);this.support?.startTurnBridge(turnBridgeStart,end,this.yawRad,extra.deltaYaw,flat,predictions);}this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
    if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
-  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
+  return new Promise((resolve,reject)=>{const pos=this.rootMetres();const j:any={action,duration,from:[pos[0],pos[1],pos[2]],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
    j.off=token.onCancel(()=>{if(this.job===j){this.job=null;this.support?.reset();}reject(new Cancelled());});});
  }
  cancelAndReset(pose:StablePose){if(this.disposed)return;this.clearSettleQueue();this.stopHold=0;this.clock?.releaseHold();if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
-  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.node.worldPosition;
+  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.rootMetres();
   // Stable arrival right after a walk (same spot): keep the pose and settle through stop/idle with a crossfade, no pop.
-  const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
+  const inPlace=Math.hypot(p[0]-root[0],p[1]-root[1],p[2]-root[2])<.01;
   this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
   if(!inPlace||pose.kind==='seated')this.stopRoot=null;
   if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}

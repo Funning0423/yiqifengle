@@ -240,13 +240,28 @@ async function bootIntegration(){
  globalThis.__ccStub=cc;
  class Composition{constructor(){this.ready=deferred();sc.comp=this;}initializeWorld(){return this.ready.promise;}attachCalibratedCharacter(){return {ok:true};}worldCommands(){return {snapshot:()=>({state:'home'})};}}
  const ref={seatedRoot:[0.43,0,-4.2],standingRoot:[0,0,-4.4],seatYawRad:-2};
- const src=ts.transpileModule(fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,experimentalDecorators:true}}).outputText;
+ const src=ts.transpileModule(fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,experimentalDecorators:true}}).outputText+'\nmodule.exports.__FlowReferenceStandin=FlowReferenceStandin;\n';
  const m={exports:{}};const req=name=>{if(name==='cc')return cc;if(name.includes('StartupLoadingLayer'))return LayerMod;if(name.includes('StartupLoadingLayout'))return Lay;if(name.includes('StartupReadyGate'))return gate;if(name.includes('WorldNativeComposition'))return {WorldNativeComposition:Composition};
   if(name.includes('CharacterReference'))return {CHARACTER_REFERENCE:ref};if(name.includes('WorldFlowCore'))return {Cancelled:gate.StartupCancelled,pointOnPath(){}};if(name.includes('IslandPropTaps'))return {emitPropTap(){},setPropTapLook(){},onPropTap(){return ()=>{};}};
   if(name.endsWith('IslandProps'))return {IslandProps:class{load(){return Promise.resolve(false);}dispose(){}}};if(name.includes('RegionLoader'))return {REGIONS:{island:{}},loadRegionPrefab(){return sc.region.promise;}};
-  if(name.includes('CharacterMotion'))return motion;return {};};
+  if(name.includes('CharacterMotion'))return motion;
+  if(name.includes('FirstsliceFacts'))return {FIRSTSLICE:{anchors:{seat_anchor:{position:[0.4203,0.38,-4.2133]}}}};
+  return {};};
  vm.runInNewContext(src,{module:m,exports:m.exports,require:req,console:{info(){},error(...a){if(process.env.FS_DEBUG)console.error(...a);},warn(){},log(){}},Promise,Date,Math,Error,Set,Map,Array,Object,globalThis:CC.G,queueMicrotask},{filename:'WorldIntegrationBoot.js'});
- const Boot=m.exports.WorldIntegrationBoot;
+ const Boot=m.exports.WorldIntegrationBoot,Standin=m.exports.__FlowReferenceStandin;
+ function seat(node){const s=new Standin(node);s.setAnimMeta(null);s.bindVisual(cc.instantiate());return s;}
+ const rootOf=s=>Array.prototype.map.call(s.diagnostics().root,Number);
+ // The reference node is created and parented before bindVisual samples sit_hold. The first-screen stub (and a node
+ // that has not entered a scene, or has already been destroyed) has no worldPosition. Startup must still seat her.
+ {const bare=new N('bare');bare.position={x:1.25,y:0,z:-4.2};assert.equal(bare.worldPosition,undefined);
+  assert.deepEqual(rootOf(seat(bare)),[1.25,0,-4.2],'local position while worldPosition does not exist yet');
+  const early=new N('early');early.position={x:2,y:3,z:4};Object.defineProperty(early,'worldPosition',{get(){throw Error('node is not in the scene');}});
+  assert.deepEqual(rootOf(seat(early)),[2,3,4],'a throw from worldPosition before the node is in the scene falls back to position');
+  const live=new N('live');live.position={x:0,y:0,z:0};live.worldPosition={x:9,y:8,z:7};assert.deepEqual(rootOf(seat(live)),[9,8,7],'a live worldPosition wins');
+  const dead=new N('dead');dead.position={x:5,y:5,z:5};dead.destroy();Object.defineProperty(dead,'worldPosition',{get(){throw Error('destroyed');},configurable:true});
+  const gone=seat(dead);assert.deepEqual(rootOf(gone),[0,0,0],'destroyed node does not throw');
+  Object.defineProperty(dead,'isValid',{get(){throw Error('destroyed flag');}});assert.deepEqual(rootOf(gone),[0,0,0],'reading isValid after destroy does not throw');
+  ok('E0 controller root: missing, not-yet-in-scene, and destroyed worldPosition stay finite and do not throw');}
  function fixture(){sc={scene:new N('Scene'),region:deferred()};sc.scene.addComponent(Camera);const b=new Boot();b.node=new N('Boot');b.smokeFixture={json:{}};
   b.paintNavigation=()=>{};b.resize=()=>{b.loadingLayer&&b.loadingLayer.layout(390,844);};let allowedFn=null;
   b.createNavigation=()=>{b.canvas=new N('Canvas');b.createLoadingBackdrop();b.status={string:'',node:new N('Status')};b.status.node.parent=new N('Plate');b.notice={node:new N('Notice')};b.notice.node.parent=new N('NoticePlate');
@@ -259,7 +274,8 @@ async function bootIntegration(){
  sc.comp.ready.resolve();for(let i=0;i<5;i++)await turn();assert.equal(b.loadPhase,'ready');
  assert.equal(b.loadingBackdrop.active,true,'layer still on screen at ready (fading)');assert(b.loadingLayer.fading);assert.equal(b.allowed(),false,'room hint/swipe wait for the fade');
  const mg=b.loadingMask.getComponent(CC.Graphics),ma=()=>mg.fills[mg.fills.length-1][3];
- assert.equal(b.ready,true,'room mounted (world composition ready, girl seated) before the fade starts');assert(b.startupGirl&&b.startupGirl.active!==false,'girl active under the layer');assert.equal(ma(),255);
+ assert.equal(b.ready,true,'room mounted (world composition ready, girl seated) before the fade starts');assert(b.startupGirl&&b.startupGirl.active!==false,'girl active under the layer');
+ assert(b._referenceAdapter.diagnostics().root.every(Number.isFinite),'startup sampled sit_hold without a worldPosition');assert.equal(ma(),255);
  assert.equal(b.canvas.children[b.canvas.children.length-1],b.loadingBackdrop,'layer moved above buttons for the fade');
  const again=b.loadWorld();await again;assert.equal(b.loadingBackdrop.active,true,'loadWorld during fade does not reopen/restart');
  let t=0;const bootMask=[];while(b.loadingBackdrop.active&&t<2){b.update(1/60);t+=1/60;bootMask.push(ma());}near(t,Lay.OUTRO_FADE_S+2/60,2/60,'hidden after the held frame + outro');assert.equal(b.loadingMask.active,false);assert.equal(b.allowed(),true);

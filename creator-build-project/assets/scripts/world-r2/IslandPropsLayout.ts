@@ -98,7 +98,8 @@ export type PropButtonSlot = { role: PropRole; prop: { x: number; bottom: number
 export function propButtonLayout(width: number, height: number): { portrait: boolean; slots: PropButtonSlot[] } {
   if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) throw Error('Invalid prop frame');
   const portrait = width < height, row = portrait || width < 568;
-  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.07 : height * 0.12)));
+  // 8% of the screen height on a phone row: at 402×874 the pulled-in satchel projects wider than 120 px.
+  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.08 : height * 0.12)));
   const font = Math.max(12, Math.min(15, Math.round(propH * 0.22)));
   const tagH = font + 12;
   const slots = PROP_ROLES.map((role, i) => {
