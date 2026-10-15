@@ -8,6 +8,8 @@ import { DoorSpillHint } from '../render/DoorSpillHint';
 import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
+import { requiresMeadowScene } from '../world-r2/LevelRegion';
+import { playSailboatTransition } from '../cine/SailboatTransitionPlayer';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
@@ -379,6 +381,7 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
+        playRegionArrival:(stageId,token)=>requiresMeadowScene({stageId})?playSailboatTransition({setCamera,cameraNode:camera.node,cameraFov:()=>camera.fov,islandRoot:model,mountParent:this.node,token}):null,
         playEnterLevel:(token)=>{
           // Push in from the live island camera (including a finger pull). Not the exit arc.
           // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.

@@ -88,6 +88,9 @@ export interface WorldLease {
   /** Optional enter-level shot from the live island camera. Must not run the exit arc. Omitted = no shot.
    *  WorldFlow plays it whenever it is present. Flow mode does not skip it. */
   playEnterLevel?(token:Cancellation):Promise<void>;
+  /** Meadow arrival. Return null to keep the ordinary enter shot. A rejected SailboatTransitionUnavailable
+   *  falls back to that shot; any other rejection fails the entry. */
+  playRegionArrival?(stageId:string, token:Cancellation):Promise<void>|null;
   // onSample (T2+, optional): called after every written sample with the eased track progress (the key-progress space of
   // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
@@ -451,7 +454,7 @@ export class WorldFlow {
       const pending=this.levels.enter(stageId,t).then(lease=>{if(t.cancelled){lease.dispose();throw new Cancelled();}return lease;});
       // Shot overlaps the load. The board stays off screen until it can take a finger, then the shot's remaining time.
       // A fast load still plays the shot; a slow load does not add another wait after both are done.
-      const cover=this.playEnterCover(t);void cover.then(()=>{},()=>{});
+      const cover=this.playEnterCover(t,stageId);void cover.then(()=>{},()=>{});
       let lease:LevelLease|null=null;
       try {
         lease=await t.wait(pending);t.check();
@@ -470,7 +473,16 @@ export class WorldFlow {
   }
   /** The world lease plays the push-in whenever it has one. Mode is logged, not used as a gate:
    *  a device whose mode is not motion was cutting straight to the board. No playEnterLevel (tests) stays immediate. */
-  private async playEnterCover(token:Cancellation):Promise<void> {
+  private async playEnterCover(token:Cancellation, stageId?:string):Promise<void> {
+    const arrival=stageId?this.world?.playRegionArrival?.(stageId, token):null;
+    if(arrival){
+      try{await token.wait(arrival);return;}
+      catch(err){
+        if(err instanceof Cancelled||token.cancelled)throw err instanceof Cancelled?err:new Cancelled();
+        if((err as {name?:string})?.name==='SailboatTransitionUnavailable')console.warn('[enter-level] sailboat transition unavailable; using the enter shot',String(err));
+        else throw err;
+      }
+    }
     const play=this.world?.playEnterLevel;
     console.info('[enter-level] cover', this.mode, !!play);
     if(!play)return;

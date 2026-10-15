@@ -1,0 +1,101 @@
+{
+ "clip": "transition_island_to_meadow_sailboat",
+ "fps": 30,
+ "frameConvention": "frames 0..lastFrame inclusive; frameCount=lastFrame+1; durationSec=lastFrame/fps; frame 0 = first frame after the exit camera settles on the island final pose",
+ "cameraAuthored": false,
+ "doorStartFrame": null,
+ "doorEndFrame": null,
+ "handOnDoorFrame": null,
+ "rootConvention": "island frames: island game coords; meadow frames (from sceneSwapFrame): meadow game coords. Boat/dock anchors not authored yet",
+ "lastFrame": 156,
+ "frameCount": 157,
+ "durationSec": 5.2,
+ "events": {
+  "shots": [
+   {
+    "id": "S1_hold_island_final",
+    "startFrame": 0,
+    "endFrame": 12,
+    "durationSec": 0.4
+   },
+   {
+    "id": "S2_set_sail",
+    "startFrame": 12,
+    "endFrame": 48,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S3_sea_crossing_cloud_wipe",
+    "startFrame": 48,
+    "endFrame": 90,
+    "durationSec": 1.4
+   },
+   {
+    "id": "S4_meadow_shore_arrive",
+    "startFrame": 90,
+    "endFrame": 126,
+    "durationSec": 1.2
+   },
+   {
+    "id": "S5_rise_to_meadow_pose",
+    "startFrame": 126,
+    "endFrame": 156,
+    "durationSec": 1.0
+   }
+  ],
+  "skipEnabledFromFrame": 9,
+  "skipEnabledFromSec": 0.3,
+  "skipFadeSec": 0.3,
+  "skipLanding": {
+   "frame": 156,
+   "shot": "S5_rise_to_meadow_pose",
+   "state": "settled meadow pose, she at player_spawn, boat docked, HUD on",
+   "cameraPose": {
+    "position": [
+     -4,
+     24,
+     62
+    ],
+    "target": [
+     0.3151,
+     3.4577,
+     -0.6059
+    ],
+    "fovVerticalDeg": 45
+   }
+  },
+  "skipBeforeSceneSwap": "cloud/white fade covers; swap bundle under cover; hold cover until meadow bundle loaded",
+  "cloudCover": {
+   "inStartFrame": 72,
+   "fullFrom": 78,
+   "fullTo": 84,
+   "outEndFrame": 90
+  },
+  "sceneSwapFrame": 81,
+  "preloadMeadowFromFrame": 0,
+  "holdCoverIfNotLoaded": true,
+  "cameraStartPose": "= island final pose of the exit camera (yunjing-final candidate (1.1,20.5,35.77)->(1.1,1.0,2.0) FOV 42 if Funning picks it, else v24-readable)",
+  "cameraEndPose": {
+   "position": [
+    -4,
+    24,
+    62
+   ],
+   "target": [
+    0.3151,
+    3.4577,
+    -0.6059
+   ],
+   "fovVerticalDeg": 45,
+   "easeOutSec": 0.6
+  },
+  "hudHiddenFrames": [
+   0,
+   155
+  ]
+ },
+ "fovVerticalDeg": null,
+ "note": "Approved storyboard v0 timing for GGbot. Camera keys are not authored yet (fovVerticalDeg null): S1 42, S2 42->45, S3-S5 45.",
+ "rootStart": null,
+ "rootEnd": null
+}

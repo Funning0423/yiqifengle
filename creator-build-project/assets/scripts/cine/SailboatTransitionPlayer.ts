@@ -1,0 +1,433 @@
+/**
+ * Plays the island → meadow sailboat transition.
+ * Timing is loaded from resources (SAILBOAT_TIMING_RESOURCE); frame numbers are not inlined.
+ * Meadow art is loaded and mounted only through RegionLoader.
+ * The sailboat model is not final: SailboatPrefabSlot instantiates `cine/sailboat` when that
+ * prefab exists, otherwise it builds SailboatPlaceholder (hull / mast / sail) so the real model
+ * can replace the slot later.
+ */
+import { _decorator, Component, Node, Prefab, Vec3, Color, MeshRenderer, Material, Mesh, utils, resources, JsonAsset, assetManager, input, Input, game, Game, director, instantiate, isValid, EffectAsset, view } from 'cc';
+import { REGIONS, loadRegionPrefab, mountRegion } from '../region/RegionLoader';
+import { islandPoseEntry } from '../world-r1/RegionCameraData';
+import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
+import type { Pose } from '../world-r1/WorldFlowCore';
+import { GameAudio } from '../audio/GameAudio';
+import {
+  SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, parseSailboatTiming, sailboatCoverAlpha,
+} from './SailboatTransitionModel';
+import type { SailboatAudioCommand, SailboatPlayback, SailboatSample, SailboatTiming, SailboatView } from './SailboatTransitionModel';
+
+const { ccclass, property } = _decorator;
+
+/** Drop the finished sailboat prefab on this component, or author resources/cine/sailboat.prefab. */
+export const SAILBOAT_PREFAB_SLOT = 'SailboatPrefabSlot';
+export const SAILBOAT_PREFAB_RESOURCE = 'cine/sailboat';
+const PLACEHOLDER_DEPARTURE_DOLLY_M = 8;
+const ISLAND_DOCK_NAMES = ['boat_dock', 'sailboat_dock', 'exit_path_17'];
+const MEADOW_DOCK_NAMES = ['boat_dock', 'sailboat_dock', 'player_spawn'];
+const ACTOR_NODE = 'FLOW_REFERENCE_PLACEHOLDER_NOT_B';
+const OPAQUE = 0;
+const ALPHA_BLEND = 3;
+
+export class SailboatTransitionUnavailable extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SailboatTransitionUnavailable';
+  }
+}
+
+export interface SailboatStageHost {
+  setCamera(pose: Pose): void;
+  cameraNode: Node;
+  cameraFov(): number;
+  islandRoot: Node;
+  mountParent: Node;
+  token: Cancellation;
+}
+
+@ccclass('SailboatPrefabSlot')
+export class SailboatPrefabSlot extends Component {
+  @property(Prefab)
+  sailboatPrefab: Prefab | null = null;
+
+  refresh() {
+    const gone = this.node.children.slice();
+    for (let i = 0; i < gone.length; i++) gone[i].destroy();
+    if (this.sailboatPrefab) {
+      const model = instantiate(this.sailboatPrefab);
+      model.name = 'SailboatModel';
+      this.node.addChild(model);
+      return;
+    }
+    buildPlaceholder(this.node);
+  }
+}
+
+export function playSailboatTransition(host: SailboatStageHost): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const root = new Node('SailboatTransition');
+    host.mountParent.addChild(root);
+    const driver = root.addComponent(SailboatTransitionDriver);
+    driver.run(host, resolve, reject);
+  });
+}
+
+@ccclass('SailboatTransitionDriver')
+export class SailboatTransitionDriver extends Component {
+  private host: SailboatStageHost | null = null;
+  private resolveRun: (() => void) | null = null;
+  private rejectRun: ((error: Error) => void) | null = null;
+  private playback: SailboatPlayback | null = null;
+  private timing: SailboatTiming | null = null;
+  private closed = false;
+  private presentedDone = false;
+  private tapQueued = false;
+  private hidden = false;
+  private meadowPrefab: Prefab | null = null;
+  private meadowNode: Node | null = null;
+  private meadowPending = false;
+  private meadowAttempts = 0;
+  private meadowError: Error | null = null;
+  private islandWasActive = true;
+  private actor: Node | null = null;
+  private actorWasActive = true;
+  private cloud: { node: Node; material: Material } | null = null;
+  private boat: Node | null = null;
+  private slot: SailboatPrefabSlot | null = null;
+  private startPose: Pose | null = null;
+  private offCancel: (() => void) | null = null;
+  private readonly onTap = () => { this.tapQueued = true; };
+  private readonly onHide = () => { this.hidden = true; this.step(0, false, true); };
+  private readonly onShow = () => { this.hidden = false; this.step(0, false, false); };
+
+  run(host: SailboatStageHost, resolve: () => void, reject: (error: Error) => void) {
+    this.host = host;
+    this.resolveRun = resolve;
+    this.rejectRun = reject;
+    this.offCancel = host.token.onCancel(() => { if (!this.closed) this.fail(new Cancelled()); });
+    input.on(Input.EventType.TOUCH_END, this.onTap, this);
+    input.on(Input.EventType.MOUSE_UP, this.onTap, this);
+    game.on(Game.EVENT_HIDE, this.onHide, this);
+    game.on(Game.EVENT_SHOW, this.onShow, this);
+    const island = islandPoseEntry();
+    this.startPose = { position: [island.position[0], island.position[1], island.position[2]], target: [island.target[0], island.target[1], island.target[2]], fovVerticalDeg: island.fovVerticalDeg };
+    this.actor = director.getScene()?.getChildByName(ACTOR_NODE) ?? null;
+    if (this.actor) this.actorWasActive = this.actor.active;
+    this.islandWasActive = host.islandRoot.active;
+    this.prepareVisuals();
+    resources.load(SAILBOAT_TIMING_RESOURCE, JsonAsset, (error, asset) => {
+      if (this.closed) return;
+      if (error || !asset) { this.fail(new SailboatTransitionUnavailable(String(error || 'timing json missing'))); return; }
+      try { this.timing = parseSailboatTiming(asset.json); }
+      catch (parseError) { this.fail(new SailboatTransitionUnavailable(String(parseError))); return; }
+      this.playback = createSailboatPlayback(this.timing, { startFov: this.startPose?.fovVerticalDeg });
+      this.apply(this.playback.begin());
+      if (this.hidden) this.step(0, false, true);
+    });
+    this.maybeUseBoatAsset();
+  }
+
+  update(dt: number) {
+    if (this.closed || !this.playback || this.hidden) return;
+    if (this.presentedDone) { this.succeed(); return; }
+    const tap = this.tapQueued;
+    this.tapQueued = false;
+    const budget = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
+    let left = budget;
+    let first = true;
+    let done = false;
+    do {
+      const step = Math.min(left > 0 ? left : 0, 1 / 30);
+      const sample = this.playback.advance(first ? Math.max(step, 0) : step, { meadowReady: !!this.meadowPrefab, tap: first && tap, background: false });
+      first = false;
+      this.apply(sample);
+      if (sample.view.phase === 'done') done = true;
+      if (this.closed) return;
+      left -= step > 0 ? step : left;
+    } while (left > 1e-4);
+    if (done) this.presentedDone = true;
+  }
+
+  private step(dt: number, tap: boolean, background: boolean) {
+    if (this.closed || !this.playback) return;
+    const sample = this.playback.advance(dt, { meadowReady: !!this.meadowPrefab, tap, background });
+    this.apply(sample);
+  }
+
+  private maybePreload(view: SailboatView) { if (view.preload) this.requestMeadow(); }
+  private requestMeadow() {
+    if (this.meadowPrefab || this.meadowPending || this.meadowError || this.closed) return;
+    this.meadowPending = true;
+    this.meadowAttempts++;
+    loadRegionPrefab(REGIONS.meadow).then(prefab => {
+      this.meadowPending = false;
+      if (this.closed) return;
+      this.meadowPrefab = prefab;
+    }, (error: unknown) => {
+      this.meadowPending = false;
+      console.warn('[sailboat] meadow load failed', this.meadowAttempts, error);
+      if (this.meadowAttempts < 2 && !this.closed) this.requestMeadow();
+      else this.meadowError = error instanceof Error ? error : Error('meadow-scene-load-failed');
+    });
+  }
+
+  private apply(sample: SailboatSample) {
+    if (this.closed || !this.host || !this.timing) return;
+    this.dispatchAudio(sample.commands);
+    const view = sample.view;
+    this.maybePreload(view);
+    if (this.meadowError && (view.holding || view.phase === 'skip-hold')) { this.fail(Error('meadow-scene-load-failed')); return; }
+    this.syncScene(view);
+    this.syncCamera(view);
+    this.syncBoat(view);
+    this.syncCloud(view);
+    this.syncActor(view);
+  }
+
+  private syncScene(view: SailboatView) {
+    const host = this.host;
+    if (!host || !view.swapped || this.meadowNode || !this.meadowPrefab) return;
+    try {
+      const mounted = mountRegion(REGIONS.meadow, this.meadowPrefab, host.mountParent);
+      mounted.name = 'SailboatMeadowMount';
+      this.meadowNode = mounted;
+      host.islandRoot.active = false;
+    } catch (error) {
+      console.warn('[sailboat] meadow mount failed', error);
+      this.meadowError = error instanceof Error ? error : Error('meadow-scene-load-failed');
+      if (view.holding || view.phase === 'skip-hold' || view.phase === 'done') this.fail(Error('meadow-scene-load-failed'));
+    }
+  }
+
+  private syncCamera(view: SailboatView) {
+    const host = this.host;
+    const timing = this.timing;
+    const start = this.startPose;
+    if (!host || !timing || !start) return;
+    if (view.scene === 'island') {
+      host.setCamera(pullBack(start, view.departure * PLACEHOLDER_DEPARTURE_DOLLY_M, view.fov));
+      return;
+    }
+    const shore = shorePose(timing);
+    const blend = view.meadowBlend;
+    host.setCamera({
+      position: lerp3(shore.position, timing.endPose.position, blend),
+      target: lerp3(shore.target, timing.endPose.target, blend),
+      fovVerticalDeg: view.fov,
+    });
+  }
+
+  private syncBoat(view: SailboatView) {
+    const boat = this.boat;
+    const host = this.host;
+    if (!boat || !host) return;
+    const meadow = view.boatSpace === 'meadow';
+    const dock = meadow
+      ? anchorOr(this.meadowNode, MEADOW_DOCK_NAMES, host.mountParent, [2, 0.2, 4])
+      : anchorOr(host.islandRoot, ISLAND_DOCK_NAMES, host.islandRoot, [6, 0.2, 8]);
+    const sea = dock.clone();
+    sea.z += meadow ? 8 : 10;
+    const at = meadow ? sea.lerp(dock, view.boatAlong) : dock.lerp(sea, view.boatAlong);
+    boat.setWorldPosition(at);
+  }
+
+  private syncCloud(view: SailboatView) {
+    const cloud = this.cloud;
+    const host = this.host;
+    if (!cloud || !host || !isValid(cloud.node, true)) return;
+    const alpha = sailboatCoverAlpha(view);
+    const visible = alpha > 1 / 255;
+    cloud.node.active = visible;
+    if (!visible) return;
+    const dist = 0.35;
+    const fov = host.cameraFov() * Math.PI / 180;
+    const height = 2 * Math.tan(fov * 0.5) * dist;
+    const frame = host.cameraNode.parent ? viewSizeRatio() : 0.46;
+    cloud.node.setPosition(0, 0, -dist);
+    cloud.node.setScale(height * frame, height, 1);
+    const white = view.white;
+    const r = Math.round(226 + (255 - 226) * white);
+    const g = Math.round(236 + (255 - 236) * white);
+    const b = Math.round(245 + (255 - 245) * white);
+    cloud.material.setProperty('mainColor', new Color(r, g, b, Math.round(alpha * 255)));
+  }
+
+  private syncActor(view: SailboatView) {
+    const actor = this.actor;
+    if (!actor || !isValid(actor, true)) return;
+    const aboard = view.departure > 0 || view.scene === 'meadow';
+    actor.active = aboard ? false : this.actorWasActive;
+  }
+
+  private dispatchAudio(commands: SailboatAudioCommand[]) {
+    if (!commands.length) return;
+    let audio: GameAudio | null = null;
+    try { audio = GameAudio.ensure(); } catch (error) { console.warn('[sailboat] audio unavailable', error); return; }
+    for (let i = 0; i < commands.length; i++) {
+      const command = commands[i];
+      if (command.kind === 'cine-play') audio.playCineSlot(command.path);
+      else if (command.kind === 'cine-pause') audio.pauseCineSlot();
+      else if (command.kind === 'cine-resume') audio.resumeCineSlot();
+      else if (command.kind === 'cine-fade') audio.fadeCineSlot(command.seconds);
+      else if (command.kind === 'cine-stop') audio.stopCineSlot();
+      else if (command.kind === 'wind-loop') audio.loopHoldAmbience(command.path);
+      else if (command.kind === 'wind-fade') audio.fadeHoldAmbience(command.seconds);
+      else audio.stopHoldAmbience();
+    }
+  }
+
+  private prepareVisuals() {
+    const host = this.host;
+    if (!host) return;
+    this.cloud = makeCloud(host.cameraNode);
+    const boat = new Node(SAILBOAT_PREFAB_SLOT);
+    host.mountParent.addChild(boat);
+    boat.layer = host.islandRoot.layer;
+    this.boat = boat;
+    this.slot = boat.addComponent(SailboatPrefabSlot);
+    this.slot.refresh();
+  }
+
+  private maybeUseBoatAsset() {
+    const bundle = assetManager.getBundle('resources');
+    const info = bundle?.getInfoWithPath(SAILBOAT_PREFAB_RESOURCE, Prefab);
+    if (!info) return;
+    resources.load(SAILBOAT_PREFAB_RESOURCE, Prefab, (error, prefab) => {
+      if (this.closed || error || !prefab || !this.slot || !isValid(this.slot.node, true)) return;
+      this.slot.sailboatPrefab = prefab;
+      this.slot.refresh();
+    });
+  }
+
+  private succeed() { this.cleanup(); this.resolveRun?.(); this.resolveRun = null; this.rejectRun = null; }
+  private fail(error: Error) { this.cleanup(); this.rejectRun?.(error); this.resolveRun = null; this.rejectRun = null; }
+
+  private cleanup() {
+    if (this.closed) return;
+    this.closed = true;
+    this.offCancel?.(); this.offCancel = null;
+    input.off(Input.EventType.TOUCH_END, this.onTap, this);
+    input.off(Input.EventType.MOUSE_UP, this.onTap, this);
+    game.off(Game.EVENT_HIDE, this.onHide, this);
+    game.off(Game.EVENT_SHOW, this.onShow, this);
+    const host = this.host;
+    if (host && isValid(host.islandRoot, true)) host.islandRoot.active = this.islandWasActive;
+    if (this.actor && isValid(this.actor, true)) this.actor.active = this.actorWasActive;
+    if (this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
+    this.meadowNode = null;
+    if (this.cloud?.node && isValid(this.cloud.node, true)) this.cloud.node.destroy();
+    this.cloud?.material.destroy();
+    this.cloud = null;
+    if (this.boat && isValid(this.boat, true)) this.boat.destroy();
+    this.boat = null;
+    if (this.node && isValid(this.node, true)) this.node.destroy();
+  }
+}
+
+function viewSizeRatio(): number {
+  try {
+    const size = view.getVisibleSize();
+    return size.width / Math.max(1, size.height);
+  } catch { return 0.46; }
+}
+
+function pullBack(pose: Pose, meters: number, fov: number): Pose {
+  const dx = pose.position[0] - pose.target[0];
+  const dy = pose.position[1] - pose.target[1];
+  const dz = pose.position[2] - pose.target[2];
+  const len = Math.hypot(dx, dy, dz) || 1;
+  const scale = meters / len;
+  return {
+    position: [pose.position[0] + dx * scale, pose.position[1] + dy * scale, pose.position[2] + dz * scale],
+    target: [pose.target[0], pose.target[1], pose.target[2]],
+    fovVerticalDeg: fov,
+  };
+}
+function shorePose(timing: SailboatTiming): { position: [number, number, number]; target: [number, number, number] } {
+  const p = timing.endPose.position;
+  const t = timing.endPose.target;
+  const k = 0.62;
+  return {
+    position: [p[0] + (t[0] - p[0]) * k, t[1] + 2.2, p[2] + (t[2] - p[2]) * k],
+    target: [t[0], t[1], t[2]],
+  };
+}
+function lerp3(a: readonly number[], b: readonly number[], t: number): [number, number, number] {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
+function findNamed(root: Node | null, names: string[]): Node | null {
+  if (!root || !isValid(root, true)) return null;
+  const want: { [name: string]: boolean } = {};
+  for (let i = 0; i < names.length; i++) want[names[i]] = true;
+  const walk = (node: Node): Node | null => {
+    if (want[node.name]) return node;
+    for (let i = 0; i < node.children.length; i++) { const hit = walk(node.children[i]); if (hit) return hit; }
+    return null;
+  };
+  return walk(root);
+}
+function anchorOr(root: Node | null, names: string[], fallback: Node, offset: [number, number, number]): Vec3 {
+  const named = findNamed(root, names);
+  if (named) return named.worldPosition.clone();
+  const base = fallback.worldPosition;
+  return new Vec3(base.x + offset[0], base.y + offset[1], base.z + offset[2]);
+}
+function makeCloud(cameraNode: Node): { node: Node; material: Material } | null {
+  if (!EffectAsset.get('builtin-unlit')) { console.warn('[sailboat] builtin-unlit missing; cloud cover skipped'); return null; }
+  const material = new Material();
+  material.initialize({ effectName: 'builtin-unlit', technique: ALPHA_BLEND });
+  material.setProperty('mainColor', new Color(226, 236, 245, 0));
+  const node = new Node('SailboatCloudCover');
+  cameraNode.addChild(node);
+  node.layer = cameraNode.layer;
+  const renderer = node.addComponent(MeshRenderer);
+  renderer.mesh = quadMesh();
+  renderer.setMaterial(material, 0);
+  renderer.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF;
+  renderer.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
+  try { (renderer as MeshRenderer & { priority?: number }).priority = 240; } catch { /* optional */ }
+  node.active = false;
+  return { node, material };
+}
+function quadMesh(): Mesh {
+  const positions = [-0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 0];
+  const indices = [0, 1, 2, 0, 2, 3];
+  return utils.createMesh({ positions, indices, minPos: new Vec3(-0.5, -0.5, 0), maxPos: new Vec3(0.5, 0.5, 0) });
+}
+function buildPlaceholder(slot: Node) {
+  const root = new Node('SailboatPlaceholder');
+  slot.addChild(root);
+  if (!EffectAsset.get('builtin-unlit')) return;
+  addBox(root, 'Hull', new Vec3(0, 0.15, 0), new Vec3(1.7, 0.32, 0.62), new Color(139, 90, 43, 255));
+  addBox(root, 'Mast', new Vec3(-0.15, 0.95, 0), new Vec3(0.06, 1.3, 0.06), new Color(92, 64, 40, 255));
+  addBox(root, 'Sail', new Vec3(0.15, 1.05, 0), new Vec3(0.02, 0.95, 0.72), new Color(244, 241, 232, 255));
+}
+function addBox(parent: Node, name: string, position: Vec3, size: Vec3, color: Color) {
+  const node = new Node(name);
+  parent.addChild(node);
+  node.setPosition(position);
+  node.layer = parent.layer;
+  const material = new Material();
+  material.initialize({ effectName: 'builtin-unlit', technique: OPAQUE });
+  material.setProperty('mainColor', color);
+  const renderer = node.addComponent(MeshRenderer);
+  renderer.mesh = boxMesh(size.x, size.y, size.z);
+  renderer.setMaterial(material, 0);
+  renderer.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF;
+  renderer.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
+}
+function boxMesh(sx: number, sy: number, sz: number): Mesh {
+  const x = sx / 2, y = sy / 2, z = sz / 2;
+  const positions: number[] = [];
+  const push = (ax: number, ay: number, az: number) => { positions.push(ax, ay, az); };
+  const face = (a: number[], b: number[], c: number[], d: number[]) => { push(a[0], a[1], a[2]); push(b[0], b[1], b[2]); push(c[0], c[1], c[2]); push(d[0], d[1], d[2]); };
+  face([-x, -y, z], [x, -y, z], [x, y, z], [-x, y, z]);
+  face([x, -y, -z], [-x, -y, -z], [-x, y, -z], [x, y, -z]);
+  face([-x, y, z], [x, y, z], [x, y, -z], [-x, y, -z]);
+  face([-x, -y, -z], [x, -y, -z], [x, -y, z], [-x, -y, z]);
+  face([x, -y, z], [x, -y, -z], [x, y, -z], [x, y, z]);
+  face([-x, -y, -z], [-x, -y, z], [-x, y, z], [-x, y, -z]);
+  const indices: number[] = [];
+  for (let f = 0; f < 6; f++) { const o = f * 4; indices.push(o, o + 1, o + 2, o, o + 2, o + 3); }
+  return utils.createMesh({ positions, indices, minPos: new Vec3(-x, -y, -z), maxPos: new Vec3(x, y, z) });
+}
