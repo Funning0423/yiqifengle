@@ -23,7 +23,8 @@ export const REGIONS:Record<string,RegionDef>={
   meadow:{bundle:'region_meadow',prefabName:'env_meadow'},
   island:{bundle:'static_seat_preview',prefabUuid:'61fa04e2-644b-5997-bfd1-812b61d3586b@f06f9',ambientClipUuids:['61fa04e2-644b-5997-bfd1-812b61d3586b@f2bf2']},
   // Exact prefab UUID from Creator 3.8.8 import; the .glb.meta is committed.
-  skycity:{bundle:'region_skycity',prefabUuid:'0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae',prefabName:'env_skycity',ambientClips:['sky_ambient_loop','robot_idle'],gestureClips:['robot_watering','robot_give_flower']},
+  // v0.4b has no sky_ambient_loop. These scenery loops replace it. Gestures stay one-shot.
+  skycity:{bundle:'region_skycity',prefabUuid:'0694320f-9061-478a-8d1f-cdfb7537ab22@2eeae',prefabName:'env_skycity',ambientClips:['robot_idle','anim_birds_flock_0_orbit','anim_bird_0_0_flap','anim_bird_0_1_flap','anim_bird_0_2_flap','anim_bird_0_3_flap','anim_birds_flock_1_orbit','anim_bird_1_0_flap','anim_bird_1_1_flap','anim_bird_1_2_flap','anim_bird_1_3_flap','anim_butterfly_0_flutter','anim_butterfly_1_flutter','anim_butterfly_2_flutter','anim_butterfly_3_flutter','anim_flag_0_wave','anim_flag_0_tail_wave','anim_flag_1_wave','anim_flag_1_tail_wave','anim_petals_0_drift','anim_petals_1_drift','anim_wind_driver_move','anim_windchime_0_swing','anim_windchime_1_swing','anim_windchime_2_swing','anim_windmill_rotor_0_spin','anim_windmill_rotor_1_spin','anim_starring_rotate'],gestureClips:['robot_watering','robot_give_flower']},
 };
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 /** Loads the region's bundle and prefab. Rejects on failure so callers can show retry UI. */

@@ -63,7 +63,7 @@ export class RegionAmbientAnimation extends Component {
     this.playing=wanted.map(c=>{const s=anim.getState(c.name)||anim.createState(c);if(!s)throw Error('Ambient state missing: '+c.name);s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
       if(this.randomizeStart)s.time=Math.random()*s.duration;s.play();return s;});
   }
-  /** Plays watering or give-flower once. Stops robot_idle for that skeleton and leaves sky_ambient_loop running. */
+  /** Plays watering or give-flower once. Stops robot_idle for that skeleton and leaves the other ambient clips running. */
   playGesture(name:string):boolean{
     const picked=exclusiveRobot(name);
     if(this.disposed||this.hidden||this.hostPaused||this.inactive||!picked.once||!this.anim)return false;
