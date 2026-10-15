@@ -47,8 +47,8 @@ export function openSettings(stack: PopupStack, opts: { onClose?: () => void; on
   p.toggle(230, rows[1], 56, !(audio?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
   iconRow(p, 'popup/icon_sun', '昼夜', rows[2]);
   const dn = dayNight();
-  const day = p.button('primary', '晴昼', 80, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.5, fontSize: 24, name: 'Day' });
-  const night = p.button('secondary', '夜色', 222, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.5, fontSize: 24, name: 'Night' });
+  const day = p.button('primary', '晴昼', 64, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.72, fontSize: 24, name: 'Day' });
+  const night = p.button('secondary', '夜色', 204, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.72, fontSize: 24, name: 'Night' });
   const paintSeg = (mode: string) => { day.setKind(mode === 'day' ? 'primary' : 'secondary'); night.setKind(mode === 'night' ? 'primary' : 'secondary'); };
   function pick(mode: string) { const now = dayNight(); if (!now) return; if (now.mode !== mode) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } const after = dayNight(); paintSeg(after ? after.mode : mode); }
   paintSeg(dn ? dn.mode : 'day'); if (!dn) { day.setEnabled(false); night.setEnabled(false); }

@@ -78,6 +78,17 @@ export const ISLAND_PROPS = Object.freeze({
   },
 });
 export const PROP_ROLES: readonly PropRole[] = ['bag', 'journal', 'settings'];
+/** Metres above the live rigid sea sheet. Matches ISLAND_FX.band.surfaceLiftM so a depth-tested
+ * transparent decal stays clear of the opaque wave without turning depth test off. */
+export const SEA_SURFACE_LIFT = 0.04;
+/** Authored rest height when the live sheet height is missing or not finite. */
+export function liveSeaY(reported?: number): number {
+  return typeof reported === 'number' && Number.isFinite(reported) ? reported : ISLAND_PROPS.seaY;
+}
+/** Decal world Y: live sheet + the shared clearance + the authored lift (shadow / ripple / reflection). */
+export function seaDecalY(reported: number | undefined, authoredLift: number): number {
+  return liveSeaY(reported) + SEA_SURFACE_LIFT + authoredLift;
+}
 
 export type Rect = { x: number; y: number; width: number; height: number };
 /** UI rect: centre x/y in canvas units (origin = screen centre, +y up), same convention as WorldNavigationLayout. */

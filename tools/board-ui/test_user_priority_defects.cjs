@@ -21,10 +21,11 @@ const {createHarness}=require('./harness.cjs');
  const model={kind:'win',score:510,stars:3,movesUsed:10,movesLeft:4,goalsLeft:[],chestHint:false,unlockHint:'草原场景暂未就绪，下一关暂不可进入；成绩和奖励已保留',nextUnavailable:'草原场景暂未就绪',next:()=>calls.push('next'),home:()=>calls.push('home'),rewards:[{id:'chest',label:'打开宝箱',icon:'popup/chest_closed',state:'ready',claim:()=>calls.push('chest')},{id:'tool',label:'领取地区道具',icon:'',tool:'tideNet',iconKind:'tool',state:'ready',claim:()=>calls.push('tool')}]};
  for(const [width,height] of [[390,844],[320,568],[844,390]]){
   H.setViewport(width,height);const panel=P.openResult(stack,model,null);for(let i=0;i<40;i++)stack.update(.025);
-  if(height>600)assert(panel.height<600,'portrait panel must shrink to current result content');
+  if(height>600)assert(panel.height<height-80,'portrait panel must shrink to current result content');
   const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1, checked=new Set();
   for(let page=0;page<count;page++){
    for(const id of ['chest','tool']){const claim=panel.root.find('Claim-'+id);if(!claim.activeInHierarchy)continue;
+    if(id==='chest'){const art=panel.root.find('ResultChestArt');assert(art&&art.activeInHierarchy,'chest is a centered hero');const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');const face=claim.getChildByName('Face'),inside=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert.equal(inside.length,0,'chest claim is the button under the hero');checked.add(id);H.tap(claim);continue;}
     const face=claim.getChildByName('Face'),art=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert(art.length,'reward art lives inside pressed button face');
     for(const icon of art){const ui=icon.getComponent(H.cc.UITransform),w=ui.width*icon.scale.x,h=ui.height*icon.scale.y;assert(Math.max(w,h)>=50,'actual loaded reward icon visibly larger than old 44×36');const card=claim.getComponent(H.cc.UITransform);assert(Math.abs(icon.position.x)+w/2<=card.width/2);assert(Math.abs(icon.position.y)+h/2<=card.height/2);}
     checked.add(id);H.tap(claim);

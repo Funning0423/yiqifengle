@@ -71,7 +71,8 @@ export class IslandAtmosphereFx {
     const b = beamState(this.time, cam, this.lightShown); this.last.beam = b.alpha; this.last.flash = b.flash;
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
     this.place(this.glow, b.glowPos, b.glowRotation, [b.glowScale, b.glowScale, b.glowScale], ISLAND_FX.glow.color, b.glowAlpha);
-    this.place(this.glint, null, b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
+    const glintY = typeof seaSurfaceY === 'number' && Number.isFinite(seaSurfaceY) ? seaSurfaceY + ISLAND_FX.band.surfaceLiftM : ISLAND_FX.seaY;
+    this.place(this.glint, [ISLAND_FX.lamp[0], glintY, ISLAND_FX.lamp[2]], b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
     const m = moonState(this.time, cam, this.lightShown, seaSurfaceY); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
     this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
     this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);

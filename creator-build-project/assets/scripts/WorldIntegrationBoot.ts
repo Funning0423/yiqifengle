@@ -1,5 +1,5 @@
-import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { DEBUG } from 'cc/env';
+import { DebugJumpPanel } from './ui/DebugJumpPanel';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
 import {CabinHint} from './world-r2/CabinHint';
@@ -358,7 +358,7 @@ class AnimRig {
 const RESULT_ACTION_IDS=['mainNext','chest','regionReward','next','claim'];
 @ccclass('WorldIntegrationBoot')
 export class WorldIntegrationBoot extends Component {
- private flowTestMenu=false;private flowTestMark:Label|null=null;
+ private debugJump:DebugJumpPanel|null=null;
 
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
@@ -475,13 +475,9 @@ export class WorldIntegrationBoot extends Component {
  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
- if(DEBUG){
- this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
- this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
- for(const n of [4,8,12])this.button('flowTest'+n,String(n).padStart(2,'0')+' · 最后一步',()=>{this.flowTestMenu=false;return this.composition.startRegionFlowTest(n);});
- this.button('flowTestExit','退出测试',()=>{const r=this.composition.exitRegionFlowTest();if(r.ok)this.flowTestMenu=false;return r;});
+ if(DEBUG)this.debugJump=new DebugJumpPanel(this.canvas,{status:()=>this.debugJumpStatus(),go:cmd=>{void this.invoke(()=>this.composition.debugJump(cmd));this.debugJump?.close();}});
  }
- }
+ private debugJumpStatus():string{let t:any=null;try{t=this.composition?.regionFlowTestStatus();}catch{t=null;}if(!t)return '';const n=String(t.checkpoint??0).padStart(2,'0');return t.lastAction?'主线 '+n+' · 最后一步':'主线 '+n;}
  /** Cabin tap: the island rest (海岛小憩). The first tap also retires the cabin hint for good. */
  private openCabin(){this.cabinHint?.dismiss();markCabinHintSeen();return this.islandJourney?.openRest()?{ok:true}:{ok:false,reason:'island-busy'};}
  /** Startup loading layer (ui/StartupLoadingLayer.ts): same picture + cover transform as build-templates/wechatgame/first-screen.js,
@@ -492,7 +488,7 @@ export class WorldIntegrationBoot extends Component {
  if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
  this.resultActions[id]=()=>{if(!blocked())void this.invoke(fn);};
  surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
- private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
+ private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);this.debugJump?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
  // button, the WarmButtonSkin cache starts a new offscreen bake and the Graphics fallback surface shows until it lands.
  const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)this.placeNavigationControl(n,islandNav.buttons[id]);}
@@ -565,7 +561,7 @@ export class WorldIntegrationBoot extends Component {
  this.notice.node.parent!.active=false;this.status.string='';
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);}
+ for(const [k,n]of Array.from(this.controls)){n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);}
  const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
@@ -577,24 +573,9 @@ export class WorldIntegrationBoot extends Component {
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
  this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
- if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
- const testLayout=flowTestLayout(f.width,f.height,readFlowTestHost());
- const put=(id:string,r:{x:number;y:number;width:number;height:number},on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on&&testLayout.supported;this.placeNavigationControl(n,r);}};
- put('flowTests',testLayout.entry,outside);for(const r of testLayout.stages)put(r.id,r,outside&&this.flowTestMenu);
- put('flowTestExit',testLayout.exit,outside&&this.flowTestMenu&&!!test);
- if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
- const stageNum=typeof b?.active?.stageId==='string'?/^mainline-(\d{2})$/.exec(b.active.stageId):null;
- const mark=stageNum?Number(stageNum[1]):(test?.checkpoint??0);
- const onLast=!!(test&&stageNum&&b?.state==='run.ready'&&Number(stageNum[1])===test.checkpoint&&a);
- this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(mark).padStart(2,'0')+(onLast?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
- const r=testLayout.mark,plate=this.flowTestMark.node.parent!;
- this.flowTestMark.node.getComponent(UITransform)!.setContentSize(r.width-12,r.height);this.flowTestMark.enableWrapText=true;this.flowTestMark.lineHeight=17;
- const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}plate.active=testLayout.supported;
- plate.setPosition(r.x,r.y,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
- }
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
  }
  update(dt:number){this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
- onDestroy(){this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ onDestroy(){this.debugJump?.dispose();this.debugJump=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }
