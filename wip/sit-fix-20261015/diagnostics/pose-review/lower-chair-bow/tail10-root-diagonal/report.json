@@ -1,0 +1,1073 @@
+{
+  "status": "FROZEN_DIAGNOSTIC_FOR_VISUAL_REVIEW_NOT_ACCEPTED",
+  "mesh": "LOD0_G2_BOW",
+  "primitive": 0,
+  "exactVertexSource": "../tail09-target.npy, not tail05-target.npy",
+  "constructionLineage": [
+    "tail05 distributed centerline/rigid bind sections",
+    "tail08 common affine first2-cell root transition retaining original pairset",
+    "tail09 downstream twist distributed overstations3and4, preserving centers and section dimensions",
+    "this frozen candidate changes ONLY back-face diagonal326/327 from tail09; no coordinates change"
+  ],
+  "targetSHA256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288",
+  "facesSHA256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1",
+  "bindResidualSHA256": "ed7d4209c636ea52d25d4acf10f3f21ac8be806dd4c78ac39eaa80ba718c8c80",
+  "faceMapSHA256": "85e8307fc7bcb218d38f48fee66462a0dade57a3c24a9a2946a8d6cdd4804f9e",
+  "sourceTail05SHA256": "50302078360996b867f77d2f391f4f02f37d0b367eb258ba8d3cf559a564465a",
+  "sourceTail09SHA256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288",
+  "sourceGravityWorldSHA256": "1ade24da4fb3ce964fb264451230c0ebbc72e133f3c57705d69ff7b71a9eb2f7",
+  "sourceChairSHA256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d",
+  "targetBitIdenticalTail09": true,
+  "targetBitIdenticalTail05": false,
+  "onlyChangedFaceIDs": [
+    326,
+    327
+  ],
+  "otherBOWVerticesBitExactOriginal": true,
+  "firstStationAnchorsBitExactOriginal": true,
+  "rootFirstTwoCellOriginalPairsetUnchanged": true,
+  "sourceRootTransitionAffine": [
+    [
+      0.9999864577708729,
+      -0.006342457191785876,
+      -0.0001833256607521386
+    ],
+    [
+      -0.00023082327867508044,
+      0.8918946984190784,
+      -0.0031247315108091853
+    ],
+    [
+      0.000656577930849476,
+      0.30750605239333256,
+      1.0088883138719957
+    ]
+  ],
+  "sourceRootTransitionDeterminant": 0.9007694700619472,
+  "shapeAndLengthRuns": [
+    {
+      "tailStartVertex": 138,
+      "success": true,
+      "distributedTwistDegreesAtStations3and4": [
+        -21.466310599081883,
+        -10.250474018763427
+      ],
+      "method": "Common positive-determinant affine map on both tails original first2 cells. Root plane is pointwise fixed. Original root twist is parallel-transported and blended at ring3 by2/3 and ring4 by1/3; all centers and final V tip stay on tail09/tail05 path. No optimizer, no parameter scan.",
+      "centers": [
+        [
+          -0.0039057328150778354,
+          0.5432180870109548,
+          -0.11390212110299983
+        ],
+        [
+          -0.00953299291671,
+          0.5078508088889352,
+          -0.13214166008648395
+        ],
+        [
+          -0.015725824490864987,
+          0.47429840905668474,
+          -0.15416452190992147
+        ],
+        [
+          -0.02159246054431631,
+          0.4396706502598668,
+          -0.1759275098972689
+        ],
+        [
+          -0.02739784480047302,
+          0.401026109139925,
+          -0.18865435065073421
+        ],
+        [
+          -0.0332387398034756,
+          0.3695712589368233,
+          -0.19140629345641172
+        ]
+      ],
+      "centerlineAnglesDegrees": [
+        27.28096880892684,
+        33.279780823367915,
+        32.14869918886161,
+        18.228310309839415,
+        4.999999999999998
+      ],
+      "widthAcrossFrontMm": [
+        34.22221247535048,
+        34.330932223701375,
+        40.72014205625623,
+        34.32656647482985,
+        34.09450238731642,
+        38.538015906117714
+      ],
+      "bindWidthAcrossFrontMm": [
+        34.22221247535038,
+        34.317146618457826,
+        34.40939196686252,
+        34.326566474829754,
+        34.09450238731633,
+        38.53801586973698
+      ],
+      "thicknessALengthsMm": [
+        2.9999986290931804,
+        2.9625941376817466,
+        3.0038089514952793,
+        2.999998629093204,
+        2.9999986290931764,
+        2.9999986290932092
+      ],
+      "thicknessBLengthsMm": [
+        2.9999986290931804,
+        3.017779893717955,
+        3.117627955084671,
+        2.999998629093203,
+        2.9999986290931764,
+        2.9999986290932092
+      ],
+      "positiveThicknessProjectedOnCellNormalMm": [
+        2.7361786753504944,
+        2.8227488612401244,
+        1.9296114727511104,
+        2.9603639645357265,
+        2.976499831144732
+      ],
+      "neutralCenterlineLengthMm": 195.32526500332216,
+      "bindNeutralCenterlineLengthMm": 195.50785799204226,
+      "maxLongitudinalEdgeVsBindDeltaMm": 6.203976907537712,
+      "longitudinalEdgeVsBindDeltaMm": [
+        [
+          -0.6091649612569999,
+          -0.17888478089631704,
+          -0.1453659456994924,
+          -0.5656499197220153
+        ],
+        [
+          -4.532764988859801,
+          5.9631830135333725,
+          6.203976907537712,
+          -4.123482739142488
+        ],
+        [
+          5.1114107254227115,
+          -2.3877091182396075,
+          -3.78043722140365,
+          3.536418409396558
+        ],
+        [
+          -0.6152134767911863,
+          0.051648542681172194,
+          0.7066002579899158,
+          0.04970320952488866
+        ],
+        [
+          0.013834490073579703,
+          -0.3400860130524305,
+          0.008198937812321783,
+          0.2970531504604135
+        ]
+      ],
+      "totalChainVsBindDeltaMm": [
+        -0.631898211411696,
+        3.10815164402619,
+        2.9929729362368067,
+        -0.8059578894826434
+      ],
+      "totalChainVsInputDeltaMm": [
+        4.08894685031606,
+        3.448675350346972,
+        4.249578735292428,
+        2.618021738108361
+      ],
+      "maximumVertexDisplacementMm": 111.04325165767763,
+      "firstStationFixedIDs": [
+        138,
+        141,
+        143,
+        145
+      ],
+      "limits": "Retains original LBS width/depth skew within root transition. This is local flexible transition, not exact bind cross-section restoration there."
+    },
+    {
+      "tailStartVertex": 162,
+      "success": true,
+      "distributedTwistDegreesAtStations3and4": [
+        23.9289469487653,
+        11.451267406630137
+      ],
+      "method": "Common positive-determinant affine map on both tails original first2 cells. Root plane is pointwise fixed. Original root twist is parallel-transported and blended at ring3 by2/3 and ring4 by1/3; all centers and final V tip stay on tail09/tail05 path. No optimizer, no parameter scan.",
+      "centers": [
+        [
+          0.016081022253051157,
+          0.5431544392022805,
+          -0.1131765364891016
+        ],
+        [
+          0.022440566449848206,
+          0.5076468730446957,
+          -0.13099342122725893
+        ],
+        [
+          0.028183323363750266,
+          0.4730700844712387,
+          -0.15276960085094402
+        ],
+        [
+          0.03437005412367123,
+          0.4384529369409036,
+          -0.17311118672530115
+        ],
+        [
+          0.0405544076497423,
+          0.39974105466066256,
+          -0.1854233920678982
+        ],
+        [
+          0.046704630947015165,
+          0.3683460388548775,
+          -0.1881701000421216
+        ]
+      ],
+      "centerlineAnglesDegrees": [
+        26.646451024776194,
+        32.20238934034925,
+        30.439171639402474,
+        17.643119404808353,
+        4.999999999999977
+      ],
+      "widthAcrossFrontMm": [
+        34.214721611134756,
+        33.87226094645508,
+        36.33000427055884,
+        34.33962751791022,
+        34.102385062476856,
+        38.54018529913633
+      ],
+      "bindWidthAcrossFrontMm": [
+        34.214721611134664,
+        34.344905449266285,
+        34.39147475904753,
+        34.339627517910124,
+        34.10238506247676,
+        38.540185262174894
+      ],
+      "thicknessALengthsMm": [
+        2.999998629093174,
+        3.018062918087063,
+        3.0807422833043834,
+        2.9999986290931706,
+        2.999998629093208,
+        2.9999986290931773
+      ],
+      "thicknessBLengthsMm": [
+        2.9999986290932017,
+        2.993705651819847,
+        3.040517392257378,
+        2.9999986290931706,
+        2.999998629093209,
+        2.9999986290931773
+      ],
+      "positiveThicknessProjectedOnCellNormalMm": [
+        2.6998909373363067,
+        2.222331083492934,
+        2.305316755876074,
+        2.91723194874073,
+        2.961257501137058
+      ],
+      "neutralCenterlineLengthMm": 195.32225144279698,
+      "bindNeutralCenterlineLengthMm": 195.50482771795262,
+      "maxLongitudinalEdgeVsBindDeltaMm": 6.341823892932176,
+      "longitudinalEdgeVsBindDeltaMm": [
+        [
+          -0.24581415622926261,
+          -0.4670117038291302,
+          -0.41686821108108396,
+          -0.2122781098104487
+        ],
+        [
+          6.13204761519906,
+          -3.3667283788171227,
+          -2.9531625477395504,
+          6.341823892932176
+        ],
+        [
+          -2.922625323602282,
+          4.04731343471356,
+          2.5333712460736333,
+          -4.34720396004696
+        ],
+        [
+          0.4382013831658177,
+          -0.9073814767612126,
+          -0.29356158962344503,
+          1.0425853177265798
+        ],
+        [
+          -0.1606673707466727,
+          -0.10149482819407293,
+          0.14997735282494887,
+          0.16963012336033284
+        ]
+      ],
+      "totalChainVsBindDeltaMm": [
+        3.24114214778666,
+        -0.795302952887978,
+        -0.9802437495454973,
+        2.9945572641616804
+      ],
+      "totalChainVsInputDeltaMm": [
+        2.7342399387258465,
+        1.7601163538170512,
+        0.512607501774124,
+        1.8044766290518237
+      ],
+      "maximumVertexDisplacementMm": 107.01876345518438,
+      "firstStationFixedIDs": [
+        162,
+        165,
+        167,
+        169
+      ],
+      "limits": "Retains original LBS width/depth skew within root transition. This is local flexible transition, not exact bind cross-section restoration there."
+    }
+  ],
+  "actualTailSeatDistances": [
+    {
+      "distanceMm": 2.883327936932975,
+      "bodyPointWorld": [
+        -0.036891350777198455,
+        0.44805188327075307,
+        -0.1638184733732568
+      ],
+      "chairPointWorld": [
+        -0.036591283594618156,
+        0.4463115862104893,
+        -0.16153923976963613
+      ],
+      "bodyPointActorLocal": [
+        -0.036891350777198455,
+        0.44805188327075307,
+        -0.1638184733732568
+      ],
+      "chairPointActorLocal": [
+        -0.036591283594618156,
+        0.4463115862104893,
+        -0.16153923976963613
+      ],
+      "kind": "edge-edge",
+      "bodyTriangle": 287,
+      "chairTriangle": 94,
+      "tailStartVertex": 138,
+      "coordinateConvention": "actor-local (legacy helper keys contain World)"
+    },
+    {
+      "distanceMm": 0.33439249541344923,
+      "bodyPointWorld": [
+        0.0481218194998889,
+        0.4465056072552591,
+        -0.1595622979378684
+      ],
+      "chairPointWorld": [
+        0.048017595864188654,
+        0.4463115862104893,
+        -0.15931067995572748
+      ],
+      "bodyPointActorLocal": [
+        0.0481218194998889,
+        0.4465056072552591,
+        -0.1595622979378684
+      ],
+      "chairPointActorLocal": [
+        0.048017595864188654,
+        0.4463115862104893,
+        -0.15931067995572748
+      ],
+      "kind": "edge-edge",
+      "bodyTriangle": 324,
+      "chairTriangle": 110,
+      "tailStartVertex": 162,
+      "coordinateConvention": "actor-local (legacy helper keys contain World)"
+    }
+  ],
+  "audit": {
+    "selfPairs": [
+      [
+        0,
+        174
+      ],
+      [
+        0,
+        175
+      ],
+      [
+        0,
+        176
+      ],
+      [
+        1,
+        172
+      ],
+      [
+        1,
+        173
+      ],
+      [
+        1,
+        174
+      ],
+      [
+        2,
+        172
+      ],
+      [
+        2,
+        190
+      ],
+      [
+        2,
+        191
+      ],
+      [
+        2,
+        192
+      ],
+      [
+        2,
+        193
+      ],
+      [
+        4,
+        86
+      ],
+      [
+        5,
+        64
+      ],
+      [
+        5,
+        85
+      ],
+      [
+        5,
+        86
+      ],
+      [
+        6,
+        64
+      ],
+      [
+        7,
+        64
+      ],
+      [
+        7,
+        80
+      ],
+      [
+        7,
+        81
+      ],
+      [
+        7,
+        82
+      ],
+      [
+        8,
+        80
+      ],
+      [
+        8,
+        100
+      ],
+      [
+        8,
+        101
+      ],
+      [
+        14,
+        196
+      ],
+      [
+        15,
+        176
+      ],
+      [
+        15,
+        196
+      ],
+      [
+        15,
+        197
+      ],
+      [
+        16,
+        210
+      ],
+      [
+        16,
+        231
+      ],
+      [
+        17,
+        210
+      ],
+      [
+        17,
+        211
+      ],
+      [
+        18,
+        190
+      ],
+      [
+        18,
+        211
+      ],
+      [
+        19,
+        190
+      ],
+      [
+        21,
+        86
+      ],
+      [
+        21,
+        106
+      ],
+      [
+        21,
+        107
+      ],
+      [
+        22,
+        106
+      ],
+      [
+        22,
+        127
+      ],
+      [
+        24,
+        120
+      ],
+      [
+        24,
+        121
+      ],
+      [
+        24,
+        141
+      ],
+      [
+        25,
+        100
+      ],
+      [
+        25,
+        121
+      ],
+      [
+        30,
+        216
+      ],
+      [
+        30,
+        237
+      ],
+      [
+        31,
+        196
+      ],
+      [
+        31,
+        216
+      ],
+      [
+        31,
+        217
+      ],
+      [
+        32,
+        235
+      ],
+      [
+        32,
+        236
+      ],
+      [
+        33,
+        231
+      ],
+      [
+        33,
+        232
+      ],
+      [
+        33,
+        233
+      ],
+      [
+        33,
+        234
+      ],
+      [
+        33,
+        235
+      ],
+      [
+        39,
+        124
+      ],
+      [
+        39,
+        125
+      ],
+      [
+        39,
+        126
+      ],
+      [
+        39,
+        127
+      ],
+      [
+        39,
+        141
+      ],
+      [
+        39,
+        142
+      ],
+      [
+        39,
+        143
+      ],
+      [
+        40,
+        141
+      ],
+      [
+        41,
+        141
+      ],
+      [
+        47,
+        236
+      ],
+      [
+        47,
+        237
+      ],
+      [
+        48,
+        173
+      ],
+      [
+        48,
+        174
+      ],
+      [
+        54,
+        64
+      ],
+      [
+        54,
+        82
+      ],
+      [
+        54,
+        83
+      ],
+      [
+        64,
+        172
+      ],
+      [
+        64,
+        173
+      ],
+      [
+        82,
+        174
+      ],
+      [
+        83,
+        174
+      ],
+      [
+        84,
+        192
+      ],
+      [
+        84,
+        193
+      ],
+      [
+        85,
+        193
+      ],
+      [
+        102,
+        194
+      ],
+      [
+        103,
+        194
+      ],
+      [
+        103,
+        195
+      ],
+      [
+        104,
+        212
+      ],
+      [
+        104,
+        213
+      ],
+      [
+        105,
+        213
+      ],
+      [
+        122,
+        214
+      ],
+      [
+        123,
+        214
+      ],
+      [
+        123,
+        215
+      ],
+      [
+        124,
+        233
+      ],
+      [
+        125,
+        233
+      ],
+      [
+        143,
+        234
+      ],
+      [
+        143,
+        235
+      ],
+      [
+        264,
+        306
+      ],
+      [
+        264,
+        312
+      ],
+      [
+        264,
+        321
+      ],
+      [
+        265,
+        306
+      ],
+      [
+        265,
+        307
+      ],
+      [
+        265,
+        312
+      ],
+      [
+        265,
+        313
+      ],
+      [
+        266,
+        306
+      ],
+      [
+        266,
+        307
+      ],
+      [
+        267,
+        307
+      ],
+      [
+        268,
+        310
+      ],
+      [
+        268,
+        311
+      ],
+      [
+        269,
+        311
+      ],
+      [
+        272,
+        276
+      ],
+      [
+        272,
+        277
+      ],
+      [
+        273,
+        276
+      ],
+      [
+        273,
+        277
+      ],
+      [
+        273,
+        306
+      ],
+      [
+        273,
+        315
+      ],
+      [
+        273,
+        321
+      ],
+      [
+        274,
+        315
+      ],
+      [
+        274,
+        321
+      ],
+      [
+        275,
+        306
+      ],
+      [
+        275,
+        315
+      ],
+      [
+        275,
+        319
+      ],
+      [
+        275,
+        320
+      ],
+      [
+        275,
+        321
+      ],
+      [
+        276,
+        319
+      ],
+      [
+        276,
+        320
+      ],
+      [
+        276,
+        321
+      ],
+      [
+        277,
+        310
+      ],
+      [
+        277,
+        319
+      ],
+      [
+        277,
+        320
+      ],
+      [
+        277,
+        321
+      ]
+    ],
+    "newSelfPairs": [],
+    "chairPairs": [],
+    "chairInteriorSamples": [],
+    "obstaclePairs": {
+      "LOD0_G2_BODY": [],
+      "LOD0_G2_DRESS": [],
+      "LOD0_G2_APRON": [
+        [
+          0,
+          10,
+          1156
+        ],
+        [
+          0,
+          10,
+          1157
+        ],
+        [
+          0,
+          11,
+          1157
+        ],
+        [
+          0,
+          12,
+          1154
+        ],
+        [
+          0,
+          12,
+          1157
+        ],
+        [
+          0,
+          26,
+          1101
+        ],
+        [
+          0,
+          26,
+          1156
+        ],
+        [
+          0,
+          27,
+          1101
+        ],
+        [
+          0,
+          27,
+          1156
+        ],
+        [
+          0,
+          28,
+          1098
+        ],
+        [
+          0,
+          28,
+          1101
+        ],
+        [
+          0,
+          29,
+          1098
+        ],
+        [
+          0,
+          29,
+          1099
+        ],
+        [
+          0,
+          29,
+          1154
+        ]
+      ]
+    }
+  },
+  "retriangulationSurfaceChange": {
+    "changedOriginalTriangleIDs": [
+      326,
+      327
+    ],
+    "oldIndices": [
+      [
+        172,
+        176,
+        177
+      ],
+      [
+        172,
+        177,
+        173
+      ]
+    ],
+    "newIndices": [
+      [
+        173,
+        176,
+        177
+      ],
+      [
+        173,
+        172,
+        176
+      ]
+    ],
+    "sameMaterialUVMaximumSurfaceDisplacementMm": 5.0148301533674395,
+    "whereDisplacementMaximum": "center of quad in original unit-square material parameter; exact max of piecewise affine difference on diagonal-overlay triangulation, not Hausdorff metric",
+    "oldNewDiagonalCenterPointsActor": [
+      [
+        0.03209344913509057,
+        0.455506438586811,
+        -0.1667086669765105
+      ],
+      [
+        0.031152975517251175,
+        0.4565043384606652,
+        -0.1618849519472998
+      ]
+    ],
+    "oldTriangleAreaMm2": [
+      741.1933532947851,
+      665.8409000154982
+    ],
+    "newTriangleAreaMm2": [
+      621.50747418896,
+      786.5304248387225
+    ],
+    "areaSumDeltaMm2": 1.0036457173995434,
+    "oldNormals": [
+      [
+        0.29761725110808246,
+        0.5972106929401662,
+        -0.7448243820396826
+      ],
+      [
+        0.49947575587701554,
+        0.43552256251303034,
+        -0.7488952308789043
+      ]
+    ],
+    "newNormals": [
+      [
+        0.3046466643333797,
+        0.44409926873281635,
+        -0.8425949497958808
+      ],
+      [
+        0.4625671491104999,
+        0.5805577278449083,
+        -0.6700629501795647
+      ]
+    ],
+    "oldToNewNormalAnglesDegrees": [
+      [
+        10.430828790813909,
+        10.434539817980077
+      ],
+      [
+        12.420811987404484,
+        9.703214885356322
+      ]
+    ],
+    "maximumNormalChangeDegrees": 12.420811987404484
+  },
+  "limits": [
+    "Existing 126 self pairs remain, including source knot/loops/root crossings; 14 knot/APRON pairs remain. No all-BOW-clean claim.",
+    "Same vertices after diagonal switch is not same surface: material-coordinate interior change reaches5.014830mm.",
+    "Root transition retains source LBS section widening; original/source dimensions and all length residuals are reported.",
+    "Only endpoint geometry and this exact baseline DRESS/world are checked; no animation, combined future DRESS candidate, design acceptance or physical equilibrium proof.",
+    "No product/source mesh modified; faces.npy is a diagnostic renderer override only."
+  ]
+}

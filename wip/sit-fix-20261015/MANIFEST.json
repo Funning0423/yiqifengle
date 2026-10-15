@@ -1,0 +1,431 @@
+{
+  "status": "UNACCEPTED_OFFLINE_WIP_NO_PRODUCT_CHANGE",
+  "baseCommit": "c9be589c108a3c79361197bcbb49f447ef453f11",
+  "frozenProductSource": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+  "files": [
+    {
+      "path": "README.md",
+      "category": "handoff",
+      "bytes": 5095,
+      "sha256": "83828b00a6829d1b1f46ed9e3edf493ef5a70772f10f3e71706007bf81d02d18"
+    },
+    {
+      "path": "diagnostics/combined-hand03-tail10/render-full/hand03-tail10-back.png",
+      "category": "visual-reference",
+      "bytes": 55485,
+      "sha256": "8a5b6bf9098ba2d67aac06f899ee2a8d60bdcbbb2b0e1fc2cb7407b9d468b894",
+      "sourceSHA256": "8a5b6bf9098ba2d67aac06f899ee2a8d60bdcbbb2b0e1fc2cb7407b9d468b894",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/combined-hand03-tail10/render-full/hand03-tail10-front.png",
+      "category": "visual-reference",
+      "bytes": 54851,
+      "sha256": "075e07c83b3b4dccef4f4768d2f878cabbce3e5f08b6063a5b1cb9c5fcfbc960",
+      "sourceSHA256": "075e07c83b3b4dccef4f4768d2f878cabbce3e5f08b6063a5b1cb9c5fcfbc960",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/combined-hand03-tail10/render-full/hand03-tail10-manifest.json",
+      "category": "visual-reference",
+      "bytes": 2400,
+      "sha256": "9168f5bd69169e2f2655c9afef38e61d723b4976ed0107c5bbabe32ca21a1efa",
+      "sourceSHA256": "1251a9de6a9789de12c44c26cd094d362220607aefda5f95976b8b99090f51df",
+      "packagingPathNormalization": true,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/combined-hand03-tail10/render-full/hand03-tail10-side.png",
+      "category": "visual-reference",
+      "bytes": 64234,
+      "sha256": "7e66de8851930e142ef6147f3a439a224fc060a9691f541f1d3b10471f6b8e6a",
+      "sourceSHA256": "7e66de8851930e142ef6147f3a439a224fc060a9691f541f1d3b10471f6b8e6a",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/REVIEW.md",
+      "category": "hand03",
+      "bytes": 6855,
+      "sha256": "fd530b86e43d8d298359aa888ab760f9fede355d4b2c636a63ac51d791d2bf7e",
+      "sourceSHA256": "fd530b86e43d8d298359aa888ab760f9fede355d4b2c636a63ac51d791d2bf7e",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/anatomical-support.json",
+      "category": "hand03",
+      "bytes": 138303,
+      "sha256": "4ac34cf7aef72fadac8a54bbd874ae6b9018afd347fa0058b448e9b3316c5030",
+      "sourceSHA256": "4ac34cf7aef72fadac8a54bbd874ae6b9018afd347fa0058b448e9b3316c5030",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/audit.json",
+      "category": "hand03",
+      "bytes": 8653,
+      "sha256": "04cfb38551f69e8f865c4ab6fe2a1d026da13a345a2565b341975b8e79d05130",
+      "sourceSHA256": "04cfb38551f69e8f865c4ab6fe2a1d026da13a345a2565b341975b8e79d05130",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/gravity-world.npy",
+      "category": "hand03",
+      "bytes": 3712,
+      "sha256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+      "sourceSHA256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/local-trs.npz",
+      "category": "hand03",
+      "bytes": 5376,
+      "sha256": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195",
+      "sourceSHA256": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/pairsets.json",
+      "category": "hand03",
+      "bytes": 22681,
+      "sha256": "1bf90c0d73d23fb4e7bf103b47d8228e3620826bf09612c2773597db9a0b6ffe",
+      "sourceSHA256": "1bf90c0d73d23fb4e7bf103b47d8228e3620826bf09612c2773597db9a0b6ffe",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/review-freeze-manifest.json",
+      "category": "hand03",
+      "bytes": 1844,
+      "sha256": "b19f92bcdef28fa797f7e867c5e5dd381ae8e8dcb01a0c3fa8dd8f979f39f0d8",
+      "sourceSHA256": "b19f92bcdef28fa797f7e867c5e5dd381ae8e8dcb01a0c3fa8dd8f979f39f0d8",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/rotation-delta-and-transition.json",
+      "category": "hand03",
+      "bytes": 4198,
+      "sha256": "e8713300479ae848326031afa8f25f52df9e6904b1e64e2c2f11e6bd7482d5ca",
+      "sourceSHA256": "e8713300479ae848326031afa8f25f52df9e6904b1e64e2c2f11e6bd7482d5ca",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/candidate-03/world.npy",
+      "category": "hand03",
+      "bytes": 3712,
+      "sha256": "b50a2e4c77459c738ce2381333d658bffd88b96cd57e24187096e836f03e7fb3",
+      "sourceSHA256": "b50a2e4c77459c738ce2381333d658bffd88b96cd57e24187096e836f03e7fb3",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/combined-hand03-tail10-audit/composition.json",
+      "category": "combined-audit",
+      "bytes": 1874,
+      "sha256": "e69f7f0c3b8e648a21c48a2bfe8c67528051d5ba3498b91b4aa93179b873a702",
+      "sourceSHA256": "91658043608517844b7a1b253f86d3a2c8af06d0784f58dc04839940de9fad12",
+      "packagingPathNormalization": true,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/combined-hand03-tail10-audit/pairsets.json",
+      "category": "combined-audit",
+      "bytes": 79038,
+      "sha256": "79f0f0ef894b238d50a81e8f7f08f024089c6a5bfcc313ac675e3b6e717f6fc4",
+      "sourceSHA256": "79f0f0ef894b238d50a81e8f7f08f024089c6a5bfcc313ac675e3b6e717f6fc4",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/combined-hand03-tail10-audit/report.json",
+      "category": "combined-audit",
+      "bytes": 10647,
+      "sha256": "7c4798cb4d2d9a258040eb4d3e73ffbf9923bcbd2962ce7690f518f57c58ca60",
+      "sourceSHA256": "1b16ffb263a4729ff380bd7fc55196b53aeccfe2f8bda04763e40f9c4d68b467",
+      "packagingPathNormalization": true,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/hand-lap-support/original31768-palmar-patch.json",
+      "category": "hand03",
+      "bytes": 13764,
+      "sha256": "acd4d8b556a6d4ae00491a776ac2eb4c73797bb0e3bd6759a034e577422b2190",
+      "sourceSHA256": "acd4d8b556a6d4ae00491a776ac2eb4c73797bb0e3bd6759a034e577422b2190",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/bind-residual.npy",
+      "category": "tail10",
+      "bytes": 4592,
+      "sha256": "ed7d4209c636ea52d25d4acf10f3f21ac8be806dd4c78ac39eaa80ba718c8c80",
+      "sourceSHA256": "ed7d4209c636ea52d25d4acf10f3f21ac8be806dd4c78ac39eaa80ba718c8c80",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/face-map.json",
+      "category": "tail10",
+      "bytes": 3800,
+      "sha256": "85e8307fc7bcb218d38f48fee66462a0dade57a3c24a9a2946a8d6cdd4804f9e",
+      "sourceSHA256": "85e8307fc7bcb218d38f48fee66462a0dade57a3c24a9a2946a8d6cdd4804f9e",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/faces.npy",
+      "category": "tail10",
+      "bytes": 8480,
+      "sha256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1",
+      "sourceSHA256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/mesh-faces.json",
+      "category": "tail10",
+      "bytes": 91,
+      "sha256": "a4a5e3921a33d237ea75296354b5072e6378b5b4c0ed1352261370fc6ed0d533",
+      "sourceSHA256": "491edb6e4bfbbdba55a450b130e93afd1fd7e5e03c69195b71cbfc670c5d007f",
+      "packagingPathNormalization": true,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/mesh-targets.json",
+      "category": "tail10",
+      "bytes": 92,
+      "sha256": "e2185d41f31dbe6295392016ab245e225d6e6da55c2f63e69d95fed3456826b5",
+      "sourceSHA256": "bfb0d736f4cbfb4466b329c4034db00607b6cf502d42c6567f905d5760b8a09c",
+      "packagingPathNormalization": true,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/original-posed.npy",
+      "category": "tail10",
+      "bytes": 4592,
+      "sha256": "a2243e27fcdf8e9c8afbaa9d9216a76825aa1e225a8031c382dda794764ca77c",
+      "sourceSHA256": "a2243e27fcdf8e9c8afbaa9d9216a76825aa1e225a8031c382dda794764ca77c",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/report.json",
+      "category": "tail10",
+      "bytes": 20111,
+      "sha256": "23c3e79156ddec6c71b4dd467189794ad082cf6349dd1b8acc44c59b4a1907ee",
+      "sourceSHA256": "23c3e79156ddec6c71b4dd467189794ad082cf6349dd1b8acc44c59b4a1907ee",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/target.npy",
+      "category": "tail10",
+      "bytes": 4592,
+      "sha256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288",
+      "sourceSHA256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-lowseat-dress/root-decomposition.json",
+      "category": "dress-research",
+      "bytes": 41846,
+      "sha256": "c993b410d42d781a01f4e10711397f13186ac28f3aeb09130038c1dc29f0360f",
+      "sourceSHA256": "c993b410d42d781a01f4e10711397f13186ac28f3aeb09130038c1dc29f0360f",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-lowseat-dress/single-crossbar-patch/material-sections/curve-bounds.json",
+      "category": "dress-research",
+      "bytes": 243038,
+      "sha256": "02a7b1cb04c4d6d8e029ea5f1e01351e936fd863f72dfcb2aeec60c36d86078b",
+      "sourceSHA256": "02a7b1cb04c4d6d8e029ea5f1e01351e936fd863f72dfcb2aeec60c36d86078b",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-actor-local-triangles.npy",
+      "category": "support",
+      "bytes": 184160,
+      "sha256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d",
+      "sourceSHA256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-design-verification.json",
+      "category": "support",
+      "bytes": 11485,
+      "sha256": "fcd05bc900c7e7ef22ee60dbb8c95d1e359bfa14e105404dc027b018f76b0042",
+      "sourceSHA256": "fcd05bc900c7e7ef22ee60dbb8c95d1e359bfa14e105404dc027b018f76b0042",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-transform.json",
+      "category": "support",
+      "bytes": 4601,
+      "sha256": "38c8f32c8a01d35b197ddfd39134a61f395578e26cca99fa4a6b0f154d7c7564",
+      "sourceSHA256": "38c8f32c8a01d35b197ddfd39134a61f395578e26cca99fa4a6b0f154d7c7564",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-world-triangles.npy",
+      "category": "support",
+      "bytes": 184160,
+      "sha256": "1f8d1e588b3dd40a032fbe17f544978f40704bcde6d7bde8691a2b50a520ecf3",
+      "sourceSHA256": "1f8d1e588b3dd40a032fbe17f544978f40704bcde6d7bde8691a2b50a520ecf3",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/cloth-chair-pairsets.json",
+      "category": "support",
+      "bytes": 29826,
+      "sha256": "e01e368dc8c40e6215f3ba9d5eae3fb097860477022d7d3dc0f619c2219b8799",
+      "sourceSHA256": "e01e368dc8c40e6215f3ba9d5eae3fb097860477022d7d3dc0f619c2219b8799",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/gravity-world.npy",
+      "category": "support",
+      "bytes": 3712,
+      "sha256": "1ade24da4fb3ce964fb264451230c0ebbc72e133f3c57705d69ff7b71a9eb2f7",
+      "sourceSHA256": "1ade24da4fb3ce964fb264451230c0ebbc72e133f3c57705d69ff7b71a9eb2f7",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/local-trs.npz",
+      "category": "support",
+      "bytes": 5376,
+      "sha256": "6215ce5411a7d23e2e7bafb877bac97b4944bab45c5688dbf600ca502083fd53",
+      "sourceSHA256": "6215ce5411a7d23e2e7bafb877bac97b4944bab45c5688dbf600ca502083fd53",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/original-chair-world-triangles.npy",
+      "category": "support",
+      "bytes": 184160,
+      "sha256": "dd051e2395cabb4194b1e3f7f08a1f018ba9460a20261ffa6286263a5cb2299d",
+      "sourceSHA256": "dd051e2395cabb4194b1e3f7f08a1f018ba9460a20261ffa6286263a5cb2299d",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/original-local-trs.npz",
+      "category": "support",
+      "bytes": 5376,
+      "sha256": "a4ebfca338baef07ae76ee04f2c4bbb873412d3326832bb01712015d51e4cfdb",
+      "sourceSHA256": "a4ebfca338baef07ae76ee04f2c4bbb873412d3326832bb01712015d51e4cfdb",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/report.json",
+      "category": "support",
+      "bytes": 52023,
+      "sha256": "847f73d9f72d986f89289f2ef5ee66f7c45b5a3ef0a9d58ae267da8c042c7d3d",
+      "sourceSHA256": "847f73d9f72d986f89289f2ef5ee66f7c45b5a3ef0a9d58ae267da8c042c7d3d",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/world.npy",
+      "category": "support",
+      "bytes": 3712,
+      "sha256": "03637def8a7b252fec3d4992d07d9fe0c791ecccf2b645d4f8cf6a1a9717e621",
+      "sourceSHA256": "03637def8a7b252fec3d4992d07d9fe0c791ecccf2b645d4f8cf6a1a9717e621",
+      "packagingPathNormalization": false,
+      "sourceStableWhileRead": true
+    },
+    {
+      "path": "repro/frame31768-replay-subset.json",
+      "category": "reproduction",
+      "bytes": 18054,
+      "sha256": "6ee558256abcac3dd83dae5141fb676444f806341f9087e6e61424a44cd03865",
+      "sourceSHA256": "6ee558256abcac3dd83dae5141fb676444f806341f9087e6e61424a44cd03865",
+      "sourcePath": "diagnostics/combined-hand03-tail10/frame31768-replay-subset.json",
+      "packagingOnlyModification": false
+    },
+    {
+      "path": "repro/helpers/common.py",
+      "category": "reproduction",
+      "bytes": 3418,
+      "sha256": "717042913eba920745f54258c1264fe6918df68f2ff3ab1213681ed8a997095c",
+      "sourceSHA256": "8d25336b4d399d3285a248f0a3c6508ae73087351801ebc83a0aa0c85f2fd358",
+      "sourcePath": "joint-source/tools/offline-character/common.py",
+      "packagingOnlyModification": true
+    },
+    {
+      "path": "repro/helpers/glb_local.py",
+      "category": "reproduction",
+      "bytes": 3245,
+      "sha256": "764b67b26ee15938df587a07c8639c6aba10098dfb341af6a3a9c4d6c850512f",
+      "sourceSHA256": "764b67b26ee15938df587a07c8639c6aba10098dfb341af6a3a9c4d6c850512f",
+      "sourcePath": "joint-source/tools/static-seat/glb_local.py",
+      "packagingOnlyModification": false
+    },
+    {
+      "path": "repro/helpers/rig.py",
+      "category": "reproduction",
+      "bytes": 11426,
+      "sha256": "0bde7ce0da40346eb2785bb951afa109372766ee4b155c284551069bdc588b47",
+      "sourceSHA256": "0bde7ce0da40346eb2785bb951afa109372766ee4b155c284551069bdc588b47",
+      "sourcePath": "joint-source/art-src/animation/mocap/scripts/rig.py",
+      "packagingOnlyModification": false
+    },
+    {
+      "path": "repro/helpers/software_render.py",
+      "category": "reproduction",
+      "bytes": 3925,
+      "sha256": "948c9dbfff2587f8516d5a21142a012b7e07663b066d24919ea17ee0a4b329b8",
+      "sourceSHA256": "948c9dbfff2587f8516d5a21142a012b7e07663b066d24919ea17ee0a4b329b8",
+      "sourcePath": "joint-source/tools/offline-character/software_render.py",
+      "packagingOnlyModification": false
+    },
+    {
+      "path": "repro/helpers/triangle_cross.py",
+      "category": "reproduction",
+      "bytes": 1229,
+      "sha256": "97eda799661b240d43b9d26429bb2d7f5a6fbdf3c635133c5cf7a3fbf93aa832",
+      "sourceSHA256": "97eda799661b240d43b9d26429bb2d7f5a6fbdf3c635133c5cf7a3fbf93aa832",
+      "sourcePath": "joint-source/handoff-inputs/character-test-20261015/posture-work/triangle_cross.py",
+      "packagingOnlyModification": false
+    },
+    {
+      "path": "repro/reproduce_snapshot.py",
+      "category": "reproduction",
+      "bytes": 4364,
+      "sha256": "6f0ad171b98d758cd163aa7c3f19202b672cb45d539e96ca3985799520ed056c",
+      "sourceSHA256": "6eb0e9b5204ba199195b3d013cbdd1da130ed0d15665dbc421c1ac7383a5db6c",
+      "sourcePath": "diagnostics/combined-hand03-tail10/reproduce_snapshot.py",
+      "packagingOnlyModification": true
+    }
+  ],
+  "manifestSelfExcluded": true,
+  "excluded": [
+    "active rise72 outputs",
+    "failed DRESS targets",
+    "old candidate histories",
+    "full historical replay",
+    "credentials and unrelated private data"
+  ],
+  "reproduction": {
+    "packagedNoRenderExitCode": 0,
+    "maximumReconstructionErrorM": 3.3429341157592284e-16,
+    "visualAcceptance": false
+  }
+}

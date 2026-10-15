@@ -1,0 +1,311 @@
+{
+  "status": "COMBINATION_NO_ADDITIONAL_ENDPOINT_COLLISIONS_NOT_ALL_CLEAN",
+  "sourceManifest": "751905c",
+  "cloudSnapshot": "0895471ad98f537e2e9ff052df755cfa0e21b383",
+  "hashes": {
+    "glb": {
+      "path": "REPOSITORY_ROOT/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+      "sha256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec"
+    },
+    "metadata": {
+      "path": "REPOSITORY_ROOT/creator-build-project/assets/bundles/region_island/character/anim_meta.json",
+      "sha256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6"
+    },
+    "handWorld": {
+      "path": "diagnostics/hand-lap-support/candidate-03/world.npy",
+      "sha256": "b50a2e4c77459c738ce2381333d658bffd88b96cd57e24187096e836f03e7fb3"
+    },
+    "handGravityWorld": {
+      "path": "diagnostics/hand-lap-support/candidate-03/gravity-world.npy",
+      "sha256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff"
+    },
+    "handTRS": {
+      "path": "diagnostics/hand-lap-support/candidate-03/local-trs.npz",
+      "sha256": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195"
+    },
+    "handAudit": {
+      "path": "diagnostics/hand-lap-support/candidate-03/audit.json",
+      "sha256": "04cfb38551f69e8f865c4ab6fe2a1d026da13a345a2565b341975b8e79d05130"
+    },
+    "handPairsets": {
+      "path": "diagnostics/hand-lap-support/candidate-03/pairsets.json",
+      "sha256": "1bf90c0d73d23fb4e7bf103b47d8228e3620826bf09612c2773597db9a0b6ffe"
+    },
+    "tailTarget": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/target.npy",
+      "sha256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288"
+    },
+    "tailFaces": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/faces.npy",
+      "sha256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1"
+    },
+    "tailReport": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/report.json",
+      "sha256": "23c3e79156ddec6c71b4dd467189794ad082cf6349dd1b8acc44c59b4a1907ee"
+    },
+    "tailOriginalPosed": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/original-posed.npy",
+      "sha256": "a2243e27fcdf8e9c8afbaa9d9216a76825aa1e225a8031c382dda794764ca77c"
+    },
+    "chair": {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-actor-local-triangles.npy",
+      "sha256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d"
+    },
+    "bodyBaselineReport": {
+      "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/report.json",
+      "sha256": "847f73d9f72d986f89289f2ef5ee66f7c45b5a3ef0a9d58ae267da8c042c7d3d"
+    },
+    "originalPalmarReport": {
+      "path": "diagnostics/hand-lap-support/original31768-palmar-patch.json",
+      "sha256": "acd4d8b556a6d4ae00491a776ac2eb4c73797bb0e3bd6759a034e577422b2190"
+    },
+    "auditScript": {
+      "path": "diagnostics/hand-lap-support/audit_combined_hand03_tail10.py",
+      "sha256": "a5dd59efc6732a358afcdf593d50055897dba30e872099fb16f18ad98b7733bb"
+    }
+  },
+  "oracle": "Original cross_chunk abs(det)>=1e-10; strict edge/barycentric margins1e-6 unchanged",
+  "checks": {
+    "BOW_LOD0_G2_BODY": {
+      "reference": "tail10/report.json audit.obstaclePairs",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "BOW_LOD0_G2_DRESS": {
+      "reference": "tail10/report.json audit.obstaclePairs",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "BOW_LOD0_G2_APRON": {
+      "reference": "tail10/report.json audit.obstaclePairs",
+      "referenceCount": 14,
+      "combinedCount": 14,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_APRON": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_DRESS": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_BOW": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_APRON": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_DRESS": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_BOW": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "handL_handR": {
+      "reference": "candidate03/pairsets.json after",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "affectedBodySelf_AllPrimitives": {
+      "reference": "candidate03/pairsets.json after; unchanged/unchanged BODY pairs invariant",
+      "referenceCount": 166,
+      "combinedCount": 166,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive0_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive1_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive2_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive3_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive4_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive5_chair": {
+      "reference": "candidate03 audited moving primitives; frozen support report for unchanged primitives",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "LOD0_G2_DRESS_chair": {
+      "reference": "tail10 audit for BOW; frozen support clothChairGravity for unchanged DRESS/APRON",
+      "referenceCount": 505,
+      "combinedCount": 505,
+      "gained": [],
+      "lost": []
+    },
+    "LOD0_G2_APRON_chair": {
+      "reference": "tail10 audit for BOW; frozen support clothChairGravity for unchanged DRESS/APRON",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "LOD0_G2_BOW_chair": {
+      "reference": "tail10 audit for BOW; frozen support clothChairGravity for unchanged DRESS/APRON",
+      "referenceCount": 0,
+      "combinedCount": 0,
+      "gained": [],
+      "lost": []
+    },
+    "BOW_self": {
+      "reference": "tail10 report audit.selfPairs",
+      "referenceCount": 126,
+      "combinedCount": 126,
+      "gained": [],
+      "lost": []
+    }
+  },
+  "invariants": {
+    "LOD0_G2_BOWBeforeTailOverride": {
+      "bitExactAcrossHandChange": true,
+      "maxVertexDeltaM": 0.0
+    },
+    "LOD0_G2_APRONBeforeTailOverride": {
+      "bitExactAcrossHandChange": true,
+      "maxVertexDeltaM": 0.0
+    },
+    "LOD0_G2_DRESSBeforeTailOverride": {
+      "bitExactAcrossHandChange": true,
+      "maxVertexDeltaM": 0.0
+    },
+    "tailOverride": {
+      "coordinates": "actor-local absolute posed target; no second skin or morph",
+      "changedFaceIDs": [
+        326,
+        327
+      ],
+      "verticesAndFacesExactlyFrozen": true
+    }
+  },
+  "original7Combined": {
+    "sleeveLOD0_G2_APRON": 0,
+    "handLOD0_G2_APRON": 0,
+    "legsLOD0_G2_APRON": 0,
+    "sleeveLOD0_G2_DRESS": 0,
+    "handLOD0_G2_DRESS": 0,
+    "legsLOD0_G2_DRESS": 0,
+    "apronDress": 0
+  },
+  "original7Reference": {
+    "sleeveLOD0_G2_APRON": 0,
+    "handLOD0_G2_APRON": 0,
+    "legsLOD0_G2_APRON": 0,
+    "sleeveLOD0_G2_DRESS": 0,
+    "handLOD0_G2_DRESS": 0,
+    "legsLOD0_G2_DRESS": 0,
+    "apronDress": 0
+  },
+  "original7GainedCount": 0,
+  "changedBodyScope": [
+    {
+      "primitive": 0,
+      "affectedTriangles": 3778
+    },
+    {
+      "primitive": 1,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 2,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 3,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 4,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 5,
+      "affectedTriangles": 0
+    }
+  ],
+  "chairVolumeAndContact": {
+    "changedBodySamples": 17338,
+    "changedBodyInside": [],
+    "unchangedBodyInsideInherited": 0,
+    "tailInsideSamplesInherited": [],
+    "tailSeatDistancesInheritedMm": [
+      2.883327936932975,
+      0.33439249541344923
+    ],
+    "reason": "Actual chair and tail arrays unchanged; body non-upper-limb geometry unchanged. No all-cloth-chair-clean claim.",
+    "boundaryBandM": 1e-09
+  },
+  "unchangedClothSelf": {
+    "APRON": "Geometry+topology identical to previously audited hand03 and tail10 input; pairset invariant, not recounted.",
+    "DRESS": "Geometry+topology identical to previously audited hand03 and tail10 input; pairset invariant, not recounted."
+  },
+  "newPairCountAcrossOverlappingChecks": 0,
+  "lostPairCountAcrossOverlappingChecks": 0,
+  "seconds": 5.486628293991089,
+  "limits": [
+    "Only frozen actual31768 endpoint, baseline DRESS/APRON, hand03 pose and tail10 geometry/diagonal; no future DRESS candidate included.",
+    "Original7 and all relevant combined cross-pairs executed once; stored already-audited reference pairsets used, no old full baseline collision rerun.",
+    "Known affected-BODY166, BOW self126, BOW/APRON14 and DRESS/chair505 are preserved, not accepted as clean.",
+    "Chair volume tests use vertices/centroids/edge midpoints, not continuous containment certification.",
+    "No product merge, pose optimization, geometry edit, render, or72-frame replay."
+  ],
+  "inputFilesUnchangedAtEnd": true
+}

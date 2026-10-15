@@ -1,0 +1,321 @@
+{
+  "status": "NO_NEW_STRICT_CROSSINGS_IN_AFFECTED_ENDPOINT_SCOPE_NOT_VISUAL_ACCEPTANCE",
+  "inputWorldSHA256": "1ade24da4fb3ce964fb264451230c0ebbc72e133f3c57705d69ff7b71a9eb2f7",
+  "worldSHA256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+  "oracle": "Original cross_chunk abs(det)>=1e-10; strict edge/barycentric1e-6 unchanged",
+  "pairs": {
+    "affectedBodySelf_AllPrimitives": {
+      "before": 166,
+      "after": 166,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_APRON": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_DRESS": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.L_LOD0_G2_BOW": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_APRON": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_DRESS": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "fullHand.R_LOD0_G2_BOW": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "handL_handR": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive0_chair": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive1_chair": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    },
+    "bodyPrimitive2_chair": {
+      "before": 0,
+      "after": 0,
+      "gained": [],
+      "lost": []
+    }
+  },
+  "contact": {
+    "L": {
+      "centralPalmarPanel": {
+        "faceCount": 9,
+        "faceCentroidGapMinMedianMaxMm": [
+          13.010009183650167,
+          16.728409842941396,
+          19.16279882779584
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 0,
+        "nearFaceCentroidsWithin5mm": 0,
+        "minFace": 6088,
+        "nearestApronTriangle": 576,
+        "surfaceCentroidActorLocal": [
+          -0.12370709185399235,
+          0.6022225154610782,
+          0.3628365755462193
+        ],
+        "palmarNormalActorLocal": [
+          0.17160627173574525,
+          -0.9623504617839245,
+          0.21079107240399222
+        ],
+        "actualAreaMm2": 1190.6456264509654,
+        "centroidDownRay": {
+          "apronTriangle": 583,
+          "distanceMm": 21.633210602730763,
+          "pointActorLocal": [
+            -0.12370709185399235,
+            0.5805893048583475,
+            0.3628365755462193
+          ],
+          "upwardSurfaceNormal": [
+            0.3102725365540169,
+            0.8712824286771405,
+            -0.3802602826207331
+          ],
+          "barycentric": [
+            0.09234417055558752,
+            0.3673170738408135,
+            0.5403387556035989
+          ]
+        }
+      },
+      "fingersCore": {
+        "faceCount": 130,
+        "faceCentroidGapMinMedianMaxMm": [
+          2.013568060435097,
+          17.12696751373947,
+          36.808362641420516
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 0,
+        "nearFaceCentroidsWithin5mm": 16,
+        "minFace": 2049,
+        "nearestApronTriangle": 586
+      },
+      "fullHand": {
+        "faceCount": 688,
+        "faceCentroidGapMinMedianMaxMm": [
+          2.013568060435097,
+          22.410041930603626,
+          50.884098871435214
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 0,
+        "nearFaceCentroidsWithin5mm": 16,
+        "minFace": 2049,
+        "nearestApronTriangle": 586
+      },
+      "actualAxes": {
+        "forearmAxis": [
+          0.43846828099872137,
+          -0.15892930060287266,
+          0.8845829774350782
+        ],
+        "palmLongitudinalAxis": [
+          -0.3848857777593651,
+          0.1740347653331795,
+          0.9064076558226953
+        ],
+        "angleDegrees": 52.74428706128437,
+        "note": "Actual centerline directions; not independent wrist flexion/twist decomposition or naturalness acceptance."
+      }
+    },
+    "R": {
+      "centralPalmarPanel": {
+        "faceCount": 9,
+        "faceCentroidGapMinMedianMaxMm": [
+          15.74537697480511,
+          20.62527461162936,
+          22.013163010849908
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 0,
+        "nearFaceCentroidsWithin5mm": 0,
+        "minFace": 2113,
+        "nearestApronTriangle": 530,
+        "surfaceCentroidActorLocal": [
+          0.08632660924925396,
+          0.5754855938044864,
+          0.37068660149053717
+        ],
+        "palmarNormalActorLocal": [
+          -0.38518942862485095,
+          -0.8791056796111733,
+          0.28071748814606867
+        ],
+        "actualAreaMm2": 1268.9040108102358,
+        "centroidDownRay": {
+          "apronTriangle": 664,
+          "distanceMm": 21.934438352427662,
+          "pointActorLocal": [
+            0.08632660924925396,
+            0.5535511554520587,
+            0.37068660149053717
+          ],
+          "upwardSurfaceNormal": [
+            0.11983875479878704,
+            0.9927701410554188,
+            -0.006791161688544725
+          ],
+          "barycentric": [
+            0.3689656485530839,
+            0.5158954601433939,
+            0.1151388913035222
+          ]
+        }
+      },
+      "fingersCore": {
+        "faceCount": 131,
+        "faceCentroidGapMinMedianMaxMm": [
+          1.4477041971396727,
+          12.149778844845084,
+          29.14293150035053
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 2,
+        "nearFaceCentroidsWithin5mm": 17,
+        "minFace": 2165,
+        "nearestApronTriangle": 789
+      },
+      "fullHand": {
+        "faceCount": 692,
+        "faceCentroidGapMinMedianMaxMm": [
+          1.4477041971396727,
+          19.695907676729046,
+          53.342500140410195
+        ],
+        "nearFaceCentroidsWithin1mm": 0,
+        "nearFaceCentroidsWithin2mm": 2,
+        "nearFaceCentroidsWithin5mm": 18,
+        "minFace": 2165,
+        "nearestApronTriangle": 789
+      },
+      "actualAxes": {
+        "forearmAxis": [
+          -0.4953341275341275,
+          -0.17200918921927916,
+          0.8515027545017873
+        ],
+        "palmLongitudinalAxis": [
+          0.2952702108765302,
+          0.2298994709398757,
+          0.9273412186625237
+        ],
+        "angleDegrees": 52.85520517404427,
+        "note": "Actual centerline directions; not independent wrist flexion/twist decomposition or naturalness acceptance."
+      }
+    }
+  },
+  "invariants": {
+    "LOD0_G2_APRON": {
+      "geometryBitExact": true,
+      "maxDeltaM": 0.0,
+      "selfAndChairPairsetsUnchangedByEquality": true
+    },
+    "LOD0_G2_DRESS": {
+      "geometryBitExact": true,
+      "maxDeltaM": 0.0,
+      "selfAndChairPairsetsUnchangedByEquality": true
+    },
+    "LOD0_G2_BOW": {
+      "geometryBitExact": true,
+      "maxDeltaM": 0.0,
+      "selfAndChairPairsetsUnchangedByEquality": true
+    }
+  },
+  "original7Before": {
+    "sleeveLOD0_G2_APRON": 0,
+    "handLOD0_G2_APRON": 0,
+    "legsLOD0_G2_APRON": 0,
+    "sleeveLOD0_G2_DRESS": 0,
+    "handLOD0_G2_DRESS": 0,
+    "legsLOD0_G2_DRESS": 0,
+    "apronDress": 0
+  },
+  "original7After": {
+    "sleeveLOD0_G2_APRON": 0,
+    "handLOD0_G2_APRON": 0,
+    "legsLOD0_G2_APRON": 0,
+    "sleeveLOD0_G2_DRESS": 0,
+    "handLOD0_G2_DRESS": 0,
+    "legsLOD0_G2_DRESS": 0,
+    "apronDress": 0
+  },
+  "changedBody": [
+    {
+      "primitive": 0,
+      "changedVertices": 2226,
+      "affectedTriangles": 3778
+    },
+    {
+      "primitive": 1,
+      "changedVertices": 1618,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 2,
+      "changedVertices": 1618,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 3,
+      "changedVertices": 0,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 4,
+      "changedVertices": 0,
+      "affectedTriangles": 0
+    },
+    {
+      "primitive": 5,
+      "changedVertices": 0,
+      "affectedTriangles": 0
+    }
+  ],
+  "newPairCountAcrossOverlappingDiagnostics": 0,
+  "seconds": 5.663649082183838,
+  "limits": [
+    "One frozen31768 endpoint. No animation, CCD, rendered naturalness, or universal contact acceptance.",
+    "Existing cloth self/chair failures remain exactly unchanged, not solved.",
+    "Body self compares all affected triangles against every BODY primitive; unchanged-vs-unchanged pairs are invariant and not recounted.",
+    "Contact values are actual face-centroid samples; not exact full-surface distance or proof of broad load-bearing contact."
+  ]
+}

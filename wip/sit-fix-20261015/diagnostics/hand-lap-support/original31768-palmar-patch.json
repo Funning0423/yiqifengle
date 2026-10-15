@@ -1,0 +1,491 @@
+{
+  "status": "READ_ONLY_ORIGINAL31768_PALMAR_PATCH_NO_CANDIDATE",
+  "sourceManifest": "751905c",
+  "cloudSnapshot": "0895471ad98f537e2e9ff052df755cfa0e21b383",
+  "glbSHA256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec",
+  "metadataSHA256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6",
+  "historySHA256": "a129e12fd490c4139d589dfc1a53927f90402173b7db7ab4a698525aff48b213",
+  "frame": 31768,
+  "clip": "sit_down",
+  "clipTime": 1.1859999999999982,
+  "morphWeights": {
+    "sit_drape": 1,
+    "sit_drape_mid": 0,
+    "hand_rest_support": 0.9847221831301041,
+    "sit_clearance_rise": 0,
+    "cloth_return_clearance": 0.014000000000001789,
+    "cloth_rise_clearance": 0,
+    "cloth_waist_rise_seam": 0,
+    "cloth_envelope_stand_up_0": 0,
+    "cloth_envelope_stand_up_1": 0,
+    "cloth_envelope_stand_up_2": 0,
+    "cloth_envelope_sit_down_5": 0,
+    "cloth_envelope_sit_down_6": 0,
+    "cloth_envelope_sit_down_7": 0.09333364751603845,
+    "cloth_envelope_sit_down_8": 0.9066663524839615,
+    "cloth_cuff_clearance": 0,
+    "cloth_envelope_stand_up_4": 0,
+    "cloth_envelope_stand_up_5": 0,
+    "corrective_stand_up_0": 0.9992361091565052,
+    "corrective_stand_up_1": 0.0007638908434947942,
+    "corrective_stand_up_2": 0,
+    "corrective_stand_up_3": 0,
+    "corrective_stand_up_4": 0,
+    "corrective_stand_up_5": 0,
+    "corrective_stand_up_6": 0,
+    "corrective_stand_up_7": 0,
+    "corrective_stand_up_8": 0,
+    "corrective_door_0": 0,
+    "corrective_door_1": 0,
+    "corrective_door_4": 0,
+    "corrective_shoulder_surface_relax": 1,
+    "wrist_clearance_stand_up_0": 0,
+    "wrist_clearance_stand_up_1": 0,
+    "wrist_clearance_stand_up_2": 0,
+    "task21_sit_down_2": 0.0,
+    "task21_sit_down_3": 0.0,
+    "task21_sit_down_4": 0.0,
+    "task21_sit_down_5": 0.0,
+    "task21_sit_down_6": 0.0,
+    "task21_sit_down_7": 0.0,
+    "task21_sit_down_1": 0.0,
+    "task21_refine_sit_down_139": 0.0,
+    "task21_refine_sit_down_286": 0.0,
+    "task21_refine_sit_down_177": 0.0,
+    "task21_refine_sit_down_214": 0.0,
+    "task21_refine_sit_down_249": 0.0
+  },
+  "coordinates": "Actor-local glTF meters; +Y up; no old toe pose used",
+  "hands": {
+    "L": {
+      "originalPanelVertexIDs": [
+        2788,
+        2789,
+        2790,
+        2791,
+        2802,
+        2803,
+        2804,
+        2805,
+        2816,
+        2817,
+        2818,
+        2819,
+        2830,
+        2831,
+        2832,
+        2833
+      ],
+      "actualTriangleIDs": [
+        1943,
+        1944,
+        1945,
+        1963,
+        1964,
+        6074,
+        6088,
+        6089,
+        6115
+      ],
+      "actualTriangles": [
+        [
+          2789,
+          2804,
+          2790
+        ],
+        [
+          2790,
+          2804,
+          2805
+        ],
+        [
+          2790,
+          2805,
+          2791
+        ],
+        [
+          2804,
+          2818,
+          2819
+        ],
+        [
+          2804,
+          2819,
+          2805
+        ],
+        [
+          2803,
+          2804,
+          2789
+        ],
+        [
+          2817,
+          2818,
+          2803
+        ],
+        [
+          2818,
+          2804,
+          2803
+        ],
+        [
+          2832,
+          2818,
+          2817
+        ]
+      ],
+      "actualAreaMm2": 1190.6454083976653,
+      "surfaceCentroidActorLocal": [
+        -0.12898910417419762,
+        0.6067238586146172,
+        0.3567591765312379
+      ],
+      "palmarOutwardNormalActorLocal": [
+        0.24232841889115853,
+        -0.9196395616879925,
+        0.30909547711998014
+      ],
+      "handBoneCenterActorLocal": [
+        -0.12362207692364713,
+        0.612282241663668,
+        0.3287212994823627
+      ],
+      "centroidRelativeToHandBoneMm": [
+        9.451864497481965,
+        27.502015251498534,
+        0.35414627862390974
+      ],
+      "centroidHandWeightRange": [
+        0.12410642951726913,
+        1.0
+      ],
+      "faceCentroidNearestGapQuantilesMm": [
+        26.211486967446852,
+        33.822211944326305,
+        36.26187252666806
+      ],
+      "areaWeightedFaceCentroidNearestGapMm": 32.20029508010373,
+      "panelCentroidNearestGapMm": 33.36471633267418,
+      "nearestPointActorLocal": [
+        -0.110535546763602,
+        0.5789340478657865,
+        0.3573892030369032
+      ],
+      "nearestApronTriangle": 590,
+      "centroidDownRay": {
+        "apronTriangle": 582,
+        "distanceMm": 41.63076886618092,
+        "pointActorLocal": [
+          -0.12898910417419762,
+          0.5650930897484363,
+          0.3567591765312379
+        ],
+        "upwardSurfaceNormal": [
+          -0.32393028083914904,
+          0.9078148199548016,
+          -0.26634831673187104
+        ],
+        "barycentric": [
+          0.5852257750472105,
+          0.28822442716159347,
+          0.12654979779119596
+        ]
+      },
+      "faceCentroidDownRayHitCount": 9,
+      "faceCentroidDownRayDistancesMm": [
+        40.995562829999194,
+        41.61703916384458,
+        36.66714685996676,
+        42.94714624958899,
+        43.55698262991153,
+        42.17088959034099,
+        37.37925116775302,
+        38.10597394711361,
+        36.92759868569996
+      ],
+      "restRelativeWristRotationDeg": 109.23750543710585,
+      "upperArmLengthMm": 248.14989650734566,
+      "forearmLengthMm": 190.14505775250325,
+      "localFirstOrderMeasurements": [
+        {
+          "reference": "nearestPoint",
+          "targetPointActorLocal": [
+            -0.110535546763602,
+            0.5789340478657865,
+            0.3573892030369032
+          ],
+          "localSurfaceUpwardNormal": [
+            -0.55308599739312,
+            0.8329101459081201,
+            -0.01888301699865785
+          ],
+          "centroidTranslationToSurfaceMm": [
+            18.45355741059562,
+            -27.78981074883069,
+            0.6300265056652932
+          ],
+          "translationNormMm": 33.36471633267418,
+          "minimalPalmarNormalRotationDeg": 25.063042509084674,
+          "initialWristTargetActorLocal": [
+            -0.11284894868132779,
+            0.5917893652049391,
+            0.33140435859417633
+          ],
+          "initialWristMovementMm": 23.307017910399196,
+          "initialShoulderWristDistanceMm": 401.57220447174853,
+          "twoBoneOuterReachLimitMm": 436.1034794885497,
+          "outerReachWouldClamp": false,
+          "warning": "Rigid-anchor first estimate only; actual core mixes hand/forearm weights. Must re-evaluate actual skinned geometry after local IK. No pose was solved."
+        },
+        {
+          "reference": "verticalLapHit",
+          "targetPointActorLocal": [
+            -0.12898910417419762,
+            0.5650930897484363,
+            0.3567591765312379
+          ],
+          "localSurfaceUpwardNormal": [
+            -0.32393028083914904,
+            0.9078148199548016,
+            -0.26634831673187104
+          ],
+          "centroidTranslationToSurfaceMm": [
+            0.0,
+            -41.63076886618089,
+            0.0
+          ],
+          "translationNormMm": 41.63076886618089,
+          "minimalPalmarNormalRotationDeg": 5.323334785707688,
+          "initialWristTargetActorLocal": [
+            -0.12510798658430033,
+            0.5720133816335369,
+            0.32877936882077696
+          ],
+          "initialWristMovementMm": 40.29630737045238,
+          "initialShoulderWristDistanceMm": 407.0653304745729,
+          "twoBoneOuterReachLimitMm": 436.1034794885497,
+          "outerReachWouldClamp": false,
+          "warning": "Rigid-anchor first estimate only; actual core mixes hand/forearm weights. Must re-evaluate actual skinned geometry after local IK. No pose was solved."
+        }
+      ]
+    },
+    "R": {
+      "originalPanelVertexIDs": [
+        3024,
+        3025,
+        3026,
+        3027,
+        3038,
+        3039,
+        3040,
+        3041,
+        3052,
+        3053,
+        3054,
+        3055,
+        3066,
+        3067,
+        3068,
+        3069
+      ],
+      "actualTriangleIDs": [
+        2112,
+        2113,
+        2114,
+        2132,
+        2133,
+        6557,
+        6571,
+        6572,
+        6594
+      ],
+      "actualTriangles": [
+        [
+          3025,
+          3026,
+          3040
+        ],
+        [
+          3026,
+          3027,
+          3041
+        ],
+        [
+          3026,
+          3041,
+          3040
+        ],
+        [
+          3040,
+          3041,
+          3055
+        ],
+        [
+          3040,
+          3055,
+          3054
+        ],
+        [
+          3039,
+          3025,
+          3040
+        ],
+        [
+          3054,
+          3039,
+          3040
+        ],
+        [
+          3053,
+          3039,
+          3054
+        ],
+        [
+          3068,
+          3053,
+          3054
+        ]
+      ],
+      "actualAreaMm2": 1268.9039930680265,
+      "surfaceCentroidActorLocal": [
+        0.08776622723245166,
+        0.5770327746627147,
+        0.36806020297972125
+      ],
+      "palmarOutwardNormalActorLocal": [
+        -0.30903390326202207,
+        -0.9082634034700574,
+        0.28205608759895023
+      ],
+      "handBoneCenterActorLocal": [
+        0.08520204859373924,
+        0.5834303877776953,
+        0.33916687447313054
+      ],
+      "centroidRelativeToHandBoneMm": [
+        -10.265292239546634,
+        27.86613351129949,
+        0.657707840957521
+      ],
+      "centroidHandWeightRange": [
+        0.12409741431474686,
+        1.0
+      ],
+      "faceCentroidNearestGapQuantilesMm": [
+        15.5219011891731,
+        21.838059943523234,
+        22.64711943055783
+      ],
+      "areaWeightedFaceCentroidNearestGapMm": 20.910290340370043,
+      "panelCentroidNearestGapMm": 21.738625806436524,
+      "nearestPointActorLocal": [
+        0.08674766194877341,
+        0.5553185263002646,
+        0.3682078334948037
+      ],
+      "nearestApronTriangle": 664,
+      "centroidDownRay": {
+        "apronTriangle": 664,
+        "distanceMm": 21.763030617696504,
+        "pointActorLocal": [
+          0.08776622723245166,
+          0.5552697440450183,
+          0.36806020297972125
+        ],
+        "upwardSurfaceNormal": [
+          0.04685509069191734,
+          0.9988786115459454,
+          -0.006791161336369192
+        ],
+        "barycentric": [
+          0.4024420583382852,
+          0.12492325816198713,
+          0.47263468349972765
+        ]
+      },
+      "faceCentroidDownRayHitCount": 9,
+      "faceCentroidDownRayDistancesMm": [
+        22.181757470294276,
+        15.555238650562847,
+        19.197274604470554,
+        27.210766538734173,
+        29.557351165888875,
+        22.692518846892593,
+        21.862576384256485,
+        23.40915598861079,
+        21.215565973162374
+      ],
+      "restRelativeWristRotationDeg": 104.05794675071137,
+      "upperArmLengthMm": 248.14965852524435,
+      "forearmLengthMm": 190.1452125184434,
+      "localFirstOrderMeasurements": [
+        {
+          "reference": "nearestPoint",
+          "targetPointActorLocal": [
+            0.08674766194877341,
+            0.5553185263002646,
+            0.3682078334948037
+          ],
+          "localSurfaceUpwardNormal": [
+            0.04685509069191734,
+            0.9988786115459454,
+            -0.006791161336369192
+          ],
+          "centroidTranslationToSurfaceMm": [
+            -1.0185652836782466,
+            -21.71424836245017,
+            0.14763051508243086
+          ],
+          "translationNormMm": 21.738625806436524,
+          "minimalPalmarNormalRotationDeg": 22.53580800833725,
+          "initialWristTargetActorLocal": [
+            0.08178492990369697,
+            0.5685563272363803,
+            0.3420838825134817
+          ],
+          "initialWristMovementMm": 15.537802709392789,
+          "initialShoulderWristDistanceMm": 419.9299653168699,
+          "twoBoneOuterReachLimitMm": 436.10339668846933,
+          "outerReachWouldClamp": false,
+          "warning": "Rigid-anchor first estimate only; actual core mixes hand/forearm weights. Must re-evaluate actual skinned geometry after local IK. No pose was solved."
+        },
+        {
+          "reference": "verticalLapHit",
+          "targetPointActorLocal": [
+            0.08776622723245166,
+            0.5552697440450183,
+            0.36806020297972125
+          ],
+          "localSurfaceUpwardNormal": [
+            0.04685509069191734,
+            0.9988786115459454,
+            -0.006791161336369192
+          ],
+          "centroidTranslationToSurfaceMm": [
+            0.0,
+            -21.763030617696465,
+            0.0
+          ],
+          "translationNormMm": 21.763030617696465,
+          "minimalPalmarNormalRotationDeg": 22.53580800833725,
+          "initialWristTargetActorLocal": [
+            0.08280349518737522,
+            0.568507544981134,
+            0.3419362519983993
+          ],
+          "initialWristMovementMm": 15.365993213961985,
+          "initialShoulderWristDistanceMm": 419.662138289605,
+          "twoBoneOuterReachLimitMm": 436.10339668846933,
+          "outerReachWouldClamp": false,
+          "warning": "Rigid-anchor first estimate only; actual core mixes hand/forearm weights. Must re-evaluate actual skinned geometry after local IK. No pose was solved."
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Only surviving 9-triangle anatomical palmar panel per side; this is not a whole-palm or full repair-boundary acceptance.",
+    "Distances sample actual face centroids, not every surface point; original full-hand exact surface minima remain in frozen-hand-audit/report.json.",
+    "Upward normals identify local lap orientation; ray intersections do not certify connected support area or absence of other collisions.",
+    "No accepted threshold, pose solve, animation edits, rendering, or full regression."
+  ]
+}

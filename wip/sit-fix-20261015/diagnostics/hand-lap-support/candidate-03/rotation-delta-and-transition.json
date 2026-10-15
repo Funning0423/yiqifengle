@@ -1,0 +1,128 @@
+{
+  "status": "STATIC_REPRODUCTION_VERIFIED_TRANSITION_NOT_RUN",
+  "baseTRSSHA256": "6215ce5411a7d23e2e7bafb877bac97b4944bab45c5688dbf600ca502083fd53",
+  "candidateTRSSHA256": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195",
+  "worldSHA256": "b50a2e4c77459c738ce2381333d658bffd88b96cd57e24187096e836f03e7fb3",
+  "quaternionConvention": "glTF xyzw; left multiplicative delta in each parent-local frame",
+  "bones": {
+    "upper_arm.L": {
+      "index": 6,
+      "sourceQuaternionXYZW": [
+        0.7474895946249276,
+        -0.3382163076962041,
+        -0.4916683500043296,
+        0.29177231363872647
+      ],
+      "candidateQuaternionXYZW": [
+        0.7539836525692547,
+        -0.32648580545689976,
+        -0.47357023707296053,
+        0.3172489575272784
+      ],
+      "parentLocalDeltaRotvecRad": [
+        -0.03501135154589763,
+        -0.009365449231851106,
+        0.057553922946732686
+      ],
+      "parentLocalDeltaAxis": [
+        -0.5147637070285286,
+        -0.13769800798050164,
+        0.8462018580246967
+      ],
+      "deltaAngleDegrees": 3.896938830844169
+    },
+    "forearm.L": {
+      "index": 7,
+      "sourceQuaternionXYZW": [
+        -0.46188083305860944,
+        0.27582653965452075,
+        0.024659455741882635,
+        0.8426016095219486
+      ],
+      "candidateQuaternionXYZW": [
+        -0.4015265324190515,
+        0.2819408649646318,
+        -0.022482464928131843,
+        0.8710799797936369
+      ],
+      "parentLocalDeltaRotvecRad": [
+        0.10182291916227601,
+        -0.04602911014072199,
+        -0.11992528365649273
+      ],
+      "parentLocalDeltaAxis": [
+        0.6211872651966077,
+        -0.2808080664254,
+        -0.7316236815385265
+      ],
+      "deltaAngleDegrees": 9.391730726890682
+    },
+    "upper_arm.R": {
+      "index": 9,
+      "sourceQuaternionXYZW": [
+        0.7323208272731309,
+        0.31847035459247625,
+        0.5016452840053403,
+        0.33261815755045654
+      ],
+      "candidateQuaternionXYZW": [
+        0.7342036317362796,
+        0.30036985206372463,
+        0.4983618458455159,
+        0.34979772686786265
+      ],
+      "parentLocalDeltaRotvecRad": [
+        -0.007841527576650244,
+        -0.016287147925108762,
+        -0.04713535219646315
+      ],
+      "parentLocalDeltaAxis": [
+        -0.1553310114967448,
+        -0.32262835740545576,
+        -0.9336933221702165
+      ],
+      "deltaAngleDegrees": 2.8924451772267163
+    },
+    "forearm.R": {
+      "index": 10,
+      "sourceQuaternionXYZW": [
+        -0.35539456637765027,
+        -0.25869618358674196,
+        0.027287664602081253,
+        0.8977897058783219
+      ],
+      "candidateQuaternionXYZW": [
+        -0.33416359066993734,
+        -0.2563348697805898,
+        0.022268503826498545,
+        0.9067145322219512
+      ],
+      "parentLocalDeltaRotvecRad": [
+        0.04693796892647248,
+        0.006449289290527825,
+        -0.00019304655952521766
+      ],
+      "parentLocalDeltaAxis": [
+        0.9906839456558781,
+        0.13612023500686382,
+        -0.004074486639703603
+      ],
+      "deltaAngleDegrees": 2.7146372263281258
+    }
+  },
+  "checks": {
+    "weight0RotationBitExact": true,
+    "weight1FKMaxAbsError": 4.440892098500626e-16,
+    "nonFourBoneRotationBitExact": true,
+    "translationScaleBitExact": true,
+    "handLocalRotationBitExact": true
+  },
+  "transition": {
+    "method": "At each original frame: R_out_i(t)=Exp(w(t)*Log(R03_i*Rfreeze_i^T))*R_original_i(t). Do not accumulate frame-to-frame.",
+    "fade": "w=1-(10u^3-15u^4+6u^5), u=clamp((t-releaseBegin)/(releaseEnd-releaseBegin),0,1)",
+    "interval": "Unselected: actual seated/hold/stand-up seam, morph support and hand lift must be checked first.",
+    "addedAngularSpeedBound": "Each local correction contributes at most 1.875*deltaAngleDegrees / releaseDurationSeconds deg/s.",
+    "addedAngularAccelerationBound": "Each local correction contributes at most (10/sqrt(3))*deltaAngleDegrees / releaseDurationSeconds^2 deg/s^2.",
+    "warning": "C2 fade guarantees only the correction envelope derivatives. It cannot repair a discontinuous original clip/morph seam, certify collision-free interpolation, or preserve cloth contact by itself."
+  }
+}

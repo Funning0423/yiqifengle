@@ -1,0 +1,38 @@
+{
+  "status": "COMBINATION_NO_ADDITIONAL_ENDPOINT_COLLISIONS_NOT_ALL_CLEAN",
+  "world": {
+    "path": "diagnostics/hand-lap-support/candidate-03/gravity-world.npy",
+    "sha256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff"
+  },
+  "localTRS": {
+    "path": "diagnostics/hand-lap-support/candidate-03/local-trs.npz",
+    "sha256": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195"
+  },
+  "chairActorLocalTriangles": {
+    "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-actor-local-triangles.npy",
+    "sha256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d"
+  },
+  "meshTargets": {
+    "LOD0_G2_BOW:0": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/target.npy",
+      "sha256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288"
+    }
+  },
+  "meshFaces": {
+    "LOD0_G2_BOW:0": {
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/faces.npy",
+      "sha256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1"
+    }
+  },
+  "targetCoordinateSemantics": "Absolute actor-local posed vertices; replace rendered BOW geometry once, do not skin target again.",
+  "morphWeightSource": {
+    "path": "diagnostics/hand-lap-support/original31768-palmar-patch.json",
+    "sha256": "acd4d8b556a6d4ae00491a776ac2eb4c73797bb0e3bd6759a034e577422b2190"
+  },
+  "DRESSAndAPRON": "Current original GLB poses under hand03 gravity world, no future cloth candidate.",
+  "sourceGLB": {
+    "path": "REPOSITORY_ROOT/creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb",
+    "sha256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec"
+  },
+  "reportSHA256": "1b16ffb263a4729ff380bd7fc55196b53aeccfe2f8bda04763e40f9c4d68b467"
+}

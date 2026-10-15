@@ -1,0 +1,26 @@
+{
+  "status": "FROZEN_NATURAL_CUPPED_HAND_VISUAL_REVIEW_CANDIDATE_NOT_ACCEPTED",
+  "centralPalmZeroGapNoLongerAnAcceptanceObjective": true,
+  "naturalnessMathematicallyCertified": false,
+  "physicalZeroGapContactClaimed": false,
+  "transitionRun": false,
+  "productChanged": false,
+  "sourceManifestIdentity": "751905c",
+  "cloudSnapshot": "0895471ad98f537e2e9ff052df755cfa0e21b383",
+  "sourceGLBSHA256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec",
+  "files": {
+    "world.npy": "b50a2e4c77459c738ce2381333d658bffd88b96cd57e24187096e836f03e7fb3",
+    "gravity-world.npy": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+    "local-trs.npz": "86bc1066c5a8971ec012756707ca9d542657502caf20e66ab487dacb46011195",
+    "report.json": "049457724821bd2b61c9a7e789ee40ba522c71d9ba9a8fd46f049a71f5a8ea75",
+    "audit.json": "04cfb38551f69e8f865c4ab6fe2a1d026da13a345a2565b341975b8e79d05130",
+    "pairsets.json": "1bf90c0d73d23fb4e7bf103b47d8228e3620826bf09612c2773597db9a0b6ffe",
+    "anatomical-support.json": "4ac34cf7aef72fadac8a54bbd874ae6b9018afd347fa0058b448e9b3316c5030",
+    "rotation-delta-and-transition.json": "e8713300479ae848326031afa8f25f52df9e6904b1e64e2c2f11e6bd7482d5ca",
+    "REVIEW.md": "fd530b86e43d8d298359aa888ab760f9fede355d4b2c636a63ac51d791d2bf7e",
+    "anatomical-region-map.svg": "6151e836a21afde891f215eb5f78dfa0f8ffc11196019c22995bb263bd4e9107",
+    "anatomical-region-map.png": "cb0e677af0c9ef25fa6559129e26a1aa18df208cea04940466a6ab7e2f017386",
+    "region-map-legend.json": "ef82aa5893276108e951b0d90762fa481ed6757ce6788f6e1fb11e890e9ee9bf"
+  },
+  "note": "Original report.json records the earlier central-flat optimization objective and is preserved. REVIEW.md and this review status clarify the later source/anatomy/visual interpretation without changing the frozen pose."
+}

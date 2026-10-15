@@ -1,0 +1,163 @@
+{
+  "formulaWorld": "Seat triangles0..283: y_new=y_old-totalDrop. Each leg: y_new=q_i*(y_old-oldBottom_i), q_i=(oldTop_i-totalDrop)/(oldTop_i-oldBottom_i). Each horizontal crossbar: rigid Y translation moving its centerline to the mean mapped leg height; all X/Z unchanged.",
+  "legTransforms": [
+    {
+      "component": 1,
+      "oldBottomY": 0.007205529762268066,
+      "oldTopY": 0.47124034936523435,
+      "newBottomY": 0.0,
+      "newTopY": 0.42408034936523437,
+      "verticalScale": 0.9138976892468599,
+      "oldAndNewSeatEmbeddingMm": [
+        22.314333915710417,
+        22.314333915710417
+      ]
+    },
+    {
+      "component": 2,
+      "oldBottomY": 0.0072055655250549315,
+      "oldTopY": 0.47124034936523435,
+      "newBottomY": 0.0,
+      "newTopY": 0.42408034936523437,
+      "verticalScale": 0.9138977596802184,
+      "oldAndNewSeatEmbeddingMm": [
+        22.314333915710417,
+        22.314333915710417
+      ]
+    },
+    {
+      "component": 3,
+      "oldBottomY": 0.007205529762268066,
+      "oldTopY": 0.47124034936523435,
+      "newBottomY": 0.0,
+      "newTopY": 0.42408034936523437,
+      "verticalScale": 0.9138976892468599,
+      "oldAndNewSeatEmbeddingMm": [
+        22.314333915710417,
+        22.314333915710417
+      ]
+    },
+    {
+      "component": 4,
+      "oldBottomY": 0.0072055655250549315,
+      "oldTopY": 0.47124034936523435,
+      "newBottomY": 0.0,
+      "newTopY": 0.42408034936523437,
+      "verticalScale": 0.9138977596802184,
+      "oldAndNewSeatEmbeddingMm": [
+        22.314333915710417,
+        22.314333915710417
+      ]
+    }
+  ],
+  "crossbarTransforms": [
+    {
+      "component": 5,
+      "oldCenterY": 0.1621259974966049,
+      "newCenterY": 0.14158144659347216,
+      "rigidTranslationY": -0.02054455090313273,
+      "oldThicknessYmm": 23.999994993209846,
+      "newThicknessYmm": 23.999994993209846,
+      "mappedLegHeightSpreadNm": 21.771961955519004
+    },
+    {
+      "component": 6,
+      "oldCenterY": 0.1621259974966049,
+      "newCenterY": 0.14158144659347216,
+      "rigidTranslationY": -0.02054455090313273,
+      "oldThicknessYmm": 23.999994993209846,
+      "newThicknessYmm": 23.999994993209846,
+      "mappedLegHeightSpreadNm": 21.771961955519004
+    },
+    {
+      "component": 7,
+      "oldCenterY": 0.16212598855590818,
+      "newCenterY": 0.14158143842258977,
+      "rigidTranslationY": -0.020544550133318407,
+      "oldThicknessYmm": 24.000048637390137,
+      "newThicknessYmm": 24.000048637390137,
+      "mappedLegHeightSpreadNm": 21.771962566141667
+    },
+    {
+      "component": 8,
+      "oldCenterY": 0.16212598855590818,
+      "newCenterY": 0.14158143842258977,
+      "rigidTranslationY": -0.020544550133318407,
+      "oldThicknessYmm": 24.000048637390137,
+      "newThicknessYmm": 24.000048637390137,
+      "mappedLegHeightSpreadNm": 21.771962566141667
+    }
+  ],
+  "originalLowestChairY": 0.007205529762268066,
+  "targetGroundY": 0.0,
+  "actualCandidateChairMinimumY": 0.0,
+  "actualChairComponentYRanges": [
+    [
+      0.40176601544952395,
+      0.4473660005722046
+    ],
+    [
+      0.0,
+      0.42408034936523437
+    ],
+    [
+      0.0,
+      0.42408034936523437
+    ],
+    [
+      0.0,
+      0.42408034936523437
+    ],
+    [
+      0.0,
+      0.42408034936523437
+    ],
+    [
+      0.12958144909686725,
+      0.1535814440900771
+    ],
+    [
+      0.12958144909686725,
+      0.1535814440900771
+    ],
+    [
+      0.1295814141038947,
+      0.15358146274128484
+    ],
+    [
+      0.1295814141038947,
+      0.15358146274128484
+    ]
+  ],
+  "totalSeatDropMm": 47.15999999999999,
+  "originalSeatTopY": 0.4945260005722046,
+  "candidateSeatTopY": 0.4473660005722046,
+  "originalSeatThicknessMm": 45.59998512268065,
+  "candidateSeatThicknessMm": 45.5999851226806,
+  "actorToWorldR": [
+    [
+      -0.41614683654714263,
+      0.0,
+      -0.9092974268256816
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.9092974268256816,
+      0.0,
+      -0.41614683654714263
+    ]
+  ],
+  "actorRoot": [
+    0.42749287757147475,
+    0.0,
+    -4.210008356523415
+  ],
+  "worldToActorFormula": "(world-frame.root)@R_y(frame.yawRad)",
+  "actorYawRad": 4.283185307179586,
+  "triangleIDs": "Preserved original chair mesh0 primitive0 triangles0..2555, no topology change",
+  "designImpact": "Seat board rigidly translated, thickness/radius unchanged. Four legs are vertically compressed with fixedXZ endpoints, grounded bottom and original embedding depth. Crossbars retain full rigid geometry/24mm thickness and only move vertically. Slight vertical compression of leg bevel/cross-section is explicit; no whole-stool sinking."
+}

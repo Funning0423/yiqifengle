@@ -1,0 +1,515 @@
+{
+  "status": "FROZEN_COMPONENT_GEOMETRY_VERIFIED_WITH_PREVIOUS_FAILURE_WITNESS",
+  "worldSHA256": "03637def8a7b252fec3d4992d07d9fe0c791ecccf2b645d4f8cf6a1a9717e621",
+  "chairWorldSHA256": "1f8d1e588b3dd40a032fbe17f544978f40704bcde6d7bde8691a2b50a520ecf3",
+  "chairActorSHA256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d",
+  "actorWorldReconstructionMaxErrorM": 5.551115123125783e-17,
+  "seatRigidTranslationResidualM": 6.938893903907228e-18,
+  "seatThicknessOriginalMm": 45.59998512268065,
+  "seatThicknessCandidateMm": 45.5999851226806,
+  "seatXZMaxChangeM": 0.0,
+  "crossbars": [
+    {
+      "component": 5,
+      "rigidTranslation": [
+        0.0,
+        -0.02054455090313245,
+        0.0
+      ],
+      "rigidResidualM": 2.8102520310824275e-16,
+      "edgeLengthMaxDeltaM": 0.0,
+      "oldAndNewThicknessYmm": [
+        23.999994993209846,
+        23.999994993209846
+      ]
+    },
+    {
+      "component": 6,
+      "rigidTranslation": [
+        0.0,
+        -0.02054455090313245,
+        0.0
+      ],
+      "rigidResidualM": 2.8102520310824275e-16,
+      "edgeLengthMaxDeltaM": 0.0,
+      "oldAndNewThicknessYmm": [
+        23.999994993209846,
+        23.999994993209846
+      ]
+    },
+    {
+      "component": 7,
+      "rigidTranslation": [
+        0.0,
+        -0.02054455013331822,
+        0.0
+      ],
+      "rigidResidualM": 1.8735013540549517e-16,
+      "edgeLengthMaxDeltaM": 0.0,
+      "oldAndNewThicknessYmm": [
+        24.000048637390137,
+        24.000048637390137
+      ]
+    },
+    {
+      "component": 8,
+      "rigidTranslation": [
+        0.0,
+        -0.02054455013331822,
+        0.0
+      ],
+      "rigidResidualM": 1.8735013540549517e-16,
+      "edgeLengthMaxDeltaM": 0.0,
+      "oldAndNewThicknessYmm": [
+        24.000048637390137,
+        24.000048637390137
+      ]
+    }
+  ],
+  "legBarConnections": [
+    {
+      "crossbarComponent": 5,
+      "legComponent": 1,
+      "oldStrictSurfacePairCount": 64,
+      "newStrictSurfacePairCount": 64,
+      "oldAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "newAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        null,
+        25.37545649402075
+      ],
+      "newAxisEndDistanceToLegMm": [
+        null,
+        25.33141271685482
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.22808775754066168,
+          0.1621259974966049,
+          -4.130592159592023
+        ],
+        [
+          0.3576248973106505,
+          0.1621259974966049,
+          -4.413636005815233
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.22808775754066168,
+          0.14158144659347244,
+          -4.130592159592023
+        ],
+        [
+          0.3576248973106505,
+          0.14158144659347244,
+          -4.413636005815233
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 5,
+      "legComponent": 3,
+      "oldStrictSurfacePairCount": 62,
+      "newStrictSurfacePairCount": 62,
+      "oldAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "newAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        25.375451134803292,
+        null
+      ],
+      "newAxisEndDistanceToLegMm": [
+        25.33140093820715,
+        null
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.22808775754066168,
+          0.1621259974966049,
+          -4.130592159592023
+        ],
+        [
+          0.3576248973106505,
+          0.1621259974966049,
+          -4.413636005815233
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.22808775754066168,
+          0.14158144659347244,
+          -4.130592159592023
+        ],
+        [
+          0.3576248973106505,
+          0.14158144659347244,
+          -4.413636005815233
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 6,
+      "legComponent": 2,
+      "oldStrictSurfacePairCount": 62,
+      "newStrictSurfacePairCount": 62,
+      "oldAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "newAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        null,
+        25.375470490925217
+      ],
+      "newAxisEndDistanceToLegMm": [
+        null,
+        25.331379049789533
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.47474633288185647,
+          0.1621259974966049,
+          -4.017706993524244
+        ],
+        [
+          0.604283472651845,
+          0.1621259974966049,
+          -4.300750839747453
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.47474633288185647,
+          0.14158144659347244,
+          -4.017706993524244
+        ],
+        [
+          0.604283472651845,
+          0.14158144659347244,
+          -4.300750839747453
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 6,
+      "legComponent": 4,
+      "oldStrictSurfacePairCount": 64,
+      "newStrictSurfacePairCount": 64,
+      "oldAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "newAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        25.375460421426368,
+        null
+      ],
+      "newAxisEndDistanceToLegMm": [
+        25.33139380227767,
+        null
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.47474633288185647,
+          0.1621259974966049,
+          -4.017706993524244
+        ],
+        [
+          0.604283472651845,
+          0.1621259974966049,
+          -4.300750839747453
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.47474633288185647,
+          0.14158144659347244,
+          -4.017706993524244
+        ],
+        [
+          0.604283472651845,
+          0.14158144659347244,
+          -4.300750839747453
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 7,
+      "legComponent": 1,
+      "oldStrictSurfacePairCount": 64,
+      "newStrictSurfacePairCount": 64,
+      "oldAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "newAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        25.375441718014454,
+        null
+      ],
+      "newAxisEndDistanceToLegMm": [
+        25.33141958546073,
+        null
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.35762490675948233,
+          0.16212598855590818,
+          -4.4136360184159065
+        ],
+        [
+          0.6042834672181026,
+          0.16212598855590818,
+          -4.300750819829118
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.35762490675948233,
+          0.14158143842258997,
+          -4.4136360184159065
+        ],
+        [
+          0.6042834672181026,
+          0.14158143842258997,
+          -4.300750819829118
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 7,
+      "legComponent": 2,
+      "oldStrictSurfacePairCount": 62,
+      "newStrictSurfacePairCount": 62,
+      "oldAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "newAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        null,
+        25.37544934817324
+      ],
+      "newAxisEndDistanceToLegMm": [
+        null,
+        25.331362400342435
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.35762490675948233,
+          0.16212598855590818,
+          -4.4136360184159065
+        ],
+        [
+          0.6042834672181026,
+          0.16212598855590818,
+          -4.300750819829118
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.35762490675948233,
+          0.14158143842258997,
+          -4.4136360184159065
+        ],
+        [
+          0.6042834672181026,
+          0.14158143842258997,
+          -4.300750819829118
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 8,
+      "legComponent": 3,
+      "oldStrictSurfacePairCount": 62,
+      "newStrictSurfacePairCount": 62,
+      "oldAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "newAxisEndInsideLeg": [
+        true,
+        false
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        25.375469735401705,
+        null
+      ],
+      "newAxisEndDistanceToLegMm": [
+        25.33138831001548,
+        null
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.22808776297440314,
+          0.16212598855590818,
+          -4.130592179510356
+        ],
+        [
+          0.47474632343302325,
+          0.16212598855590818,
+          -4.017706980923567
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.22808776297440314,
+          0.14158143842258997,
+          -4.130592179510356
+        ],
+        [
+          0.47474632343302325,
+          0.14158143842258997,
+          -4.017706980923567
+        ]
+      ]
+    },
+    {
+      "crossbarComponent": 8,
+      "legComponent": 4,
+      "oldStrictSurfacePairCount": 64,
+      "newStrictSurfacePairCount": 64,
+      "oldAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "newAxisEndInsideLeg": [
+        false,
+        true
+      ],
+      "oldAxisEndDistanceToLegMm": [
+        null,
+        25.375469619167845
+      ],
+      "newAxisEndDistanceToLegMm": [
+        null,
+        25.33140387432506
+      ],
+      "axisEndWorldOriginal": [
+        [
+          0.22808776297440314,
+          0.16212598855590818,
+          -4.130592179510356
+        ],
+        [
+          0.47474632343302325,
+          0.16212598855590818,
+          -4.017706980923567
+        ]
+      ],
+      "axisEndWorldCandidate": [
+        [
+          0.22808776297440314,
+          0.14158143842258997,
+          -4.130592179510356
+        ],
+        [
+          0.47474632343302325,
+          0.14158143842258997,
+          -4.017706980923567
+        ]
+      ]
+    }
+  ],
+  "connectionInterpretation": "Each original bar/leg surface-overlap relationship remains present in the actual triangles. Axis endpoints are additional inside diagnostics; unchanged count is not required. This establishes geometric connection, not load/stability engineering.",
+  "previousFailingSample": {
+    "totalSeatDropMm": 47.15,
+    "hipsRaiseMm": 3.9274292890221014,
+    "hipsActorZRollDegrees": -4.197305887339225,
+    "metricsMm": [
+      -0.0006763266633669218,
+      9.572156685067057e-07,
+      9.649313881254784e-07,
+      9.649313881254784e-07
+    ],
+    "actualPreservedSeatBODYChairPairs": [
+      [
+        4,
+        121,
+        15
+      ],
+      [
+        4,
+        121,
+        218
+      ],
+      [
+        4,
+        121,
+        230
+      ],
+      [
+        4,
+        121,
+        236
+      ],
+      [
+        4,
+        121,
+        239
+      ],
+      [
+        4,
+        123,
+        15
+      ],
+      [
+        4,
+        123,
+        218
+      ],
+      [
+        4,
+        123,
+        230
+      ],
+      [
+        4,
+        123,
+        236
+      ],
+      [
+        4,
+        123,
+        239
+      ]
+    ],
+    "pairCount": 10,
+    "noWorldOrChairSaved": true
+  },
+  "lastFailureFirstPassMm": [
+    47.15,
+    47.16
+  ],
+  "limits": [
+    "First sampled interval for this fixed-flat-foot/original-hipsXZ/knee-plane family, not global over arbitrary postures.",
+    "Seat and crossbar preservation is exact to floating precision; legs intentionally shorten vertically and their beveled vertical dimensions compress.",
+    "No new candidate, renderer, garment solve or replay."
+  ],
+  "outsideEndpointDistanceNote": "null means the point is outside the component AABB and no distance was evaluated by classify, not zero or infinity clearance."
+}

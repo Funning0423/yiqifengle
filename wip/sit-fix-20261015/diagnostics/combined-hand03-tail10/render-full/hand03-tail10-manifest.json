@@ -1,0 +1,90 @@
+{
+  "status": "ISOLATED_POSE_DIAGNOSTIC_NOT_NATIVE_OR_ACCEPTED",
+  "characterSHA256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec",
+  "worldSHA256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+  "worldFile": "diagnostics/hand-lap-support/candidate-03/gravity-world.npy",
+  "renderWorldSHA256": "0ff75841e5d8c95269177a4ee39f6862fa4a361591d8998fb29598ba2e37ddff",
+  "gravityBoneApplied": false,
+  "meshTargets": [
+    {
+      "mesh": "LOD0_G2_BOW:0",
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/target.npy",
+      "sha256": "b32799c6dc5a1b10d49a1388dbb2406df8c6c79bdbdf33422de3dcb651c48288",
+      "reconstructionMaxErrorM": 3.3429341157592284e-16
+    }
+  ],
+  "meshFaces": [
+    {
+      "mesh": "LOD0_G2_BOW:0",
+      "path": "diagnostics/pose-review/lower-chair-bow/tail10-root-diagonal/faces.npy",
+      "sha256": "b3bd5f97d47c151018288735fd493608ee396e572fe92a2fb239a4a12f7ca9f1",
+      "originalTriangles": 348,
+      "candidateTriangles": 348,
+      "changedIndices": [
+        326,
+        327
+      ]
+    }
+  ],
+  "bodyOnly": false,
+  "diagnosticGroundY0": true,
+  "replaySHA256": "a129e12fd490c4139d589dfc1a53927f90402173b7db7ab4a698525aff48b213",
+  "historicalFrame": 31768,
+  "time": 1.1859999999999982,
+  "chairSourceSHA256": "d156b7a05017713e88ec965254c1b832ffe4f10ee75fc554f8cc7ab19ff5bf2a",
+  "chairSourcePosition": [
+    0.32125496646724905,
+    0.000126,
+    -4.259117228155124
+  ],
+  "chairSourceScale": 1.2,
+  "chairSourceYaw": -2,
+  "chairGeometryOverride": {
+    "path": "diagnostics/posterior-seat-support-ik/lower-chair-design/candidate-preserve-seat/chair-actor-local-triangles.npy",
+    "sha256": "2616daafbce22f757b381e9c4fd1a4a26ab2b590daad3e4377e2d9419dc6a07d",
+    "coordinates": "actor-local",
+    "triangles": 2556
+  },
+  "views": {
+    "front": {
+      "eye": [
+        0,
+        0.15,
+        3
+      ],
+      "target": [
+        0,
+        0.85,
+        0.0
+      ],
+      "orthographicScale": 1.9
+    },
+    "side": {
+      "eye": [
+        3,
+        0.15,
+        0.1
+      ],
+      "target": [
+        0,
+        0.85,
+        0.0
+      ],
+      "orthographicScale": 1.9
+    },
+    "back": {
+      "eye": [
+        0,
+        0.15,
+        -3
+      ],
+      "target": [
+        0,
+        0.85,
+        0.0
+      ],
+      "orthographicScale": 1.9
+    }
+  },
+  "productChanged": false
+}
