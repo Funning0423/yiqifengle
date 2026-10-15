@@ -1195,6 +1195,26 @@
     "sha256": "25f1b54b650f3e09c532902017f7843977a71f8b8a0452c268d24b744e97b0cd"
   },
   {
+    "path": "creator-build-project/assets/scripts/cine/SailboatPrefabSlot.ts",
+    "bytes": 3076,
+    "sha256": "de9aed536968efc21d2dfbcd73920337f6806c62b2eedcd281c157291258bccd"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/cine/SailboatPrefabSlot.ts.meta",
+    "bytes": 171,
+    "sha256": "362023d7a4b7b5f6a0118759d219d5cb4bd32fd7ab61857570d272ef0922f765"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
+    "bytes": 16341,
+    "sha256": "6deed0a4fd4393faba3158c11c6eb7bf554386b735cd180f21bcac525a8cda1c"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
+    "bytes": 171,
+    "sha256": "e459d8b5902b548a7e369ad3be5b0983793a0ed813f89779838eec56013f6b16"
+  },
+  {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts",
     "bytes": 18193,
     "sha256": "92e7b6803a3eba5913ef804f002822784624e894402c80cff1c2cc06a6043743"
@@ -1203,16 +1223,6 @@
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts.meta",
     "bytes": 171,
     "sha256": "0dc3295c1676394719a1c9530da61c770fa1900a459ebae51a2cad92b2145bd9"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/cine/SailboatTransitionPlayer.ts",
-    "bytes": 19149,
-    "sha256": "3bb0d99a7a99171801b006bb13741bf2e31f69d93ef1aebe5e8e52970b98c848"
-  },
-  {
-    "path": "creator-build-project/assets/scripts/cine/SailboatTransitionPlayer.ts.meta",
-    "bytes": 171,
-    "sha256": "5755b0f17b9e131d7cf699671f0ed4302235da713570d861928ca649d61d5e3e"
   },
   {
     "path": "creator-build-project/assets/scripts/mainline-r1.meta",
@@ -2072,7 +2082,7 @@
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
     "bytes": 54447,
-    "sha256": "96c349a696a53f8a1c131cdcd34458776d526228cdf88e20953c5ee554421c1b"
+    "sha256": "5031a1a3d0a2f82a06cc53150b7914ee9bf80987e1f93834ad74d038d9d78d67"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",

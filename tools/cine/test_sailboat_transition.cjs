@@ -222,6 +222,32 @@ assert.equal(wind, false);
 assert.equal(straight.advance(0, { meadowReady: true }).view.phase, 'done');
 assert.equal(heldStart.view.shotId, timing.shots[0].id);
 
+function componentDecorators(source) {
+  return [...source.matchAll(/@(?:ccclass|_decorator\.ccclass)\(\s*['"]([^'"]+)['"]\s*\)/g)].map(match => match[1]);
+}
+function walkTs(dir, out) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walkTs(full, out);
+    else if (entry.name.endsWith('.ts')) out.push(full);
+  }
+  return out;
+}
+const scriptRoot = path.join(root, 'creator-build-project/assets/scripts');
+const packed = [];
+for (const file of walkTs(scriptRoot, [])) {
+  const names = componentDecorators(fs.readFileSync(file, 'utf8'));
+  if (names.length > 1) packed.push(path.relative(root, file) + ' ' + names.join(','));
+}
+assert.deepEqual(packed, [], 'one @ccclass Component per file');
+assert.equal(fs.existsSync(path.join(scriptRoot, 'cine/SailboatTransitionPlayer.ts')), false);
+for (const name of ['SailboatPrefabSlot', 'SailboatTransitionDriver']) {
+  const file = path.join(scriptRoot, 'cine', name + '.ts');
+  assert.deepEqual(componentDecorators(fs.readFileSync(file, 'utf8')), [name]);
+  assert.equal(path.basename(file, '.ts'), name);
+}
+assert.match(fs.readFileSync(path.join(root, 'creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts'), 'utf8'), /from '\.\.\/cine\/SailboatTransitionDriver'/);
+
 console.log('sailboat transition tests ok', JSON.stringify({
   frames: timing.frameCount, lastFrame: timing.lastFrame, fps: timing.fps,
   shots: timing.shots.map(shot => shot.startFrame),

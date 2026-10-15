@@ -9,7 +9,7 @@ import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { requiresMeadowScene } from '../world-r2/LevelRegion';
-import { playSailboatTransition } from '../cine/SailboatTransitionPlayer';
+import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
