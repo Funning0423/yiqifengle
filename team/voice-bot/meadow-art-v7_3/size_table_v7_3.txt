@@ -1,0 +1,10 @@
+glb 总计: 原版 6,409,332 B | v6 6,606,360 B | v7.1 7,295,280 B | v7.2 6,997,492 B | v7.3 7,077,424 B
+v7.3 − v6 = +471,064 B（上限 +500,000 B，即 < 7,106,360 B，达标，余量 28,936 B）; v7.3 − v7.2 = +79,932 B
+增量来源: meadow_clouds_near 网格 v6 336 顶点(Blender) → v7.3 824 顶点 / glTF 3,488 顶点（圆鼓底 + 底部小团）; 天空贴图 86,373 → 86,897 B
+贴图 (B): 名称 | v6 | v7.2 | v7.3
+  meadow_palette_256 | 2,511 | 2,570 | 2,570
+  meadow_ground_v0_8_1024 | 138,578 | 138,865 | 138,865
+  meadow_sky_4096x1024 | 87,407 | 86,373 | 86,897
+  meadow_ground_detail_v0_8_512 | 229,307 | 229,307 | 229,307
+花网格 meadow_vb_flowers: 6,846 顶点（同 v7.2）
+节点数 98，节点名与 v7.2 相同；动画 windmill_sails_loop / meadow_butterflies_loop / meadow_birds_loop / windmill_flag_loop 名称和通道数不变（蝴蝶 00 只改关键帧数值，8 s 循环）
