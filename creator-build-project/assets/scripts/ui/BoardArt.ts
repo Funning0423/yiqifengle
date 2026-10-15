@@ -1,8 +1,9 @@
+import { requiresMeadowScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
 import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset, Texture2D } from 'cc';
 /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
 export const BOARD_ART_BUNDLE = 'board_art';
-/** Island / tide / meadow / mainline / R4. Meadow has no scene GLB, so it keeps this picture. */
+/** Island/tide board art. Meadow must never silently select this picture. */
 export const BOARD_BACKGROUND = { bundle: 'region_island', path: 'board/bg_island_board' } as const;
 /** 天空回声 regional boards (r05-sky-*). Painted from env_skycity.glb. Night multiplies this same picture by K_SEA. */
 export const SKY_BOARD_BACKGROUND = { bundle: 'region_skycity', path: 'board/bg_skycity_board' } as const;
@@ -12,12 +13,13 @@ export type BoardPicture = { readonly bundle: string; readonly path: string };
 export function boardChapter(selection: { provider?: string; stageId?: string } | null): string {
   const id = selection && selection.stageId ? String(selection.stageId) : '';
   if (id.indexOf('r05-tide-') === 0) return 'tide';
-  if (id.indexOf('r05-meadow-') === 0) return 'meadow';
+  if (requiresMeadowScene(selection)) return 'meadow';
   if (id.indexOf('r05-sky-') === 0) return 'sky';
   return '';
 }
-/** Picture createIslandBoardBackground loads. 天空回声 → sky city; meadow stays on the island (no env_meadow.glb). */
+/** Exact supported picture; missing meadow scenery is an explicit entry failure. */
 export function boardBackgroundFor(selection: { provider?: string; stageId?: string } | null): BoardPicture {
+  if (requiresMeadowScene(selection)) throw Error(MEADOW_UNAVAILABLE);
   if (boardChapter(selection) === 'sky') return SKY_BOARD_BACKGROUND;
   return BOARD_BACKGROUND;
 }
@@ -66,42 +68,106 @@ export class BoardArt {
   static shared(): BoardArt { return BoardArt.instance || (BoardArt.instance = new BoardArt()); }
   private bundle: AssetManager.Bundle | null = null;
   private bundleWait: Promise<AssetManager.Bundle | null> | null = null;
+  private cancelBundleWait: (() => void) | null = null;
   private frames = new Map<string, SpriteFrame>();
   private dirs = new Map<ArtDir, Promise<boolean>>();
+  private pending = new Map<ArtDir, { promise: Promise<boolean>; cancel: () => void }>();
   private done = new Set<ArtDir>();
   private waiters: Waiter[] = [];
   private failures: string[] = [];
   private chest: Promise<Prefab | null> | null = null;
   private loadBundle(): Promise<AssetManager.Bundle | null> {
     if (this.bundle) return Promise.resolve(this.bundle);
-    if (!this.bundleWait) this.bundleWait = new Promise(ok => {
-      const have = assetManager.getBundle(BOARD_ART_BUNDLE); if (have) { this.bundle = have; ok(have); return; }
-      assetManager.loadBundle(BOARD_ART_BUNDLE, (e, b) => { if (e || !b) { this.failures.push('bundle:' + String(e)); this.bundleWait = null; ok(null); return; } this.bundle = b; ok(b); });
-    });
-    return this.bundleWait;
+    if (this.bundleWait) return this.bundleWait;
+    let resolve!: (bundle: AssetManager.Bundle | null) => void, settled = false;
+    const promise = new Promise<AssetManager.Bundle | null>(ok => { resolve = ok; });
+    this.bundleWait = promise;
+    const finish = (bundle: AssetManager.Bundle | null, error?: unknown): void => {
+      if (settled) return; settled = true;
+      // A cancelled callback may arrive after a newer bundle request has started.
+      if (this.bundleWait !== promise) { resolve(null); return; }
+      this.bundleWait = null; this.cancelBundleWait = null;
+      if (bundle) this.bundle = bundle;
+      else if (error) this.failures.push('bundle:' + String(error));
+      resolve(bundle);
+    };
+    this.cancelBundleWait = () => finish(null, 'cancelled pending load');
+    try {
+      const have = assetManager.getBundle(BOARD_ART_BUNDLE);
+      if (have) finish(have);
+      else assetManager.loadBundle(BOARD_ART_BUNDLE, (e, b) => finish(e ? null : b || null, e || (!b ? 'missing bundle' : undefined)));
+    } catch (error) { finish(null, error); }
+    return promise;
   }
-  /** Load one directory of images (idempotent). Resolves false on failure; callers keep their fallback look. */
+  private complete(dir: ArtDir): boolean {
+    return dir !== 'board' || PIECE_KEYS.every(key => !!this.frames.get(key));
+  }
+  /** Invalidate only the request a caller actually waited for. An old entry timeout
+   * cannot evict a newer successful request. Engine callbacks are not cancellable;
+   * closing this generation makes their late callbacks inert. Never touches saves. */
+  cancelLoad(dir: ArtDir, expected: Promise<boolean>): boolean {
+    if (this.dirs.get(dir) !== expected) return false;
+    const request = this.pending.get(dir);
+    if (!request && this.loaded(dir)) return false;
+    if (request) request.cancel();
+    else { this.dirs.delete(dir); this.done.delete(dir); }
+    // If the shared bundle callback itself hung, all waiters must settle before
+    // the next explicit entry can request a fresh bundle. Loaded bundles stay.
+    if (!this.bundle) this.cancelBundleWait?.();
+    return true;
+  }
+  /** Idempotent within one generation. Publish a complete directory atomically;
+   * failures resolve false and remain retryable, including missing required pieces. */
   load(dir: ArtDir): Promise<boolean> {
-    const have = this.dirs.get(dir); if (have) return have;
-    const p = this.loadBundle().then(b => !b ? false : new Promise<boolean>(ok => {
-      b.loadDir(dir, ImageAsset, (e, list: ImageAsset[]) => {
-        if (e || !list) { this.failures.push(dir + ':' + String(e)); this.dirs.delete(dir); ok(false); return; }
-        const infos = b.getDirWithPath(dir, ImageAsset);
-        for (let i = 0; i < infos.length; i++) {
-          const info = infos[i], image = b.get(info.path, ImageAsset) as ImageAsset | null; if (!image) continue;
-          const texture = new Texture2D(); texture.image = image;
-          texture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
-          texture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
-          const frame = new SpriteFrame(); frame.texture = texture;
-          const ins = SLICES[info.path]; if (ins) { frame.insetLeft = ins[0]; frame.insetTop = ins[1]; frame.insetRight = ins[2]; frame.insetBottom = ins[3]; }
-          this.frames.set(info.path, frame);
+    const have = this.dirs.get(dir);
+    if (have) {
+      if (!this.done.has(dir) || this.complete(dir)) return have;
+      this.cancelLoad(dir, have);
+    }
+    let resolve!: (ok: boolean) => void, settled = false;
+    const promise = new Promise<boolean>(ok => { resolve = ok; });
+    const request: { promise: Promise<boolean>; cancel: () => void } = { promise, cancel: () => finish(false, 'cancelled pending directory') };
+    const current = (): boolean => !settled && this.pending.get(dir) === request && this.dirs.get(dir) === promise;
+    const finish = (ok: boolean, error?: unknown): void => {
+      if (!current()) return; settled = true; this.pending.delete(dir);
+      if (!ok) { this.dirs.delete(dir); this.done.delete(dir); if (error) this.failures.push(dir + ':' + String(error)); }
+      else this.done.add(dir);
+      resolve(ok);
+    };
+    this.dirs.set(dir, promise); this.pending.set(dir, request);
+    void this.loadBundle().then(bundle => {
+      if (!current()) return;
+      if (!bundle) { finish(false, 'missing bundle'); return; }
+      try { bundle.loadDir(dir, ImageAsset, (error, list: ImageAsset[]) => {
+        if (!current()) return;
+        if (error || !list) { finish(false, error || 'missing directory'); return; }
+        const staged = new Map<string, SpriteFrame>(), textures: Texture2D[] = [], frames: SpriteFrame[] = [];
+        try {
+          const infos = bundle.getDirWithPath(dir, ImageAsset);
+          for (const info of infos) {
+            const image = bundle.get(info.path, ImageAsset) as ImageAsset | null; if (!image) continue;
+            const texture = new Texture2D(); textures.push(texture); texture.image = image;
+            texture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
+            texture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+            const frame = new SpriteFrame(); frames.push(frame); frame.texture = texture;
+            const ins = SLICES[info.path]; if (ins) { frame.insetLeft = ins[0]; frame.insetTop = ins[1]; frame.insetRight = ins[2]; frame.insetBottom = ins[3]; }
+            staged.set(info.path, frame);
+          }
+          if (dir === 'board' && !PIECE_KEYS.every(key => staged.has(key))) throw Error('required piece frame missing');
+          if (!current()) throw Error('superseded directory');
+          for (const [key, frame] of staged) this.frames.set(key, frame);
+          finish(true); this.flush();
+        } catch (error) {
+          // Failed/partial textures were never published to any Sprite.
+          for (const frame of frames) frame.destroy();
+          for (const texture of textures) texture.destroy();
+          finish(false, error);
         }
-        this.done.add(dir); ok(true); this.flush();
-      });
-    }));
-    this.dirs.set(dir, p); return p;
+      }); } catch (error) { finish(false, error); }
+    }, error => finish(false, error));
+    return promise;
   }
-  loaded(dir: ArtDir): boolean { return this.done.has(dir); }
+  loaded(dir: ArtDir): boolean { return this.done.has(dir) && this.complete(dir); }
   frame(key: string): SpriteFrame | null { return this.frames.get(key) || null; }
   size(key: string): { width: number; height: number } {
     const f = this.frames.get(key); if (!f) return { width: 0, height: 0 };
@@ -120,5 +186,5 @@ export class BoardArt {
     })));
     return this.chest;
   }
-  diagnostics() { return { bundle: !!this.bundle, dirs: Array.from(this.done), frames: this.frames.size, failures: this.failures.slice() }; }
+  diagnostics() { return { bundle: !!this.bundle, bundlePending: !!this.bundleWait, pendingDirs: Array.from(this.pending.keys()), dirs: Array.from(this.done), frames: this.frames.size, failures: this.failures.slice() }; }
 }

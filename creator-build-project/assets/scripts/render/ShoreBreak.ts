@@ -199,6 +199,11 @@ export class ShoreBreak {
     for (let i = 0; i < all.length; i++) { const f = all[i]; if (f && isValid(f.node, true)) f.node.active = false; }
     if (this.root && isValid(this.root, true)) this.root.active = false;
   }
+  /** Actual sheet height after this frame's heave, in scene-root world coordinates. */
+  surfaceWorldY(): number | undefined {
+    const n = this.seaNode;
+    return n && isValid(n.node, true) ? n.node.worldPosition.y : undefined;
+  }
   diagnostics() {
     return { time: this.time, exterior: this.exterior, backdrop: this.backdrop, nightShown: this.nightShown, strength: this.last.strength, travel: this.last.travel, foamU: this.last.foamU, foamA: this.last.foamA, washAlpha: this.last.wash, farAlpha: this.last.far, seaSample: this.last.sea, lineY: this.last.lineY.slice(), ownNight: this.ownNight, seaBound: !!this.seaNode, seaScroll: !!this.seaScroll };
   }

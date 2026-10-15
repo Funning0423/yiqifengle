@@ -26,8 +26,9 @@ async function landing(opts,envOpts={}){const env=S.create(envOpts),run=await S.
     ok('settle > clip ignored',Math.abs(r.landAfterSitting-(turn+2.37))<=tol,{land:r.landAfterSitting});}
   {const r=await landing({sitSeconds:1.0});ok('no report: 1.0 s fallback only then',Math.abs(r.landAfterSitting-(turn+1.0))<=tol,{land:r.landAfterSitting});}
   if(args.includes('--real-walk')){try{const r=await landing({},{realWalk:true}),L=r.env.realWalkClips.sit_down,st=r.env.realWalkStandin;
-      ok('real standin: actionSeconds = GLB',Math.abs(st.actionSeconds('sit')-L)<1e-9&&st.actionSettleSeconds('sit')===undefined,{glbSitDown:L,actionSeconds:st.actionSeconds('sit'),settle:st.actionSettleSeconds('sit')??null,glb:r.env.realWalkGlb});
-      ok('real standin: lands at turn+sit_down',Math.abs(r.landAfterSitting-(turn+L))<=tol,{expected:+(turn+L).toFixed(3),land:r.landAfterSitting,home:r.homeAfterSitting});
+      ok('real standin: actionSeconds = GLB',Math.abs(st.actionSeconds('sit')-L)<1e-9,{glbSitDown:L,actionSeconds:st.actionSeconds('sit'),settle:st.actionSettleSeconds('sit')??null,glb:r.env.realWalkGlb});
+      const settle=st.actionSettleSeconds('sit'),landS=settle!==undefined&&settle>0&&settle<=L?settle:L;
+      ok('real standin: lands at turn+settle/clip, home at full clip',Math.abs(r.landAfterSitting-(turn+landS))<=tol&&Math.abs(r.homeAfterSitting-(turn+L))<=tol,{expectedLand:+(turn+landS).toFixed(3),expectedHome:+(turn+L).toFixed(3),land:r.landAfterSitting,home:r.homeAfterSitting});
       const base=JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname,'../../creator-build-project/assets/bundles/region_island/character/anim_meta.json'),'utf8'));
       st.setAnimMeta({...base,clips:{...base.clips,sit_down:{fps:30,settle_frame:30}}});const s1=st.actionSettleSeconds('sit');
       st.setAnimMeta({...base,clips:{...base.clips,sit_down:{duration_s:L*2,settle_time_s:L}}});const s2=st.actionSettleSeconds('sit');

@@ -51,8 +51,8 @@ export const ISLAND_FX = {
    * Built for the fixed island view's eye height (eyeM above seaY): sparkles are spread uniformly in depression angle with a
    * bias toward the horizon (narrow, dense, brighter far; wider, sparser, darker near), envelope width and brightness wander
    * along the length (value noise), and the stretch in front of the island (< frontM) is held far down. Three layers
-   * (meshes) share the sparkles round-robin and twinkle out of phase. Independent additive overlay at seaY (sea untouched). */
-  band: { startM: 16, endM: 285, count: 1300, layers: 3, eyeM: 16.4, farHalfDeg: .95, nearHalfDeg: 7.2, lenDeg: [.16, .8] as [number, number],
+   * (meshes) share the sparkles round-robin and twinkle out of phase. Independent additive overlay following the live sea sheet (sea untouched). */
+  band: { surfaceLiftM: .04, startM: 16, endM: 285, count: 1300, layers: 3, eyeM: 16.4, farHalfDeg: .95, nearHalfDeg: 7.2, lenDeg: [.16, .8] as [number, number],
     streak: 4.2, gain: 1.7, frontM: [28, 95] as [number, number], frontFloor: .42, alphaNight: .95, color: [196, 212, 236] as V3,
     twinkle: [2.1, 2.8, 3.4], seaHalfM: 255, lowInnerM: 1, lowOuterM: 4 },
   smoke: {
@@ -236,19 +236,21 @@ export function bandGeometry(layer?: number): FxGeometry {
 export type MoonState = { moonRotation: Q4; moonAlpha: number; haloAlpha: number; moonCamM: number;
   bandPos: V3; bandRotation: Q4; bandScale: number; bandAlpha: number; bandLayerAlpha: number[]; bandNearM: number };
 /** shown: 0..1 night-and-exterior visibility (lightFromNight). Everything from the LIVE camera position of this frame. */
-export function moonState(t: number, cam: V3, shown: number): MoonState {
+export function moonState(t: number, cam: V3, shown: number, seaSurfaceY?: number): MoonState {
   const M = ISLAND_FX.moon, B = ISLAND_FX.band, moonCamM = len(sub(M.pos, cam)), far = smoothstep(M.nearInnerM, M.nearOuterM, moonCamM);
   let h = norm([M.pos[0] - cam[0], 0, M.pos[2] - cam[2]]); if (len(h) < .5) h = [0, 0, -1];
   // Far end stays on the sea square (|x|,|z| <= seaHalfM) whatever the camera position.
   let edge = 1e9; for (let k = 0; k < 3; k += 2) if (Math.abs(h[k]) > 1e-6) edge = Math.min(edge, ((h[k] > 0 ? B.seaHalfM : -B.seaHalfM) - cam[k]) / h[k]);
   const bandScale = Math.max(0, Math.min(1, (edge - 3) / B.endM));
-  const low = smoothstep(B.lowInnerM, B.lowOuterM, cam[1] - ISLAND_FX.seaY);
+  // Keep the glitter above the current rigid sheet, including swell peaks. Preserve depth testing.
+  const bandY = typeof seaSurfaceY === 'number' && Number.isFinite(seaSurfaceY) ? seaSurfaceY + B.surfaceLiftM : ISLAND_FX.seaY;
+  const low = smoothstep(B.lowInnerM, B.lowOuterM, cam[1] - bandY);
   const bandAlpha = bandScale > .2 ? clamp01(B.alphaNight * shown * low) : 0, bandLayerAlpha: number[] = [];
   for (let k = 0; k < B.layers; k++) bandLayerAlpha.push(bandAlpha * (.6 + .4 * Math.sin(t * B.twinkle[k % B.twinkle.length] + k * 2.1)));
-  const bandPos: V3 = [cam[0], ISLAND_FX.seaY, cam[2]];
+  const bandPos: V3 = [cam[0], bandY, cam[2]];
   return { moonRotation: billboardQuat(M.pos, cam), moonAlpha: clamp01(M.alphaNight * shown * far), haloAlpha: clamp01(M.haloAlphaNight * shown * far), moonCamM,
     bandPos, bandRotation: basisQuat(norm(cross([0, 1, 0], h)), [0, 1, 0], h), bandScale, bandAlpha, bandLayerAlpha,
-    bandNearM: Math.sqrt(Math.pow(B.startM * bandScale, 2) + Math.pow(cam[1] - ISLAND_FX.seaY, 2)) };
+    bandNearM: Math.sqrt(Math.pow(B.startM * bandScale, 2) + Math.pow(cam[1] - bandY, 2)) };
 }
 
 export type Puff = { position: V3; rotation: Q4; scale: V3; color: V3; alpha: number; age: number; cameraFade: number };

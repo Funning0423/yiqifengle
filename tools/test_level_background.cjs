@@ -7,7 +7,7 @@ const {LevelBackgroundBinding}=require(path.join(root,'world-r2/LevelBackground.
 const Cancellation=load('world-r1/WorldFlowCore.ts','Cancellation',{});
 function load(file,exportName,globals){
   let source=fs.readFileSync(path.join(root,file),'utf8').replace(/^import .*;\n/gm,'').replace(/^@ccclass\(.*\)\n/gm,'').replace(/export /g,'');
-  source=stripTypeScriptTypes(source,{mode:'transform'});return vm.runInNewContext(source+'\n'+exportName,{console,...globals},{filename:file});
+  source=stripTypeScriptTypes(source,{mode:'transform'});return vm.runInNewContext(source+'\n'+exportName,{console,setTimeout,clearTimeout,...globals},{filename:file});
 }
 const checks=[];
 (async()=>{

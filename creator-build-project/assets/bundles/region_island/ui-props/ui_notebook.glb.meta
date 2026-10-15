@@ -1,11 +1,94 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "c99aba81-1aeb-4a7b-a4ae-336eeecb64df",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "64553": {
+      "importer": "gltf-scene",
+      "uuid": "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@64553",
+      "displayName": "",
+      "id": "64553",
+      "name": "ui_notebook.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b56ec": {
+      "importer": "gltf-mesh",
+      "uuid": "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@b56ec",
+      "displayName": "",
+      "id": "b56ec",
+      "name": "ui_notebook.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 584
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "18b7e": {
+      "importer": "gltf-material",
+      "uuid": "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@18b7e",
+      "displayName": "",
+      "id": "18b7e",
+      "name": "M_env_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
-    "tangents": 1
+    "tangents": 1,
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@b56ec"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@18b7e"
+      ],
+      "scenes": [
+        "c99aba81-1aeb-4a7b-a4ae-336eeecb64df@64553"
+      ]
+    }
   }
 }

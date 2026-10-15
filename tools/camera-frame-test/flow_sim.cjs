@@ -60,15 +60,15 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     ...(sitSettleSeconds!==undefined?{actionSettleSeconds:()=>sitSettleSeconds}:{}),
     walkProgress:env.reportWalkProgress?()=>{const j=ch.job;return j&&j.action.kind==='walk'?(j.distance??0):null;}:undefined};
   // --real-walk: replace the sim character by GGbot's real walk driver (real_walk.cjs); root/yaw read from its node.
-  if(env.realWalk){const R=require('./real_walk.cjs').create(env.M,W),st=R.standin,n=R.node;env.realWalkGlb=R.glb;env.realWalkClips=R.clips;env.realWalkStandin=st;console.log('character: REAL walk driver (FlowReferenceStandin+CharacterMotion), walkProgress from the driver, GLB '+R.glb);
+  if(env.realWalk){const R=require('./real_walk.cjs').create(env.M,W),st=R.standin,n=R.node;env.realWalkGlb=R.glb;env.realWalkClips=R.clips;env.realWalkStandin=st;env.realWalkRig=R.rig;env.realWalkMorphRenderers=R.morphRenderers;console.log('character: REAL walk driver (FlowReferenceStandin+CharacterMotion), walkProgress from the driver, GLB '+R.glb);
     const real={get root(){return [n.worldPosition.x,n.worldPosition.y,n.worldPosition.z];},get yaw(){return n.yaw;},
       advance:dt=>st.advance(dt),perform:(a,t)=>{actions.push(a);return st.perform(a,t);},cancelAndReset:p=>st.cancelAndReset(p),setVisible:v=>st.setVisible&&st.setVisible(v),dispose(){},
-      walkProgress:()=>st.walkProgress(),actionSeconds:st.actionSeconds?k=>st.actionSeconds(k):undefined,actionSettleSeconds:st.actionSettleSeconds?k=>st.actionSettleSeconds(k):undefined,get calibrated(){return st.calibrated;},get coordinates(){return st.coordinates;}};
+      doorReachTiming:()=>st.doorReachTiming(),performDoorReach:t=>st.performDoorReach(t),walkProgress:()=>st.walkProgress(),actionSeconds:st.actionSeconds?k=>st.actionSeconds(k):undefined,actionSettleSeconds:st.actionSettleSeconds?k=>st.actionSettleSeconds(k):undefined,get calibrated(){return st.calibrated;},get coordinates(){return st.coordinates;}};
     st.cancelAndReset({kind:'seated',seat:cfg.seat});Object.keys(ch).forEach(k=>{delete ch[k];});Object.defineProperties(ch,Object.getOwnPropertyDescriptors(real));}
   const states=[];let frame=0,state='';
   const flow=new W.WorldFlow({config:cfg,mode:'motion',character:ch,levels:{enter:async()=>{throw Error('unused')}},loadWorld:async()=>lease,onChange:s=>{state=s.state;states.push({frame,state:s.state});log('state',s.state);}});
   const frames=[];
-  const snap=()=>({frame,t:frame*dt,state,cam:{position:[...cam.p],rotation:[...cam.q],fovVerticalDeg:cam.fov},root:[...ch.root],yaw:ch.yaw,weight:world.weight,key:world.key,layers:world.layers?{...world.layers}:null,door:world.door,wind:flow.getWindStrength()});
+  const snap=()=>({frame,t:frame*dt,state,cam:{position:[...cam.p],rotation:[...cam.q],fovVerticalDeg:cam.fov},root:[...ch.root],yaw:ch.yaw,weight:world.weight,key:world.key,layers:world.layers?{...world.layers}:null,door:world.door,wind:flow.getWindStrength(),...(env.captureCharacter&&env.realWalkRig?{character:{diagnostics:env.realWalkStandin.diagnostics(),nodes:env.realWalkRig.nodes.map(n=>({name:n.name,parent:n.parent&&n.parent.name,translation:[n.position.x,n.position.y,n.position.z],rotation:[n.rotation.x,n.rotation.y,n.rotation.z,n.rotation.w],scale:[n.scale.x,n.scale.y,n.scale.z]})),morph:env.realWalkMorphRenderers.map(r=>({mesh:r.node.name,weights:{...r.weights}}))}}:{})});
   const tick=async()=>{await new Promise(r=>setImmediate(r));};
   if(!(await flow.load()).ok)throw Error('load failed');
   const results=[];
@@ -84,7 +84,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
       await tick();await tick();frames.push({...snap(),op});if(++guard>60*120)throw Error('flow did not finish: '+op);}
     await pr;results.push({op,result});
     // hold a few stable frames after arrival (camera must not move)
-    for(let k=0;k<10;k++){frame++;await tick();frames.push({...snap(),op:op+':hold'});}
+    for(let k=0;k<10;k++){frame++;ch.advance(dt);await tick();frames.push({...snap(),op:op+':hold'});}
   }
   return {frames,states,results,events:world.events,cameraEvents,doorShut,windEvents,actions,dt};
 }

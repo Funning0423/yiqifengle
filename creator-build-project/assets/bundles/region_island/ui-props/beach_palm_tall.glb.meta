@@ -1,11 +1,94 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "72e18a64-1422-4141-87ca-f7db83fe34f2",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "9b76f": {
+      "importer": "gltf-mesh",
+      "uuid": "72e18a64-1422-4141-87ca-f7db83fe34f2@9b76f",
+      "displayName": "",
+      "id": "9b76f",
+      "name": "beach_palm_tall.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 672
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "18b7e": {
+      "importer": "gltf-material",
+      "uuid": "72e18a64-1422-4141-87ca-f7db83fe34f2@18b7e",
+      "displayName": "",
+      "id": "18b7e",
+      "name": "M_env_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "2cc69": {
+      "importer": "gltf-scene",
+      "uuid": "72e18a64-1422-4141-87ca-f7db83fe34f2@2cc69",
+      "displayName": "",
+      "id": "2cc69",
+      "name": "beach_palm_tall.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
-    "tangents": 1
+    "tangents": 1,
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "72e18a64-1422-4141-87ca-f7db83fe34f2@9b76f"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "72e18a64-1422-4141-87ca-f7db83fe34f2@18b7e"
+      ],
+      "scenes": [
+        "72e18a64-1422-4141-87ca-f7db83fe34f2@2cc69"
+      ]
+    }
   }
 }

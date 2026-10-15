@@ -1,11 +1,154 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78",
-  "files": [],
-  "subMetas": {},
+  "files": [
+    "__original-animation-0.bin"
+  ],
+  "subMetas": {
+    "f884c": {
+      "importer": "gltf-mesh",
+      "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78@f884c",
+      "displayName": "",
+      "id": "f884c",
+      "name": "chest_lid.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 700
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "0a471": {
+      "importer": "gltf-mesh",
+      "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78@0a471",
+      "displayName": "",
+      "id": "0a471",
+      "name": "chest_body.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 2856
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ff378": {
+      "importer": "gltf-animation",
+      "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78@ff378",
+      "displayName": "",
+      "id": "ff378",
+      "name": "chest_open.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.5
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "a58b6": {
+      "importer": "gltf-material",
+      "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78@a58b6",
+      "displayName": "",
+      "id": "a58b6",
+      "name": "M_env_palette_piece.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a033d": {
+      "importer": "gltf-scene",
+      "uuid": "14fa4129-50f1-58ff-8f82-95a1f2e15f78@a033d",
+      "displayName": "",
+      "id": "a033d",
+      "name": "result_chest.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
-    "tangents": 1
+    "tangents": 1,
+    "imageMetas": [],
+    "animationImportSettings": [
+      {
+        "name": "chest_open",
+        "duration": 0.5,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "chest_open",
+            "from": 0,
+            "to": 0.5,
+            "wrapMode": 2,
+            "previousId": "ff378"
+          }
+        ]
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "14fa4129-50f1-58ff-8f82-95a1f2e15f78@f884c",
+        "14fa4129-50f1-58ff-8f82-95a1f2e15f78@0a471"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "14fa4129-50f1-58ff-8f82-95a1f2e15f78@a58b6"
+      ],
+      "scenes": [
+        "14fa4129-50f1-58ff-8f82-95a1f2e15f78@a033d"
+      ]
+    }
   }
 }

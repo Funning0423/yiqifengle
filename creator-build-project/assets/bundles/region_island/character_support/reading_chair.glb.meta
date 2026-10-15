@@ -1,0 +1,93 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f",
+  "files": [],
+  "subMetas": {
+    "fe6ae": {
+      "importer": "gltf-mesh",
+      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@fe6ae",
+      "displayName": "",
+      "id": "fe6ae",
+      "name": "Cone.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 2556
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "569e7": {
+      "importer": "gltf-material",
+      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@569e7",
+      "displayName": "",
+      "id": "569e7",
+      "name": "ReferenceStoolWood.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4d4cb": {
+      "importer": "gltf-scene",
+      "uuid": "41eae56b-6046-4203-a072-56a1ddb2378f@4d4cb",
+      "displayName": "",
+      "id": "4d4cb",
+      "name": "reading_chair.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "41eae56b-6046-4203-a072-56a1ddb2378f@fe6ae"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "41eae56b-6046-4203-a072-56a1ddb2378f@569e7"
+      ],
+      "scenes": [
+        "41eae56b-6046-4203-a072-56a1ddb2378f@4d4cb"
+      ]
+    }
+  }
+}

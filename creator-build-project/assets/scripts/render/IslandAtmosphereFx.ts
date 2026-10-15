@@ -55,7 +55,7 @@ export class IslandAtmosphereFx {
   /** Called from WorldFlowComponent.applyDayNight (same inputs as DoorSpillHint/RoomLightingRig). */
   setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */
-  advance(dt: number, camera: Node | null, wind: number): void {
+  advance(dt: number, camera: Node | null, wind: number, seaSurfaceY?: number): void {
     const root = this.root; if (!root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, .1) : 0; this.time += step;
     // Night weight: first sync snaps to the current mode, afterwards a switch fades over nightFadeS (T9n mechanism).
@@ -72,7 +72,7 @@ export class IslandAtmosphereFx {
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
     this.place(this.glow, b.glowPos, b.glowRotation, [b.glowScale, b.glowScale, b.glowScale], ISLAND_FX.glow.color, b.glowAlpha);
     this.place(this.glint, null, b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
-    const m = moonState(this.time, cam, this.lightShown); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
+    const m = moonState(this.time, cam, this.lightShown, seaSurfaceY); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
     this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
     this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);
     for (let k = 0; k < this.bands.length; k++) this.place(this.bands[k], m.bandPos, m.bandRotation, [m.bandScale, 1, m.bandScale], ISLAND_FX.band.color, m.bandLayerAlpha[k]);

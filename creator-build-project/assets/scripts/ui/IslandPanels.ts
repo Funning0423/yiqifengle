@@ -5,22 +5,22 @@ import { tintRgb } from './NightTint';
  *  the island rest opened from the cabin. Layout numbers are 750-design px. */
 export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky'; name: string; description: string }> = [
   { id: 'tide', name: '潮汐小径', description: '听潮声，捡起海浪送来的贝壳。' },
-  { id: 'meadow', name: '花粉草甸', description: '循着花粉与风，走进草甸。' },
+  { id: 'meadow', name: '花粉草甸', description: '走进风车草甸，听风铃，看看起伏的草浪。' },
   { id: 'sky', name: '天空回声', description: '连起光的回声，探索云上的远方。' },
 ];
 export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
 /** Mainline stars only (x/12 per region, levels region*4..+3); challenge marks x/4; a region is locked until the mainline reaches it. */
-export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number): ChapterSummary {
+export function chapterSummary(journey: any, challenges: Record<string, number> | null | undefined, region: number, gate?: any): ChapterSummary {
   const records: any[] = Array.isArray(journey?.records) ? journey.records : [];
   let stars = 0; for (let i = region * 4; i < region * 4 + 4; i++) stars += Math.max(0, Math.min(3, Number(records[i]?.bestStars) || 0));
-  const unlocked = typeof journey?.unlocked === 'number' ? journey.unlocked : 0;
-  return { stars, challenges: Math.max(0, Math.min(4, Number(challenges?.[CHAPTERS[region].id]) || 0)), locked: region > 0 && unlocked < region * 4 };
+  const required = region * 4 + 3;
+  return { stars, challenges: Math.max(0, Math.min(4, Number(challenges?.[CHAPTERS[region].id]) || 0)), locked: gate ? !gate.ok : !records[required]?.bestStars };
 }
 const SIGN_W = 544, SIGN_H = 176, GAP = 32, WIN_W = 208, WIN_H = 136;
-export function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void): PopupPanel {
+export function openJourney(stack: PopupStack, journey: any, challenges: Record<string, number> | null | undefined, openChapter: (id: string) => void, gates?: any[]): PopupPanel {
   const ph = 104 + 3 * SIGN_H + 2 * GAP + 72, p = stack.open({ name: 'JourneyPanel', height: ph, title: '旅程册', titleArt: 'r2/title_journey', closable: true });
   for (let i = 0; i < CHAPTERS.length; i++) {
-    const c = CHAPTERS[i], s = chapterSummary(journey, challenges, i), cy = 104 + i * (SIGN_H + GAP) + SIGN_H / 2, ix = -SIGN_W / 2 + 24, tx = ix + WIN_W + 24;
+    const c = CHAPTERS[i], s = chapterSummary(journey, challenges, i, gates?.find(x => x.region === c.id)), cy = 104 + i * (SIGN_H + GAP) + SIGN_H / 2, ix = -SIGN_W / 2 + 24, tx = ix + WIN_W + 24;
     const b = p.button('secondary', '', 0, cy, SIGN_W, SIGN_H, () => openChapter(c.id), { name: 'Chapter-' + c.id });
     const face = b.node.getChildByName('Face')!; face.getChildByName('Plate')!.active = false;
     const sign = p.sprite('r2/sign_plank_3s', 0, 0, SIGN_W, SIGN_H, 'ui', face); sign.node.setPosition(0, 0, 0); sign.node.setSiblingIndex(0); sign.grayscale = s.locked;
@@ -28,7 +28,7 @@ export function openJourney(stack: PopupStack, journey: any, challenges: Record<
     const seal = p.sprite('popup/reward_seal_' + c.id, ix + 12, cy - WIN_H / 2 + 12, 64, 64); seal.grayscale = s.locked;
     if (s.locked) p.sprite('r2/icon_lock', ix + WIN_W / 2, cy, undefined, 64);
     const title = p.sprite('r2/chapter_' + c.id, 0, cy - 40); const tw = title.node.getComponent(UITransform)!.width; title.node.setPosition(tx + tw / 2, p.at(0, cy - 40)[1], 0); title.grayscale = s.locked;
-    if (s.locked) { p.text('主线解锁后开启', tx, cy + 16, 24, 'grey', { align: 'left', width: 260, bold: false }); continue; }
+    if (s.locked) { p.text('挑战需通关主线 ' + String((i + 1) * 4).padStart(2, '0'), tx, cy + 16, 24, 'grey', { align: 'left', width: 260, bold: false }); continue; }
     p.sprite('popup/star_full', tx + 16, cy + 8, 32, 32); p.text(s.stars + '/12', tx + 40, cy + 8, 24, 'brown', { align: 'left', width: 120 });
     const label = '挑战 ' + s.challenges + '/4', pill = uiNode('ChallengePill', p.body, 200, 36), pp = p.at(tx, cy + 52); pill.setPosition(pp[0], pp[1], 0);
     const w = 44 + label.length * 22;
@@ -51,11 +51,11 @@ export function openChapter(stack: PopupStack, id: string, a: ChapterActions): P
   p.sprite('r2/region_' + c.id, 0, 104 + 104, 320, 320 * WIN_H / WIN_W);
   p.text(c.description, 0, 104 + 208 + 32 + 20, 28, 'brown2', { bold: false, width: 600, name: 'ChapterDescription' });
   const gate = a.gate(), reason = gate?.reason;
-  const blocked = reason === 'stage-locked' ? '主线解锁后开启' : reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : '暂不可进入';
+  const blocked = reason === 'stage-locked' ? '需通关主线 ' + String((CHAPTERS.indexOf(c) + 1) * 4).padStart(2, '0') : reason === 'completion-unsaved' ? '先保存当前成绩' : ['finish-or-discard-current-attempt', 'pending-stage-start'].indexOf(reason) >= 0 ? '请先继续当前挑战' : '暂不可进入';
   let y = 104 + 208 + 32 + 40 + 48 + 52;
   const go = p.button('primary', gate?.ok ? '继续挑战' : blocked, 0, y, 480, 104, () => { if (a.gate()?.ok) a.enter(); }, { fontSize: 36, name: 'Continue-' + c.id }); go.setEnabled(!!gate?.ok);
   y += 52;
-  if (id === 'sky') { y += 24 + 48; p.button('secondary', '前往天空城', 0, y, 480, 96, () => a.skycity(), { fontSize: 32, name: 'VisitSkycity' }); y += 48; }
+  if (id === 'sky') { y += 24 + 48; p.button('secondary', '前往天空城 · 3D 场景', 0, y, 480, 96, () => a.skycity(), { fontSize: 32, name: 'VisitSkycity' }); y += 48; }
   if (id === 'tide') { y += 24 + 48; const open = a.r4Open(); const b = p.button('secondary', open ? '旧日潮汐' : '旧日潮汐 · 未开启', 0, y, 480, 96, () => { if (a.r4Open()) a.legacyTide(); }, { fontSize: 32, name: 'LegacyTide' }); b.setEnabled(open); y += 48; }
   y += 24 + 48; p.button('secondary', '返回章节', 0, y, 480, 96, () => p.close(a.back), { fontSize: 32, name: 'BackToChapters', sound: 'back' });
   return p;

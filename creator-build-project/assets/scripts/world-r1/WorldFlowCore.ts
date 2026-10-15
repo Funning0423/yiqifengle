@@ -45,6 +45,10 @@ export interface CharacterAdapter {
   /** T2+ optional: seconds into the sit clip where she is visually settled (anim_meta settle frame). The return-entry camera
    *  lands on cameraHome there; the clip still plays out before 'home'. Omitted/undefined = land at the clip end. */
   actionSettleSeconds?(kind:'sit'):number|undefined;
+  /** Optional door action: contact is in clip seconds; its promise resolves only after the full recovery.
+   *  Older adapters or assets without door_reach return null/omit these methods and retain the door-only flow. */
+  doorReachTiming?():{durationSec:number;contactSec:number}|null;
+  performDoorReach?(token:Cancellation):Promise<void>;
   /** Walk-duration contract (optional): distance-travelled fraction 0..1 of the CURRENT walk action, null/undefined when
    *  not walking. When present, camera track progress follows distance instead of elapsed time. */
   walkProgress?():number|null;
@@ -58,6 +62,8 @@ export type CameraEvent=Readonly<{kind:'crane-start';segment:'toIsland';progress
 /** UI is granted commands/status only; never a world node or camera reference. */
 export interface LevelLease {
   requestExit():Result; hide():void; showPaused():void; resume():Result; dispose():void;
+  /** Saved terminal page has no gameplay to resume. Errors/unsaved/playing keep the explicit pause gate. */
+  isSettledResult?():boolean;
   /** Resolves when the board may be shown: run.ready and able to take a finger, or a settled pause/result screen.
    *  Omitted = the lease is already playable when enter() resolves (older adapters). */
   whenPlayable?():Promise<void>;
@@ -398,7 +404,13 @@ export class WorldFlow {
       this.change('walking-out');await this.walk(c.toDoor,c.cameraToDoor,t);
       // Sea backdrop is already on indoors. The island has to come on with the swing, or this second shows the sea through the open doorway.
       this.change('opening-door');this.world!.setLayers(BOTH);this.world!.setRoomLightWeight?.(1);
-      await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
+      const reach=this.character?.doorReachTiming?.();
+      if(reach&&this.character?.performDoorReach&&Number.isFinite(reach.durationSec)&&reach.durationSec>0&&Number.isFinite(reach.contactSec)){
+        // Touch-and-release: reach the closed handle before the leaf moves; no continuous hand pin after contact.
+        // Await both the door and the entire arm recovery before the first step.
+        const contact=Math.max(0,Math.min(reach.durationSec,reach.contactSec));
+        await t.wait(Promise.all([this.character.performDoorReach(t),(async()=>{if(this.world!.wait)await this.waitSeconds(contact,t);else if(contact>0)await t.wait(this.world!.animateDoor(0,0,contact,t));t.check();await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));})()]));
+      }else await t.wait(this.world!.animateDoor(0,c.openDeg,1,t));t.check();
       this.change('crossing-out');
       const crossOut=c.cameraCrossOut??[c.cameraInside,c.cameraOutside],toIsland=c.cameraToIsland??(c.cameraCharacter?[c.cameraOutside,c.cameraCharacter,c.cameraIsland]:[c.cameraOutside,c.cameraIsland]);
       if(c.cameraTracks?.outbound){
@@ -451,7 +463,7 @@ export class WorldFlow {
         if(lease&&this.level!==lease){try{lease.dispose();}catch(disposeError){console.warn('enter-level dispose failed',String(disposeError));}}
         // A hung board must not stay on screen with input frozen. The island is still the stable place.
         const notReady=!!error&&typeof (error as {message?:unknown}).message==='string'&&(error as {message:string}).message==='enter-level-not-ready';
-        if(notReady){console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
+        if(notReady){t.cancel();console.warn('[enter-level] not ready; staying on the island');this.restore();this.change(this.stable);throw new Cancelled();}
         throw error;
       }
     });
@@ -567,6 +579,9 @@ export class WorldFlow {
    *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose). */
   show():void {
     if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();
+    if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
+      this.needsResume=false;this.restore();this.change('level');return;
+    }
     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
   }
   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */

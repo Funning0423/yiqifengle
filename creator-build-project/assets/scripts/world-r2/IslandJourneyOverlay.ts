@@ -84,7 +84,7 @@ export class IslandJourneyOverlay {
   else if(page==='settings')openSettings(this.popups,{onClose:done});
   else if(page==='rest'){const night=this.safeRead(this.options.dayNight)?.mode==='night';openRest(this.popups,night,()=>{if(live())this.dispatch(this.options.toggleDayNight);}).options.onClose=done;}
   else if(page==='journal'){const status=this.safeRead(this.options.mainlineStatus),gates=this.safeRead(this.options.gates);
-   openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);}).options.onClose=done;}
+   openJourney(this.popups,status?.journey,gates?.challenges,id=>{if(live())this.chapter(id);},gates?.r5).options.onClose=done;}
   else this.chapter(page);
  }
  private chapter(region:string){

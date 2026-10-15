@@ -1,0 +1,20 @@
+{
+  "platform": "wechatgame",
+  "debug": false,
+  "outputName": "wechat-home-seat-local",
+  "name": "HomeSeatLocal",
+  "startScene": "260c2ebc-0660-4be6-8c4b-7885436222ea",
+  "scenes": [
+    {
+      "url": "db://assets/scenes/WorldR5Integration.scene",
+      "uuid": "260c2ebc-0660-4be6-8c4b-7885436222ea"
+    }
+  ],
+  "mainBundleCompressionType": "subpackage",
+  "packages": {
+    "wechatgame": {
+      "appid": "wx3bdd911c5c06f591",
+      "separateEngine": false
+    }
+  }
+}
