@@ -1676,8 +1676,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts",
-    "bytes": 14238,
-    "sha256": "45fa6769946567f72cb41c567c7ced936d9f286422de00fea51a6236e4e2a740"
+    "bytes": 15115,
+    "sha256": "e8c8f39425e82f9fc5683976d4e2008c4d1144ab3065b3407712871a31bff5ca"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreak.ts.meta",
@@ -1686,8 +1686,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts",
-    "bytes": 20201,
-    "sha256": "7d3dfeb3d1aa47261b54f19e2f2b24a8188f02b6007b5e44449727952e5b58f5"
+    "bytes": 21354,
+    "sha256": "ed496840f1cd18cc3c6274eb57ec7272487cd3a09f9e7334a9c0d0cd9c5db8f4"
   },
   {
     "path": "creator-build-project/assets/scripts/render/ShoreBreakCore.ts.meta",
@@ -2056,8 +2056,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts",
-    "bytes": 26348,
-    "sha256": "a169f3a6dbacdf854d98bb360ed314b2ad63ac2dcb967f63124c22ec97d1b43b"
+    "bytes": 27056,
+    "sha256": "55a958182d58d7e7382275f433ad65ab3031bb7781697b7bc4b44273bec0af13"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandProps.ts.meta",
@@ -2066,8 +2066,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts",
-    "bytes": 23914,
-    "sha256": "25f414a05437bd20b30112f849878cd51741a144712f2e3362024b0ce79f0e63"
+    "bytes": 24468,
+    "sha256": "39b80ced939d619b012d1aabe42d22fb7fee6ad647638637675f86602d728bf9"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts.meta",

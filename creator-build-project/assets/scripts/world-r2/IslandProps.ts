@@ -1,7 +1,7 @@
 import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, approachNight, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { onPropTap } from './IslandPropTaps';
 
 /**
@@ -23,7 +23,7 @@ export class IslandProps {
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
-  private nightW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+  private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
   private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number } | null = null;
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
@@ -123,7 +123,15 @@ export class IslandProps {
     if (this.glow && isValid(this.glow.node, true)) { const R = S.lampLight.reflection, c = new Color(R.color); const a = Math.round(R.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.glow.material.setProperty('mainColor', c); if (this.glow.node.active !== a > 0) this.glow.node.active = a > 0; }
     if (this.lampGlow && isValid(this.lampGlow.node, true)) { const G = S.lampGlass.glow, c = new Color(G.color); const a = Math.round(G.alpha * (L.scale / S.lampLight.luminanceScale) * this.entrance * 255); c.a = a; this.lampGlow.material.setProperty('mainColor', c); if (this.lampGlow.node.active !== a > 0) this.lampGlow.node.active = a > 0; }
     this.tickSea(w);
-    if (this.signLabel && isValid(this.signLabel, true)) this.signLabel.color = new Color(mixHex(S.text.color, S.text.nightColor, w));
+  }
+  /** Unlit label. Night ink is #3a220f (cream washed out on the lit board). Channels are written as numbers so the
+   * live Color updates even when a hex string would not mark the label dirty. */
+  private paintSignInk(w: number) {
+    const label = this.signLabel; if (!label || !isValid(label, true)) return;
+    const S = ISLAND_PROPS.signpost;
+    const hex = mixHex(S.text.color, S.text.nightColor, w);
+    const n = parseInt(hex.slice(1, 7), 16); if (!Number.isFinite(n)) return;
+    label.color = new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, 255);
   }
   /** T9n-2 night sea: tint the sea renderer's EXISTING material instance (RoomLightingRig's tilingOffset instance) only. */
   private bindSea() {
@@ -196,9 +204,11 @@ export class IslandProps {
     if (!this.ready || !isValid(this.root, true)) return;
     if (this.root.active !== o.exterior) this.root.active = o.exterior;
     this.view.width = o.width; this.view.height = o.height;
-    const now = game.totalTime / 1000, first = this.lastTime < 0, dt = first ? 0 : now - this.lastTime; this.lastTime = now;
-    // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS
-    this.nightW = first ? (o.night ? 1 : 0) : approachNight(this.nightW, o.night, dt);
+    const now = game.totalTime / 1000, first = this.lastTime < 0, totalDt = first ? 0 : now - this.lastTime; this.lastTime = now;
+    const wallNow = Date.now(), wallDt = this.wallMs > 0 ? (wallNow - this.wallMs) / 1000 : 0; this.wallMs = wallNow;
+    // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS.
+    // A stuck game.totalTime still fades on wall time, so night ink is not left on the day brown.
+    this.nightW = nightWeightStep(this.nightW, o.night, totalDt, wallDt, first);
     this.stats.nightWeight = +this.nightW.toFixed(3); setPropNightWeight(this.nightW);
     // lamp glass day/night material: swapped at the middle of the fade (light is half up), not at the switch instant
     const lampNight = this.nightW >= 0.5;
@@ -207,6 +217,7 @@ export class IslandProps {
       if (this.lamp && isValid(this.lamp, true) && !this.fade.length) { const m = lampNight ? (this.lampNightMat ?? this.palette) : this.lampDay; if (m) { this.lamp.setSharedMaterial(m, 0); this.stats.lampSwaps++; } }
     }
     if (o.exterior) this.tickWater(this.nightW);
+    this.paintSignInk(this.nightW);
     const pose = o.buttons && o.exterior ? this.pose() : null;
     const slots = pose && o.width > 0 && o.height > 0 ? propButtonLayout(o.width, o.height).slots : [];
     for (const role of PROP_ROLES) {

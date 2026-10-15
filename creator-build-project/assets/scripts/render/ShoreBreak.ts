@@ -1,6 +1,6 @@
 import { Node, Scene, MeshRenderer, Material, Mesh, Vec3, Vec4, Quat, EffectAsset, utils, isValid } from 'cc';
 import { approachNight, pickNight } from './IslandAtmosphereFxCore';
-import { SHORE, farShoreGeometry, farWashAlpha, foamMultiply, seaSheetLift, seaUvShift, shorePhase, shoreWashGeometry, stepShoreClock, waveLinePose } from './ShoreBreakCore';
+import { SHORE, farShoreGeometry, farWashAlpha, foamMultiply, followShorePlayhead, seaSheetLift, seaUvShift, shorePhase, shoreWashGeometry, stepShoreClock, waveLinePose } from './ShoreBreakCore';
 import type { SeaPhase, ShoreGeometry, V3 } from './ShoreBreakCore';
 import * as PropsLayout from '../world-r2/IslandPropsLayout';
 /** Same env_sea_surface, lifted on AmbienceAudio.wavePlayhead (amb_waves_loop, 8.064 s, hits 2.369 / 6.300).
@@ -31,6 +31,7 @@ export class ShoreBreak {
   private washMin = new Vec3(); private washMax = new Vec3(); private washCount = 0;
   private seaScroll: SeaScroll | null = null; private seaNode: SeaNode | null = null;
   private exterior = false; private backdrop = false; private night = false; private synced = false; private time = 0; private ownNight = 0; private nightShown = 0;
+  private heard: number | null = null; private sameFor = 0; private wallMs = 0;
   private disposed = false;
   private last = { strength: 0, travel: 0, foamU: 0, foamA: 0, wash: 0, far: 0, sea: 0, lineY: [] as number[] };
   constructor(scene: Scene, model: Node | null) {
@@ -112,15 +113,23 @@ export class ShoreBreak {
     this.exterior = exterior; this.backdrop = backdrop; this.night = night;
     if (!exterior && !backdrop) this.hideAll();
   }
-  /** lateUpdate, after the idle clip and RoomLightingRig. Playhead (or the paused fallback) is the only clock. */
+  /** lateUpdate, after the idle clip and RoomLightingRig. A moving playhead locks the beat.
+   *  The same reading for 0.2 s (devtools currentTime stuck while playing) falls back to this frame's dt.
+   *  A 0 dt falls back to wall time, clamped to 0.1 s, so the sheet and the lip stay on one clock. */
   advance(dt: number): void {
     const root = this.root; if (this.disposed || !root || !isValid(root, true)) return;
     const step = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
-    this.ownNight = this.synced ? approachNight(this.ownNight, this.night, step) : (this.night ? 1 : 0); this.synced = true;
+    const now = Date.now();
+    const wall = this.wallMs > 0 ? Math.min(Math.max((now - this.wallMs) / 1000, 0), 0.1) : 0;
+    this.wallMs = now;
+    const frame = step > 0 ? step : wall;
+    this.ownNight = this.synced ? approachNight(this.ownNight, this.night, frame) : (this.night ? 1 : 0); this.synced = true;
     let shared: unknown = null;
     try { const f = (PropsLayout as any).propNightWeight; shared = typeof f === 'function' ? f() : null; } catch (e) { shared = null; }
     this.nightShown = pickNight(this.ownNight, shared);
-    this.time = stepShoreClock(this.time, dt, this.playhead());
+    const followed = followShorePlayhead(this.playhead(), this.heard, this.sameFor, frame);
+    this.heard = followed.heard; this.sameFor = followed.sameFor;
+    this.time = stepShoreClock(this.time, frame, followed.playhead);
     const phase = shorePhase(this.time), rgb = foamMultiply(this.nightShown);
     this.last.strength = phase.strength; this.last.travel = phase.travel; this.last.foamU = phase.foamU; this.last.foamA = phase.foamA;
     if (this.backdrop || this.exterior) {
