@@ -1,0 +1,56 @@
+{
+  "samples": 2213,
+  "beforeFailed": 1760,
+  "afterFailed": 1602,
+  "gainedPairs": 0,
+  "lostPairs": 61180,
+  "increasedPoses": 0,
+  "proof": "Full revision3 exact changed/unchanged triangle partition audit plus exact recomputation of all turn/ outgoing-turn affected frames after only their metadata curves changed; all other runtime effective weights identical.",
+  "clips": {
+    "door_reach": {
+      "samples": 110,
+      "before": 74,
+      "after": 74
+    },
+    "sit_down": {
+      "samples": 66,
+      "before": 14,
+      "after": 0
+    },
+    "stand_up": {
+      "samples": 72,
+      "before": 14,
+      "after": 8
+    },
+    "walk_loop": {
+      "samples": 1180,
+      "before": 1180,
+      "after": 1180
+    },
+    "walk_start": {
+      "samples": 269,
+      "before": 235,
+      "after": 143
+    },
+    "walk_stop_bodyL": {
+      "samples": 182,
+      "before": 121,
+      "after": 92
+    },
+    "walk_stop_bodyR": {
+      "samples": 83,
+      "before": 57,
+      "after": 40
+    },
+    "walk_turn_180_bodyR": {
+      "samples": 82,
+      "before": 65,
+      "after": 65
+    },
+    "walk_turn_90_bodyL": {
+      "samples": 169,
+      "before": 0,
+      "after": 0
+    }
+  }
+}

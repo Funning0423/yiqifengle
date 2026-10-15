@@ -1,0 +1,71 @@
+{
+  "status": "OPEN_UNSTABLE_DISPLAY_AND_STALLED_NATURAL_FRAME_LOOP",
+  "threadId": "01a13e3d-3a4d-7682-be5e-eca9bda4d278",
+  "hostId": "local",
+  "sourceHead": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+  "packageFiles": 509,
+  "packageMismatches": [],
+  "sourceChanged": false,
+  "cocosRebuilt": false,
+  "historicalAuditRepeated": false,
+  "simulatorRefreshCount": 1,
+  "runtimeBindings": {
+    "scope": "static actual runtime renderer model and shader target binding only; dynamic GPU weight upload not independently proved",
+    "evidence": "sync-320-binding-detail.json",
+    "apronTargets": 29,
+    "dressTargets": 32,
+    "bodyTargets": 16,
+    "modelMorphInstanceSame": true,
+    "shaderMorphPatches": true,
+    "dynamicWeightsVerified": false
+  },
+  "display": {
+    "gpuPixelEvidence": "sync-313-force-camera.json and sync-315-after.json",
+    "changedCameraGPUReadPixels": true,
+    "poseTimeUnchanged": true,
+    "oneMatchingChangedView": "sync-317-visible.jpg",
+    "stableSynchronization": false,
+    "subsequentFourViewsAllSameSHA256": "42dd2ffefd2fd1fad298018de10f5b49ecea6b42b4c09a7163bd8b582cc3b823",
+    "cause": "unknown; foreground raise coincided with one refresh but did not reproduce consistently"
+  },
+  "naturalRoute": {
+    "complete": false,
+    "firstAttemptLastObservedStandTime": 0.06666666666666667,
+    "asyncBridgeTimeout": true,
+    "rafRearmRecovered": false,
+    "afterRefreshLastFrame": 6,
+    "lastReadback": {
+      "frame": 6,
+      "world": {
+        "state": "home",
+        "stable": "home",
+        "mode": "motion",
+        "hidden": false,
+        "needsResume": false,
+        "characterReady": true,
+        "error": null
+      },
+      "gamePaused": false,
+      "pose": 0
+    },
+    "componentOnlyPauseAttempt": "sync-350-world-observer.json",
+    "manualAnimationTicks": false
+  },
+  "acceptedRuntimeRepairScreenshots": 0,
+  "libraryConfirmedIDs": [],
+  "windowClosed": true,
+  "closeReceipt": "sync-354-close.json",
+  "IDEKeptRunning": true,
+  "protection": {
+    "storage": {
+      "count": 80,
+      "unchangedFromTask20": true,
+      "canonicalSHA256": "0eec90a19b3f11839423c4cc987d41d7a06d3ba2e8711e6af3d9adcc07397b87"
+    },
+    "package": {
+      "count": 479,
+      "unchangedFromTask20": true,
+      "canonicalSHA256": "a2c25a2b8abb0a7a0a4f75361efbbf91f37215d6dff86a64dea1c8370a450c40"
+    }
+  }
+}
