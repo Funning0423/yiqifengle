@@ -57,5 +57,27 @@
       }
     }
   },
-  "hasSetSplash": true
+  "hasSetSplash": true,
+  "textureCompressConfig": {
+    "genMipmaps": true,
+    "userPreset": {
+      "wx_astc6_etc2": {
+        "name": "wx_astc6_etc2",
+        "options": {
+          "miniGame": {
+            "astc_6x6": "medium",
+            "etc2_rgba": "slow"
+          },
+          "web-mobile": {
+            "astc_6x6": "medium",
+            "etc2_rgba": "slow"
+          },
+          "web-desktop": {
+            "astc_6x6": "medium",
+            "etc2_rgba": "slow"
+          }
+        }
+      }
+    }
+  }
 }

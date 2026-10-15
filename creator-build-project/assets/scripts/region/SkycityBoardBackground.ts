@@ -10,7 +10,8 @@ const { ccclass } = _decorator;
 export const SKYCITY_LAYER = 1 << 20;
 const SKYCITY_CAMERA_PRIORITY = 43;
 const CULL_NONE = gfx && gfx.CullMode ? gfx.CullMode.NONE : 0;
-const REQUIRED = ['anchor_scene_root', 'anchor_robot_root', 'chr_robot_gardener_mesh', 'env_sky_cloudsea', 'env_sky_cumulus_far', 'env_sky_birds', 'env_sky_starring'];
+// v0.4b renamed the cloud sea and split the bird flock into pivot nodes. Cumulus has no successor.
+const REQUIRED = ['anchor_scene_root', 'anchor_robot_root', 'chr_robot_gardener_mesh', 'env_merged_SKY_08_CloudSea', 'env_sky_starring', 'anim_birds_flock_0_pivot'];
 function find(n: Node, name: string): Node | null { if (n.name === name) return n; for (const child of n.children) { const hit = find(child, name); if (hit) return hit; } return null; }
 function setLayer(n: Node) { n.layer = SKYCITY_LAYER; for (const child of n.children) setLayer(child); }
 function textureOf(mat: Material | null): Texture2D | null {

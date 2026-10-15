@@ -793,6 +793,12 @@
   },
   "userData": {
     "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    },
     "imageMetas": [
       {
         "name": "T_G2_APRON_512",

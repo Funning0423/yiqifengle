@@ -526,8 +526,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/character/chr_b_r5g2_lod0_anim_pass2_INTERIM_s1_grokbot2.glb.meta",
-    "bytes": 24068,
-    "sha256": "38b88ba48a6d3d6ef986caa8c417dfe8c29312701b751db5000e3c1eebbb8b84"
+    "bytes": 25308,
+    "sha256": "d1246ef657fdaee129be88187f9395c99babd0f0ad1b75840f2d697224142500"
   },
   {
     "path": "creator-build-project/assets/bundles/region_island/combined_anchors_m.json",
@@ -631,8 +631,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 31927,
-    "sha256": "0587f317ab810c0bcfb7f69fdf8fbe2c8b311bca50844ec507c29a49eca157de"
+    "bytes": 32049,
+    "sha256": "314444aefae9063ec84de06c9c9a437f4ac89e7a9be1e03975c85886380c40e4"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
@@ -1386,8 +1386,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts",
-    "bytes": 7135,
-    "sha256": "182c38074ff8356c602a4c77c6fbddd4fa61025963fba351d08a710c8d8f214c"
+    "bytes": 7214,
+    "sha256": "2a41a65980086183ca791a10022941e407fde37702ef4716b2f8aaad50cd13d0"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionAmbientAnimation.ts.meta",
@@ -1396,8 +1396,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 3126,
-    "sha256": "ad1e97c5de821931099e4a3bc22c55d9211c45998d9156b6b70124880d5c6b03"
+    "bytes": 4007,
+    "sha256": "34271941d5facec3b926532ea89f93f8227def086a9df20bcf4b42229321bb68"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",
@@ -1416,8 +1416,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RobotClips.ts",
-    "bytes": 565,
-    "sha256": "725ce974de5f0b12e2fda452b540ab99e37edf028a718129e4f85274938ae858"
+    "bytes": 536,
+    "sha256": "943fba59047eefd00eaf885faaee72cede4a7a82c350ceace7d4ef26789eb482"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RobotClips.ts.meta",
@@ -1426,8 +1426,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts",
-    "bytes": 4686,
-    "sha256": "6991cc7401fae24e2c63bc25b8d8da80cdf109fa78a752523ba013e9324ed0af"
+    "bytes": 4692,
+    "sha256": "03a30cf37f10f0bdccc8cbfeb90046c78f474d4bafaa37cb316feeef941c348d"
   },
   {
     "path": "creator-build-project/assets/scripts/region/SkycityRobotInteract.ts.meta",
@@ -2241,8 +2241,8 @@
   },
   {
     "path": "creator-build-project/settings/v2/packages/builder.json",
-    "bytes": 1492,
-    "sha256": "7be71478fe3659f20ac7307015c376a7af95a8a08751d2f3dfcf97ef5432ba35"
+    "bytes": 1986,
+    "sha256": "3938bcc8b742eae650ab3b84a53ab8c95a2e68da7aa4088e81b2f7a8b6b694de"
   },
   {
     "path": "creator-build-project/settings/v2/packages/device.json",

@@ -1,4 +1,4 @@
-/** Robot clips share one skeleton. Ambient sky_ambient_loop is a different clip and may keep looping. */
+/** Robot clips share one skeleton. Other ambient clips may keep looping. */
 export const ROBOT_IDLE = 'robot_idle';
 export const ROBOT_GESTURES = ['robot_watering', 'robot_give_flower'] as const;
 export type RobotGestureName = typeof ROBOT_GESTURES[number];

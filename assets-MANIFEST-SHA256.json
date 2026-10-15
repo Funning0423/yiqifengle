@@ -476,8 +476,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb",
-    "bytes": 1114604,
-    "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7"
+    "bytes": 3690136,
+    "sha256": "584e4b2c710c4c86996c47ceb1c8e1706fc84641a19906978f38de3441005395"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/actor/user_static_seated_2k.glb",
@@ -486,8 +486,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
-    "bytes": 5306012,
-    "sha256": "8ae5efeb5f318b22411c0033f450b6de7a935fa3a27fb45d3f3cf240f88e2e42"
+    "bytes": 4224224,
+    "sha256": "3521d88962959c47f13bbc8d2c0143c7ebc925284720abea028fe526d53ba90e"
   },
   {
     "path": "creator-build-project/assets/resources/audio_amb/amb_waves_loop.mp3",

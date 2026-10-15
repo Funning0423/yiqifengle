@@ -5,7 +5,7 @@ const { ccclass } = _decorator;
 /**
  * Real taps only. anchor_robot_interact plays robot_give_flower.
  * anchor_starcourt_center is the court garden and plays robot_watering.
- * sky_ambient_loop is left running; the gesture replaces robot_idle until it finishes.
+ * Scenery ambient clips are left running; the gesture replaces robot_idle until it finishes.
  */
 @ccclass('SkycityRobotInteract')
 export class SkycityRobotInteract extends Component {
