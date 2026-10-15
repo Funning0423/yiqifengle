@@ -1,5 +1,4 @@
 import { Color, Graphics, Label, Node, UIOpacity, UITransform, isValid } from 'cc';
-import { GameAudio } from '../audio/GameAudio';
 import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
 import { toolArt, type ToolArtSource } from './CommonPanels';
 import { ResultChest3D } from '../ResultChest3D';
@@ -7,9 +6,8 @@ import { reducedMotion } from './UiPrefs';
 /** Board-only panels (c-popups compose.py / compose2.py): pause (layout frozen by PM, only the lite frame and width 680
  *  changed), restart confirmation and the four result pages. */
 export interface PauseActions { line: string; resume(): void; restart(): void; bag(): void; settings(): void; home(): void; canRestart: boolean; canBag: boolean }
-let lastMusic = 0.4;
 export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
-  const top = 380, ph = 800, p = stack.open({ name: 'PausePanel', height: ph, title: '暂停一下', titleArt: 'popup/title_0', dy: top + ph / 2 - 812 });
+  const top = 380, ph = 680, p = stack.open({ name: 'PausePanel', height: ph, title: '暂停一下', titleArt: 'popup/title_0', dy: top + ph / 2 - 812 });
   p.text(a.line, 0, 92, 28, 'brown2', { bold: false, width: 600, name: 'PauseLine' });
   const tiles: Array<[string, string, () => void, boolean]> = [['popup/tile_restart', '重来', a.restart, a.canRestart], ['popup/tile_bag', '行囊', a.bag, a.canBag], ['popup/tile_settings', '设置', a.settings, true]];
   for (let i = 0; i < tiles.length; i++) {
@@ -18,20 +16,8 @@ export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
     p.sprite(t[0], 0, 0, 150, undefined, 'ui', b.node.getChildByName('Face')!).node.setPosition(0, 0, 0);
     p.text(t[1], cx, 322, 30, 'brown'); b.setEnabled(t[3]);
   }
-  const div = uiNode('Divider', p.body, 540, 4), dp = p.at(0, 378); div.setPosition(dp[0], dp[1], 0);
-  p.tint.shape(div.addComponent(Graphics), (g, night, al) => { const k = 1 - 0.4 * night; g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * al)); g.lineWidth = 3; for (let x = -270; x < 270; x += 18) { g.moveTo(x, 0); g.lineTo(x + 9, 0); } g.stroke(); });
-  const audio = GameAudio.instance;
-  const rows: Array<[string, string, boolean, (on: boolean) => void]> = [
-    ['popup/icon_music', '音乐', (audio?.getMusicVolume() ?? 0.4) > 0, on => { const g = GameAudio.instance; if (!g) return; if (!on) { const v = g.getMusicVolume(); if (v > 0) lastMusic = v; g.setMusicVolume(0); } else g.setMusicVolume(lastMusic > 0 ? lastMusic : 0.4); }],
-    ['popup/icon_sfx', '音效', !(audio?.isSfxMuted() ?? false), on => GameAudio.instance?.setSfxMuted(!on)],
-  ];
-  for (let i = 0; i < rows.length; i++) {
-    const bx = -340 + 64 + i * 278, cy = 446, r = rows[i];
-    p.sprite(r[0], bx + 25, cy, undefined, 50); p.text(r[1], bx + 68, cy, 32, 'brown', { align: 'left', width: 120 });
-    p.toggle(bx + 196, cy, 46, r[2], r[3], i ? 'SfxToggle' : 'MusicToggle');
-  }
-  p.button('primary', '继续', 0, 580, 480, 104, () => p.close(a.resume), { icon: 'popup/icon_play', fontSize: 36, name: 'Resume' });
-  p.button('secondary', '回到小岛', 0, 700, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
+  p.button('primary', '继续', 0, 460, 480, 104, () => p.close(a.resume), { icon: 'popup/icon_play', fontSize: 36, name: 'Resume' });
+  p.button('secondary', '回到小岛', 0, 580, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
   return p;
 }
 export function openRestartConfirm(stack: PopupStack, restart: () => void): PopupPanel {
@@ -50,6 +36,16 @@ export interface ResultModel {
   unlockHint?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
+/** Steps, saved and the unlock hint are one secondary line under the score. */
+function resultSummary(m: ResultModel): string {
+  if (m.kind !== 'win') return '';
+  const parts: string[] = [];
+  if (m.movesUsed !== null) parts.push(m.movesUsed + ' 步');
+  if (m.movesLeft !== null) parts.push('剩 ' + m.movesLeft + ' 步');
+  parts.push('已保存');
+  if (m.unlockHint) parts.push(m.unlockHint);
+  return parts.join(' · ');
+}
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
   // Include the real 88-design-px claim hit area, not just its 64px painted face.
@@ -72,10 +68,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
   if (m.kind === 'win') {
     section('ResultDetails', 0, 416, () => {
-      const line = (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步';
-      p.sprite('board/icon_moves', -150, 416, undefined, 48).node.name = 'MovesSymbol';
-      p.text(line, -118, 416, 28, 'brown', { align: 'left', width: 400, bold: false, name: 'MovesInfo' });
-      p.well(0, 472, 196, 48, [224, 238, 232], 24).name = 'SavedWell'; p.text('成绩已保存', 0, 472, 28, 'teal', { bold: false, width: 196, name: 'SavedText' });
+      p.text(resultSummary(m), 0, 416, 14, 'brown2', { bold: false, width: 560, name: 'ResultSummary' });
     });
     let y = 600;
     if (m.rewards.length) {
@@ -84,6 +77,8 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
         section(name, x, y, () => rewardSlot(p, m.rewards[i], x, y, legacy, wideReward)); rewards.push(groups[name]); }
       y += rewardsH;
     }
+    const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
+    if (ready.length) p.button('primary', '全部领取', 0, y, 220, 56, () => { for (let i = 0; i < ready.length; i++) ready[i].claim?.(); }, { fontSize: 26, name: 'ClaimAll' });
     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
@@ -220,9 +215,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const prevDestroy = p.destroy.bind(p);
   p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
-  const chestSizeFor = (inner: number) => Math.min(inner, shortPhone ? 132 : 160);
-  const raySizeFor = (inner: number) => Math.min(inner, shortPhone ? 156 : 180);
-  const heroHeightFor = (inner: number, r: ResultReward) => Math.max(raySizeFor(inner), chestSizeFor(inner)) + (r.state === 'ready' && r.claim ? 64 : 28);
+  const CHEST_W = 120, CHEST_H = 108, RAY = 156;
+  const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
+  const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
   const sideRewards = () => m.rewards.filter(r => !isChest(r));
   const pairedRewards = (inner: number) => { const side = sideRewards(); return side.length === 2 && inner >= 400 && side.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2)); };
   // Measure the same content used by reflow. Tall phones no longer turn a short
@@ -231,18 +226,16 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
-    if (shortPhone && m.kind !== 'lose') lines(scoreText, 24, 32); else lines(scoreText, m.kind === 'lose' ? 16 : 30);
-    if (m.kind === 'win') {
-      lines((m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步', 16);
-      if (!shortPhone) lines('成绩已保存', 16);
-      if (m.unlockHint) lines(m.unlockHint, 16);
-    } else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
+    if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) lines(summary, 16); }
+    else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
     const paired = pairedRewards(inner);
     const side = sideRewards(), cell = paired ? (inner - 12) / 2 : inner, cardH = shortPhone ? 64 : 96;
-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
+    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { lines(r.label, 16); heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
     side.forEach((_r, i) => { if (!paired || i === 0) heights.push(cardH); });
+    if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
   };
   p.setLayoutStrategy((width, height, safeInsets) => {
@@ -267,8 +260,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
     for (const a of actions) a.handle.node.active = supported;
+    const walkNamed = (n: Node, name: string): Node | null => {
+      if (n.name === name) return n;
+      for (let i = 0; i < n.children.length; i++) { const f = walkNamed(n.children[i], name); if (f) return f; }
+      return null;
+    };
+    const claimAll = walkNamed(p.root, 'ClaimAll');
     spaceNotice.node.active = !supported; readableTitle.node.active = false;
     if (!supported) {
+      if (claimAll) claimAll.active = false;
       // A bounded host fallback, not another text shrink. Keep the modal guard,
       // cancel every old gesture and require a larger safe rectangle to act.
       for (const n of pool.values()) n.active = false;
@@ -317,27 +317,25 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       const starH = shortPhone ? 44 : dense ? 44 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : 0.32;
       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
-      // Keep a long numeric score together on a compact page. The readable floor
-      // is the same 16-unit body size; ordinary compact scores remain 20 units.
-      // A short portrait phone uses a 24/32 score line so both rewards stay on one page.
-      if (shortPhone && m.kind !== 'lose') {
-        const lines = wrap(scoreText, inner - 4, 24);
+      if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
+      else {
+        // 34/46 is the settled score. A number that cannot stay on one page at that size
+        // drops to the 16-unit body so the opening scale (0.92) still clears the 14px floor.
+        const big = wrap(scoreText, inner - 4, 34);
+        const block = big.length * 46 + Math.max(0, big.length - 1) * rowGap;
+        const scoreSize = block <= available ? 34 : 16, scoreLine = scoreSize === 34 ? 46 : 22;
+        const lines = scoreSize === 34 ? big : wrap(scoreText, inner - 4, scoreSize);
         for (let i = 0; i < lines.length; i++) {
-          const scoreRow = getRow('Score-' + i, 32); scoreRow.keepWithNext = i + 1 < lines.length;
+          const scoreRow = getRow('Score-' + i, scoreLine); scoreRow.keepWithNext = i + 1 < lines.length;
           let l = scoreRow.node.getComponentInChildren(Label);
-          if (!l) l = p.text('', 0, 0, 24, 'brown', { name: i ? 'Score-continued-' + i : 'Score', bold: true, width: inner, parent: scoreRow.node });
-          l.string = lines[i]; l.fontSize = 24; l.lineHeight = 32; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
-          l.node.getComponent(UITransform)!.setContentSize(inner, 32); l.node.setPosition(0, 0, 0); rows.push(scoreRow);
+          if (!l) l = p.text('', 0, 0, scoreSize, 'brown', { name: i ? 'Score-continued-' + i : 'Score', bold: true, width: inner, parent: scoreRow.node });
+          l.string = lines[i]; l.fontSize = scoreSize; l.lineHeight = scoreLine; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+          l.node.getComponent(UITransform)!.setContentSize(inner, scoreLine); l.node.setPosition(0, 0, 0); rows.push(scoreRow);
         }
-      } else {
-        const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 30;
-        labelRows(m.kind === 'lose' ? 'ResultMessage' : 'Score', scoreText, scoreSize);
       }
     }
-    if (m.kind === 'win') {
-      labelRows('MovesInfo', (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步');
-      if (!shortPhone) labelRows('SavedText', '成绩已保存', 16, 'teal');
-    } else if (m.kind === 'lose') {
+    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) labelRows('ResultSummary', summary, 16, 'brown2'); }
+    else if (m.kind === 'lose') {
       const goals = groups.ResultGoals;
       if (goals) {
         const sourceLabels = goals.original.filter(v => v.font !== undefined);
@@ -352,56 +350,59 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
       }
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
-    if (m.kind === 'win' && m.unlockHint) labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
     const paired = pairedRewards(inner);
     const cell = paired ? (inner - 12) / 2 : inner;
-    let sideIndex = 0;
+    let sideIndex = 0, claimPlaced = false;
+    // 56 is the settled claim control. A short page keeps it inside the content band
+    // (4 units of slack sit above the action buttons) and never under 44.
+    const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
+    const placeClaim = (row: Row, y: number, height = 56) => {
+      if (!claimAll || claimPlaced || !anyReady()) return;
+      const bw = Math.min(220, inner);
+      layoutButton(claimAll, bw, '全部领取', height);
+      const face = claimAll.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
+      l.string = '全部领取'; l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
+      add(row, claimAll, 0, y); claimPlaced = true;
+    };
+    const fitBox = (n: Node, boxW: number, boxH: number) => {
+      const v = original.get(n), ui = n.getComponent(UITransform)!;
+      const ow = Math.max(1, v ? v.width * Math.abs(v.sx) : ui.width * Math.abs(n.scale.x));
+      const oh = Math.max(1, v ? v.height * Math.abs(v.sy) : ui.height * Math.abs(n.scale.y));
+      const sx = v?.sx ?? 1, sy = v?.sy ?? 1;
+      n.setScale(sx * (boxW / ow), sy * (boxH / oh), 1);
+    };
     for (let i = 0; i < rewards.length; i++) {
       const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
       if (isChest(r)) {
-        let chestSize = chestSizeFor(inner), raySize = raySizeFor(inner), body = Math.max(raySize, chestSize);
-        const claimH = claim ? 56 : 0, gap = claim ? 8 : 0, labelH = claim ? 0 : 28;
-        let rowH = body + gap + claimH + labelH, claimInRow = !!claim;
+        let chestW = Math.min(CHEST_W, inner), chestH = CHEST_H * (chestW / CHEST_W), raySize = Math.min(RAY, inner), body = Math.max(raySize, chestH);
+        const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
+        let rowH = body + gap + claimH, claimInRow = claimH > 0;
         const budget = Math.max(1, available);
         if (rowH > budget) {
-          const chrome = gap + claimH + labelH, room = budget - chrome;
-          if (room >= 48) { body = room; chestSize = Math.min(chestSize, body); raySize = Math.min(raySize, body); rowH = body + chrome; }
-          else { claimInRow = false; body = Math.min(body, budget); chestSize = Math.min(chestSize, body); raySize = Math.min(raySize, body); rowH = body; }
+          const chrome = gap + claimH, room = budget - chrome;
+          if (room >= 48) { body = room; raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body + chrome; }
+          else { claimInRow = false; body = Math.min(body, budget); raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body; }
         }
         const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
         const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
-        const bw = Math.min(220, inner), longChest = textWidth(r.label, 16) > buttonTextWidth(bw);
-        if (longChest) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+        labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
         if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
         else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
         add(row, raysNode, 0, chestY);
-        if (flat) { flat.name = 'ResultChestArt'; fitArt(flat, chestSize, chestSize); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
-        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestSize * 0.28, chestY - chestSize * 0.28); }
-        if (claim && claimInRow) {
-          layoutButton(claim, bw, longChest ? '领取' : r.label, 56);
-          const face = claim.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
-          l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
-          add(row, claim, 0, -rowH / 2 + claimH / 2);
-        } else if (!claim) {
-          let l = row.node.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
-          if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: row.node });
-          l.string = longChest ? (r.state === 'claimed' ? '已领取' : '未解锁') : r.label; l.fontSize = 16; l.lineHeight = 22;
-          l.node.getComponent(UITransform)!.setContentSize(Math.max(1, inner), 22); add(row, l.node, 0, -rowH / 2 + labelH / 2);
-        }
+        if (flat) { flat.name = 'ResultChestArt'; fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
+        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestW * 0.28, chestY - chestH * 0.28); }
+        if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
         if (!chestRig) {
-          chestRig = new ResultChest3D(row.node, chestSize); chestRig.node.active = false;
+          chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
           const shown = flat;
           void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
         } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
-        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestSize, chestSize);
+        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestW, chestH);
         rows.push(row);
-        if (claim && !claimInRow) {
-          const buttonH = Math.min(56, budget), buttonRow = getRow('reward-chest-claim', buttonH);
-          layoutButton(claim, bw, longChest ? '领取' : r.label, buttonH);
-          const face = claim.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
-          l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
-          add(buttonRow, claim, 0, 0); rows.push(buttonRow);
+        if (!claimInRow && claimH) {
+          const buttonRow = getRow('reward-chest-claim', claimFit);
+          placeClaim(buttonRow, 0, claimFit); rows.push(buttonRow);
         }
         continue;
       }
@@ -445,6 +446,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       }
       if (!paired || sideAt === 0) rows.push(row);
     }
+    if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
+    else if (claimAll && !claimPlaced) claimAll.active = false;
     pages = [[]]; let used = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]; let needed = row.height;
@@ -463,9 +466,8 @@ function rewardSlot(p: PopupPanel, r: ResultReward, x: number, y: number, legacy
   if (r.iconKind === 'tool' && r.tool) toolArt(p, r.tool, x, y - 36, 120, legacy);
   else { const s = p.sprite(r.icon, x, y - 36, r.iconKind === 'seal' ? undefined : 150, r.iconKind === 'seal' ? 112 : undefined, r.iconKind === 'chest' ? 'half' : 'ui'); if (r.state === 'locked') s.grayscale = true; }
   const by = y + 112, bw = wide && r.label.length >= 6 ? 248 : 176;
-  if (r.state === 'claimed') { p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12); p.text(r.label, x, by, 24, 'brown2', { bold: false, width: bw }); }
-  else if (r.state === 'ready' && r.claim) p.button('secondary', r.label, x, by, bw, 64, r.claim, { fontSize: r.label.length >= 6 ? 24 : 26, name: 'Claim-' + r.id });
-  else p.text(r.label, x, by, 24, 'grey', { bold: false, width: bw });
+  if (r.state === 'claimed') p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12);
+  p.text(r.label, x, by, 24, r.state === 'locked' ? 'grey' : 'brown2', { bold: false, width: bw });
 }
 /** Three stars, middle one larger; empty stars dimmed (alpha 0.75). Chest and stars take the half night tint. */
 function stars(p: PopupPanel, cy: number, filled: number): Node[] {

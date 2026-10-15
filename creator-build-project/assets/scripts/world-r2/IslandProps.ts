@@ -207,15 +207,16 @@ export class IslandProps {
     return { position: [p.x, p.y, p.z], rotation: [q.x, q.y, q.z, q.w], fovVerticalDeg: c.fov };
   }
   /** Once per frame from the host. exterior = island exterior layer visible; buttons = island dock is showing. */
-  sync(o: { exterior: boolean; night: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number } }) {
+  sync(o: { exterior: boolean; night: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number }; nightWeight?: number }) {
     if (!this.ready || !isValid(this.root, true)) return;
     if (this.root.active !== o.exterior) this.root.active = o.exterior;
     this.view.width = o.width; this.view.height = o.height;
     const now = game.totalTime / 1000, first = this.lastTime < 0, totalDt = first ? 0 : now - this.lastTime; this.lastTime = now;
     const wallNow = Date.now(), wallDt = this.wallMs > 0 ? (wallNow - this.wallMs) / 1000 : 0; this.wallMs = wallNow;
-    // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS.
-    // A stuck game.totalTime still fades on wall time, so night ink is not left on the day brown.
-    this.nightW = nightWeightStep(this.nightW, o.night, totalDt, wallDt, first);
+    // A published uiBlend follows the 0.8 s world cross-fade. Otherwise the first sync snaps,
+    // and a later switch fades over nightFadeS (wall time if game.totalTime is stuck).
+    if (typeof o.nightWeight === 'number' && Number.isFinite(o.nightWeight)) this.nightW = Math.max(0, Math.min(1, o.nightWeight));
+    else this.nightW = nightWeightStep(this.nightW, o.night, totalDt, wallDt, first);
     this.stats.nightWeight = +this.nightW.toFixed(3); setPropNightWeight(this.nightW);
     // lamp glass day/night material: swapped at the middle of the fade (light is half up), not at the switch instant
     const lampNight = this.nightW >= 0.5;

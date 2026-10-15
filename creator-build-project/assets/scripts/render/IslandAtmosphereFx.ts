@@ -15,7 +15,7 @@ const TECH_ADD = 2, TECH_ALPHA_BLEND = 3; // builtin-unlit 3.8.8: opaque, transp
 export class IslandAtmosphereFx {
   private root: Node | null = null; private meshes: Mesh[] = []; private materials: Material[] = [];
   private beam: Fx | null = null; private glow: Fx | null = null; private glint: Fx | null = null; private moon: Fx | null = null; private halo: Fx | null = null; private bands: Fx[] = []; private puffs: Fx[] = [];
-  private exterior = false; private night = false; private lightShown = 0; private smokeShown = 0; private nightShown = 0; private synced = false; private time = 0; private ownNight = 0; private gulls: GullFlock | null = null;
+  private exterior = false; private windowed = false; private night = false; private lightShown = 0; private smokeShown = 0; private nightShown = 0; private synced = false; private time = 0; private ownNight = 0; private gulls: GullFlock | null = null;
   private readonly tmp = new Vec3(); private last: { beam: number; flash: number; puffs: number[]; moon: number; band: number } = { beam: 0, flash: 0, puffs: [], moon: 0, band: 0 };
   constructor(scene: Scene) {
     if (!EffectAsset.get('builtin-unlit')) { console.warn('[SCENE_FX] builtin-unlit unavailable; island smoke/beam skipped'); return; }
@@ -53,7 +53,12 @@ export class IslandAtmosphereFx {
     return { node, material, applied: '' };
   }
   /** Called from WorldFlowComponent.applyDayNight (same inputs as DoorSpillHint/RoomLightingRig). */
-  setView(exterior: boolean, night: boolean): void { this.exterior = exterior; this.night = night; if (this.gulls) this.gulls.setView(exterior); if (!exterior) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); } }
+  /** windowed: the room rear window sees the same sky. Gulls and a day sea glint stay on; the beam stays outside. */
+  setView(exterior: boolean, night: boolean, windowed = false): void {
+    this.exterior = exterior; this.windowed = !!windowed && !exterior; this.night = night;
+    if (this.gulls) this.gulls.setView(exterior || this.windowed);
+    if (!exterior && !this.windowed) { this.lightShown = 0; this.smokeShown = 0; this.hideAll(); }
+  }
   /** lateUpdate: after WorldFlow wrote this frame's camera. camera = main world camera node (live position). */
   advance(dt: number, camera: Node | null, wind: number, seaSurfaceY?: number): void {
     const root = this.root; if (!root || !isValid(root, true)) return;
@@ -64,7 +69,7 @@ export class IslandAtmosphereFx {
     this.nightShown = pickNight(this.ownNight, shared);
     // Exterior on/off is a layer cut (door / level change): no fade, like the other exterior renderers.
     this.smokeShown = this.exterior ? 1 : 0; this.lightShown = this.exterior ? lightFromNight(this.nightShown) : 0;
-    const on = this.lightShown > 1e-3 || this.smokeShown > 1e-3; if (root.active !== on) root.active = on;
+    const on = this.lightShown > 1e-3 || this.smokeShown > 1e-3 || this.windowed; if (root.active !== on) root.active = on;
     if (!on || !camera || !isValid(camera, true)) return;
     if (this.gulls) this.gulls.advance(step, camera, this.nightShown);
     const p = camera.worldPosition, cam: V3 = [p.x, p.y, p.z];
@@ -72,7 +77,8 @@ export class IslandAtmosphereFx {
     this.place(this.beam, null, b.rotation, null, ISLAND_FX.beam.color, b.alpha);
     this.place(this.glow, b.glowPos, b.glowRotation, [b.glowScale, b.glowScale, b.glowScale], ISLAND_FX.glow.color, b.glowAlpha);
     const glintY = typeof seaSurfaceY === 'number' && Number.isFinite(seaSurfaceY) ? seaSurfaceY + ISLAND_FX.band.surfaceLiftM : ISLAND_FX.seaY;
-    this.place(this.glint, [ISLAND_FX.lamp[0], glintY, ISLAND_FX.lamp[2]], b.glintRotation, null, ISLAND_FX.glint.color, b.glintAlpha);
+    const dayGlint = this.windowed ? (0.22 + 0.16 * Math.sin(this.time * 1.6)) * (1 - this.nightShown) : 0;
+    this.place(this.glint, [ISLAND_FX.lamp[0], glintY, ISLAND_FX.lamp[2]], b.glintRotation, null, ISLAND_FX.glint.color, Math.max(b.glintAlpha, dayGlint));
     const m = moonState(this.time, cam, this.lightShown, seaSurfaceY); this.last.moon = m.moonAlpha; this.last.band = m.bandAlpha;
     this.place(this.moon, null, m.moonRotation, null, ISLAND_FX.moon.color, m.moonAlpha);
     this.place(this.halo, null, m.moonRotation, null, ISLAND_FX.moon.haloColor, m.haloAlpha);

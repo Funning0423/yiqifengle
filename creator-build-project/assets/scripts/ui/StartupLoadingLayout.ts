@@ -19,18 +19,19 @@ export const ART = {
 export const BACKDROP_RGB = [217, 210, 196];
 /** Progress ribbon: bar_track/bar_fill 496x44 at top-left (127,1271) (centre y 1293 = 79.6%); 8 px inner padding,
  * 480 px travel; ribbon wave 5 px amplitude, 135 px wavelength (gen.py ribbon_y). Pinwheel 60x60 rides the ribbon head. */
-export const BAR = { x: 127, y: 1271, w: 496, h: 44, pad: 8, travel: 480, amp: 5, lambda: 135 };
+/** R3: 0.6 of the 750 design width, 12 design px tall (6 CSS px at 375-wide). The baked ribbon stays in the picture. */
+export const BAR = { x: 150, y: 1280, w: 450, h: 12, pad: 0, travel: 450, amp: 0, lambda: 135 };
 export const PINWHEEL = { w: 60, h: 60, degPerSec: 300 };
-/** Hint text: system font 28 design px, #3F5E63, top 1341 (= track top + 70), soft cream shadow (+1,+1). */
-export const HINT = { centerY: 1361, size: 28, width: 640, height: 48, color: '#3F5E63', shadow: [255, 250, 238, 180] };
+/** Hint text: 30 design px (15 CSS), #6B4E2E, 24 design px (12 CSS) under the bar. */
+export const HINT = { centerY: 1280 + 12 + 24 + 20, size: 30, width: 640, height: 40, color: '#6B4E2E', shadow: [255, 250, 238, 0] };
 export const HINTS = ['风从海上来……', '她在窗前坐下……', '灯塔小屋准备好了'];
 /** Safe band (all decorations stay inside on every aspect from 16:9 to 19.5:9). */
 export const SAFE = { top: 0.089, bottom: 0.88 };
 /** Fill / pinwheel / hint fade in after the scene layer's first frame (spec 0.2-0.3 s). */
 export const INTRO_FADE_S = 0.25;
-/** Whole layer (picture + cream mask) fades out once the room is ready (PM spec 0.6-0.8 s, ease-out) after one held opaque
- * frame; room hints wait for the end. */
-export const OUTRO_FADE_S = 0.7;
+/** Whole layer (picture + cream mask) fades out once the room is ready. R3: 400 ms cross-fade, not a hard cut,
+ * after one held opaque frame; room hints wait for the end. */
+export const OUTRO_FADE_S = 0.4;
 /** Displayed progress eases toward the REAL stage target (no timer-driven creep). */
 export const PROGRESS_TAU_S = 0.18;
 

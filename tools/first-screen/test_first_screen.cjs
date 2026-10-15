@@ -137,11 +137,12 @@ for(const [name,w,h,pw,ph] of SCREENS){
  const lr={x0:(w/2+layer.root.position.x-ui.width/2)/w,x1:(w/2+layer.root.position.x+ui.width/2)/w,y0:(h/2-layer.root.position.y-ui.height/2)/h,y1:(h/2-layer.root.position.y+ui.height/2)/h};
  for(const k of ['x0','x1'])near(lr[k],fsRect[k]/pw,1e-9,name+' layer '+k);for(const k of ['y0','y1'])near(lr[k],fsRect[k]/ph,1e-9,name+' layer '+k);
  const vis=L.visibleDesignRect(w,h),cl=L.coverTransform(w,h);
- const items={logo:[347,295,432,385],title:[166,392,590,518],track:[133,1283,617,1306],hint:[55,1341,695,1381],pinwheel0:[105,1263,165,1323],pinwheel100:[585,1263,645,1323]};
+ const bar=L.BAR,hint=L.HINT,pin=L.PINWHEEL,head0=L.ribbonHead(0),head1=L.ribbonHead(1);
+ const items={logo:[347,295,432,385],title:[166,392,590,518],track:[bar.x,bar.y,bar.x+bar.w,bar.y+bar.h],hint:[L.DESIGN_W/2-hint.width/2,hint.centerY-hint.height/2,L.DESIGN_W/2+hint.width/2,hint.centerY+hint.height/2],pinwheel0:[head0.x-pin.w/2,head0.y-pin.h/2,head0.x+pin.w/2,head0.y+pin.h/2],pinwheel100:[head1.x-pin.w/2,head1.y-pin.h/2,head1.x+pin.w/2,head1.y+pin.h/2]};
  const inside={},safe={};for(const k in items){const b=items[k];inside[k]=b[0]>=vis.x0-0.5&&b[2]<=vis.x1+0.5&&b[1]>=vis.y0-0.5&&b[3]<=vis.y1+0.5;safe[k]=b[1]>=L.SAFE.top*L.DESIGN_H&&b[3]<=L.SAFE.bottom*L.DESIGN_H;}
  // layer element positions == design coords through the same transform
- const fillN=layer.root.children[0].children[0];const fp=L.toCentered(cl,375,1293);near(fillN.position.x,fp.x,1e-9,'fill x');near(fillN.position.y,fp.y,1e-9,'fill y');
- const hintN=layer.root.children[0].children[2];near(hintN.position.y,L.toCentered(cl,375,1361).y,1e-9,'hint y');near(hintN.getComponent(CC.Label).fontSize,28*cl.s,1e-9,'hint size');
+ const fillN=layer.root.children[0].children[0];const fp=L.toCentered(cl,L.BAR.x+L.BAR.w/2,L.BAR.y+L.BAR.h/2);near(fillN.position.x,fp.x,1e-9,'fill x');near(fillN.position.y,fp.y,1e-9,'fill y');
+ const hintN=layer.root.children[0].children[2];near(hintN.position.y,L.toCentered(cl,L.DESIGN_W/2,L.HINT.centerY).y,1e-9,'hint y');near(hintN.getComponent(CC.Label).fontSize,L.HINT.size*cl.s,1e-9,'hint size');
  layoutReport.push({screen:name,logical:[w,h],physical:[pw,ph],s_logical:+cl.s.toFixed(5),visibleDesign:{x:[+vis.x0.toFixed(1),+vis.x1.toFixed(1)],y:[+vis.y0.toFixed(1),+vis.y1.toFixed(1)]},inside,firstScreenRectPx:{x:[+fsRect.x0.toFixed(2),+fsRect.x1.toFixed(2)],y:[+fsRect.y0.toFixed(2),+fsRect.y1.toFixed(2)]}});
  if(!/4:3/.test(name)){for(const k in inside)assert(inside[k],name+' '+k+' visible');}
 }

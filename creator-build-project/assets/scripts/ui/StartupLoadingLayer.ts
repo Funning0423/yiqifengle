@@ -71,6 +71,7 @@ export class StartupLoadingLayer {
   this.apply();return this.timeline.hidden;}
  private apply(){const t=this.timeline,c=coverTransform(this.size.w,this.size.h),head=ribbonHead(t.shown);
   this.rootOpacity.opacity=t.layerOpacity();this.drawMask(t.layerOpacity());this.dynOpacity.opacity=t.introOpacity();
+  if(!this.retry)this.hint.string=hintForStage(t.stage)+'  '+Math.round(t.shown*100)+'%';
   this.syncFill();const pp=toCentered(c,head.x,head.y);this.pin.setPosition(pp.x,pp.y,0);this.pin.angle=t.spin;}
  /** Graphics bakes fillColor into its vertex colours and the 2D batcher never multiplies them by UIOpacity, so the cream mask
   *  fades by being redrawn with the layer alpha (same curve as the picture above it). */

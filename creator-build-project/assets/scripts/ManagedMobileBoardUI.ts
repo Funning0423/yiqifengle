@@ -8,7 +8,7 @@ import { boardLayout, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, T
 import { PopupStack, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
-import { hasSeenTool, reducedMotion } from './ui/UiPrefs';
+import { hasSeenGuide, hasSeenTool, markGuideSeen, reducedMotion } from './ui/UiPrefs';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
 const { ccclass } = _decorator;
@@ -52,6 +52,7 @@ export class ManagedMobileBoardUI extends Component {
   private hintCells: number[] = []; private hintClock = new IdleHintClock(); private hintT = 0; private spinT = 0;
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
+  private rewardShown: RewardItem[] = []; private rewardChest = false; private toolBubbleKey = '';
   private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
   deferPresentation = false;
@@ -302,7 +303,9 @@ export class ManagedMobileBoardUI extends Component {
     if (key === this.toolBarKey && !(fresh && this.toolBar.length === 0)) return;
     if (key === this.toolBarKey && !fresh) return;
     this.toolBarKey = key; this.toolBar = pickToolBar(this.toolCatalog());
-    for (const k of this.toolBar) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k);
+    let unseen = false;
+    for (let i = 0; i < this.toolBar.length; i++) { const k = this.toolBar[i]; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k)) { unseen = true; if (this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } }
+    if (!unseen && this.toolBar.length && this.toolBubbleKey !== key) { this.toolBubbleKey = key; const names: string[] = []; for (let i = 0; i < this.toolBar.length; i++) names.push(TOOL_NAMES[this.toolBar[i]] || this.toolBar[i]); this.say(names.join('、')); }
   }
   private useToolAt(kind: string, index: number) {
     if (!this.canUseTools() || !this.managed) return false;
@@ -734,7 +737,10 @@ export class ManagedMobileBoardUI extends Component {
     if (relayout && this.geo) { this.layout(); return; }
     this.layoutPlate(); this.syncToolBar(); this.paintToolTray();
     if (!board) { this.hintCells = []; this.hintClock.reset(); }
-    if (s.state === 'run.ready' && !this.modalOpen() && s.provider === 'regional-r05' && s.active?.guide) { const key = s.active.stageId + '|' + s.active.attemptId; if (this.guideShown !== key) { this.guideShown = key; this.showRuleGuide(); } }
+    if (s.state === 'run.ready' && !this.modalOpen() && s.provider === 'regional-r05' && s.active?.guide) {
+      const id = String(s.active.stageId || s.active.guide.title || '');
+      if (this.guideShown !== id) { this.guideShown = id; if (!hasSeenGuide(id)) { markGuideSeen(id); this.showRuleGuide(); } else this.say(s.active.guide.title || '这一关的规则'); }
+    }
     this.paint();
     if (book) this.paintBook(s); else this.clearChildren(this.stagePanel);
     if (result) this.paintResult(s); else if (this.resultKey) { this.resultKey = ''; this.closeResult(); }
@@ -911,10 +917,15 @@ export class ManagedMobileBoardUI extends Component {
     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
     if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
-    const gained = items.map(i => i.kind);
     const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
-    const desc = memento ? '地区印记收进旅程册了。' : region && !chest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
-    openReward(this.popups, items, this.toolArt, { chest: !!chest, description: desc, done: () => { if (behind && behind.alive) behind.root.active = true; for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
+    const open = this.popups.find('RewardPanel');
+    const merged = open ? this.rewardShown.slice() : [];
+    for (let i = 0; i < items.length; i++) { const it = items[i]; let hit: RewardItem | null = null; for (let j = 0; j < merged.length; j++) if (merged[j].kind === it.kind && merged[j].label === it.label) hit = merged[j]; if (hit) hit.count += it.count; else merged.push(it); }
+    this.rewardShown = merged.length ? merged : items.slice(); this.rewardChest = (open && this.rewardChest) || !!chest;
+    if (open) open.destroy();
+    const desc = memento ? '地区印记收进旅程册了。' : region && !chest && !this.rewardChest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
+    const shown = this.rewardShown.slice(), hadChest = this.rewardChest;
+    openReward(this.popups, shown, this.toolArt, { chest: hadChest, description: desc, done: () => { this.rewardShown = []; this.rewardChest = false; if (behind && behind.alive) behind.root.active = true; for (let i = 0; i < shown.length; i++) { const k = shown[i].kind; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } this.flushIntro(); } });
   }
   private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {

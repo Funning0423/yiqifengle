@@ -135,11 +135,11 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
     const c=calls.slice(before);if(firstSign===null&&c.some(x=>x[0]>0))firstSign=t;if(signDone===null&&c.some(x=>x[0]===1))signDone=t;}
   assert.equal(moved.length,0,'transparent mainline hit area not moved/scaled by the entrance');
   assert(dockLog.length>0&&dockLog.some(x=>x[0]==='p'&&x[1]<0),'buttons slide');
-  assert(firstSign>0.25-1e-6&&firstSign<=0.25+3/60,'sign starts after the buttons: '+firstSign);
-  assert(Math.abs(signDone-0.5)<=3/60,'sign done at ~0.5 s: '+signDone);
+  assert(firstSign>0.15&&firstSign<=0.15+2/60,'sign starts with the dock after 150 ms: '+firstSign);
+  assert(Math.abs(signDone-0.45)<=1/60,'sign done at ~0.45 s: '+signDone);
   const anim=calls.filter(x=>x[0]>0&&x[0]<1);assert(anim.length>=10,'animated frames');
   for(let i=1;i<anim.length;i++)assert(anim[i][0]>anim[i-1][0]&&anim[i][1]<anim[i-1][1],'alpha up, rise down');
-  assert(Math.abs(anim[0][1]-24*(1-anim[0][0]))<5e-3,'rise = 24 px * (1-e)');
+  assert(Math.abs(anim[0][1]-12*(1-anim[0][0]))<5e-3,'rise = 12 px * (1-e)');
   const firstLive=live.indexOf(true);assert(firstLive>=0&&live.slice(firstLive).every(Boolean)&&Math.abs((firstLive+1)/60-signDone)<=2/60,'hit area live once the sign entrance ends');
   // arrival without entrance (e.g. back from a level) -> shown at once, hit area live
   calls.length=0;for(const st of ['level-loading','level','island','skycity-loading','skycity','island','paused','island'])for(let i=0;i<10;i++)frame(st,1/60);
@@ -161,7 +161,7 @@ ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): 
   assert(Math.abs(mid[0][1]-24*(1-mid[0][0]))<5e-3,'sink = 24 px * (1-e)');
   for(const st of ['walking-home','crossing-in','closing-door','walking-to-seat','sitting','home','standing','turning-out','walking-out','opening-door','crossing-out']){const c=[];for(let i=0;i<20;i++)c.push(...frame(st));assert(c.every(x=>x[0]===0),'hidden in '+st);assert.equal(b.signShown,0);}
   // arrival: buttons first, sign stays 0, then the entrance to 1
-  const arr=[];for(let i=0;i<60;i++)arr.push(...frame('island'));const first=arr.findIndex(x=>x[0]>0);assert(first>=14,'sign waits for the buttons: '+first);
+  const arr=[];for(let i=0;i<60;i++)arr.push(...frame('island'));const first=arr.findIndex(x=>x[0]>0);assert(first>=8&&first<=11,'sign waits 150 ms, then fades with the dock: '+first);
   for(let i=first+1;i<arr.length;i++)assert(arr[i][0]>=arr[i-1][0],'entrance monotonic');assert.equal(arr[arr.length-1][0],1);assert.equal(b.signShown,1);
   // cancelled return (walking-home -> island after 5 frames): fade back in from the current value, no pop to 0 or 1
   for(let i=0;i<5;i++)frame('walking-home');const e0=b.signShown;assert(e0>0&&e0<1,'mid fade '+e0);

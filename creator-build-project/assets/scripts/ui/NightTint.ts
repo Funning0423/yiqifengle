@@ -29,13 +29,17 @@ export function contrast(a: readonly number[], b: readonly number[]): number {
   const lum = (c: readonly number[]) => { const v = c.slice(0, 3).map(x => { const s = x / 255; return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
   const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
-function worldIsNight(): boolean {
-  try { return (globalThis as any).__worldDayNight?.snapshot?.()?.mode === 'night'; } catch (e) { return false; }
+function worldSnap(): { mode?: string; uiBlend?: number } | null {
+  try { const s = (globalThis as any).__worldDayNight?.snapshot?.(); return s && typeof s === 'object' ? s : null; } catch (e) { return null; }
 }
 let weight = -1, lastMs = 0;
-/** Shared night weight for every UI layer; safe to call many times per frame. */
+/** Shared night weight for every UI layer; safe to call many times per frame.
+ *  A published uiBlend (the 0.8 s world cross-fade) wins, so sky, sea and UI stay on one curve. */
 export function uiNightWeight(nowMs = Date.now()): number {
-  const night = worldIsNight();
+  const snap = worldSnap();
+  const published = snap && typeof snap.uiBlend === 'number' && Number.isFinite(snap.uiBlend) ? Math.max(0, Math.min(1, snap.uiBlend)) : null;
+  if (published !== null) { weight = published; lastMs = nowMs; return weight; }
+  const night = snap?.mode === 'night';
   if (weight < 0) { weight = night ? 1 : 0; lastMs = nowMs; return weight; }
   const dt = Math.max(0, (nowMs - lastMs) / 1000); lastMs = nowMs;
   if (dt > 0) weight = approachNight(weight, night, dt);

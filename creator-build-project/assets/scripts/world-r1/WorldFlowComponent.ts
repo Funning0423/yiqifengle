@@ -18,7 +18,8 @@ import { createFirstsliceRoutes } from './FirstsliceRoutes';
 import { applyCameraPose, fromLookAt, createCameraTrack, createProgressFollower, frameCheck, characterBox, cameraWriteLog, blendPoseHorizon, rotate, CAMERA_FIXED } from './CameraPose';
 import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
-import { localNight, resolveDayNight, writeNightBlend, type DayNightMode } from './DayNightContract';
+import { localNight, resolveDayNight, writeNightBlend, DAY_NIGHT_FADE_S, fadeWeight, type DayNightMode } from './DayNightContract';
+import { reducedMotion } from '../ui/UiPrefs';
 /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
 export const CABIN_MIN_X=2.6;
 const {ccclass,property}=_decorator;
@@ -112,7 +113,7 @@ function bindIslandSourceAlpha(renderer:MeshRenderer):()=>void {
     return release;
   }catch(error){release();throw error;}
 }
-type UnlitBackdropBinding={setNight:(night:boolean)=>void;release:()=>void};
+type UnlitBackdropBinding={setNight:(night:boolean)=>void;setWeight:(weight:number)=>void;release:()=>void};
 /** Imported sky/cloud use builtin-unlit: there is no nightBlend uniform and no light response. */
 function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
   const name=renderer.node.name,foamAlpha=({env_sea_foam:.9,env_sea_surf_foam_v22:.48,env_sea_wave_line_01_v22:.34,env_sea_wave_line_02_v22:.38} as Record<string,number>)[name];
@@ -123,15 +124,21 @@ function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
   const original=read(shared);
   if(![original.x,original.y,original.z,original.w].every(Number.isFinite)||Math.max(Math.abs(original.x-1),Math.abs(original.y-1),Math.abs(original.z-1),Math.abs(original.w-1))>1e-5)throw Error('Backdrop authored colour changed');
   const day=new Vec4(1,1,1,alpha),night=new Vec4(tint[0],tint[1],tint[2],alpha);
-  let instance:ReturnType<MeshRenderer['getMaterialInstance']>=null,released=false,last:boolean|null=null;
+  let instance:ReturnType<MeshRenderer['getMaterialInstance']>=null,released=false,lastW=-1;
   const release=()=>{if(released)return;released=true;if(isValid(renderer,true)&&isValid(renderer.node,true)&&isValid(shared,true))renderer.setSharedMaterial(shared,0,true);else if(instance&&isValid(instance,true))instance.destroy();};
+  const paint=(weight:number)=>{
+    if(released||!isValid(renderer,true)||!isValid(renderer.node,true))return;
+    const w=Math.max(0,Math.min(1,weight));
+    if(Math.abs(w-lastW)<0.004&&w!==0&&w!==1)return;
+    const c=new Vec4(day.x+(night.x-day.x)*w,day.y+(night.y-day.y)*w,day.z+(night.z-day.z)*w,alpha);
+    instance!.setProperty('mainColor',c);const v=read(instance);
+    if(![v.x,v.y,v.z,v.w].every(Number.isFinite)||Math.max(Math.abs(v.x-c.x),Math.abs(v.y-c.y),Math.abs(v.z-c.z),Math.abs(v.w-alpha))>0.02)throw Error('Backdrop day/night uniform postcondition failed');
+    const edge=w===0||w===1;if(edge||lastW<0)console.info(Number.isFinite(foamAlpha)?'[OI_SHORE_FOAM]':'[OI_WINDOW_SKY]',JSON.stringify({node:name,night:w>=0.5,weight:+w.toFixed(3),tintSRGB:w>=0.5?tint:[1,1,1],uniformLinear:[v.x,v.y,v.z,v.w],scope:'Material uniform readback; native pixels still require visual check'}));
+    lastW=w;
+  };
   try {
     instance=renderer.getMaterialInstance(0);if(!instance||instance===shared)throw Error('Backdrop instance not isolated');
-    return {release,setNight:(value:boolean)=>{if(released||value===last||!isValid(renderer,true)||!isValid(renderer.node,true))return;try {
-      instance!.setProperty('mainColor',value?night:day);const v=read(instance);
-      if(![v.x,v.y,v.z,v.w].every(Number.isFinite)||Math.abs(v.w-alpha)>1e-6||(value?Math.max(v.x,v.y,v.z)>=.5:Math.max(Math.abs(v.x-1),Math.abs(v.y-1),Math.abs(v.z-1))>1e-6))throw Error('Backdrop day/night uniform postcondition failed');
-      last=value;console.info(Number.isFinite(foamAlpha)?'[OI_SHORE_FOAM]':'[OI_WINDOW_SKY]',JSON.stringify({node:name,night:value,tintSRGB:value?tint:[1,1,1],uniformLinear:[v.x,v.y,v.z,v.w],scope:'Material uniform readback; native pixels still require visual check'}));
-    }catch(error){release();throw error;}}};
+    return {release,setNight:(value:boolean)=>{try{paint(value?1:0);}catch(error){release();throw error;}},setWeight:(weight:number)=>{try{paint(weight);}catch(error){release();throw error;}}};
   }catch(error){release();throw error;}
 }
 /** Add to a NEW, identity scene-root sibling. Do not add to a Camera, Canvas or imported model. */
@@ -191,6 +198,8 @@ export class WorldFlowComponent extends Component {
   private lightHome=125000;private lightHomeColor:Color|null=null;
   private dayNightClock=0;
   private appliedBlend=0;
+  /** Live 0..1 cross-fade. User toggles ease over DAY_NIGHT_FADE_S; startup and reduced motion snap. */
+  private blend=0;private blendFrom=0;private blendTo=0;private blendT=1;private blendReady=false;
   private clock={updates:0,rawSeconds:0,appliedSeconds:0,maxDt:0,lastTickUtc:'',hideEvents:0,showEvents:0};
   /** Frames the flow has stayed hidden while the director is still ticking. Two frames, then revealReturn(). */
   private hiddenTicks=0;
@@ -223,6 +232,7 @@ export class WorldFlowComponent extends Component {
     const cam=this.worldCamera.node,p=cam.worldPosition,q=cam.worldRotation;this.savedCamera={position:[p.x,p.y,p.z],rotation:[q.x,q.y,q.z,q.w],fovVerticalDeg:this.worldCamera.fov};
     this.installCameraDebug();
     this.dayNightMode=localNight(new Date())?'night':'day';
+    this.blend=this.blendFrom=this.blendTo=this.dayNightMode==='night'?1:0;this.blendT=1;this.blendReady=true;
     const routes=createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE);this.islandRail=createIslandRail(routes);
     this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
@@ -439,6 +449,7 @@ export class WorldFlowComponent extends Component {
     // Deliberately cap one update to avoid a background/long-frame teleport.
     const frameDt=Math.min(dt,.1);
     this.clock.appliedSeconds+=frameDt;
+    if(this.blendT<1){this.blendT=Math.min(1,this.blendT+frameDt/DAY_NIGHT_FADE_S);this.blend=fadeWeight(this.blendFrom,this.blendTo,this.blendT);this.applyDayNight();}
     if(this.nightOverride===null){this.dayNightClock+=frameDt;if(this.dayNightClock>=60){this.dayNightClock=0;const next:DayNightMode=localNight(new Date())?'night':'day';if(next!==this.dayNightMode)this.setDayNight(next,false);}}
     try {this.flow.advance(frameDt);}catch(e){this.safetyFailure=String(e);this.flow.fault(this.safetyFailure);throw e;}
     for(const j of Array.from(this.jobs)) {
@@ -500,21 +511,23 @@ export class WorldFlowComponent extends Component {
   }
   /** Does not read or write WorldFlow state. Night meshes stay off until mode is night and the exterior layer is on. */
   private applyDayNight():void {
-    const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);this.appliedBlend=view.skyNightBlend;
+    const k=Math.max(0,Math.min(1,this.blend));this.appliedBlend=k;
     // Moon and halo belong to the sky backdrop, including views through the real indoor window.
-    for(const r of this.nightRenderers)if(r.isValid)r.enabled=this.dayNightMode==='night'&&(r.node.name.startsWith('env_sky_')?this.backdropVisible:this.exteriorVisible);
-    if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome*view.lightScale;this.mainLight.color=new Color(view.lightColor[0],view.lightColor[1],view.lightColor[2],255);}
+    // They stay up for the whole cross-fade so the sky blend, not a one-frame mesh pop, carries the change.
+    const nightMeshes=k>0.02;
+    for(const r of this.nightRenderers)if(r.isValid)r.enabled=nightMeshes&&(r.node.name.startsWith('env_sky_')?this.backdropVisible:this.exteriorVisible);
+    if(this.mainLight?.isValid){const scale=1+(0.35-1)*k;const day=resolveDayNight('day',true).lightColor,night=resolveDayNight('night',true).lightColor;this.mainLight.illuminance=this.lightHome*scale;this.mainLight.color=new Color(Math.round(day[0]+(night[0]-day[0])*k),Math.round(day[1]+(night[1]-day[1])*k),Math.round(day[2]+(night[2]-day[2])*k),255);}
     const scene=director.getScene();
-    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture))sky.setNightBlend(view.skyNightBlend);
-    for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
-    Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setNight(this.dayNightMode==='night');});
+    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture))sky.setNightBlend(k);
+    for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),k);
+    Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setWeight(k);});
     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
     this.doorSpill?.setView(this.interiorVisible,this.exteriorVisible,this.dayNightMode==='night');
-    this.atmosphere?.setView(this.exteriorVisible,this.dayNightMode==='night');
+    this.atmosphere?.setView(this.exteriorVisible,this.dayNightMode==='night',this.backdropVisible);
     this.shore?.setView(this.exteriorVisible,this.backdropVisible,this.dayNightMode==='night');
   }
-  private dayNightSnapshot(){const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);return {mode:this.dayNightMode,override:this.nightOverride,exteriorVisible:this.exteriorVisible,nightRenderersEnabled:view.nightRenderersEnabled,nightSkyBackdropsEnabled:this.dayNightMode==='night'&&this.backdropVisible,nightRendererCount:this.nightRenderers.length,skyNightBlend:this.appliedBlend,lightScale:view.lightScale};}
-  private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';this.applyDayNight();return this.dayNightSnapshot();}
+  private dayNightSnapshot(){const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);const k=Math.max(0,Math.min(1,this.blend));return {mode:this.dayNightMode,override:this.nightOverride,exteriorVisible:this.exteriorVisible,nightRenderersEnabled:view.nightRenderersEnabled,nightSkyBackdropsEnabled:k>0.02&&this.backdropVisible,nightRendererCount:this.nightRenderers.length,skyNightBlend:this.appliedBlend,uiBlend:k,lightScale:1+(0.35-1)*k};}
+  private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';const target=mode==='night'?1:0;let snap=!this.blendReady;try{if(reducedMotion())snap=true;}catch(e){void e;}if(snap||target===this.blend){this.blend=this.blendFrom=this.blendTo=target;this.blendT=1;}else{this.blendFrom=this.blend;this.blendTo=target;this.blendT=0;}this.blendReady=true;this.applyDayNight();return this.dayNightSnapshot();}
   private toggleDayNight(){return this.setDayNight(this.dayNightMode==='night'?'day':'night',true);}
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
   onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required

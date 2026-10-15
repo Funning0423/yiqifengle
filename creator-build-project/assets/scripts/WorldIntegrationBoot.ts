@@ -515,12 +515,15 @@ export class WorldIntegrationBoot extends Component {
   * T9 signpost mode: the transparent mainline hit area tracks the signpost projection, so it is NOT moved/scaled here;
   * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
   * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
- private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
-  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
-  this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
-  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
-  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
-  if(this.islandEntrance>=1){this.islandEntrance=-1;if(this.propSign)this.signEntrance=0;}
+ private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  const delay=.15,dur=.3;this.islandEntrance=Math.min(delay+dur,this.islandEntrance+Math.max(0,Math.min(dt,.1)));
+  const u=Math.max(0,Math.min(1,(this.islandEntrance-delay)/dur)),e=u*u*(3-2*u),dy=-12*(1-e);
+  const fade=(n:Node|null)=>{if(!n)return;try{const op=n.getComponent(UIOpacity)||n.addComponent(UIOpacity);if(op)op.opacity=Math.round(255*e);}catch(err){void err;}};
+  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(1,1,1);fade(mainline);}
+  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(1,1,1);fade(dock);}
+  this.setSign(e,12*(1-e));
+  if(this.islandEntrance>=delay+dur){this.islandEntrance=-1;this.signEntrance=-1;}
  }
  /** T9 + R3 (Mac r3: the board floated near the shore on the walk home, seen from behind, text mirrored): the signpost
   * (board, lamp + its light/glows, label, water shadow/ripples; IslandProps.setSignEntrance) exists ONLY in island-idle.
@@ -539,7 +542,7 @@ export class WorldIntegrationBoot extends Component {
    if(this.signOut<0){if(prev!=='island'){this.setSign(0,0);return;}this.signOut=1-Math.pow(1-this.signShown,1/3);}
    this.signOut=Math.max(0,this.signOut-Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signOut,3);this.setSign(e,24*(1-e));if(this.signOut<=0)this.signOut=-1;return;}
   this.signOut=-1;if(state!=='island')return;
-  if(this.islandEntrance>=0&&this.propSign){this.setSign(0,0);return;}
+  if(this.islandEntrance>=0)return;
   if(this.signEntrance<0&&this.signShown<1)this.signEntrance=1-Math.pow(1-this.signShown,1/3);
  }
  /** T9: drive the 3D props and, while the signpost is on screen, make the (invisible) mainline control its hit area. */
@@ -547,7 +550,10 @@ export class WorldIntegrationBoot extends Component {
   const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
-   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
+   const hold=this.islandEntrance>=0&&this.islandEntrance<.15;
+   const pose:any={exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible()&&!hold,width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined};
+   if(dn&&typeof dn.uiBlend==='number'&&isFinite(dn.uiBlend))pose.nightWeight=dn.uiBlend;
+   p.sync(pose);
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
@@ -562,7 +568,7 @@ export class WorldIntegrationBoot extends Component {
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
  for(const [k,n]of Array.from(this.controls)){n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);}
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,0,0);dock.setScale(1,1,1);try{const op=dock.getComponent(UIOpacity);if(op)op.opacity=255;}catch(e){void e;}}}this.gateSignEntrance(s.state,dt);
  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
@@ -572,7 +578,7 @@ export class WorldIntegrationBoot extends Component {
  if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}if(!s.hidden)board.setHostActions(actions);}
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
- this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
+ this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height,dt);
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
  }

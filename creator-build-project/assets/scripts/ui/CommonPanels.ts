@@ -47,8 +47,15 @@ export function openSettings(stack: PopupStack, opts: { onClose?: () => void; on
   p.toggle(230, rows[1], 56, !(audio?.isSfxMuted() ?? false), on => { GameAudio.instance?.setSfxMuted(!on); }, 'SfxToggle');
   iconRow(p, 'popup/icon_sun', '昼夜', rows[2]);
   const dn = dayNight();
-  const day = p.button('primary', '晴昼', 64, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.72, fontSize: 24, name: 'Day' });
-  const night = p.button('secondary', '夜色', 204, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.72, fontSize: 24, name: 'Night' });
+  const day = p.button('primary', '晴昼', 52, rows[2], 136, 62, () => pick('day'), { icon: 'popup/icon_sun', iconScale: 0.72, fontSize: 24, name: 'Day' });
+  const night = p.button('secondary', '夜色', 208, rows[2], 136, 62, () => pick('night'), { icon: 'popup/icon_moon', iconScale: 0.72, fontSize: 24, name: 'Night' });
+  // Visual face stays 62. The node hit box is 136×88 (44 pt at popupScale 0.5) and the centres are 156 apart.
+  for (const h of [day, night]) {
+    h.node.getComponent(UITransform)!.setContentSize(136, 88);
+    const face = h.node.getChildByName('Face')!;
+    face.setPosition(0, 0, 0);
+    face.getComponent(UITransform)!.setContentSize(136, 62);
+  }
   const paintSeg = (mode: string) => { day.setKind(mode === 'day' ? 'primary' : 'secondary'); night.setKind(mode === 'night' ? 'primary' : 'secondary'); };
   function pick(mode: string) { const now = dayNight(); if (!now) return; if (now.mode !== mode) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } const after = dayNight(); paintSeg(after ? after.mode : mode); }
   paintSeg(dn ? dn.mode : 'day'); if (!dn) { day.setEnabled(false); night.setEnabled(false); }
@@ -163,6 +170,7 @@ export function openBag(stack: PopupStack, journey: any, where: 'island' | 'leve
 export function openToolIntro(stack: PopupStack, kind: string, done?: () => void): PopupPanel | null {
   const lines = INTRO_TEXT[kind]; if (!lines) return null;
   const ph = 792, finish = () => { markToolSeen(SEEN_ID[kind] || kind); };
+  markToolSeen(SEEN_ID[kind] || kind);
   const p = stack.open({ name: 'ToolIntroPanel', height: ph, title: TOOL_NAMES[kind] || kind, titleArt: TITLE_ART[kind] || null, dy: -16, onClose: finish });
   const hy = 96 + 176;
   const rays = p.sprite('popup/fx_rays', 0, hy - 24, 440, 440, 'half'); spin(p, rays.node, 12);
