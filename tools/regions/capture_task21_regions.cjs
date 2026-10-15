@@ -56,6 +56,27 @@ async function main() {
   }
 }
 
+
+async function hideFlowTestBanner(page) {
+  await page.evaluate(async () => {
+    const { director, Director, Label } = await System.import('cc');
+    if (globalThis.__hideFlowTestBanner) return;
+    const hide = () => {
+      const scene = director.getScene();
+      if (!scene) return;
+      const mark = scene.getComponentsInChildren(Label).find((label) => {
+        const text = String(label.string);
+        return text.includes('独立测试') || text.includes('测试包');
+      });
+      const plate = mark && mark.node.parent;
+      if (plate && plate.isValid) plate.active = false;
+    };
+    director.on(Director.EVENT_BEFORE_DRAW, hide);
+    globalThis.__hideFlowTestBanner = true;
+    hide();
+  });
+}
+
 async function captureStage(page, checkpoint, fileName) {
   await tapNav(page, 'flowTests');
   await page.waitForTimeout(400);
@@ -68,6 +89,7 @@ async function captureStage(page, checkpoint, fileName) {
     const r = b?.background?.rendering;
     return b?.snapshot?.active?.stageId === id && b.background?.state === 'ready' && r?.renderer === 'region-live-3d' && r.region && r.visible === true;
   }, stageId, { timeout: 20000 });
+  if (checkpoint === 12) await hideFlowTestBanner(page);
   await page.waitForTimeout(1200);
   const background = await page.evaluate(() => __worldIntegration.board()?.background || null);
   const shot = path.join(OUT, fileName);

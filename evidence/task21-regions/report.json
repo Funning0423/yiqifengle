@@ -32,7 +32,7 @@
         "cameraPriority": 44,
         "layer": 1048576,
         "motion": {
-          "seconds": 2.0334000000059596,
+          "seconds": 2.0501999999880773,
           "paused": false,
           "windmillLoopSeconds": 8,
           "grassWaveSeconds": 4
@@ -41,7 +41,7 @@
       }
     },
     "shot": "evidence/task21-regions/meadow-board.png",
-    "sha256": "8c50b0673ddf70b6e79b28d16c23ebc416b86cd5df3f1966ed3844a32cc76a7f"
+    "sha256": "cb1945e367a98fd4e80fac8a05c9566d455c865ff4aea2854c879d6cb2c300ca"
   },
   "skycity": {
     "stageId": "mainline-12",
@@ -61,11 +61,9 @@
       }
     },
     "shot": "evidence/task21-regions/skycity-board.png",
-    "sha256": "ec8979a1d7552a49706ec64c25885d3031f12b097a084e666bb99acb97cc8e3a"
+    "sha256": "3d3cf071fab3f0a3fa03398197f3eb85573484f3ae3631787dcf4b4bb775a30e"
   },
-  "pageErrors": [
-    "Failed to load resource: net::ERR_CONNECTION_RESET"
-  ],
+  "pageErrors": [],
   "phoneAcceptance": false,
   "wechatAcceptance": false
 }
