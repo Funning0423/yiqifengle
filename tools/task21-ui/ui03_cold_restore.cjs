@@ -6,6 +6,14 @@ const path = require('node:path'), assert = require('node:assert/strict'), H = r
   const startedAt = new Date().toISOString();
   let context, page;
   const check = (name, data) => { checks.push({ name, pass: true, ...data }); console.log('PASS', name); };
+  const MARK = '独立测试进度 · 主线 08 最后一步 2行3列 ↔ 2行4列';
+  const assertMark = async (where) => {
+    const labels = (await H.nodes(page, { text: '独立测试进度' })).map(n => n.label);
+    assert(labels.some(l => l.includes(MARK)), where + ' banner ' + JSON.stringify(labels));
+    const marker = await page.evaluate(() => __worldIntegration.regionFlowTest());
+    assert.equal(marker.checkpoint, 8, where + ' checkpoint');
+    assert.deepEqual(marker.lastAction, ['swap', 9, 10], where + ' lastAction');
+  };
   const settle = async () => {
     await F.leaveHome(page);
     await H.nav(page, 'mainline');

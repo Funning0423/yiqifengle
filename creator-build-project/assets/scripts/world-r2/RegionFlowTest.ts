@@ -49,3 +49,22 @@ export function createRegionFlowCheckpoint(completed: number,pinnedRoot?:string)
  const stage=REGION_FLOW_WITNESSES[completed-1];
  return {namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:stage.actions[stage.actions.length-1],completed,pinned:!!pinnedRoot};
 }
+function sameActions(a:any,b:any){return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((step:any,i:number)=>Array.isArray(step)&&Array.isArray(b[i])&&step.length===b[i].length&&step.every((v:any,j:number)=>v===b[i][j]));}
+/** Banner checkpoint for a restarted pin. Journey `completed` is stages already won, so an in-progress mainline-08 has completed 7. The mark must name the stage on screen. `lastAction` returns only while that attempt is still the witness prefix. Read-only. */
+export function pinnedFlowMarker(mainline:{journeySnapshot:()=>any;createController:()=>any}){
+ const journey=mainline.journeySnapshot();
+ let completed=Number(journey?.completed)||0;
+ let lastAction:any=null;
+ try{
+  const active=mainline.createController().snapshot()?.active;
+  const match=active?.status==='playing'&&typeof active.stageId==='string'?/^mainline-(\d{2})$/.exec(active.stageId):null;
+  if(match){
+   const n=Number(match[1]);
+   if(n>=1&&n<=12)completed=n;
+   const witness=[4,8,12].includes(n)?REGION_FLOW_WITNESSES[n-1]:null;
+   const prefix=witness?.actions.slice(0,-1);
+   if(witness&&witness.stageId===active.stageId&&sameActions(active.actions,prefix))lastAction=witness.actions[witness.actions.length-1];
+  }
+ }catch{/* a damaged active record keeps the won-stage count */}
+ return {completed,lastAction};
+}

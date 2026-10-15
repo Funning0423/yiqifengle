@@ -2,7 +2,7 @@ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } f
 import { DEBUG } from 'cc/env';
 import { requiresMeadowScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
-import { createRegionFlowCheckpoint, openRegionFlowRoot, readTask21TestNamespace, task21TestRoot } from './RegionFlowTest';
+import { createRegionFlowCheckpoint, openRegionFlowRoot, pinnedFlowMarker, readTask21TestNamespace, task21TestRoot } from './RegionFlowTest';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -124,7 +124,8 @@ export class WorldNativeComposition extends Component {
     let root:any;try{const namespace=task21TestRoot(param);if(!namespace)return {ok:false,reason:'invalid-task21-test-namespace'};root=openRegionFlowRoot(namespace);}catch(e){return {ok:false,reason:String((e as Error).message)};}
     this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
     this.mainline=root.mainline;this.r4=root.r4;this.persistence=root.r5;this.pinnedRoot=root.namespace;
-    this.testProfile={namespace:root.namespace,completed:root.mainline.journeySnapshot().completed,lastAction:null,pinned:true};this.activeSession=null;this.hostReply=null;
+    const marker=pinnedFlowMarker(root.mainline);
+    this.testProfile={namespace:root.namespace,completed:marker.completed,lastAction:marker.lastAction,pinned:true};this.activeSession=null;this.hostReply=null;
     return {ok:true};
   }
   async startRegionFlowTest(checkpoint:number):Promise<Result>{

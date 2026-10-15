@@ -47,6 +47,8 @@ const gate = (g, region) => g.r5.find(x => x.region === region);
     assert.equal(m9.background.visible, true, 'mainline-09 visible=' + m9.background.visible + ' size=' + m9.background.width + 'x' + m9.background.height);
     assert(m9.background.width > 100 && m9.background.height > 100, 'mainline-09 picture size ' + m9.background.width + 'x' + m9.background.height);
     assert((await F.visiblePieces(page)) >= 20, 'mainline-09 board is not blank');
+    const banner09 = (await H.nodes(page, { text: '独立测试进度' })).map(n => n.label).join(' ');
+    assert(banner09.includes('主线 09'), 'mainline-09 banner ' + banner09);
     shots.mainline09 = await H.shot(page, 'ui-04-c-mainline09-moon-tree.png');
     check('next-leaves-meadow-3d-and-enters-mainline-09-sky-chapter', { board: m9, note: 'Mainline 09–12 are the 月影古树 chapter (stage region sky) on the island board picture. The sky-city 3D visit and the 天空回声 challenge board are separate gates, checked after checkpoint 12.' });
     await F.exitToIsland(page);

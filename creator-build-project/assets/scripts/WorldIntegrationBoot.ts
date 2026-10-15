@@ -583,7 +583,10 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  put('flowTests',testLayout.entry,outside);for(const r of testLayout.stages)put(r.id,r,outside&&this.flowTestMenu);
  put('flowTestExit',testLayout.exit,outside&&this.flowTestMenu&&!!test);
  if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
- this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(test.checkpoint).padStart(2,'0')+(b?.state==='run.ready'&&b?.active?.stageId==='mainline-'+String(test.checkpoint).padStart(2,'0')?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
+ const stageNum=typeof b?.active?.stageId==='string'?/^mainline-(\d{2})$/.exec(b.active.stageId):null;
+ const mark=stageNum?Number(stageNum[1]):(test?.checkpoint??0);
+ const onLast=!!(test&&stageNum&&b?.state==='run.ready'&&Number(stageNum[1])===test.checkpoint&&a);
+ this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(mark).padStart(2,'0')+(onLast?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
  const r=testLayout.mark,plate=this.flowTestMark.node.parent!;
  this.flowTestMark.node.getComponent(UITransform)!.setContentSize(r.width-12,r.height);this.flowTestMark.enableWrapText=true;this.flowTestMark.lineHeight=17;
  const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}plate.active=testLayout.supported;

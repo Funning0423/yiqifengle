@@ -1,0 +1,35 @@
+'use strict';
+// A restarted ?testNamespace pin must name the in-progress stage, not the count of stages already won.
+const assert = require('node:assert/strict'), {createHarness} = require('./harness.cjs');
+(async () => {
+  const H = createHarness({debug: true});
+  const C = H.load('world-r2/WorldNativeComposition').WorldNativeComposition;
+  const W = H.load('world-r2/RegionFlowWitnesses').REGION_FLOW_WITNESSES;
+  const island = () => ({commands: () => ({snapshot: () => ({state: 'island'}), enterLevel: async () => ({ok: true})})});
+  const param = 'task21-pin-marker';
+  const c = new C();
+  c.world = island();
+  assert.equal(c.pinTestRoot(param).ok, true);
+  assert.equal(c.regionFlowTestStatus().checkpoint, 0);
+  assert.equal(c.regionFlowTestStatus().lastAction, null);
+  assert.equal((await c.startRegionFlowTest(8)).ok, true);
+  const live = c.regionFlowTestStatus();
+  const witness = W[7];
+  assert.equal(witness.stageId, 'mainline-08');
+  assert.equal(live.checkpoint, 8);
+  assert.deepEqual(live.lastAction, witness.actions[witness.actions.length - 1]);
+  const storage = H.cc.sys.localStorage, write = storage.setItem.bind(storage);
+  let writes = 0;
+  storage.setItem = (k, v) => { writes++; return write(k, v); };
+  const c2 = new C();
+  c2.world = island();
+  const pinned = c2.pinTestRoot(param);
+  assert.equal(pinned.ok, true, pinned.reason);
+  assert.equal(writes, 0, 'pin restore writes nothing');
+  const restored = c2.regionFlowTestStatus();
+  assert.equal(restored.namespace, live.namespace);
+  assert.equal(restored.checkpoint, 8);
+  assert.deepEqual(restored.lastAction, ['swap', 9, 10]);
+  assert.equal(restored.pinned, true);
+  console.log(JSON.stringify({status: 'PASS', checkpoint: restored.checkpoint, lastAction: restored.lastAction, writes}));
+})().catch(e => { console.error(e); process.exitCode = 1; });

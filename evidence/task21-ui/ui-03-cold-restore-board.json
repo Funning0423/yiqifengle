@@ -2,13 +2,13 @@
   "id": "UI-03",
   "status": "PASS",
   "layer": "网页集成 (Mac headless Chrome for Testing, Cocos web-desktop debug build)",
-  "runId": "a8e35ad032224802",
-  "startedAt": "2026-10-15T10:17:35.840Z",
-  "finishedAt": "2026-10-15T10:20:38.920Z",
+  "runId": "4487b43b00e54de9",
+  "startedAt": "2026-10-15T10:37:49.095Z",
+  "finishedAt": "2026-10-15T10:39:31.642Z",
   "build": {
     "url": "http://127.0.0.1:8781/",
     "buildDir": "creator-build-project/build/web-task21-ui",
-    "sourceCommit": "cee532c295e03b09301fc2808c4241f55257ddae",
+    "sourceCommit": "6344f3915dd705106a9f066af4db72329946fcd4",
     "files": [
       {
         "file": "index.html",
@@ -28,8 +28,8 @@
       "sha256": "a474199f4a92b4df51060fb8e46d93a14b8f06cc3e911c718b22006abbebf82f"
     }
   },
-  "namespace": "dot-region-flow-test-task21-web-ui03-a8e35ad032224802:",
-  "profile": "output/task21-ui/profile-ui03-a8e35ad032224802",
+  "namespace": "dot-region-flow-test-task21-web-ui03-4487b43b00e54de9:",
+  "profile": "output/task21-ui/profile-ui03-4487b43b00e54de9",
   "route": "地区流程测试 08 · 最后一步 → 继续 → meadow board → reload → 继续旅程 → close browser → relaunch → 继续旅程",
   "checks": [
     {
@@ -75,7 +75,7 @@
             "cameraPriority": 44,
             "layer": 1048576,
             "motion": {
-              "seconds": 2.183699999988078,
+              "seconds": 1.6493000000119205,
               "paused": false,
               "windmillLoopSeconds": 8,
               "grassWaveSeconds": 4
@@ -1398,42 +1398,50 @@
   "screenshots": {
     "before": {
       "file": "evidence/task21-ui/ui-03-a-meadow-board-before-close.png",
-      "sha256": "46c4ca1629e20b44431e534b2497d10518031643de518269d30c522d7dbf6f71"
+      "sha256": "9d9587250a3501443cf1f1d95ebe4a2185c13780be1ef5b9c78c80bee7c355a6"
     },
     "warm": {
       "file": "evidence/task21-ui/ui-03-b-warm-reload-meadow-board.png",
-      "sha256": "e834acaeddb0434746734a45afe79b9e0587fe7a0986bf58cfd853580b2e71a5"
+      "sha256": "1d9f318d5de9088255c2943712b142eed9dd4e7159d730412f56b2d35bd7e95e"
     },
     "cold": {
       "file": "evidence/task21-ui/ui-03-c-cold-restart-meadow-board.png",
-      "sha256": "f0ccf3a65aea67fb62c1823aa5a83e1bfc3dac64d9c1b23447158561df025e17"
+      "sha256": "456ac60cdbc56b9515cac41a187101f028c47c353c35dc8bb995448d2806a8ce"
     }
   },
   "errors": [],
   "logs": [
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:19:38.963Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1730,\"rawSeconds\":31.94463333334514,\"appliedSeconds\":30.783033333321303,\"maxDt\":0.9548000000119"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:38:49.462Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1253,\"rawSeconds\":21.796700000017843,\"appliedSeconds\":21.057400000005916,\"maxDt\":0.5028000000119209,\"lastTickUtc\""
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:19:39.709Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1763,\"rawSeconds\":32.72713333334516,\"appliedSeconds\":31.565533333321305,\"maxDt\":0.9548000000119209,\"lastTickUtc\""
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:38:52.574Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1439,\"rawSeconds\":24.89640000000592,\"appliedSeconds\":24.157099999993992,\"maxDt\":0.5028000000119209,\"lastTickU"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:loading\",\"utc\":\"2026-10-15T10:19:55.184Z\",\"world\":{\"state\":\"loading\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"cam"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:38:53.478Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1480,\"rawSeconds\":25.796300000011872,\"appliedSeconds\":24.965499999999945,\"maxDt\":0.502800000011"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:19:55.536Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:38:54.253Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1526,\"rawSeconds\":26.579600000023802,\"appliedSeconds\":25.748800000011876,\"maxDt\":0.5028000000119209,\"lastTickUtc"
     },
     {
       "type": "info",
-      "text": "TASK21_TEST_NAMESPACE {\"namespace\":\"dot-region-flow-test-task21-web-ui03-a8e35ad032224802:\",\"checkpoint\":7,\"lastAction\":null,\"pinned\":true}"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:loading\",\"utc\":\"2026-10-15T10:39:02.194Z\",\"world\":{\"state\":\"loading\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"cam"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:19:55.539Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{\""
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:39:02.291Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{"
+    },
+    {
+      "type": "info",
+      "text": "TASK21_TEST_NAMESPACE {\"namespace\":\"dot-region-flow-test-task21-web-ui03-4487b43b00e54de9:\",\"checkpoint\":8,\"lastAction\":[\"swap\",9,10],\"pinned\":true}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:39:02.304Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{\""
     },
     {
       "type": "info",
@@ -1441,55 +1449,47 @@
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:00.553Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":21,\"rawSeconds\":0.6315333333214125,\"appliedSeconds\":0.513233333339294,\"maxDt\":0.2182999999821186,\"lastTickUtc\":\"2026-10-1"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:standing\",\"utc\":\"2026-10-15T10:39:03.169Z\",\"world\":{\"state\":\"standing\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":2,\"rawSeconds\":1.2494999999999998,\"appliedSeconds\":0.2,\"maxDt\":0.6448999999761581,\"lastTickUtc\":\"2026-10-15"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:standing\",\"utc\":\"2026-10-15T10:20:02.834Z\",\"world\":{\"state\":\"standing\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":154,\"rawSeconds\":2.899433333327373,\"appliedSeconds\":2.7811333333452537,\"maxDt\":0.2182999999821186,\"lastTick"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:turning-out\",\"utc\":\"2026-10-15T10:39:04.445Z\",\"world\":{\"state\":\"turning-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":79,\"rawSeconds\":2.5318999999761576,\"appliedSeconds\":1.4823999999761575,\"maxDt\":0.6448999999761581,\"la"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:turning-out\",\"utc\":\"2026-10-15T10:20:04.106Z\",\"world\":{\"state\":\"turning-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":229,\"rawSeconds\":4.181433333327371,\"appliedSeconds\":4.063133333345252,\"maxDt\":0.2182999999821186,\"las"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:walking-out\",\"utc\":\"2026-10-15T10:39:05.946Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":169,\"rawSeconds\":4.032499999999999,\"appliedSeconds\":2.9829999999999983,\"maxDt\":0.6448999999761581,\"la"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:walking-out\",\"utc\":\"2026-10-15T10:20:05.607Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":317,\"rawSeconds\":5.681933333327369,\"appliedSeconds\":5.56363333334525,\"maxDt\":0.2182999999821186,\"last"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:39:10.961Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":470,\"rawSeconds\":9.049099999994027,\"appliedSeconds\":7.999599999994026,\"maxDt\":0.6448999999761581,\"lastTickUtc\":\"20"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:10.621Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":602,\"rawSeconds\":10.697933333327367,\"appliedSeconds\":10.57963333334525,\"maxDt\":0.2182999999821186,\"lastTickUtc\":\"2"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:opening-door\",\"utc\":\"2026-10-15T10:39:11.945Z\",\"world\":{\"state\":\"opening-door\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":529,\"rawSeconds\":10.03249999999999,\"appliedSeconds\":8.98299999999999,\"maxDt\":0.6448999999761581,\"la"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:opening-door\",\"utc\":\"2026-10-15T10:20:11.607Z\",\"world\":{\"state\":\"opening-door\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":661,\"rawSeconds\":11.682533333321413,\"appliedSeconds\":11.564233333339295,\"maxDt\":0.2182999999821186,"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:crossing-out\",\"utc\":\"2026-10-15T10:39:13.948Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":648,\"rawSeconds\":12.032499999999986,\"appliedSeconds\":10.982999999999986,\"maxDt\":0.6448999999761581,"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:crossing-out\",\"utc\":\"2026-10-15T10:20:13.890Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":776,\"rawSeconds\":13.965933333327383,\"appliedSeconds\":13.576933333327384,\"maxDt\":0.3707000000178814,"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:39:18.960Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":949,\"rawSeconds\":17.04809999999403,\"appliedSeconds\":15.998599999994026,\"maxDt\":0.6448999999761581,\"lastTickUtc\":\""
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:18.905Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1066,\"rawSeconds\":18.97863333331543,\"appliedSeconds\":18.589633333315437,\"maxDt\":0.3707000000178814,\"lastTickUtc\":"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:39:23.961Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1249,\"rawSeconds\":22.049099999994002,\"appliedSeconds\":20.999599999994,\"maxDt\":0.6448999999761581,\"lastTickUtc\":\"2"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:23.921Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1329,\"rawSeconds\":24.000533333321332,\"appliedSeconds\":23.61153333332134,\"maxDt\":0.3707000000178814,\"lastTickUtc\":"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:39:27.114Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1436,\"rawSeconds\":25.16479999998207,\"appliedSeconds\":24.115299999982067,\"maxDt\":0.6448999999761581,\"lastTickU"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:20:27.057Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1512,\"rawSeconds\":27.097033333321296,\"appliedSeconds\":26.708033333321303,\"maxDt\":0.3707000000178814,\"lastTick"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:39:28.249Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1475,\"rawSeconds\":26.29849999999995,\"appliedSeconds\":24.93709999999399,\"maxDt\":0.64489999997615"
     },
     {
       "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:20:31.038Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1609,\"rawSeconds\":29.977300000011798,\"appliedSeconds\":28.62220000001777,\"maxDt\":0.9161999999880"
-    },
-    {
-      "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:20:32.061Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1654,\"rawSeconds\":31.028699999987946,\"appliedSeconds\":29.673599999993918,\"maxDt\":0.9161999999880791,\"lastTickUtc"
-    },
-    {
-      "type": "info",
-      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:37.068Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1912,\"rawSeconds\":36.09480000001193,\"appliedSeconds\":34.108800000011904,\"maxDt\":0.9161999999880791,\"lastTickUtc\":\"2026-"
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:39:29.003Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1518,\"rawSeconds\":27.081399999976117,\"appliedSeconds\":25.719999999970156,\"maxDt\":0.6448999999761581,\"lastTickUtc"
     }
   ],
   "limitations": [
