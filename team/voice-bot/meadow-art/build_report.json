@@ -1,0 +1,38 @@
+{
+ "sails_verts": [
+  192,
+  520
+ ],
+ "windmill_static_verts": [
+  492,
+  532
+ ],
+ "base_bottom_minus_ground_m": [
+  [
+   "door_step",
+   -0.06000005722045909
+  ],
+  [
+   "door_stone_0",
+   -0.06999999999999999
+  ],
+  [
+   "door_stone_1",
+   -0.06999999999999999
+  ],
+  [
+   "door_stone_2",
+   -0.06999999999999999
+  ],
+  [
+   "door_stone_3",
+   -0.06999999999999999
+  ]
+ ],
+ "path": {
+  "verts": 921,
+  "clearance_m_min": 0.035,
+  "edge_stones": 32,
+  "stone_bottom_minus_lowest_ground_max_m": -0.06
+ }
+}
