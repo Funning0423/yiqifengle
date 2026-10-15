@@ -4,16 +4,13 @@ import { spanCameraKeys } from './WorldFlowCore';
 import type { RouteConfig } from './WorldFlowCore';
 /** Manual dolly along the outbound exit arc, only after that arc has already settled.
  * u = 1 is cameraIsland (the settled wide shot, never higher). u = 0 is span progress
- * ISLAND_PULL_NEAR: the nearest pose that still keeps the seaward signpost (the shallows
- * in front of the beach) a couple of metres in front of the lens. The arc faces −Z, so a
- * closer stop walks past that post and the board falls behind the camera. The lighthouse
- * body and door stay framed in a phone portrait (~402/874) only as far as that post
- * allows; the lamp may crop, and the lens does not enter the tower or the leaning palm.
- * Finger down (dy < 0) and pinch apart (scale > 1) move toward the close-up, which is
- * also lower. The doorway-speed landing sags a few centimetres; the pull uses a
- * non-decreasing height of this suffix so that sag cannot fail startup or rise above the
- * settled wide shot. Exit-arc generation, door angles and pace are not touched. */
-export const ISLAND_PULL_NEAR = 0.56;
+ * ISLAND_PULL_NEAR: the nearest pose that still frames the lighthouse body and the door
+ * in a phone portrait (~402/874) without entering the tower or the leaning palm.
+ * The lamp may crop. Finger down (dy < 0) and pinch apart (scale > 1) move toward the
+ * close-up, which is also lower. The doorway-speed landing sags a few centimetres; the
+ * pull uses a non-decreasing height of this suffix so that sag cannot fail startup or
+ * rise above the settled wide shot. Exit-arc generation, door angles and pace are not touched. */
+export const ISLAND_PULL_NEAR = 0.46;
 const DRAG_PER_SCREEN = 1.25;
 const PINCH_GAIN = 0.85;
 /** Non-decreasing height along span progress. Knots before the near pose are ignored.

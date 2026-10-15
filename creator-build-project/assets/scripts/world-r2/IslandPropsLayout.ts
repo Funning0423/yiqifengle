@@ -5,7 +5,10 @@
  * only other material is the signpost lamp's own M_signpost_lamp (day). No textures, no new fonts.
  *
  * World props (fixed in the island's world space, Cocos metres, +Y up, island scene_root is identity):
- *   - ui_signpost "继续旅程" in the shallows in front of the beach, bottom-right of the portrait island view.
+ *   - ui_signpost "继续旅程" in the water just west of the lighthouse, seaward of the house front.
+ *     The close pull (u = 0) looks inland from the shore, so the old front-right post (z = 18.8)
+ *     sat behind that lens. This spot keeps the whole board in front of that lens and inside
+ *     both a 0.46 and a 0.75 frame, clear of the door.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
@@ -33,7 +36,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-1.2, -1.15, 18.8] as V3, yawDeg: -21, scale: 2.3,
+    prefab: 'ui_signpost', position: [-4.4, -1.15, 1.5] as V3, yawDeg: -55, scale: 2.3,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
@@ -98,9 +101,8 @@ export type PropButtonSlot = { role: PropRole; prop: { x: number; bottom: number
 export function propButtonLayout(width: number, height: number): { portrait: boolean; slots: PropButtonSlot[] } {
   if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) throw Error('Invalid prop frame');
   const portrait = width < height, row = portrait || width < 568;
-  // 9% of the screen height on a phone row. The nearest pull keeps the signpost in front of the
-  // lens, so the satchel is farther away than the old landward stop; at 402×874 it still projects wider than 120 px.
-  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.09 : height * 0.12)));
+  // 8% of the screen height on a phone row: at 402×874 the pulled-in satchel projects wider than 120 px.
+  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.08 : height * 0.12)));
   const font = Math.max(12, Math.min(15, Math.round(propH * 0.22)));
   const tagH = font + 12;
   const slots = PROP_ROLES.map((role, i) => {
@@ -265,16 +267,22 @@ export function signpostRectUi(pose: CameraPose, width: number, height: number):
 }
 /** Minimum mainline (signpost) touch target, logical px. */
 export const SIGN_HIT_MIN = 88;
-/** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth is placed (centred first, then
- * shifted while still covering the whole sign) so it stays inside an 8 px safe inset and off the bottom-row prop hits. */
+/** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth stays over the whole sign,
+ * inside an 8 px safe inset and off the bottom-row prop hits. Among those, the rect furthest from the screen
+ * centre is used, so a board on the side of the wide shot does not swell across the heroine. */
 export function signpostHitUi(pose: CameraPose, width: number, height: number): Rect | null {
   const r = signpostRectUi(pose, width, height); if (!r) return null;
   const w = Math.max(SIGN_HIT_MIN, r.width), h = Math.max(SIGN_HIT_MIN, r.height), ex = (w - r.width) / 2, ey = (h - r.height) / 2;
   const slots = propButtonLayout(width, height).slots.map(s => s.hit), inset = 8;
   const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - inset && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
     && slots.every(b => !(Math.abs(c.x - b.x) < (c.width + b.width) / 2 && Math.abs(c.y - b.y) < (c.height + b.height) / 2));
-  for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
-  return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
+  let best: Rect | null = null;
+  for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) {
+    const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h };
+    if (!clear(c)) continue;
+    if (!best || Math.abs(c.x) > Math.abs(best.x)) best = c;
+  }
+  return best || { x: r.x, y: r.y, width: w, height: h };
 }
 
 /* ---------- T9n night look (engine-free) ---------- */

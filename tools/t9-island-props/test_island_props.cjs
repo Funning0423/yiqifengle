@@ -27,24 +27,16 @@ ok('screen props stand on the sea under their anchor at the runtime island camer
     const top=C.projectPoint(pose,w/h,[a.point[0],a.point[1]+P.buttons[s.role].heightM*a.scale,a.point[2]]);assert(Math.abs((top.y-q.y)/2*h-s.prop.height)<s.prop.height*.05,'pixel height');
     assert(a.scale>.3&&a.scale<6,'scale '+a.scale);}
 });
-ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the portrait width), hugs the front-right shore (posts in shallow water just below the waterline, panel overlaps sand <= 30 %), inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
+ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2), in the west water beside the house, inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3),S=P.signpost;
   assert(S.scale>=1.2*1.8,'scale '+S.scale+' vs 1653f02 1.2');
   for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,8),'sign inside safe inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'sign vs '+s.role+' '+w+'x'+h);
     const g=L.projectRectUi(pose,w,h,girl);assert(!overlap(r,g),'sign covers girl '+w+'x'+h);}
-  // hugs the shore: the posts stand in front of (below on screen) the waterline of the front-right beach and the base is at
-  // most 0.9 sign-heights below it on screen (world: <= 2.2 sign-heights off the waterline, i.e. the shallow band, not open
-  // sea); the panel may overlap the sand behind it by at most 30 % of its height (1653f02: 55 %, tightened since the sign
-  // doubled: only the lamp hook may reach the sand line, the beach stays readable)
-  const SHORE_Z=10.7; // measured: island ground crosses sea level (-0.92) at z ~ 10.6-10.7 for x = 1..3 (front-right beach)
-  const hM=(S.boxMax[1]-S.boxMin[1])*S.scale;
-  assert(S.position[2]>SHORE_Z+0.5&&S.position[2]<SHORE_Z+2.2*hM,'sign within the shallow band off the waterline: z='+S.position[2]);
-  for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h),shore=C.projectPoint(pose,w/h,[S.position[0],P.seaY,SHORE_Z]),shoreUi=shore.y*h/2;
-    const bottom=r.y-r.height/2,top=r.y+r.height/2;assert(bottom<shoreUi,'posts below the waterline on screen '+w+'x'+h);
-    assert((shoreUi-bottom)/r.height<=.9,'posts too far from the shore '+((shoreUi-bottom)/r.height).toFixed(2)+' '+w+'x'+h);
-    assert((top-shoreUi)/r.height<=.30,'panel overlaps the beach by '+((top-shoreUi)/r.height).toFixed(2)+' '+w+'x'+h);}
-  const r=L.signpostRectUi(pose,390,844);assert(.5+r.x/390>.55,'sign on the right half');assert(r.width/390>=.40,'portrait width fraction '+(r.width/390).toFixed(2));
+  // West of the lighthouse mesh (x >= -2.70) and just seaward of the house front (z <= 0.89). The old
+  // front-right shallows at z = 18.8 sit behind the closest pull, which looks inland from the shore.
+  assert(S.position[0]<-2.7&&S.position[2]>0.9&&S.position[2]<4,'sign in the west water beside the house: '+S.position);
+  const r=L.signpostRectUi(pose,390,844);assert(r.width/390>=.20,'portrait width fraction '+(r.width/390).toFixed(2));
   const base=C.projectPoint(pose,390/844,S.position);assert(base.depth>20);
 });
 ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
@@ -311,7 +303,20 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
     }
     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
     assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
-    assert.deepEqual(P.signpost.position,[-1.2,-1.15,18.8]);
+    assert.deepEqual(P.signpost.position,[-4.4,-1.15,1.5]);
+  }
+  rail.restore(0);const close=rail.pose();
+  const aabb=(b)=>{const o=[];for(const x of [b[0][0],b[1][0]])for(const y of [b[0][1],b[1][1]])for(const z of [b[0][2],b[1][2]])o.push([x,y,z]);return o;};
+  const doorPts=aabb([[-0.716,0.01,-0.056],[0.752,2.397,0.137]]),lightPts=aabb([[-2.698,-0.15,-5.349],[4.883,8.934,0.889]]);
+  const yaw=P.signpost.yawDeg*Math.PI/180,c=Math.cos(yaw),s=Math.sin(yaw),sc=P.signpost.scale,cam=close.position,sp=P.signpost.position;
+  const lx=(cam[0]-sp[0])/sc*c-(cam[2]-sp[2])/sc*s,ly=(cam[1]-sp[1])/sc,lz=(cam[0]-sp[0])/sc*s+(cam[2]-sp[2])/sc*c;
+  const cx=Math.max(P.signpost.boxMin[0],Math.min(P.signpost.boxMax[0],lx)),cy=Math.max(P.signpost.boxMin[1],Math.min(P.signpost.boxMax[1],ly)),cz=Math.max(P.signpost.boxMin[2],Math.min(P.signpost.boxMax[2],lz));
+  const nearest=Math.hypot(cam[0]-(sp[0]+sc*(cx*c+cz*s)),cam[1]-(sp[1]+sc*cy),cam[2]-(sp[2]+sc*(-cx*s+cz*c)));
+  assert(nearest>=1.7,'nearest sign point is '+nearest.toFixed(2)+' m from the close camera');
+  for(const [w,h] of [[402,874],[600,800]]){
+    const r=L.signpostRectUi(close,w,h);assert(r&&inside(r,w,h,2),'close sign fully inside '+w+'x'+h+' '+(r&&JSON.stringify(r)));
+    assert(!overlap(r,L.projectRectUi(close,w,h,doorPts)),'sign rect overlaps the door '+w+'x'+h);
+    assert(!overlap(r,L.projectRectUi(close,w,h,lightPts)),'sign rect overlaps the lighthouse '+w+'x'+h);
   }
   const overlay=fs.readFileSync(path.join(SRC,'world-r2/IslandJourneyOverlay.ts'),'utf8');
   const propsSrc=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
