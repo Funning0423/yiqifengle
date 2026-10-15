@@ -1,0 +1,1058 @@
+{
+  "id": "UI-02",
+  "status": "PASS",
+  "layer": "网页集成 (Mac headless Chromium, Cocos web-desktop debug build)",
+  "runId": "bf01c0a7942842f7",
+  "startedAt": "2026-10-15T09:12:35.415Z",
+  "finishedAt": "2026-10-15T09:14:34.451Z",
+  "build": {
+    "url": "http://127.0.0.1:8781/",
+    "buildDir": "creator-build-project/build/web-task21-ui",
+    "sourceCommit": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+    "files": [
+      {
+        "file": "index.html",
+        "sha256": "a44e4cb24bcd8f3eba68509c0f1025f54ac9443ade3e899a66b5e6fb8492be1f"
+      },
+      {
+        "file": "index.js",
+        "sha256": "3f45e362e55d72cf38698a6824c4750f86b1793e41f5c94dab5bf2e67752964b"
+      },
+      {
+        "file": "application.js",
+        "sha256": "3876486e03ffd49f5cb8bce6d5a23b7ec392a533487229483a3b2429530093f2"
+      }
+    ],
+    "settings": {
+      "file": "src/settings.json",
+      "sha256": "a474199f4a92b4df51060fb8e46d93a14b8f06cc3e911c718b22006abbebf82f"
+    }
+  },
+  "namespace": "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:",
+  "profile": "output/task21-ui/profile-ui02-bf01c0a7942842f7",
+  "route": "home → 地区流程测试 → 04 · 最后一步 → 继续 → real swap 23↔30 → 下一关 → mainline-05 (meadow) → 回到小岛 → reload → 继续旅程 → close browser → relaunch → 继续旅程",
+  "checks": [
+    {
+      "name": "task21-root-pinned-and-empty",
+      "pass": true,
+      "pinned": {
+        "namespace": "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:",
+        "checkpoint": 0,
+        "lastAction": null,
+        "pinned": true
+      }
+    },
+    {
+      "name": "checkpoint-04-last-step-tide-still-locked",
+      "pass": true,
+      "entry": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-04",
+        "level": 3,
+        "attemptId": "mla-000000000004",
+        "moves": 23,
+        "score": 720,
+        "status": "playing",
+        "completionRecorded": false,
+        "stars": null,
+        "nextStageId": null,
+        "journeyCompleted": 3,
+        "actions": 5,
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-04",
+          "rendering": {
+            "renderer": "board-ui-static-picture",
+            "bundle": "region_island",
+            "path": "board/bg_island_board",
+            "chapter": "",
+            "provider": "mainline",
+            "stageId": "mainline-04",
+            "visible": true,
+            "night": 0,
+            "size": {
+              "width": 403.6330049261084,
+              "height": 874.0000000000001
+            },
+            "dynamicTextureUploads": 0
+          }
+        },
+        "tutorialsDismissed": [
+          "ToolIntroPanel"
+        ]
+      },
+      "gates": {
+        "r5": [
+          {
+            "region": "tide",
+            "id": "r05-tide-01",
+            "ok": false,
+            "reason": "stage-locked"
+          },
+          {
+            "region": "meadow",
+            "id": "r05-meadow-01",
+            "ok": false,
+            "reason": "stage-locked"
+          },
+          {
+            "region": "sky",
+            "id": "r05-sky-01",
+            "ok": false,
+            "reason": "stage-locked"
+          }
+        ],
+        "r4": [
+          {
+            "id": "tide-c01-001",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-012",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-001",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-012",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-001",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-012",
+            "unlocked": false
+          }
+        ],
+        "challenges": {
+          "tide": 0,
+          "meadow": 0,
+          "sky": 0
+        }
+      }
+    },
+    {
+      "name": "mainline-04-win-registers-unlocks-05-and-tide-challenge",
+      "pass": true,
+      "lastAction": [
+        "swap",
+        23,
+        30
+      ],
+      "result": {
+        "state": "result.saved",
+        "provider": "mainline-v33",
+        "stageId": "mainline-04",
+        "level": 3,
+        "attemptId": "mla-000000000004",
+        "moves": 22,
+        "score": 1130,
+        "status": "won",
+        "completionRecorded": true,
+        "stars": 3,
+        "nextStageId": "mainline-05",
+        "journeyCompleted": 4,
+        "actions": 6,
+        "popups": [
+          "ResultPanel"
+        ],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-04",
+          "rendering": {
+            "renderer": "board-ui-static-picture",
+            "bundle": "region_island",
+            "path": "board/bg_island_board",
+            "chapter": "",
+            "provider": "mainline",
+            "stageId": "mainline-04",
+            "visible": true,
+            "night": 0,
+            "size": {
+              "width": 403.6330049261084,
+              "height": 874.0000000000001
+            },
+            "dynamicTextureUploads": 0
+          }
+        }
+      },
+      "hint": "主线 05 与潮汐挑战已开放；前往风车草甸",
+      "gates": {
+        "r5": [
+          {
+            "region": "tide",
+            "id": "r05-tide-01",
+            "ok": true,
+            "reason": null
+          },
+          {
+            "region": "meadow",
+            "id": "r05-meadow-01",
+            "ok": false,
+            "reason": "stage-locked"
+          },
+          {
+            "region": "sky",
+            "id": "r05-sky-01",
+            "ok": false,
+            "reason": "stage-locked"
+          }
+        ],
+        "r4": [
+          {
+            "id": "tide-c01-001",
+            "unlocked": true
+          },
+          {
+            "id": "tide-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "tide-c01-012",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-001",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "meadow-c01-012",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-001",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-002",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-003",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-004",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-005",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-006",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-007",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-008",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-009",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-010",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-011",
+            "unlocked": false
+          },
+          {
+            "id": "sky-c01-012",
+            "unlocked": false
+          }
+        ],
+        "challenges": {
+          "tide": 0,
+          "meadow": 0,
+          "sky": 0
+        }
+      },
+      "note": "R5 meadow challenge (r05-meadow-01) stays locked until mainline 08 by design (progress-journal isUnlocked: journey.records[region*4+3])."
+    },
+    {
+      "name": "next-enters-mainline-05-on-meadow-scene-and-persists",
+      "pass": true,
+      "board": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-05",
+        "level": 4,
+        "attemptId": "mla-000000000005",
+        "moves": 31,
+        "score": 0,
+        "status": "playing",
+        "completionRecorded": false,
+        "stars": null,
+        "nextStageId": null,
+        "journeyCompleted": 4,
+        "actions": 0,
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-05",
+          "rendering": {
+            "renderer": "region-live-3d",
+            "region": "meadow",
+            "bundle": "region_meadow",
+            "prefabName": "env_meadow",
+            "source": {
+              "version": "v0.8.0",
+              "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+              "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+              "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+              "windmillSeconds": 8,
+              "windPeriodSeconds": 4,
+              "nodeCount": 67,
+              "meshCount": 23,
+              "grassInstances": 1000,
+              "flowerInstances": 150
+            },
+            "visible": true,
+            "paused": false,
+            "cameraPriority": 44,
+            "layer": 1048576,
+            "motion": {
+              "seconds": 1.5001999999880786,
+              "paused": false,
+              "windmillLoopSeconds": 8,
+              "grassWaveSeconds": 4
+            },
+            "dynamicTextureUploads": 0
+          }
+        }
+      },
+      "storedActiveStage": "mainline-05",
+      "storageKeys": [
+        "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:mainline:forest-v33-journey",
+        "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:mainline:forest-v3-completed",
+        "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:mainline:forest-mainline-cocos-r1-active",
+        "dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:mainline:forest-v3-progress"
+      ],
+      "activeBeforeNext": "mainline-04"
+    },
+    {
+      "name": "exit-to-island-keeps-progress",
+      "pass": true,
+      "mainline": {
+        "completed": 4,
+        "nextStageId": null,
+        "active": {
+          "stageId": "mainline-05",
+          "status": "playing",
+          "attemptId": "mla-000000000005",
+          "moves": 31
+        },
+        "unlocked": [
+          "mainline-01",
+          "mainline-02",
+          "mainline-03",
+          "mainline-04",
+          "mainline-05"
+        ],
+        "inventory": {
+          "tools": {
+            "windBell": 0,
+            "tideBottle": 0,
+            "tideNet": 0,
+            "sunSeed": 0,
+            "starShears": 0
+          },
+          "charms": []
+        },
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": false
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "warm-reload-reenters-mainline-05-meadow",
+      "pass": true,
+      "mainline": {
+        "completed": 4,
+        "nextStageId": null,
+        "active": {
+          "stageId": "mainline-05",
+          "status": "playing",
+          "attemptId": "mla-000000000005",
+          "moves": 31
+        },
+        "unlocked": [
+          "mainline-01",
+          "mainline-02",
+          "mainline-03",
+          "mainline-04",
+          "mainline-05"
+        ],
+        "inventory": {
+          "tools": {
+            "windBell": 0,
+            "tideBottle": 0,
+            "tideNet": 0,
+            "sunSeed": 0,
+            "starShears": 0
+          },
+          "charms": []
+        },
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": false
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      },
+      "board": {
+        "state": "run.paused",
+        "provider": "mainline-v33",
+        "stageId": "mainline-05",
+        "level": 4,
+        "attemptId": "mla-000000000005",
+        "moves": 31,
+        "score": 0,
+        "status": "playing",
+        "completionRecorded": false,
+        "stars": null,
+        "nextStageId": null,
+        "journeyCompleted": 4,
+        "actions": 0,
+        "popups": [
+          "PausePanel"
+        ],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-05",
+          "rendering": {
+            "renderer": "region-live-3d",
+            "region": "meadow",
+            "bundle": "region_meadow",
+            "prefabName": "env_meadow",
+            "source": {
+              "version": "v0.8.0",
+              "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+              "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+              "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+              "windmillSeconds": 8,
+              "windPeriodSeconds": 4,
+              "nodeCount": 67,
+              "meshCount": 23,
+              "grassInstances": 1000,
+              "flowerInstances": 150
+            },
+            "visible": true,
+            "paused": true,
+            "cameraPriority": 44,
+            "layer": 1048576,
+            "motion": {
+              "seconds": 0,
+              "paused": true,
+              "windmillLoopSeconds": 8,
+              "grassWaveSeconds": 4
+            },
+            "dynamicTextureUploads": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "cold-restart-restores-unlock-and-reenters-same-mainline-05-attempt",
+      "pass": true,
+      "mainline": {
+        "completed": 4,
+        "nextStageId": null,
+        "active": {
+          "stageId": "mainline-05",
+          "status": "playing",
+          "attemptId": "mla-000000000005",
+          "moves": 31
+        },
+        "unlocked": [
+          "mainline-01",
+          "mainline-02",
+          "mainline-03",
+          "mainline-04",
+          "mainline-05"
+        ],
+        "inventory": {
+          "tools": {
+            "windBell": 0,
+            "tideBottle": 0,
+            "tideNet": 0,
+            "sunSeed": 0,
+            "starShears": 0
+          },
+          "charms": []
+        },
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": false
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gates": [
+        [
+          "tide",
+          true
+        ],
+        [
+          "meadow",
+          false
+        ],
+        [
+          "sky",
+          false
+        ]
+      ],
+      "board": {
+        "state": "run.paused",
+        "provider": "mainline-v33",
+        "stageId": "mainline-05",
+        "level": 4,
+        "attemptId": "mla-000000000005",
+        "moves": 31,
+        "score": 0,
+        "status": "playing",
+        "completionRecorded": false,
+        "stars": null,
+        "nextStageId": null,
+        "journeyCompleted": 4,
+        "actions": 0,
+        "popups": [
+          "PausePanel"
+        ],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-05",
+          "rendering": {
+            "renderer": "region-live-3d",
+            "region": "meadow",
+            "bundle": "region_meadow",
+            "prefabName": "env_meadow",
+            "source": {
+              "version": "v0.8.0",
+              "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+              "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+              "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+              "windmillSeconds": 8,
+              "windPeriodSeconds": 4,
+              "nodeCount": 67,
+              "meshCount": 23,
+              "grassInstances": 1000,
+              "flowerInstances": 150
+            },
+            "visible": true,
+            "paused": true,
+            "cameraPriority": 44,
+            "layer": 1048576,
+            "motion": {
+              "seconds": 0,
+              "paused": true,
+              "windmillLoopSeconds": 8,
+              "grassWaveSeconds": 4
+            },
+            "dynamicTextureUploads": 0
+          }
+        }
+      }
+    }
+  ],
+  "screenshots": {
+    "result": {
+      "file": "evidence/task21-ui/ui-02-a-mainline04-result.png",
+      "sha256": "0e38b2dda7b23ec3a2e2da06edfabe2c188ad81a3c5c495fcb15d855c390ed23"
+    },
+    "meadow": {
+      "file": "evidence/task21-ui/ui-02-b-mainline05-meadow.png",
+      "sha256": "77dc710083b39b8ae781c75a11c0dbab9d9257a3d18a16d31f8dc8461ffacc3d"
+    },
+    "island": {
+      "file": "evidence/task21-ui/ui-02-c-back-on-island.png",
+      "sha256": "3647bfb40b66db34df3d6cb50ba1825f12eae51afbc99451746384517db4b8ad"
+    },
+    "cold": {
+      "file": "evidence/task21-ui/ui-02-d-cold-restart-reentry-meadow.png",
+      "sha256": "59b3f4eb125ca50e47f3385db26a61d3850b845d32ba6e9949ba1533b64d18b5"
+    }
+  },
+  "errors": [],
+  "logs": [
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T09:13:44.027Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1489,\"rawSeconds\":26.56780000001186,\"appliedSeconds\":25.491600000023784,\"maxDt\":0.89,\"lastTickU"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T09:13:44.841Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1523,\"rawSeconds\":27.35080000001186,\"appliedSeconds\":26.27460000002378,\"maxDt\":0.89,\"lastTickUtc\":\"2026-10-15T09"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T09:13:49.847Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1534,\"rawSeconds\":27.67986666668449,\"appliedSeconds\":26.603666666696412,\"maxDt\":0.89,\"lastTickUtc\":\"2026-10-15T09:13:49"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T09:13:52.747Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1694,\"rawSeconds\":30.529766666660613,\"appliedSeconds\":29.453566666672536,\"maxDt\":0.89,\"lastTickUtc\":\"2026-10-"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:loading\",\"utc\":\"2026-10-15T09:14:04.731Z\",\"world\":{\"state\":\"loading\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"cam"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T09:14:04.990Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{"
+    },
+    {
+      "type": "info",
+      "text": "TASK21_TEST_NAMESPACE {\"namespace\":\"dot-region-flow-test-task21-web-ui02-bf01c0a7942842f7:\",\"checkpoint\":4,\"lastAction\":null,\"pinned\":true}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T09:14:04.993Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{\""
+    },
+    {
+      "type": "info",
+      "text": "WORLD_STARTUP_READY {initialClip: sit_hold, controllerRoot: Array(3), childOffset: Array(3), scale: 1, motionAcceptance: false}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:standing\",\"utc\":\"2026-10-15T09:14:06.417Z\",\"world\":{\"state\":\"standing\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":15,\"rawSeconds\":1.0818666666547456,\"appliedSeconds\":0.4628666666547459,\"maxDt\":0.719,\"lastTickUtc\":\"2026-10"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:turning-out\",\"utc\":\"2026-10-15T09:14:07.695Z\",\"world\":{\"state\":\"turning-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":89,\"rawSeconds\":2.363466666648784,\"appliedSeconds\":1.7444666666487842,\"maxDt\":0.719,\"lastTickUtc\":\"20"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:walking-out\",\"utc\":\"2026-10-15T09:14:09.216Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":169,\"rawSeconds\":3.8804666666487817,\"appliedSeconds\":3.261466666648782,\"maxDt\":0.719,\"lastTickUtc\":\"2"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T09:14:14.225Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":460,\"rawSeconds\":8.895766666660707,\"appliedSeconds\":8.276766666660704,\"maxDt\":0.719,\"lastTickUtc\":\"2026-10-15T09:1"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:opening-door\",\"utc\":\"2026-10-15T09:14:15.214Z\",\"world\":{\"state\":\"opening-door\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":519,\"rawSeconds\":9.880166666666678,\"appliedSeconds\":9.261166666666675,\"maxDt\":0.719,\"lastTickUtc\":\""
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:crossing-out\",\"utc\":\"2026-10-15T09:14:17.229Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":620,\"rawSeconds\":11.89636666665476,\"appliedSeconds\":11.277366666654757,\"maxDt\":0.719,\"lastTickUtc\":"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T09:14:22.243Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":915,\"rawSeconds\":16.91306666667264,\"appliedSeconds\":16.29406666667265,\"maxDt\":0.719,\"lastTickUtc\":\"2026-10-15T09:"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T09:14:27.259Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1214,\"rawSeconds\":21.92976666666066,\"appliedSeconds\":21.31076666666067,\"maxDt\":0.719,\"lastTickUtc\":\"2026-10-15T09"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T09:14:30.396Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1400,\"rawSeconds\":25.028766666660648,\"appliedSeconds\":24.409766666660655,\"maxDt\":0.719,\"lastTickUtc\":\"2026-10"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T09:14:31.732Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1430,\"rawSeconds\":26.379666666666598,\"appliedSeconds\":25.112766666660647,\"maxDt\":0.732099999994"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T09:14:32.511Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1465,\"rawSeconds\":27.16306666667256,\"appliedSeconds\":25.89616666666661,\"maxDt\":0.7320999999940395,\"lastTickUtc\":"
+    }
+  ],
+  "limitations": [
+    "Not phone / WeChat; headless Chromium on Mac",
+    "Mainline 05 numbering: R5 meadow challenge unlock is gated by mainline 08 and verified in UI-04"
+  ]
+}

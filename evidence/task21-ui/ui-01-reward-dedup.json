@@ -1,0 +1,212 @@
+{
+  "id": "UI-01",
+  "status": "FAIL",
+  "runId": "8a86b12400ce47b9",
+  "namespace": "dot-region-flow-test-task21-web-ui01-8a86b12400ce47b9:",
+  "checks": [
+    {
+      "name": "first-win-result-shows-ready-chest-and-region-tool",
+      "pass": true,
+      "result": {
+        "state": "result.saved",
+        "provider": "mainline-v33",
+        "stageId": "mainline-04",
+        "level": 3,
+        "attemptId": "mla-000000000004",
+        "moves": 22,
+        "score": 1130,
+        "status": "won",
+        "completionRecorded": true,
+        "stars": 3,
+        "nextStageId": "mainline-05",
+        "journeyCompleted": 4,
+        "actions": 6,
+        "popups": [
+          "ResultPanel"
+        ],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-04",
+          "rendering": {
+            "renderer": "board-ui-static-picture",
+            "bundle": "region_island",
+            "path": "board/bg_island_board",
+            "chapter": "",
+            "provider": "mainline",
+            "stageId": "mainline-04",
+            "visible": true,
+            "night": 0,
+            "size": {
+              "width": 403.6330049261084,
+              "height": 874.0000000000001
+            },
+            "dynamicTextureUploads": 0
+          }
+        }
+      },
+      "chest": {
+        "level": 3,
+        "earned": true,
+        "opened": false,
+        "rewards": [
+          {
+            "kind": "charm",
+            "id": "paperPlane",
+            "count": 1
+          }
+        ]
+      },
+      "region": {
+        "region": 0,
+        "unlocked": true,
+        "claimed": false
+      },
+      "tools": {
+        "windBell": 0,
+        "tideBottle": 0,
+        "tideNet": 0,
+        "sunSeed": 0,
+        "starShears": 0
+      }
+    },
+    {
+      "name": "chest-six-same-frame-taps-open-once-single-popup-blocked-behind-popup",
+      "pass": true,
+      "hostReply": {
+        "ok": true,
+        "result": {
+          "level": 3,
+          "rewards": [
+            {
+              "kind": "charm",
+              "id": "paperPlane",
+              "count": 1
+            }
+          ],
+          "newlyGrantedRewards": [
+            {
+              "kind": "charm",
+              "id": "paperPlane",
+              "count": 1
+            }
+          ],
+          "duplicate": false,
+          "opened": true
+        },
+        "newlyGrantedRewards": [
+          {
+            "kind": "charm",
+            "id": "paperPlane",
+            "count": 1
+          }
+        ],
+        "warnings": []
+      },
+      "chestGain": {},
+      "gainList": "装扮 ×1",
+      "rewardPopups": 1,
+      "afterAccept": "Claim-chest removed; 宝箱已打开 shown"
+    },
+    {
+      "name": "region-tool-burst-grants-one-popup-survives-hide-show-accept-reopen-no-claim-buttons",
+      "pass": true,
+      "regionGain": {
+        "tideNet": 1
+      },
+      "popupsDuringBackground": [
+        "ResultPanel",
+        "RewardPanel"
+      ],
+      "hostReply": {
+        "ok": true,
+        "result": {
+          "region": 0,
+          "claimed": true,
+          "duplicate": false,
+          "newlyGrantedRewards": [
+            {
+              "kind": "tool",
+              "id": "tideNet",
+              "count": 1
+            }
+          ]
+        },
+        "newlyGrantedRewards": [
+          {
+            "kind": "tool",
+            "id": "tideNet",
+            "count": 1
+          }
+        ],
+        "warnings": []
+      },
+      "afterShow": {
+        "state": "result.saved",
+        "popups": [
+          "ResultPanel"
+        ]
+      }
+    }
+  ],
+  "screenshots": {
+    "resultReady": {
+      "file": "evidence/task21-ui/ui-01-a-result-claims-ready.png",
+      "sha256": "17e74adf1f9d12e4f030034538e472c5d30436164cb34f8d2cceb9251551854f"
+    },
+    "chestReward": {
+      "file": "evidence/task21-ui/ui-01-b-chest-reward-panel.png",
+      "sha256": "5761e55f64a553a5c2d77f2842b3bda841c791ab6bffcf037e255977bdb680a1"
+    },
+    "regionReward": {
+      "file": "evidence/task21-ui/ui-01-c-region-tool-reward-panel.png",
+      "sha256": "8a196bbcd2723f4375a44bcdcbc617899e669ec71c17653bc28130a9b663f674"
+    },
+    "reopened": {
+      "file": "evidence/task21-ui/ui-01-d-result-reopened-claimed.png",
+      "sha256": "0ae8e08c5cfec04cd8933b76b6e553641361956640d6d0cebe44f961aa521af6"
+    },
+    "failure": {
+      "file": "evidence/task21-ui/ui-01-failure.png",
+      "sha256": "def4b3cbf613e3b4508cb186f26ea1a740d6b30c0f3bfd5067d5c81971dbdf73"
+    }
+  },
+  "errors": [
+    "page.waitForFunction: Timeout 30000ms exceeded.\n    at rewardBurst (/Users/shineanl/Documents/Codex/2026-10-15/task-21/cursor-worktree/tools/task21-ui/ui01_reward_dedup.cjs:11:14)\n    at async /Users/shineanl/Documents/Codex/2026-10-15/task-21/cursor-worktree/tools/task21-ui/ui01_reward_dedup.cjs:51:20"
+  ],
+  "state": {
+    "state": "result.saved",
+    "provider": "regional-r05",
+    "stageId": "r05-tide-04",
+    "attemptId": "r5a-000000000004",
+    "moves": 6,
+    "score": 1930,
+    "status": "won",
+    "completionRecorded": true,
+    "stars": 2,
+    "nextStageId": null,
+    "journeyCompleted": null,
+    "actions": 8,
+    "popups": [
+      "ResultPanel"
+    ],
+    "background": {
+      "state": "ready",
+      "stageId": "r05-tide-04",
+      "rendering": {
+        "renderer": "board-ui-static-picture",
+        "bundle": "region_island",
+        "path": "board/bg_island_board",
+        "chapter": "tide",
+        "provider": "r5",
+        "stageId": "r05-tide-04",
+        "visible": true,
+        "night": 0,
+        "size": {
+          "width": 403.6330049261084,
+          "height": 874.0000000000001
+        },
+        "dynamicTextureUploads": 0
+      }
+    }
+  }
+}
