@@ -1,0 +1,231 @@
+{
+  "status": "OPEN_NOT_FROZEN_NATIVE_ACCEPTANCE_INCOMPLETE",
+  "repairHead": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+  "characterFixCommit": "6fbf61f0cf314e75437d4d2e13554c9bdd63cf1a",
+  "branch": "task21/cloth-clearance",
+  "inputHead": "92e3a6edfb30e9e0cc73330c23b76ac77a7ad2ea",
+  "fixPatchSHA256": "6f24bc4405aec8fad58db69123dd4e0d577ef63c1ac88c33cff6f196870a370b",
+  "completePatchSHA256": "35612d047c76697254807dfe2e24c3de55b56300f6458b4d5d58230359cae74c",
+  "packageManifestSHA256": "36348d781bde29fb54e57048bf97129bac260766dde1b9dc09196a5e4cb2edcc",
+  "packageCanonicalSHA256": "e1816aec5f822efa9829fef78e6b880d1696b00301870ed3f2e5e039c7b322c9",
+  "packageFiles": 509,
+  "packageBytes": 33088572,
+  "packageZipSHA256": "9f1419c2b3f4e687677cfec19e8b82cc24fb552a35ccb5278c0eb293c9228700",
+  "sourceManifestSHA256": "9183915105c982a82389633ceca4ea30cf4cfefc0f8369e694002814af74484c",
+  "sourceCanonicalSHA256": "864ebcd842aa964f35e84a1b945ba73eda2bac2197ddd38eb9d18875cd5480b9",
+  "sourceArchiveSHA256": "4571359f123312d92940c267a6048813a30c969a38799e21bfb14ddc7d6318b2",
+  "build": {
+    "returncode": 36,
+    "head": "751905c"
+  },
+  "identity": {
+    "glbSHA256": "42ca2486ad1ecdfb5070d6e2991042b60476b90b609859f39398fbcbacebafec",
+    "metaSHA256": "cefb3e4261592da20be40c9ada49a8f51354fc93f5557da7f178c79b40ea60e6",
+    "motionSHA256": "3ef288ff12a8f8512e07a3ea2f94819e984cc70a9d9d4a38b5a9c69e1523b657",
+    "acceptance": "OPEN"
+  },
+  "historicalRealFramesOffline": {
+    "samples": 2213,
+    "beforeFailed": 1760,
+    "afterFailed": 1602,
+    "gainedPairs": 0,
+    "lostPairs": 61180,
+    "increasedPoses": 0,
+    "proof": "Full revision3 exact changed/unchanged triangle partition audit plus exact recomputation of all turn/ outgoing-turn affected frames after only their metadata curves changed; all other runtime effective weights identical.",
+    "clips": {
+      "door_reach": {
+        "samples": 110,
+        "before": 74,
+        "after": 74
+      },
+      "sit_down": {
+        "samples": 66,
+        "before": 14,
+        "after": 0
+      },
+      "stand_up": {
+        "samples": 72,
+        "before": 14,
+        "after": 8
+      },
+      "walk_loop": {
+        "samples": 1180,
+        "before": 1180,
+        "after": 1180
+      },
+      "walk_start": {
+        "samples": 269,
+        "before": 235,
+        "after": 143
+      },
+      "walk_stop_bodyL": {
+        "samples": 182,
+        "before": 121,
+        "after": 92
+      },
+      "walk_stop_bodyR": {
+        "samples": 83,
+        "before": 57,
+        "after": 40
+      },
+      "walk_turn_180_bodyR": {
+        "samples": 82,
+        "before": 65,
+        "after": 65
+      },
+      "walk_turn_90_bodyL": {
+        "samples": 169,
+        "before": 0,
+        "after": 0
+      }
+    }
+  },
+  "historicalFramesSHA256": "a129e12fd490c4139d589dfc1a53927f90402173b7db7ab4a698525aff48b213",
+  "offlinePairRowsSHA256": "3e29e8b6cd1eefb7c362fb16d4a3e3016c12f32dfd2231c3fde0c572a4b3a61a",
+  "offlinePairSummarySHA256": "b4bdcd6bfe6008f4d979138b43abca02cf751d9e38bd1563280ad3645c520899",
+  "partialRuntime": {
+    "scope": "Only four saved native post-solver readbacks from the incomplete route. Not a complete route audit; corresponding screenshots are stale and excluded.",
+    "samples": 4,
+    "beforeFailed": 3,
+    "afterFailed": 1,
+    "gainedPairs": 0,
+    "lostPairs": 87,
+    "maxNewMorphWeightError": 5.551115123125783e-17,
+    "maxHandBlendReconstructionError": 1.5631056016207623e-07,
+    "poses": [
+      {
+        "clip": "stand_up",
+        "time": 0.09999999999999999
+      },
+      {
+        "clip": "stand_up",
+        "time": 0.19999999999999998
+      },
+      {
+        "clip": "stand_up",
+        "time": 0.21666666666666665
+      },
+      {
+        "clip": "stand_up",
+        "time": 0.7333333333333332
+      }
+    ]
+  },
+  "partialRuntimeRowsSHA256": "0e8ef0ff6af94674178551d10560d2cad9f7440941aea286eac56896892d7b84",
+  "runtimeIdentityVerification": "evidence/runtime-identity-verification.json",
+  "rendererMorphBindingsVerified": false,
+  "completeNativeRoute": false,
+  "acceptedRuntimeRepairScreenshots": 0,
+  "imageManifestSHA256": "24ad424eecbd86fc6b203e54cf0171afe54689544f7581f4497f4c6161dfb1da",
+  "library": {
+    "status": "NOT_SAVED_NO_ELIGIBLE_VERIFIED_RUNTIME_SCREENSHOTS",
+    "attempts": 0,
+    "confirmedIDs": []
+  },
+  "finalWindowClosed": true,
+  "finalClosedWindow": "s17",
+  "closeReceipt": "evidence/sync-354-close.json",
+  "IDEStatusReadableAndRunning": true,
+  "IDEQuitOrRestarted": false,
+  "protection": {
+    "storage": {
+      "count": 80,
+      "unchangedFromTask20": true,
+      "canonicalSHA256": "0eec90a19b3f11839423c4cc987d41d7a06d3ba2e8711e6af3d9adcc07397b87"
+    },
+    "package": {
+      "count": 479,
+      "unchangedFromTask20": true,
+      "canonicalSHA256": "a2c25a2b8abb0a7a0a4f75361efbbf91f37215d6dff86a64dea1c8370a450c40"
+    }
+  },
+  "task20InputsRetained": {
+    "source": {
+      "files": 2236,
+      "manifestSHA256": "8a57506171d62511ce232f1bff07b4dd02852a3c388e71e62d6037b0df1553fc",
+      "unchanged": true
+    },
+    "package": {
+      "files": 509,
+      "manifestSHA256": "67a54eefbe089dd719a1070d68297ab5802953ddea1e4558bc322ed22e256602",
+      "unchanged": true
+    },
+    "allTask20DeliverablesUnchanged": true
+  },
+  "blockers": [
+    "Official screenshots remain stale after camera and pose changes; a single matching changed view did not establish stable synchronization",
+    "Natural RAF loop stalled despite game/director unpaused; after one simulator refresh and normal world resume, frame remained 6",
+    "Complete route, dynamic GPU weight upload proof, exact runtime frame-pair audit, unobstructed all-angle cloth/wrist/heel acceptance remain OPEN"
+  ],
+  "localSyncDiagnostic": {
+    "status": "OPEN_UNSTABLE_DISPLAY_AND_STALLED_NATURAL_FRAME_LOOP",
+    "threadId": "01a13e3d-3a4d-7682-be5e-eca9bda4d278",
+    "hostId": "local",
+    "sourceHead": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+    "packageFiles": 509,
+    "packageMismatches": [],
+    "sourceChanged": false,
+    "cocosRebuilt": false,
+    "historicalAuditRepeated": false,
+    "simulatorRefreshCount": 1,
+    "runtimeBindings": {
+      "scope": "static actual runtime renderer model and shader target binding only; dynamic GPU weight upload not independently proved",
+      "evidence": "sync-320-binding-detail.json",
+      "apronTargets": 29,
+      "dressTargets": 32,
+      "bodyTargets": 16,
+      "modelMorphInstanceSame": true,
+      "shaderMorphPatches": true,
+      "dynamicWeightsVerified": false
+    },
+    "display": {
+      "gpuPixelEvidence": "sync-313-force-camera.json and sync-315-after.json",
+      "changedCameraGPUReadPixels": true,
+      "poseTimeUnchanged": true,
+      "oneMatchingChangedView": "sync-317-visible.jpg",
+      "stableSynchronization": false,
+      "subsequentFourViewsAllSameSHA256": "42dd2ffefd2fd1fad298018de10f5b49ecea6b42b4c09a7163bd8b582cc3b823",
+      "cause": "unknown; foreground raise coincided with one refresh but did not reproduce consistently"
+    },
+    "naturalRoute": {
+      "complete": false,
+      "firstAttemptLastObservedStandTime": 0.06666666666666667,
+      "asyncBridgeTimeout": true,
+      "rafRearmRecovered": false,
+      "afterRefreshLastFrame": 6,
+      "lastReadback": {
+        "frame": 6,
+        "world": {
+          "state": "home",
+          "stable": "home",
+          "mode": "motion",
+          "hidden": false,
+          "needsResume": false,
+          "characterReady": true,
+          "error": null
+        },
+        "gamePaused": false,
+        "pose": 0
+      },
+      "componentOnlyPauseAttempt": "sync-350-world-observer.json",
+      "manualAnimationTicks": false
+    },
+    "acceptedRuntimeRepairScreenshots": 0,
+    "libraryConfirmedIDs": [],
+    "windowClosed": true,
+    "closeReceipt": "sync-354-close.json",
+    "IDEKeptRunning": true,
+    "protection": {
+      "storage": {
+        "count": 80,
+        "unchangedFromTask20": true,
+        "canonicalSHA256": "0eec90a19b3f11839423c4cc987d41d7a06d3ba2e8711e6af3d9adcc07397b87"
+      },
+      "package": {
+        "count": 479,
+        "unchangedFromTask20": true,
+        "canonicalSHA256": "a2c25a2b8abb0a7a0a4f75361efbbf91f37215d6dff86a64dea1c8370a450c40"
+      }
+    }
+  }
+}
