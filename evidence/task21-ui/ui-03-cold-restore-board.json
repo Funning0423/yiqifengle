@@ -1,0 +1,1499 @@
+{
+  "id": "UI-03",
+  "status": "PASS",
+  "layer": "网页集成 (Mac headless Chrome for Testing, Cocos web-desktop debug build)",
+  "runId": "a8e35ad032224802",
+  "startedAt": "2026-10-15T10:17:35.840Z",
+  "finishedAt": "2026-10-15T10:20:38.920Z",
+  "build": {
+    "url": "http://127.0.0.1:8781/",
+    "buildDir": "creator-build-project/build/web-task21-ui",
+    "sourceCommit": "cee532c295e03b09301fc2808c4241f55257ddae",
+    "files": [
+      {
+        "file": "index.html",
+        "sha256": "a44e4cb24bcd8f3eba68509c0f1025f54ac9443ade3e899a66b5e6fb8492be1f"
+      },
+      {
+        "file": "index.js",
+        "sha256": "3f45e362e55d72cf38698a6824c4750f86b1793e41f5c94dab5bf2e67752964b"
+      },
+      {
+        "file": "application.js",
+        "sha256": "3876486e03ffd49f5cb8bce6d5a23b7ec392a533487229483a3b2429530093f2"
+      }
+    ],
+    "settings": {
+      "file": "src/settings.json",
+      "sha256": "a474199f4a92b4df51060fb8e46d93a14b8f06cc3e911c718b22006abbebf82f"
+    }
+  },
+  "namespace": "dot-region-flow-test-task21-web-ui03-a8e35ad032224802:",
+  "profile": "output/task21-ui/profile-ui03-a8e35ad032224802",
+  "route": "地区流程测试 08 · 最后一步 → 继续 → meadow board → reload → 继续旅程 → close browser → relaunch → 继续旅程",
+  "checks": [
+    {
+      "name": "checkpoint-08-shows-meadow-board",
+      "pass": true,
+      "entry": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-08",
+        "level": 7,
+        "attemptId": "mla-000000000008",
+        "moves": 20,
+        "score": 1635,
+        "status": "playing",
+        "completionRecorded": false,
+        "stars": null,
+        "nextStageId": null,
+        "journeyCompleted": 7,
+        "actions": 14,
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-08",
+          "rendering": {
+            "renderer": "region-live-3d",
+            "region": "meadow",
+            "bundle": "region_meadow",
+            "prefabName": "env_meadow",
+            "source": {
+              "version": "v0.8.0",
+              "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+              "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+              "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+              "windmillSeconds": 8,
+              "windPeriodSeconds": 4,
+              "nodeCount": 67,
+              "meshCount": 23,
+              "grassInstances": 1000,
+              "flowerInstances": 150
+            },
+            "visible": true,
+            "paused": false,
+            "cameraPriority": 44,
+            "layer": 1048576,
+            "motion": {
+              "seconds": 2.183699999988078,
+              "paused": false,
+              "windmillLoopSeconds": 8,
+              "grassWaveSeconds": 4
+            },
+            "dynamicTextureUploads": 0
+          }
+        },
+        "tutorialsDismissed": [
+          "ToolIntroPanel"
+        ]
+      },
+      "visual": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-08",
+        "name": "溪谷之心",
+        "theme": "orchard",
+        "chapterName": "萤火溪谷",
+        "region": "meadow",
+        "level": 7,
+        "attemptId": "mla-000000000008",
+        "seed": 1,
+        "moves": 20,
+        "score": 1635,
+        "status": "playing",
+        "actions": 14,
+        "occupied": 49,
+        "board": "3540511242100300110351414515115503134343050230213",
+        "moss": [],
+        "roots": [],
+        "tiles": [
+          [
+            69.3,
+            275.6
+          ],
+          [
+            113.2,
+            275.6
+          ],
+          [
+            157.1,
+            275.6
+          ],
+          [
+            201,
+            275.6
+          ],
+          [
+            244.9,
+            275.6
+          ],
+          [
+            288.8,
+            275.6
+          ],
+          [
+            332.7,
+            275.6
+          ],
+          [
+            69.3,
+            319.5
+          ],
+          [
+            113.2,
+            319.5
+          ],
+          [
+            157.1,
+            319.5
+          ],
+          [
+            201,
+            319.5
+          ],
+          [
+            244.9,
+            319.5
+          ],
+          [
+            288.8,
+            319.5
+          ],
+          [
+            332.7,
+            319.5
+          ],
+          [
+            69.3,
+            363.4
+          ],
+          [
+            113.2,
+            363.4
+          ],
+          [
+            157.1,
+            363.4
+          ],
+          [
+            201,
+            363.4
+          ],
+          [
+            244.9,
+            363.4
+          ],
+          [
+            288.8,
+            363.4
+          ],
+          [
+            332.7,
+            363.4
+          ],
+          [
+            69.3,
+            407.3
+          ],
+          [
+            113.2,
+            407.3
+          ],
+          [
+            157.1,
+            407.3
+          ],
+          [
+            201,
+            407.3
+          ],
+          [
+            244.9,
+            407.3
+          ],
+          [
+            288.8,
+            407.3
+          ],
+          [
+            332.7,
+            407.3
+          ],
+          [
+            69.3,
+            451.2
+          ],
+          [
+            113.2,
+            451.2
+          ],
+          [
+            157.1,
+            451.2
+          ],
+          [
+            201,
+            451.2
+          ],
+          [
+            244.9,
+            451.2
+          ],
+          [
+            288.8,
+            451.2
+          ],
+          [
+            332.7,
+            451.2
+          ],
+          [
+            69.3,
+            495.1
+          ],
+          [
+            113.2,
+            495.1
+          ],
+          [
+            157.1,
+            495.1
+          ],
+          [
+            201,
+            495.1
+          ],
+          [
+            244.9,
+            495.1
+          ],
+          [
+            288.8,
+            495.1
+          ],
+          [
+            332.7,
+            495.1
+          ],
+          [
+            69.3,
+            539
+          ],
+          [
+            113.2,
+            539
+          ],
+          [
+            157.1,
+            539
+          ],
+          [
+            201,
+            539
+          ],
+          [
+            244.9,
+            539
+          ],
+          [
+            288.8,
+            539
+          ],
+          [
+            332.7,
+            539
+          ]
+        ],
+        "spriteSizes": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-08",
+          "renderer": "region-live-3d",
+          "bundle": "region_meadow",
+          "path": null,
+          "prefabName": "env_meadow",
+          "chapter": "",
+          "region": "meadow",
+          "visible": true,
+          "width": null,
+          "height": null,
+          "meshCount": 23,
+          "nodeCount": 67
+        }
+      },
+      "visiblePieces": 49
+    },
+    {
+      "name": "warm-reload-restores-same-meadow-board",
+      "pass": true,
+      "visual": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-08",
+        "name": "溪谷之心",
+        "theme": "orchard",
+        "chapterName": "萤火溪谷",
+        "region": "meadow",
+        "level": 7,
+        "attemptId": "mla-000000000008",
+        "seed": 1,
+        "moves": 20,
+        "score": 1635,
+        "status": "playing",
+        "actions": 14,
+        "occupied": 49,
+        "board": "3540511242100300110351414515115503134343050230213",
+        "moss": [],
+        "roots": [],
+        "tiles": [
+          [
+            69.3,
+            275.6
+          ],
+          [
+            113.2,
+            275.6
+          ],
+          [
+            157.1,
+            275.6
+          ],
+          [
+            201,
+            275.6
+          ],
+          [
+            244.9,
+            275.6
+          ],
+          [
+            288.8,
+            275.6
+          ],
+          [
+            332.7,
+            275.6
+          ],
+          [
+            69.3,
+            319.5
+          ],
+          [
+            113.2,
+            319.5
+          ],
+          [
+            157.1,
+            319.5
+          ],
+          [
+            201,
+            319.5
+          ],
+          [
+            244.9,
+            319.5
+          ],
+          [
+            288.8,
+            319.5
+          ],
+          [
+            332.7,
+            319.5
+          ],
+          [
+            69.3,
+            363.4
+          ],
+          [
+            113.2,
+            363.4
+          ],
+          [
+            157.1,
+            363.4
+          ],
+          [
+            201,
+            363.4
+          ],
+          [
+            244.9,
+            363.4
+          ],
+          [
+            288.8,
+            363.4
+          ],
+          [
+            332.7,
+            363.4
+          ],
+          [
+            69.3,
+            407.3
+          ],
+          [
+            113.2,
+            407.3
+          ],
+          [
+            157.1,
+            407.3
+          ],
+          [
+            201,
+            407.3
+          ],
+          [
+            244.9,
+            407.3
+          ],
+          [
+            288.8,
+            407.3
+          ],
+          [
+            332.7,
+            407.3
+          ],
+          [
+            69.3,
+            451.2
+          ],
+          [
+            113.2,
+            451.2
+          ],
+          [
+            157.1,
+            451.2
+          ],
+          [
+            201,
+            451.2
+          ],
+          [
+            244.9,
+            451.2
+          ],
+          [
+            288.8,
+            451.2
+          ],
+          [
+            332.7,
+            451.2
+          ],
+          [
+            69.3,
+            495.1
+          ],
+          [
+            113.2,
+            495.1
+          ],
+          [
+            157.1,
+            495.1
+          ],
+          [
+            201,
+            495.1
+          ],
+          [
+            244.9,
+            495.1
+          ],
+          [
+            288.8,
+            495.1
+          ],
+          [
+            332.7,
+            495.1
+          ],
+          [
+            69.3,
+            539
+          ],
+          [
+            113.2,
+            539
+          ],
+          [
+            157.1,
+            539
+          ],
+          [
+            201,
+            539
+          ],
+          [
+            244.9,
+            539
+          ],
+          [
+            288.8,
+            539
+          ],
+          [
+            332.7,
+            539
+          ]
+        ],
+        "spriteSizes": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-08",
+          "renderer": "region-live-3d",
+          "bundle": "region_meadow",
+          "path": null,
+          "prefabName": "env_meadow",
+          "chapter": "",
+          "region": "meadow",
+          "visible": true,
+          "width": null,
+          "height": null,
+          "meshCount": 23,
+          "nodeCount": 67
+        }
+      }
+    },
+    {
+      "name": "cold-restart-restores-same-stage-pieces-and-meadow-renderer",
+      "pass": true,
+      "visual": {
+        "state": "run.ready",
+        "provider": "mainline-v33",
+        "stageId": "mainline-08",
+        "name": "溪谷之心",
+        "theme": "orchard",
+        "chapterName": "萤火溪谷",
+        "region": "meadow",
+        "level": 7,
+        "attemptId": "mla-000000000008",
+        "seed": 1,
+        "moves": 20,
+        "score": 1635,
+        "status": "playing",
+        "actions": 14,
+        "occupied": 49,
+        "board": "3540511242100300110351414515115503134343050230213",
+        "moss": [],
+        "roots": [],
+        "tiles": [
+          [
+            69.3,
+            275.6
+          ],
+          [
+            113.2,
+            275.6
+          ],
+          [
+            157.1,
+            275.6
+          ],
+          [
+            201,
+            275.6
+          ],
+          [
+            244.9,
+            275.6
+          ],
+          [
+            288.8,
+            275.6
+          ],
+          [
+            332.7,
+            275.6
+          ],
+          [
+            69.3,
+            319.5
+          ],
+          [
+            113.2,
+            319.5
+          ],
+          [
+            157.1,
+            319.5
+          ],
+          [
+            201,
+            319.5
+          ],
+          [
+            244.9,
+            319.5
+          ],
+          [
+            288.8,
+            319.5
+          ],
+          [
+            332.7,
+            319.5
+          ],
+          [
+            69.3,
+            363.4
+          ],
+          [
+            113.2,
+            363.4
+          ],
+          [
+            157.1,
+            363.4
+          ],
+          [
+            201,
+            363.4
+          ],
+          [
+            244.9,
+            363.4
+          ],
+          [
+            288.8,
+            363.4
+          ],
+          [
+            332.7,
+            363.4
+          ],
+          [
+            69.3,
+            407.3
+          ],
+          [
+            113.2,
+            407.3
+          ],
+          [
+            157.1,
+            407.3
+          ],
+          [
+            201,
+            407.3
+          ],
+          [
+            244.9,
+            407.3
+          ],
+          [
+            288.8,
+            407.3
+          ],
+          [
+            332.7,
+            407.3
+          ],
+          [
+            69.3,
+            451.2
+          ],
+          [
+            113.2,
+            451.2
+          ],
+          [
+            157.1,
+            451.2
+          ],
+          [
+            201,
+            451.2
+          ],
+          [
+            244.9,
+            451.2
+          ],
+          [
+            288.8,
+            451.2
+          ],
+          [
+            332.7,
+            451.2
+          ],
+          [
+            69.3,
+            495.1
+          ],
+          [
+            113.2,
+            495.1
+          ],
+          [
+            157.1,
+            495.1
+          ],
+          [
+            201,
+            495.1
+          ],
+          [
+            244.9,
+            495.1
+          ],
+          [
+            288.8,
+            495.1
+          ],
+          [
+            332.7,
+            495.1
+          ],
+          [
+            69.3,
+            539
+          ],
+          [
+            113.2,
+            539
+          ],
+          [
+            157.1,
+            539
+          ],
+          [
+            201,
+            539
+          ],
+          [
+            244.9,
+            539
+          ],
+          [
+            288.8,
+            539
+          ],
+          [
+            332.7,
+            539
+          ]
+        ],
+        "spriteSizes": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "popups": [],
+        "background": {
+          "state": "ready",
+          "stageId": "mainline-08",
+          "renderer": "region-live-3d",
+          "bundle": "region_meadow",
+          "path": null,
+          "prefabName": "env_meadow",
+          "chapter": "",
+          "region": "meadow",
+          "visible": true,
+          "width": null,
+          "height": null,
+          "meshCount": 23,
+          "nodeCount": 67
+        }
+      },
+      "visiblePieces": 49
+    }
+  ],
+  "screenshots": {
+    "before": {
+      "file": "evidence/task21-ui/ui-03-a-meadow-board-before-close.png",
+      "sha256": "46c4ca1629e20b44431e534b2497d10518031643de518269d30c522d7dbf6f71"
+    },
+    "warm": {
+      "file": "evidence/task21-ui/ui-03-b-warm-reload-meadow-board.png",
+      "sha256": "e834acaeddb0434746734a45afe79b9e0587fe7a0986bf58cfd853580b2e71a5"
+    },
+    "cold": {
+      "file": "evidence/task21-ui/ui-03-c-cold-restart-meadow-board.png",
+      "sha256": "f0ccf3a65aea67fb62c1823aa5a83e1bfc3dac64d9c1b23447158561df025e17"
+    }
+  },
+  "errors": [],
+  "logs": [
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:19:38.963Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1730,\"rawSeconds\":31.94463333334514,\"appliedSeconds\":30.783033333321303,\"maxDt\":0.9548000000119"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:19:39.709Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1763,\"rawSeconds\":32.72713333334516,\"appliedSeconds\":31.565533333321305,\"maxDt\":0.9548000000119209,\"lastTickUtc\""
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:loading\",\"utc\":\"2026-10-15T10:19:55.184Z\",\"world\":{\"state\":\"loading\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"cam"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:19:55.536Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{"
+    },
+    {
+      "type": "info",
+      "text": "TASK21_TEST_NAMESPACE {\"namespace\":\"dot-region-flow-test-task21-web-ui03-a8e35ad032224802:\",\"checkpoint\":7,\"lastAction\":null,\"pinned\":true}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:19:55.539Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{\""
+    },
+    {
+      "type": "info",
+      "text": "WORLD_STARTUP_READY {initialClip: sit_hold, controllerRoot: Array(3), childOffset: Array(3), scale: 1, motionAcceptance: false}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:00.553Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":21,\"rawSeconds\":0.6315333333214125,\"appliedSeconds\":0.513233333339294,\"maxDt\":0.2182999999821186,\"lastTickUtc\":\"2026-10-1"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:standing\",\"utc\":\"2026-10-15T10:20:02.834Z\",\"world\":{\"state\":\"standing\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":154,\"rawSeconds\":2.899433333327373,\"appliedSeconds\":2.7811333333452537,\"maxDt\":0.2182999999821186,\"lastTick"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:turning-out\",\"utc\":\"2026-10-15T10:20:04.106Z\",\"world\":{\"state\":\"turning-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":229,\"rawSeconds\":4.181433333327371,\"appliedSeconds\":4.063133333345252,\"maxDt\":0.2182999999821186,\"las"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:walking-out\",\"utc\":\"2026-10-15T10:20:05.607Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":317,\"rawSeconds\":5.681933333327369,\"appliedSeconds\":5.56363333334525,\"maxDt\":0.2182999999821186,\"last"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:10.621Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":602,\"rawSeconds\":10.697933333327367,\"appliedSeconds\":10.57963333334525,\"maxDt\":0.2182999999821186,\"lastTickUtc\":\"2"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:opening-door\",\"utc\":\"2026-10-15T10:20:11.607Z\",\"world\":{\"state\":\"opening-door\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":661,\"rawSeconds\":11.682533333321413,\"appliedSeconds\":11.564233333339295,\"maxDt\":0.2182999999821186,"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:crossing-out\",\"utc\":\"2026-10-15T10:20:13.890Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":776,\"rawSeconds\":13.965933333327383,\"appliedSeconds\":13.576933333327384,\"maxDt\":0.3707000000178814,"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:18.905Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1066,\"rawSeconds\":18.97863333331543,\"appliedSeconds\":18.589633333315437,\"maxDt\":0.3707000000178814,\"lastTickUtc\":"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:23.921Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1329,\"rawSeconds\":24.000533333321332,\"appliedSeconds\":23.61153333332134,\"maxDt\":0.3707000000178814,\"lastTickUtc\":"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:20:27.057Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1512,\"rawSeconds\":27.097033333321296,\"appliedSeconds\":26.708033333321303,\"maxDt\":0.3707000000178814,\"lastTick"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:20:31.038Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1609,\"rawSeconds\":29.977300000011798,\"appliedSeconds\":28.62220000001777,\"maxDt\":0.9161999999880"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:20:32.061Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1654,\"rawSeconds\":31.028699999987946,\"appliedSeconds\":29.673599999993918,\"maxDt\":0.9161999999880791,\"lastTickUtc"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:20:37.068Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1912,\"rawSeconds\":36.09480000001193,\"appliedSeconds\":34.108800000011904,\"maxDt\":0.9161999999880791,\"lastTickUtc\":\"2026-"
+    }
+  ],
+  "limitations": [
+    "Mac headless Chromium only; not phone/WeChat",
+    "Cold restore closes the browser process and relaunches the same profile; a page reload is recorded separately and is not treated as the cold restore"
+  ]
+}

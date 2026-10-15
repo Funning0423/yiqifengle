@@ -1,8 +1,36 @@
 {
   "id": "UI-01",
-  "status": "FAIL",
-  "runId": "8a86b12400ce47b9",
-  "namespace": "dot-region-flow-test-task21-web-ui01-8a86b12400ce47b9:",
+  "status": "PASS",
+  "layer": "网页集成 (Mac headless Chrome for Testing 149 + Metal, Cocos web-desktop debug build)",
+  "runId": "686bdf46431f4346",
+  "startedAt": "2026-10-15T10:27:13.767Z",
+  "finishedAt": "2026-10-15T10:30:32.194Z",
+  "build": {
+    "url": "http://127.0.0.1:8781/",
+    "buildDir": "creator-build-project/build/web-task21-ui",
+    "sourceCommit": "cee532c295e03b09301fc2808c4241f55257ddae",
+    "files": [
+      {
+        "file": "index.html",
+        "sha256": "a44e4cb24bcd8f3eba68509c0f1025f54ac9443ade3e899a66b5e6fb8492be1f"
+      },
+      {
+        "file": "index.js",
+        "sha256": "3f45e362e55d72cf38698a6824c4750f86b1793e41f5c94dab5bf2e67752964b"
+      },
+      {
+        "file": "application.js",
+        "sha256": "3876486e03ffd49f5cb8bce6d5a23b7ec392a533487229483a3b2429530093f2"
+      }
+    ],
+    "settings": {
+      "file": "src/settings.json",
+      "sha256": "a474199f4a92b4df51060fb8e46d93a14b8f06cc3e911c718b22006abbebf82f"
+    }
+  },
+  "namespace": "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:",
+  "profile": "output/task21-ui/profile-ui01-686bdf46431f4346",
+  "route": "地区流程测试 04 → win → 打开宝箱 ×6 same-frame → 收下 → 领取地区道具 ×6 → hide/show with popup open → 收下 → re-tap ×6 → hide/show → 回小岛 → 旅程册 潮汐 继续 → r05-tide-01..04 via 下一关 → 领取地区印记 ×8 → 收下 → re-tap → reload → re-enter tide-04 result → close browser → relaunch → re-enter → re-tap",
   "checks": [
     {
       "name": "first-win-result-shows-ready-chest-and-region-tool",
@@ -35,7 +63,7 @@
             "provider": "mainline",
             "stageId": "mainline-04",
             "visible": true,
-            "night": 0,
+            "night": 1,
             "size": {
               "width": 403.6330049261084,
               "height": 874.0000000000001
@@ -146,67 +174,364 @@
           "ResultPanel"
         ]
       }
+    },
+    {
+      "name": "tide-memento-eight-same-frame-taps-one-grant-one-journal-revision",
+      "pass": true,
+      "stages": [
+        {
+          "stageId": "r05-tide-01",
+          "score": 500,
+          "stars": 3,
+          "attemptId": "r5a-000000000001",
+          "actions": 2
+        },
+        {
+          "stageId": "r05-tide-02",
+          "score": 860,
+          "stars": 2,
+          "attemptId": "r5a-000000000002",
+          "actions": 8
+        },
+        {
+          "stageId": "r05-tide-03",
+          "score": 1585,
+          "stars": 2,
+          "attemptId": "r5a-000000000003",
+          "actions": 7
+        },
+        {
+          "stageId": "r05-tide-04",
+          "score": 1930,
+          "stars": 2,
+          "attemptId": "r5a-000000000004",
+          "actions": 8
+        }
+      ],
+      "ledgerBefore": {
+        "revision": 8,
+        "sequence": 4,
+        "records": {
+          "r05-tide-01": {
+            "clears": 1,
+            "bestStars": 3
+          },
+          "r05-tide-02": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-03": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-04": {
+            "clears": 1,
+            "bestStars": 2
+          }
+        },
+        "attempts": 4,
+        "claimedRegions": [],
+        "openAttempt": null
+      },
+      "ledgerAfter": {
+        "revision": 9,
+        "sequence": 4,
+        "records": {
+          "r05-tide-01": {
+            "clears": 1,
+            "bestStars": 3
+          },
+          "r05-tide-02": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-03": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-04": {
+            "clears": 1,
+            "bestStars": 2
+          }
+        },
+        "attempts": 4,
+        "claimedRegions": [
+          "tide"
+        ],
+        "openAttempt": null
+      },
+      "hostReply": {
+        "ok": true,
+        "claimed": true,
+        "duplicate": false,
+        "newlyGranted": [
+          {
+            "kind": "challenge-memento",
+            "id": "tide-regional-r05-complete",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "warm-reload-reenters-tide-04-result-claimed-no-button-ledger-unchanged",
+      "pass": true,
+      "ledger": {
+        "revision": 9,
+        "sequence": 4,
+        "records": {
+          "r05-tide-01": {
+            "clears": 1,
+            "bestStars": 3
+          },
+          "r05-tide-02": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-03": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-04": {
+            "clears": 1,
+            "bestStars": 2
+          }
+        },
+        "attempts": 4,
+        "claimedRegions": [
+          "tide"
+        ],
+        "openAttempt": null
+      }
+    },
+    {
+      "name": "cold-restart-ledger-and-ui-reward-state-identical-no-regrant",
+      "pass": true,
+      "mainline": {
+        "tools": {
+          "windBell": 0,
+          "tideBottle": 0,
+          "tideNet": 1,
+          "sunSeed": 0,
+          "starShears": 0
+        },
+        "regionRewards": [
+          {
+            "region": 0,
+            "unlocked": true,
+            "claimed": true
+          },
+          {
+            "region": 1,
+            "unlocked": false,
+            "claimed": false
+          },
+          {
+            "region": 2,
+            "unlocked": false,
+            "claimed": false
+          }
+        ],
+        "chests": [
+          {
+            "level": 0,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "seaRibbon",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 1,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "windBell",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 2,
+            "earned": true,
+            "opened": false,
+            "rewards": [
+              {
+                "kind": "tool",
+                "id": "tideBottle",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "level": 3,
+            "earned": true,
+            "opened": true,
+            "rewards": [
+              {
+                "kind": "charm",
+                "id": "paperPlane",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      },
+      "ledger": {
+        "revision": 9,
+        "sequence": 4,
+        "records": {
+          "r05-tide-01": {
+            "clears": 1,
+            "bestStars": 3
+          },
+          "r05-tide-02": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-03": {
+            "clears": 1,
+            "bestStars": 2
+          },
+          "r05-tide-04": {
+            "clears": 1,
+            "bestStars": 2
+          }
+        },
+        "attempts": 4,
+        "claimedRegions": [
+          "tide"
+        ],
+        "openAttempt": null
+      },
+      "physicalRowsUnchanged": true
     }
   ],
   "screenshots": {
     "resultReady": {
       "file": "evidence/task21-ui/ui-01-a-result-claims-ready.png",
-      "sha256": "17e74adf1f9d12e4f030034538e472c5d30436164cb34f8d2cceb9251551854f"
+      "sha256": "1c2f7a11d0c912a5027ac0d29e4eadedf0efeb748bd07e8de2f436623c298135"
     },
     "chestReward": {
       "file": "evidence/task21-ui/ui-01-b-chest-reward-panel.png",
-      "sha256": "5761e55f64a553a5c2d77f2842b3bda841c791ab6bffcf037e255977bdb680a1"
+      "sha256": "f6113ecd15eb65163de5f3d8322872f64ff542f543a5c5abc442dd6a7d90edba"
     },
     "regionReward": {
       "file": "evidence/task21-ui/ui-01-c-region-tool-reward-panel.png",
-      "sha256": "8a196bbcd2723f4375a44bcdcbc617899e669ec71c17653bc28130a9b663f674"
+      "sha256": "d4a45abe829179cf3e28305b932e8b9d4f50cd1bd2211e8fc1a5e4ac69febe72"
     },
     "reopened": {
       "file": "evidence/task21-ui/ui-01-d-result-reopened-claimed.png",
-      "sha256": "0ae8e08c5cfec04cd8933b76b6e553641361956640d6d0cebe44f961aa521af6"
+      "sha256": "0f5e6c72bdbeb3d69ac9ba446df72ddb739830561682a196e059fb8a46b06793"
     },
-    "failure": {
-      "file": "evidence/task21-ui/ui-01-failure.png",
-      "sha256": "def4b3cbf613e3b4508cb186f26ea1a740d6b30c0f3bfd5067d5c81971dbdf73"
+    "memento": {
+      "file": "evidence/task21-ui/ui-01-e-tide-memento-reward-panel.png",
+      "sha256": "fe33b42fb62d89c59b970da8401e26c2fda62f0b0c5587678bc9d643ec1dc647"
+    },
+    "cold": {
+      "file": "evidence/task21-ui/ui-01-reward-dedup.png",
+      "sha256": "8bf775863f24bfc265a562c68ea0427f60d8e1368b4e8b43ebfe803cc69ba70b"
     }
   },
-  "errors": [
-    "page.waitForFunction: Timeout 30000ms exceeded.\n    at rewardBurst (/Users/shineanl/Documents/Codex/2026-10-15/task-21/cursor-worktree/tools/task21-ui/ui01_reward_dedup.cjs:11:14)\n    at async /Users/shineanl/Documents/Codex/2026-10-15/task-21/cursor-worktree/tools/task21-ui/ui01_reward_dedup.cjs:51:20"
-  ],
-  "state": {
-    "state": "result.saved",
-    "provider": "regional-r05",
-    "stageId": "r05-tide-04",
-    "attemptId": "r5a-000000000004",
-    "moves": 6,
-    "score": 1930,
-    "status": "won",
-    "completionRecorded": true,
-    "stars": 2,
-    "nextStageId": null,
-    "journeyCompleted": null,
-    "actions": 8,
-    "popups": [
-      "ResultPanel"
-    ],
-    "background": {
-      "state": "ready",
-      "stageId": "r05-tide-04",
-      "rendering": {
-        "renderer": "board-ui-static-picture",
-        "bundle": "region_island",
-        "path": "board/bg_island_board",
-        "chapter": "tide",
-        "provider": "r5",
-        "stageId": "r05-tide-04",
-        "visible": true,
-        "night": 0,
-        "size": {
-          "width": 403.6330049261084,
-          "height": 874.0000000000001
-        },
-        "dynamicTextureUploads": 0
-      }
+  "errors": [],
+  "logs": [
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:29:50.948Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1420,\"rawSeconds\":24.072033333351147,\"appliedSeconds\":24.02473333336903,\"maxDt\":0.1447999999821186,\"lastTickU"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:29:52.144Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1432,\"rawSeconds\":25.224033333351144,\"appliedSeconds\":24.709433333357115,\"maxDt\":0.482900000005"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:29:52.891Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1468,\"rawSeconds\":26.02213333334518,\"appliedSeconds\":25.495433333357113,\"maxDt\":0.48290000000596045,\"lastTickUtc"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:29:54.316Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1547,\"rawSeconds\":27.374233333339234,\"appliedSeconds\":26.847533333351166,\"maxDt\":0.48290000000596045,\"lastTic"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:loading\",\"utc\":\"2026-10-15T10:30:01.620Z\",\"world\":{\"state\":\"loading\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"cam"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:30:01.819Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":false,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{"
+    },
+    {
+      "type": "info",
+      "text": "TASK21_TEST_NAMESPACE {\"namespace\":\"dot-region-flow-test-task21-web-ui01-686bdf46431f4346:\",\"checkpoint\":4,\"lastAction\":null,\"pinned\":true}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:home\",\"utc\":\"2026-10-15T10:30:01.821Z\",\"world\":{\"state\":\"home\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":0,\"rawSeconds\":0,\"appliedSeconds\":0,\"maxDt\":0,\"lastTickUtc\":\"\",\"hideEvents\":0,\"showEvents\":0},\"jobs\":[],\"camera\":{\""
+    },
+    {
+      "type": "info",
+      "text": "WORLD_STARTUP_READY {initialClip: sit_hold, controllerRoot: Array(3), childOffset: Array(3), scale: 1, motionAcceptance: false}"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:standing\",\"utc\":\"2026-10-15T10:30:03.461Z\",\"world\":{\"state\":\"standing\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":8,\"rawSeconds\":1.126466666648785,\"appliedSeconds\":0.2573666666547458,\"maxDt\":0.9690999999940395,\"lastTickUt"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:turning-out\",\"utc\":\"2026-10-15T10:30:04.720Z\",\"world\":{\"state\":\"turning-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":84,\"rawSeconds\":2.394266666660705,\"appliedSeconds\":1.525166666666666,\"maxDt\":0.9690999999940395,\"last"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:walking-out\",\"utc\":\"2026-10-15T10:30:06.236Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":174,\"rawSeconds\":3.9096666666666646,\"appliedSeconds\":3.0405666666726265,\"maxDt\":0.9690999999940395,\"l"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:30:11.250Z\",\"world\":{\"state\":\"walking-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":465,\"rawSeconds\":8.926566666672624,\"appliedSeconds\":8.057466666678584,\"maxDt\":0.9690999999940395,\"lastTickUtc\":\"20"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:opening-door\",\"utc\":\"2026-10-15T10:30:12.234Z\",\"world\":{\"state\":\"opening-door\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":524,\"rawSeconds\":9.909366666654746,\"appliedSeconds\":9.040266666660706,\"maxDt\":0.9690999999940395,\"l"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:crossing-out\",\"utc\":\"2026-10-15T10:30:14.286Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":639,\"rawSeconds\":11.958866666654748,\"appliedSeconds\":11.048366666654747,\"maxDt\":0.9690999999940395,"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:30:19.300Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":933,\"rawSeconds\":16.97636666665475,\"appliedSeconds\":16.065866666654752,\"maxDt\":0.9690999999940395,\"lastTickUtc\":\""
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"tick\",\"utc\":\"2026-10-15T10:30:24.303Z\",\"world\":{\"state\":\"crossing-out\",\"stable\":\"home\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1224,\"rawSeconds\":21.978266666660662,\"appliedSeconds\":21.067766666660663,\"maxDt\":0.9690999999940395,\"lastTickUtc\""
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:island\",\"utc\":\"2026-10-15T10:30:27.453Z\",\"world\":{\"state\":\"island\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1409,\"rawSeconds\":25.091066666672532,\"appliedSeconds\":24.180566666672533,\"maxDt\":0.9690999999940395,\"lastTick"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level-loading\",\"utc\":\"2026-10-15T10:30:29.165Z\",\"world\":{\"state\":\"level-loading\",\"stable\":\"island\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1427,\"rawSeconds\":26.741166666666576,\"appliedSeconds\":25.060066666702344,\"maxDt\":0.969099999994"
+    },
+    {
+      "type": "info",
+      "text": "[OI_WORLD_FLOW] {\"version\":2,\"integrationSource\":\"fb338ef+Oi-auto-room-action-clock\",\"event\":\"state:level\",\"utc\":\"2026-10-15T10:30:29.926Z\",\"world\":{\"state\":\"level\",\"stable\":\"level\",\"mode\":\"motion\",\"hidden\":false,\"needsResume\":false,\"characterReady\":true,\"error\":null},\"clock\":{\"updates\":1460,\"rawSeconds\":27.57596666664869,\"appliedSeconds\":25.85556666670234,\"maxDt\":0.9690999999940395,\"lastTickUtc\":"
     }
-  }
+  ],
+  "finalPhysicalRows": [
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:mainline:forest-v3-completed",
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:mainline:forest-v3-progress",
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:mainline:forest-mainline-cocos-r1-active",
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:r5:forest-regional-r05-progress",
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:r5:forest-regional-r05-active",
+    "dot-region-flow-test-task21-web-ui01-686bdf46431f4346:mainline:forest-v33-journey"
+  ],
+  "limitations": [
+    "Mac headless Chrome only; not phone/WeChat",
+    "Programmatic same-frame duplicates are CDP touch bursts on the real button; no new test-only claim API was added"
+  ]
 }

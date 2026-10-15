@@ -44,4 +44,22 @@ async function playR5Stage(page,stageId){await waitBoard(page,(b,id)=>b.snapshot
  await waitBoard(page,b=>b.snapshot.state==='result.saved'&&b.snapshot.result?.completionRecorded&&b.popups.includes('ResultPanel'));await page.waitForTimeout(1200);
  const won=await boardState(page);if(won.score!==w.score)throw Error('score mismatch '+stageId+' '+won.score+' vs '+w.score);return {...won,witnessSeed:w.seed,witnessActions:w.actions.length};}
 const r5Ledger=async(page,root)=>{const raw=await page.evaluate(k=>localStorage.getItem(k),root+'r5:forest-regional-r05-progress');if(!raw)return null;const d=JSON.parse(raw);return {revision:d.revision,sequence:d.sequence,records:Object.fromEntries(Object.entries(d.records).map(([k,v])=>[k,{clears:v.clears,bestStars:v.bestStars}])),attempts:Object.keys(d.attempts).length,claimedRegions:d.claimedRegions,openAttempt:d.openAttempt?d.openAttempt.id:null};};
-module.exports={R5W,openRegionViaJournal,playR5Stage,r5Ledger,root,boardState,waitBoard,dismissTutorials,resumeBoard,enterCheckpoint,finalSwap,journey,gates,mainline,burstTap,exitToIsland,leaveHome};
+/** Board content, piece positions, and the background renderer the player actually has on screen.
+ * Live meadow diagnostics publish rendering.source.nodeCount / meshCount and rendering.visible.
+ * They do not publish rendering.size. A null width is an unpublished picture size, not a hidden frame.
+ * Static board pictures publish rendering.size (UI-02 island frame was about 404×874). */
+async function boardVisual(page){return page.evaluate(()=>{const b=__worldIntegration.board();if(!b?.snapshot?.active)return null;const a=b.snapshot.active,stage=(b.snapshot.stages||[]).find(s=>s.id===a.stageId)||null,cell=t=>t?String(t.type)+(t.special?':'+t.special:''):'.',bg=b.background||{},r=bg.rendering||{},source=r.source||null,size=r.size||null;
+ return {state:b.snapshot.state,provider:b.snapshot.provider,stageId:a.stageId,name:a.name||stage?.name||null,theme:a.theme||null,chapterName:stage?.chapterName||null,region:a.region||stage?.region||null,level:a.level,attemptId:a.attemptId,seed:a.seed,moves:a.moves,score:a.score,status:a.status,actions:b.checkpoint?.actions?.length??null,occupied:(a.board||[]).filter(Boolean).length,board:(a.board||[]).map(cell).join(''),moss:a.moss||[],roots:a.roots||[],tiles:(b.layout?.tiles||[]).map(t=>[Math.round(t.x*10)/10,Math.round(t.y*10)/10]),spriteSizes:(b.layout?.spriteSizes||[]).map(s=>[Math.round(s.width),Math.round(s.height)]),popups:b.popups,background:{state:bg.state,stageId:bg.stageId,renderer:r.renderer||null,bundle:r.bundle||null,path:r.path||null,prefabName:r.prefabName||null,chapter:r.chapter||'',region:r.region||'',visible:r.visible===true,width:size&&typeof size.width==='number'?size.width:null,height:size&&typeof size.height==='number'?size.height:null,meshCount:source&&typeof source.meshCount==='number'?source.meshCount:null,nodeCount:source&&typeof source.nodeCount==='number'?source.nodeCount:null}};});}
+/** null when the published live-meadow diagnostics are on screen. The reason names visible:false separately from a missing picture size. */
+function liveMeadowReason(bg){
+ if(!bg)return 'missing background';
+ if(bg.state!=='ready')return 'state '+bg.state;
+ if(bg.renderer!=='region-live-3d')return 'renderer '+bg.renderer;
+ if(bg.bundle!=='region_meadow')return 'bundle '+bg.bundle;
+ if(bg.region!=='meadow')return 'region '+bg.region;
+ if(bg.visible!==true)return 'visible is false; picture size '+(bg.width==null?'unpublished':bg.width+'x'+bg.height);
+ if(!(bg.meshCount>0&&bg.nodeCount>0))return 'rendering.source meshCount='+bg.meshCount+' nodeCount='+bg.nodeCount+'; picture size '+(bg.width==null?'unpublished (live 3D does not publish rendering.size)':bg.width+'x'+bg.height);
+ return null;
+}
+async function visiblePieces(page){return (await H.nodes(page,{name:'ProjectPieceArt'})).filter(n=>n.width>8&&n.height>8).length;}
+module.exports={R5W,openRegionViaJournal,playR5Stage,r5Ledger,boardVisual,liveMeadowReason,visiblePieces,root,boardState,waitBoard,dismissTutorials,resumeBoard,enterCheckpoint,finalSwap,journey,gates,mainline,burstTap,exitToIsland,leaveHome};

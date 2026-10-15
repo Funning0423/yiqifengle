@@ -179,6 +179,8 @@ export function spin(p: PopupPanel, n: Node, secondsPerTurn: number) {
 }
 // ---------------- reward claim ("获得") ----------------
 export interface RewardItem { kind: string; count: number; label: string; art?: string | null; seal?: string | null }
+/** A short no-chest panel places 收下 on the claim button. Ignore those opening taps; a later press still collects. */
+export const REWARD_ACCEPT_GUARD_S = 0.45;
 export function openReward(stack: PopupStack, items: RewardItem[], legacy: ToolArtSource | null, opts: { chest?: boolean; description?: string; done?: () => void } = {}): PopupPanel {
   const hasChest = opts.chest !== false, n = Math.min(3, items.length);
   const ph = hasChest ? 748 : 652, heroY = hasChest ? 258 : 252, heroSize = n === 1 ? 276 : n === 2 ? 220 : 182, p = stack.open({ name: 'RewardPanel', height: ph, title: '获得', titleArt: 'popup/title_3', dy: 30, onClose: opts.done });
@@ -205,10 +207,11 @@ export function openReward(stack: PopupStack, items: RewardItem[], legacy: ToolA
   const t1 = items.map(it => it.label).join('  ·  ');
   p.text(t1, 0, hasChest ? 492 : 426, 32, 'brown', { width: 620, name: 'GainList' });
   p.text(opts.description || '海风吹开了宝箱，收进行囊吧。', 0, hasChest ? 551 : 485, 28, 'brown2', { bold: false, width: 620 });
-  p.button('primary', '收下', 0, ph - 98, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept' });
+  let acceptArmed = false;
+  p.button('primary', '收下', 0, ph - 98, 420, 104, () => p.close(), { fontSize: 38, name: 'Accept', accepts: () => acceptArmed });
   const update = p.update.bind(p); let t = 0; const from = p.at(0, mouthY);
   p.update = (dt: number) => {
-    update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (chest) chest.update(dt);
+    update(dt); t += Math.max(0, Math.min(dt, 0.1)); if (!acceptArmed && t >= REWARD_ACCEPT_GUARD_S) acceptArmed = true; if (chest) chest.update(dt);
     const quick = reducedMotion(), raysK = quick ? 1 : Math.max(0, Math.min(1, (t - 0.35) / 0.3)); if (isValid(raysOp, true)) raysOp.opacity = Math.round(255 * raysK);
     for (let i = 0; i < itemNodes.length; i++) {
       const h = itemNodes[i]; if (!isValid(h, true)) continue; const k = quick ? 1 : Math.max(0, Math.min(1, (t - 0.5 - i * 0.08) / 0.4)), e = 1 - Math.pow(1 - k, 3), to = (h as any).__to;

@@ -78,7 +78,7 @@ export interface ArtButtonHandle {
   setText(text: string): void;
   setKind(kind: 'primary' | 'secondary'): void;
 }
-export interface ButtonOptions { icon?: string; iconScale?: number; fontSize?: number; sound?: Sound; name?: string }
+export interface ButtonOptions { icon?: string; iconScale?: number; fontSize?: number; sound?: Sound; name?: string; accepts?: () => boolean }
 /** Button/slider ownership is scoped to the originating finger and one visible lifetime. */
 export interface PressHandle { cancel(): void; dispose(): void }
 const blockedPressRoots = new WeakSet<Node>();
@@ -147,7 +147,7 @@ export function artButton(parent: Node, tint: TintSet, kind: 'primary' | 'second
   };
   layoutContent();
   let on = true; const op = node.addComponent(UIOpacity);
-  const inputGuard = pressable(node, face, tap, { sound: opts.sound, enabled: () => on, onPress: d => tint.setBase(bg, d ? [240, 240, 240] : [255, 255, 255]) });
+  const inputGuard = pressable(node, face, tap, { sound: opts.sound, enabled: () => on && (!opts.accepts || opts.accepts()), onPress: d => tint.setBase(bg, d ? [240, 240, 240] : [255, 255, 255]) });
   return {
     node, label,
     setEnabled(v: boolean) { if (!v) inputGuard.cancel(); on = v; op.opacity = v ? 255 : 140; bg.grayscale = !v; if (icon) icon.grayscale = !v; },
