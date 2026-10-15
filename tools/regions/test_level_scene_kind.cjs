@@ -50,12 +50,12 @@ assert.ok(hub > boardTop && hub < 1, 'windmill hub ' + hub);
 assert.ok(path0 < below && path0 > -1, 'near path ' + path0);
 
 const skyPose = skycityBoardPose(402 / 874);
-assert.equal(skyPose.fovVerticalDeg, 46);
-assert.deepEqual(skyPose.position, [1.3, 17.87, 62]);
-assert.deepEqual(skyPose.target, [3.29, -12.13, 28.57]);
+assert.equal(skyPose.fovVerticalDeg, 66);
+assert.deepEqual(skyPose.position, [-18, 11.87, 56]);
+assert.deepEqual(skyPose.target, [4, -28.13, 18]);
 const head = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [3.29, 5.05, 28.57]);
 const hand = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [4.62, 1.54, 29.79]);
-const sea = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [20, -40, 30]);
+const sea = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [16, -148, -30]);
 assert.ok(head > boardTop && head < 0.96, 'robot head ' + head);
 assert.ok(hand > boardTop && hand < head, 'watering hand ' + hand);
 assert.ok(sea < below && sea > -1, 'cloud layer ' + sea);

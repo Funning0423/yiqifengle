@@ -2,11 +2,10 @@ import type { AuthoredPose } from '../world-r1/CameraPose';
 /** Rest world position of anchor_robot_root in env_skycity.glb. The board camera
  * keeps this offset so a floating-island bob does not lose the robot. */
 export const SKYCITY_ROBOT_REST: readonly [number, number, number] = [3.6, -0.07, 28.2];
-/** Phone portrait 402×874. The eye is in front of the robot, close enough that the
- * hat brim, the visor, and the watering can are separate shapes. The hat and visor
- * sit above the goal chips, the can sits in the gap above the tray, and the cloud
- * sea stays in the open area below the tray. */
-const PORTRAIT: AuthoredPose = { position: [1.3, 17.87, 62], target: [3.29, -12.13, 28.57], fovVerticalDeg: 46 };
+/** Phone portrait 402×874. The eye sits past the island rim, in front of the
+ * gardener, so the hat and visor stay separate shapes beside the level chip and
+ * the open ground under the tray is the cloud sea. */
+const PORTRAIT: AuthoredPose = { position: [-18, 11.87, 56], target: [4, -28.13, 18], fovVerticalDeg: 66 };
 const LANDSCAPE: AuthoredPose = { position: [48, 28, 150], target: [4, -8, 20], fovVerticalDeg: 52 };
 export function skycityBoardPose(aspect: number): AuthoredPose {
   if (!Number.isFinite(aspect) || aspect <= 0) throw Error('Invalid skycity aspect');
