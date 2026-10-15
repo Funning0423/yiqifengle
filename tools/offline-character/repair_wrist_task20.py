@@ -21,16 +21,16 @@ for k in range(3):
   if node.get('mesh')==mi and 'weights' in node:node['weights'].append(0.)
  meta['morph']['meshes']['LOD0_G2_BODY']['targets'][name]=len(mesh['weights'])-1
  curve=meta['clips']['stand_up']['morph']['curves']['corrective_stand_up_'+str(k)]
- ts=sorted(set([x[0] for x in curve]+np.linspace(.12,.14,41).tolist()+[0]))
+ ts=sorted(set([x[0] for x in curve]+np.linspace(.14,1/6,41).tolist()+[0]))
  def value(t):
-  s=float(np.clip((t-.12)/.02,0,1));return float(np.interp(t,np.array(curve)[:,0],np.array(curve)[:,1])*s*s*(3-2*s))
+  s=float(np.clip((t-.14)/(1/6-.14),0,1));return float(np.interp(t,np.array(curve)[:,0],np.array(curve)[:,1])*s*s*(3-2*s))
  meta['clips']['stand_up']['morph']['curves'][name]=[[t,value(t)] for t in ts]
 # Recompute axial roll with delayed onset; compensation keeps each keyed palm transform.
 a=r.clips['stand_up'];report=[]
 for side in 'LR':
  u,f,h=[r.idx[n+'.'+side] for n in ['upper_arm','forearm','hand']];channels={g.j['nodes'][ch['target']['node']]['name']:ch for ch in a['channels'] if ch['target']['path']=='rotation'};sf=a['samplers'][channels['forearm.'+side]['sampler']];sh=a['samplers'][channels['hand.'+side]['sampler']];ts=g.accessor(sf['input'])[:,0];T,Q,S=orr.sample_clip('stand_up',ts);W=orr.fk(T,Q,S);Q2=Q.copy()
  for i,t in enumerate(ts):
-  fade=min(np.clip((t-.12)/.02,0,1),np.clip((.70-t)/.24,0,1));fade=fade*fade*(3-2*fade)*.65
+  fade=min(np.clip((t-.14)/(1/6-.14),0,1),np.clip((.70-t)/.24,0,1));fade=fade*fade*(3-2*fade)*.65
   if fade==0:continue
   axis=W[i,h,:3,3]-W[i,f,:3,3];axis/=np.linalg.norm(axis);current=W[i,f,:3,:3];desired=W[i,h,:3,:3]@R.q2m(orr.rest_r[h]).T;v=current[:,0]-axis*np.dot(current[:,0],axis);z=desired[:,0]-axis*np.dot(desired[:,0],axis);v/=np.linalg.norm(v);z/=np.linalg.norm(z);angle=np.arctan2(np.dot(axis,np.cross(v,z)),np.dot(v,z));rf=R.rotvec2m(axis*angle*fade)@current;Q2[i,f]=R.m2q(W[i,u,:3,:3].T@rf);Q2[i,h]=R.m2q(rf.T@W[i,h,:3,:3])
  W2=orr.fk(T,Q2,S);pe=float(np.linalg.norm(W2[:,h,:3,3]-W[:,h,:3,3],axis=1).max());re=float(abs(W2[:,h,:3,:3]-W[:,h,:3,:3]).max());assert pe<2e-6 and re<1e-5
@@ -38,5 +38,5 @@ for side in 'LR':
  report.append(dict(side=side,handPositionErrorM=pe,handRotationMatrixError=re))
 exec(src[src.index('# Repack only referenced bufferViews;'):src.index('META.write_text(')])
 META.write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
-(ROOT/'evidence/offline-character/task20-repair.json').write_text(json.dumps(dict(report=report,glbSHA256=sha(ASSET.read_bytes()),metaSHA256=sha(META.read_bytes()),onset=[.12,.14]),indent=2))
+(ROOT/'evidence/offline-character/task20-repair.json').write_text(json.dumps(dict(report=report,glbSHA256=sha(ASSET.read_bytes()),metaSHA256=sha(META.read_bytes()),onset=[.14,1/6]),indent=2))
 print(report)
