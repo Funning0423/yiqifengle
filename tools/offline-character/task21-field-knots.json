@@ -1,0 +1,590 @@
+[
+  {
+    "name": "task21_sit_down_0",
+    "clip": "sit_down",
+    "time": 0.08600000000000001,
+    "engineFrame": 26998,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_sit_down_1",
+    "clip": "sit_down",
+    "time": 0.121,
+    "engineFrame": 27000,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 83,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0075444204501960545,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_sit_down_2",
+    "clip": "sit_down",
+    "time": 0.15799999999999997,
+    "engineFrame": 27002,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 105,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 155,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.07960483050156004,
+      "LOD0_G2_APRON": 0.06947410089514296
+    }
+  },
+  {
+    "name": "task21_sit_down_3",
+    "clip": "sit_down",
+    "time": 0.19599999999999995,
+    "engineFrame": 27004,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 120,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 170,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.08321247103581876,
+      "LOD0_G2_APRON": 0.07205354345825978
+    }
+  },
+  {
+    "name": "task21_sit_down_4",
+    "clip": "sit_down",
+    "time": 0.23199999999999993,
+    "engineFrame": 27022,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 108,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 176,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.054692709410149344,
+      "LOD0_G2_APRON": 0.04940354579316401
+    }
+  },
+  {
+    "name": "task21_sit_down_5",
+    "clip": "sit_down",
+    "time": 0.26699999999999996,
+    "engineFrame": 27024,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 88,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 117,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.035953945833323515,
+      "LOD0_G2_APRON": 0.02719466727293406
+    }
+  },
+  {
+    "name": "task21_sit_down_6",
+    "clip": "sit_down",
+    "time": 0.3060000000000001,
+    "engineFrame": 27026,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 70,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 87,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.024711272894701184,
+      "LOD0_G2_APRON": 0.019164440615903597
+    }
+  },
+  {
+    "name": "task21_sit_down_7",
+    "clip": "sit_down",
+    "time": 0.34300000000000025,
+    "engineFrame": 27028,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 8,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 53,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.01390911491617305,
+      "LOD0_G2_APRON": 0.005227092186007303
+    }
+  },
+  {
+    "name": "task21_sit_down_8",
+    "clip": "sit_down",
+    "time": 0.37600000000000033,
+    "engineFrame": 27030,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_sit_down_9",
+    "clip": "sit_down",
+    "time": 0.42800000000000055,
+    "engineFrame": 27033,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_stand_up_0",
+    "clip": "stand_up",
+    "time": 0.018,
+    "engineFrame": 2239,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 186,
+      "legsLOD0_G2_APRON": 53,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 18,
+      "legsLOD0_G2_DRESS": 166,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 212,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 34,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.015715740586069858,
+      "LOD0_G2_APRON": 0.011337511779838858
+    }
+  },
+  {
+    "name": "task21_stand_up_1",
+    "clip": "stand_up",
+    "time": 0.052000000000000005,
+    "engineFrame": 2241,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 204,
+      "legsLOD0_G2_APRON": 6,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 65,
+      "legsLOD0_G2_DRESS": 96,
+      "apronDress": 4
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 207,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 90,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.009861071217225896,
+      "LOD0_G2_APRON": 0.003445177934431419
+    }
+  },
+  {
+    "name": "task21_stand_up_2",
+    "clip": "stand_up",
+    "time": 0.089,
+    "engineFrame": 7575,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 38,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 7,
+      "legsLOD0_G2_DRESS": 44,
+      "apronDress": 4
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 41,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 7,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.01186499984474977,
+      "LOD0_G2_APRON": 0.003064966338359948
+    }
+  },
+  {
+    "name": "task21_stand_up_3",
+    "clip": "stand_up",
+    "time": 0.123,
+    "engineFrame": 8528,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 7,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 38,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 14,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.012702636980592796,
+      "LOD0_G2_APRON": 0.006441467152989675
+    }
+  },
+  {
+    "name": "task21_stand_up_4",
+    "clip": "stand_up",
+    "time": 0.15799999999999997,
+    "engineFrame": 11540,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 54,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.010793177569515087,
+      "LOD0_G2_APRON": 0.014584752391966407
+    }
+  },
+  {
+    "name": "task21_stand_up_5",
+    "clip": "stand_up",
+    "time": 0.19099999999999995,
+    "engineFrame": 11542,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 18,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.007881992171341317,
+      "LOD0_G2_APRON": 0.01011624661212421
+    }
+  },
+  {
+    "name": "task21_stand_up_6",
+    "clip": "stand_up",
+    "time": 0.22499999999999992,
+    "engineFrame": 11544,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 3,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0017679307823519582,
+      "LOD0_G2_APRON": 0.0027136036743144174
+    }
+  },
+  {
+    "name": "task21_stand_up_7",
+    "clip": "stand_up",
+    "time": 0.25999999999999995,
+    "engineFrame": 11546,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_stand_up_8",
+    "clip": "stand_up",
+    "time": 0.6630000000000001,
+    "engineFrame": 18356,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_stand_up_9",
+    "clip": "stand_up",
+    "time": 0.698,
+    "engineFrame": 18358,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 8,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.00236232920898321,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_stand_up_10",
+    "clip": "stand_up",
+    "time": 0.7329999999999998,
+    "engineFrame": 18360,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.0
+    }
+  }
+]

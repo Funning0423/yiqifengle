@@ -1,0 +1,212 @@
+[
+  {
+    "name": "task21_refine_sit_down_139",
+    "clip": "sit_down",
+    "time": 0.13899999999999998,
+    "lo": 0.121,
+    "hi": 0.158,
+    "engineFrame": 27001,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 36,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 110,
+      "apronDress": 8
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.013903110676139412,
+      "LOD0_G2_APRON": 0.01073695985501926
+    }
+  },
+  {
+    "name": "task21_refine_sit_down_177",
+    "clip": "sit_down",
+    "time": 0.17699999999999996,
+    "lo": 0.158,
+    "hi": 0.196,
+    "engineFrame": 27003,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 97,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.017014006020827973,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_refine_sit_down_214",
+    "clip": "sit_down",
+    "time": 0.21399999999999994,
+    "lo": 0.196,
+    "hi": 0.232,
+    "engineFrame": 27005,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 35,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0033807686542033583,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_refine_sit_down_249",
+    "clip": "sit_down",
+    "time": 0.24899999999999992,
+    "lo": 0.232,
+    "hi": 0.267,
+    "engineFrame": 27023,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 8,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0017145322273969727,
+      "LOD0_G2_APRON": 0.0
+    }
+  },
+  {
+    "name": "task21_refine_sit_down_286",
+    "clip": "sit_down",
+    "time": 0.28600000000000003,
+    "lo": 0.267,
+    "hi": 0.306,
+    "engineFrame": 27025,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 6,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.00298476121931545,
+      "LOD0_G2_APRON": 0.002489977203925432
+    }
+  },
+  {
+    "name": "task21_refine_stand_up_174",
+    "clip": "stand_up",
+    "time": 0.17399999999999996,
+    "lo": 0.158,
+    "hi": 0.191,
+    "engineFrame": 11541,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 3,
+      "apronDress": 0
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.00237131938203459,
+      "LOD0_G2_APRON": 0.0025328661252454875
+    }
+  },
+  {
+    "name": "task21_refine_stand_up_208",
+    "clip": "stand_up",
+    "time": 0.20799999999999993,
+    "lo": 0.191,
+    "hi": 0.225,
+    "engineFrame": 11543,
+    "before": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 51
+    },
+    "after": {
+      "sleeveLOD0_G2_APRON": 0,
+      "handLOD0_G2_APRON": 0,
+      "legsLOD0_G2_APRON": 0,
+      "sleeveLOD0_G2_DRESS": 0,
+      "handLOD0_G2_DRESS": 0,
+      "legsLOD0_G2_DRESS": 0,
+      "apronDress": 0
+    },
+    "maxM": {
+      "LOD0_G2_DRESS": 0.0,
+      "LOD0_G2_APRON": 0.003187863234675653
+    }
+  }
+]
