@@ -1,0 +1,73 @@
+{
+  "url": "http://127.0.0.1:8783/",
+  "viewport": {
+    "width": 402,
+    "height": 874
+  },
+  "chrome": "/Users/shineanl/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "meadow": {
+    "stageId": "mainline-08",
+    "background": {
+      "state": "ready",
+      "stageId": "mainline-08",
+      "rendering": {
+        "renderer": "region-live-3d",
+        "region": "meadow",
+        "bundle": "region_meadow",
+        "prefabName": "env_meadow",
+        "source": {
+          "version": "v0.8.0",
+          "zipSHA256": "24a2d186db21c37e310fdf86d7d326b88b0fe95257b1175203a31607b1d727c8",
+          "sourceGLBSHA256": "8349b9a8f39203e6eb9bcc6296a9cf55f690cba7e659058223cc4ff0a6afe712",
+          "derivedGLBSHA256": "de63ba1e4f116c90422189f96ca6c93bc6497790734e699793ea109947ca19db",
+          "windmillSeconds": 8,
+          "windPeriodSeconds": 4,
+          "nodeCount": 67,
+          "meshCount": 23,
+          "grassInstances": 1000,
+          "flowerInstances": 150
+        },
+        "visible": true,
+        "paused": false,
+        "cameraPriority": 44,
+        "layer": 1048576,
+        "motion": {
+          "seconds": 2.1006999999880787,
+          "paused": false,
+          "windmillLoopSeconds": 8,
+          "grassWaveSeconds": 4
+        },
+        "dynamicTextureUploads": 0
+      }
+    },
+    "shot": "evidence/task21-regions/meadow-board.png",
+    "sha256": "a558edb7718d0568d2ea45b18d9132065abd50452d6dc707ac51f51dba9e613a"
+  },
+  "skycity": {
+    "stageId": "mainline-12",
+    "background": {
+      "state": "ready",
+      "stageId": "mainline-12",
+      "rendering": {
+        "renderer": "region-live-3d",
+        "region": "skycity",
+        "bundle": "region_skycity",
+        "prefabName": "env_skycity",
+        "visible": true,
+        "paused": false,
+        "cameraPriority": 43,
+        "layer": 1048576,
+        "dynamicTextureUploads": 0
+      }
+    },
+    "shot": "evidence/task21-regions/skycity-board.png",
+    "sha256": "ec9ddf2bd87bb9b330cd15d6abd085b5673c98e889d7d0ac4a5ccf7604f7e46d"
+  },
+  "pageErrors": [
+    "Failed to load resource: net::ERR_CONNECTION_RESET",
+    "Failed to load resource: net::ERR_CONNECTION_RESET",
+    "Failed to load resource: net::ERR_CONNECTION_RESET"
+  ],
+  "phoneAcceptance": false,
+  "wechatAcceptance": false
+}

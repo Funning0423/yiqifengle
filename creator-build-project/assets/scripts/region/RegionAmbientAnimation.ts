@@ -60,7 +60,7 @@ export class RegionAmbientAnimation extends Component {
     if(!wanted.length){console.warn('RegionAmbientAnimation: no clips to play on',this.node.name);return;}
     if(wanted.length>1)anim.useBakedAnimation=false;
     anim.playOnLoad=true;anim.defaultClip=wanted[0];
-    this.playing=wanted.map(c=>{const s=anim.getState(c.name)!;s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
+    this.playing=wanted.map(c=>{const s=anim.getState(c.name)||anim.createState(c);if(!s)throw Error('Ambient state missing: '+c.name);s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
       if(this.randomizeStart)s.time=Math.random()*s.duration;s.play();return s;});
   }
   /** Plays watering or give-flower once. Stops robot_idle for that skeleton and leaves sky_ambient_loop running. */
