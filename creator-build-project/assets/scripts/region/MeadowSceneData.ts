@@ -14,7 +14,10 @@ export const MEADOW_SCENE_SOURCE = {
   "grassInstances": 1000,
   "flowerInstances": 150
 } as const;
-const PORTRAIT: AuthoredPose = {"position": [9, 19, 42], "target": [0.3274661665889038, 5.509406509325702, -15.81687522999821], "fovVerticalDeg": 49.42635311494791};
+/** Phone portrait: the match board covers the middle, so the windmill sits in the open
+ * sky above it and the near path and grass sit in the open ground below it.
+ * Vertical FOV stays the authored CAM_map_portrait value. GLB bytes are unchanged. */
+const PORTRAIT: AuthoredPose = { position: [0, 24, 45], target: [0, 4, 4], fovVerticalDeg: 49.42635311494791 };
 const LANDSCAPE: AuthoredPose = {"position": [-24, -2.977158308029175, 9], "target": [-11.797898652545943, 9.497561769919479, -48.40635941040094], "fovVerticalDeg": 45.747329879468886};
 export function meadowScenePose(aspect:number): AuthoredPose {
  if(!Number.isFinite(aspect)||aspect<=0)throw Error('Invalid meadow aspect');

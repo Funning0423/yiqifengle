@@ -104,7 +104,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
     const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');},
    setVisible:value=>{if(disposed)return;visible=value;rig!.active=value;camera!.enabled=value;motion!.visible=value;},
-   setPaused:value=>{if(disposed)return;paused=value;motion!.hostPaused=value;},
+   setPaused:value=>{if(disposed)return;paused=value;motion!.hostPaused=value;if(visible&&camera&&isValid(camera,true))camera.enabled=true;},
    diagnostics:()=>({renderer:'region-live-3d',region:'meadow',bundle:REGIONS.meadow.bundle,prefabName:REGIONS.meadow.prefabName,source:MEADOW_SCENE_SOURCE,visible,paused,cameraPriority:44,layer:MEADOW_LAYER,motion:motion?.diagnostics()||null,dynamicTextureUploads:0}),
    dispose,
   };

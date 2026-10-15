@@ -287,6 +287,13 @@ export function approachNight(current: number, night: boolean, dt: number): numb
   const target = night ? 1 : 0, step = Math.max(0, Math.min(dt, 0.1)) / ISLAND_PROPS.nightFadeS;
   return current < target ? Math.min(target, current + step) : Math.max(target, current - step);
 }
+/** One night-weight step. A live game.totalTime delta wins. When that clock is stuck, wallDt keeps the
+ * 0.5 s fade moving so 「继续旅程」 can leave the day ink. The first sync still snaps. Night ink stays #3a220f. */
+export function nightWeightStep(current: number, night: boolean, totalDt: number, wallDt: number, first: boolean): number {
+  if (first) return night ? 1 : 0;
+  const live = Number.isFinite(totalDt) && totalDt > 0 ? totalDt : (Number.isFinite(wallDt) && wallDt > 0 ? wallDt : 0);
+  return approachNight(current, night, live);
+}
 /** Lamp light state at night weight w: smoothstep so the light eases in/out (no pop at either end). */
 export function lampLightAt(w: number): { enabled: boolean; scale: number } {
   const k = Math.max(0, Math.min(1, w)), e = k * k * (3 - 2 * k);

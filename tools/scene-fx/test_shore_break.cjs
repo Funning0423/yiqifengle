@@ -95,6 +95,23 @@ function layersOf() {
   check('wave-line-stays-under-sea', Math.abs(sunk.y - S.sinkY) < 1e-9 && Math.abs(sunk.scale - 1) < 1e-9 && sunk.y === up.y && sunk.y === tiny.y && sunk.y < S.seaBaseY - 0.2, { sunk: sunk, seaBaseY: S.seaBaseY });
 
   check('playhead-locks-clock', Math.abs(C.stepShoreClock(1, 0.5, 6.3) - C.wrapLoop(6.3)) < 1e-12 && Math.abs(C.stepShoreClock(1, 0.05, null) - 1.05) < 1e-12 && Math.abs(C.stepShoreClock(1, 0.5, null) - 1.1) < 1e-12 && Math.abs(C.stepShoreClock(0, 5, null) - 0.1) < 1e-12 && Math.abs(C.wrapLoop(-0.064) - (S.loopS - 0.064)) < 1e-6 && Math.abs(C.stepShoreClock(1, 0.2, NaN) - 1.1) < 1e-12 && C.wrapLoop(S.loopS) === 0, { integratedHalfSecond: C.stepShoreClock(1, 0.5, null), nanPlayhead: C.stepShoreClock(1, 0.2, NaN) });
+  let heard = null, same = 0, time = 6.3, locked = 0;
+  for (let i = 0; i < 6; i++) {
+    const f = C.followShorePlayhead(6.3, heard, same, 0.016);
+    heard = f.heard; same = f.sameFor; time = C.stepShoreClock(time, 0.016, f.playhead);
+    if (f.playhead !== null) locked++;
+  }
+  const still = Math.abs(time - C.wrapLoop(6.3)) < 1e-6;
+  for (let i = 0; i < 20; i++) {
+    const f = C.followShorePlayhead(6.3, heard, same, 0.016);
+    heard = f.heard; same = f.sameFor; time = C.stepShoreClock(time, 0.016, f.playhead);
+  }
+  const released = Math.abs(time - C.wrapLoop(6.3)) > 0.05;
+  const snap = C.followShorePlayhead(1, heard, same, 0.016);
+  const paused = C.followShorePlayhead(null, 1, 5, 0.016);
+  const es5 = C5.followShorePlayhead(6.3, null, 0, 0.016);
+  const es6 = C.followShorePlayhead(6.3, null, 0, 0.016);
+  check('playhead-stall-falls-back', locked === 6 && still && released && snap.playhead !== null && Math.abs(snap.playhead - C.wrapLoop(1)) < 1e-9 && paused.playhead === null && paused.sameFor === 0 && Math.abs(es5.playhead - es6.playhead) < 1e-12 && Math.abs(S.foamReach - 0.15) < 1e-12 && Math.abs(S.shorePeak - 0.82) < 1e-12 && C.SHORE_PLAYHEAD_STALL_S === 0.2, { locked: locked, still: still, released: released, after: time, foamReach: S.foamReach, shorePeak: S.shorePeak });
 
   const hitPhase = C.shorePhase(hitA);
   let shoreSum = 0, offSum = 0, lipN = 0, radiusErr = 0;
@@ -187,7 +204,7 @@ function layersOf() {
   // Two foam mainColor writes (init alpha 0, then place). The sea material is never written.
   // The imported mesh stays. Rebuilding it (RGBA color stream included) still drew the device sea black.
   const swaps = wrap.includes('mr.mesh = dynamic') || wrap.includes('seaAlbedoColors') || wrap.includes('ATTR_COLOR') || wrap.includes('displaceSea') || wrap.includes('readAttribute');
-  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('seaSheetLift') && wrap.includes('stepShoreClock') && wrap.includes('this.playhead()') && wrap.includes('foamMultiply') && wrap.includes('tilingOffset') && wrap.includes('setPosition') && wrap.includes('this.exterior && phase.foamA') && !swaps && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && !/length < count \* 4/.test(coreSrc) && coreSrc.includes('seaAlbedoColors') && coreSrc.includes('seaSheetLift') && coreSrc.includes('foamReach') && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length, swaps: swaps });
+  check('same-sea', wrap.includes("findNamed(model, 'env_sea_surface')") && wrap.includes('seaSheetLift') && wrap.includes('stepShoreClock') && wrap.includes('this.playhead()') && wrap.includes('followShorePlayhead') && wrap.includes('foamMultiply') && wrap.includes('tilingOffset') && wrap.includes('setPosition') && wrap.includes('this.exterior && phase.foamA') && !swaps && mainSets.length === 2 && !/env_window_blind/.test(wrap) && !/new Node\('env_sea/.test(wrap) && !/fx_sea/.test(wrap) && !/setProperty\('mainColor'/.test(coreSrc) && !/length < count \* 4/.test(coreSrc) && coreSrc.includes('seaAlbedoColors') && coreSrc.includes('seaSheetLift') && coreSrc.includes('foamReach') && coreSrc.includes('SHORE_PLAYHEAD_STALL_S') && wrap.includes('SHORE.sinkY') === false && wrap.includes('waveLinePose'), { mainColorSets: mainSets.length, swaps: swaps });
 
   let codeBytes = 0;
   for (const f of ['render/ShoreBreak.ts', 'render/ShoreBreak.ts.meta', 'render/ShoreBreakCore.ts', 'render/ShoreBreakCore.ts.meta']) codeBytes += fs.statSync(path.join(scripts, f)).size;
