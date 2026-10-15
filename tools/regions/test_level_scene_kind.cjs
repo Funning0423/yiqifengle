@@ -49,22 +49,21 @@ const path0 = ndcY(meadowPose.position, meadowPose.target, meadowPose.fovVertica
 assert.ok(hub > boardTop && hub < 1, 'windmill hub ' + hub);
 assert.ok(path0 < below && path0 > -1, 'near path ' + path0);
 
-const skyPose = skycityBoardPose(390 / 844, 212 / 844);
+const skyPose = skycityBoardPose(402 / 874);
 assert.equal(skyPose.fovVerticalDeg, 64);
-assert.equal(skyPose.position[0], 5.5);
-const head = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [3.6, 6.5, 28.2]);
-const ring = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [0.05, 20.05, -23.95]);
-assert.ok(head > boardTop && head < 0.95, 'robot head ' + head);
-assert.ok(ring > boardTop && ring < 1, 'star ring ' + ring);
-const seaSamples = [];
-for (let x = -80; x <= 80; x += 20) for (let z = -180; z <= 40; z += 20) seaSamples.push(ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [x, -129, z]));
-const sea = seaSamples.filter((y) => y < below && y > -1);
-assert.ok(sea.length > 0, 'cloud sea samples in the open ground ' + seaSamples.map((y) => y.toFixed(2)).join(','));
+assert.deepEqual(skyPose.position, [1.26, 20.49, 68.76]);
+assert.deepEqual(skyPose.target, [3.29, -14.43, 28.57]);
+const head = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [3.29, 5.05, 28.57]);
+const hand = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [1.92, 1.55, 27.36]);
+const sea = ndcY(skyPose.position, skyPose.target, skyPose.fovVerticalDeg, [10, -30, 40]);
+assert.ok(head > boardTop && head < 0.72, 'robot head ' + head);
+assert.ok(hand > 0.42 && hand < head, 'watering hand ' + hand);
+assert.ok(sea < below && sea > -1, 'cloud layer ' + sea);
 const landscape = skycityBoardPose(16 / 9, 0.2);
 assert.notDeepEqual(landscape.position, skyPose.position);
 
 console.log(JSON.stringify({
   status: 'PASS',
   meadow, sky, picture,
-  framing: { boardTop, below, hub, path0, head, ring, sea, skyTarget: skyPose.target },
+  framing: { boardTop, below, hub, path0, head, hand, sea, skyTarget: skyPose.target },
 }, null, 2));
