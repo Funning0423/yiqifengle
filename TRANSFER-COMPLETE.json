@@ -1,0 +1,90 @@
+{
+  "status": "TRANSFER_COMPLETE_REMOTE_BYTES_SHA256_VERIFIED",
+  "sourceCommit": "751905c985e4e0c898f395456c3b2a41ff7a1376",
+  "originalFrozenCommit": "91bb5a4b28add90616e5db707663f5afce1a88f5",
+  "payloadCommit": "8e2f9a38f6f061e941710693e9251cfb41f2fff4",
+  "originalFileCount": 14,
+  "originalBytes": 165109896,
+  "storedPartCount": 168,
+  "maxPartBytes": 1048576,
+  "manifestSHA256": "52c5da08ef2519d22ea1c7ea326f11f95f413c35a9ee33089f1ff6f684dae55e",
+  "allPartsRemoteByteHashesVerified": true,
+  "allOriginalRemoteByteHashesVerified": true,
+  "reconstructionScriptExecutedSuccessfully": true,
+  "originalFiles": [
+    {
+      "path": "deliverables/task21-source.tar.gz",
+      "bytes": 128262899,
+      "sha256": "4571359f123312d92940c267a6048813a30c969a38799e21bfb14ddc7d6318b2"
+    },
+    {
+      "path": "deliverables/task21-native-package.zip",
+      "bytes": 13626338,
+      "sha256": "9f1419c2b3f4e687677cfec19e8b82cc24fb552a35ccb5278c0eb293c9228700"
+    },
+    {
+      "path": "audit_pairs.py",
+      "bytes": 4583,
+      "sha256": "6738f664b517ded69c796a8dbd42151ebe46f18297b97d6db7aa4e93d7a4dbf9"
+    },
+    {
+      "path": "offline_check.py",
+      "bytes": 1982,
+      "sha256": "9e343119a74f2add989e0cf9a86a9ffb78866ec4867f815a6fe47c39d0cf4983"
+    },
+    {
+      "path": "integrated-source/evidence/offline-character/task21-baseline.glb",
+      "bytes": 2959636,
+      "sha256": "baa3e97a0519b14fa7b44ca5af931bb48bf9f9fda038ca736c9ce3d030d814bf"
+    },
+    {
+      "path": "task20/evidence/native-all-observed-frames.json",
+      "bytes": 19692420,
+      "sha256": "a129e12fd490c4139d589dfc1a53927f90402173b7db7ab4a698525aff48b213"
+    },
+    {
+      "path": "deliverables/source-after-final-manifest.json",
+      "bytes": 422121,
+      "sha256": "9183915105c982a82389633ceca4ea30cf4cfefc0f8369e694002814af74484c"
+    },
+    {
+      "path": "deliverables/package-after-final-manifest.json",
+      "bytes": 105649,
+      "sha256": "36348d781bde29fb54e57048bf97129bac260766dde1b9dc09196a5e4cb2edcc"
+    },
+    {
+      "path": "deliverables/receipt.json",
+      "bytes": 8261,
+      "sha256": "cd824c3faf7b82c937079853d8b7b7a8d070cc64f79adc19c027ddaa0328cd9b"
+    },
+    {
+      "path": "deliverables/task21-report.md",
+      "bytes": 10381,
+      "sha256": "10ba1b50351be0e025c335201567227906809b185f0b061e705274232a946853"
+    },
+    {
+      "path": "CHECKPOINT.md",
+      "bytes": 7479,
+      "sha256": "601e2fa6dd76a2356936b928fd8edbeb6661c3ffd2e0c47071e6b589baa02f6f"
+    },
+    {
+      "path": "LOCAL-HANDOFF.md",
+      "bytes": 4597,
+      "sha256": "7b3732c922e0bcb2a90856afc9a27394143aedc666e77c1166886a30dea06dce"
+    },
+    {
+      "path": "evidence/local-sync-diagnostic-summary.json",
+      "bytes": 2360,
+      "sha256": "73cc214cae445f7b7ced4a5efadf805da4d9438a13e64cdd787270b79799495a"
+    },
+    {
+      "path": "evidence/final-offline-pairs-summary.json",
+      "bytes": 1190,
+      "sha256": "b4bdcd6bfe6008f4d979138b43abca02cf751d9e38bd1563280ad3645c520899"
+    }
+  ],
+  "gameAcceptance": "OPEN_NOT_FROZEN",
+  "localWechatInvoked": false,
+  "gameTestsRun": false,
+  "completedAtUTC": "2026-10-15T09:19:06.151408+00:00"
+}
