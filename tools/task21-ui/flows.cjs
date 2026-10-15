@@ -61,5 +61,16 @@ function liveMeadowReason(bg){
  if(!(bg.meshCount>0&&bg.nodeCount>0))return 'rendering.source meshCount='+bg.meshCount+' nodeCount='+bg.nodeCount+'; picture size '+(bg.width==null?'unpublished (live 3D does not publish rendering.size)':bg.width+'x'+bg.height);
  return null;
 }
+/** null when the published live sky-city diagnostics are on screen. Sky does not publish a picture size or mesh counts. */
+function liveSkycityReason(bg){
+ if(!bg)return 'missing background';
+ if(bg.state!=='ready')return 'state '+bg.state;
+ if(bg.renderer!=='region-live-3d')return 'renderer '+bg.renderer;
+ if(bg.bundle!=='region_skycity')return 'bundle '+bg.bundle;
+ if(bg.prefabName!=='env_skycity')return 'prefab '+bg.prefabName;
+ if(bg.region!=='skycity')return 'region '+bg.region;
+ if(bg.visible!==true)return 'visible is false';
+ return null;
+}
 async function visiblePieces(page){return (await H.nodes(page,{name:'ProjectPieceArt'})).filter(n=>n.width>8&&n.height>8).length;}
-module.exports={R5W,openRegionViaJournal,playR5Stage,r5Ledger,boardVisual,liveMeadowReason,visiblePieces,root,boardState,waitBoard,dismissTutorials,resumeBoard,enterCheckpoint,finalSwap,journey,gates,mainline,burstTap,exitToIsland,leaveHome};
+module.exports={R5W,openRegionViaJournal,playR5Stage,r5Ledger,boardVisual,liveMeadowReason,liveSkycityReason,visiblePieces,root,boardState,waitBoard,dismissTutorials,resumeBoard,enterCheckpoint,finalSwap,journey,gates,mainline,burstTap,exitToIsland,leaveHome};
