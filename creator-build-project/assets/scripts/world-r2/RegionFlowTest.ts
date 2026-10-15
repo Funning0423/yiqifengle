@@ -66,6 +66,22 @@ export function createRegionFlowEntry(level: number) {
  const stage=REGION_FLOW_WITNESSES[level-1];
  return {namespace,mainline,r4,r5,stageId:stage.stageId,seed:stage.seed,lastAction:null,completed:level,pinned:false};
 }
+/** Debug jump to a regional ordinal-1 stage. Replays `wins` full mainline witnesses (4 tide, 8 meadow, 12 sky)
+ * in a fresh root and does not start another stage. Never writes the user save. */
+export function createRegionFlowWins(wins: number) {
+ if(!DEBUG)throw Error('debug-build-only');
+ if(!Number.isInteger(wins)||wins<1||wins>REGION_FLOW_WITNESSES.length)throw Error('unsupported-wins');
+ const namespace='dot-region-flow-test-'+Date.now().toString(36)+'-'+(++serial)+'-'+Math.random().toString(36).slice(2)+':';
+ const root=openRegionFlowRoot(namespace);if(!root.empty())throw Error('test-root-not-empty');
+ const {mainline,r4,r5}=root,controller=mainline.createController();
+ const requireOK=(reply:any)=>{if(!reply?.ok)throw Error('wins-replay-failed: '+(reply?.reason||'unknown'));};
+ for(let i=0;i<wins;i++){
+  const witness=REGION_FLOW_WITNESSES[i];requireOK(controller.startStage(witness.stageId,{seed:witness.seed}));
+  for(let a=0;a<witness.actions.length;a++){const p=controller.previewAction(witness.actions[a]);requireOK(p);requireOK(controller.commitAction(p.token));let v=controller.snapshot().visual;while(v){requireOK(controller.finishVisualStep(v.token));v=controller.snapshot().visual;}}
+  const s=controller.snapshot();if(!s.result?.completionRecorded||s.state!=='result.saved')throw Error('unregistered-replay');
+ }
+ return {namespace,mainline,r4,r5,stageId:null,seed:0,lastAction:null,completed:wins,pinned:false};
+}
 function sameActions(a:any,b:any){return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((step:any,i:number)=>Array.isArray(step)&&Array.isArray(b[i])&&step.length===b[i].length&&step.every((v:any,j:number)=>v===b[i][j]));}
 /** Banner checkpoint for a restarted pin. Journey `completed` is stages already won, so an in-progress mainline-08 has completed 7. The mark must name the stage on screen. `lastAction` returns only while that attempt is still the witness prefix. Read-only. */
 export function pinnedFlowMarker(mainline:{journeySnapshot:()=>any;createController:()=>any}){

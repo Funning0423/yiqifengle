@@ -148,6 +148,16 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
   const b2=Object.assign(new B(),{hudState:'crossing-out',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:null,canvas:b.canvas});moved.length=0;b2.trackTransitionHud('island');b2.applyIslandEntrance(1/60,mainline);assert(moved.length===2,'flat mainline still animated');
   assert(/if\(sign&&\(this\.islandEntrance>=0\|\|this\.signEntrance>=0\)\)sign=\{x:sign\.x,y:sign\.y,width:0,height:0\};/.test(src),'zero-size hit area during the entrance');
 });
+ok('island bottom bar: dock labels and 3D icons share one entrance alpha, and props are placed after that alpha is written',()=>{
+  const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+  const props=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/this\.dockFade=e/.test(boot)&&/this\.islandProps\?\.setButtonFade\?\.\(e\)/.test(boot)&&/buttonFade:this\.dockFade/.test(boot));
+  assert(/trackTransitionHud\(s\.state\);if\(s\.state==='island'\)for\(const id of ISLAND_NAV_IDS\)/.test(boot));
+  const applyAt=boot.indexOf("this.applyIslandEntrance(dt,this.controls.get('mainline')??null)"),syncAt=boot.indexOf('this.syncIslandProps(s,f)');
+  assert(applyAt>0&&syncAt>applyAt,'entrance pose is applied before the 3D props read the dock');
+  assert(/setButtonFade\(e: number\)/.test(props)&&/this\.placeButtons\(o\);\n    if \(typeof o\.buttonFade === 'number'\) this\.setButtonFade\(o\.buttonFade\);/.test(props));
+  assert(!/palette!?\s*\.setProperty/.test(props),'button fade does not write the shared palette');
+});
 ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): REAL Boot gate - the sign fades OUT (mirror of the entrance: 0.25 s, cubic, sinking 24 px) when the return walk starts, stays 0 on the whole return (walking-home incl. crane, crossing-in, door, seat, home) and the next leave (crossing-out), then buttons + entrance on arrival; a cancelled return fades back IN from where it was (no pop)',()=>{
   const B=BootSign;assert(B,'previous check loaded the Boot gate');const calls=[];
   const dock={position:{x:0,y:0,z:0},setPosition(){},setScale(){}};

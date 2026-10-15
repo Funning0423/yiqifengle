@@ -120,6 +120,9 @@ const fillSprite=layer=>layer.root.children[0].children[0].getComponent(CC.Sprit
  assert.equal(mask[mask.length-1],0,'mask alpha reaches 0');assert.deepEqual(mask,root,'mask and picture fade on the same curve');
  assert.equal(l.diagnostics().maskAlpha,0,'diagnostics expose the drawn mask alpha');assert.equal(l.diagnostics().fillType,CC.Sprite.Type.FILLED);
  assert(mask[0]<255,'fade starts right after the held frame');near(n/60,L.OUTRO_FADE_S,1/60+1e-9,'fade length after the held frame');
+ assert(L.OUTRO_FADE_S>=0.4,'outro lasts at least 0.4 s');
+ const mid=mask[Math.min(mask.length-1,Math.round(L.OUTRO_FADE_S*30)-1)];
+ assert(mid>40&&mid<210,'linear fade is still visible near the midpoint: '+mid);
  const half=Math.floor(mask.length/2);for(let i=1;i<half;i++)assert(mask[i]<mask[i-1],'first half of the fade: mask alpha drops every frame ('+i+')');
  const steps=mask.map((a,i)=>(i?mask[i-1]:255)-a);
  ok('H outro: Graphics mask redrawn with alpha each frame (no UIOpacity), held opaque on the first outro frame, then monotonic 255 -> 0 together with the picture over '+L.OUTRO_FADE_S+' s',{maskAlpha60fps:mask,maxStep:Math.max.apply(null,steps)});
@@ -165,7 +168,11 @@ ok('C first-screen quad == StartupLoadingLayout cover == StartupLoadingLayer nod
  ok('D1 handoff: sprites set synchronously (no loadRemote), clamp/linear like first-screen, dynamic group 0 on takeover frame, intro 0->255 in '+L.INTRO_FADE_S+' s (max step '+maxStep+'/255 per 60 fps frame), real-stage progress only, outro '+L.OUTRO_FADE_S+' s');
  // D2 fallback
  delete CC.G.__firstScreen;CC.remote.length=0;const l2=new Layer(new CC.Node('Canvas'),()=>{});assert.deepEqual(CC.remote.map(r=>r.url).sort(),['startup-art/bar_fill.png','startup-art/first_screen_composite.jpg','startup-art/pinwheel.png']);
- assert.equal(l2.root.getComponent(CC.Sprite).spriteFrame,null);CC.remote.forEach(r=>r.cb(null,new CC.ImageAsset({})));assert(l2.root.getComponent(CC.Sprite).spriteFrame);assert.equal(l2.diagnostics().sources.composite,'loadRemote:ok');
+ assert.equal(l2.root.getComponent(CC.Sprite).spriteFrame,null);
+ assert.equal(l2.root.getComponent(CC.Sprite).enabled,false,'empty base sprite stays disabled so it cannot cover the cream with a black quad');
+ const early=l2.mask.getComponent(CC.Graphics);assert(early.fills.length>0&&early.fills[0][0]===217&&early.fills[0][1]===210&&early.fills[0][2]===196,'cream mask is drawn before the jpg');
+ assert(early.rects[0][2]>=4096&&early.rects[0][3]>=4096,'cream covers the screen before layout');
+ CC.remote.forEach(r=>r.cb(null,new CC.ImageAsset({})));assert(l2.root.getComponent(CC.Sprite).spriteFrame);assert.equal(l2.root.getComponent(CC.Sprite).enabled,true);assert.equal(l2.diagnostics().sources.composite,'loadRemote:ok');
  const g=l2.mask.getComponent(CC.Graphics);l2.layout(390,844);assert.deepEqual(g.fills[g.fills.length-1],[217,210,196,255]);
  ok('D2 no handoff (web preview / first-screen failed): loadRemote of the same startup-art files, cream mask (picture mean colour) meanwhile, never the old dark #123233');}
 

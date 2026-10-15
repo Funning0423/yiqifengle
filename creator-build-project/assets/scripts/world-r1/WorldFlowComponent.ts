@@ -113,6 +113,16 @@ function bindIslandSourceAlpha(renderer:MeshRenderer):()=>void {
     return release;
   }catch(error){release();throw error;}
 }
+function srgbToLinearChannel(c:number){return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);}
+function linearToSrgbChannel(c:number){return c<=0.0031308?12.92*c:1.055*Math.pow(Math.max(0,c),1/2.4)-0.055;}
+/** builtin-unlit setProperty stores sRGB; a device getUniform may return that sRGB value or the linear encoding. */
+function backdropChannelClose(written:number,readback:number){
+  if(!isFinite(written)||!isFinite(readback))return false;
+  if(Math.abs(readback-written)<=0.02)return true;
+  if(Math.abs(linearToSrgbChannel(readback)-written)<=0.02)return true;
+  if(Math.abs(readback-srgbToLinearChannel(written))<=0.02)return true;
+  return false;
+}
 type UnlitBackdropBinding={setNight:(night:boolean)=>void;setWeight:(weight:number)=>void;release:()=>void};
 /** Imported sky/cloud use builtin-unlit: there is no nightBlend uniform and no light response. */
 function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
@@ -130,9 +140,13 @@ function bindUnlitBackdrop(renderer:MeshRenderer):UnlitBackdropBinding {
     if(released||!isValid(renderer,true)||!isValid(renderer.node,true))return;
     const w=Math.max(0,Math.min(1,weight));
     if(Math.abs(w-lastW)<0.004&&w!==0&&w!==1)return;
-    const c=new Vec4(day.x+(night.x-day.x)*w,day.y+(night.y-day.y)*w,day.z+(night.z-day.z)*w,alpha);
-    instance!.setProperty('mainColor',c);const v=read(instance);
-    if(![v.x,v.y,v.z,v.w].every(Number.isFinite)||Math.max(Math.abs(v.x-c.x),Math.abs(v.y-c.y),Math.abs(v.z-c.z),Math.abs(v.w-alpha))>0.02)throw Error('Backdrop day/night uniform postcondition failed');
+    const c=w>=1?night:w<=0?day:new Vec4(day.x+(night.x-day.x)*w,day.y+(night.y-day.y)*w,day.z+(night.z-day.z)*w,alpha);
+    instance!.setProperty('mainColor',c);let v=new Vec4(c.x,c.y,c.z,alpha);
+    try{v=read(instance);}catch(error){console.warn('Backdrop day/night uniform postcondition failed',name,error);}
+    const written=[c.x,c.y,c.z,alpha],got=[v.x,v.y,v.z,v.w];let close=true;
+    for(let i=0;i<4;i++)if(!backdropChannelClose(written[i],got[i]))close=false;
+    // Warn only. Throwing here used to release() the night instance and put the shared day material back.
+    if(!close)console.warn('Backdrop day/night uniform postcondition failed',name,written,got);
     const edge=w===0||w===1;if(edge||lastW<0)console.info(Number.isFinite(foamAlpha)?'[OI_SHORE_FOAM]':'[OI_WINDOW_SKY]',JSON.stringify({node:name,night:w>=0.5,weight:+w.toFixed(3),tintSRGB:w>=0.5?tint:[1,1,1],uniformLinear:[v.x,v.y,v.z,v.w],scope:'Material uniform readback; native pixels still require visual check'}));
     lastW=w;
   };

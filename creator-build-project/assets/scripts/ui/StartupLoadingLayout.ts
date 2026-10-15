@@ -29,9 +29,9 @@ export const HINTS = ['风从海上来……', '她在窗前坐下……', '灯�
 export const SAFE = { top: 0.089, bottom: 0.88 };
 /** Fill / pinwheel / hint fade in after the scene layer's first frame (spec 0.2-0.3 s). */
 export const INTRO_FADE_S = 0.25;
-/** Whole layer (picture + cream mask) fades out once the room is ready. R3: 400 ms cross-fade, not a hard cut,
- * after one held opaque frame; room hints wait for the end. */
-export const OUTRO_FADE_S = 0.4;
+/** Whole layer (picture + cream mask) fades out once the room is ready. Linear, not ease-out: an ease-out of 0.4 s
+ * is already near invisible by 0.25 s. 0.5 s stays measurable at >= 0.4 s. One held opaque frame, then the fade. */
+export const OUTRO_FADE_S = 0.5;
 /** Displayed progress eases toward the REAL stage target (no timer-driven creep). */
 export const PROGRESS_TAU_S = 0.18;
 
@@ -104,5 +104,5 @@ export class LoadingTimeline {
  }
  /** 0..255 opacity of the fill/pinwheel/hint group (multiplied by layerOpacity by UIOpacity cascading). */
  introOpacity() { return this.introT < 0 ? 0 : Math.round(255 * smoothstep01(this.introT / INTRO_FADE_S)); }
- layerOpacity() { return this.outroT < 0 ? 255 : Math.round(255 * (1 - easeOutCubic(this.outroT / OUTRO_FADE_S))); }
+ layerOpacity() { return this.outroT < 0 ? 255 : Math.round(255 * (1 - clamp01(this.outroT / OUTRO_FADE_S))); }
 }

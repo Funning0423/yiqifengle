@@ -1,4 +1,4 @@
-import { BlockInputEvents, Color, EventTouch, Graphics, Input, Label, Layers, Node, UITransform, input, sys } from 'cc';
+import { BlockInputEvents, Color, EventTouch, Graphics, Input, Label, Layers, Node, UITransform, input } from 'cc';
 import { applyJourneyNavigationSkin } from './JourneyNavigationSkin';
 import { warmButton } from '../WarmButton';
 /** Hidden debug jump. Three-finger double-tap, or Ctrl+Shift+D / Cmd+Shift+D on desktop web. */
@@ -9,28 +9,55 @@ export type DebugCommand =
   | { kind: 'last'; checkpoint: 4 | 8 | 12 }
   | { kind: 'exit-flow' };
 type Item = { label: string; run: () => void };
-type Point = { id: number; x: number; y: number; t: number; moved: boolean };
-const TAP_MS = 320, GAP_MS = 450, MOVE_PX = 28;
+type Finger = { id: number; x: number; y: number };
+export type DebugChordState = { armed: boolean; chordAt: number };
+const CHORD_MIN_MS = 40, CHORD_GAP_MS = 700, CHORD_HOLD_MS = 80, MOVE_PX = 36;
+/** Ctrl/Cmd+Shift+D. keyCode 68 covers browsers that omit key/code on a captured event. */
+export function isDebugShortcut(e: { repeat?: boolean; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean; key?: string; code?: string; keyCode?: number } | null): boolean {
+  if (!e || e.repeat) return false;
+  const key = e.key === 'D' || e.key === 'd' || e.code === 'KeyD' || e.keyCode === 68;
+  return !!((e.ctrlKey || e.metaKey) && e.shiftKey && key);
+}
+/** Two three-finger chords 40–700 ms apart toggle. A later touchstart (≥80 ms) counts even if the fingers never lifted. */
+export function considerDebugChord(state: DebugChordState, now: number, fingers: number, phase: 'start' | 'move' | 'end' | 'cancel'): boolean {
+  if (phase === 'cancel') { state.armed = false; state.chordAt = 0; return false; }
+  if (phase === 'end' || phase === 'move' || fingers < 3) { if (fingers < 3) state.armed = false; return false; }
+  if (phase !== 'start') return false;
+  const dt = state.chordAt > 0 ? now - state.chordAt : 0;
+  const rising = !state.armed, held = state.armed && dt >= CHORD_HOLD_MS;
+  if (!rising && !held) return false;
+  const pair = state.chordAt > 0 && dt >= CHORD_MIN_MS && dt <= CHORD_GAP_MS;
+  state.armed = true;
+  if (pair) { state.chordAt = 0; return true; }
+  state.chordAt = now;
+  return false;
+}
 export class DebugJumpPanel {
   private readonly root: Node;
   private readonly sheet: Node;
   private readonly status: Label;
   private readonly buttons: Node[] = [];
-  private readonly cluster: Point[] = [];
   private page = 'root';
   private open = false;
   private w = 0;
   private h = 0;
-  private lastTriple = 0;
   private disposed = false;
+  private lastDom = 0;
+  private lastShortcut = 0;
+  private lastChordEvent = 0;
+  private readonly chord: DebugChordState = { armed: false, chordAt: 0 };
+  private readonly fingers: Finger[] = [];
   private readonly onKey = (e: KeyboardEvent) => {
-    if (this.disposed || e.repeat) return;
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd' || e.code === 'KeyD')) { e.preventDefault(); this.toggle(); }
+    if (this.disposed || !isDebugShortcut(e)) return;
+    const now = Date.now(); if (now - this.lastShortcut < 30) return;
+    this.lastShortcut = now; e.preventDefault(); this.toggle();
   };
-  private readonly onTouchStart = (e: TouchEvent) => { const now = Date.now(); for (let i = 0; i < e.changedTouches.length; i++) { const t = e.changedTouches[i]; this.noteStart(t.identifier, t.clientX, t.clientY, now); } };
-  private readonly onTouchMove = (e: TouchEvent) => { for (let i = 0; i < e.changedTouches.length; i++) { const t = e.changedTouches[i]; this.noteMove(t.identifier, t.clientX, t.clientY); } };
-  private readonly onCocosStart = (e: EventTouch) => { const now = Date.now(), touches = e.getTouches(); for (let i = 0; i < touches.length; i++) { const p = touches[i].getLocation(); this.noteStart(touches[i].getID(), p.x, p.y, now); } };
-  private readonly onCocosMove = (e: EventTouch) => { const touches = e.getTouches(); for (let i = 0; i < touches.length; i++) { const p = touches[i].getLocation(); this.noteMove(touches[i].getID(), p.x, p.y); } };
+  private readonly onTouchStart = (e: TouchEvent) => { this.lastDom = Date.now(); this.rememberList(e.changedTouches); if (this.drifted(e.changedTouches)) this.feed(0, 'cancel'); else this.feed(this.domCount(e, false), 'start'); };
+  private readonly onTouchMove = (e: TouchEvent) => { this.lastDom = Date.now(); if (this.drifted(e.changedTouches)) this.feed(0, 'cancel'); };
+  private readonly onTouchEnd = (e: TouchEvent) => { this.lastDom = Date.now(); this.forgetList(e.changedTouches); this.feed(this.domCount(e, true), 'end'); };
+  private readonly onCocosStart = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; this.rememberCocos(e); this.feed(this.cocosCount(e), 'start'); };
+  private readonly onCocosMove = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; if (this.driftedCocos(e)) this.feed(0, 'cancel'); };
+  private readonly onCocosEnd = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; this.feed(this.cocosCount(e), 'end'); };
   constructor(parent: Node, private readonly opts: { status: () => string; go: (cmd: DebugCommand) => void }) {
     const root = new Node('DebugJumpPanel'); root.layer = Layers.Enum.UI_2D; parent.addChild(root);
     root.addComponent(UITransform); root.addComponent(BlockInputEvents); root.active = false; this.root = root;
@@ -65,37 +92,91 @@ export class DebugJumpPanel {
     if (this.root.isValid) this.root.destroy();
   }
   private listen() {
-    if (typeof document !== 'undefined') {
-      document.addEventListener('keydown', this.onKey, true);
-      if (sys.isBrowser) {
-        document.addEventListener('touchstart', this.onTouchStart, true);
-        document.addEventListener('touchmove', this.onTouchMove, true);
-        return;
-      }
+    const doc = typeof document !== 'undefined' ? document : null;
+    const win = typeof window !== 'undefined' ? window : null;
+    if (doc) doc.addEventListener('keydown', this.onKey, true);
+    if (win) win.addEventListener('keydown', this.onKey, true);
+    if (doc) {
+      doc.addEventListener('touchstart', this.onTouchStart, true);
+      doc.addEventListener('touchmove', this.onTouchMove, true);
+      doc.addEventListener('touchend', this.onTouchEnd, true);
+      doc.addEventListener('touchcancel', this.onTouchEnd, true);
     }
     input.on(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.on(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
+    input.on(Input.EventType.TOUCH_END, this.onCocosEnd, this);
+    input.on(Input.EventType.TOUCH_CANCEL, this.onCocosEnd, this);
   }
   private unlisten() {
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('keydown', this.onKey, true);
-      document.removeEventListener('touchstart', this.onTouchStart, true);
-      document.removeEventListener('touchmove', this.onTouchMove, true);
+    const doc = typeof document !== 'undefined' ? document : null;
+    const win = typeof window !== 'undefined' ? window : null;
+    if (doc) {
+      doc.removeEventListener('keydown', this.onKey, true);
+      doc.removeEventListener('touchstart', this.onTouchStart, true);
+      doc.removeEventListener('touchmove', this.onTouchMove, true);
+      doc.removeEventListener('touchend', this.onTouchEnd, true);
+      doc.removeEventListener('touchcancel', this.onTouchEnd, true);
     }
+    if (win) win.removeEventListener('keydown', this.onKey, true);
     input.off(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.off(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
+    input.off(Input.EventType.TOUCH_END, this.onCocosEnd, this);
+    input.off(Input.EventType.TOUCH_CANCEL, this.onCocosEnd, this);
   }
-  private noteStart(id: number, x: number, y: number, t: number) {
-    for (let i = this.cluster.length - 1; i >= 0; i--) if (t - this.cluster[i].t >= TAP_MS) this.cluster.splice(i, 1);
-    this.cluster.push({ id, x, y, t, moved: false });
-    const ids: number[] = [];
-    for (let i = 0; i < this.cluster.length; i++) { const s = this.cluster[i]; if (!s.moved && ids.indexOf(s.id) < 0) ids.push(s.id); }
-    if (ids.length < 3) return;
-    if (this.lastTriple && t - this.lastTriple < GAP_MS) { this.lastTriple = 0; this.cluster.length = 0; this.toggle(); }
-    else { this.lastTriple = t; this.cluster.length = 0; }
+  private feed(fingers: number, phase: 'start' | 'move' | 'end' | 'cancel') {
+    if (this.disposed) return;
+    const now = Date.now();
+    // Document capture and the Cocos input both see one browser touch. A second start inside 50 ms is the same chord.
+    if (phase === 'start' && now - this.lastChordEvent < 50) return;
+    if (phase === 'start') this.lastChordEvent = now;
+    if (considerDebugChord(this.chord, now, fingers, phase)) this.toggle();
+    if (fingers <= 0) this.fingers.length = 0;
   }
-  private noteMove(id: number, x: number, y: number) {
-    for (let i = 0; i < this.cluster.length; i++) { const s = this.cluster[i]; if (s.id === id && Math.hypot(x - s.x, y - s.y) > MOVE_PX) s.moved = true; }
+  private domCount(e: TouchEvent, ending: boolean) {
+    const live = e.touches ? e.touches.length : 0, changed = e.changedTouches ? e.changedTouches.length : 0;
+    return ending ? live : Math.max(live, changed);
+  }
+  private rememberList(list: ArrayLike<{ identifier: number; clientX: number; clientY: number }> | undefined) {
+    if (!list) return;
+    for (let i = 0; i < list.length; i++) this.remember(list[i].identifier, list[i].clientX, list[i].clientY);
+  }
+  private remember(id: number, x: number, y: number) {
+    for (let i = 0; i < this.fingers.length; i++) if (this.fingers[i].id === id) return;
+    this.fingers.push({ id, x, y });
+  }
+  private forgetList(list: ArrayLike<{ identifier: number }> | undefined) {
+    if (!list) return;
+    for (let i = 0; i < list.length; i++) {
+      const id = list[i].identifier;
+      for (let j = this.fingers.length - 1; j >= 0; j--) if (this.fingers[j].id === id) this.fingers.splice(j, 1);
+    }
+  }
+  private drifted(list: ArrayLike<{ identifier: number; clientX: number; clientY: number }> | undefined) {
+    if (!list) return false;
+    for (let i = 0; i < list.length; i++) {
+      const t = list[i];
+      for (let j = 0; j < this.fingers.length; j++) {
+        const s = this.fingers[j];
+        if (s.id === t.identifier && Math.hypot(t.clientX - s.x, t.clientY - s.y) > MOVE_PX) return true;
+      }
+    }
+    return false;
+  }
+  private cocosCount(e: EventTouch) { const t = e.getTouches(); return t ? t.length : 0; }
+  private rememberCocos(e: EventTouch) {
+    const touches = e.getTouches();
+    for (let i = 0; i < touches.length; i++) { const p = touches[i].getLocation(); this.remember(touches[i].getID(), p.x, p.y); }
+  }
+  private driftedCocos(e: EventTouch) {
+    const touches = e.getTouches();
+    for (let i = 0; i < touches.length; i++) {
+      const p = touches[i].getLocation(), id = touches[i].getID();
+      for (let j = 0; j < this.fingers.length; j++) {
+        const s = this.fingers[j];
+        if (s.id === id && Math.hypot(p.x - s.x, p.y - s.y) > MOVE_PX) return true;
+      }
+    }
+    return false;
   }
   private rebuild() {
     for (let i = 0; i < this.buttons.length; i++) this.buttons[i].destroy();
