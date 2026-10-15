@@ -1816,8 +1816,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts",
-    "bytes": 29524,
-    "sha256": "773ac3695876be1cc88a3ebe64feaad14bac30c40c2c44b08119d630bd10bd7d"
+    "bytes": 29582,
+    "sha256": "7bde8cf75fabc88f5d4c21426efd662b6c75e36233aa8363e6ffc81c89f05b88"
   },
   {
     "path": "creator-build-project/assets/scripts/ui/PopupKit.ts.meta",

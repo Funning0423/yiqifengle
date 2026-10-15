@@ -11,8 +11,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/hud_pause.png",
-    "bytes": 7466,
-    "sha256": "1631b6f99ef7090d1fb6c02435320c4529e0ffe8ccb31fdb2171bf6bfd30f9d8"
+    "bytes": 15863,
+    "sha256": "4bac285e8d0cea14baa500fbfbbfb07bceb952bb3ac3e09bc070ddf26252dc95"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/icon_moves.png",
@@ -96,18 +96,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_starlight.png",
-    "bytes": 77660,
-    "sha256": "867b74ecb5b811ec9974aec4cef4474f911f5894e5ba04c71bde0a65f264d163"
+    "bytes": 249440,
+    "sha256": "411cfd1e56c9bc88b5fb7355eaf912d76dc77bd523213a39efeffc5b704a2010"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_tidebottle.png",
-    "bytes": 77408,
-    "sha256": "d04c5fde4689c7645ee993139903637c27a96cf4146444cf34bfcc4dd242d5c1"
+    "bytes": 290886,
+    "sha256": "41c23a6d1934e9d20f504cd588373846c3fb1e17594737908800b2816e0304f8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tool_windbell.png",
-    "bytes": 71989,
-    "sha256": "589ea4d6a8a0c75127f7d8ada104993fab99daf09cac2b2ea0a2797705b669d9"
+    "bytes": 305485,
+    "sha256": "050693c757f1efa6b766fc0e86b44053464d459bcf1fb823a5ded24c7b0e719f"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/board/tray_frame.png",
@@ -121,8 +121,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_close.png",
-    "bytes": 28266,
-    "sha256": "6f66b50a14e4808013e3450d3cca63790e3a6e9c2b70b920c0f750821066a907"
+    "bytes": 47347,
+    "sha256": "22a23030ec8b16e7bbc38d23cc05ee9e7ccca445283cb11a907b258275636ac0"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/btn_primary_3s.png",
@@ -221,18 +221,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/tile_bag.png",
-    "bytes": 9238,
-    "sha256": "e8d3dbc7ca48930eef0a62fd3404cd03a62144b06716688bcf0336a35e128ead"
+    "bytes": 19396,
+    "sha256": "df8dc2718b056ffd5ced4e16d7b0e2200e803d51435f5c6d11363435e020ec5f"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/tile_restart.png",
-    "bytes": 9612,
-    "sha256": "9612d431b79075f337bf2f6bac94dfde11aa3d7b715ea28a6de355e3fe50d1d9"
+    "bytes": 17560,
+    "sha256": "fdc29b4c4a1be6e79f164b4e7c4009c4d4ba351955fb3d731ca590fca329bd32"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/tile_settings.png",
-    "bytes": 9932,
-    "sha256": "0b30323831d495f29cc0f32ef3eb007ee1bec60630455ab1008cb5618d4d1669"
+    "bytes": 17977,
+    "sha256": "8c1827fff2a235de37d6a6581365ad048e52752ecee95336aebc70efb79844cd"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/popup/title_0.png",
@@ -386,18 +386,18 @@
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_starshears.png",
-    "bytes": 83238,
-    "sha256": "c8d35efacf00fd4685c60feda00c09b21dd5e7a77f2438c131167cc903b38f47"
+    "bytes": 208934,
+    "sha256": "fa1d8d551d15ca3cb8e17d39f3eadb80b587c03813ff48c29965333b1c71a9c8"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_sunseed.png",
-    "bytes": 90310,
-    "sha256": "9cc6f30c692298b99b6a061ac1c48da0afb1bb1c41d56025f85c62d25ec16cb0"
+    "bytes": 301552,
+    "sha256": "d9329d95812381bea318a2abfd01a0a986a43df1f6e90a9f2b1f095f2607e66d"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r2/tool_tidenet.png",
-    "bytes": 97598,
-    "sha256": "d4a81efc16b52aca383d8e3541d649c52145235d3d7a9569cb89b84fd50bcf92"
+    "bytes": 336977,
+    "sha256": "2ea9bb76896009c557d48257f7f19b17591377e53aa12ccb1e8f3a2c98747349"
   },
   {
     "path": "creator-build-project/assets/bundles/board_art/r3/about_gamename.png",
