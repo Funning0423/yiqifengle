@@ -486,8 +486,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview/room/room_no_original_chair.glb",
-    "bytes": 4224224,
-    "sha256": "3521d88962959c47f13bbc8d2c0143c7ebc925284720abea028fe526d53ba90e"
+    "bytes": 4891764,
+    "sha256": "57a8b85e302079d8c7df0384bedae1f9acf61f09a3e669770638b2380ac5be98"
   },
   {
     "path": "creator-build-project/assets/resources/audio_amb/amb_waves_loop.mp3",
