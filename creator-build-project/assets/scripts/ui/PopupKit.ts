@@ -263,7 +263,7 @@ export class PopupPanel {
     return n;
   }
   private closeButton() {
-    const n = uiNode('Close', this.body, 96, 96); n.setPosition(this.width / 2 - 32, this.height / 2 - 24, 0);
+    const n = uiNode('Close', this.body, 96, 96); n.setPosition(this.width/2 - 52, this.height/2 - 50, 0);
     const s = artSprite(n, 'popup/btn_close', 0, 0, 80, undefined, 'Face'); this.tint.sprite(s, 'ui');
     pressable(n, s.node, () => this.close(), { sound: 'back' });
   }
