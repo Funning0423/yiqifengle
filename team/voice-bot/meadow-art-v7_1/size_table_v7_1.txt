@@ -1,0 +1,16 @@
+glb 总计: 原版 6,409,332 B | v6 6,606,360 B | v7 6,968,428 B | v7.1 7,295,280 B
+v7.1 − v6 = +688,920 B ; v7.1 − v7 = +326,852 B ; v7.1 − 原版 = +885,948 B
+贴图 (B): 名称 | v6 | v7 | v7.1
+  meadow_palette_256 | 2,511 | 2,540 | 2,570
+  meadow_ground_v0_8_1024 | 138,578 | 138,784 | 138,865
+  meadow_sky_4096x1024 | 87,407 | 87,407 | 86,847
+  meadow_ground_detail_v0_8_512 | 229,307 | 229,307 | 229,307
+新网格顶点(glTF): 名称 | v7 | v7.1
+  meadow_vb_flowers | 6,693 | 13,692
+  meadow_vb_tower_contact_shadow | 0 | 314
+动画: 名称 | 通道 | 键/通道 (v7 → v7.1)
+  windmill_sails_loop | (1, 241) → (1, 241)
+  meadow_butterflies_loop | (12, 193) → (12, 193)
+  meadow_birds_loop | (16, 241) → (16, 241)
+  windmill_flag_loop | (3, 49) → (3, 49)
+节点数: v6 67 | v7 97 | v7.1 98
