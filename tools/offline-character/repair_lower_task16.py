@@ -11,7 +11,7 @@ g,r,ds=load(p);metaRaw=subprocess.check_output(['git','-C',str(ROOT),'show',BASE
 keys={clip:np.linspace(0,max(float(g.accessor(s['input'])[-1,0]) for s in r.clips[clip]['samplers']),9) for clip in ['stand_up','sit_down']}
 names=['cloth_envelope_'+clip+'_'+str(k) for clip in keys for k in range(9)]
 def gain(clip,t):
- return float(np.interp(t,[0,.14,.17,.215,.245,keys[clip][-1]],[1,1,0,0,1,1])) if clip=='stand_up' else 1.0
+ return float(np.interp(t,[0,.105,.123,.14,.17,.215,.245,keys[clip][-1]],[0,0,1,1,0,0,1,1])) if clip=='stand_up' else 1.0
 def sparse(ai,V):
  V=np.asarray(V,dtype='<f4');ids=np.where(np.max(abs(V),axis=1)>1e-8)[0];ids=ids if len(ids) else np.array([0]);views=[]
  for arr in [ids.astype('<u2'),V[ids]]:
@@ -38,7 +38,7 @@ for node in g.j['nodes']:
 meta['clips']['stand_up']['morph']['curves']['cloth_cuff_clearance']=[[.235,0],[.25,0],[.2649238187503191,1],[.28,0],[.3,0]]
 report['cuff']={'maxM':float(np.linalg.norm(D,axis=1).max()),'vertices':int((np.linalg.norm(D,axis=1)>0).sum())}
 for clip in keys:
- ts=sorted(set(keys[clip].tolist()+([.14,.17,.215,.245] if clip=='stand_up' else [.30,.34])))
+ ts=sorted(set(keys[clip].tolist()+([.105,.123,.14,.17,.215,.245] if clip=='stand_up' else [.30,.34])))
  def subdivide(a,b,fn):
   m=(a+b)/2;error=abs(fn(m)-(fn(a)+fn(b))/2)
   return subdivide(a,m,fn)[:-1]+subdivide(m,b,fn) if error>1e-5 else [a,b]
