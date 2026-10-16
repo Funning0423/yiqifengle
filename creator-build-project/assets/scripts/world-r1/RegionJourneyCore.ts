@@ -1,7 +1,7 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 export type JourneyRegion = 'island'|'meadow'|'skycity';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number }>;
+export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec }>;
 export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
 export interface JourneySceneAdapter {
  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
@@ -27,15 +27,23 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  * than beside the windmill or inside the post. The first blendM metres rejoin from the actual live lens; during that
  * swing the lens arcs up by blendLiftM so it passes over the beach palms instead of through their canopies.
  * Numbers are checked by tools/journey-integration/test-journey-occlusion.cjs against the real region GLB geometry. */
-export const JOURNEY_CAMERA={blendM:4,headingWindowM:3,backM:6.2,sideM:-3,upM:5,leadM:.8,lookM:1.05,blendLiftM:5.5,fovDeg:48} as const;
+export const JOURNEY_CAMERA={blendM:4,headingWindowM:3,backM:6.2,sideM:-3,upM:5,leadM:.8,lookM:1.05,blendLiftM:5.5,fovDeg:48,focusStartM:5,focusFullM:3,focusBackM:2.5,focusUpM:1.5,focusAim:.5} as const;
 export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
  return l>1e-6?[x/l,z/l]:[0,1];
 }
-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose):Pose {
+/** Optional end focus (08→09: the city plaza). From focusStartM to focusFullM before the end the lens swings to
+ * focusBackM straight behind her on the line to the focus, at focusUpM, and aims halfway (by angle, focusAim) between
+ * her chest and the focus: the city is horizontally centred with her in front of it, both inside the portrait frame.
+ * Low and close so it stays clear of the platform's centre post. Routes without focus (04→05) are unaffected. */
+export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec):Pose {
  const C=JOURNEY_CAMERA,p=sampleRoute(path,distance),[hx,hz]=journeyHeading(path,distance),sx=hz,sz=-hx;
  const u=Math.min(1,Math.max(0,distance/C.blendM)),blend=u*u*(3-2*u);
- const target:Vec=[p[0]+hx*C.leadM,p[1]+C.lookM,p[2]+hz*C.leadM],position:Vec=[p[0]-hx*C.backM+sx*C.sideM,p[1]+C.upM,p[2]-hz*C.backM+sz*C.sideM];
+ let target:Vec=[p[0]+hx*C.leadM,p[1]+C.lookM,p[2]+hz*C.leadM],position:Vec=[p[0]-hx*C.backM+sx*C.sideM,p[1]+C.upM,p[2]-hz*C.backM+sz*C.sideM];
+ if(focus){const left=routeLength(path)-distance,v=Math.min(1,Math.max(0,(C.focusStartM-left)/(C.focusStartM-C.focusFullM))),w=v*v*(3-2*v);
+  if(w>0){const fx=focus[0]-p[0],fz=focus[2]-p[2],fl=Math.hypot(fx,fz)||1,pos:Vec=[p[0]-fx/fl*C.focusBackM,p[1]+C.focusUpM,p[2]-fz/fl*C.focusBackM];
+   position=[position[0]+(pos[0]-position[0])*w,position[1]+(pos[1]-position[1])*w,position[2]+(pos[2]-position[2])*w];const dir=(q:Vec,o:Vec):Vec=>{const x=q[0]-o[0],y=q[1]-o[1],z=q[2]-o[2],l=Math.hypot(x,y,z)||1;return [x/l,y/l,z/l];},df=dir(focus,pos),dc=dir([p[0],p[1]+C.lookM,p[2]],pos),aim=dir([df[0]*C.focusAim+dc[0]*(1-C.focusAim),df[1]*C.focusAim+dc[1]*(1-C.focusAim),df[2]*C.focusAim+dc[2]*(1-C.focusAim)],[0,0,0]),ft:Vec=[pos[0]+aim[0]*8,pos[1]+aim[1]*8,pos[2]+aim[2]*8];
+   target=[target[0]+(ft[0]-target[0])*w,target[1]+(ft[1]-target[1])*w,target[2]+(ft[2]-target[2])*w];}}
  const mix=(a:Vec,b:Vec):Vec=>[a[0]+(b[0]-a[0])*blend,a[1]+(b[1]-a[1])*blend,a[2]+(b[2]-a[2])*blend];
  const m=mix(start.position,position),lens:Vec=[m[0],m[1]+C.blendLiftM*Math.sin(Math.PI*blend),m[2]];
  return {position:lens,target:mix(start.target,target),fovVerticalDeg:(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend};
@@ -71,7 +79,7 @@ export class RegionJourneyController {
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera);world.setCamera(this.camera);
+  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus);world.setCamera(this.camera);
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
@@ -84,7 +92,7 @@ export class RegionJourneyController {
     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}

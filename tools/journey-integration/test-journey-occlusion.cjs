@@ -45,7 +45,7 @@ const sp=n=>nodePos(skyNodes,n),yaw=Lay.skycityYawDeg(sp('anchor_cloudbridge_end
 const deck0=Lay.skyDeckRoute(rotY(yaw,sp('anchor_cloudbridge_end')),rotY(yaw,sp('anchor_cloudbridge_start'))),sOff=sub(add(edge2,L.skycityOffset),deck0.rim);
 const sky=place(local.skycity,'skycity',yaw,1,sOff),sA=n=>add(rotY(yaw,sp(n)),sOff);
 const deck=Lay.skyDeckRoute(sA('anchor_cloudbridge_end'),sA('anchor_cloudbridge_start')),bridge2=Lay.bridgePath(edge2,deck.rim,L.skyBridgeArchM);
-const leg2=[...appr2,...bridge2.slice(1),...deck.deck,deck.arrival];
+const leg2=[...appr2,...bridge2.slice(1),...deck.deck,deck.arrival],focus2=sA('anchor_starcourt_center');
 // ---------- ray tests ----------
 function bbox(t){const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];for(let k=0;k<t.length;k++){const c=k%3;if(t[k]<a[c])a[c]=t[k];if(t[k]>b[c])b[c]=t[k];}return [a,b];}
 function segBox(o,e,[a,b]){let t0=0,t1=1;for(let c=0;c<3;c++){const d=e[c]-o[c];if(Math.abs(d)<1e-12){if(o[c]<a[c]||o[c]>b[c])return false;continue;}let p=(a[c]-o[c])/d,q=(b[c]-o[c])/d;if(p>q)[p,q]=[q,p];t0=Math.max(t0,p);t1=Math.min(t1,q);if(t0>t1)return false;}return true;}
@@ -55,10 +55,10 @@ function ptTri(p,a,b,c){const ab=sub(b,a),ac=sub(c,a),ap=sub(p,a),dot=(x,y)=>x[0
 function clearance(p,objs,cap=3){let best=cap,who=null;for(const o of objs){o.bb??=bbox(o.tris);let dd=0;for(let c=0;c<3;c++){const v=Math.max(o.bb[0][c]-p[c],0,p[c]-o.bb[1][c]);dd+=v*v;}if(Math.sqrt(dd)>=best)continue;const t=o.tris;for(let k=0;k<t.length;k+=9){if(Math.abs(t[k]-p[0])>best+25||Math.abs(t[k+2]-p[2])>best+25||Math.abs(t[k+1]-p[1])>best+25)continue;const q=ptTri(p,[t[k],t[k+1],t[k+2]],[t[k+3],t[k+4],t[k+5]],[t[k+6],t[k+7],t[k+8]]),d=Math.hypot(...sub(q,p));if(d<best){best=d;who=o.tag+':'+o.name;}}}return [best,who];}
 const readPose=p=>{const f=sub(p.target,p.position),l=Math.hypot(...f);return {position:p.position,target:add(p.position,f.map(x=>x/l*8)),fovVerticalDeg:p.fovVerticalDeg};};
 const STEP=+(process.env.QF_OCCLUSION_STEP||.05),EXEMPT=1.25,HEIGHTS=[.15,.5,.9,1.25,1.6];
-const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,exempt:EXEMPT,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1)),exempt:0,bridge:bridge2}];
+const start1=readPose(Cam.islandPoseEntry()),legs=[{id:'04-05',path:leg1,objs:[...island,...meadow],start:start1,exempt:EXEMPT,bridge:bridge1},{id:'08-09',path:leg2,objs:[...island,...meadow,...sky],start:readPose(journeyCamera(leg1,routeLength(leg1),start1)),exempt:0,bridge:bridge2,focus:focus2}];
 const profile={};
 for(const leg of legs){const T=routeLength(leg.path),fails=[],exempted=[],grazes=[],rows=[];let minLens=9;
- for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
+ for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
   if(d>=leg.exempt)minLens=Math.min(minLens,lens);// Occluded = chest (0.9 m) or head (1.6 m) hidden, or more than one of the five body points hidden. A lone graze of
   // one low point by a pebble/grass edge is reported in partialGrazes, not failed.
   const rec={d:+d.toFixed(2),hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),lens:+lens.toFixed(2),lensObj};
@@ -76,6 +76,14 @@ check('O3 08-09 foot above env_sky_static_palette top on bridge+deck',()=>{const
 for(const [id,br,objs] of [['04-05',bridge1,[...island,...meadow]],['08-09',bridge2,[...island,...meadow,...sky]]])check(`O3 ${id} bridge corridor 2.1 m wide, 0.35–2.0 m above deck, is free`,()=>{const hits=[];
  for(let i=1;i<br.length;i++){const a=br[i-1],b=br[i],dx=b[0]-a[0],dz=b[2]-a[2],l=Math.hypot(dx,dz)||1,n=[dz/l,0,-dx/l];for(const side of [-1.05,-.5,0,.5,1.05])for(const h of [.35,1,2]){const o=add(a,[n[0]*side,h,n[2]*side]),e=add(b,[n[0]*side,h,n[2]*side]),hit=blockers(objs,o,e).filter(x=>!/grass|flower/.test(x));if(hit.length)hits.push({seg:i,side,h,hit});}}
  assert.deepEqual(hits,[],JSON.stringify(hits.slice(0,6)));return {segments:br.length-1};});
+// O5 duration budget and arrival framing (lead feedback on d28ee16: +13.7 s rejected)
+const BUILD05_0809_M=42.865,ASPECT=390/844;
+check('O5 08-09 extra walk time vs Build05 ≤ 3 s at the unchanged speed',()=>{assert.equal(L.speedMps,1.2,'speed must stay 1.2 m/s');const T=routeLength(leg2),extra=(T-BUILD05_0809_M)/L.speedMps;assert(extra<=3,`08-09 is ${T.toFixed(2)} m, +${extra.toFixed(2)} s over Build05`);return {totalM:+T.toFixed(3),build05M:BUILD05_0809_M,extraS:+extra.toFixed(2),durationS:+(T/L.speedMps).toFixed(2)};});
+check('O5 08-09 city centre (anchor_starcourt_center) near screen centre over the final 3 m (390×844)',()=>{const T=routeLength(leg2),start=legs[1].start,rows=[];
+ for(let d=T-3;d<=T+1e-9;d+=.1){const c=journeyCamera(leg2,Math.min(T,d),start,focus2),f=sub(c.target,c.position),fl=Math.hypot(...f),fw=f.map(x=>x/fl),r=[fw[2],0,-fw[0]].map(x=>x/Math.hypot(fw[2],fw[0])),up=[r[1]*fw[2]-r[2]*fw[1],r[2]*fw[0]-r[0]*fw[2],r[0]*fw[1]-r[1]*fw[0]],th=Math.tan(c.fovVerticalDeg*Math.PI/360),v=sub(focus2,c.position),z=v[0]*fw[0]+v[1]*fw[1]+v[2]*fw[2],x=(v[0]*r[0]+v[1]*r[1]+v[2]*r[2])/(z*th*ASPECT),y=(v[0]*up[0]+v[1]*up[1]+v[2]*up[2])/(z*th);
+  const p=sampleRoute(leg2,Math.min(T,d)),hz=sub([p[0],p[1]+.9,p[2]],c.position),hzz=hz[0]*fw[0]+hz[1]*fw[1]+hz[2]*fw[2],hx=(hz[0]*r[0]+hz[1]*r[1]+hz[2]*r[2])/(hzz*th*ASPECT),hy=(hz[0]*up[0]+hz[1]*up[1]+hz[2]*up[2])/(hzz*th);
+  rows.push({d:+d.toFixed(2),cityNdc:[+x.toFixed(3),+y.toFixed(3)],herChestNdc:[+hx.toFixed(3),+hy.toFixed(3)]});assert(z>0&&Math.abs(x)<=.15&&Math.abs(y)<=.35,`city off centre at d=${d.toFixed(2)}: ${x.toFixed(3)},${y.toFixed(3)}`);assert(hzz>0&&Math.abs(hx)<=.9&&Math.abs(hy)<=.9,`character out of frame at d=${d.toFixed(2)}: ${hx.toFixed(3)},${hy.toFixed(3)}`);}
+ return {samples:rows.length,first:rows[0],last:rows.at(-1)};});
 // O4 09 arrival composition
 check('O4 09 board background pose unchanged and plaza in frame',()=>{
  const base=JSON.parse(fs.readFileSync(__dirname+'/occlusion/build05-arrival-baseline.json','utf8'));
@@ -86,6 +94,6 @@ check('O4 09 board background pose unchanged and plaza in frame',()=>{
  const plaza=[sp('anchor_starcourt_center'),...[[-4.8,-4.8],[4.8,-4.8],[-4.8,4.8],[4.8,4.8]].map(([x,z])=>[x,0,30+z])].map(ndc);for(const [x,y,z] of plaza)assert(z>0&&Math.abs(x)<=1.05&&Math.abs(y)<=1,'plaza out of frame '+[x,y]);
  const rel=sub(deck.arrival,sA('anchor_cloudbridge_end')),relModel=rotY(-yaw,rel),relBase=base.arrivalFromEndModel;assert(Math.hypot(...sub(relModel,relBase))<1e-6,'arrival root moved relative to the city');
  return {pose:pose,plazaNdc:plaza.map(p=>p.map(v=>+v.toFixed(3))),arrivalFromEndModel:relModel.map(v=>+v.toFixed(4))};});
-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),checks:results,routeProfile:profile};
+const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Geometry contract on real GLB triangles + real TS. Not a rendered, device or Cocos acceptance.',camera:JOURNEY_CAMERA,layout:L,skyYawDeg:+yaw.toFixed(4),placement:{meadowRootWorld:mOff,meadowYawDeg:180,skycityRootWorld:sOff,skycityYawDeg:yaw,phases:{'04-05':{bridgeStart:routeLength(appr1),bridgeEnd:routeLength([...appr1,...bridge1.slice(1)])},'08-09':{bridgeStart:routeLength(appr2),bridgeEnd:routeLength([...appr2,...bridge2.slice(1)])}}},checks:results,routeProfile:profile};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-occlusion.json',JSON.stringify(report,null,1)+'\n');
 console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,error:r.error&&r.error.split('\n')[0].slice(0,400)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
