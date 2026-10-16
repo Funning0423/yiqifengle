@@ -280,56 +280,56 @@
     {
      "name": "env_sky_static_palette",
      "offset": 1866780,
-     "count": 8727
+     "count": 10051
     },
     {
      "name": "env_sky_static_rock_strata",
-     "offset": 2180952,
+     "offset": 2228616,
      "count": 559
     },
     {
      "name": "env_sky_windchime_01",
-     "offset": 2201076,
+     "offset": 2248740,
      "count": 60
     },
     {
      "name": "state_bridge_after",
-     "offset": 2203236,
+     "offset": 2250900,
      "count": 404
     },
     {
      "name": "state_bridge_before",
-     "offset": 2217780,
+     "offset": 2265444,
      "count": 44
     },
     {
      "name": "state_court_after",
-     "offset": 2219364,
+     "offset": 2267028,
      "count": 30
     },
     {
      "name": "state_court_after_flowers",
-     "offset": 2220444,
+     "offset": 2268108,
      "count": 72
     },
     {
      "name": "state_court_before",
-     "offset": 2223036,
+     "offset": 2270700,
      "count": 30
     },
     {
      "name": "state_gate_after",
-     "offset": 2224116,
+     "offset": 2271780,
      "count": 92
     },
     {
      "name": "state_gate_after_flowers",
-     "offset": 2227428,
+     "offset": 2275092,
      "count": 24
     },
     {
      "name": "state_gate_before",
-     "offset": 2228292,
+     "offset": 2275956,
      "count": 12
     }
    ]
@@ -343,42 +343,42 @@
    "objects": [
     {
      "name": "env_sky_floatingrocks_1",
-     "offset": 2228724,
+     "offset": 2276388,
      "count": 270
     },
     {
      "name": "env_sky_floatingrocks_2",
-     "offset": 2238444,
+     "offset": 2286108,
      "count": 270
     },
     {
      "name": "env_sky_floatingrocks_3",
-     "offset": 2248164,
+     "offset": 2295828,
      "count": 270
     },
     {
      "name": "env_sky_island_vines",
-     "offset": 2257884,
+     "offset": 2305548,
      "count": 6992
     },
     {
      "name": "env_sky_ruins",
-     "offset": 2509596,
+     "offset": 2557260,
      "count": 6637
     },
     {
      "name": "env_sky_static_palette",
-     "offset": 2748528,
-     "count": 23372
+     "offset": 2796192,
+     "count": 24696
     },
     {
      "name": "env_sky_static_rock_strata",
-     "offset": 3589920,
+     "offset": 3685248,
      "count": 1873
     }
    ]
   }
  ],
- "bytes": 3657348,
- "binSha256": "d5f1be288a805c475af8b7d2c0a22267250635e86c37f753421aa77a290b1124"
+ "bytes": 3752676,
+ "binSha256": "92091dac28161f9d1bff1fe01f656765266d44e25f3420a9f7a8fccdedb03365"
 }
