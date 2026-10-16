@@ -10,6 +10,7 @@ const tests=[
  ['independent-journey','tools/journey-integration/test-journey-lifecycle.cjs'],
  ['journey-occlusion','tools/journey-integration/test-journey-occlusion.cjs'],
  ['journey-framing','tools/journey-integration/test-journey-framing.cjs'],
+ ['journey-start-continuity','tools/journey-integration/test-journey-start-continuity.cjs'],
  ['composition-boundaries','tools/journey-integration/test-composition-boundaries.cjs'],
  ['world-region-exit','tools/journey-integration/test-world-region-exit.cjs'],
  ['region-levels','tools/region-levels/test-region-levels.cjs'],
