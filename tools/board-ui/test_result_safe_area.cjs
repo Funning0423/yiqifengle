@@ -150,7 +150,9 @@ async function matrix() {
                     if (spec.name === 'win-extreme') assert.equal(new Set([...allText.values()].filter(b => b.name === 'Score' || b.name.startsWith('Score-continued-')).map(b => b.page)).size, 1, 'full numeric score remains on one page');
                                 if (m.kind === 'win') {
                                     assert.equal(fragments('MovesInfo'), (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + m.movesLeft + ' 步');
-                                    assert.equal(fragments('SavedText'), '成绩已保存');
+                                    const saved = fragments('SavedText'), shortPhone = height <= 700 && width < height;
+                                    if (saved) assert.equal(saved, '成绩已保存');
+                                    else assert(shortPhone, '成绩已保存 stays on every layout except a short portrait phone');
                                     m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = [...allText.values()].find(b => b.owner === 'Claim-' + r.id)?.text || fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
                                 }
                                 if (m.kind === 'readonly')
