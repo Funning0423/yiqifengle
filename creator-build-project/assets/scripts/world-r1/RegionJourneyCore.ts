@@ -1,7 +1,7 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 export type JourneyRegion = 'island'|'meadow'|'skycity';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[] }>;
+export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number }>;
 export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
 export interface JourneySceneAdapter {
  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
@@ -81,20 +81,21 @@ export function orbitOffset(a:Vec,b:Vec,t:number,turn=0):Vec{
  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;if(Math.abs(d)>Math.PI*.75){if(turn>0&&d<0)d+=2*Math.PI;if(turn<0&&d>0)d-=2*Math.PI;}
  const ang=aa+d*t,r=ra>1e-3&&rb>1e-3?ra*Math.pow(rb/ra,t):ra+(rb-ra)*t;return [Math.sin(ang)*r,a[1]+(b[1]-a[1])*t,Math.cos(ang)*r];
 }
-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[]):Pose {
+export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM):Pose {
  const C=JOURNEY_CAMERA,T=routeLength(path),p=sampleRoute(path,distance),f=followPose(path,distance,keys);
  const rel=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]],at=(o:Vec):Vec=>[p[0]+o[0],p[1]+o[1],p[2]+o[2]];
  // The lens is a her-relative offset plus an AIM POINT that stays within a few metres of her, so moving between poses
  // never swings her out of the frame; the view direction is derived from the two.
  let offset=rel(f.position,p),aim=f.target;
- const blend=smooth(distance/C.blendM);
+ // startBlendM 0 (v3.2, 04→05): no wide authored-pose blend; the lens is on her follow pose (right, behind) from set-off.
+ const blend=startBlendM>0?smooth(distance/startBlendM):1;
  if(blend<1){const o=orbitOffset(rel(start.position,path[0]),offset,blend,C.startTurn);offset=[o[0],o[1]+C.blendLiftM*Math.sin(Math.PI*blend),o[2]];aim=lerp([p[0],p[1]+lensAt(keys,distance).lookM,p[2]],aim,blend);}
  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
   if(w>0){const e=arrivalPose(path,focus),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
  const position=at(offset);let dir=unit(rel(aim,position));
  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
- if(distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
+ if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;
  return {position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
 }
@@ -129,7 +130,7 @@ export class RegionJourneyController {
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens);world.setCamera(this.camera);
+  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
@@ -142,7 +143,7 @@ export class RegionJourneyController {
     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
