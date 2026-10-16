@@ -1,4 +1,4 @@
-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
+import { Node, Prefab, Material, MeshRenderer, Camera, Graphics, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
@@ -24,7 +24,7 @@ export class IslandProps {
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
-  private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+  private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null; private signPlate: Graphics | null = null; private plateHex = '';
   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
   private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number } | null = null;
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
@@ -89,8 +89,13 @@ export class IslandProps {
     try {
       const T = ISLAND_PROPS.signpost.text, px = 300; // label pixels per local metre
       const n = new Node('SignText'); n.layer = sign.layer; sign.addChild(n); n.setPosition(T.center[0], T.center[1], T.center[2]); n.setScale(1 / px, 1 / px, 1 / px);
-      n.addComponent(RenderRoot2D); const t = n.addComponent(UITransform); t.setContentSize(T.widthM * px * 0.9, T.heightM * px * 0.8);
-      const l = n.addComponent(Label); l.string = T.string; l.fontSize = 104; l.lineHeight = 112; l.isBold = true; l.color = new Color(T.color);
+      n.addComponent(RenderRoot2D); n.addComponent(UITransform).setContentSize(T.widthM * px, T.heightM * px);
+      // Candidate B: dark wood backing plate (Graphics, 0 asset bytes) drawn first, the label above it as a sibling.
+      const PL = ISLAND_PROPS.signpost.plate;
+      if (PL) { const pn = new Node('SignPlate'); pn.layer = sign.layer; n.addChild(pn); pn.addComponent(UITransform).setContentSize(PL.widthM * px, PL.heightM * px);
+        this.signPlate = pn.addComponent(Graphics); this.drawSignPlate(0); }
+      const ln = new Node('SignLabel'); ln.layer = sign.layer; n.addChild(ln); ln.addComponent(UITransform).setContentSize(T.widthM * px * 0.9, T.heightM * px * 0.8);
+      const l = ln.addComponent(Label); l.string = T.string; l.fontSize = 104; l.lineHeight = 112; l.isBold = true; l.color = new Color(PL ? PL.text : T.color);
       l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER; l.overflow = Label.Overflow.SHRINK;
       this.signText = n.addComponent(UIOpacity); this.signLabel = l; this.stats.label = 'render-root-2d';
     } catch (e) { this.stats.label = 'failed:' + String(e); console.warn('[T9_PROPS] sign text unavailable', String(e)); }
@@ -138,9 +143,18 @@ export class IslandProps {
   private paintSignInk(w: number) {
     const label = this.signLabel; if (!label || !isValid(label, true)) return;
     const S = ISLAND_PROPS.signpost;
-    const hex = mixHex(S.text.color, S.text.nightColor, w);
+    const hex = S.plate ? mixHex(S.plate.text, S.plate.nightText, w) : mixHex(S.text.color, S.text.nightColor, w);
     const n = parseInt(hex.slice(1, 7), 16); if (!Number.isFinite(n)) return;
     label.color = new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, 255);
+    this.drawSignPlate(w);
+  }
+  /** Candidate B plate: rounded rect, fill/edge follow the same night weight as the bottom tags; redrawn only when the colour changes. */
+  private drawSignPlate(w: number) {
+    const g = this.signPlate, PL = ISLAND_PROPS.signpost.plate; if (!g || !PL || !isValid(g, true)) return;
+    const fill = mixHex(PL.fill, PL.nightFill, w), edge = mixHex(PL.edge, PL.nightEdge, w), key = fill + edge; if (key === this.plateHex) return; this.plateHex = key;
+    const px = 300, W = PL.widthM * px, H = PL.heightM * px, r = PL.radiusM * px, e = PL.edgeM * px;
+    g.clear(); g.lineWidth = e; g.fillColor = new Color(fill); g.strokeColor = new Color(edge);
+    g.roundRect(-W / 2 + e / 2, -H / 2 + e / 2, W - e, H - e, r); g.fill(); g.stroke();
   }
   /** T9n-2 night sea: tint the sea renderer's EXISTING material instance (RoomLightingRig's tilingOffset instance) only. */
   private bindSea() {
@@ -367,5 +381,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; this.signPlate = null; this.plateHex = ''; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
 }
