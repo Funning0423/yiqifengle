@@ -101,7 +101,7 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     s.state = 'result.saved'; s.active.status = 'won'; s.result = { stars: 3 }; s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
     u.setHostActions({ chest: { visible: true, run: () => chest++ }, mainNext: { visible: true, run: () => next++ } }); b.step(0.3);
     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
-    const claimAll = inPopup(b, 'ResultPanel', 'ClaimAll');
+    const claimAll = inPopup(b, 'ResultPanel', 'ResultChestTap');
     H.tap(claimAll); assert.equal(chest, 1); assert.equal(claimAll.active, false, 'ClaimAll hides on the first tap');
     H.tap(claimAll); assert.equal(chest, 1, 'a second tap does not claim again');
     H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
@@ -110,10 +110,10 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     both.s.journey.chests = [{ level: 0, earned: true, opened: false }];
     both.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; both.render();
     both.u.setHostActions({ chest: { visible: true, run: () => chest2++ }, regionReward: { visible: true, run: () => region2++ } });
-    both.H.tap(inPopup(both, 'ResultPanel', 'ClaimAll'));
+    both.H.tap(inPopup(both, 'ResultPanel', 'ResultChestTap'));
     assert.equal(chest2, 1); assert.equal(region2, 1, 'one tap claims the chest and the region reward');
     both.s.journey.chests[0].opened = true; both.s.journey.regionRewards[0].claimed = true; both.render();
-    assert.equal(inPopup(both, 'ResultPanel', 'ClaimAll'), null, 'opened chest and claimed region hide 全部领取');
+    assert.equal(inPopup(both, 'ResultPanel', 'ResultChestTap'), null, 'opened chest and claimed region hide 全部领取');
     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
     const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
     const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');

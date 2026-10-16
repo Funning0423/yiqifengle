@@ -25,7 +25,7 @@ const {createHarness}=require('./harness.cjs');
   const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1;
   let claim=null,tool=null,tapped=false;
   for(let page=0;page<count;page++){
-   const live=panel.root.find('ClaimAll');if(live&&live.activeInHierarchy)claim=live;
+   const live=panel.root.find('ResultChestTap');if(live&&live.activeInHierarchy)claim=live;
    const art=panel.root.find('ResultChestArt');
    if(art&&art.activeInHierarchy){const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');}
    const icon=panel.root.find('tool_tidenet');if(icon&&icon.activeInHierarchy)tool=icon;
