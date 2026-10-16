@@ -2,6 +2,7 @@ import {waitRegionAsset} from './RegionAssetDeadline';
 import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
+import {SkyNightTexture} from '../render/SkyNightTexture';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
@@ -47,6 +48,10 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const grass=validateModel(model);configureMeadowVertexColors(model);
      // These local backdrops enclose the source island when both scenes coexist. Reuse the world's existing sky.
      for(const name of ['meadow_sky_dome','meadow_far_hills']){const backdrop=find(model,name);if(backdrop)for(const r of backdrop.getComponentsInChildren(MeshRenderer))r.enabled=false;}
+     // N1 (e2a03ec audit): at night the reused island sky reads as day out here. Keep the meadow dome as a night-only sky
+     // with SkyNightTexture (night picture on demand, gradient until it lands); WorldFlowComponent.applyDayNight drives
+     // nightBlend and the dome's visibility on every day/night change. Day keeps the old path (dome off).
+     mountMeadowNightSky(model);
      effect=await waitRegionAsset(loadWindEffect(),token);token.check();effect.addRef();
      const material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('journey-meadow-wind-material-missing');owned.push(material);
      for(const r of grass)for(let i=0;i<r.sharedMaterials.length;i++)r.setSharedMaterial(material,i);
@@ -82,3 +87,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
   }
  });
 }
+/** N1: meadow_sky_dome as a night-only sky (SkyNightTexture on its renderer). Returns the component, or null without a dome. */
+export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):SkyNightTexture|null{
+ const dome=find(model,'meadow_sky_dome');const r=dome?dome.getComponentsInChildren(MeshRenderer)[0]:null;if(!dome||!r)return null;
+ const sky=dome.getComponent(SkyNightTexture)||dome.addComponent(SkyNightTexture);sky.skyRenderer=r;(sky as any).__qfNightOnly=true;
+ r.enabled=night;sky.setNightBlend(night?1:0);
+ try{if((globalThis as any).__worldFlowLog)console.info('[QF_SKY] '+JSON.stringify({event:'meadow-night-sky',night}));}catch{}
+ return sky;
+}
+function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}

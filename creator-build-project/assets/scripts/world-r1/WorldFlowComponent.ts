@@ -515,7 +515,7 @@ export class WorldFlowComponent extends Component {
     for(const r of this.nightRenderers)if(r.isValid)r.enabled=this.dayNightMode==='night'&&(r.node.name.startsWith('env_sky_')?this.backdropVisible:this.exteriorVisible);
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome*view.lightScale;this.mainLight.color=new Color(view.lightColor[0],view.lightColor[1],view.lightColor[2],255);}
     const scene=director.getScene();
-    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture))sky.setNightBlend(view.skyNightBlend);
+    if(scene)for(const sky of scene.getComponentsInChildren(SkyNightTexture)){sky.setNightBlend(view.skyNightBlend);if((sky as any).__qfNightOnly&&sky.skyRenderer?.isValid)sky.skyRenderer.enabled=view.skyNightBlend>0;} // N1: meadow night-only dome
     for(const dome of this.skyDomes)if(dome.isValid&&!this.unlitBackdrops.has(dome))writeNightBlend(dome.getMaterialInstance(0),view.skyNightBlend);
     Array.from(this.unlitBackdrops.entries()).forEach(([r,b])=>{if(isValid(r,true))b.setNight(this.dayNightMode==='night');});
     this.roomLighting?.setView(this.interiorVisible,this.backdropVisible,this.dayNightMode==='night');
