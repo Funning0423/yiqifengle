@@ -25,15 +25,18 @@ export const REGION_JOURNEY_LAYOUT={
   * centre post at along −8…−4 / |lateral| ≤ 1, city cloud-bridge deck +0.28 m from along 0.35, |lateral| ≤ 1.
   * The rim slab reaches r ≈ 8.1 m. The bridge now ends just outside the SIDE rim (r 8.33, next to the city's cloud bridge)
   * and the walk carries straight on across the deck to the cloud-bridge step: 8.6 m plus the unchanged 2.05 m entry,
-  * instead of 17.6 m round the post. */
- skyLanding:[-3.47,7.78,.06] as readonly [number,number,number],
- skyPlatformWalk:[[-.29,1.3,.08],[-.05,.8,.3]] as ReadonlyArray<readonly [number,number,number]>,
+  * instead of 17.6 m round the post.
+  * v3.2 (option B): landing and walk mirrored to the platform's other side (lateral −; landing nudged to [−3,−7.9] to clear the foliage cards); the city turns so the
+  * plaza is ahead-left of her on the deck and the right-side lens can frame it without crossing behind her. */
+ skyLanding:[-3,-7.9,.06] as readonly [number,number,number],
+ skyPlatformWalk:[[-.7,-2.29,.08],[-.2,-1.15,.15],[.05,-.8,.3]] as ReadonlyArray<readonly [number,number,number]>,
  /** The city's cloud-bridge deck starts 0.26 m ABOVE the platform just past anchor_cloudbridge_end. Step onto it 0.35 m in,
   * then keep the original 2.4 m arrival root. */
- skyStepOnto:[.35,0,.31] as readonly [number,number,number],
+ skyStepOnto:[.35,-.6,.31] as readonly [number,number,number],
  /** v3 local lens keys for 08→09, metres from the rainbow bridge START (see RegionJourneyCore.LensKey). Under the sky
-  * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). */
- skyLens:[{at:-8},{at:-4,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:15,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
+  * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). v3.2: sideM −2.4 = her RIGHT (was +2.4, her left);
+  * at the 66° meadow-exit → bridge corner the lens swings wider right (−6.5 m) so it is right of behind for both headings. */
+ skyLens:[{at:-8.5},{at:-4.5,upM:4.5,backM:6.6,lookM:1.6,sideM:-2.4},{at:1,upM:4.5,backM:6.6,lookM:1.6,sideM:-6.5},{at:5,upM:4.5,backM:6.6,lookM:1.6,sideM:-2.4},{at:15,upM:4.5,backM:6.6,lookM:1.6,sideM:-2.4},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
 } as const;
 export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];

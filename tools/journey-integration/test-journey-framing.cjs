@@ -5,9 +5,10 @@
  * F2 character (feet+head) in frame on both legs after the authored-pose exemption;
  * F3 sky-island underside ≤ 10% of the frame on 08→09 (73–84 s);
  * F4 night sky visible (sky band mean ≥ 0.10 per leg, final frame ≥ 0.15);
- * F5 08→09 final frame: plaza centre centred, character ≈ 1/6 of screen height;
+ * F5 08→09 final frame: plaza centre on the vertical midline (|y|≤0.12, v3.2), character ≈ 1/6 of screen height;
  * F6 04→05 start follows her: in frame from d ≥ 1.25 m and peak turn ≤ 20°/s.
- * F7 04→05 lens on her right side from set-off (v3.2 camera rule).
+ * F7 both legs: lens on her right side (vs her facing) from set-off (v3.2 camera rule).
+ * F8 08→09 d36–44 lens ≤ 4 m above her and her height ≥ 0.14 (Mac review 92–99 s).
  * Geometry on real GLB triangles + real TS; not a rendered or device acceptance. */
 const sc=require('./journey-scene.cjs'),F=require('./journey-framing-lib.cjs');
 const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
@@ -24,13 +25,19 @@ check('F3 08→09 under-city span (bridge start → lens end): sky-island unders
 const zeroRun=c=>{let best=0,s=null;for(const r of c){if(r.sky===0){if(s===null)s=r.d;best=Math.max(best,r.d-s);}else s=null;}return best;};
 check('F4 night sky visible: 04→05 mean ≥ 0.10; no zero-sky stretch > 11 m on either leg; final 08→09 frame ≥ 0.15',()=>{const out={};[0,1].forEach(i=>{const c=covOf(i),mean=c.reduce((a,r)=>a+r.sky,0)/c.length,z=zeroRun(c);if(i===0)assert(mean>=.10,`${legs[i].id} mean sky ${mean.toFixed(3)}`);assert(z<=11,`${legs[i].id} zero-sky stretch ${z.toFixed(1)} m`);out[legs[i].id]={meanSky:+mean.toFixed(3),longestZeroSkyM:+z.toFixed(1),samples:c.length};});
  const fin=covOf(1).at(-1);assert(fin.sky>=.15,'final sky '+fin.sky);out.finalSky=+fin.sky.toFixed(3);return out;});
-check('F5 08→09 final frame: plaza centre |x|≤0.1, -0.1≤y≤0.45; character height 0.13–0.21',()=>{const r=R[1].rows.at(-1),[x,y,z]=F.ndc(r.c,focus2);assert(z>0&&Math.abs(x)<=.1&&y>=-.1&&y<=.45,`plaza ndc ${x},${y}`);assert(r.height>=.13&&r.height<=.21,'height '+r.height);return {plazaNdc:[+x.toFixed(3),+y.toFixed(3)],herHeight:+r.height.toFixed(3)};});
+check('F5 08→09 final frame (v3.2): plaza centre on the midline |x|≤0.1, |y|≤0.12; character height 0.14–0.20 (≈1/6)',()=>{const r=R[1].rows.at(-1),[x,y,z]=F.ndc(r.c,focus2);assert(z>0&&Math.abs(x)<=.1&&Math.abs(y)<=.12,`plaza ndc ${x},${y}`);assert(r.height>=.14&&r.height<=.20,'height '+r.height);return {plazaNdc:[+x.toFixed(3),+y.toFixed(3)],herHeight:+r.height.toFixed(3)};});
 check('F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s',()=>{const rows=R[0].rows.filter(r=>r.d<=10),m=Math.max(...rows.map(r=>r.angDegS));assert(m<=20,'start turn '+m);assert(rows.filter(r=>r.d>=1.25).every(r=>r.inFrame));return {maxDegS:+m.toFixed(2)};});
 // F7 (v3.2 camera rule): the lens stays on her RIGHT. Bearing of the lens from her, measured against her walking heading
 // (journeyHeading), must never be left of directly behind. Checked on 04→05 from set-off (no exemption).
-check('F7 04→05 lens on her right side from set-off (never left of behind)',()=>{const leg=legs[0],T=routeLength(leg.path);let worst=-999,at=0;
- for(let d=0;d<=T+1e-9;d+=.1){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,dd),[hx,hz]=Core.journeyHeading(leg.path,dd),vx=c.position[0]-p[0],vz=c.position[2]-p[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;at=dd;}}
+// F7 (v3.2 camera rule): the lens stays on her RIGHT, measured against her FACING (the runtime yaw = route tangent 0.08 m
+// ahead, RegionJourneyRunner), never left of directly behind; both legs, from set-off (no exemption).
+const facing=(path,d)=>{const a=sampleRoute(path,d),b=sampleRoute(path,d+.08);let x=b[0]-a[0],z=b[2]-a[2];if(Math.hypot(x,z)<1e-4){const c=sampleRoute(path,Math.max(0,d-.08));x=a[0]-c[0];z=a[2]-c[2];}const l=Math.hypot(x,z)||1;return [x/l,z/l];};
+for(const [k,leg] of legs.entries())check(`F7 ${leg.id} lens on her right side from set-off (never left of behind her facing)`,()=>{const T=routeLength(leg.path);let worst=-999,at=0;
+ for(let d=0;d<=T+1e-9;d+=.05){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,dd),[hx,hz]=facing(leg.path,dd),vx=c.position[0]-p[0],vz=c.position[2]-p[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;at=dd;}}
  assert(worst<=0,`lens ${worst.toFixed(1)}° left of behind at d=${at.toFixed(1)}`);return {worstLeftOfBehindDeg:+worst.toFixed(1),atM:+at.toFixed(1)};});
+// F8 (v3.2, Mac review 92–99 s): 08→09 deck stretch d 36–44 — lens at most 4 m above her feet and her height ≥ 0.14.
+check('F8 08→09 d36–44 lens ≤ 4 m above her, her height ≥ 0.14',()=>{const leg=legs[1];let maxUp=0,minH=9;for(const r of R[1].rows.filter(r=>r.d>=36&&r.d<=44)){const p=sampleRoute(leg.path,r.d);maxUp=Math.max(maxUp,r.c.position[1]-p[1]);minH=Math.min(minH,r.height);}
+ assert(maxUp<=4,'lens up '+maxUp.toFixed(2));assert(minH>=.14,'her height '+minH.toFixed(3));return {maxUpM:+maxUp.toFixed(2),minHeight:+minH.toFixed(3)};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
 console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;

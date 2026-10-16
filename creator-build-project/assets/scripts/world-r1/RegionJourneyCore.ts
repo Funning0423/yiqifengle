@@ -35,10 +35,14 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  *  - Arrival (route.focus): one smooth move from the follow pose to a high, pulled-back side-rear pose that frames the
  *    plaza (anchor_starcourt_center) centred with her small in front (~1/6 frame height) and clears the platform post.
  *    Position and view direction both move on smootherstep over arrivalBlendM metres; direction is slerped, so the
- *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
+ *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test).
+ * v3.2 (Mac review of 764dcd8, option B): the 08→09 deck walk is mirrored (RegionJourneyLayout.skyLanding) so the plaza
+ *    is ahead-LEFT of her instead of on her right; the lens then stays on her right the whole way. Arrival is low and
+ *    unlifted: 12 m behind her on her→plaza line (0.85 m to its right), 2.5 m up, level aim → plaza on the vertical
+ *    midline, her ≈ 1/6.6 frame height (0.151), lens right of behind. */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
- arrivalBlendM:14,arrivalHoldM:3,arrivalLiftM:8,arrivalRiseM:6,arrivalDropM:4,arrivalBackM:10,arrivalSideM:-1,arrivalUpM:3.5,arrivalAim:.45} as const;
+ arrivalBlendM:12,arrivalHoldM:2,arrivalLiftM:0,arrivalRiseM:5,arrivalDropM:3,arrivalBackM:12,arrivalSideM:.85,arrivalUpM:2.5,arrivalAim:0} as const;
 export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
  return l>1e-6?[x/l,z/l]:[0,1];
