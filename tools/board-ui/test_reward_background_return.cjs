@@ -24,17 +24,17 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
  let next=0;const controls=new Map(['mainNext','chest','regionReward','next','claim','resume'].map(k=>[k,{active:false}]));
  const actions={mainNext:()=>next++,chest:()=>session.command('openChest',0),regionReward:()=>session.command('claimRegion',0)};
  const owner={board:()=>u,controls,resultActions:actions};const update=()=>paint.call(owner,flow.snapshot());
- const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('Claim-chest'));
+ const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('ClaimAll'));
  const checks=[];
  for(const which of ['before-claim','after-chest','after-region']){
   for(let i=0;i<3;i++){const saved=bytes(),panel=u.popups.find('ResultPanel'),names=u.popups.names().join(',');flow.hide();update();flow.hide();flow.show();flow.show();update();step();
    assert.equal(flow.snapshot().state,'level');assert.equal(controls.get('resume').active,false);assert.equal(bytes(),saved);assert.equal(u.popups.names().join(','),names);assert.equal(u.popups.find('ResultPanel'),panel);
    assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);}
   checks.push({which,cycles:3,duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
-  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('Claim-chest'));update();assert(session.snapshot().journey.chests[0].opened);}
+  if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ClaimAll'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);}
   if(which==='after-chest'){
    const reward=u.popups.find('RewardPanel');assert(reward);H.tap(reward.root.find('Accept'));step();update();
-   const button=u.popups.find('ResultPanel').root.find('Claim-regionReward');assert(button);H.tap(button);update();assert(session.snapshot().journey.regionRewards[0].claimed);
+   assert(!u.popups.find('ResultPanel').root.find('ClaimAll'),'both rewards leave with the one claim');
   }
  }
  const reward=u.popups.find('RewardPanel');if(reward)H.tap(reward.root.find('Accept'));step();update();
