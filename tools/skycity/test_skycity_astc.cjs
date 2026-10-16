@@ -36,7 +36,7 @@ for (const name of wanted) {
   assert.equal(sub.userData.gltfIndex, gltf.images.findIndex(im => im.name === name), name + ' gltf index');
 }
 const jpg = read('creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta');
-assert.equal(jpg.userData.compressSettings.presetId, 'wx_astc6x6');
+assert.equal(jpg.userData.compressSettings, undefined, '750x1624 board JPEG stays JPEG; ASTC 6x6 is larger');
 for (const banned of ['region_meadow', 'region_island', 'static_seat_preview']) {
   const dir = path.join(root, 'creator-build-project/assets/bundles', banned);
   for (const file of fs.readdirSync(dir)) {
@@ -50,6 +50,6 @@ console.log(JSON.stringify({
   colorPreset: 'wx_astc6x6',
   normalPreset: 'wx_astc4x4',
   images: wanted.length,
-  board: 'bg_skycity_board.jpg',
+  boardJpeg: 'left uncompressed (ASTC 6x6 of 750x1624 is larger than the JPEG)',
   untouched: ['region_meadow', 'region_island', 'static_seat_preview'],
 }, null, 2));

@@ -656,8 +656,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta",
-    "bytes": 1099,
-    "sha256": "428aabc21f71b90aa4bacee7700304623778f06780bbce3189d9dcb3e0f79e6b"
+    "bytes": 1001,
+    "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
