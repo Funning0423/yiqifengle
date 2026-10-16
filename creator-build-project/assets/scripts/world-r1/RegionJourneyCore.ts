@@ -37,6 +37,8 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  *    Position and view direction both move on smootherstep over arrivalBlendM metres; direction is slerped, so the
  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
+/** 04→05 set-off: black cover ramps (s), same cover/style as 主页 (HOME_FADE 0.4/0.5 in 88506aa). */
+export const SETOFF_FADE={outS:.25,inS:.35} as const;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
  // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
  // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
@@ -110,6 +112,7 @@ export class RegionJourneyController {
  private phase:JourneyPhase='idle';private region:JourneyRegion='island';private target:JourneyRegion|null=null;
  private lease:JourneySceneLease|null=null;private scenes:JourneySceneLease[]=[];private loadProgress=0;private distance=0;private error:string|null=null;
  private root:Vec|null=null;private yaw=0;private camera:Pose|null=null;private startCamera:Pose|null=null;
+ fadeState:'clear'|'out'|'black'|'in'='clear';
  private activePath:readonly Vec[]|null=null;private startDistance=0;private serial=0;private busy=false;
  constructor(private adapter:JourneySceneAdapter){}
  snapshot():JourneySnapshot {return Object.freeze({phase:this.phase,region:this.region,target:this.target,loadProgress:this.loadProgress,distance:this.distance,total:this.lease?routeLength(this.lease.route.path):0,error:this.error,canRetry:this.phase==='failed',canResume:this.phase==='paused'});}
@@ -143,14 +146,22 @@ export class RegionJourneyController {
   if(!actor.walkProgress)throw Error('journey-needs-distance-signal');
   this.busy=true;this.error=null;const serial=++this.serial,path=remainingRoute(this.lease.route.path,this.distance);this.startDistance=this.distance;
   try{
+   // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
+   // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
+   // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
+   const fade=this.distance===0&&this.lease.route.startBlendM===0&&typeof world.fadeCover==='function';
+   if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
+    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0);world.setCamera(this.camera);}
    this.show(true);token.check();
+   if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
     await token.wait(actor.perform({kind:'walk',path,duration:routeLength(path)/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
    this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
-  }catch(error){if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
+  }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
+   if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
   finally{if(serial===this.serial)this.busy=false;}
  }
  /** Called BEFORE cancelling the action token, while its distance signal is still available. */

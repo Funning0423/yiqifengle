@@ -15,6 +15,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
+import { hasScreenCover, screenCover } from './ScreenCover';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
 import { CHARACTER_REFERENCE } from './CharacterReference';
 import { FIRSTSLICE } from './FirstsliceFacts';
@@ -385,6 +386,8 @@ export class WorldFlowComponent extends Component {
         setDoor,setCamera,assertStaticWorld,
         animateDoor:(from,to,seconds,t)=>this.run(seconds,t,p=>setDoor(from+(to-from)*p)),
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
+        // v3.3 set-off fade: the shared black screen cover (registered by WorldIntegrationBoot); absent = no fade.
+        get fadeCover(){return hasScreenCover()?(a:number,s:number)=>screenCover(a,s):undefined;},
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
         playEnterLevel:(token)=>{
