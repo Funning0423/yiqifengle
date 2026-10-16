@@ -14,8 +14,8 @@ import Port from './r4-cloud-compat/adapter/cocos-port.js';
 const { ccclass } = _decorator;
 const { createSynchronousStorage, bindChallengeController } = Port;
 /** Result-page actions owned by the world host (WorldIntegrationBoot): availability is pushed every frame. */
-export interface HostResultAction { visible: boolean; claimed?: boolean; run: () => void }
-export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction }
+export interface HostResultAction { visible: boolean; claimed?: boolean; run: (then?: () => any) => void }
+export interface HostResultActions { mainNext?: HostResultAction; chest?: HostResultAction; regionReward?: HostResultAction; next?: HostResultAction; claim?: HostResultAction; afterClaims?: HostResultAction }
 const GOAL_ART: Record<string, string> = { moss: 'board/obstacle_moss', roots: 'board/obstacle_roots', beacons: 'r2/beacon_lighthouse', pearls: 'board/obstacle_shell_2', shells: 'board/obstacle_shell_2', lines: 'board/special_line_h', specials: 'board/special_bomb', blooms: 'board/piece_flower', relays: 'board/special_line_v' };
 export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? PIECE_KEYS[Number(key.slice(4))] : GOAL_ART[key] || 'board/piece_flower'; }
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
@@ -901,7 +901,11 @@ export class ManagedMobileBoardUI extends Component {
     return { kind, score: a.score || 0, stars, movesUsed: Array.isArray(a.actions) ? a.actions.length : null, movesLeft: a.moves ?? null, goalsLeft, chestHint: mainline && kind !== 'readonly', rewards,
       unlockHint: this.hostResultError || (mainline && kind === 'win' && s.state === 'result.saved' && s.result?.completionRecorded ? a.level === 3 ? '主线 05 与潮汐挑战已开放；前往风车草甸' : a.level === 7 ? '主线 09 与草甸挑战已开放；天空挑战需通关主线 12' : a.level === 11 ? '天空挑战已开放；天空城另有 3D 场景入口' : undefined : undefined),
       next, replay: kind === 'lose' && s.state === 'result.saved' ? mainline ? () => this.command('startStage', a.stageId, {}) : s.provider === 'regional-r05' ? () => this.command('retryStage') : null : null,
-      retrySave: () => this.command('retrySave'), home: () => { this.popups.clear(); this.resultKey = ''; this.command('requestExit'); } };
+      retrySave: () => this.command('retrySave'), home: () => {
+        // 回小岛 joins the host's claim batch: the chest / region claims fired by the same tap are written first, then we leave.
+        const go = () => { this.popups.clear(); this.resultKey = ''; return this.command('requestExit'); }, after = this.hostActions.afterClaims;
+        if (after) after.run(go); else go();
+      } };
   }
   private paintResult(s: any) {
     const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
@@ -920,6 +924,8 @@ export class ManagedMobileBoardUI extends Component {
     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
     if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
+    // SPEC v2.1: the result screen shows its rewards on the panel itself (badges over the chest); no separate 「获得」 popup there.
+    if (this.isResult(s) || this.popups.find('ResultPanel')) return;
     const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
     const open = this.popups.find('RewardPanel');
     const merged = open ? this.rewardShown.slice() : [];

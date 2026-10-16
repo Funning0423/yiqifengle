@@ -40,6 +40,11 @@ const { createHarness } = require('./harness.cjs');
     const tb = box(tap); assert(tb.w >= 44 && tb.h >= 44, 'hit area ≥ 44'); assert.equal(tb.w, d.guide.chest.hit);
     assert(d.guide.pulsing, 'ready chest pulses'); assert(!p.root.find('ResultChestRays').activeInHierarchy, 'rays only after opening');
     assert(all.includes('✦ 点宝箱领取 ✦'), 'hint under the chest'); assert(!all.includes('主线 05 · 潮汐挑战已开放'), 'unlock hint waits for the open chest');
+    // SPEC 16:35: glow hugs the chest (r74 closed, ≤ 0.45 × chest width); panel 9-slice inset 212, edge ≈ 23 pt, plain paper.
+    const hb0 = box(halo); assert(hb0.w <= 0.9 * d.guide.chest.w + 0.5, 'glow radius ≤ 0.45 × chest width'); if (!compact) assert(Math.abs(hb0.w / 2 / halo.scale.x - 74) < 0.5 || Math.abs(hb0.w / 2 - 74) < 4, 'glow r74');
+    const pf = p.body.getChildByName('PanelFrame'), psf = pf.getComponent(H.cc.Sprite).spriteFrame;
+    assert.equal(psf.insetLeft, 212); assert(Math.abs(212 * Math.abs(pf.scale.x) - 23) < 0.5, 'panel edge ≈ 23');
+    assert(!p.root.find('InnerLight'), 'no warm light layer inside the panel');
     const s0 = halo.scale.x; settle(16); assert.notEqual(halo.scale.x, s0, 'halo breathes');
     // 4) buttons: equal width, 56 (52 compact), art 0.6, shadow ≥ 4, ≥ 40 from the screen edge on 390, gap 16, bottom clearance.
     const next = p.root.find('Next'), home = p.root.find('Home'), nb = box(next), hb = box(home), ns = screen(next, w, h), hs = screen(home, w, h);
