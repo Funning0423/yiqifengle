@@ -101,7 +101,7 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     s.state = 'result.saved'; s.active.status = 'won'; s.result = { stars: 3 }; s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
     u.setHostActions({ chest: { visible: true, run: () => chest++ }, mainNext: { visible: true, run: () => next++ } }); b.step(0.3);
     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
-    H.tap(inPopup(b, 'ResultPanel', 'Claim-chest')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
+    H.tap(inPopup(b, 'ResultPanel', 'ClaimAll')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
     const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
     const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');

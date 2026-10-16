@@ -133,7 +133,7 @@ async function matrix() {
                             if (i + 1 < pageCount(H, p))
                                 H.tap(p.root.find('ResultNextPage'));
                         }
-                        const expected = [...(m.kind === 'win' ? m.rewards.filter(r => r.state === 'ready').map(r => 'Claim-' + r.id) : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
+                        const expected = [...(m.kind === 'win' && m.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
                         record(`reachable ${width}x${height} ${mode} ${spec.name} ${loaded}/${reduced}`, () => { if (p.root.find('Home').activeInHierarchy) {
                             for (const name of expected)
                                 assert(seen.has(name), name);
@@ -149,11 +149,9 @@ async function matrix() {
                                     assert.equal(fragments('Score'), m.score + ' 分');
                     if (spec.name === 'win-extreme') assert.equal(new Set([...allText.values()].filter(b => b.name === 'Score' || b.name.startsWith('Score-continued-')).map(b => b.page)).size, 1, 'full numeric score remains on one page');
                                 if (m.kind === 'win') {
-                                    assert.equal(fragments('MovesInfo'), (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + m.movesLeft + ' 步');
-                                    const saved = fragments('SavedText'), shortPhone = height <= 700 && width < height;
-                                    if (saved) assert.equal(saved, '成绩已保存');
-                                    else assert(shortPhone, '成绩已保存 stays on every layout except a short portrait phone');
-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = [...allText.values()].find(b => b.owner === 'Claim-' + r.id)?.text || fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
+                                    const summary = [m.movesUsed !== null ? m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩 ' + m.movesLeft + ' 步' : '', '已保存'].filter(Boolean).join(' · ');
+                                    assert.equal(fragments('ResultSummary'), summary + (m.unlockHint ? ' · ' + m.unlockHint : ''));
+                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
                                 }
                                 if (m.kind === 'readonly')
                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');
@@ -203,12 +201,7 @@ async function host() {
                     assert(!rows.at(-1).supported);
                     assert.equal(calls.length, 0);
                     return;
-                } for (const [name, id] of [['Claim-chest', 'chest'], ['Claim-regionReward', 'regionReward'], ['Next', 'next']]) {
-                    const n = reveal(H, p, name);
-                    assert(n.activeInHierarchy);
-                    H.tap(n);
-                    assert.equal(calls.at(-1), id);
-                } const n = p.root.find('Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
+                } const claim = reveal(H, p, 'ClaimAll'); H.tap(claim); assert.deepEqual(calls.slice(0, 2), ['chest', 'regionReward']); const n = reveal(H, p, 'Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
                 b.u.onDestroy();
                 record('host teardown', () => assert.equal(H.cc.game.listeners('hide'), 0));
             }
@@ -229,7 +222,8 @@ async function lifecycle() {
     let viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
     H.setViewport(320, 320);
     const stack = new K.PopupStack(owner, () => viewport);
-    const targets = [['Claim-chest', cases[0]], ['Claim-regionReward', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
+    const targets = [['ClaimAll', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
+    const fired = (target, spec) => target === 'ClaimAll' ? (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id) : [target];
     for (const [target, spec] of targets)
         for (const mode of ['other-pointer', 'outside', 'cancel', 'hide', 'node-hide', 'ancestor-hide', 'disable', 'cover', 'page-away', 'rotate', 'inset-only', 'unchanged', 'destroy', 'closing']) {
             const calls = [], p = P.openResult(stack, model(spec, calls), null);
@@ -241,7 +235,7 @@ async function lifecycle() {
                     n.emit('touch-end', H.event(point, 2));
                     assert.deepEqual(calls, []);
                     n.emit('touch-end', H.event(point, 1));
-                    assert.deepEqual(calls, [target]);
+                    assert.deepEqual(calls, fired(target, spec));
                     return;
                 }
                 if (mode === 'outside')
@@ -290,7 +284,7 @@ async function lifecycle() {
                     stack.layout();
                     stack.update(.01);
                     n.emit('touch-end', H.event(point, 1));
-                    assert.deepEqual(calls, [target]);
+                    assert.deepEqual(calls, fired(target, spec));
                     return;
                 }
                 if (mode === 'destroy') {
@@ -311,7 +305,7 @@ async function lifecycle() {
                 const again = reveal(H, p, target);
                 assert(again.activeInHierarchy);
                 H.tap(again);
-                assert.deepEqual(calls, [target]);
+                assert.deepEqual(calls, fired(target, spec));
             });
             stack.clear();
             viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
@@ -330,7 +324,7 @@ async function transitions() {
         H.setViewport(320, 320);
         const s = new K.PopupStack(o, () => v), calls = [], p = P.openResult(s, model(cases[0], calls), null);
         settle(s);
-        const n = reveal(H, p, 'Claim-chest');
+        const n = reveal(H, p, 'ClaimAll');
         n.emit('touch-start', H.event(H.point(n), 1));
         const pending = Promise.all(['board', 'popup', 'r2'].map(d => A.BoardArt.shared().load(d)));
         v = { width: 568, height: 320, safeInsets: insetModes.host(568, 320) };
@@ -343,8 +337,8 @@ async function transitions() {
         record('delayed art ' + destroyed, () => { n.emit('touch-end', H.event(destroyed ? { x: 0, y: 0 } : H.point(n), 1)); assert.deepEqual(calls, []); if (!destroyed) {
             assert.equal(s.find('ResultPanel'), p);
             snapshot(H, p, v, { case: 'delayed-art', phase: 'settled', insets: 'host', page: 1 });
-            H.tap(reveal(H, p, 'Claim-chest'));
-            assert.deepEqual(calls, ['Claim-chest']);
+            H.tap(reveal(H, p, 'ClaimAll'));
+            assert.deepEqual(calls, ['Claim-chest', 'Claim-regionReward']);
         }
         else
             assert(!p.alive); });
@@ -414,13 +408,13 @@ async function transitions() {
     b.u.setHostActions({ chest: { visible: true, run: () => { calls.push('chest'); Promise.resolve().then(() => { state.journey.chests[0].opened = true; b.render(); }); } }, regionReward: { visible: true, run: () => { calls.push('regionReward'); Promise.resolve().then(() => { state.journey.regionRewards[0].claimed = true; b.render(); }); } }, mainNext: { visible: true, run: () => calls.push('next') } });
     b.render();
     b.step(1);
-    for (const [target, id] of [['Claim-chest', 'chest'], ['Claim-regionReward', 'regionReward']]) {
+    {
         let p = b.u.popups.find('ResultPanel');
-        const n = reveal(H, p, target);
+        const n = reveal(H, p, 'ClaimAll');
         H.tap(n);
         await H.flush();
         b.step(1);
-        record('actual host asynchronous ' + id + ' claimed return', () => { assert.equal(calls.filter(x => x === id).length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find(target), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === id).length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
+        record('actual host asynchronous claim-all returns one reward panel', () => { assert.equal(calls.filter(x => x === 'chest').length, 1); assert.equal(calls.filter(x => x === 'regionReward').length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find('ClaimAll'), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === 'chest').length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
     }
     record('actual host last page keeps Next after both rewards', () => { const p = b.u.popups.find('ResultPanel'); for (let i = 1; i < pageCount(H, p); i++)
         H.tap(p.root.find('ResultNextPage')); H.tap(p.root.find('Next')); assert.equal(calls.at(-1), 'next'); });

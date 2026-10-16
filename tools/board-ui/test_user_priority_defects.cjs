@@ -22,17 +22,19 @@ const {createHarness}=require('./harness.cjs');
  for(const [width,height] of [[390,844],[320,568],[844,390]]){
   H.setViewport(width,height);const panel=P.openResult(stack,model,null);for(let i=0;i<40;i++)stack.update(.025);
   if(height>600)assert(panel.height<height-80,'portrait panel must shrink to current result content');
-  const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1, checked=new Set();
+  const count=Number(panel.root.find('ResultPageNumber').getComponent(H.cc.Label).string.split('/')[1])||1;
+  let claim=null,tool=null,tapped=false;
   for(let page=0;page<count;page++){
-   for(const id of ['chest','tool']){const claim=panel.root.find('Claim-'+id);if(!claim.activeInHierarchy)continue;
-    if(id==='chest'){const art=panel.root.find('ResultChestArt');assert(art&&art.activeInHierarchy,'chest is a centered hero');const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');const face=claim.getChildByName('Face'),inside=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert.equal(inside.length,0,'chest claim is the button under the hero');checked.add(id);H.tap(claim);continue;}
-    const face=claim.getChildByName('Face'),art=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert(art.length,'reward art lives inside pressed button face');
-    for(const icon of art){const ui=icon.getComponent(H.cc.UITransform),w=ui.width*icon.scale.x,h=ui.height*icon.scale.y;assert(Math.max(w,h)>=50,'actual loaded reward icon visibly larger than old 44×36');const card=claim.getComponent(H.cc.UITransform);assert(Math.abs(icon.position.x)+w/2<=card.width/2);assert(Math.abs(icon.position.y)+h/2<=card.height/2);}
-    checked.add(id);H.tap(claim);
-   }
+   const live=panel.root.find('ClaimAll');if(live&&live.activeInHierarchy)claim=live;
+   const art=panel.root.find('ResultChestArt');
+   if(art&&art.activeInHierarchy){const ui=art.getComponent(H.cc.UITransform),w=ui.width*Math.abs(art.scale.x),h=ui.height*Math.abs(art.scale.y);assert(Math.max(w,h)>=120,'chest hero at least 120');}
+   const icon=panel.root.find('tool_tidenet');if(icon&&icon.activeInHierarchy)tool=icon;
+   if(claim&&claim.activeInHierarchy&&!tapped){const face=claim.getChildByName('Face'),inside=face.children.filter(n=>!['Plate','Label'].includes(n.name));assert.equal(inside.length,0,'claim-all is the button under the hero');H.tap(claim);tapped=true;}
    if(page+1<count)H.tap(panel.root.find('ResultNextPage'));
   }
-  assert.equal(checked.size,2);H.tap(panel.root.find('Next'));assert(!calls.includes('next'),'unavailable meadow cannot advance');
+  assert(tapped,'one claim-all button');assert(calls.includes('chest')&&calls.includes('tool'),'one tap claims every ready reward');
+  assert(tool,'region reward art stays on the result');const ui=tool.getComponent(H.cc.UITransform),tw=ui.width*Math.abs(tool.scale.x),th=ui.height*Math.abs(tool.scale.y);assert(Math.max(tw,th)>=50,'actual loaded reward icon visibly larger than old 44×36');
+  H.tap(panel.root.find('Next'));assert(!calls.includes('next'),'unavailable meadow cannot advance');
   layouts.push({width,height,panelHeight:panel.height,pages:count});stack.clear();
  }
  const record=JSON.parse(fs.readFileSync('docs/user-defects/2026-10-14-priority.json'));assert.equal(record.defects.length,4);assert(record.defects.every(d=>d.status==='OPEN'));
