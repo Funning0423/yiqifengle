@@ -51,6 +51,18 @@ const { createHarness } = require('./harness.cjs');
     try { stack.clear(); const r = P.openResult(stack, model('claimed'), null); settle(); await flush();
       assert.notEqual(r.root.find('ResultChest3D'), rig0, 'no stale handoff after 3 s'); stack.clear(); settle(); } finally { Date.now = now; }
   }
+  { // R1a/R1b: the claim batch repaints TWICE back-to-back (chest claimed, then the region reward) with no frame between.
+    H.state.viewport = { width: 390, height: 844, safeInsets: HOST(390) };
+    const p = P.openResult(stack, model('ready'), null); settle(); await flush(); settle(4);
+    const rig0 = p.root.find('ResultChest3D'), y0 = wy(activeScore(p.root)); p.resultChestTapped(); settle(1);
+    const mid = model('claimed'); mid.rewards[1] = { ...mid.rewards[1], state: 'ready', claim: () => {} };
+    stack.clear(); P.openResult(stack, mid, null); stack.clear(); const q = P.openResult(stack, model('claimed'), null);
+    assert.equal(q.root.find('ResultChest3D'), rig0, 'rig survives the double repaint');
+    const s = activeScore(q.root), a0 = wy(s); assert(Math.abs(a0 - y0) < 0.6, 'R1a: score starts at the tapped y after a double repaint: ' + a0 + ' vs ' + y0);
+    q.update(0.025); const a1 = wy(s); settle(20); const a2 = wy(s);
+    assert(Math.abs(a2 - y0) > 30, 'harness reproduces the open-state score move'); assert(Math.abs(a1 - a2) > 5, 'R1a: one frame later still easing, not jumped: ' + a1 + ' → ' + a2);
+    out.doubleRepaint = { from: +y0.toFixed(1), frame1: +a1.toFixed(1), to: +a2.toFixed(1) }; stack.clear(); settle();
+  }
   assert(Math.abs(P.scoreEaseAt(0)) < 1e-9 && P.scoreEaseAt(P.SCORE_EASE_S) === 1 && P.scoreEaseAt(0.1) > 0.4 && P.scoreEaseAt(0.1) < 1);
   console.log(JSON.stringify({ status: 'PASS', ...out }));
 })().catch(e => { console.error(e); process.exit(1); });

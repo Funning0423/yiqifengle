@@ -266,16 +266,17 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
   let chestPose: { node: Node; flat: Node | null; y: number; rigY: number; w: number; h: number } | null = null;
   let guideT = 0, riseT = 0, flatScale = { x: 1, y: 1 };
+  let liveScoreY: number | null = null; // R1a: where the score is on screen now (eased), carried through every repaint in the window
   let adoptedScoreY: number | null = null, scoreEase: { node: Node; base: number; delta: number; t: number } | null = null;
   // delta holds the score's previous WORLD y; the offset is re-derived each frame because the panel scale can still change.
   const applyScoreEase = () => { const e = scoreEase; if (!e) return; if (!isValid(e.node, true)) { scoreEase = null; return; }
     const n = e.node, k = scoreEaseAt(e.t); n.setPosition(n.position.x, e.base, n.position.z); if (k >= 1) { scoreEase = null; return; }
     const ps = n.parent ? n.parent.worldScale.y : 1, off = (e.delta - n.worldPosition.y) / Math.max(1e-6, ps);
-    n.setPosition(n.position.x, e.base + off * (1 - k), n.position.z); };
+    n.setPosition(n.position.x, e.base + off * (1 - k), n.position.z); liveScoreY = n.worldPosition.y; };
   // Pulsing light guide on a ready chest; floating rewards rise out of the open chest, then bob gently.
   const baseUpdate = p.update.bind(p);
   p.update = (dt: number) => {
-    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); }
+    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); } else if (Date.now() - chestTappedAt < CHEST_HANDOFF_MS) liveScoreY = scoreWorldY(p.root);
     const still = reducedMotion(), wave = Math.sin(guideT * 2 * Math.PI / GUIDE_PERIOD);
     if (guideDiag.pulsing && !still) {
       const sine = 0.5 - 0.5 * Math.cos(guideT * 2 * Math.PI / GUIDE_PERIOD); // sineInOut 0→1→0
@@ -300,7 +301,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       f.node.setPosition(f.x * Math.min(1, e), f.fromY + (f.y - f.fromY) * e + bob, 0); const o = f.node.getComponent(UIOpacity) || f.node.addComponent(UIOpacity); o.opacity = Math.round(255 * Math.min(1, k * 2));
     }
   };
-  (p as any).resultChestTapped = () => { guideDiag.pulsing = false; chestTappedAt = Date.now(); tappedScoreY = scoreWorldY(p.root); chestRig?.open(true); };
+  (p as any).resultChestTapped = () => { guideDiag.pulsing = false; chestTappedAt = Date.now(); tappedScoreY = liveScoreY = scoreWorldY(p.root); chestRig?.open(true); };
   let tappedScoreY: number | null = null; // R1: captured while this panel is live (destroy may run after detach)
   const prevDestroy = p.destroy.bind(p);
   p.destroy = () => {
@@ -309,7 +310,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // ~3 frames its own rig needs to load, and the score row snaps up.
     disposeChestHandoff();
     if (chestRig && chestRig.ready && Date.now() - chestTappedAt < CHEST_HANDOFF_MS && isValid(chestRig.node, true)) {
-      chestRig.node.removeFromParent(); chestHandoff = { rig: chestRig, at: Date.now(), scoreY: tappedScoreY };
+      chestRig.node.removeFromParent(); chestHandoff = { rig: chestRig, at: Date.now(), scoreY: liveScoreY ?? tappedScoreY };
     } else chestRig?.dispose();
     chestRig = null; prevDestroy();
   };
@@ -653,7 +654,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     }
     page = Math.min(page, pages.length - 1); showPage(); p.tint.update(true);
     if (adoptedScoreY !== null) { const sn = findNamed(p.root, 'Score'); const y = sn ? sn.worldPosition.y : null; // R1: ease the score into its open-state row
-      if (sn && y !== null && Math.abs(adoptedScoreY - y) > 0.5) scoreEase = { node: sn, base: sn.position.y, delta: adoptedScoreY, t: 0 };
+      // R1a: always ease when adopted. The claim batch repaints twice (chest, then region reward); the second panel's
+      // first layout may run before the panel scale settles, so a |Δ| test here could skip the ease and the score jumped 66 pt.
+      if (sn && y !== null) { scoreEase = { node: sn, base: sn.position.y, delta: adoptedScoreY, t: 0 }; liveScoreY = adoptedScoreY; }
       adoptedScoreY = null; }
     if (scoreEase) { scoreEase.base = scoreEase.node.position.y; applyScoreEase(); } // a reflow re-places the row; keep the eased offset
   });
