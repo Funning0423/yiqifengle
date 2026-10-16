@@ -8,8 +8,11 @@
  *   - ui_signpost "继续旅程" on the west lawn, just clear of the shrubs. The posts sit on the
  *     grass (env_island_main, palette row 0), not in the sea. The face is turned about 15°
  *     off both the wide shot and the closest pull, so the words stay readable and the board
- *     still reads as a solid. Scale is small enough that the wide shot keeps it under 22%
- *     of the frame and the close shot stays left of the lighthouse.
+ *     still reads as a solid. Candidate A (Voice Bot): scale 1.0 (was 0.79), moved 0.3 m west and
+ *     0.55 m toward the wide lens so the bigger board still clears the lighthouse foot in the wide shot
+ *     and stays fully inside the closest (0.46) frame; the left post stands on the lawn, the right post
+ *     is sunk ~0.14 m into the slope. beach_palm_tall moved to the west shore (on env_island_main, clear of the door and the sign in the wide shot) so the closest pull
+ *     no longer looks through its crown.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
@@ -37,7 +40,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-4.08, 0.127, 0.7] as V3, yawDeg: 5.58, scale: 0.79,
+    prefab: 'ui_signpost', position: [-4.38, -0.02, 1.25] as V3, yawDeg: 2, scale: 1.0,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
@@ -57,7 +60,7 @@ export const ISLAND_PROPS = Object.freeze({
     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
   },
   palms: [
-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
+    { prefab: 'beach_palm_tall', position: [-3.3, 0.05, 6.6] as V3, yawDeg: 60, scale: 0.75 },
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
   buttons: {
