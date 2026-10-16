@@ -21,8 +21,9 @@
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
 import { AmbienceAudio } from './AmbienceAudio';
-import { qfAudioLog } from './GameAudio';
 const { ccclass } = _decorator;
+/** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
+function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
 function musicBed(): number {
@@ -285,4 +286,4 @@ export class WindAudio extends Component {
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
 // A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
 // launched, the once() above never fires and the outdoor segment was silent.
-GameAudio.ambienceMounters.push(() => WindAudio.ensure());
+(GameAudio as any).ambienceMounters?.push(() => WindAudio.ensure());

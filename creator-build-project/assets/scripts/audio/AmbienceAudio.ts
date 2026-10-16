@@ -14,7 +14,9 @@
 // 海鸥事件（给场景特效bot 的可见海鸥，docs/audio-events.md）：每声海鸥先 'scheduled' 再 'start'（同一 id），
 //   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
-import { qfAudioLog, GameAudio, SfxName } from './GameAudio';
+import { GameAudio, SfxName } from './GameAudio';
+/** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
+function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 const { ccclass } = _decorator;
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
@@ -484,4 +486,4 @@ export class AmbienceAudio extends Component {
 }
 
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
-GameAudio.ambienceMounters.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
+(GameAudio as any).ambienceMounters?.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio

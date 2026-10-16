@@ -61,7 +61,7 @@ test('A1b: standing + crossing-out mount the wind/sea beds; the exit track start
  assert(h.logs.some(l=>l.includes('[QF_AUDIO]')&&l.includes('ensure-ambience')),'ensure logged');assert(h.logs.some(l=>l.includes('gesture-proven-by-exit-track')));
  a.setMuted(true);assert.equal(a.canPlayAmbience(),false,'mute still wins');assert.equal(a.ambienceGate(),'muted');
  const w=fs.readFileSync('creator-build-project/assets/scripts/audio/WindAudio.ts','utf8'),m=fs.readFileSync('creator-build-project/assets/scripts/audio/AmbienceAudio.ts','utf8');
- assert(/GameAudio\.ambienceMounters\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/GameAudio\.ambienceMounters\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
+ assert(/ambienceMounters\?\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/ambienceMounters\?\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
  for(const e of ['wind-gate','wind-play','wind-loaded'])assert(w.includes("qfAudioLog('"+e+"'"),e);for(const e of ['waves-gate','waves-play','waves-loaded'])assert(m.includes("qfAudioLog('"+e+"'"),e);
 });
 test('asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size',()=>{
