@@ -18,6 +18,12 @@
 //     2) 在 WorldFlowComponent / WorldIntegrationBoot / 角色 adapter 上提供
 //        onApronLift(listener:(strength:'full'|'soft', durationSec:number)=>void): ()=>void（返回取消订阅），
 //        这里会用 typeof 找到并订阅，销毁时取消。
+// 出门过场让位（GGbot 2026-10-16，Grok Bot 定）：出门 B5.3 音轨 sfx_exit_outbound 自带风，WindAudio 在出门期间压低约 -12 dB，
+//   0.5 s 淡入淡出（按 dB 线性），帆船转场开始时恢复。驱动方式：每帧看 WorldFlow 的 state，处于出门段
+//   （standing/turning-out/walking-out/opening-door/crossing-out）就压；离开出门段（到 island、被取消回 home、error、
+//   disposed）、找不到 WorldFlowComponent（换场景）、allowed() 为 false、组件销毁，都会释放。
+//   帆船转场 / 跳过可以显式调用 WindAudio.releaseExitDuck()（或 globalThis.__voiceWind.releaseExitDuck()）提前恢复：
+//   释放后到离开出门段之前不会再压回去。
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
 import { AmbienceAudio } from './AmbienceAudio';
@@ -47,6 +53,11 @@ const ON_GAIN = 0.003;             // 低于这个当作无声
 const IDLE_PAUSE_S = 1;            // 两条都无声超过这么久就暂停
 const REFIND_S = 1;
 const HOOK_RETRY_S = 2;
+export const EXIT_DUCK_DB = -12;
+export const EXIT_DUCK_FADE_S = 0.5;
+export const EXIT_STATES: readonly string[] = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out'];
+/** Duck gain for fade progress u (0 = no duck, 1 = full -12 dB), linear in dB. */
+export function exitDuckGain(u: number): number { const k = Math.max(0, Math.min(1, u)); return Math.pow(10, (EXIT_DUCK_DB * k) / 20); }
 
 export function smoothstep(a: number, b: number, x: number): number {
   const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u);
@@ -74,6 +85,8 @@ export class WindAudio extends Component {
   private gust = -1;                          // 'soft' 包络已走的时间；<0 表示没有
   private gustDur = SOFT_DEFAULT_S;
   private alive = true;
+  private duckU = 0;                          // 出门让位淡入进度 0..1
+  private duckReleased = false;               // releaseExitDuck() 之后、离开出门段之前保持不压
 
   static ensure() {
     try {
@@ -88,12 +101,32 @@ export class WindAudio extends Component {
     if (w && w.alive) w.onApronLift(strength, durationSec);
   }
 
+  /** 帆船转场开始 / 跳过时调用：0.5 s 淡回原音量。 */
+  static releaseExitDuck() { const w = WindAudio.instance; if (w && w.alive) w.duckReleased = true; }
+
+  private flowState(): string | null {
+    const f = this.flow; if (!f || !isValid(f, true) || typeof f.commands !== 'function') return null;
+    try { const s = f.commands().snapshot(); return s && typeof s.state === 'string' ? s.state : null; } catch { return null; }
+  }
+
+  /** 每帧推进让位包络，返回乘在风声音量上的增益。 */
+  private exitDuck(dt: number): number {
+    const st = this.flowState(), exiting = st !== null && EXIT_STATES.indexOf(st) >= 0;
+    if (!exiting) this.duckReleased = false;
+    const target = exiting && !this.duckReleased ? 1 : 0, step = Math.max(0, dt) / EXIT_DUCK_FADE_S;
+    this.duckU = target > this.duckU ? Math.min(target, this.duckU + step) : Math.max(target, this.duckU - step);
+    return exitDuckGain(this.duckU);
+  }
+
+  private resetDuck() { this.duckU = 0; this.duckReleased = false; }
+
   onLoad() {
     if (WindAudio.instance && WindAudio.instance !== this && isValid(WindAudio.instance, true)) { this.alive = false; return; }
     WindAudio.instance = this;
     (globalThis as any).__voiceWind = {
       notifyApronLift: (strength: ApronLiftStrength, durationSec?: number) => WindAudio.notifyApronLift(strength, durationSec),
       snapshot: () => this.snapshot(),
+      releaseExitDuck: () => WindAudio.releaseExitDuck(),
     };
     for (const p of [SOFT_PATH, STRONG_PATH, FLAP_PATH]) {
       this.clips[p] = null;
@@ -117,7 +150,7 @@ export class WindAudio extends Component {
     }
     this.softSrc = this.strongSrc = this.flapSrc = null;
     for (const p in this.clips) { const c = this.clips[p]; if (c) c.decRef(); }
-    this.clips = {}; this.flow = null; this.boot = null;
+    this.clips = {}; this.flow = null; this.boot = null; this.resetDuck();
     if (owner) {
       WindAudio.instance = null; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
       const g = (globalThis as any).__voiceWind; if (g) delete (globalThis as any).__voiceWind;
@@ -126,7 +159,8 @@ export class WindAudio extends Component {
 
   snapshot() {
     return { s: this.s, soft: this.softSrc ? this.softSrc.volume : 0, strong: this.strongSrc ? this.strongSrc.volume : 0,
-      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length };
+      softPlaying: !!this.softSrc?.playing, strongPlaying: !!this.strongSrc?.playing, gust: this.gust, hooks: this.hooked.length,
+      exitDuck: this.duckU, exitDuckGain: exitDuckGain(this.duckU) };
   }
 
   /** GameAudio.setWindDuck if present (older GameAudio / test stubs: no-op) */
@@ -244,6 +278,7 @@ export class WindAudio extends Component {
     const g = this.gustValue(dt);
     const allowed = this.allowed();
     if (!allowed) {
+      this.resetDuck();
       this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
       this.pauseLoops();
       return;
@@ -257,7 +292,7 @@ export class WindAudio extends Component {
     if (this.sWind < 1e-4 && wind === 0) this.sWind = 0;
     AmbienceAudio.setWindExit(this.sWind);
     WindAudio.duckBgm(this.s);   // BGM 让风：GameAudio 里 -4 dB x smoothstep(0.2, 1, s)，0.5 s 平滑
-    const music = musicBed();
+    const music = musicBed() * this.exitDuck(dt);
     if (music <= 0) {
       for (const src of [this.softSrc, this.strongSrc]) if (src) src.volume = 0;
       this.pauseLoops();
