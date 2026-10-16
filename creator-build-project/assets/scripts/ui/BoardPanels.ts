@@ -333,11 +333,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
   // FLOAT_PLATE: the mockup's flat cream plate behind each reward; off (keep the game's art), one switch for the redesign.
   const FLOAT_PLATE = true; // SPEC v2.1 RewardBadge (existing icon on a cream round badge)
+  /** R2 (77b76c3 audit): on small screens (height ≤ 700) the floating reward badges sit 14 pt higher (they overlapped the lid on 320×568). */
+  const FLOAT_COMPACT_LIFT = 14;
   const FLOAT_ICON = 68, FLOAT_ICON_DENSE = 56, FLOAT_NAME = 22, FLOAT_GAP = 28, FLOAT_STEP = 76, FLOAT_STEP_MANY = 64;
   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
   // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
   const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
-  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
+  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
   let hintLabel: Label | null = null;
   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
@@ -511,6 +513,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     /** Reward items hovering in a centred row: icon above, name under it. */
     const placeFloating = (row: Row, baseY: number, mouthY = baseY - 40, fit = Infinity) => {
       const list = floating(); if (!list.length) return;
+      if (specCompact) { baseY += FLOAT_COMPACT_LIFT; mouthY += FLOAT_COMPACT_LIFT; } // R2: small screens keep the badges off the open lid
       const colW = Math.min(inner / list.length, list.length > 4 ? FLOAT_STEP_MANY : FLOAT_STEP); const icon = Math.max(16, Math.min(list.length > 4 ? 56 : floatIcon, fit - FLOAT_NAME - 12));
       list.forEach((r, k) => {
         const i = m.rewards.indexOf(r), x = (k - (list.length - 1) / 2) * colW;
