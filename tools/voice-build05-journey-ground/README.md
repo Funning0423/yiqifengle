@@ -19,3 +19,12 @@ JOURNEY_CAMERA/journeyCamera @a373227 incl. focus on anchor_starcourt_center —
   python3 cat_add.py add_all.json add_mid.json add_late.json
   node merge.mjs base.glb add_all.json tmp.glb && node splice.mjs base.glb tmp.glb out.glb env_sky_static_foliage_cards env_sky_static_palette
   (npm: @gltf-transform/core@4 @gltf-transform/extensions@4 draco3dgltf@1.5.6). base.glb must be the ORIGINAL Build05 glb.
+
+## v3 (on GGbot f05c6a3): 90–92 s flats
+Rec 90–92 s ≈ route d 36.7–39.1 m (travelStart 59.45 s, 46 m in 38.32 s). Faces: env_sky_static_palette, two big flat
+deck triangles (18.84 m² and 76.33 m²) plus neighbours. Fix = vertcolor.mjs (vcolor.mjs): 25 big upward triangles
+(>3 m²) within 28 m of the route d≥25 m are subdivided coplanar (≤1.4 m edges; surface unchanged, so route clearance
+is untouched), then smooth value-noise vertex colour (0.58–1.0 linear brightness, warm/cool tints) on 5,035 vertices
+in that zone. Faces touching the 09 board frustum (2.0× margin) are locked. COLOR_0 already exists → no new attribute.
+  node vcolor.mjs <v2 env_skycity.glb> route-height-08-09.csv tmp.glb && node splice.mjs <v2 glb> tmp.glb out.glb env_sky_static_palette
+Lens poses for renders: dumpcam.cjs uses GGbot's tools/journey-integration/journey-scene.cjs (real journeyCamera v3).

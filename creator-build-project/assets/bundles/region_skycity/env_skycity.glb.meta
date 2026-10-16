@@ -617,7 +617,7 @@
       "name": "env_sky_static_foliage_cards.mesh",
       "userData": {
         "gltfIndex": 30,
-        "triangleCount": 5790
+        "triangleCount": 8790
       },
       "ver": "1.1.1",
       "imported": true,
@@ -635,7 +635,7 @@
       "name": "env_sky_static_palette.mesh",
       "userData": {
         "gltfIndex": 31,
-        "triangleCount": 20028
+        "triangleCount": 23372
       },
       "ver": "1.1.1",
       "imported": true,
