@@ -152,7 +152,7 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
       return {ang:Math.acos(Math.max(-1,Math.min(1,(Math.sin(actor.yaw)*dx+Math.cos(actor.yaw)*dz)/dist)))*180/Math.PI,dist,t:tOfQ(q)};};
     let qFr=-1,qHold=-1,tFr=0,minD=99;
     for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);if(m.dist<minD)minD=m.dist;
-      if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=tFr+1.6)qHold=q;}
+      if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=Math.max(tFr+.05,Math.min(tFr+1.6,tOfQ(1)-2.0)))qHold=Math.min(q,1-1e-4);}
     if(qFr<0){qFr=1-1e-4;qHold=1-5e-5;tFr=tOfQ(qFr);}
     if(!(minD>=1.7))throw Error('B5: lens crowds her '+minD.toFixed(2));
     const bound=poseQ(qWalkEnd);

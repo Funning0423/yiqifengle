@@ -24,7 +24,7 @@ export const REGION_CAMERA = {
         source: 'old FirstsliceRoutes.cameraIsland (capsule era); ~2.6 m from character, causes OI-FRAME-002' },
       'temporary-6m': { position: [-5.796, 3.323, 9.352], target: [-2.114, 0.9, 5.281], fovVerticalDeg: 45, characterYawDeg: 0,
         source: 'TEMPORARY 0007 v1.2 composition candidate: legacy direction pulled back to 6 m from exit_path_17 chest point. NOT final.' },
-      'yunjing-final': { position: [-3.26, 15.5, 24.73], target: [1.1, 1.0, 0.0], fovVerticalDeg: 70, characterYawDeg: 0,
+      'yunjing-final': { position: [-2.3, 7.0, 11.0], target: [-2.0, 0.8, 4.6], fovVerticalDeg: 48, characterYawDeg: 0,
         source: '运镜bot exit-cam-v2 2026-10-15 candidate: pitch -30, y 15.5 (suite end height), fov 70, island ~47% H (lighthouse top to beach), lighthouse+hut centred (ref FUNNING-exit-final-frame-ref.png). Funning pick pending. Kept unchanged as the B5 end pose.' },
       // art/island/v2.3-cursor-cam/island_camera_wide.json (CAM-01). Position+target+fov only; rotation is derived.
       'v23-wide': { position: [-49.6623, 26.7215, 56.2639], target: [-2.1535, -4.5424, 3.7359], fovVerticalDeg: 42, characterYawDeg: 0,
@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
    *  frontalDeg: wind reaches 1 the first time the lens is within this many
    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
-  crane: { settleSeconds: 5.5,
+  crane: { settleSeconds: 4.2,
     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.0, riseAt: 2.6, side: 1.6, back: 2.0, height: 1.6, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 0.55, heightShare: 0.8 } } },
+      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 2.4, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 1 } } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
