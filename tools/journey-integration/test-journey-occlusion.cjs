@@ -6,24 +6,29 @@
  * (meadow read directly; Draco GLBs via the SHA-pinned fixture in occlusion/). Samples every 0.05 m and asserts:
  *   O1 character not occluded: camera→body segments at 0.15/0.5/0.9/1.25/1.6 m (Möller–Trumbore); chest and head must
  *      be visible and at most one low point may graze an edge (grazes are listed in the report)
+ *      v3.2: the face point (1.5 m) must be visible as well.
  *   O2 lens clearance ≥ 1 m from all geometry (no near-plane close-ups)
  *   O3 foot point is above the sky platform/rock top along bridge + deck; bridge corridor (2.1 m × 2 m) is free
  *   O4 09 arrival: the board background (own camera, SkycityVisitPose) pose is byte-for-byte the Build05 pose and
  *      still frames the plaza; the arrival root relative to the city is unchanged.
- * Exemption, reported not hidden: leg 04→05 samples with d < 1.25 m, where the lens is still ≥80% the authored
- * island pose (v24-readable). That pose is unchanged by this fix and owned by the island camera work.
+ * Exemption, reported not hidden: leg 04→05 samples with d < 1 m where ONLY her legs (0.15/0.5 m) are behind the island
+ * prop strip (v3.2: the lens follows her from set-off; face/head/chest and clearance are never exempt).
  * No browser, engine or rendering. A pass is geometric evidence, not native visual acceptance. */
 const {fs,path,zlib,crypto,assert,createHarness,loadGlb,ROOT,B,S,H,Lay,Core,Cam,Visit,L,sampleRoute,routeLength,journeyCamera,JOURNEY_CAMERA,sha,meta,bin,f32,local,meadowNodes,skyNodes,rotY,place,nodePos,add,sub,props,island,anchorsIsland,start,mp,appr1,edge1,mOff,meadow,mA,bridge1,leg1,appr2,edge2,sp,yaw,deck0,sOff,sky,sA,deck,bridge2,leg2,focus2,bbox,segBox,rayHit,blockers,ptTri,clearance,readPose,start1,legs}=require('./journey-scene.cjs');
 const results=[];const check=(id,fn)=>{try{results.push({id,status:'PASS',...fn()});}catch(e){results.push({id,status:'FAIL',error:String(e.stack||e)});}};
 const STEP=+(process.env.QF_OCCLUSION_STEP||.05),EXEMPT=1.25,HEIGHTS=[.15,.5,.9,1.25,1.6];
 const profile={};
 for(const leg of legs){const T=routeLength(leg.path),fails=[],exempted=[],grazes=[],rows=[];let minLens=9;
- for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
+ for(let i=0;i*STEP<=T+1e-9;i++){const d=Math.min(T,i*STEP),p=sampleRoute(leg.path,d),c=journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM),hit=HEIGHTS.map(h=>blockers(leg.objs,c.position,[p[0],p[1]+h,p[2]])),[lens,lensObj]=clearance(c.position,leg.objs),hidden=hit.filter(h=>h.length).length;
   if(d>=leg.exempt)minLens=Math.min(minLens,lens);// Occluded = chest (0.9 m) or head (1.6 m) hidden, or more than one of the five body points hidden. A lone graze of
   // one low point by a pebble/grass edge is reported in partialGrazes, not failed.
   const rec={d:+d.toFixed(2),hidden:Object.fromEntries(HEIGHTS.map((h,k)=>[h,hit[k]]).filter(x=>x[1].length)),lens:+lens.toFixed(2),lensObj};
-  const bad=hit[2].length>0||hit[4].length>0||hidden>1||lens<1;
-  if(bad)(d<leg.exempt?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
+  const face=blockers(leg.objs,c.position,[p[0],p[1]+1.5,p[2]]);if(face.length)rec.face=face;// v3.2 camera rule: face (1.5 m) must be visible too
+  const bad=hit[2].length>0||hit[4].length>0||face.length>0||hidden>1||lens<1;
+  // v3.2: the start exemption only covers her LEGS (0.15/0.5 m) behind the island prop strip in the first metre; face, head,
+  // chest and lens clearance are enforced from set-off.
+  const legsOnly=!face.length&&!hit[2].length&&!hit[3].length&&!hit[4].length&&lens>=1;
+  if(bad)(d<leg.exempt&&legsOnly?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
   if(Math.abs(d/.5-Math.round(d/.5))<1e-6||i*STEP>T-STEP)rows.push({d:+d.toFixed(2),x:+p[0].toFixed(3),y:+p[1].toFixed(3),z:+p[2].toFixed(3),cam:c.position.map(v=>+v.toFixed(2))});}
  profile[leg.id]={total:+T.toFixed(4),rows};
  check(`O1/O2 ${leg.id} character visible + lens ≥1 m every ${STEP} m`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,8)));return {total:+T.toFixed(4),samples:Math.floor(T/STEP)+1,minLensM:+minLens.toFixed(2),exemptedAuthoredIslandPoseSamples:exempted,partialGrazes:grazes};});}

@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-16T10:07:50.345Z",
+ "timeUTC": "2026-10-16T11:54:28.187Z",
  "scope": "Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.",
  "camera": {
   "blendM": 18,
@@ -30,8 +30,8 @@
    "status": "PASS",
    "evidence": {
     "04-05": {
-     "maxDegS": 19.44,
-     "atM": 8.4
+     "maxDegS": 6.13,
+     "atM": 32.4
     },
     "08-09": {
      "maxDegS": 16.78,
@@ -73,8 +73,8 @@
    "status": "PASS",
    "evidence": {
     "04-05": {
-     "meanSky": 0.115,
-     "longestZeroSkyM": 8,
+     "meanSky": 0.178,
+     "longestZeroSkyM": 0,
      "samples": 66
     },
     "08-09": {
@@ -100,7 +100,15 @@
    "id": "F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 20°/s",
    "status": "PASS",
    "evidence": {
-    "maxDegS": 19.44
+    "maxDegS": 2.15
+   }
+  },
+  {
+   "id": "F7 04→05 lens on her right side from set-off (never left of behind)",
+   "status": "PASS",
+   "evidence": {
+    "worstLeftOfBehindDeg": -20,
+    "atM": 24.6
    }
   }
  ]
