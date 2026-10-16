@@ -22,6 +22,13 @@ const { createHarness } = require('./harness.cjs');
   const texts = root => { const out = []; const v = n => { if (!n.activeInHierarchy) return; const l = n.getComponent(H.cc.Label); if (l && l.string) out.push(l.string); n.children.forEach(v); }; v(root); return out; };
   const HOST = w => ({ top: 47, bottom: 34, left: 0, right: 0, capsule: { top: 51, bottom: 87, left: w - 93, right: w - 6 } });
   const report = {};
+  { // UI设计部 condition (b): the black caption on the preview stills/videos (work/rsv2/drive.py) is preview tooling only.
+    const fs = require('node:fs'), path = require('node:path'), root = path.resolve(__dirname, '../../creator-build-project');
+    const CAPTION = ['非实机', 'harness 合成', '动效预览', '布局/动效', 'SPEC v2.2 布局'], hits = [];
+    const walk = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { if (!['library', 'temp', 'local', 'build', 'node_modules'].includes(e.name)) walk(f); continue; }
+      if (!/\.(ts|js|json|meta|txt|html|css|md|plist|fnt)$/.test(e.name)) continue; const t = fs.readFileSync(f, 'utf8'); for (const c of CAPTION) if (t.includes(c)) hits.push(path.relative(root, f) + ': ' + c); } };
+    for (const d of ['assets', 'build-templates', 'build-resources', 'settings']) if (fs.existsSync(path.join(root, d))) walk(path.join(root, d));
+    assert.deepEqual(hits, [], 'preview caption text never ships'); report.previewCaptionShipped = hits.length; }
   for (const [w, h] of [[390, 844], [375, 667], [320, 568]]) {
     const key = w + 'x' + h, compact = h <= 700; H.state.viewport = { width: w, height: h, safeInsets: HOST(w) };
     const calls = []; const p = P.openResult(stack, model('ready', calls), null); settle();
@@ -51,10 +58,21 @@ const { createHarness } = require('./harness.cjs');
     assert.equal(nb.w, hb.w); assert.equal(nb.h, compact ? 52 : 56); assert.equal(ns.y, hs.y); assert.equal(d.action.artScale, 0.6);
     for (const b of [next, home]) { const s = b.getChildByName('ActionShadow'); assert(s && s.active && s.__offset >= 4 && b.children.indexOf(s) === 0); }
     const leftEdge = ns.x - nb.w / 2, rightEdge = w - (hs.x + hb.w / 2), gap = (hs.x - hb.w / 2) - (ns.x + nb.w / 2);
-    if (w === 390) { assert.equal(nb.w, 141, 'spec width 141'); assert(leftEdge >= 40 && rightEdge >= 40, 'side margin ≥ 40'); }
+    if (w === 390) { assert.equal(nb.w, 128, '(350 − 2 × (23 + 16) − 16) / 2'); assert(leftEdge >= 40 && rightEdge >= 40, 'side margin ≥ 40'); }
+    { // UI设计部 condition (a): 16 pt from the panel's inner edge (9-slice border ≈ 23 pt) on the sides and the bottom, drop shadow included.
+      const fr = p.body.getChildByName('PanelFrame'), fb = box(fr), fs = screen(fr, w, h), edge = 212 * Math.abs(fr.scale.x);
+      const inL = fs.x - fb.w / 2 + edge, inR = fs.x + fb.w / 2 - edge, inB = fs.y + fb.h / 2 - edge;
+      for (const [b, bb, bs] of [[next, nb, ns], [home, hb, hs]]) { const sh = b.getChildByName('ActionShadow').__offset;
+        const l = bs.x - bb.w / 2 - inL, r = inR - (bs.x + bb.w / 2), bot = inB - (bs.y + bb.h / 2 + sh);
+        report.pad = report.pad || {}; report.pad[key + ':' + b.name] = { left: +l.toFixed(2), right: +r.toFixed(2), bottom: +bot.toFixed(2) };
+        assert(Math.min(l, r) >= 16 - 0.5 && bot >= 16 - 0.5, key + ' ' + b.name + ' 16 pt from the inner edge ' + JSON.stringify(report.pad[key + ':' + b.name])); }
+      assert(Math.abs(report.pad[key + ':Next'].left - 16) < 0.5 && Math.abs(report.pad[key + ':Home'].right - 16) < 0.5, 'exactly 16 at the sides'); }
     assert(Math.abs(gap - 16) < 0.5, 'gap 16');
     const bottomGap = h - 34 - (ns.y + nb.h / 2); assert(bottomGap >= 24, 'clear of the bottom safe line');
     report[key] = { chest: { ...d.guide.chest, centre: screen(tap, w, h) }, next: { ...ns, w: nb.w, h: nb.h }, home: { ...hs, w: hb.w, h: hb.h }, sideMargin: +leftEdge.toFixed(1), gap: +gap.toFixed(1), bottomToSafe: +bottomGap.toFixed(1) };
+    { // condition (c): visual chest centre = the 3D frame centre less CHEST_FRAME.offsetY (2.8% of the frame side) ≈ y 485 on 390×844.
+      const rig = p.root.find('ResultChest3D'), side = box(rig).w, vc = screen(rig, w, h).y + 0.028 * side;
+      report[key + ':chestVisualCentre'] = +vc.toFixed(1); if (w === 390) assert(Math.abs(vc - 485) <= 1, 'chest visual centre ≈ 485, got ' + vc); }
     // tap the chest: one claim of everything, double tap ignored.
     H.tap(tap); H.tap(tap); assert.deepEqual(calls, ['chest', 'regionReward'], 'one tap claims everything once');
     assert.equal(tap.activeInHierarchy, false);

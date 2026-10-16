@@ -40,13 +40,13 @@ function glb() {
     const lidAt = deg => corners([-0.82, 0.82], [-0.09, 0.5235], [-0.05, 1.158]).map(([x, y, z]) => { const a = deg * Math.PI / 180; return [x, y * Math.cos(a) - z * Math.sin(a) + 0.8, y * Math.sin(a) + z * Math.cos(a) - 0.52]; });
     for (const deg of [0, -93, -118, -126]) for (const q of [...corners([-0.84, 0.84], [0, 0.81], [-0.56, 0.595]), ...lidAt(deg)]) { const [x, y] = proj(q); assert(Math.abs(x) < 0.5 && Math.abs(y) < 0.5, 'inside at ' + deg + '°'); }
     const L = M.CHEST_LOOK.lights; assert(L.key.pos[1] > 4 && L.key.pos[0] < 0, 'key from the top-left'); assert(L.fill.lum < 0.5 * L.key.lum / 4 + 0.3, 'fill weaker'); assert(L.rim.pos[2] < 0 && L.rim.pos[1] > 2, 'rim behind/above');
-    assert.deepEqual(M.CHEST_LOOK.material.albedoScale, [1.10, 1.06, 1.0]); assert.equal(M.CHEST_LOOK.material.roughness, 0.6); assert.equal(M.CHEST_OUTLINE.width, 1.5);
+    assert(M.CHEST_PIXELS >= 900, 'outline edge: the render is never upscaled (300 pt frame × dpr 3)'); assert.equal(M.CHEST_FILTER, 2, 'bilinear, not point'); assert.deepEqual(M.CHEST_LOOK.material.albedoScale, [1.10, 1.06, 1.0]); assert.equal(M.CHEST_LOOK.material.roughness, 0.6); assert.equal(M.CHEST_OUTLINE.width, 1.5);
   });
   const lid = new cc.Node('chest_lid'), prefab = { lid };
   cc.instantiate = () => { const m = new cc.Node('result_chest'); const l = new cc.Node('chest_lid'); m.addChild(l); m.addChild(new cc.Node('chest_body')); l.addComponent(cc.MeshRenderer).sharedMaterials = [null]; return m; };
   let paletteOk = true; cc.assetManager.loadAny = (_o, cb) => Promise.resolve().then(() => cb(paletteOk ? null : Error('x'), paletteOk ? new cc.Material() : null));
   const art = BoardArt.shared(); let prefabResult = prefab; art.chestPrefab = () => Promise.resolve(prefabResult);
-  await ok('load: rig at the off-screen origin on CHEST_LAYER, perspective camera only sees that layer into a 512² RenderTexture on the Sprite; open() reaches −118° in 0.5 s', async () => {
+  await ok('load: rig at the off-screen origin on CHEST_LAYER, perspective camera only sees that layer into a 1024² RenderTexture on the Sprite; open() reaches −118° in 0.5 s', async () => {
     const host = new cc.Node('Host'); cc._scene.addChild(host); const c = new M.ResultChest3D(host, 340);
     assert.equal(await c.load(), true); assert.equal(c.diagnostics().state, 'ready');
     const rig = cc._scene.getChildByName('ResultChestRig'); assert(rig); assert.deepEqual([rig.position.x, rig.position.y, rig.position.z], [10000, 10000, 10000]);

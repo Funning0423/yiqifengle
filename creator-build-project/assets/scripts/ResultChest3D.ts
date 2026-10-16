@@ -6,7 +6,12 @@ import { ISLAND_PROPS } from './world-r2/IslandPropsLayout';
  *  M_env_palette material (same palette UVs). The lid (child `chest_lid`, origin on the hinge) follows the GLB's
  *  `chest_open` keys: 0.5 s, 0 → −126° → −114° → −118°, ending open so the inside is visible from the 36° camera. */
 export const CHEST_LAYER = 1 << 19;
-export const CHEST_PIXELS = 512;
+/** RenderTexture side. 1024, not 512: the frame shows up to 300 pt (900 px at dpr 3), and upscaling a 512 render there
+ *  turns the silhouette/outline edge into a 2 px blur. At 1024 it's only ever minified with bilinear filtering, which
+ *  gives a ≈ 1 px anti-aliased edge (the RT has no MSAA, so this resample is the anti-aliasing). 4 MB GPU, no package bytes. */
+export const CHEST_PIXELS = 1024;
+/** Texture filtering for the render and its outline copies: bilinear (Texture2D.Filter.LINEAR = 2), never POINT (jaggies). */
+export const CHEST_FILTER = 2;
 const ORIGIN = new Vec3(10000, 10000, 10000);
 /** chest_open rotation keys (degrees about +X), sampled every 1/30 s from the GLB. */
 export const LID_KEYS: readonly number[] = [0, -4.32, -15.9, -32.67, -52.54, -73.46, -93.33, -110.1, -121.68, -126, -122.89, -117.11, -114, -115.04, -116.96, -118];
@@ -98,7 +103,7 @@ export class ResultChest3D {
       cn.lookAt(new Vec3(ORIGIN.x + CHEST_CAMERA.target[0], ORIGIN.y + CHEST_CAMERA.target[1], ORIGIN.z + CHEST_CAMERA.target[2]));
       const cam = cn.addComponent(Camera); cam.projection = Camera.ProjectionType.PERSPECTIVE; cam.fov = CHEST_CAMERA.fovDeg; cam.fovAxis = Camera.FOVAxis.VERTICAL;
       cam.near = 0.5; cam.far = 30; cam.visibility = CHEST_LAYER; cam.clearFlags = Camera.ClearFlag.SOLID_COLOR; cam.clearColor = new Color(0, 0, 0, 0); cam.priority = 45; cam.usePostProcess = false;
-      const rt = new RenderTexture(); rt.reset({ width: CHEST_PIXELS, height: CHEST_PIXELS }); cam.targetTexture = rt; this.texture = rt; this.camera = cam;
+      const rt = new RenderTexture(); rt.reset({ width: CHEST_PIXELS, height: CHEST_PIXELS }); (rt as any).setFilters?.(CHEST_FILTER, CHEST_FILTER); cam.targetTexture = rt; this.texture = rt; this.camera = cam;
       const f = new SpriteFrame(); f.texture = rt; f.packable = false; this.frame = f;
       if (!isValid(this.sprite, true)) throw Error('host destroyed');
       this.sprite.spriteFrame = f; for (let k = 0; k < this.outline.length; k++) this.outline[k].spriteFrame = f; this.sync(); this.apply(); this.state = 'ready'; return true;

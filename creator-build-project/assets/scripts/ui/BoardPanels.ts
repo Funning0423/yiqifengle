@@ -256,7 +256,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     if (target === page) return;
     resetPresses(p.root); page = target; showPage();
   }
-  let compactViewport = false, shortPhone = false, specCompact = false;
+  let compactViewport = false, shortPhone = false, specCompact = false, padRoom = true;
+  // 16 pt inner padding on every phone (shortest 320×568); sub-phone stress viewports under 480 pt tall keep the previous 26/24 (12 when narrow).
   let chestRig: ResultChest3D | null = null;
   let raysNode: Node | null = null, haloNode: Node | null = null;
   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
@@ -305,7 +306,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 387 / 400, /* chest_v3 fallback art (400 × 327 closed / 400 × 387 open, outline + contact shadow baked in) */ GLOW_R = 74, GLOW_R_OPEN = 78, GLOW_R_C = 50, RAY_LIFT = 48;
   // Glow hugs the chest (radius ≤ 0.45 × chest width): closed centre 4 below the chest centre, open 26 above; peak α 47% (night 59%) / open 59%.
   // SPEC v2.2: the chest sits 8 right of centre so the shadow to its right/back doesn't pull it off-centre visually.
-  const CHEST_DX = 8, GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
+  // UI设计部 condition for look-at 0.68: the chest's visual centre at y ≈ 485 on 390×844 (the row centre lands at 478), so the
+  // chest art (3D node, 2D fallback, contact shadow) moves 7 down; the camera stays as it is.
+  const CHEST_DX = 8, CHEST_DY = -7, GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
   // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
   const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 6, GUIDE_PERIOD = 1.6;
   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
@@ -313,7 +316,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const FLOAT_PLATE = true; // SPEC v2.1 RewardBadge (existing icon on a cream round badge)
   const FLOAT_ICON = 68, FLOAT_ICON_DENSE = 56, FLOAT_NAME = 22, FLOAT_GAP = 28, FLOAT_STEP = 76, FLOAT_STEP_MANY = 64;
   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
-  const ACTION_SIDE = 26, ACTION_SIDE_TIGHT = 12, ACTION_GAP = 16, ACTION_BOTTOM = 24, ACTION_H_C = 52;
+  // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
+  const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
   (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
   let hintLabel: Label | null = null;
@@ -335,7 +339,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   // Measure the same content used by reflow. Tall phones no longer turn a short
   // result into a near-full-screen panel with a vertically centred empty area.
   const naturalHeight = (w: number) => {
-    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, heights: number[] = [];
+    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
@@ -357,7 +361,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // Spec v2: 350-wide panel on a 390 screen (20 each side); narrower screens keep a 12-unit inset.
     const w = Math.min(350, Math.max(1, width - left - right - (width - left - right >= 360 ? 40 : 24)));
     const maxHeight = Math.max(1, height - top - bottom - 24);
-    shortPhone = height <= 700 && width >= 360 && width < height; specCompact = height <= 700;
+    shortPhone = height <= 700 && width >= 360 && width < height; specCompact = height <= 700; padRoom = height >= 480;
     compactViewport = maxHeight < 400 || shortPhone; rowGap = compactViewport ? 1 : 6;
     const h = Math.min(maxHeight, naturalHeight(w));
     return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
@@ -366,7 +370,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // Opening animation must not rebuild the pages or reset a held finger.
     if (layoutKey === key) return; layoutKey = key;
     resetPresses(p.root);
-    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, dense = compactViewport;
+    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = padRoom ? ACTION_PAD + ACTION_SHADOW + (specCompact ? ACTION_H_C : ACTION_H) + 12 : roomy ? 92 : 68, dense = compactViewport;
     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
@@ -417,12 +421,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     counter.node.setPosition(0, h / 2 - 46, 0); counter.node.getComponent(UITransform)!.setContentSize(titleWidth, 20);
     for (const [b, x] of [[previous, -w / 2 + 24], [next, w / 2 - 24]] as const) { layoutButton(b.node, 48); b.node.setPosition(x, h / 2 - 28, 0); }
     for (let i = 0; i < actions.length; i++) {
-      const side = roomy ? ACTION_SIDE : ACTION_SIDE_TIGHT, span = Math.max(1, w - 2 * side);
+      const side = padRoom ? ACTION_PAD : roomy ? 26 : 12, span = Math.max(1, w - 2 * side);
       const a = actions[i], width = actions.length === 1 ? Math.min(240, span) : (span - ACTION_GAP) / 2;
       const x = actions.length === 1 ? 0 : (i - 0.5) * (width + ACTION_GAP);
       const bh = specCompact ? ACTION_H_C : ACTION_H;
       layoutButton(a.handle.node, width, undefined, bh, ACTION_ART); actionShadow(a.handle.node, width, bh);
-      a.handle.node.setPosition(x, -h / 2 + (roomy ? ACTION_BOTTOM : 12) + bh / 2, 0);
+      a.handle.node.setPosition(x, -h / 2 + (padRoom ? ACTION_PAD + ACTION_SHADOW : roomy ? 24 : 12) + bh / 2, 0); // drop shadow included in the 16 pt
     }
     const stars = groups.ResultStars.node;
     if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
@@ -577,7 +581,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       if (!floor) { floor = uiNode('ResultChestFloor', row.node, 220, 60); const fl = floor; fl.addComponent(Graphics); (fl as any).__draw = (night: boolean) => {
         const g = fl.getComponent(Graphics)!, n = 10, a0 = night ? 0.30 : 0.45, st = 1 - Math.pow(1 - a0, 1 / n); g.clear();
         for (let k = 0; k < n; k++) { const f = 1 - k / n * 0.6; g.fillColor = new Color(0x3C, 0x26, 0x14, Math.round(255 * st)); g.ellipse(0, 0, 110 * f, 30 * f); g.fill(); } }; }
-      (floor as any).__draw(isNight()); floor.setScale(chestW / 220, chestW / 220, 1); add(row, floor, chestW * 0.06, chestY - chestH / 2 + chestW * 0.06); floor.active = !!chestRig?.ready;
+      (floor as any).__draw(isNight()); floor.setScale(chestW / 220, chestW / 220, 1); add(row, floor, chestW * 0.06, chestY + CHEST_DY * sk - chestH / 2 + chestW * 0.06); floor.active = !!chestRig?.ready;
       if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
       else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
       const rs = Math.min(RAY * sk, inner, rowH); raysNode.getComponent(UITransform)!.setContentSize(rs, rs); add(row, raysNode, 0, Math.max(-rowH / 2 + rs / 2, Math.min(chestY + RAY_LIFT * sk, rowH / 2 - rs / 2))); raysNode.active = opened; // rays only once open
@@ -585,8 +589,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         flat.name = 'ResultChestArt';
         // 2D fallback: popup/chest_open once claimed (bottom-aligned with the closed art), popup/chest_closed before.
         const openFrame = opened ? BoardArt.shared().frame('popup/chest_open') : null, sp = flat.getComponent(Sprite);
-        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, CHEST_DX * sk, chestY - chestH / 2 + oh / 2); }
-        else { fitBox(flat, chestW, chestH); add(row, flat, CHEST_DX * sk, chestY); }
+        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, CHEST_DX * sk, chestY + CHEST_DY * sk - chestH / 2 + oh / 2); }
+        else { fitBox(flat, chestW, chestH); add(row, flat, CHEST_DX * sk, chestY + CHEST_DY * sk); }
         if (chestRig?.ready) flat.active = false;
       }
       for (let j = 0; j < art.length; j++) { const n = art[j]; if (n !== flat) n.active = false; } // no stamp: the open lid says it
@@ -597,9 +601,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         const shown = flat;
         const fl0 = floor; void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; if (fl0 && isValid(fl0, true)) fl0.active = true; });
       } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
-      // The 512² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
+      // The 1024² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
       // (it fills 60% of the frame width and sits 15.5% below the frame centre, measured on result_chest.glb).
-      const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_FRAME.offsetY * frameSide;
+      const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_DY * sk + CHEST_FRAME.offsetY * frameSide;
       chestRig.node.setPosition(CHEST_DX * sk, frameY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(frameSide, frameSide);
       chestPose = { node: chestRig.node, flat: flat || null, y: chestY, rigY: frameY, w: chestW, h: chestH }; if (flat) flatScale = { x: flat.scale.x, y: flat.scale.y };
       guideDiag.pulsing = r.state === 'ready' && anyReady(); guideDiag.chest = { w: chestW, h: chestH, halo: body, hit: Math.max(44, body) };
