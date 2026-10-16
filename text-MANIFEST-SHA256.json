@@ -500,6 +500,16 @@
     "sha256": "c9cd26cdddda2231f8dd5a7565f6b4340867d1f2891e0338dc53f1051d01a9ab"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/audio_cine.meta",
+    "bytes": 169,
+    "sha256": "30f6e7fa1f1f848f682e7dbb367b65295d09dffb08d7aa8ce1dd06ed6c8ce330"
+  },
+  {
+    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_transition_island_to_meadow.mp3.meta",
+    "bytes": 222,
+    "sha256": "4388ea8efc1ddc330b42a5fb9bd423029c00f386a0f6e745af6b29ab1c45df4f"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/board.meta",
     "bytes": 169,
     "sha256": "8596908941dfcf05aa9574f2e7eb1cb9e65e259c58c6343e3cc9cf245917417b"
@@ -1161,8 +1171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 67180,
-    "sha256": "159f1216a794d98ce72836698869e266ae4d3d053e67912f08f747bd08e1708b"
+    "bytes": 68082,
+    "sha256": "16faf6a0a436db428f2b1dba45a1f9386412ab82211a1b24946e17a4d66c68cc"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -1256,8 +1266,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
-    "bytes": 16089,
-    "sha256": "43a6413279c998e58ef04a05096a9c298522302837d5a2a516f52e23ec8c262e"
+    "bytes": 16105,
+    "sha256": "7694b6c57a39ac42c5bcf3f38355814bb94019912eac12c308616aa524f01b6d"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
@@ -1266,8 +1276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts",
-    "bytes": 18614,
-    "sha256": "ea1003b7ca32bdaa66025af2122dd436713c0fa274a849e8e6e48cf0bf7d4d27"
+    "bytes": 18994,
+    "sha256": "439de6eda0a82710f4a010b8eb2a41ae59926cde12cface91269c97b17dee068"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts.meta",

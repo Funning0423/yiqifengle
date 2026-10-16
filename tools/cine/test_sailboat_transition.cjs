@@ -10,7 +10,7 @@ const timingPath = path.join(root, 'creator-build-project/assets/resources/cine/
 const modelPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts');
 const windPath = path.join(root, 'creator-build-project/assets/scripts/audio/WindAudio.ts');
 
-const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE };')();
+const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE };')();
 const rawText = fs.readFileSync(timingPath, 'utf8');
 const raw = JSON.parse(rawText);
 const timing = model.parseSailboatTiming(raw);
@@ -54,9 +54,23 @@ assert.deepEqual(timing.cloud, {
 assert.equal(timing.holdCoverIfNotLoaded, true);
 assert.equal(model.SAILBOAT_CINE_FILE, 'audio_cine/sfx_transition_island_to_meadow.mp3');
 assert.equal(model.SAILBOAT_CINE_PATH, 'audio_cine/sfx_transition_island_to_meadow');
+assert.equal(model.SAILBOAT_CINE_BUNDLE, 'region_island');
+assert.equal(model.SAILBOAT_HOLD_CINE_FADE_SEC, 0.08);
 assert.equal(model.SAILBOAT_HOLD_WIND_PATH, 'audio_amb/amb_wind_soft_loop');
 assert.match(fs.readFileSync(windPath, 'utf8'), /audio_amb\/amb_wind_soft_loop/);
 assert.equal(fs.existsSync(path.join(root, 'creator-build-project/assets/resources/audio_amb/amb_wind_soft_loop.mp3')), true);
+const cineFile = path.join(root, 'creator-build-project/assets/bundles/region_island', model.SAILBOAT_CINE_FILE);
+const cineBytes = fs.readFileSync(cineFile);
+assert.equal(cineBytes.length, 42256);
+assert.equal(crypto.createHash('sha256').update(cineBytes).digest('hex'), '9556476eb292e56045a73c3945158522726a874005f339877f909a99f1028175');
+const cineMeta = JSON.parse(fs.readFileSync(cineFile + '.meta', 'utf8'));
+assert.equal(cineMeta.importer, 'audio-clip');
+assert.equal(cineMeta.ver, '1.0.0');
+assert.deepEqual(cineMeta.files, ['.json', '.mp3']);
+assert.equal(cineMeta.userData.downloadMode, 0);
+const cineDirMeta = JSON.parse(fs.readFileSync(path.join(root, 'creator-build-project/assets/bundles/region_island/audio_cine.meta'), 'utf8'));
+assert.equal(cineDirMeta.importer, 'directory');
+assert.equal(cineDirMeta.ver, '1.2.0');
 
 const modelSource = fs.readFileSync(modelPath, 'utf8');
 for (const token of ['78', '81', '84', '126', '156']) {
@@ -101,6 +115,7 @@ const early = model.createSailboatPlayback(timing);
 const earlyStart = early.begin();
 assert.deepEqual(kinds(earlyStart.commands), ['cine-play']);
 assert.equal(earlyStart.commands[0].path, model.SAILBOAT_CINE_PATH);
+assert.equal(earlyStart.commands[0].bundle, model.SAILBOAT_CINE_BUNDLE);
 assert.equal(earlyStart.view.hudVisible, false);
 assert.equal(earlyStart.view.preload, true);
 const beforeSkip = pump(early, timing.skipEnabledFromFrame / timing.fps - 1 / timing.fps, { meadowReady: true });
@@ -113,6 +128,8 @@ assert.equal(armed.view.frame, timing.skipEnabledFromFrame);
 const skipping = early.advance(0, { meadowReady: true, tap: true });
 assert.equal(skipping.view.phase, 'skip-fade');
 assert.equal(skipping.commands.find(command => command.kind === 'cine-fade').seconds, timing.skipFadeSec);
+assert.equal(kinds(skipping.commands).includes('cine-stop'), false);
+assert.ok(kinds(skipping.commands).indexOf('cine-fade') < kinds(skipping.commands).indexOf('wind-loop'));
 const landed = early.advance(timing.skipFadeSec, { meadowReady: true });
 assert.equal(landed.view.phase, 'done');
 assert.equal(landed.view.frame, timing.skipLandingFrame);
@@ -122,18 +139,25 @@ assert.equal(landed.view.cloud, 0);
 assert.equal(landed.view.white, 0);
 assert.equal(landed.view.boatAlong, 1);
 assert.equal(model.sailboatCoverAlpha(landed.view), 0);
+assert.equal(kinds(landed.commands).includes('wind-fade'), false);
+assert.equal(kinds(landed.commands).includes('wind-stop'), false);
+assert.equal(kinds(landed.commands).includes('cine-stop'), false);
 
 const skipEarly = model.createSailboatPlayback(timing);
 skipEarly.begin();
 pump(skipEarly, timing.skipEnabledFromFrame / timing.fps, { meadowReady: false });
-skipEarly.advance(0, { meadowReady: false, tap: true });
+const skipTap = skipEarly.advance(0, { meadowReady: false, tap: true });
+assert.equal(skipTap.commands.find(command => command.kind === 'cine-fade').seconds, timing.skipFadeSec);
+assert.equal(kinds(skipTap.commands).includes('cine-stop'), false);
+assert.ok(kinds(skipTap.commands).indexOf('cine-fade') < kinds(skipTap.commands).indexOf('wind-loop'));
 const covered = skipEarly.advance(timing.skipFadeSec, { meadowReady: false });
 assert.equal(covered.view.phase, 'skip-hold');
 assert.equal(covered.view.scene, 'island');
 assert.equal(covered.view.cloud, 1);
 assert.equal(covered.view.white, 1);
 assert.equal(covered.view.swapped, false);
-assert.equal(kinds(covered.commands).includes('wind-loop'), true);
+assert.equal(kinds(covered.commands).includes('wind-fade'), false);
+assert.equal(kinds(covered.commands).includes('cine-stop'), false);
 const still = skipEarly.advance(1, { meadowReady: false });
 assert.equal(still.view.phase, 'skip-hold');
 assert.equal(still.view.frame, covered.view.frame);
@@ -142,8 +166,9 @@ assert.equal(afterLoad.view.phase, 'done');
 assert.equal(afterLoad.view.frame, timing.lastFrame);
 assert.equal(afterLoad.view.scene, 'meadow');
 assert.equal(afterLoad.view.hudVisible, true);
-assert.equal(afterLoad.commands.find(command => command.kind === 'wind-fade').seconds, timing.skipFadeSec);
-assert.equal(afterLoad.commands.find(command => command.kind === 'wind-fade').path, model.SAILBOAT_HOLD_WIND_PATH);
+assert.equal(kinds(afterLoad.commands).includes('wind-fade'), false);
+assert.equal(kinds(afterLoad.commands).includes('wind-stop'), false);
+assert.equal(kinds(afterLoad.commands).includes('cine-stop'), false);
 
 const held = model.createSailboatPlayback(timing);
 const heldStart = held.begin();
@@ -155,7 +180,12 @@ assert.equal(waiting.view.cloud, 1);
 assert.equal(waiting.view.scene, 'island');
 assert.equal(waiting.view.swapped, false);
 assert.equal(kinds(waiting.commands).filter(kind => kind === 'wind-loop').length, 1);
-assert.equal(kinds(waiting.commands).includes('cine-pause'), true);
+assert.equal(kinds(waiting.commands).includes('cine-pause'), false);
+assert.equal(kinds(waiting.commands).includes('cine-stop'), false);
+const holdFade = waiting.commands.find(command => command.kind === 'cine-fade');
+assert.equal(holdFade.seconds, model.SAILBOAT_HOLD_CINE_FADE_SEC);
+assert.ok(holdFade.seconds < timing.skipFadeSec);
+assert.ok(kinds(waiting.commands).indexOf('cine-fade') < kinds(waiting.commands).indexOf('wind-loop'));
 const stuck = held.advance(2, { meadowReady: false });
 assert.equal(stuck.view.frame, timing.sceneSwapFrame);
 assert.equal(stuck.view.phase, 'holding');
@@ -165,13 +195,16 @@ assert.equal(released.view.phase, 'playing');
 assert.equal(released.view.scene, 'meadow');
 assert.equal(released.view.swapped, true);
 assert.equal(released.view.frame, timing.sceneSwapFrame);
-assert.equal(kinds(released.commands).includes('wind-fade'), true);
-assert.equal(kinds(released.commands).includes('cine-resume'), true);
+assert.equal(kinds(released.commands).includes('wind-fade'), false);
+assert.equal(kinds(released.commands).includes('wind-stop'), false);
+assert.equal(kinds(released.commands).includes('cine-resume'), false);
+assert.equal(kinds(released.commands).includes('cine-play'), false);
 const finished = pump(held, timing.durationSec, { meadowReady: true });
 assert.equal(finished.view.phase, 'done');
 assert.equal(finished.view.frame, timing.lastFrame);
 assert.equal(finished.view.hudVisible, true);
 assert.equal(kinds(finished.commands).includes('wind-loop'), false);
+assert.equal(kinds(finished.commands).includes('wind-fade'), false);
 
 const customPlay = model.createSailboatPlayback(custom);
 customPlay.begin();
@@ -182,6 +215,18 @@ pump(customPlay, 1 / custom.fps, { meadowReady: true });
 const customSkip = customPlay.advance(0, { meadowReady: true, tap: true });
 assert.equal(customSkip.view.phase, 'skip-fade');
 assert.equal(customSkip.commands[0].seconds, 0.5);
+assert.equal(kinds(customSkip.commands)[1], 'wind-loop');
+const customHold = model.createSailboatPlayback(custom);
+customHold.begin();
+let customHeld = null;
+for (let left = custom.durationSec + 1; left > 1e-8;) {
+  customHeld = customHold.advance(Math.min(1 / custom.fps, left), { meadowReady: false });
+  left -= 1 / custom.fps;
+  if (customHeld.view.phase === 'holding') break;
+}
+assert.equal(customHeld.view.phase, 'holding');
+assert.equal(customHeld.commands.find(command => command.kind === 'cine-fade').seconds, model.SAILBOAT_HOLD_CINE_FADE_SEC);
+assert.equal(kinds(customHeld.commands).includes('wind-loop'), true);
 
 const background = model.createSailboatPlayback(timing);
 background.begin();
@@ -204,10 +249,17 @@ assert.equal(kinds(shown.commands).includes('cine-resume'), false);
 const straight = model.createSailboatPlayback(timing, { startFov: 42 });
 straight.begin();
 let seenSwap = false;
-let wind = false;
+let windFrame = -1;
 for (let i = 0; i < timing.frameCount + 2; i++) {
   const sample = straight.advance(1 / timing.fps, { meadowReady: true });
-  if (sample.commands.some(command => command.kind === 'wind-loop')) wind = true;
+  assert.equal(kinds(sample.commands).includes('cine-stop'), false);
+  assert.equal(kinds(sample.commands).includes('cine-fade'), false);
+  assert.equal(kinds(sample.commands).includes('wind-fade'), false);
+  if (sample.commands.some(command => command.kind === 'wind-loop')) {
+    assert.equal(windFrame, -1);
+    assert.equal(sample.view.phase, 'done');
+    windFrame = sample.view.frame;
+  }
   if (sample.view.frame >= timing.sceneSwapFrame) {
     assert.equal(sample.view.swapped, true);
     seenSwap = true;
@@ -218,7 +270,7 @@ for (let i = 0; i < timing.frameCount + 2; i++) {
   }
 }
 assert.equal(seenSwap, true);
-assert.equal(wind, false);
+assert.equal(windFrame, timing.lastFrame);
 assert.equal(straight.advance(0, { meadowReady: true }).view.phase, 'done');
 assert.equal(heldStart.view.shotId, timing.shots[0].id);
 
@@ -257,6 +309,7 @@ const cloudSrc = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatCloudLayer.
 assert.equal(driverSrc.includes('SailboatCloudCover'), false);
 assert.equal(driverSrc.includes('meadowReady: !!this.meadowPrefab'), false);
 assert.match(driverSrc, /meadowReady: this\.warmed/);
+assert.match(driverSrc, /playCineSlot\(command\.path, command\.bundle\)/);
 assert.match(driverSrc, /prepareMeadowReveal/);
 assert.equal((driverSrc.match(/@ccclass\(/g) || []).length, 1);
 assert.match(warmupSrc, /configureMeadowVertexColors/);

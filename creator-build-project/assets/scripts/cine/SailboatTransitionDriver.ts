@@ -266,7 +266,7 @@ export class SailboatTransitionDriver extends Component {
     try { audio = GameAudio.ensure(); } catch (error) { console.warn('[sailboat] audio unavailable', error); return; }
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i];
-      if (command.kind === 'cine-play') audio.playCineSlot(command.path);
+      if (command.kind === 'cine-play') audio.playCineSlot(command.path, command.bundle);
       else if (command.kind === 'cine-pause') audio.pauseCineSlot();
       else if (command.kind === 'cine-resume') audio.resumeCineSlot();
       else if (command.kind === 'cine-fade') audio.fadeCineSlot(command.seconds);

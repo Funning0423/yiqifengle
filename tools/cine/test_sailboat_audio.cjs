@@ -50,9 +50,23 @@ function harness() {
     wx['on' + event] = f => {};
     wx['off' + event] = f => {};
   }
+  const bundles = new Map();
+  const bundleLoads = [];
+  const assetManager = {
+    fail: false,
+    getBundle: name => bundles.get(name) || null,
+    loadBundle(name, cb) {
+      bundleLoads.push(name);
+      if (assetManager.fail) { cb(new Error('bundle ' + name + ' unavailable'), null); return; }
+      const b = { name, load: (p, t, done) => loads.push({ p, bundle: name, cb: done }) };
+      bundles.set(name, b);
+      cb(null, b);
+    },
+  };
   const ctx = {
     _decorator: { ccclass: () => x => x }, Component, Node, AudioSource, AudioClip: class {},
     resources: { load: (p, t, cb) => loads.push({ p, cb }), loadDir: () => {} },
+    assetManager,
     director: { getScene: () => scene, addPersistRootNode() {} },
     game, Game: { EVENT_HIDE: 'hide', EVENT_SHOW: 'show' },
     input, Input: { EventType: { TOUCH_END: 'touch', MOUSE_UP: 'mouse', KEY_DOWN: 'key' } },
@@ -68,7 +82,7 @@ function harness() {
   const clip = name => ({ name, refs: 0, addRef() { this.refs++; }, decRef() { this.refs--; } });
   const sources = () => A.instance.node.components.filter(c => c instanceof AudioSource);
   return {
-    A, loads, warnings, game, input, clip, sources,
+    A, loads, warnings, game, input, clip, sources, assetManager, bundleLoads, bundles,
     create: () => A.ensure(),
     advance: n => { time += n; },
   };
@@ -219,6 +233,70 @@ test('pause holds the cine voice and resume continues the same source', () => {
   assert.equal(voice.playing, true);
   assert.equal(voice.starts, 2);
   assert.equal(c.refs, 1);
+});
+
+test('cloud hold fades the cine bed over 80ms without cutting it, then the wind bed is still up', () => {
+  const h = harness();
+  const a = h.create();
+  h.input.emit('touch');
+  a.playCineSlot(CINE);
+  const cine = h.clip('cine');
+  deliver(h, CINE, cine);
+  const voice = h.sources().filter(s => s.clip === cine)[0];
+  a.fadeCineSlot(0.08);
+  a.loopHoldAmbience(WIND);
+  const wind = h.clip('wind');
+  deliver(h, WIND, wind);
+  const bed = h.sources().filter(s => s.clip === wind)[0];
+  assert.ok(Math.abs(voice.volume - 1) < 1e-6, 'fade starts at the current gain');
+  assert.equal(voice.stops, 0);
+  assert.equal(voice.destroyed, false);
+  assert.equal(bed.playing, true);
+  let prev = voice.volume;
+  h.advance(40);
+  a.update();
+  assert.equal(voice.destroyed, false);
+  assert.ok(Math.abs(voice.volume - Math.cos(Math.PI / 4)) < 1e-6, 'equal-power at 40ms');
+  assert.ok(voice.volume < prev);
+  prev = voice.volume;
+  assert.equal(bed.destroyed, false);
+  assert.equal(bed.playing, true);
+  h.advance(40);
+  a.update();
+  assert.equal(voice.destroyed, true);
+  assert.equal(voice.playing, false);
+  assert.equal(cine.refs, 0);
+  assert.equal(bed.destroyed, false);
+  assert.equal(bed.playing, true);
+  assert.equal(wind.refs, 1);
+  assert.ok(prev > 0.001);
+});
+
+test('sail sting loads from the region_island bundle and a missing bundle only warns', () => {
+  const h = harness();
+  const a = h.create();
+  a.playCineSlot(CINE, 'region_island');
+  assert.equal(h.loads.filter(x => x.p === CINE && !x.bundle).length, 0);
+  assert.deepEqual(h.bundleLoads, ['region_island']);
+  assert.equal(h.loads.at(-1).bundle, 'region_island');
+  assert.equal(h.loads.at(-1).p, CINE);
+  const live = h.clip('bundle-cine');
+  deliver(h, CINE, live);
+  assert.equal(h.sources().some(s => s.clip === live && s.playing && !s.loop), true);
+  const again = harness();
+  const b = again.create();
+  const ready = { load: (p, t, done) => again.loads.push({ p, bundle: 'region_island', cb: done }) };
+  again.bundles.set('region_island', ready);
+  b.playCineSlot(CINE, 'region_island');
+  assert.equal(again.bundleLoads.length, 0);
+  assert.equal(again.loads.at(-1).bundle, 'region_island');
+  const missing = harness();
+  const c = missing.create();
+  const before = missing.sources().length;
+  missing.assetManager.fail = true;
+  c.playCineSlot(CINE, 'region_island');
+  assert.match(missing.warnings.join('\n'), /cine slot missing/);
+  assert.equal(missing.sources().length, before);
 });
 
 console.log(JSON.stringify({ status: 'PASS_SAILBOAT_AUDIO', cases: count }));

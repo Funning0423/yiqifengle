@@ -954,17 +954,21 @@ export class GameAudio extends Component {
   }
 
   /**
-   * Cinematic one-shot (resources path, no extension). A missing clip is logged and ignored.
-   * Background / mute stops it immediately; skip fades it with fadeCineSlot.
+   * Cinematic one-shot (path without extension). An empty bundle loads from resources;
+   * otherwise assetManager.loadBundle then bundle.load, same as setMusic.
+   * A missing clip is logged and ignored. Background / mute stops it; skip and the
+   * cloud hold fade it with fadeCineSlot (equal-power, then stop once the gain is ~0).
    */
-  playCineSlot(path: string) {
+  playCineSlot(path: string, bundle?: string | null) {
     if (!GameAudio.usable(this) || this.muted || this.sfxMuted || this.reasons.size > 0 || !path) return;
     this.stopCineSlot();
     const gen = ++this.cineGen;
     this.cinePaused = false;
-    resources.load(path, AudioClip, (err, clip) => {
+    const bundleName = bundle ? String(bundle) : '';
+    const where = bundleName ? bundleName + '/' + path : path;
+    const loaded = (err: any, clip: AudioClip) => {
       if (!GameAudio.usable(this) || gen !== this.cineGen) return;
-      if (err || !clip) { console.warn('[GameAudio] cine slot missing', path, err || ''); return; }
+      if (err || !clip) { console.warn('[GameAudio] cine slot missing', where, err || ''); return; }
       clip.addRef();
       this.cineClip = clip;
       try {
@@ -977,8 +981,18 @@ export class GameAudio extends Component {
         if (this.cineFadeAt !== null && this.cineGainNow() <= 0.001) { this.stopCineSlot(); return; }
         source.play();
         if (this.cinePaused) source.pause();
-      } catch (error) { console.warn('[GameAudio] cine play failed', path, error); this.stopCineSlot(); }
-    });
+      } catch (error) { console.warn('[GameAudio] cine play failed', where, error); this.stopCineSlot(); }
+    };
+    try {
+      if (!bundleName) { resources.load(path, AudioClip, loaded); return; }
+      const ready = assetManager.getBundle(bundleName);
+      if (ready) { ready.load(path, AudioClip, loaded); return; }
+      assetManager.loadBundle(bundleName, (err: any, b: any) => {
+        if (!GameAudio.usable(this) || gen !== this.cineGen) return;
+        if (err || !b) { loaded(err || new Error('bundle ' + bundleName + ' unavailable'), null as any); return; }
+        try { b.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+      });
+    } catch (e) { loaded(e, null as any); }
   }
   pauseCineSlot() {
     if (!GameAudio.usable(this)) return;

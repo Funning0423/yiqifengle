@@ -4,12 +4,17 @@
  * No engine imports: node tests drive this directly.
  *
  * Audio slots (GameAudio plays them; a missing cine file is not fatal):
- *   audio_cine/sfx_transition_island_to_meadow.mp3 — one-shot, no leading silence, length = clip duration
- *   audio_amb/amb_wind_soft_loop — existing wind bed, looped only while the cloud cover is holding for the meadow load
+ *   region_island / audio_cine/sfx_transition_island_to_meadow — one-shot from the first frame
+ *   audio_amb/amb_wind_soft_loop — meadow wind bed. It takes over when a cloud hold
+ *   fades the sting out, when a skip fades it out, and when a normal run finishes.
+ *   The bed stays up after the handoff. The sting is faded, not cut.
  */
 export const SAILBOAT_TIMING_RESOURCE = 'cine/transition_island_to_meadow.timing';
 export const SAILBOAT_CINE_FILE = 'audio_cine/sfx_transition_island_to_meadow.mp3';
 export const SAILBOAT_CINE_PATH = 'audio_cine/sfx_transition_island_to_meadow';
+export const SAILBOAT_CINE_BUNDLE = 'region_island';
+/** Cloud-hold sting fade. Skip uses the timing file's skipFadeSec instead. */
+export const SAILBOAT_HOLD_CINE_FADE_SEC = 0.08;
 export const SAILBOAT_HOLD_WIND_PATH = 'audio_amb/amb_wind_soft_loop';
 
 export interface SailboatShot {
@@ -62,7 +67,7 @@ export interface SailboatView {
   paused: boolean;
 }
 export type SailboatAudioCommand =
-  | { kind: 'cine-play'; path: string }
+  | { kind: 'cine-play'; path: string; bundle: string }
   | { kind: 'cine-pause'; path: string }
   | { kind: 'cine-resume'; path: string }
   | { kind: 'cine-fade'; path: string; seconds: number }
@@ -314,7 +319,7 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
     wind = false;
     commands.push({ kind: 'wind-stop', path: SAILBOAT_HOLD_WIND_PATH });
   }
-  function cineTo(next: CineState, commands: SailboatAudioCommand[]) {
+  function cineTo(next: CineState, commands: SailboatAudioCommand[], fadeSec?: number) {
     if (cine === next || cine === 'stopped' && next !== 'stopped') return;
     if (next === 'paused' && cine !== 'playing') return;
     if (next === 'playing' && cine !== 'paused') return;
@@ -322,26 +327,24 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
     cine = next;
     if (next === 'paused') commands.push({ kind: 'cine-pause', path: SAILBOAT_CINE_PATH });
     else if (next === 'playing') commands.push({ kind: 'cine-resume', path: SAILBOAT_CINE_PATH });
-    else if (next === 'fading') commands.push({ kind: 'cine-fade', path: SAILBOAT_CINE_PATH, seconds: timing.skipFadeSec });
+    else if (next === 'fading') commands.push({ kind: 'cine-fade', path: SAILBOAT_CINE_PATH, seconds: fadeSec ?? timing.skipFadeSec });
     else if (next === 'stopped') commands.push({ kind: 'cine-stop', path: SAILBOAT_CINE_PATH });
   }
   function enterHold(commands: SailboatAudioCommand[]) {
     elapsed = timing.sceneSwapFrame / timing.fps;
     if (phase !== 'holding') phase = 'holding';
-    cineTo('paused', commands);
+    cineTo('fading', commands, SAILBOAT_HOLD_CINE_FADE_SEC);
     windOn(commands);
   }
   function leaveHold(commands: SailboatAudioCommand[]) {
     swapped = true;
     if (phase === 'holding') phase = 'playing';
-    windFade(commands);
-    cineTo('playing', commands);
   }
   function land(commands: SailboatAudioCommand[]) {
     phase = 'done';
     elapsed = timing.durationSec;
     swapped = true;
-    windFade(commands);
+    windOn(commands);
   }
 
   return {
@@ -349,7 +352,7 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
       if (started) fail('playback already started');
       started = true;
       cine = 'playing';
-      return { view: view(), commands: [{ kind: 'cine-play', path: SAILBOAT_CINE_PATH }] };
+      return { view: view(), commands: [{ kind: 'cine-play', path: SAILBOAT_CINE_PATH, bundle: SAILBOAT_CINE_BUNDLE }] };
     },
     advance(dt: number, input?: SailboatInput): SailboatSample {
       if (!started) fail('begin() before advance()');
@@ -370,7 +373,8 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
       if (tap && frameNow() >= timing.skipEnabledFromFrame) {
         phase = 'skip-fade';
         skipT = 0;
-        cineTo('fading', commands);
+        cineTo('fading', commands, timing.skipFadeSec);
+        windOn(commands);
       }
       if (phase === 'skip-fade') {
         skipT += step;

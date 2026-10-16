@@ -415,6 +415,11 @@
     "sha256": "308a3218749e655609def03591fe9f3251ce3198f9f8f58400fcc720a74ad949"
   },
   {
+    "path": "creator-build-project/assets/bundles/region_island/audio_cine/sfx_transition_island_to_meadow.mp3",
+    "bytes": 42256,
+    "sha256": "9556476eb292e56045a73c3945158522726a874005f339877f909a99f1028175"
+  },
+  {
     "path": "creator-build-project/assets/bundles/region_island/board/bg_island_board.jpg",
     "bytes": 23276,
     "sha256": "4c18d04cd815cf966fd2e7c23f780d7bb21ecd20bea912a83a39f0dbf1fa098a"
