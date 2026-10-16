@@ -486,6 +486,16 @@ export class WorldFlow {
     const accepted=this.level!.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
     this.level?.dispose();this.level=null;this.stable='island';this.restore();this.change('island');return {ok:true};
   }
+  /** Debug panel only. Drops the level, the sky visit and any walk still in flight, then snaps to home or the island.
+   *  The return-home cinematic is not played: a hung sit/walk must not keep the player out of the house. */
+  debugPlace(where:'home'|'island'):Result {
+    if(where!=='home'&&where!=='island')return {ok:false,reason:'debug-place'};
+    if(this.state==='disposed'||!this.world)return {ok:false,reason:this.state==='disposed'?'disposed':'world-not-ready'};
+    this.invalidate();
+    if(this.level){try{this.level.dispose();}catch(e){console.warn('debug place level',String(e));}this.level=null;}
+    if(this.visit){try{this.visit.dispose();}catch(e){console.warn('debug place visit',String(e));}this.visit=null;}
+    this.hidden=false;this.needsResume=false;this.error=null;this.stable=where;this.restore();this.change(where);return {ok:true};
+  }
   async returnHome():Promise<Result> {
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{

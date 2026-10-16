@@ -5,7 +5,10 @@
  * only other material is the signpost lamp's own M_signpost_lamp (day). No textures, no new fonts.
  *
  * World props (fixed in the island's world space, Cocos metres, +Y up, island scene_root is identity):
- *   - ui_signpost "继续旅程" in the shallows in front of the beach, bottom-right of the portrait island view.
+ *   - ui_signpost "继续旅程" in the water just west of the lighthouse, seaward of the house front.
+ *     The close pull (u = 0) looks inland from the shore, so the old front-right post (z = 18.8)
+ *     sat behind that lens. This spot keeps the whole board in front of that lens and inside
+ *     both a 0.46 and a 0.75 frame, clear of the door.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
@@ -18,7 +21,8 @@
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
  */
-import { projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { fromLookAt, projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { islandPoseEntry } from '../world-r1/RegionCameraData';
 export type V3 = [number, number, number];
 export type PropRole = 'bag' | 'journal' | 'settings';
 export type WorldProp = Readonly<{ prefab: string; position: V3; yawDeg: number; scale: number }>;
@@ -33,7 +37,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-1.2, -1.15, 18.8] as V3, yawDeg: -21, scale: 2.3,
+    prefab: 'ui_signpost', position: [-4.4, -1.15, 1.5] as V3, yawDeg: -55, scale: 2.3,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
@@ -78,6 +82,17 @@ export const ISLAND_PROPS = Object.freeze({
   },
 });
 export const PROP_ROLES: readonly PropRole[] = ['bag', 'journal', 'settings'];
+/** Metres above the live rigid sea sheet. Matches ISLAND_FX.band.surfaceLiftM so a depth-tested
+ * transparent decal stays clear of the opaque wave without turning depth test off. */
+export const SEA_SURFACE_LIFT = 0.04;
+/** Authored rest height when the live sheet height is missing or not finite. */
+export function liveSeaY(reported?: number): number {
+  return typeof reported === 'number' && Number.isFinite(reported) ? reported : ISLAND_PROPS.seaY;
+}
+/** Decal world Y: live sheet + the shared clearance + the authored lift (shadow / ripple / reflection). */
+export function seaDecalY(reported: number | undefined, authoredLift: number): number {
+  return liveSeaY(reported) + SEA_SURFACE_LIFT + authoredLift;
+}
 
 export type Rect = { x: number; y: number; width: number; height: number };
 /** UI rect: centre x/y in canvas units (origin = screen centre, +y up), same convention as WorldNavigationLayout. */
@@ -87,25 +102,61 @@ export type PropButtonSlot = { role: PropRole; prop: { x: number; bottom: number
 export function propButtonLayout(width: number, height: number): { portrait: boolean; slots: PropButtonSlot[] } {
   if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) throw Error('Invalid prop frame');
   const portrait = width < height, row = portrait || width < 568;
-  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.07 : height * 0.12)));
+  // 8% of the screen height on a phone row. Design size is CSS points (Boot sets the resolution to
+  // innerWidth/innerHeight). The mesh keeps the wide shot, so a 375×812 point phone shows a bag near 75 pt,
+  // not the unfixed sea-anchor balloon. The hit grows to that projection.
+  const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.08 : height * 0.12)));
   const font = Math.max(12, Math.min(15, Math.round(propH * 0.22)));
   const tagH = font + 12;
+  const gapL = Math.max(width * 0.105, 66), lastL = width < 700 ? width / 2 - 36 : width * 0.41;
+  const centres = PROP_ROLES.map((_, i) => row ? (i - 1) * Math.min(width * 0.3, 140) : lastL - (2 - i) * gapL);
   const slots = PROP_ROLES.map((role, i) => {
     // landscape (mockup-landscape.png): bottom-right row at x = 0.70 / 0.805 / 0.91 W, kept >= 66 px apart and on screen
-    const gapL = Math.max(width * 0.105, 66), lastL = width < 700 ? width / 2 - 36 : width * 0.41;
-    const cx = row ? (i - 1) * Math.min(width * 0.3, 140) : lastL - (2 - i) * gapL;
+    const cx = centres[i];
     // portrait: prop centre at 0.885 H from the top, but keep the tag above a 30 px bottom inset (home indicator)
     const centreFromTop = row ? Math.min(height * 0.885, height - 30 - tagH - 8 - propH / 2) : height * 0.86 - propH / 2;
     const cy = height / 2 - centreFromTop, bottom = cy - propH / 2;
     const tagW = Math.round(font * (ISLAND_PROPS.buttons[role].label.length + 1.5));
     const tagY = bottom - 6 - tagH / 2;
-    const top = cy + propH / 2, low = tagY - tagH / 2, w = Math.max(propH * 1.15, tagW + 8, 64);
+    const low = tagY - tagH / 2, w = Math.max(propH * 1.15, tagW + 8, 64);
+    const mesh = projectedButton(role, cx, bottom, propH, width, height);
+    let left = cx - w / 2, right = cx + w / 2, top = cy + propH / 2;
+    if (mesh) {
+      left = Math.min(left, mesh.x - mesh.width / 2 - 1);
+      right = Math.max(right, mesh.x + mesh.width / 2 + 1);
+      top = Math.max(top, mesh.y + mesh.height / 2 + 1);
+    }
+    const inset = 2, minX = -width / 2 + inset, maxX = width / 2 - inset, maxY = height / 2 - inset;
+    const leftLimit = i > 0 ? (centres[i - 1] + cx) / 2 + 1 : minX;
+    const rightLimit = i < centres.length - 1 ? (cx + centres[i + 1]) / 2 - 1 : maxX;
+    left = Math.max(minX, leftLimit, left); right = Math.min(maxX, rightLimit, right); top = Math.min(maxY, top);
     return { role, prop: { x: cx, bottom, height: propH }, tag: { x: cx, y: tagY, width: tagW, height: tagH, fontSize: font },
-      hit: { x: cx, y: (top + low) / 2, width: Math.round(w), height: Math.round(top - low + 4) } };
+      hit: { x: (left + right) / 2, y: (top + low) / 2, width: Math.round(right - left), height: Math.round(top - low + 4) } };
   });
   return { portrait, slots };
 }
 
+/** A finished fade (0 or 1) must restore the shared materials while temporary copies are still bound.
+ *  A mid-fade repeat closer than 0.004 keeps those copies. */
+export function buttonFadeSkip(e: number, prev: number, liveCopies: number): boolean {
+  if (e <= 0 || e >= 1) return liveCopies === 0 && e === prev;
+  return liveCopies > 0 && Math.abs(e - prev) < 0.004;
+}
+let widePose: CameraPose | null = null;
+function wideShot(): CameraPose { if (!widePose) widePose = fromLookAt(islandPoseEntry()); return widePose; }
+/** Projected AABB of one bottom-row mesh at the settled wide shot. The pull keeps this picture. */
+function projectedButton(role: PropRole, x: number, bottom: number, pixels: number, width: number, height: number): Rect | null {
+  const model = ISLAND_PROPS.buttons[role], pose = wideShot();
+  const [sx, sy] = uiToScreen(x, bottom, width, height);
+  const a = screenPropPose(pose, pose, width / height, sx, sy, pixels, height, model);
+  const hx = model.widthM / 2, hz = model.depthM / 2, hy = model.heightM, pts: V3[] = [];
+  for (let ix = 0; ix < 2; ix++) for (let iy = 0; iy < 2; iy++) for (let iz = 0; iz < 2; iz++) {
+    const v1 = rotate(a.localRotation, [ix ? hx : -hx, iy ? hy : 0, iz ? hz : -hz]);
+    const v3 = rotate(a.pivotRotation, [v1[0] * a.pivotScale[0], v1[1] * a.pivotScale[1], v1[2] * a.pivotScale[2]]);
+    pts.push([a.point[0] + v3[0], a.point[1] + v3[1], a.point[2] + v3[2]]);
+  }
+  return projectRectUi(pose, width, height, pts);
+}
 /** UI (centre origin, +y up) -> normalised screen (0..1 from the top-left). */
 export function uiToScreen(x: number, y: number, width: number, height: number): [number, number] { return [0.5 + x / width, 0.5 - y / height]; }
 
@@ -252,16 +303,22 @@ export function signpostRectUi(pose: CameraPose, width: number, height: number):
 }
 /** Minimum mainline (signpost) touch target, logical px. */
 export const SIGN_HIT_MIN = 88;
-/** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth is placed (centred first, then
- * shifted while still covering the whole sign) so it stays inside an 8 px safe inset and off the bottom-row prop hits. */
+/** Mainline hit rect: the visual rect grown to >= SIGN_HIT_MIN per axis. The growth stays over the whole sign,
+ * inside an 8 px safe inset and off the bottom-row prop hits. Among those, the rect furthest from the screen
+ * centre is used, so a board on the side of the wide shot does not swell across the heroine. */
 export function signpostHitUi(pose: CameraPose, width: number, height: number): Rect | null {
   const r = signpostRectUi(pose, width, height); if (!r) return null;
   const w = Math.max(SIGN_HIT_MIN, r.width), h = Math.max(SIGN_HIT_MIN, r.height), ex = (w - r.width) / 2, ey = (h - r.height) / 2;
   const slots = propButtonLayout(width, height).slots.map(s => s.hit), inset = 8;
   const clear = (c: Rect) => c.x - c.width / 2 >= -width / 2 + inset && c.x + c.width / 2 <= width / 2 - inset && c.y - c.height / 2 >= -height / 2 + inset && c.y + c.height / 2 <= height / 2 - inset
     && slots.every(b => !(Math.abs(c.x - b.x) < (c.width + b.width) / 2 && Math.abs(c.y - b.y) < (c.height + b.height) / 2));
-  for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) { const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h }; if (clear(c)) return c; }
-  return { x: r.x, y: r.y, width: w, height: h }; // nothing clear: keep centred (tests assert this never happens on supported frames)
+  let best: Rect | null = null;
+  for (const fy of [0, 1, -1]) for (const fx of [0, -1, 1]) {
+    const c = { x: r.x + fx * ex, y: r.y + fy * ey, width: w, height: h };
+    if (!clear(c)) continue;
+    if (!best || Math.abs(c.x) > Math.abs(best.x)) best = c;
+  }
+  return best || { x: r.x, y: r.y, width: w, height: h };
 }
 
 /* ---------- T9n night look (engine-free) ---------- */

@@ -120,9 +120,21 @@ const fillSprite=layer=>layer.root.children[0].children[0].getComponent(CC.Sprit
  assert.equal(mask[mask.length-1],0,'mask alpha reaches 0');assert.deepEqual(mask,root,'mask and picture fade on the same curve');
  assert.equal(l.diagnostics().maskAlpha,0,'diagnostics expose the drawn mask alpha');assert.equal(l.diagnostics().fillType,CC.Sprite.Type.FILLED);
  assert(mask[0]<255,'fade starts right after the held frame');near(n/60,L.OUTRO_FADE_S,1/60+1e-9,'fade length after the held frame');
+ assert(L.OUTRO_FADE_S>=0.4,'outro lasts at least 0.4 s');
+ const mid=mask[Math.min(mask.length-1,Math.round(L.OUTRO_FADE_S*30)-1)];
+ assert(mid>40&&mid<210,'linear fade is still visible near the midpoint: '+mid);
  const half=Math.floor(mask.length/2);for(let i=1;i<half;i++)assert(mask[i]<mask[i-1],'first half of the fade: mask alpha drops every frame ('+i+')');
  const steps=mask.map((a,i)=>(i?mask[i-1]:255)-a);
  ok('H outro: Graphics mask redrawn with alpha each frame (no UIOpacity), held opaque on the first outro frame, then monotonic 255 -> 0 together with the picture over '+L.OUTRO_FADE_S+' s',{maskAlpha60fps:mask,maxStep:Math.max.apply(null,steps)});
+ assert.equal(L.startupCover(null),'fade','a stub with no scene probe fades as soon as the room is ready');
+ assert.equal(L.startupCover(()=>false),'hold');assert.equal(L.startupCover(()=>true),'fade');
+ assert.equal(L.startupCover(()=>{throw Error('read');}),'hold');
+ const black=new Uint8Array(32*32*4);assert.equal(L.scenePixelsReady(black,false),false);assert.equal(L.scenePixelsReady(black,true),false);
+ const day=black.slice();day[0]=13;assert.equal(L.scenePixelsReady(day,false),true);assert.equal(L.scenePixelsReady(day,true),false);
+ const sky=black.slice();sky[2]=23;assert.equal(L.scenePixelsReady(sky,true),true,'night sky blue counts as a presented frame');
+ const bootHold=fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8');
+ assert(/startupCover\(this\.sceneFrameReadyFn\(\)\)==='hold'/.test(bootHold),'cream stays up until the probe reports a frame');
+ assert(/COVER_HOLD_MAX_S/.test(bootHold),'a missing readback cannot trap the loading layer');
  delete CC.G.__firstScreen;CC.remote.length=0;}
 const SCREENS=[['16:9 iPhone 8 (375x667 pt)',375,667,750,1334],['19.5:9 iPhone 14 (390x844 pt)',390,844,1170,2532],['20:9 Android (360x800 dp)',360,800,1080,2400],['18:9 Android (360x720 dp)',360,720,1080,2160],['4:3 iPad portrait (768x1024 pt)',768,1024,1536,2048]];
 const layoutReport=[];
@@ -137,11 +149,12 @@ for(const [name,w,h,pw,ph] of SCREENS){
  const lr={x0:(w/2+layer.root.position.x-ui.width/2)/w,x1:(w/2+layer.root.position.x+ui.width/2)/w,y0:(h/2-layer.root.position.y-ui.height/2)/h,y1:(h/2-layer.root.position.y+ui.height/2)/h};
  for(const k of ['x0','x1'])near(lr[k],fsRect[k]/pw,1e-9,name+' layer '+k);for(const k of ['y0','y1'])near(lr[k],fsRect[k]/ph,1e-9,name+' layer '+k);
  const vis=L.visibleDesignRect(w,h),cl=L.coverTransform(w,h);
- const items={logo:[347,295,432,385],title:[166,392,590,518],track:[133,1283,617,1306],hint:[55,1341,695,1381],pinwheel0:[105,1263,165,1323],pinwheel100:[585,1263,645,1323]};
+ const bar=L.BAR,hint=L.HINT,pin=L.PINWHEEL,head0=L.ribbonHead(0),head1=L.ribbonHead(1);
+ const items={logo:[347,295,432,385],title:[166,392,590,518],track:[bar.x,bar.y,bar.x+bar.w,bar.y+bar.h],hint:[L.DESIGN_W/2-hint.width/2,hint.centerY-hint.height/2,L.DESIGN_W/2+hint.width/2,hint.centerY+hint.height/2],pinwheel0:[head0.x-pin.w/2,head0.y-pin.h/2,head0.x+pin.w/2,head0.y+pin.h/2],pinwheel100:[head1.x-pin.w/2,head1.y-pin.h/2,head1.x+pin.w/2,head1.y+pin.h/2]};
  const inside={},safe={};for(const k in items){const b=items[k];inside[k]=b[0]>=vis.x0-0.5&&b[2]<=vis.x1+0.5&&b[1]>=vis.y0-0.5&&b[3]<=vis.y1+0.5;safe[k]=b[1]>=L.SAFE.top*L.DESIGN_H&&b[3]<=L.SAFE.bottom*L.DESIGN_H;}
  // layer element positions == design coords through the same transform
- const fillN=layer.root.children[0].children[0];const fp=L.toCentered(cl,375,1293);near(fillN.position.x,fp.x,1e-9,'fill x');near(fillN.position.y,fp.y,1e-9,'fill y');
- const hintN=layer.root.children[0].children[2];near(hintN.position.y,L.toCentered(cl,375,1361).y,1e-9,'hint y');near(hintN.getComponent(CC.Label).fontSize,28*cl.s,1e-9,'hint size');
+ const fillN=layer.root.children[0].children[0];const fp=L.toCentered(cl,L.BAR.x+L.BAR.w/2,L.BAR.y+L.BAR.h/2);near(fillN.position.x,fp.x,1e-9,'fill x');near(fillN.position.y,fp.y,1e-9,'fill y');
+ const hintN=layer.root.children[0].children[2];near(hintN.position.y,L.toCentered(cl,L.DESIGN_W/2,L.HINT.centerY).y,1e-9,'hint y');near(hintN.getComponent(CC.Label).fontSize,L.HINT.size*cl.s,1e-9,'hint size');
  layoutReport.push({screen:name,logical:[w,h],physical:[pw,ph],s_logical:+cl.s.toFixed(5),visibleDesign:{x:[+vis.x0.toFixed(1),+vis.x1.toFixed(1)],y:[+vis.y0.toFixed(1),+vis.y1.toFixed(1)]},inside,firstScreenRectPx:{x:[+fsRect.x0.toFixed(2),+fsRect.x1.toFixed(2)],y:[+fsRect.y0.toFixed(2),+fsRect.y1.toFixed(2)]}});
  if(!/4:3/.test(name)){for(const k in inside)assert(inside[k],name+' '+k+' visible');}
 }
@@ -164,7 +177,11 @@ ok('C first-screen quad == StartupLoadingLayout cover == StartupLoadingLayer nod
  ok('D1 handoff: sprites set synchronously (no loadRemote), clamp/linear like first-screen, dynamic group 0 on takeover frame, intro 0->255 in '+L.INTRO_FADE_S+' s (max step '+maxStep+'/255 per 60 fps frame), real-stage progress only, outro '+L.OUTRO_FADE_S+' s');
  // D2 fallback
  delete CC.G.__firstScreen;CC.remote.length=0;const l2=new Layer(new CC.Node('Canvas'),()=>{});assert.deepEqual(CC.remote.map(r=>r.url).sort(),['startup-art/bar_fill.png','startup-art/first_screen_composite.jpg','startup-art/pinwheel.png']);
- assert.equal(l2.root.getComponent(CC.Sprite).spriteFrame,null);CC.remote.forEach(r=>r.cb(null,new CC.ImageAsset({})));assert(l2.root.getComponent(CC.Sprite).spriteFrame);assert.equal(l2.diagnostics().sources.composite,'loadRemote:ok');
+ assert.equal(l2.root.getComponent(CC.Sprite).spriteFrame,null);
+ assert.equal(l2.root.getComponent(CC.Sprite).enabled,false,'empty base sprite stays disabled so it cannot cover the cream with a black quad');
+ const early=l2.mask.getComponent(CC.Graphics);assert(early.fills.length>0&&early.fills[0][0]===217&&early.fills[0][1]===210&&early.fills[0][2]===196,'cream mask is drawn before the jpg');
+ assert(early.rects[0][2]>=4096&&early.rects[0][3]>=4096,'cream covers the screen before layout');
+ CC.remote.forEach(r=>r.cb(null,new CC.ImageAsset({})));assert(l2.root.getComponent(CC.Sprite).spriteFrame);assert.equal(l2.root.getComponent(CC.Sprite).enabled,true);assert.equal(l2.diagnostics().sources.composite,'loadRemote:ok');
  const g=l2.mask.getComponent(CC.Graphics);l2.layout(390,844);assert.deepEqual(g.fills[g.fills.length-1],[217,210,196,255]);
  ok('D2 no handoff (web preview / first-screen failed): loadRemote of the same startup-art files, cream mask (picture mean colour) meanwhile, never the old dark #123233');}
 
@@ -232,13 +249,28 @@ async function bootIntegration(){
  globalThis.__ccStub=cc;
  class Composition{constructor(){this.ready=deferred();sc.comp=this;}initializeWorld(){return this.ready.promise;}attachCalibratedCharacter(){return {ok:true};}worldCommands(){return {snapshot:()=>({state:'home'})};}}
  const ref={seatedRoot:[0.43,0,-4.2],standingRoot:[0,0,-4.4],seatYawRad:-2};
- const src=ts.transpileModule(fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,experimentalDecorators:true}}).outputText;
+ const src=ts.transpileModule(fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,experimentalDecorators:true}}).outputText+'\nmodule.exports.__FlowReferenceStandin=FlowReferenceStandin;\n';
  const m={exports:{}};const req=name=>{if(name==='cc')return cc;if(name.includes('StartupLoadingLayer'))return LayerMod;if(name.includes('StartupLoadingLayout'))return Lay;if(name.includes('StartupReadyGate'))return gate;if(name.includes('WorldNativeComposition'))return {WorldNativeComposition:Composition};
   if(name.includes('CharacterReference'))return {CHARACTER_REFERENCE:ref};if(name.includes('WorldFlowCore'))return {Cancelled:gate.StartupCancelled,pointOnPath(){}};if(name.includes('IslandPropTaps'))return {emitPropTap(){},setPropTapLook(){},onPropTap(){return ()=>{};}};
   if(name.endsWith('IslandProps'))return {IslandProps:class{load(){return Promise.resolve(false);}dispose(){}}};if(name.includes('RegionLoader'))return {REGIONS:{island:{}},loadRegionPrefab(){return sc.region.promise;}};
-  if(name.includes('CharacterMotion'))return motion;return {};};
+  if(name.includes('CharacterMotion'))return motion;
+  if(name.includes('FirstsliceFacts'))return {FIRSTSLICE:{anchors:{seat_anchor:{position:[0.4203,0.38,-4.2133]}}}};
+  return {};};
  vm.runInNewContext(src,{module:m,exports:m.exports,require:req,console:{info(){},error(...a){if(process.env.FS_DEBUG)console.error(...a);},warn(){},log(){}},Promise,Date,Math,Error,Set,Map,Array,Object,globalThis:CC.G,queueMicrotask},{filename:'WorldIntegrationBoot.js'});
- const Boot=m.exports.WorldIntegrationBoot;
+ const Boot=m.exports.WorldIntegrationBoot,Standin=m.exports.__FlowReferenceStandin;
+ function seat(node){const s=new Standin(node);s.setAnimMeta(null);s.bindVisual(cc.instantiate());return s;}
+ const rootOf=s=>Array.prototype.map.call(s.diagnostics().root,Number);
+ // The reference node is created and parented before bindVisual samples sit_hold. The first-screen stub (and a node
+ // that has not entered a scene, or has already been destroyed) has no worldPosition. Startup must still seat her.
+ {const bare=new N('bare');bare.position={x:1.25,y:0,z:-4.2};assert.equal(bare.worldPosition,undefined);
+  assert.deepEqual(rootOf(seat(bare)),[1.25,0,-4.2],'local position while worldPosition does not exist yet');
+  const early=new N('early');early.position={x:2,y:3,z:4};Object.defineProperty(early,'worldPosition',{get(){throw Error('node is not in the scene');}});
+  assert.deepEqual(rootOf(seat(early)),[2,3,4],'a throw from worldPosition before the node is in the scene falls back to position');
+  const live=new N('live');live.position={x:0,y:0,z:0};live.worldPosition={x:9,y:8,z:7};assert.deepEqual(rootOf(seat(live)),[9,8,7],'a live worldPosition wins');
+  const dead=new N('dead');dead.position={x:5,y:5,z:5};dead.destroy();Object.defineProperty(dead,'worldPosition',{get(){throw Error('destroyed');},configurable:true});
+  const gone=seat(dead);assert.deepEqual(rootOf(gone),[0,0,0],'destroyed node does not throw');
+  Object.defineProperty(dead,'isValid',{get(){throw Error('destroyed flag');}});assert.deepEqual(rootOf(gone),[0,0,0],'reading isValid after destroy does not throw');
+  ok('E0 controller root: missing, not-yet-in-scene, and destroyed worldPosition stay finite and do not throw');}
  function fixture(){sc={scene:new N('Scene'),region:deferred()};sc.scene.addComponent(Camera);const b=new Boot();b.node=new N('Boot');b.smokeFixture={json:{}};
   b.paintNavigation=()=>{};b.resize=()=>{b.loadingLayer&&b.loadingLayer.layout(390,844);};let allowedFn=null;
   b.createNavigation=()=>{b.canvas=new N('Canvas');b.createLoadingBackdrop();b.status={string:'',node:new N('Status')};b.status.node.parent=new N('Plate');b.notice={node:new N('Notice')};b.notice.node.parent=new N('NoticePlate');
@@ -251,7 +283,8 @@ async function bootIntegration(){
  sc.comp.ready.resolve();for(let i=0;i<5;i++)await turn();assert.equal(b.loadPhase,'ready');
  assert.equal(b.loadingBackdrop.active,true,'layer still on screen at ready (fading)');assert(b.loadingLayer.fading);assert.equal(b.allowed(),false,'room hint/swipe wait for the fade');
  const mg=b.loadingMask.getComponent(CC.Graphics),ma=()=>mg.fills[mg.fills.length-1][3];
- assert.equal(b.ready,true,'room mounted (world composition ready, girl seated) before the fade starts');assert(b.startupGirl&&b.startupGirl.active!==false,'girl active under the layer');assert.equal(ma(),255);
+ assert.equal(b.ready,true,'room mounted (world composition ready, girl seated) before the fade starts');assert(b.startupGirl&&b.startupGirl.active!==false,'girl active under the layer');
+ assert(b._referenceAdapter.diagnostics().root.every(Number.isFinite),'startup sampled sit_hold without a worldPosition');assert.equal(ma(),255);
  assert.equal(b.canvas.children[b.canvas.children.length-1],b.loadingBackdrop,'layer moved above buttons for the fade');
  const again=b.loadWorld();await again;assert.equal(b.loadingBackdrop.active,true,'loadWorld during fade does not reopen/restart');
  let t=0;const bootMask=[];while(b.loadingBackdrop.active&&t<2){b.update(1/60);t+=1/60;bootMask.push(ma());}near(t,Lay.OUTRO_FADE_S+2/60,2/60,'hidden after the held frame + outro');assert.equal(b.loadingMask.active,false);assert.equal(b.allowed(),true);

@@ -36,6 +36,12 @@ function bounds(n,w,h){const p=n.worldPosition,t=n.getComponent(UITransform),s=n
   gates.r4=[{unlocked:false}];o.open('tide');tap(node(o,'ChapterPanel','LegacyTide'));assert.equal(calls.length,8,'legacy tide locked');o.close();
   assert(o.openRest());assert.equal(top(o),'RestPanel');assert(!o.openRest(),'one page at a time');tap(node(o,'RestPanel','DayNight'));settle(o);assert.deepEqual(calls.slice(-2),['invoke','dayNight']);assert(!o.isOpen());
   o.open('settings');assert.equal(top(o),'SettingsPanel');for(const n of ['MusicVolume','SfxToggle','Day','Night','ReducedMotion','AboutRow'])assert(node(o,'SettingsPanel',n),'full settings row '+n);assert(!node(o,'SettingsPanel','ReturnHome'),'settings no longer returns home (tap the lighthouse)');assert(!node(o,'SettingsPanel','DayNight'),'island rest moved to the cabin');o.dispose();
+  const nightLog=[],s2=setup();globalThis.__worldDayNight={snapshot:()=>({mode:'day'}),toggle:()=>nightLog.push(s2.o.popups.any()?'open':'closed')};
+  s2.o.open('settings');tap(node(s2.o,'SettingsPanel','Night'));
+  assert.equal(nightLog.length,0,'day/night does not toggle while the settings panel is still up');assert(s2.o.popups.any());
+  settle(s2.o,0.1);assert.equal(nightLog.length,0,'toggle waits out the close');
+  settle(s2.o,0.1);assert.deepEqual(nightLog,['closed'],'the panel is gone before the sky changes');
+  delete globalThis.__worldDayNight;s2.o.dispose();
   assert(!calls.includes('invoke-while-open'),'every command closes the page before it runs');
   checks.push('journey book → chapter page → enter / gate recheck / back; skycity, legacy tide (locked when r4 closed), cabin rest day/night and full settings; each command closes the popup first');
  }

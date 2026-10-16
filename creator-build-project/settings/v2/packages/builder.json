@@ -40,7 +40,7 @@
   },
   "splash-setting": {
     "displayRatio": 1,
-    "totalTime": 500,
+    "totalTime": 0,
     "watermarkLocation": "default",
     "autoFit": true,
     "logo": {

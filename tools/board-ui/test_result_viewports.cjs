@@ -61,7 +61,7 @@ function makeModel(spec, calls = []) {
 }
 
 function expectedActions(model) {
-  if (model.kind === 'win') return [...model.rewards.filter(r => r.state === 'ready' && r.claim).map(r => 'Claim-' + r.id), ...(model.next ? ['Next'] : []), 'Home'].sort();
+  if (model.kind === 'win') return [...(model.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(model.next ? ['Next'] : []), 'Home'].sort();
   if (model.kind === 'lose') return [...(model.replay ? ['Replay'] : []), 'Home'].sort();
   if (model.kind === 'unsaved') return ['Home', 'RetrySave'];
   return ['Home'];
@@ -181,14 +181,17 @@ function revealAction(H, panel, target) {
 }
 function send(H, node, type, point = H.point(node), pointer = 1) { node.emit('touch-' + type, H.event(point, pointer)); }
 const targetCases = [
-  ['Claim-chest', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
-  ['Claim-regionReward', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
+  ['ClaimAll', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
   ['Next', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
   ['Home', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
   ['Replay', { kind: 'lose', hasReplay: true, chestHint: true }],
   ['RetrySave', { kind: 'unsaved', chestHint: true }],
 ];
 
+function fired(spec, target) {
+  if (target !== 'ClaimAll') return [target];
+  return (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id);
+}
 async function runInputChecks() {
   const H = createHarness(), K = H.load('ui/PopupKit'), P = H.load('ui/BoardPanels');
   await Promise.all(['board', 'popup', 'r2', 'r3'].map(dir => H.load('ui/BoardArt').BoardArt.shared().load(dir)));
@@ -196,7 +199,7 @@ async function runInputChecks() {
   const stack = new K.PopupStack(owner, () => H.state.viewport);
   const modes = ['foreign-end', 'foreign-move', 'foreign-cancel', 'second-start', 'outside-end', 'outside-positive-end', 'out-in', 'cancel-late-end', 'node-hide', 'ancestor-hide', 'component-disable', 'game-hide', 'unchanged-layout', 'modal-cover', 'modal-cover-rotation', 'closing', 'closing-rotation', 'destroy', 'teardown-after-reflow'];
   for (const viewport of [[320, 568], [568, 320], [480, 240]]) for (const [target, spec] of targetCases) for (const mode of modes) await check(`${target} ${mode} ${viewport.join('x')}`, () => {
-    H.setViewport(...viewport); const calls = [], panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
+    H.setViewport(...viewport); const calls = [], expected = fired(spec, target), panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
     const node = panel.root.find(target); assert(node, target + ' is real Result action'); revealAction(H, panel, target);
     const point = H.point(node); send(H, node, 'start', point);
     try {
@@ -204,24 +207,24 @@ async function runInputChecks() {
       if (mode === 'foreign-move') send(H, node, 'move', { x: -100, y: -100 }, 2);
       if (mode === 'foreign-cancel') send(H, node, 'cancel', point, 2);
       if (mode === 'second-start') { send(H, node, 'start', point, 2); send(H, node, 'end', point, 2); }
-      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(calls, []); send(H, node, 'end', point); assert.deepEqual(calls, [target]); send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
-      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]); }
-      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
-      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]); }
+      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(calls, []); send(H, node, 'end', point); assert.deepEqual(calls, expected); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
+      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
+      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
+      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
       else if (mode === 'node-hide' || mode === 'ancestor-hide' || mode === 'component-disable' || mode === 'game-hide') {
         if (mode === 'node-hide') { node.active = false; node.active = true; }
         if (mode === 'ancestor-hide') { panel.body.active = false; panel.body.active = true; }
         if (mode === 'component-disable') { const guard = node.components.find(c => typeof c.reset === 'function' && typeof c.cleanup === 'function'); assert(guard); guard.enabled = false; guard.enabled = true; }
         if (mode === 'game-hide') { H.cc.game.emit(H.cc.Game.EVENT_HIDE); H.cc.game.emit(H.cc.Game.EVENT_SHOW); }
-        send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, [target]);
+        send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected);
       }
-      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(calls, [target]); }
+      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(calls, expected); }
       else if (mode === 'modal-cover' || mode === 'modal-cover-rotation') {
         const upper = stack.open({ name: 'CoverProbe', height: 300, title: 'Cover' });
         if (mode === 'modal-cover-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
         send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(calls, [], 'covered result must reject old and fresh input');
         upper.close(); stack.update(.05); H.tap(node); assert.deepEqual(calls, [], 'closing upper modal still covers result');
-        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
+        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
       }
       else if (mode === 'closing' || mode === 'closing-rotation') {
         panel.close(); if (mode === 'closing-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
@@ -236,7 +239,7 @@ async function runInputChecks() {
     return { callbackCount: calls.length };
   });
   for (const [target, spec] of targetCases) for (const pair of [[[320, 568], [568, 320]], [[568, 320], [480, 240]], [[480, 240], [390, 844]], [[480, 297], [480, 299]], [[480, 307], [480, 309]], [[390, 844], [320, 568]]]) await check(`${target} same-panel rotation ${pair.map(v => v.join('x')).join(' -> ')}`, () => {
-    const calls = []; H.setViewport(...pair[0]); const panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
+    const calls = [], expected = fired(spec, target); H.setViewport(...pair[0]); const panel = P.openResult(stack, makeModel(spec, calls), null); settle(stack);
     revealAction(H, panel, target);
     const node = panel.root.find(target), root = panel.root, body = panel.body, point = H.point(node);
     const meta = { case: 'same-panel-' + target + '-' + pair.map(v => v.join('x')).join('-to-'), loadedArt: true, reducedMotion: false, tint: 'day', primaryViewport: true };
@@ -247,9 +250,9 @@ async function runInputChecks() {
       assert.equal(stack.find('ResultPanel'), panel); assert.equal(panel.root, root); assert.equal(panel.body, body); assert.equal(panel.root.find(target), node, 'reflow retains real action identity');
       send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'pre-reflow owned press must not activate at the new hit center');
       send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
-      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, [target]);
-      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, [target]);
-      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, [target, target]);
+      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
+      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, expected);
+      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, expected.concat(expected));
     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
   });
   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {

@@ -1,14 +1,13 @@
 import { Color, Graphics, Label, Node, UIOpacity, UITransform, isValid } from 'cc';
-import { GameAudio } from '../audio/GameAudio';
 import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
 import { toolArt, type ToolArtSource } from './CommonPanels';
+import { ResultChest3D } from '../ResultChest3D';
 import { reducedMotion } from './UiPrefs';
 /** Board-only panels (c-popups compose.py / compose2.py): pause (layout frozen by PM, only the lite frame and width 680
  *  changed), restart confirmation and the four result pages. */
 export interface PauseActions { line: string; resume(): void; restart(): void; bag(): void; settings(): void; home(): void; canRestart: boolean; canBag: boolean }
-let lastMusic = 0.4;
 export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
-  const top = 380, ph = 800, p = stack.open({ name: 'PausePanel', height: ph, title: '暂停一下', titleArt: 'popup/title_0', dy: top + ph / 2 - 812 });
+  const top = 380, ph = 680, p = stack.open({ name: 'PausePanel', height: ph, title: '暂停一下', titleArt: 'popup/title_0', dy: top + ph / 2 - 812 });
   p.text(a.line, 0, 92, 28, 'brown2', { bold: false, width: 600, name: 'PauseLine' });
   const tiles: Array<[string, string, () => void, boolean]> = [['popup/tile_restart', '重来', a.restart, a.canRestart], ['popup/tile_bag', '行囊', a.bag, a.canBag], ['popup/tile_settings', '设置', a.settings, true]];
   for (let i = 0; i < tiles.length; i++) {
@@ -17,20 +16,8 @@ export function openPause(stack: PopupStack, a: PauseActions): PopupPanel {
     p.sprite(t[0], 0, 0, 150, undefined, 'ui', b.node.getChildByName('Face')!).node.setPosition(0, 0, 0);
     p.text(t[1], cx, 322, 30, 'brown'); b.setEnabled(t[3]);
   }
-  const div = uiNode('Divider', p.body, 540, 4), dp = p.at(0, 378); div.setPosition(dp[0], dp[1], 0);
-  p.tint.shape(div.addComponent(Graphics), (g, night, al) => { const k = 1 - 0.4 * night; g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * al)); g.lineWidth = 3; for (let x = -270; x < 270; x += 18) { g.moveTo(x, 0); g.lineTo(x + 9, 0); } g.stroke(); });
-  const audio = GameAudio.instance;
-  const rows: Array<[string, string, boolean, (on: boolean) => void]> = [
-    ['popup/icon_music', '音乐', (audio?.getMusicVolume() ?? 0.4) > 0, on => { const g = GameAudio.instance; if (!g) return; if (!on) { const v = g.getMusicVolume(); if (v > 0) lastMusic = v; g.setMusicVolume(0); } else g.setMusicVolume(lastMusic > 0 ? lastMusic : 0.4); }],
-    ['popup/icon_sfx', '音效', !(audio?.isSfxMuted() ?? false), on => GameAudio.instance?.setSfxMuted(!on)],
-  ];
-  for (let i = 0; i < rows.length; i++) {
-    const bx = -340 + 64 + i * 278, cy = 446, r = rows[i];
-    p.sprite(r[0], bx + 25, cy, undefined, 50); p.text(r[1], bx + 68, cy, 32, 'brown', { align: 'left', width: 120 });
-    p.toggle(bx + 196, cy, 46, r[2], r[3], i ? 'SfxToggle' : 'MusicToggle');
-  }
-  p.button('primary', '继续', 0, 580, 480, 104, () => p.close(a.resume), { icon: 'popup/icon_play', fontSize: 36, name: 'Resume' });
-  p.button('secondary', '回到小岛', 0, 700, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
+  p.button('primary', '继续', 0, 460, 480, 104, () => p.close(a.resume), { icon: 'popup/icon_play', fontSize: 36, name: 'Resume' });
+  p.button('secondary', '回到小岛', 0, 580, 480, 96, () => a.home(), { icon: 'popup/icon_home', fontSize: 32, name: 'Home', sound: 'back' });
   return p;
 }
 export function openRestartConfirm(stack: PopupStack, restart: () => void): PopupPanel {
@@ -49,6 +36,16 @@ export interface ResultModel {
   unlockHint?: string; nextUnavailable?: string; next?: (() => void) | null; replay?: (() => void) | null; retrySave?: (() => void) | null; home: () => void;
 }
 const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup/title_4'], lose: ['差一点点', 'popup/title_5'], unsaved: ['还没存上', 'r2/title_unsaved'], readonly: ['旅途回顾', 'r2/title_review'] };
+/** Steps, saved and the unlock hint are one secondary line under the score. */
+function resultSummary(m: ResultModel): string {
+  if (m.kind !== 'win') return '';
+  const parts: string[] = [];
+  if (m.movesUsed !== null) parts.push(m.movesUsed + ' 步');
+  if (m.movesLeft !== null) parts.push('剩 ' + m.movesLeft + ' 步');
+  parts.push('已保存');
+  if (m.unlockHint) parts.push(m.unlockHint);
+  return parts.join(' · ');
+}
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
   const wideReward = m.kind === 'win' && m.rewards.some(r => r.label.length >= 6);
   // Include the real 88-design-px claim hit area, not just its 64px painted face.
@@ -71,10 +68,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
   if (m.kind === 'win') {
     section('ResultDetails', 0, 416, () => {
-      const line = (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步';
-      p.sprite('board/icon_moves', -150, 416, undefined, 48).node.name = 'MovesSymbol';
-      p.text(line, -118, 416, 28, 'brown', { align: 'left', width: 400, bold: false, name: 'MovesInfo' });
-      p.well(0, 472, 196, 48, [224, 238, 232], 24).name = 'SavedWell'; p.text('成绩已保存', 0, 472, 28, 'teal', { bold: false, width: 196, name: 'SavedText' });
+      p.text(resultSummary(m), 0, 416, 14, 'brown2', { bold: false, width: 560, name: 'ResultSummary' });
     });
     let y = 600;
     if (m.rewards.length) {
@@ -82,6 +76,15 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
       for (let i = 0; i < n; i++) { const x = (i - (n - 1) / 2) * step, name = 'ResultReward-' + i;
         section(name, x, y, () => rewardSlot(p, m.rewards[i], x, y, legacy, wideReward)); rewards.push(groups[name]); }
       y += rewardsH;
+    }
+    const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
+    if (ready.length) {
+      let spent = false;
+      const handle = p.button('primary', '全部领取', 0, y, 220, 56, () => {
+        if (spent) return;
+        spent = true; handle.setEnabled(false); handle.node.active = false;
+        for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); }
+      }, { fontSize: 26, name: 'ClaimAll' });
     }
     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
@@ -213,24 +216,34 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     if (target === page) return;
     resetPresses(p.root); page = target; showPage();
   }
-  let compactViewport = false;
-  const pairedRewards = (inner: number) => rewards.length === 2 && inner >= 400 && m.rewards.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2));
+  let compactViewport = false, shortPhone = false;
+  let chestRig: ResultChest3D | null = null;
+  let raysNode: Node | null = null;
+  const prevDestroy = p.destroy.bind(p);
+  p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
+  const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
+  const CHEST_W = 120, CHEST_H = 108, RAY = 156;
+  const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
+  const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
+  const sideRewards = () => m.rewards.filter(r => !isChest(r));
+  const pairedRewards = (inner: number) => { const side = sideRewards(); return side.length === 2 && inner >= 400 && side.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2)); };
   // Measure the same content used by reflow. Tall phones no longer turn a short
   // result into a near-full-screen panel with a vertically centred empty area.
   const naturalHeight = (w: number) => {
-    const inner = w - 16, heights: number[] = [];
-    const lines = (text: string, size: number) => { for (const _ of wrap(text, inner - 4, size)) heights.push(Math.ceil(size * 1.35)); };
-    heights.push(88); lines(scoreText, m.kind === 'lose' ? 16 : 30);
-    if (m.kind === 'win') {
-      lines((m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步', 16);
-      lines('成绩已保存', 16);
-      if (m.unlockHint) lines(m.unlockHint, 16);
-    } else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
+    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, heights: number[] = [];
+    const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
+    heights.push(shortPhone ? 44 : 88);
+    if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
+    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) lines(summary, 16); }
+    else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
-    const paired = pairedRewards(inner), cell = paired ? (inner - 12) / 2 : inner;
-    m.rewards.forEach((r, i) => { if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); if (!paired || i === 0) heights.push(96); });
-    return contentTop + 60 + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
+    const paired = pairedRewards(inner);
+    const side = sideRewards(), cell = paired ? (inner - 12) / 2 : inner, cardH = shortPhone ? 64 : 96;
+    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { lines(r.label, 16); heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
+    side.forEach((_r, i) => { if (!paired || i === 0) heights.push(cardH); });
+    if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
+    return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
   };
   p.setLayoutStrategy((width, height, safeInsets) => {
     const number = (v: number | undefined) => Number.isFinite(v) ? Math.max(0, v!) : 0;
@@ -240,21 +253,29 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const top = Math.max(number(safeInsets?.top), number(safeInsets?.capsule?.bottom));
     const w = Math.min(680, Math.max(1, width - left - right - 24));
     const maxHeight = Math.max(1, height - top - bottom - 24);
-    compactViewport = maxHeight < 400; rowGap = compactViewport ? 1 : 6;
+    shortPhone = height <= 700 && width >= 360 && width < height;
+    compactViewport = maxHeight < 400 || shortPhone; rowGap = compactViewport ? 1 : 6;
     const h = Math.min(maxHeight, naturalHeight(w));
     return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
   }, geometry => {
-    const key = `${geometry.width}/${geometry.height}/${compactViewport}`;
+    const key = `${geometry.width}/${geometry.height}/${compactViewport}/${shortPhone}`;
     // Opening animation must not rebuild the pages or reset a held finger.
     if (layoutKey === key) return; layoutKey = key;
     resetPresses(p.root);
-    const w = geometry.width, h = geometry.height, inner = w - 16, dense = compactViewport;
+    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, dense = compactViewport;
     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
     for (const a of actions) a.handle.node.active = supported;
+    const walkNamed = (n: Node, name: string): Node | null => {
+      if (n.name === name) return n;
+      for (let i = 0; i < n.children.length; i++) { const f = walkNamed(n.children[i], name); if (f) return f; }
+      return null;
+    };
+    const claimAll = walkNamed(p.root, 'ClaimAll');
     spaceNotice.node.active = !supported; readableTitle.node.active = false;
     if (!supported) {
+      if (claimAll) claimAll.active = false;
       // A bounded host fallback, not another text shrink. Keep the modal guard,
       // cancel every old gesture and require a larger safe rectangle to act.
       for (const n of pool.values()) n.active = false;
@@ -267,7 +288,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       spaceNotice.node.active = inner >= 16 && lines.length * 22 <= h - 8;
       return;
     }
-    available = h - contentTop - 60;
+    available = h - contentTop - reserve;
     const rows: Row[] = [];
     const labelRows = (id: string, text: string, size = 16, role: 'brown' | 'brown2' | 'teal' | 'grey' = 'brown') => {
       const lines = wrap(text, inner - 4, size);
@@ -292,25 +313,36 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i], width = actions.length === 1 ? Math.min(320, inner) : (inner - 8) / 2;
       const x = actions.length === 1 ? 0 : (i - 0.5) * (width + 8);
-      layoutButton(a.handle.node, width); a.handle.node.setPosition(x, -h / 2 + 32, 0);
+      layoutButton(a.handle.node, width); a.handle.node.setPosition(x, -h / 2 + (roomy ? 44 : 32), 0);
     }
     const stars = groups.ResultStars.node;
-    if (m.kind !== 'lose' && dense && textWidth(scoreText, 20) <= inner - 100) {
+    if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
       const row = getRow('summary', 48); stars.setScale(0.14, 0.14, 1); add(row, stars, -inner / 2 + 45, -4);
       add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
       scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
     } else {
-      const row = getRow('stars', dense ? 44 : 88); stars.setScale(dense ? 0.14 : 0.32, dense ? 0.14 : 0.32, 1); add(row, stars, 0, dense ? -4 : -12); rows.push(row);
+      const starH = shortPhone ? 44 : dense ? 44 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : 0.32;
+      const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
-      // Keep a long numeric score together on a compact page. The readable floor
-      // is the same 16-unit body size; ordinary compact scores remain 20 units.
-      const scoreSize = m.kind === 'lose' ? 16 : dense ? (available >= 55 && textWidth(scoreText, 20) <= (inner - 4) * 2 ? 20 : 16) : 30;
-      labelRows(m.kind === 'lose' ? 'ResultMessage' : 'Score', scoreText, scoreSize);
+      if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
+      else {
+        // 34/46 is the settled score. A number that cannot stay on one page at that size
+        // drops to the 16-unit body so the opening scale (0.92) still clears the 14px floor.
+        const big = wrap(scoreText, inner - 4, 34);
+        const block = big.length * 46 + Math.max(0, big.length - 1) * rowGap;
+        const scoreSize = block <= available ? 34 : 16, scoreLine = scoreSize === 34 ? 46 : 22;
+        const lines = scoreSize === 34 ? big : wrap(scoreText, inner - 4, scoreSize);
+        for (let i = 0; i < lines.length; i++) {
+          const scoreRow = getRow('Score-' + i, scoreLine); scoreRow.keepWithNext = i + 1 < lines.length;
+          let l = scoreRow.node.getComponentInChildren(Label);
+          if (!l) l = p.text('', 0, 0, scoreSize, 'brown', { name: i ? 'Score-continued-' + i : 'Score', bold: true, width: inner, parent: scoreRow.node });
+          l.string = lines[i]; l.fontSize = scoreSize; l.lineHeight = scoreLine; l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+          l.node.getComponent(UITransform)!.setContentSize(inner, scoreLine); l.node.setPosition(0, 0, 0); rows.push(scoreRow);
+        }
+      }
     }
-    if (m.kind === 'win') {
-      labelRows('MovesInfo', (m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步 · ' : '') + '剩余 ' + (m.movesLeft ?? 0) + ' 步');
-      labelRows('SavedText', '成绩已保存', 16, 'teal');
-    } else if (m.kind === 'lose') {
+    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) labelRows('ResultSummary', summary, 16, 'brown2'); }
+    else if (m.kind === 'lose') {
       const goals = groups.ResultGoals;
       if (goals) {
         const sourceLabels = goals.original.filter(v => v.font !== undefined);
@@ -325,13 +357,63 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
       }
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
-    if (m.kind === 'win' && m.unlockHint) labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
     const paired = pairedRewards(inner);
     const cell = paired ? (inner - 12) / 2 : inner;
+    let sideIndex = 0, claimPlaced = false;
+    // 56 is the settled claim control. A short page keeps it inside the content band
+    // (4 units of slack sit above the action buttons) and never under 44.
+    const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
+    const placeClaim = (row: Row, y: number, height = 56) => {
+      if (!claimAll || claimPlaced || !anyReady()) return;
+      const bw = Math.min(220, inner);
+      layoutButton(claimAll, bw, '全部领取', height);
+      const face = claimAll.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
+      l.string = '全部领取'; l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
+      add(row, claimAll, 0, y); claimPlaced = true;
+    };
+    const fitBox = (n: Node, boxW: number, boxH: number) => {
+      const v = original.get(n), ui = n.getComponent(UITransform)!;
+      const ow = Math.max(1, v ? v.width * Math.abs(v.sx) : ui.width * Math.abs(n.scale.x));
+      const oh = Math.max(1, v ? v.height * Math.abs(v.sy) : ui.height * Math.abs(n.scale.y));
+      const sx = v?.sx ?? 1, sy = v?.sy ?? 1;
+      n.setScale(sx * (boxW / ow), sy * (boxH / oh), 1);
+    };
     for (let i = 0; i < rewards.length; i++) {
-      const columnX = paired ? (i - 0.5) * (cell + 12) : 0;
       const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
+      if (isChest(r)) {
+        let chestW = Math.min(CHEST_W, inner), chestH = CHEST_H * (chestW / CHEST_W), raySize = Math.min(RAY, inner), body = Math.max(raySize, chestH);
+        const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
+        let rowH = body + gap + claimH, claimInRow = claimH > 0;
+        const budget = Math.max(1, available);
+        if (rowH > budget) {
+          const chrome = gap + claimH, room = budget - chrome;
+          if (room >= 48) { body = room; raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body + chrome; }
+          else { claimInRow = false; body = Math.min(body, budget); raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body; }
+        }
+        const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
+        const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
+        labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+        if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
+        else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
+        add(row, raysNode, 0, chestY);
+        if (flat) { flat.name = 'ResultChestArt'; fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
+        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestW * 0.28, chestY - chestH * 0.28); }
+        if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
+        if (!chestRig) {
+          chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
+          const shown = flat;
+          void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
+        } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
+        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestW, chestH);
+        rows.push(row);
+        if (!claimInRow && claimH) {
+          const buttonRow = getRow('reward-chest-claim', claimFit);
+          placeClaim(buttonRow, 0, claimFit); rows.push(buttonRow);
+        }
+        continue;
+      }
+      const columnX = paired ? (sideIndex - 0.5) * (cell + 12) : 0, sideAt = sideIndex++;
       // Use the actual CLAMP label width, including its padding and icon lane.
       const label = r.label, long = textWidth(label, 16) > rewardTextWidth(cell);
       if (long) labelRows('ResultRewardLabel-' + i, label, 16, r.state === 'locked' ? 'grey' : 'brown2');
@@ -369,8 +451,10 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         fitArt(n, size, size); card.addChild(n); n.active = true;
         n.setPosition(-cell / 2 + rewardIconLane / 2 + (badge ? 25 : 0), badge ? -cardHeight / 2 + 18 : 0, 0);
       }
-      if (!paired || i === 0) rows.push(row);
+      if (!paired || sideAt === 0) rows.push(row);
     }
+    if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
+    else if (claimAll && !claimPlaced) claimAll.active = false;
     pages = [[]]; let used = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]; let needed = row.height;
@@ -389,9 +473,8 @@ function rewardSlot(p: PopupPanel, r: ResultReward, x: number, y: number, legacy
   if (r.iconKind === 'tool' && r.tool) toolArt(p, r.tool, x, y - 36, 120, legacy);
   else { const s = p.sprite(r.icon, x, y - 36, r.iconKind === 'seal' ? undefined : 150, r.iconKind === 'seal' ? 112 : undefined, r.iconKind === 'chest' ? 'half' : 'ui'); if (r.state === 'locked') s.grayscale = true; }
   const by = y + 112, bw = wide && r.label.length >= 6 ? 248 : 176;
-  if (r.state === 'claimed') { p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12); p.text(r.label, x, by, 24, 'brown2', { bold: false, width: bw }); }
-  else if (r.state === 'ready' && r.claim) p.button('secondary', r.label, x, by, bw, 64, r.claim, { fontSize: r.label.length >= 6 ? 24 : 26, name: 'Claim-' + r.id });
-  else p.text(r.label, x, by, 24, 'grey', { bold: false, width: bw });
+  if (r.state === 'claimed') p.sprite('popup/stamp_claimed', x + 40, y - 32, 112, 112).node.setRotationFromEuler(0, 0, 12);
+  p.text(r.label, x, by, 24, r.state === 'locked' ? 'grey' : 'brown2', { bold: false, width: bw });
 }
 /** Three stars, middle one larger; empty stars dimmed (alpha 0.75). Chest and stars take the half night tint. */
 function stars(p: PopupPanel, cy: number, filled: number): Node[] {

@@ -51,10 +51,11 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     const stayed = await board(); stayed.s.hidden = true; stayed.s.state = 'result.saved'; stayed.render(); stayed.s.hidden = false; stayed.render(); stayed.u.update(0.016);
     assert.equal(names(stayed).includes('PausePanel'), false, 'a result page is not a pause panel');
   });
-  await ok('pause panel: pause → PausePanel (3 tiles, music + sfx toggles, resume, home); resume sends resume after the close animation', async () => {
+  await ok('pause panel: pause → PausePanel (3 tiles, resume, home; audio toggles stay in settings); resume sends resume after the close animation', async () => {
     const b = await board(), { H, u, s, log } = b;
     H.tap(u.pause); assert.deepEqual(log.commands.map(c => c[0]), ['pause']); assert.equal(s.state, 'run.paused'); assert.equal(top(b), 'PausePanel');
-    for (const n of ['Tile-重来', 'Tile-行囊', 'Tile-设置', 'MusicToggle', 'SfxToggle', 'Resume', 'Home']) assert(inPopup(b, 'PausePanel', n), n);
+    for (const n of ['Tile-重来', 'Tile-行囊', 'Tile-设置', 'Resume', 'Home']) assert(inPopup(b, 'PausePanel', n), n);
+    assert(!inPopup(b, 'PausePanel', 'MusicToggle') && !inPopup(b, 'PausePanel', 'SfxToggle'), 'pause has no duplicate audio toggles');
     assert(!inPopup(b, 'PausePanel', 'Close'), 'pause is not closable by ×'); assert(!labels(b, 'PausePanel').some(t => /提示/.test(t)), 'no manual hint');
     assert(labels(b, 'PausePanel').includes('01 test · 还剩 20 步'));
     H.tap(u.pause); assert.equal(log.commands.length, 1, 'pause under a popup does nothing');
@@ -92,16 +93,27 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     assert(labels(b, 'SettingsPanel').includes('v0.1 · 构建 dev'));
     H.tap(inPopup(b, 'SettingsPanel', 'AboutRow')); assert.equal(top(b), 'AboutPanel'); assert(labels(b, 'AboutPanel').includes('v0.1 · 构建 dev'));
     b.u.popups.close('AboutPanel'); b.u.popups.close('SettingsPanel'); b.step(0.3);
-    const knob = t => inPopup(b, 'PausePanel', t); H.tap(knob('SfxToggle')); assert(H.audioLog.includes('sfx:true')); H.tap(knob('MusicToggle')); assert(H.audioLog.includes('music:0'));
-    H.tap(knob('MusicToggle')); assert(H.audioLog.includes('music:0.4'), 'music comes back to the previous volume');
     const bag2 = await board({ provider: 'regional-r05', region: 0 }); bag2.H.tap(bag2.u.pause); const t = inPopup(bag2, 'PausePanel', 'Tile-行囊'); bag2.H.tap(t); assert.equal(top(bag2), 'PausePanel', 'regional stages have no bag');
+    assert(!inPopup(bag2, 'PausePanel', 'MusicToggle') && !inPopup(bag2, 'PausePanel', 'SfxToggle'));
   });
   await ok('result pages: win with host chest/next actions, 差一点点 lose + replay, 还没存上 grey chest + retry save, 旅途回顾 read-only', async () => {
     const b = await board(), { H, u, s, log } = b; let chest = 0, next = 0;
     s.state = 'result.saved'; s.active.status = 'won'; s.result = { stars: 3 }; s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
     u.setHostActions({ chest: { visible: true, run: () => chest++ }, mainNext: { visible: true, run: () => next++ } }); b.step(0.3);
     let p = u.popups.find('ResultPanel'); assert(p); assert.equal(p.options.title, '过关啦'); assert.equal(u.hostModalOpen(), false, 'result page is not a board modal');
-    H.tap(inPopup(b, 'ResultPanel', 'Claim-chest')); assert.equal(chest, 1); H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
+    const claimAll = inPopup(b, 'ResultPanel', 'ClaimAll');
+    H.tap(claimAll); assert.equal(chest, 1); assert.equal(claimAll.active, false, 'ClaimAll hides on the first tap');
+    H.tap(claimAll); assert.equal(chest, 1, 'a second tap does not claim again');
+    H.tap(inPopup(b, 'ResultPanel', 'Next')); assert.equal(next, 1);
+    const both = await board(); let chest2 = 0, region2 = 0;
+    both.s.state = 'result.saved'; both.s.active.status = 'won'; both.s.result = { stars: 3 };
+    both.s.journey.chests = [{ level: 0, earned: true, opened: false }];
+    both.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; both.render();
+    both.u.setHostActions({ chest: { visible: true, run: () => chest2++ }, regionReward: { visible: true, run: () => region2++ } });
+    both.H.tap(inPopup(both, 'ResultPanel', 'ClaimAll'));
+    assert.equal(chest2, 1); assert.equal(region2, 1, 'one tap claims the chest and the region reward');
+    both.s.journey.chests[0].opened = true; both.s.journey.regionRewards[0].claimed = true; both.render();
+    assert.equal(inPopup(both, 'ResultPanel', 'ClaimAll'), null, 'opened chest and claimed region hide 全部领取');
     H.tap(inPopup(b, 'ResultPanel', 'Home')); assert.deepEqual(log.commands.at(-1), ['requestExit']);
     const reg = await board(); reg.s.state = 'result.saved'; reg.s.active.status = 'won'; reg.s.result = { stars: 1 }; reg.s.journey.regionRewards = [{ region: 0, unlocked: true, claimed: false }]; reg.render();
     const net = inPopup(reg, 'ResultPanel', 'tool_tidenet'); assert(net, 'result region reward uses the tide-net slice');
@@ -118,7 +130,7 @@ const labels = (b, panel) => b.u.popups.find(panel).root.getComponentsInChildren
     s.journey.chests = [{ level: 0, earned: true, opened: false }]; b.render();
     s.journey.chests = [{ level: 0, earned: true, opened: true }]; s.journey.inventory.tools.windBell += 1; b.render();
     assert.equal(top(b), 'RewardPanel'); assert(labels(b, 'RewardPanel').includes('风语铃 ×1'));
-    b.H.tap(inPopup(b, 'RewardPanel', 'Accept')); b.step(0.3); assert.equal(top(b), 'ToolIntroPanel', 'unseen windBell is introduced after the reward');
+    b.step(0.5); b.H.tap(inPopup(b, 'RewardPanel', 'Accept')); b.step(0.3); assert.equal(top(b), 'ToolIntroPanel', 'unseen windBell is introduced after the reward');
     assert.equal(u.popups.top().options.title, '风语铃');
   });
   await ok('tool intro: each bar tool is introduced once (qfl.ui.seenTools), never again on the next board', async () => {

@@ -3,7 +3,7 @@ import { DEBUG } from 'cc/env';
 import { levelBackgroundKind, requiresMeadowScene, requiresSkycityScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createSkycityBoardBackground, preflightSkycityScene } from '../region/SkycityBoardBackground';
-import { createRegionFlowCheckpoint, openRegionFlowRoot, pinnedFlowMarker, readTask21TestNamespace, task21TestRoot } from './RegionFlowTest';
+import { createRegionFlowCheckpoint, createRegionFlowEntry, createRegionFlowWins, openRegionFlowRoot, pinnedFlowMarker, readTask21TestNamespace, task21TestRoot } from './RegionFlowTest';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -23,6 +23,12 @@ async function preflightUpcomingScene(stageId: string): Promise<string> {
   return '';
 }
 
+/** Ordinal-1 regional stages unlock after mainline 04 / 08 / 12. Higher ordinals stay on the caller's save. */
+function regionUnlockWins(stageId:string):number|null{
+  const m=/^r05-(tide|meadow|sky)-(\d+)$/.exec(stageId);
+  if(!m||Number(m[2])!==1)return null;
+  return m[1]==='tide'?4:m[1]==='meadow'?8:12;
+}
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
 @ccclass('WorldNativeComposition')
 export class WorldNativeComposition extends Component {
@@ -148,6 +154,47 @@ export class WorldNativeComposition extends Component {
     if(!DEBUG||!this.normalPorts)return {ok:false,reason:'no-test-profile'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'return-to-island-before-exiting-test'};
     Object.assign(this,this.normalPorts);this.normalPorts=null;this.testProfile=null;this.pinnedRoot=null;this.activeSession=null;this.hostReply=null;return {ok:true};
+  }
+  /** Hidden debug panel only. Reaches home or island, then runs the requested jump. Release builds return immediately. */
+  async debugJump(cmd:{kind:'place';place:'home'|'island'|'skycity'|'r4'}|{kind:'mainline';level:number}|{kind:'region';stageId:string}|{kind:'last';checkpoint:number}|{kind:'exit-flow'}):Promise<Result>{
+    if(!DEBUG)return {ok:false,reason:'debug-build-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    if(cmd.kind==='exit-flow'){const place=await this.debugReach('island');return place.ok?this.exitRegionFlowTest():place;}
+    if(cmd.kind==='last'){const place=await this.debugReach('island');return place.ok?this.startRegionFlowTest(cmd.checkpoint):place;}
+    if(cmd.kind==='place'){
+      if(cmd.place==='home')return this.debugReach('home');
+      if(cmd.place==='island')return this.debugReach('island');
+      const place=await this.debugReach('island');if(!place.ok)return place;
+      if(cmd.place==='skycity')return this.world.commands().enterSkycity();
+      const entered=await this.enterR4();if(entered.ok)return entered;
+      const f:any=this.smokeFixture!.json;this.selection={provider:'r4',stageId:f.stageId,seed:f.seed};return this.world.commands().enterLevel(f.stageId);
+    }
+    const place=await this.debugReach('island');if(!place.ok)return place;
+    if(cmd.kind==='mainline'){
+      const id='mainline-'+String(cmd.level).padStart(2,'0');
+      const selected=this.selectProvider({provider:'mainline',stageId:id,seed:1});
+      if(selected.ok)return this.enterSelectedLevel();
+      if(selected.reason!=='stage-locked')return selected;
+      let profile:any;try{profile=createRegionFlowEntry(cmd.level);}catch(e){return {ok:false,reason:String((e as Error).message)};}
+      if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+      this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+      return this.enterMainlineStage(profile.stageId,profile.seed);
+    }
+    const stage=(RegionalAPI as any).getStage(cmd.stageId);if(!stage||!stage.seedBank?.length)return {ok:false,reason:'unknown-stage'};
+    const seed=stage.seedBank[0],selected=this.selectProvider({provider:'r5',stageId:cmd.stageId,seed});
+    if(selected.ok)return this.enterSelectedLevel();
+    const wins=selected.reason==='stage-locked'?regionUnlockWins(cmd.stageId):null;
+    if(wins==null){this.selection={provider:'r5',stageId:cmd.stageId,seed};return this.world.commands().enterLevel(cmd.stageId);}
+    let profile:any;try{profile=createRegionFlowWins(wins);}catch(e){return {ok:false,reason:String((e as Error).message)};}
+    if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+    this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;this.hostReply=null;
+    const again=this.selectProvider({provider:'r5',stageId:cmd.stageId,seed});
+    return again.ok?this.enterSelectedLevel():again;
+  }
+  private async debugReach(where:'home'|'island'):Promise<Result>{
+    const cmd=this.world!.commands() as {debugPlace?:(place:'home'|'island')=>Result};
+    if(typeof cmd.debugPlace==='function')return cmd.debugPlace(where);
+    return {ok:false,reason:'debug-place-missing'};
   }
   attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');return this.world.bindCharacter(adapter);}
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}

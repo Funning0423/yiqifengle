@@ -1,5 +1,5 @@
-import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { DEBUG } from 'cc/env';
+import { DebugJumpPanel } from './ui/DebugJumpPanel';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
 import {CabinHint} from './world-r2/CabinHint';
@@ -23,10 +23,33 @@ import type {CharacterAdapter,Action,Cancellation,StablePose} from './world-r1/W
 import {StartupReadyGate,StartupAttempt,StartupCancelled} from './world-r2/StartupReadyGate';
 import {ManagedMobileBoardUI} from './ManagedMobileBoardUI';
 import {StartupLoadingLayer} from './ui/StartupLoadingLayer';
-import {ART as STARTUP_ART} from './ui/StartupLoadingLayout';
+import {ART as STARTUP_ART, startupCover, COVER_HOLD_MAX_S} from './ui/StartupLoadingLayout';
 import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {validateSkycity} from './region/RegionValidation';
 const {ccclass,property}=_decorator;
+/** Claims fired in one turn share a single invoke. The busy gate would otherwise drop every call after the first. */
+function enqueueResultBatch(start:(run:()=>Promise<any>)=>void):(fn:()=>any)=>void{
+  let q:Array<()=>any>|null=null,running=false;
+  return (fn:()=>any)=>{
+    if(running)return;
+    if(!q){
+      const batch:Array<()=>any>=[];q=batch;
+      setTimeout(()=>{
+        if(q!==batch)return;q=null;
+        start(async()=>{
+          running=true;
+          try{
+            let last:any={ok:true};
+            for(let i=0;i<batch.length;i++){const r=await batch[i]();last=r;if(r&&r.ok===false&&r.reason!=='cancelled')return r;}
+            return last;
+          }finally{running=false;}
+        });
+      },0);
+    }
+    q.push(fn);
+  };
+}
+/** end enqueueResultBatch */
 /** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
 const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
 /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
@@ -51,8 +74,8 @@ class FlowReferenceStandin implements CharacterAdapter {
  constructor(private node:Node){}
  private ninetyLandingSamples:any[]=[];private turnLandingSamples:any[]=[];private turnLandingIdle:any=null;private motionEvents:any[]=[];
  private logEvent(e:any){e.utc=new Date().toISOString();this.motionEvents.push(e);if(this.motionEvents.length>64)this.motionEvents.shift();}
- diagnostics(){const p=this.node.worldPosition,c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
-  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:[p.x,p.y,p.z],disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
+ diagnostics(){const p=this.rootMetres(),c=this.clock,ph=c?.phase()??null,plan=c?.plan()??null;
+  return {clip:ph?.clip??'',time:ph?.time??null,duration:c?.base?.duration??null,loop:c?.base?.loop??false,manualClock:true,action:this.job?.action.kind??null,root:p,disposed:this.disposed,availableClips:this.anim?.clips.filter(Boolean).map(x=>({name:x.name,duration:x.duration})),events:this.motionEvents.slice(-32),
    motion:{blend:!!this.rig?.blend,crossfadeS:CROSSFADE_S,phase:ph?ph.phase:null,cycle:ph?ph.cycle:null,fade:plan?.out??null,layers:plan?plan.layers.map(l=>({clip:l.clip,weight:l.weight,mode:l.mode})):[],walkProgress:this.walkProgress(),pendingIdle:this.pendingIdle,
     walkPlan:this.lastPlan,lastFoot:this.lastFoot,footDeduped:this.footDeduped,stopRoot:this.stopRoot?this.stopRoot.clip:null,yawDeg:this.yawRad*180/Math.PI,yawRateDegS:this.yaw.rate*180/Math.PI,wind:this.wind,flutterWeight:c?c.flutterWeight():0,apron:c?.apron?{time:c.apron.abs,lift:c.apron.lift,settle:c.apron.settle}:null,gust:c?.gust?{t:c.gust.t,d:c.gust.d}:null,
     apronLiftThreshold:this.motionConfig.apronLiftThreshold,metaSource:this.motionConfig.source,notes:c?c.notes.slice():[],joints:this.rig?.joints.length??0,repairedStates:this.rig?this.rig.repaired.slice():[],clipEval:this.rig&&ph?this.rig.evalStatus(ph.clip):null,morph:this.morphDiagnostics()}};}
@@ -83,16 +106,20 @@ class FlowReferenceStandin implements CharacterAdapter {
   if(this.stopHold>0&&this.clock.base&&name!==this.clock.base.clip){this.stopHold=0;this.clock.releaseHold();}
   const d=this.requireClip(name);
   if(this.clock.play(name,loop,{fade,keep,time}))this.logEvent({clip:name,duration:d,fade:fade<0?CROSSFADE_S:fade});this.render();return d;}
+ /** Controller root in metres. worldPosition does not exist until the node is in a scene, and reading it throws after destroy. */
+ private rootMetres():[number,number,number]{const n:any=this.node;if(!n)return [0,0,0];try{if(n.isValid===false)return [0,0,0];}catch{return [0,0,0];}let p:any=null;try{p=n.worldPosition;}catch{p=null;}
+  if(!p||!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.z)){try{p=n.position;}catch{p=null;}}
+  if(!p||!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.z))return [0,0,0];return [p.x,p.y,p.z];}
  private render(dt=0){if(!this.rig||!this.clock)return;const plan=this.clock.plan(),j=this.job;
   // A held outgoing pose was authored in the controller frame at action entry. Reproject it into the moving
   // controller frame before blending; otherwise the first 0.2 s of sit/stand drags the planted feet ~20 mm.
   // +Z forward, +Y up, unit-scale visual; translation is applied only to the outgoing root joint pose buffer.
-  if(plan.out&&j&&(j.action.kind==='sit'||j.action.kind==='stand')){const p=this.node.worldPosition,dx=j.from[0]-p.x,dy=j.from[1]-p.y,dz=j.from[2]-p.z,sy=Math.sin(this.yawRad),cy=Math.cos(this.yawRad);
+  if(plan.out&&j&&(j.action.kind==='sit'||j.action.kind==='stand')){const p=this.rootMetres(),dx=j.from[0]-p[0],dy=j.from[1]-p[1],dz=j.from[2]-p[2],sy=Math.sin(this.yawRad),cy=Math.cos(this.yawRad);
    plan.out.controllerOffset=[cy*dx-sy*dz,dy,sy*dx+cy*dz];
    // sit_down's root/hips/leg frame zero matches idle; keep its authored foot-lock chain intact.
    // Upper body still crossfades. Blending two articulated leg chains can slide feet even in one frame.
    plan.out.preserveIncomingLowerBody=(j.action.kind==='sit'&&plan.out.clip===CLIP_ROLES.idle||j.action.kind==='stand'&&plan.out.clip===CLIP_ROLES.sitHold);}
-  this.rig.apply(plan);const p=this.node.worldPosition;this.support?.apply(this.rig.joints,[p.x,p.y,p.z],this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
+  this.rig.apply(plan);const p=this.rootMetres();this.support?.apply(this.rig.joints,p,this.yawRad,!!plan.base&&(this.support.settling()||/^walk_(loop|start|stop_body[LR]|turn_180_bodyR|turn_90_bodyL)$/.test(plan.base.clip)||plan.base.clip===CLIP_ROLES.idle&&(this.support.hasContacts()||(plan.out?.clip==='walk_turn_180_bodyR'||plan.out?.clip==='walk_turn_90_bodyL'))),dt,plan);for(const bone of this.support?.takeSettleLandings()||[]){const body=bone==='foot.L'?'R':'L';this.noteSettle({def:{name:'settle:'+body,bone,body,type:'settle'},clip:plan.base?.clip});}this.applyMorph(plan);}
  /** After the pose write: same crossfade / layer weights as the pose (CharacterMotion.morphWeights), setWeight only on change. */
  private applyMorph(plan:Plan){const ms=this.morphs,c=this.clock;if(!c)return;let any=false;for(let i=0;i<ms.length;i++)if(ms[i].status==='ok')any=true;if(!any)return;
   try{morphWeights(c.cfg,plan,c.windDrive(),this.morphW);}catch(e){for(let i=0;i<ms.length;i++)if(ms[i].status==='ok'){ms[i].status='error';ms[i].reason=String(e);}return;}
@@ -104,7 +131,7 @@ class FlowReferenceStandin implements CharacterAdapter {
   return {durationSec,contactSec:contact!==undefined&&Number.isFinite(contact)?Math.max(0,Math.min(durationSec,contact)):0};}
  performDoorReach(token:Cancellation):Promise<void>{token.check();const timing=this.doorReachTiming();if(!timing)return Promise.reject(Error('Character clip missing: '+CLIP_ROLES.doorReach));
   if(!this.playDoorReach())return Promise.reject(Error('Character door reach unavailable'));
-  return new Promise((resolve,reject)=>{const p=this.node.worldPosition,j:any={action:{kind:'door-reach'},duration:timing.durationSec,from:[p.x,p.y,p.z],elapsed:0,resolve,reject,off:()=>{}};this.job=j;
+  return new Promise((resolve,reject)=>{const p=this.rootMetres(),j:any={action:{kind:'door-reach'},duration:timing.durationSec,from:[p[0],p[1],p[2]],elapsed:0,resolve,reject,off:()=>{}};this.job=j;
    j.off=token.onCancel(()=>{if(this.job===j)this.job=null;reject(new Cancelled());});});}
  private readWind():number {let v:any=0;try{v=this.windSource?this.windSource():0;}catch{v=0;}return typeof v==='number'&&v>0?(v<1?v:1):0;}
  /** One contact = one event: entry_contact events (the walk_loop heel strike a stop clip starts on, already emitted by
@@ -112,7 +139,7 @@ class FlowReferenceStandin implements CharacterAdapter {
  private emitFoot(f:any){const def=f.def,prev=this.lastFootEmit;
   if(def.entryContact||prev&&prev.bone===def.bone&&prev.clip!==f.clip&&this.motionT-prev.t<FOOT_DEDUPE_S){this.footDeduped++;this.logEvent({kind:'foot-dedupe',event:def.name,clip:f.clip,reason:def.entryContact?'entry_contact':'same contact'});return;}
   this.lastFootEmit={bone:def.bone,clip:f.clip,t:this.motionT};this.lastFoot=def.body;
-  const p=this.node.worldPosition;const e:FootEvent={event:def.name,bone:def.bone,body:def.body,clip:f.clip,phase:def.time/f.duration,time:def.time,cycle:f.cycle,pos:[p.x,p.y,p.z],type:def.type||'heel_strike'};
+  const p=this.rootMetres();const e:FootEvent={event:def.name,bone:def.bone,body:def.body,clip:f.clip,phase:def.time/f.duration,time:def.time,cycle:f.cycle,pos:[p[0],p[1],p[2]],type:def.type||'heel_strike'};
   this.logEvent({kind:'foot',type:e.type,event:e.event,bone:e.bone,body:e.body,clip:e.clip,phase:e.phase,cycle:e.cycle,pos:[p.x,p.z]});const list=this.footListeners.slice();for(let i=0;i<list.length;i++){try{list[i](e);}catch(err){console.warn('onFoot listener failed',String(err));}}}
  /** settle:* (stop clips: small step that brings the feet side by side, < 0.25 m): not a footstep, so not on onFoot
   *  (anim_meta: onFoot is foot:* only). It is the last foot to land, so it counts for lastFoot (180 choice), and is logged. */
@@ -265,7 +292,7 @@ class FlowReferenceStandin implements CharacterAdapter {
      if(left<TURN_FOLD_MIN_S){this.stopHold=this.support?.settleSeconds()||.12;c.holdBase();left=TURN_FOLD_MIN_S;}}
     extra.foldS=foldedTurnDuration(left,duration);if(extra.foldS>0)duration=extra.foldS;
     this.logEvent({kind:'turn-choice',clip:ch.role,deg:ch.deltaRad*180/Math.PI,lastFoot:this.lastFoot,reason:extra.foldS?'folded into '+b!.clip+' over '+extra.foldS.toFixed(3)+' s':ch.reason});
-    if(ch.role==='walk_turn_90_bodyL'&&this.ninetyLandingSamples.length){const pos=this.node.worldPosition;this.support?.startNinetyLanding(supportPose(this.rig!.joints),this.ninetyLandingSamples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}
+    if(ch.role==='walk_turn_90_bodyL'&&this.ninetyLandingSamples.length){const pos=this.rootMetres();this.support?.startNinetyLanding(supportPose(this.rig!.joints),this.ninetyLandingSamples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,pos);}
     if(ch.role==='walk_turn_180_bodyR'&&c.base?.clip===CLIP_ROLES.idle&&this.turnLandingSamples.length){
      // Isolated phase30: only first-swing boundary cache; never advance formal clock or morph driver.
      const pre=c.plan(),incomingIdle=c.base,evidenceEnabled=(globalThis as any).__characterMotionEvidence===true;const evidenceNow=()=>typeof performance!=='undefined'&&typeof performance.now==='function'?performance.now():Date.now(),sampleStart=evidenceEnabled?evidenceNow():0;
@@ -273,25 +300,25 @@ class FlowReferenceStandin implements CharacterAdapter {
      // writing a lower-body bone or an ancestor on its actual FK chain.
      const lowerDependencies=new Set<any>();for(const j of this.rig!.joints)if(/^(hips|thigh\.[LR]|shin\.[LR]|foot\.[LR])$/.test(j.name))for(let n:any=j.node;n;n=n.parent)lowerDependencies.add(n);
      const unsafeLayerBones:string[]=[];for(const layer of pre.layers)if(layer.weight>0)for(const i of (this.rig as any).mask(layer.clip,layer.mask))if(lowerDependencies.has(this.rig!.joints[i].node))unsafeLayerBones.push(this.rig!.joints[i].name);
-     const entryPosition=this.node.worldPosition,shapeDomain=!!this.support?.canStartTurnLanding(this.yawRad,extra.deltaYaw,[entryPosition.x,entryPosition.y,entryPosition.z]);const eligible=shapeDomain&&!(unsafeLayerBones.length||incomingIdle.distance||!incomingIdle.loop||!(this.rig as any).blend);
-     if(!eligible){this.support?.reset();this.logEvent({kind:'turn-support-domain-warning',clip:ch.role,reason:!shapeDomain?'outside verified right180 shape domain: original motion retained':'lower-body layer or unsupported track evaluator: original motion retained',fromYaw:this.yawRad,deltaYaw:extra.deltaYaw,root:[entryPosition.x,entryPosition.y,entryPosition.z],unsafeLayerBones});}
+     const entryPosition=this.rootMetres(),shapeDomain=!!this.support?.canStartTurnLanding(this.yawRad,extra.deltaYaw,entryPosition);const eligible=shapeDomain&&!(unsafeLayerBones.length||incomingIdle.distance||!incomingIdle.loop||!(this.rig as any).blend);
+     if(!eligible){this.support?.reset();this.logEvent({kind:'turn-support-domain-warning',clip:ch.role,reason:!shapeDomain?'outside verified right180 shape domain: original motion retained':'lower-body layer or unsupported track evaluator: original motion retained',fromYaw:this.yawRad,deltaYaw:extra.deltaYaw,root:entryPosition.slice(),unsafeLayerBones});}
      else {
      const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);const abs=incomingIdle.abs,rate=incomingIdle.rate,samples=this.turnLandingSamples.slice(),times:number[]=[],outgoingTimes:number[]=[];
      try{for(const time of this.turnLandingSamples.map((x:any)=>x.time).filter((t:number)=>t<c.crossfadeS)){const idleTime=c.localTime({...incomingIdle,abs:abs+time*rate});this.rig!.apply({base:{clip:ch.role,time,loop:false},out:{clip:CLIP_ROLES.idle,time:idleTime,weight:Math.max(0,1-time/c.crossfadeS)},layers:pre.layers,morph:pre.morph});const entry={time,pose:supportPose(this.rig!.joints)},index=samples.findIndex((x:any)=>Math.abs(x.time-time)<1e-12);if(index<0)throw Error('phase30 boundary cache missing');samples[index]=entry;times.push(time);outgoingTimes.push(idleTime);}}
      finally{writePose(this.rig!.joints,saved);}
      if(evidenceEnabled){const restored=new Float64Array(saved.length);capture(this.rig!.joints,restored);let restoreMax=0;for(let i=0;i<saved.length;i++)restoreMax=Math.max(restoreMax,Math.abs(saved[i]-restored[i]));
      if((globalThis as any).__characterMotionEvidence===true) ((globalThis as any).__phase30Evidence ||= []).push({baseAbs:abs,rate,times,outgoingTimes,sampleCount:times.length,safeLayerClips:pre.layers.map((l:any)=>l.clip),unsafeLayerBones,samplingMs:evidenceNow()-sampleStart,restoreMax,clockAbsAfter:incomingIdle.abs,phasePlanUnchanged:JSON.stringify(pre)===JSON.stringify(c.plan())});}
-     const pos=this.node.worldPosition;this.support?.startTurnLanding(supportPose(this.rig!.joints),samples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,[pos.x,pos.y,pos.z]);}}
+     const pos=this.rootMetres();this.support?.startTurnLanding(supportPose(this.rig!.joints),samples,this.turnLandingIdle,this.yawRad,extra.deltaYaw,pos);}}
 
     if(ch.role){this.stopRoot=null;if(turnBridgeStart){const saved=new Float64Array(this.rig!.joints.length*STRIDE);capture(this.rig!.joints,saved);(this.rig as any).sample(ch.role,.65);const end=supportPose(this.rig!.joints);(this.rig as any).sample(CLIP_ROLES.idle,0);const flat=supportPose(this.rig!.joints);const predictions:any[]=[];for(let k=0;k<=16;k++){const time=.25+.4*k/16;(this.rig as any).sample(ch.role,time);const u=(time-.25)/.4,v=u*u*(3-2*u),h=turnBridgeStart.hip.map((x:number,i:number)=>x+(end.hip[i]-x)*v);if(time>.45&&time<.75)h[1]-=.0044*Math.sin(Math.PI*(time-.45)/.30)**2;const hips=this.rig!.joints.find(x=>x.name==='hips')!.node;hips.setPosition(h[0],h[1],h[2]);predictions.push({time,pose:supportPose(this.rig!.joints)});}writePose(this.rig!.joints,saved);this.support?.startTurnBridge(turnBridgeStart,end,this.yawRad,extra.deltaYaw,flat,predictions);}this.playNamed(ch.role,false);}else if(!extra.foldS){this.stopRoot=null;this.playNamed(CLIP_ROLES.idle,true,-1,true);}}
    if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid character action duration');}catch(error){return Promise.reject(error);}
-  return new Promise((resolve,reject)=>{const pos=this.node.worldPosition;const j:any={action,duration,from:[pos.x,pos.y,pos.z],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
+  return new Promise((resolve,reject)=>{const pos=this.rootMetres();const j:any={action,duration,from:[pos[0],pos[1],pos[2]],elapsed:0,length:extra.length||0,s:0,plan:extra.plan||null,stopEntered:false,fromYaw:extra.fromYaw||0,deltaYaw:extra.deltaYaw||0,foldS:extra.foldS||0,fromRest:!!extra.fromRest,resolve,reject,off:()=>{}};this.job=j;
    j.off=token.onCancel(()=>{if(this.job===j){this.job=null;this.support?.reset();}reject(new Cancelled());});});
  }
  cancelAndReset(pose:StablePose){if(this.disposed)return;this.clearSettleQueue();this.stopHold=0;this.clock?.releaseHold();if(this.job){this.job.off();this.job.reject(new Cancelled());this.job=null;}
-  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.node.worldPosition;
+  const root=pose.kind==='seated'?pose.seat.seatedControllerRoot:pose.controllerRoot,yaw=pose.kind==='seated'?pose.seat.yawRad:pose.yawRad,p=this.rootMetres();
   // Stable arrival right after a walk (same spot): keep the pose and settle through stop/idle with a crossfade, no pop.
-  const inPlace=Math.hypot(p.x-root[0],p.y-root[1],p.z-root[2])<.01;
+  const inPlace=Math.hypot(p[0]-root[0],p[1]-root[1],p[2]-root[2])<.01;
   this.node.setWorldPosition(...root);this.setYaw(yaw);this.yaw.reset(yaw);
   if(!inPlace||pose.kind==='seated')this.stopRoot=null;
   if(pose.kind==='seated'){this.pendingIdle=false;this.playNamed(CLIP_ROLES.sitHold,true,0,inPlace);}
@@ -358,7 +385,7 @@ class AnimRig {
 const RESULT_ACTION_IDS=['mainNext','chest','regionReward','next','claim'];
 @ccclass('WorldIntegrationBoot')
 export class WorldIntegrationBoot extends Component {
- private flowTestMenu=false;private flowTestMark:Label|null=null;
+ private debugJump:DebugJumpPanel|null=null;
 
  @property validationScenario='';
  @property initialSeatedClip='sit_hold';
@@ -366,7 +393,7 @@ export class WorldIntegrationBoot extends Component {
  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private opGen=0;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';private dockFade=1;private coverHold=false;private coverHoldT=0;
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -395,12 +422,16 @@ export class WorldIntegrationBoot extends Component {
   });
  }
  private releaseStartupMount(){this.islandProps?.dispose();this.islandProps=null;this.propSign=false;setPropTapLook(false);this.islandJourney?.setPropMode(false);this.startupOwner?.destroy();this.startupOwner=null;this.homeSeatedVisual=null;this.transitionChairVisual=null;this.startupGirl?.destroy();this.startupGirl=null;this.startupReference?.destroy();this.startupReference=null;this.characterAnimations=[];this.selectedSeatedClip='';this.composition=null!;this.ready=false;delete(globalThis as any).__worldIntegration;}
- /** Ready: fade the startup layer out (OUTRO_FADE_S, ease-out) above everything; room hints wait (roomExplore allowed()).
+ /** Ready: fade the startup layer out (OUTRO_FADE_S, linear) above everything; room hints wait (roomExplore allowed()).
   * Without the layer (unit-test stubs) it is the old immediate hide. update() finishes the fade and deactivates the nodes. */
  private revealRoom(){const l=this.loadingLayer;
-  if(l&&this.loadingBackdrop&&this.loadingBackdrop.active){const n=this.canvas.children.length;this.loadingMask?.setSiblingIndex(n-1);this.loadingBackdrop.setSiblingIndex(n-1);l.startOutro();return;}
+  if(l&&this.loadingBackdrop&&this.loadingBackdrop.active){const n=this.canvas.children.length;this.loadingMask?.setSiblingIndex(n-1);this.loadingBackdrop.setSiblingIndex(n-1);
+   if(startupCover(this.sceneFrameReadyFn())==='fade'){this.coverHold=false;l.startOutro();}else{this.coverHold=true;this.coverHoldT=0;}return;}
   if(this.loadingBackdrop)this.loadingBackdrop.active=false;if(this.loadingMask)this.loadingMask.active=false;}
+ /** Absent on unit stubs: those fade as soon as the room is ready. A throw keeps the cream up. */
+ private sceneFrameReadyFn():(()=>boolean)|null{try{const cmd=this.composition&&this.composition.worldCommands&&this.composition.worldCommands() as {sceneFrameReady?:()=>boolean};return cmd&&typeof cmd.sceneFrameReady==='function'?()=>!!cmd.sceneFrameReady!():null;}catch(e){void e;return ()=>false;}}
  private tickLoading(dt:number){const l=this.loadingLayer,b=this.loadingBackdrop;if(!l||!b||!b.active)return;
+  if(this.coverHold&&this.loadPhase==='ready'){this.coverHoldT+=Math.max(0,Math.min(Number.isFinite(dt)?dt:0,.1));if(startupCover(this.sceneFrameReadyFn())==='hold'&&this.coverHoldT<COVER_HOLD_MAX_S)return;this.coverHold=false;l.startOutro();}
   if(l.tick(dt)&&this.loadPhase==='ready'){b.active=false;if(this.loadingMask)this.loadingMask.active=false;l.releaseHandoff();}}
  private setStatus(text:string,retry:boolean){if(!this.status)return;this.status.string=text;const plate=this.status.node.parent!;plate.active=!this.loadingLayer;plate.off(Node.EventType.TOUCH_END,this.retryLoad,this);if(retry)plate.on(Node.EventType.TOUCH_END,this.retryLoad,this);}
  private retryLoad(){if(this.startup.snapshot().phase==='ready')return;this.status.node.parent!.off(Node.EventType.TOUCH_END,this.retryLoad,this);this.loadWorld();}
@@ -469,19 +500,19 @@ export class WorldIntegrationBoot extends Component {
  }
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
- private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
- private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+ private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;const gen=++this.opGen;this.busy=true;this.error='';try{const r=await fn();if(gen!==this.opGen)return;if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){if(gen===this.opGen)this.error=String(e);}finally{if(gen!==this.opGen)return;this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
+ private runDebug(cmd:any){const gen=++this.opGen;this.busy=true;this.error='';try{this.islandJourney?.close();}catch(e){void e;}if(cmd&&cmd.kind==='place'&&cmd.place==='home')this.dismissTutorialGuide();this.debugJump?.close();return this.finishDebug(gen,cmd);}
+ /** The meadow (and any other) onboarding guide is a board modal. Home leaves it up and the level never snaps. Close it, and any modal it still holds, before debugPlace. */
+ private dismissTutorialGuide(){try{this.board()?.dismissHostModals();}catch(e){void e;}}
+ private async finishDebug(gen:number,cmd:any){let r:any;try{r=await this.composition.debugJump(cmd);if(gen!==this.opGen)return;if(r&&!r.ok&&r.reason!=='cancelled')this.error=String(r.reason||'');}catch(e){if(gen===this.opGen)this.error=String(e);}finally{if(gen===this.opGen){this.busy=false;this.paintNavigation();}}return r;}
+ private createNavigation(){this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
  this.createLoadingBackdrop();this.notice=this.label('流程参考占位 · 非新版B',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','回主页',()=>this.composition.worldCommands().returnHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.worldCommands().resume());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
- if(DEBUG){
- this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
- this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
- for(const n of [4,8,12])this.button('flowTest'+n,String(n).padStart(2,'0')+' · 最后一步',()=>{this.flowTestMenu=false;return this.composition.startRegionFlowTest(n);});
- this.button('flowTestExit','退出测试',()=>{const r=this.composition.exitRegionFlowTest();if(r.ok)this.flowTestMenu=false;return r;});
+ if(DEBUG)this.debugJump=new DebugJumpPanel(this.canvas,{status:()=>this.debugJumpStatus(),go:cmd=>{this.runDebug(cmd);}});
  }
- }
+ private debugJumpStatus():string{let t:any=null;try{t=this.composition?.regionFlowTestStatus();}catch{t=null;}if(!t)return '';const n=String(t.checkpoint??0).padStart(2,'0');return t.lastAction?'主线 '+n+' · 最后一步':'主线 '+n;}
  /** Cabin tap: the island rest (海岛小憩). The first tap also retires the cabin hint for good. */
  private openCabin(){this.cabinHint?.dismiss();markCabinHintSeen();return this.islandJourney?.openRest()?{ok:true}:{ok:false,reason:'island-busy'};}
  /** Startup loading layer (ui/StartupLoadingLayer.ts): same picture + cover transform as build-templates/wechatgame/first-screen.js,
@@ -490,14 +521,24 @@ export class WorldIntegrationBoot extends Component {
  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
  private button(id:string,text:string,fn:()=>any,interrupt=false){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const surface=warmButton(n,240,46);const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();plate.getComponent(Graphics)!.clear();n.addChild(plate);surface.addContent(plate);const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy&&!interrupt);
  if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
- this.resultActions[id]=()=>{if(!blocked())void this.invoke(fn);};
+ this.resultActions[id]=()=>{if(!blocked())this.enqueueResult(fn);};
  surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
- private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
+ private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);this.debugJump?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the
  // button, the WarmButtonSkin cache starts a new offscreen bake and the Graphics fallback surface shows until it lands.
  const islandNav=worldNavigationLayout(f.width,f.height);for(const id of ISLAND_NAV_IDS){const n=this.controls.get(id);if(n)this.placeNavigationControl(n,islandNav.buttons[id]);}
  };
- private navLayout(){const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();return {width:f.width,height:f.height,room:this.roomExplore?.diagnostics()??null,targets:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>[k,{x:n.worldPosition.x+f.width/2,y:f.height/2-n.worldPosition.y}])),targetRects:Object.fromEntries(Array.from(this.controls).filter(([_,n])=>n.active).map(([k,n])=>{const t=n.getComponent(UITransform)!;return [k,{x:n.worldPosition.x+f.width/2-t.width/2,y:f.height/2-n.worldPosition.y-t.height/2,width:t.width,height:t.height}]})),managedBoards:director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).filter(x=>x.node.isValid).length||0};}
+ private navLayout(){const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();
+  const point=(n:Node)=>({x:n.worldPosition.x+f.width/2,y:f.height/2-n.worldPosition.y});
+  const rectOf=(n:Node)=>{const t=n.getComponent(UITransform)!;return {x:n.worldPosition.x+f.width/2-t.width/2,y:f.height/2-n.worldPosition.y-t.height/2,width:t.width,height:t.height};};
+  const targets:Record<string,{x:number;y:number}>={},targetRects:Record<string,{x:number;y:number;width:number;height:number}>={};
+  const controls=Array.from(this.controls);
+  for(let i=0;i<controls.length;i++){const k=controls[i][0],n=controls[i][1];if(!n.active)continue;targets[k]=point(n);targetRects[k]=rectOf(n);}
+  // Design points, not framebuffer pixels. DPR only scales the canvas; these rects match a tap on the phone.
+  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
+  const props=['bag','journal','settings'];
+  for(let i=0;i<props.length;i++){const n=dock&&dock.getChildByName('Island-'+props[i]);if(!n||!n.active)continue;targets[props[i]]=point(n);targetRects[props[i]]=rectOf(n);}
+  return {width:f.width,height:f.height,room:this.roomExplore?.diagnostics()??null,targets,targetRects,managedBoards:director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).filter(x=>x.node.isValid).length||0};}
  private placeNavigationControl(n:Node,r:{x:number;y:number;width:number;height:number}){const t=n.getComponent(UITransform)!;
   if(t.width!==r.width||t.height!==r.height){t.setContentSize(r.width,r.height);n.getComponent(WarmButton)!.configure(r.width,r.height);for(const label of n.getComponentsInChildren(Label))if(label.node.name==='VisibleLabel'){label.fontSize=15;label.lineHeight=20;label.node.getComponent(UITransform)!.setContentSize(r.width-12,25);label.node.parent!.getComponent(UITransform)!.setContentSize(r.width-12,25);}
   if(n.name==='mainline')applyJourneyNavigationSkin(n,'primary',r.width,r.height);}
@@ -519,12 +560,17 @@ export class WorldIntegrationBoot extends Component {
   * T9 signpost mode: the transparent mainline hit area tracks the signpost projection, so it is NOT moved/scaled here;
   * instead the signpost enters as the next step of the same sequence, after the buttons: same 0.25 s, same cubic
   * ease-out, rising the same 24 px out of the water while fading in (IslandProps.setSignEntrance). */
- private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0)return;const step=Math.max(0,Math.min(dt,.1))/.25;
-  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+step);const e=1-Math.pow(1-this.signEntrance,3);this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
-  this.islandEntrance=Math.min(1,this.islandEntrance+step);const e=1-Math.pow(1-this.islandEntrance,3),k=.94+.06*e,dy=-24*(1-e);
-  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(k,k,1);}
-  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(k,k,1);}
-  if(this.islandEntrance>=1){this.islandEntrance=-1;if(this.propSign)this.signEntrance=0;}
+ private applyIslandEntrance(dt:number,mainline:Node|null){if(this.islandEntrance<0&&this.signEntrance<0){this.dockFade=1;return;}
+  if(this.islandEntrance<0){this.signEntrance=Math.min(1,this.signEntrance+Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signEntrance,3);this.dockFade=1;this.setSign(e,24*(1-e));if(this.signEntrance>=1)this.signEntrance=-1;return;}
+  const delay=.15,dur=.3;this.islandEntrance=Math.min(delay+dur,this.islandEntrance+Math.max(0,Math.min(dt,.1)));
+  const u=Math.max(0,Math.min(1,(this.islandEntrance-delay)/dur)),e=u*u*(3-2*u),dy=-12*(1-e);
+  this.dockFade=e;
+  const fade=(n:Node|null)=>{if(!n)return;try{const op=n.getComponent(UIOpacity)||n.addComponent(UIOpacity);if(op)op.opacity=Math.round(255*e);}catch(err){void err;}};
+  if(mainline?.active&&!this.propSign){const p=mainline.position;mainline.setPosition(p.x,p.y+dy,p.z);mainline.setScale(1,1,1);fade(mainline);}
+  const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,dy,0);dock.setScale(1,1,1);fade(dock);}
+  try{this.islandProps?.setButtonFade?.(e);}catch(err){void err;}
+  this.setSign(e,12*(1-e));
+  if(this.islandEntrance>=delay+dur){this.islandEntrance=-1;this.signEntrance=-1;}
  }
  /** T9 + R3 (Mac r3: the board floated near the shore on the walk home, seen from behind, text mirrored): the signpost
   * (board, lamp + its light/glows, label, water shadow/ripples; IslandProps.setSignEntrance) exists ONLY in island-idle.
@@ -543,7 +589,7 @@ export class WorldIntegrationBoot extends Component {
    if(this.signOut<0){if(prev!=='island'){this.setSign(0,0);return;}this.signOut=1-Math.pow(1-this.signShown,1/3);}
    this.signOut=Math.max(0,this.signOut-Math.max(0,Math.min(dt,.1))/.25);const e=1-Math.pow(1-this.signOut,3);this.setSign(e,24*(1-e));if(this.signOut<=0)this.signOut=-1;return;}
   this.signOut=-1;if(state!=='island')return;
-  if(this.islandEntrance>=0&&this.propSign){this.setSign(0,0);return;}
+  if(this.islandEntrance>=0)return;
   if(this.signEntrance<0&&this.signShown<1)this.signEntrance=1-Math.pow(1-this.signShown,1/3);
  }
  /** T9: drive the 3D props and, while the signpost is on screen, make the (invisible) mainline control its hit area. */
@@ -551,7 +597,10 @@ export class WorldIntegrationBoot extends Component {
   const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
-   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
+   const hold=this.islandEntrance>=0&&this.islandEntrance<.15;
+   const pose:any={exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible()&&!hold&&this.dockFade>0.001,width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined,buttonFade:this.dockFade};
+   if(dn&&typeof dn.uiBlend==='number'&&isFinite(dn.uiBlend))pose.nightWeight=dn.uiBlend;
+   p.sync(pose);
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
@@ -565,8 +614,8 @@ export class WorldIntegrationBoot extends Component {
  this.notice.node.parent!.active=false;this.status.string='';
  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);}
- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+ for(const [k,n]of Array.from(this.controls)){n.active=k==='cancelVisit'?!s.needsResume&&s.state==='skycity-loading':k==='returnIsland'?!s.needsResume&&s.state==='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?s.state==='island':false);}
+ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);if(s.state==='island')for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;this.dockFade=1;try{this.islandProps?.setButtonFade?.(1);}catch(e){void e;}const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');if(dock){dock.setPosition(0,0,0);dock.setScale(1,1,1);try{const op=dock.getComponent(UIOpacity);if(op)op.opacity=255;}catch(e){void e;}}}this.syncIslandProps(s,f);this.gateSignEntrance(s.state,dt);
  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
  for(const id of ['returnIsland','cancelVisit'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
@@ -576,25 +625,10 @@ export class WorldIntegrationBoot extends Component {
  if(board){const actions:any={};for(const k of RESULT_ACTION_IDS){const n=this.controls.get(k)!;actions[k]={visible:n.active,run:this.resultActions[k]};n.active=false;}if(!s.hidden)board.setHostActions(actions);}
  const dn=this.controls.get('dayNight');if(dn){const view=this.composition.worldCommands().dayNight();dn.active=false; // Day/night belongs in the small settings panel, not the landscape.
 dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼';this.placeNavigationControl(dn,navigation.dayNight);}
- this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height);
- if(DEBUG){const test=this.composition.regionFlowTestStatus(),outside=['home','island'].includes(s.state)&&!s.hidden&&!s.needsResume&&!this.busy;
- const testLayout=flowTestLayout(f.width,f.height,readFlowTestHost());
- const put=(id:string,r:{x:number;y:number;width:number;height:number},on:boolean)=>{const n=this.controls.get(id);if(n){n.active=on&&testLayout.supported;this.placeNavigationControl(n,r);}};
- put('flowTests',testLayout.entry,outside);for(const r of testLayout.stages)put(r.id,r,outside&&this.flowTestMenu);
- put('flowTestExit',testLayout.exit,outside&&this.flowTestMenu&&!!test);
- if(this.flowTestMark){const a=test?.lastAction,cell=(i:number)=>String(Math.floor(i/7)+1)+'行'+String(i%7+1)+'列';
- const stageNum=typeof b?.active?.stageId==='string'?/^mainline-(\d{2})$/.exec(b.active.stageId):null;
- const mark=stageNum?Number(stageNum[1]):(test?.checkpoint??0);
- const onLast=!!(test&&stageNum&&b?.state==='run.ready'&&Number(stageNum[1])===test.checkpoint&&a);
- this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(mark).padStart(2,'0')+(onLast?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
- const r=testLayout.mark,plate=this.flowTestMark.node.parent!;
- this.flowTestMark.node.getComponent(UITransform)!.setContentSize(r.width-12,r.height);this.flowTestMark.enableWrapText=true;this.flowTestMark.lineHeight=17;
- const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}plate.active=testLayout.supported;
- plate.setPosition(r.x,r.y,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
- }
+ this.controls.get('leave')!.active=false;const roomFrame=this.navLayout();this.roomExplore?.sync(roomFrame.width,roomFrame.height,dt);
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
  }
  update(dt:number){this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
- onDestroy(){this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ onDestroy(){this.debugJump?.dispose();this.debugJump=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }

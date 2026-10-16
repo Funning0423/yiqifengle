@@ -495,7 +495,8 @@ export class RoomLightingRig {
       const sea = this.sea;
       if (sea && live(sea.node)) sea.node.setPosition(sea.position.x, sea.position.y + Math.sin(t * .41) * .003, sea.position.z);
       const c = this.clouds;
-      if (c && live(c.node)) c.node.setPosition(c.position.x + Math.sin(t * .05) * .22, c.position.y, c.position.z);
+      // 5 s loop, about 0.4 m: the old 125 s sine stayed under a pixel for a 12 s home idle.
+      if (c && live(c.node)) c.node.setPosition(c.position.x + Math.sin(t * (Math.PI * 2 / 5)) * .4, c.position.y, c.position.z);
     }
   }
 

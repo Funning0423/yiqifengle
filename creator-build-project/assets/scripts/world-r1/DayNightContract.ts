@@ -26,6 +26,15 @@ export function resolveDayNight(mode: DayNightMode, exteriorVisible: boolean): D
     lightColor: night ? [180, 198, 232] : [255, 255, 255],
   };
 }
+/** User day/night cross-fade. Sky, sea and UI share this 0.8 s ease-in-out. */
+export const DAY_NIGHT_FADE_S = 0.8;
+export function easeInOut(t: number): number {
+  const k = t < 0 ? 0 : t > 1 ? 1 : t;
+  return k * k * (3 - 2 * k);
+}
+export function fadeWeight(from: number, to: number, t: number): number {
+  return from + (to - from) * easeInOut(t);
+}
 /** Writes nightBlend only when the material actually has that slot. Island PBR sky returns false. */
 export function writeNightBlend(material: { setProperty?: (n: string, v: number) => void; passes?: any[] } | null, value: number): boolean {
   if (!material || typeof material.setProperty !== 'function') return false;

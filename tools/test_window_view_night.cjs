@@ -7,7 +7,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const ts=require('./qf-env.cjs').typescript();
 const src=fs.readFileSync('creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts','utf8');
 const checks=[];
-const start=src.indexOf('function bindUnlitBackdrop('),end=src.indexOf('/** Add to a NEW, identity scene-root sibling.');
+const start=src.indexOf('function srgbToLinearChannel('),end=src.indexOf('/** Add to a NEW, identity scene-root sibling.');
 assert(start>0&&end>start,'bindUnlitBackdrop boundaries must exist');
 const js=ts.transpileModule(src.slice(start,end),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.None}}).outputText;
 class Vec4{constructor(x=0,y=0,z=0,w=0){Object.assign(this,{x,y,z,w});}}
@@ -41,8 +41,35 @@ const wire=src.slice(src.indexOf("const backdropNames=["),src.indexOf("const pal
 assert.match(wire,/filter\(r=>r\.node\.name==='env_window_blind_cards'\)/);
 assert.match(wire,/viewCards\.length!==1/);
 assert.match(wire,/try\{this\.unlitBackdrops\.set\(viewCards\[0\],bindUnlitBackdrop\(viewCards\[0\]\)\);\}catch/);
-// ES5 (运镜bot T2+): Cocos loose ES5 does not iterate a Map in for-of, so the loop is Array.from(map.entries()).forEach;
-// either form still drives EVERY registered backdrop with isValid + setNight(night).
-assert.match(src,/for\(const \[r,b\]of this\.unlitBackdrops\)if\(isValid\(r,true\)\)b\.setNight\(this\.dayNightMode==='night'\)|Array\.from\(this\.unlitBackdrops\.entries\(\)\)\.forEach\(\(\[r,b\]\)=>\{if\(isValid\(r,true\)\)b\.setNight\(this\.dayNightMode==='night'\);\}\)/);
+// ES5 (运镜bot T2+): Cocos loose ES5 does not iterate a Map in for-of, so the loop is Array.from(map.entries()).forEach.
+// applyDayNight drives EVERY registered backdrop through setWeight (the 0.8 s blend), not a hard setNight.
+assert.match(src,/Array\.from\(this\.unlitBackdrops\.entries\(\)\)\.forEach\(\(\[r,b\]\)=>\{if\(isValid\(r,true\)\)b\.setWeight\(k\);\}\)/);
 checks.push('createWorld registers env_window_blind_cards in unlitBackdrops; applyDayNight drives every registered backdrop');
+
+// Device getUniform returns linear even though setProperty stored sRGB. That mismatch used to throw and release the night instance.
+const lin=c=>c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);
+const sky=makeRenderer('env_sky_dome');
+const origGet=sky.getMaterialInstance.bind(sky);
+sky.getMaterialInstance=function(){const inst=origGet();if(!inst._lin){inst._lin=true;const pass=inst.passes[0],raw=pass.getUniform.bind(pass);
+  pass.getUniform=(h,out)=>{raw(h,out);out.x=lin(out.x);out.y=lin(out.y);out.z=lin(out.z);return out;};}return inst;};
+const warns=[];
+const bindLinear=new Function('Vec4','isValid','console',js+';return bindUnlitBackdrop;')(Vec4,o=>!!o,{info:()=>{},warn:(...a)=>warns.push(a.map(String).join(' '))});
+const nightSky=bindLinear(sky);
+assert.doesNotThrow(()=>nightSky.setWeight(1));
+assert.deepEqual(sky.instance.color,new Vec4(.18,.24,.46,1),'written uniform stays the sRGB night tint');
+assert.notEqual(sky.render,sky.shared,'linear readback does not release the night instance');
+assert.equal(warns.length,0,'linear readback is within the colour-space tolerance');
+checks.push('linear uniform readback keeps the sRGB night colour and does not throw');
+
+const bad=makeRenderer('env_cloud_layer');
+const origBad=bad.getMaterialInstance.bind(bad);
+bad.getMaterialInstance=function(){const inst=origBad();inst.passes[0].getUniform=(h,out)=>{out.x=0;out.y=0;out.z=0;out.w=0;return out;};return inst;};
+const badWarns=[];
+const bindBad=new Function('Vec4','isValid','console',js+';return bindUnlitBackdrop;')(Vec4,o=>!!o,{info:()=>{},warn:(...a)=>badWarns.push(a.map(String).join(' '))});
+const broken=bindBad(bad);
+assert.doesNotThrow(()=>broken.setNight(true));
+assert.equal(bad.render,bad.instance,'a failed postcondition warns and keeps the instance');
+assert(badWarns.some(w=>w.includes('Backdrop day/night uniform postcondition failed')));
+assert.equal(src.includes("throw Error('Backdrop day/night uniform postcondition failed')"),false);
+checks.push('backdrop day/night postcondition is warn-only and never throws');
 console.log(JSON.stringify({status:'PASS',checks},null,1));

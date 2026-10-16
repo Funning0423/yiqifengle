@@ -27,24 +27,16 @@ ok('screen props stand on the sea under their anchor at the runtime island camer
     const top=C.projectPoint(pose,w/h,[a.point[0],a.point[1]+P.buttons[s.role].heightM*a.scale,a.point[2]]);assert(Math.abs((top.y-q.y)/2*h-s.prop.height)<s.prop.height*.05,'pixel height');
     assert(a.scale>.3&&a.scale<6,'scale '+a.scale);}
 });
-ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2, >= 40 % of the portrait width), hugs the front-right shore (posts in shallow water just below the waterline, panel overlaps sand <= 30 %), inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
+ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2), in the west water beside the house, inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3),S=P.signpost;
   assert(S.scale>=1.2*1.8,'scale '+S.scale+' vs 1653f02 1.2');
   for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,8),'sign inside safe inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'sign vs '+s.role+' '+w+'x'+h);
     const g=L.projectRectUi(pose,w,h,girl);assert(!overlap(r,g),'sign covers girl '+w+'x'+h);}
-  // hugs the shore: the posts stand in front of (below on screen) the waterline of the front-right beach and the base is at
-  // most 0.9 sign-heights below it on screen (world: <= 2.2 sign-heights off the waterline, i.e. the shallow band, not open
-  // sea); the panel may overlap the sand behind it by at most 30 % of its height (1653f02: 55 %, tightened since the sign
-  // doubled: only the lamp hook may reach the sand line, the beach stays readable)
-  const SHORE_Z=10.7; // measured: island ground crosses sea level (-0.92) at z ~ 10.6-10.7 for x = 1..3 (front-right beach)
-  const hM=(S.boxMax[1]-S.boxMin[1])*S.scale;
-  assert(S.position[2]>SHORE_Z+0.5&&S.position[2]<SHORE_Z+2.2*hM,'sign within the shallow band off the waterline: z='+S.position[2]);
-  for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h),shore=C.projectPoint(pose,w/h,[S.position[0],P.seaY,SHORE_Z]),shoreUi=shore.y*h/2;
-    const bottom=r.y-r.height/2,top=r.y+r.height/2;assert(bottom<shoreUi,'posts below the waterline on screen '+w+'x'+h);
-    assert((shoreUi-bottom)/r.height<=.9,'posts too far from the shore '+((shoreUi-bottom)/r.height).toFixed(2)+' '+w+'x'+h);
-    assert((top-shoreUi)/r.height<=.30,'panel overlaps the beach by '+((top-shoreUi)/r.height).toFixed(2)+' '+w+'x'+h);}
-  const r=L.signpostRectUi(pose,390,844);assert(.5+r.x/390>.55,'sign on the right half');assert(r.width/390>=.40,'portrait width fraction '+(r.width/390).toFixed(2));
+  // West of the lighthouse mesh (x >= -2.70) and just seaward of the house front (z <= 0.89). The old
+  // front-right shallows at z = 18.8 sit behind the closest pull, which looks inland from the shore.
+  assert(S.position[0]<-2.7&&S.position[2]>0.9&&S.position[2]<4,'sign in the west water beside the house: '+S.position);
+  const r=L.signpostRectUi(pose,390,844);assert(r.width/390>=.20,'portrait width fraction '+(r.width/390).toFixed(2));
   const base=C.projectPoint(pose,390/844,S.position);assert(base.depth>20);
 });
 ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
@@ -55,6 +47,39 @@ ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers th
     assert(inside(r,w,h,8),'hit inside inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'hit vs '+s.role+' '+w+'x'+h);
     assert(!overlap(r,L.projectRectUi(pose,w,h,girl)),'hit covers girl '+w+'x'+h);}
+});
+ok('signpost transform equals the pre-b14067c pose, and the tap area is at least that original area',()=>{
+  // Frozen from ca4abf7 (parent of b14067c). b14067c moved this to [-4.08, 0.127, 0.7], yaw 5.58, scale 0.79.
+  const PRE={position:[-4.4,-1.15,1.5],yawDeg:-55,scale:2.3,topY:3.9};
+  const S=P.signpost;
+  assert.deepEqual([...S.position],PRE.position,'position');
+  assert.equal(S.yawDeg,PRE.yawDeg,'yaw');
+  assert.equal(S.scale,PRE.scale,'scale');
+  const half=S.yawDeg*Math.PI/360,q=[0,Math.sin(half),0,Math.cos(half)];
+  const preHalf=PRE.yawDeg*Math.PI/360,preQ=[0,Math.sin(preHalf),0,Math.cos(preHalf)];
+  assert.deepEqual(q.map(v=>+v.toFixed(9)),preQ.map(v=>+v.toFixed(9)),'yaw quaternion setRotationFromEuler(0, yaw, 0)');
+  assert.deepEqual([...S.boxMin],[-1.235,0,-0.183]);assert.deepEqual([...S.boxMax],[1.235,1.875,0.183]);
+  assert.deepEqual([...S.text.center],[0.2355,0.98,0.19]);assert.equal(S.text.widthM,1.44);assert.equal(S.text.heightM,0.48);
+  assert.deepEqual(P.palms.map(p=>({prefab:p.prefab,position:[...p.position],yawDeg:p.yawDeg,scale:p.scale})),[
+    {prefab:'beach_palm_tall',position:[-0.5,-0.30,9.0],yawDeg:200,scale:0.9},
+    {prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1},
+  ],'palms stay put');
+  const gull=require('../scene-fx/gull_sim.cjs').load().C.GULL_FX.sign;
+  assert.deepEqual([...gull.base],PRE.position);assert.equal(gull.topY,PRE.topY);assert.equal(gull.clearM,2);assert.equal(gull.postR,1);
+  const grown=r=>({width:Math.max(L.SIGN_HIT_MIN,r.width),height:Math.max(L.SIGN_HIT_MIN,r.height)});
+  const {load:loadRail}=require('../camera-frame-test/load_ts.cjs');
+  const Rail=loadRail();
+  const cfg=Rail.FirstsliceRoutes.createFirstsliceRoutes(Rail.FirstsliceFacts.FIRSTSLICE,Rail.CharacterReference.CHARACTER_REFERENCE);
+  const rail=Rail.IslandRail.createIslandRail(cfg);
+  const poses=[pose];rail.restore(1);poses.push(rail.pose());rail.restore(0);poses.push(rail.pose());
+  for(const p of poses)for(const [w,h] of [[390,844],[402,874],[600,800],[844,390]]){
+    const orig=L.projectRectUi(p,w,h,L.propCorners(PRE,S.boxMin,S.boxMax));
+    const live=L.signpostHitUi(p,w,h);
+    assert(orig&&live,'sign projects '+w+'x'+h);
+    const o=grown(orig);
+    assert(live.width+1e-6>=o.width&&live.height+1e-6>=o.height,'hit '+live.width.toFixed(1)+'x'+live.height.toFixed(1)+' < original '+o.width.toFixed(1)+'x'+o.height.toFixed(1)+' at '+w+'x'+h);
+    assert(live.width*live.height+1e-4>=o.width*o.height,'hit area smaller than the pre-b14067c area');
+  }
 });
 ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present',()=>{
   const W=P.signpost.water,sh=L.softEllipse(W.centerX,W.shadow.rx,W.shadow.rz),rg=L.softRing(W.centerX,W.ripple.rx,W.ripple.rz,W.ripple.band);
@@ -135,11 +160,11 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
     const c=calls.slice(before);if(firstSign===null&&c.some(x=>x[0]>0))firstSign=t;if(signDone===null&&c.some(x=>x[0]===1))signDone=t;}
   assert.equal(moved.length,0,'transparent mainline hit area not moved/scaled by the entrance');
   assert(dockLog.length>0&&dockLog.some(x=>x[0]==='p'&&x[1]<0),'buttons slide');
-  assert(firstSign>0.25-1e-6&&firstSign<=0.25+3/60,'sign starts after the buttons: '+firstSign);
-  assert(Math.abs(signDone-0.5)<=3/60,'sign done at ~0.5 s: '+signDone);
+  assert(firstSign>0.15&&firstSign<=0.15+2/60,'sign starts with the dock after 150 ms: '+firstSign);
+  assert(Math.abs(signDone-0.45)<=1/60,'sign done at ~0.45 s: '+signDone);
   const anim=calls.filter(x=>x[0]>0&&x[0]<1);assert(anim.length>=10,'animated frames');
   for(let i=1;i<anim.length;i++)assert(anim[i][0]>anim[i-1][0]&&anim[i][1]<anim[i-1][1],'alpha up, rise down');
-  assert(Math.abs(anim[0][1]-24*(1-anim[0][0]))<5e-3,'rise = 24 px * (1-e)');
+  assert(Math.abs(anim[0][1]-12*(1-anim[0][0]))<5e-3,'rise = 12 px * (1-e)');
   const firstLive=live.indexOf(true);assert(firstLive>=0&&live.slice(firstLive).every(Boolean)&&Math.abs((firstLive+1)/60-signDone)<=2/60,'hit area live once the sign entrance ends');
   // arrival without entrance (e.g. back from a level) -> shown at once, hit area live
   calls.length=0;for(const st of ['level-loading','level','island','skycity-loading','skycity','island','paused','island'])for(let i=0;i<10;i++)frame(st,1/60);
@@ -147,6 +172,20 @@ ok('signpost entrance (REAL Boot applyIslandEntrance/gateSignEntrance/trackTrans
   // flat-button fallback (no props): mainline gets the T2 entrance as before
   const b2=Object.assign(new B(),{hudState:'crossing-out',islandEntrance:-1,signEntrance:-1,propSign:false,islandProps:null,canvas:b.canvas});moved.length=0;b2.trackTransitionHud('island');b2.applyIslandEntrance(1/60,mainline);assert(moved.length===2,'flat mainline still animated');
   assert(/if\(sign&&\(this\.islandEntrance>=0\|\|this\.signEntrance>=0\)\)sign=\{x:sign\.x,y:sign\.y,width:0,height:0\};/.test(src),'zero-size hit area during the entrance');
+});
+ok('island bottom bar: dock labels and 3D icons share one entrance alpha, and props are placed after that alpha is written',()=>{
+  const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+  const props=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+  assert(/this\.dockFade=e/.test(boot)&&/this\.islandProps\?\.setButtonFade\?\.\(e\)/.test(boot)&&/buttonFade:this\.dockFade/.test(boot));
+  assert(/trackTransitionHud\(s\.state\);if\(s\.state==='island'\)for\(const id of ISLAND_NAV_IDS\)/.test(boot));
+  const applyAt=boot.indexOf("this.applyIslandEntrance(dt,this.controls.get('mainline')??null)"),syncAt=boot.indexOf('this.syncIslandProps(s,f)');
+  assert(applyAt>0&&syncAt>applyAt,'entrance pose is applied before the 3D props read the dock');
+  assert(/setButtonFade\(e: number\)/.test(props)&&/this\.placeButtons\(o\);\n    if \(typeof o\.buttonFade === 'number'\) this\.setButtonFade\(o\.buttonFade\);/.test(props));
+  assert(!/palette!?\s*\.setProperty/.test(props),'button fade does not write the shared palette');
+  assert(L.buttonFadeSkip(1,0.9997,3)===false,'a last smoothstep within 0.004 of 1 still restores the shared materials');
+  assert(L.buttonFadeSkip(1,1,0)===true&&L.buttonFadeSkip(0.5,0.501,2)===true);
+  assert(L.buttonFadeSkip(0,0.4,2)===false,'cancel (fade 1 or 0) restores while copies are live');
+  assert(/setMaterialInstance\(null/.test(props)&&/f\.shared \|\| this\.palette/.test(props),'the transparent instance is cleared and the saved shared material is put back');
 });
 ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): REAL Boot gate - the sign fades OUT (mirror of the entrance: 0.25 s, cubic, sinking 24 px) when the return walk starts, stays 0 on the whole return (walking-home incl. crane, crossing-in, door, seat, home) and the next leave (crossing-out), then buttons + entrance on arrival; a cancelled return fades back IN from where it was (no pop)',()=>{
   const B=BootSign;assert(B,'previous check loaded the Boot gate');const calls=[];
@@ -161,7 +200,7 @@ ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): 
   assert(Math.abs(mid[0][1]-24*(1-mid[0][0]))<5e-3,'sink = 24 px * (1-e)');
   for(const st of ['walking-home','crossing-in','closing-door','walking-to-seat','sitting','home','standing','turning-out','walking-out','opening-door','crossing-out']){const c=[];for(let i=0;i<20;i++)c.push(...frame(st));assert(c.every(x=>x[0]===0),'hidden in '+st);assert.equal(b.signShown,0);}
   // arrival: buttons first, sign stays 0, then the entrance to 1
-  const arr=[];for(let i=0;i<60;i++)arr.push(...frame('island'));const first=arr.findIndex(x=>x[0]>0);assert(first>=14,'sign waits for the buttons: '+first);
+  const arr=[];for(let i=0;i<60;i++)arr.push(...frame('island'));const first=arr.findIndex(x=>x[0]>0);assert(first>=8&&first<=11,'sign waits 150 ms, then fades with the dock: '+first);
   for(let i=first+1;i<arr.length;i++)assert(arr[i][0]>=arr[i-1][0],'entrance monotonic');assert.equal(arr[arr.length-1][0],1);assert.equal(b.signShown,1);
   // cancelled return (walking-home -> island after 5 frames): fade back in from the current value, no pop to 0 or 1
   for(let i=0;i<5;i++)frame('walking-home');const e0=b.signShown;assert(e0>0&&e0<1,'mid fade '+e0);
@@ -295,20 +334,74 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
         assert(Math.min(...got.map(v=>v[1]))>=P.seaY+0.015-1e-3,'pull stays above the sea '+s.role+' u='+u);
         let worst=0;const base=settled[s.role];
         for(let i=0;i<8;i++){const A=px(pose,aspect,w,h,got[i]);worst=Math.max(worst,Math.hypot(A[0]-base[i][0],A[1]-base[i][1]));}
-        assert(worst<0.5,'screen size held u='+u+' '+s.role+' drift '+worst.toFixed(3)+'px (old width '+oldW.toFixed(0)+')');
-        if(u===0&&s.role==='bag'&&w<h)assert(oldW>120,'the unfixed prop really does balloon, width '+oldW.toFixed(0));
+        assert(worst<0.5,'screen size held u='+u+' '+s.role+' drift '+worst.toFixed(3)+'px (unfixed sea-anchor width '+oldW.toFixed(0)+')');
       }
     }
     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
     assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
-    assert.deepEqual(P.signpost.position,[-1.2,-1.15,18.8]);
+    assert.deepEqual(P.signpost.position,[-4.4,-1.15,1.5]);
+  }
+  rail.restore(0);const close=rail.pose();
+  const aabb=(b)=>{const o=[];for(const x of [b[0][0],b[1][0]])for(const y of [b[0][1],b[1][1]])for(const z of [b[0][2],b[1][2]])o.push([x,y,z]);return o;};
+  const doorPts=aabb([[-0.716,0.01,-0.056],[0.752,2.397,0.137]]),lightPts=aabb([[-2.698,-0.15,-5.349],[4.883,8.934,0.889]]);
+  const yaw=P.signpost.yawDeg*Math.PI/180,c=Math.cos(yaw),s=Math.sin(yaw),sc=P.signpost.scale,cam=close.position,sp=P.signpost.position;
+  const lx=(cam[0]-sp[0])/sc*c-(cam[2]-sp[2])/sc*s,ly=(cam[1]-sp[1])/sc,lz=(cam[0]-sp[0])/sc*s+(cam[2]-sp[2])/sc*c;
+  const cx=Math.max(P.signpost.boxMin[0],Math.min(P.signpost.boxMax[0],lx)),cy=Math.max(P.signpost.boxMin[1],Math.min(P.signpost.boxMax[1],ly)),cz=Math.max(P.signpost.boxMin[2],Math.min(P.signpost.boxMax[2],lz));
+  const nearest=Math.hypot(cam[0]-(sp[0]+sc*(cx*c+cz*s)),cam[1]-(sp[1]+sc*cy),cam[2]-(sp[2]+sc*(-cx*s+cz*c)));
+  assert(nearest>=1.7,'nearest sign point is '+nearest.toFixed(2)+' m from the close camera');
+  for(const [w,h] of [[402,874],[600,800]]){
+    const r=L.signpostRectUi(close,w,h);assert(r&&inside(r,w,h,2),'close sign fully inside '+w+'x'+h+' '+(r&&JSON.stringify(r)));
+    assert(!overlap(r,L.projectRectUi(close,w,h,doorPts)),'sign rect overlaps the door '+w+'x'+h);
+    assert(!overlap(r,L.projectRectUi(close,w,h,lightPts)),'sign rect overlaps the lighthouse '+w+'x'+h);
+    const settings=L.propButtonLayout(w,h).slots.find(s=>s.role==='settings').hit;
+    assert(!overlap(r,settings),'zoomed sign overlaps the settings button '+w+'x'+h+' sign '+JSON.stringify(r)+' hit '+JSON.stringify(settings));
   }
   const overlay=fs.readFileSync(path.join(SRC,'world-r2/IslandJourneyOverlay.ts'),'utf8');
   const propsSrc=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
   assert(overlay.includes('ISLAND_PROPS.buttons[role].label')&&/l\.fontSize=s\.tag\.fontSize/.test(overlay),'tags use the screen slot, not the lens');
   assert(!/screenPropPose|seaAnchor|fovVerticalDeg/.test(overlay),'labels are not parented to the world camera');
   assert(/screenPropPose\(pose, this\.buttonRef/.test(propsSrc),'buttons take the screen lock');
+  const bootSrc=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+  assert(/const props=\['bag','journal','settings'\]/.test(bootSrc),'island hotspot list includes the bag in design points');
   assert(/sign\.setPosition\(S\.position\[0\], S\.position\[1\] - rise, S\.position\[2\]\)/.test(propsSrc),'sign stays on its sea post');
   assert(!/IslandRail|ShoreBreak|chess|BoardPanels/.test(propsSrc),'pull, waves and the board are untouched here');
+});
+ok('device points: the visible bag at 375×812 CSS points is the locked wide shot (~72 pt on device), and the hit covers that mesh',()=>{
+  // Boot's design resolution is window.innerWidth/innerHeight. A 2x phone's framebuffer is 750×1624;
+  // the layout and the projection both stay in 375×812 points. The old >120 figure was seaAnchor at the
+  // pulled lens on 402×874, which is not the picture on screen.
+  const w=375,h=812,ref=C.fromLookAt(M.RegionCameraData.islandPoseEntry());
+  const {load:loadRail}=require('../camera-frame-test/load_ts.cjs');
+  const Rail=loadRail();
+  const cfg=Rail.FirstsliceRoutes.createFirstsliceRoutes(Rail.FirstsliceFacts.FIRSTSLICE,Rail.CharacterReference.CHARACTER_REFERENCE);
+  const rail=Rail.IslandRail.createIslandRail(cfg);
+  const lay=L.propButtonLayout(w,h);
+  const contains=(hit,mesh)=>mesh.x-mesh.width/2>=hit.x-hit.width/2-0.5&&mesh.x+mesh.width/2<=hit.x+hit.width/2+0.5&&mesh.y-mesh.height/2>=hit.y-hit.height/2-0.5&&mesh.y+mesh.height/2<=hit.y+hit.height/2+0.5;
+  const meshOf=(pose,s)=>{
+    const model=P.buttons[s.role],[sx,sy]=L.uiToScreen(s.prop.x,s.prop.bottom,w,h);
+    const a=L.screenPropPose(pose,ref,w/h,sx,sy,s.prop.height,h,model);
+    const hx=model.widthM/2,hz=model.depthM/2,hy=model.heightM,pts=[];
+    for(const x of [-hx,hx])for(const y of [0,hy])for(const z of [-hz,hz]){
+      const v1=C.rotate(a.localRotation,[x,y,z]);
+      const v3=C.rotate(a.pivotRotation,[v1[0]*a.pivotScale[0],v1[1]*a.pivotScale[1],v1[2]*a.pivotScale[2]]);
+      pts.push([a.point[0]+v3[0],a.point[1]+v3[1],a.point[2]+v3[2]]);}
+    return L.projectRectUi(pose,w,h,pts);
+  };
+  rail.restore(1);const far=rail.pose();rail.restore(0);const near=rail.pose();
+  for(const s of lay.slots){
+    const a=meshOf(far,s),b=meshOf(near,s);
+    assert(a&&b,'mesh projects '+s.role);
+    assert(Math.abs(a.width-b.width)<0.5&&Math.abs(a.x-b.x)<0.5,'pull does not resize '+s.role);
+    assert(contains(s.hit,a),'hit covers the visible mesh '+s.role+' mesh '+JSON.stringify(a)+' hit '+JSON.stringify(s.hit));
+  }
+  const bag=lay.slots.find(s=>s.role==='bag'),visible=meshOf(far,bag);
+  assert(visible.width>68&&visible.width<80,'375×812 point bag is '+visible.width.toFixed(1)+' pt (device measured 72; not the 123 px sea-anchor balloon)');
+  const [sx,sy]=L.uiToScreen(bag.prop.x,bag.prop.bottom,w,h),model=P.buttons.bag;
+  const sea=L.seaAnchor(near,w/h,sx,sy,bag.prop.height,h,model.heightM);
+  const yaw=sea.yawDeg*Math.PI/180;
+  const left=C.projectPoint(near,w/h,[sea.point[0]-Math.cos(yaw)*model.widthM*sea.scale/2,sea.point[1],sea.point[2]+Math.sin(yaw)*model.widthM*sea.scale/2]);
+  const right=C.projectPoint(near,w/h,[sea.point[0]+Math.cos(yaw)*model.widthM*sea.scale/2,sea.point[1],sea.point[2]-Math.sin(yaw)*model.widthM*sea.scale/2]);
+  const balloon=Math.abs(right.x-left.x)/2*w;
+  assert(balloon>visible.width+20,'the unfixed sea anchor is wider than the picture that is actually on screen: '+balloon.toFixed(0)+' vs '+visible.width.toFixed(1));
 });
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');

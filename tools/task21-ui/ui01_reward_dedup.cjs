@@ -17,38 +17,36 @@ const diff=(a,b)=>Object.fromEntries(Object.keys({...a,...b}).map(k=>[k,(b[k]||0
   assert(chest0?.earned&&!chest0.opened,'mainline-04 chest earned, unopened');assert(region0.unlocked&&!region0.claimed,'tide region tool unlocked, unclaimed');
   shots.resultReady=await H.shot(page,'ui-01-a-result-claims-ready.png');
   check('first-win-result-shows-ready-chest-and-region-tool',{result:win.result,chest:chest0,region:region0,tools:tools(J0)});
-  // Chest: 6 same-frame taps → exactly one open, one popup.
-  const chestBtn=await rewardBurst('Claim-chest');const J1=await F.journey(page);const host1=await page.evaluate(()=>__worldIntegration.hostResult());
+  // One 全部领取 burst grants the chest and the region tool together, one 获得 panel.
+  const claimBtn=await rewardBurst('ClaimAll');const J1=await F.journey(page);const host1=await page.evaluate(()=>__worldIntegration.hostResult());
   const rewardPopups=(await H.board(page)).popups.filter(p=>p==='RewardPanel').length;
-  assert.equal(J1.chests.find(c=>c.level===3).opened,true);assert.equal(rewardPopups,1);const chestGain=diff(tools(J0),tools(J1));
+  assert.equal(J1.chests.find(c=>c.level===3).opened,true);assert.equal(J1.regionRewards[0].claimed,true);assert.equal(rewardPopups,1);const chestGain=diff(tools(J0),tools(J1));
+  assert.equal(chestGain.tideNet,1,'chest and region tool arrive in the same grant');
   const gainList=(await H.nodes(page,{popup:'RewardPanel',name:'GainList'})).pop()?.label;
   shots.chestReward=await H.shot(page,'ui-01-b-chest-reward-panel.png');
-  await F.burstTap(page,chestBtn.cx,chestBtn.cy,4);await page.waitForTimeout(600);assert.deepEqual(await F.journey(page),J1,'taps behind the reward popup are blocked');
-  await H.tapNode(page,{popup:'RewardPanel',name:'Accept'});await page.waitForFunction(()=>!__worldIntegration.board().popups.includes('RewardPanel'),{},{timeout:15000});await page.waitForTimeout(800);
-  assert.equal((await H.nodes(page,{popup:'ResultPanel',name:'Claim-chest'})).length,0,'chest claim button gone after claim');
-  assert((await H.nodes(page,{popup:'ResultPanel',text:'宝箱已打开'})).length,'claimed stamp text');
-  check('chest-six-same-frame-taps-open-once-single-popup-blocked-behind-popup',{hostReply:host1,chestGain,gainList,rewardPopups,afterAccept:'Claim-chest removed; 宝箱已打开 shown'});
-  // Region tool: burst, close with × (not 收下), panel reopen via hide/show.
-  const regionBtn=await rewardBurst('Claim-regionReward');const J2=await F.journey(page);const regionGain=diff(tools(J1),tools(J2));
-  assert.deepEqual(regionGain,{tideNet:1},'exactly one tide net');assert.equal(J2.regionRewards[0].claimed,true);
-  shots.regionReward=await H.shot(page,'ui-01-c-region-tool-reward-panel.png');
+  await F.burstTap(page,claimBtn.cx,claimBtn.cy,4);await page.waitForTimeout(600);assert.deepEqual(await F.journey(page),J1,'taps behind the reward popup are blocked');
   assert.equal((await H.nodes(page,{popup:'RewardPanel',name:'Close'})).length,0,'reward popup is not closable; 收下 is its only dismissal');
   await page.evaluate(()=>__worldIntegration.hide());await page.waitForTimeout(300);await page.evaluate(()=>__worldIntegration.show());await page.waitForTimeout(1000);
-  const duringHide=await F.boardState(page);assert(duringHide.popups.includes('RewardPanel'),'reward popup survives background/foreground');assert.deepEqual(await F.journey(page),J2);
+  const duringHide=await F.boardState(page);assert(duringHide.popups.includes('RewardPanel'),'reward popup survives background/foreground');assert.deepEqual(await F.journey(page),J1);
   await H.tapNode(page,{popup:'RewardPanel',name:'Accept'});await page.waitForFunction(()=>!__worldIntegration.board().popups.includes('RewardPanel'),{},{timeout:15000});await page.waitForTimeout(800);
-  await F.burstTap(page,regionBtn.cx,regionBtn.cy,6);await page.waitForTimeout(800);assert.deepEqual(await F.journey(page),J2,'tapping where the claim button was grants nothing');
+  assert.equal((await H.nodes(page,{popup:'ResultPanel',name:'ClaimAll'})).length,0,'claim-all button gone after both rewards');
+  assert((await H.nodes(page,{popup:'ResultPanel',text:'宝箱已打开'})).length,'claimed stamp text');
+  const J2=J1;
+  check('claim-all-six-same-frame-taps-open-once-single-popup-blocked-behind-popup',{hostReply:host1,chestGain,gainList,rewardPopups,afterAccept:'ClaimAll removed; 宝箱已打开 shown'});
+  shots.regionReward=await H.shot(page,'ui-01-c-region-tool-reward-panel.png');
+  await F.burstTap(page,claimBtn.cx,claimBtn.cy,6);await page.waitForTimeout(800);assert.deepEqual(await F.journey(page),J2,'tapping where the claim button was grants nothing');
   await page.evaluate(()=>__worldIntegration.hide());await page.waitForTimeout(300);await page.evaluate(()=>__worldIntegration.show());await page.waitForTimeout(1200);
   const afterShow=await F.boardState(page);assert.equal(afterShow.state,'result.saved');assert(afterShow.popups.includes('ResultPanel'));
   assert.equal((await H.nodes(page,{popup:'ResultPanel',name:'Claim-*'})).length,0,'no claim buttons after reopen');assert.deepEqual(await F.journey(page),J2);
   shots.reopened=await H.shot(page,'ui-01-d-result-reopened-claimed.png');
-  check('region-tool-burst-grants-one-popup-survives-hide-show-accept-reopen-no-claim-buttons',{regionGain,popupsDuringBackground:duringHide.popups,hostReply:await page.evaluate(()=>__worldIntegration.hostResult()),afterShow:{state:afterShow.state,popups:afterShow.popups}});
+  check('claim-all-popup-survives-hide-show-accept-reopen-no-claim-buttons',{chestGain,popupsDuringBackground:duringHide.popups,hostReply:await page.evaluate(()=>__worldIntegration.hostResult()),afterShow:{state:afterShow.state,popups:afterShow.popups}});
   const mainRowsBefore=await ledgerRows();
   // R5 tide memento: real result-page Next/claim buttons across r05-tide-01..04.
   await H.tapNode(page,{popup:'ResultPanel',name:'Home'});await H.waitState(page,'island');
   await F.openRegionViaJournal(page,'tide');const stages=[];
   for(let o=1;o<=4;o++){const id='r05-tide-0'+o;const won=await F.playR5Stage(page,id);stages.push({stageId:id,score:won.score,stars:won.stars,attemptId:won.attemptId,actions:won.witnessActions});if(o<4)await H.tapNode(page,{popup:'ResultPanel',name:'Next'});}
   const L0=await F.r5Ledger(page,root);assert.equal(L0.attempts,4);assert.deepEqual(L0.claimedRegions,[]);
-  const mementoBtn=await rewardBurst('Claim-claim',8);const L1=await F.r5Ledger(page,root);const hostM=await page.evaluate(()=>__worldIntegration.hostResult());
+  const mementoBtn=await rewardBurst('ClaimAll',8);const L1=await F.r5Ledger(page,root);const hostM=await page.evaluate(()=>__worldIntegration.hostResult());
   assert.deepEqual(L1.claimedRegions,['tide']);assert.equal(L1.attempts,4);assert.deepEqual(L1.records,L0.records);assert.equal(L1.revision,L0.revision+1,'exactly one journal write for the claim');
   assert.equal(hostM.ok,true);assert.equal(hostM.newlyGranted.length,1);
   shots.memento=await H.shot(page,'ui-01-e-tide-memento-reward-panel.png');

@@ -7,7 +7,7 @@ import {ART,BACKDROP_RGB,BAR,PINWHEEL,HINT,DESIGN_W,DESIGN_H,LoadingTimeline,cov
  *    without it (web preview, or first-screen failed) assetManager.loadRemote loads the same file and the cream mask
  *    (BACKDROP_RGB, the picture's mean colour) covers the wait instead of a dark plate;
  *  - 'LoadingDynamic' (progress fill, pinwheel, hint text) fades in over INTRO_FADE_S after the first frame;
- *  - startOutro(): picture (UIOpacity) and cream mask (Graphics redrawn with alpha) fade out together over OUTRO_FADE_S (ease-out)
+ *  - startOutro(): picture (UIOpacity) and cream mask (Graphics redrawn with alpha) fade out together over OUTRO_FADE_S (linear)
  *    once the room is ready, after one held opaque frame; tick() reports done.
  * Boot keeps its loadingMask / loadingBackdrop fields pointing at mask / root (T0 BootProbe reads them). */
 const G:any=globalThis as any;
@@ -20,12 +20,13 @@ export class StartupLoadingLayer {
  readonly mask:Node;readonly root:Node;readonly timeline=new LoadingTimeline();
  private dynamic:Node;private base:Sprite;private fill:Sprite;private pin:Node;private hintNode:Node;private hint:Label;
  private rootOpacity:UIOpacity;private dynOpacity:UIOpacity;private maskGfx:Graphics;private maskDrawn={a:-1,w:0,h:0};
- private size={w:1,h:1};private started=false;private retry=false;private disposed=false;
+ private size={w:4096,h:4096};private started=false;private retry=false;private disposed=false;
  private sources:{[k:string]:string}={composite:'pending',fill:'pending',pinwheel:'pending'};
  private firstScreen:any=null;
  constructor(parent:Node,private onRetry:()=>void){
   this.mask=uiNode('LoadingOpaqueUntilWorldReady',parent);this.maskGfx=this.mask.addComponent(Graphics);
-  this.root=uiNode('StartupLoadingLayer',parent);this.base=this.root.addComponent(Sprite);this.base.sizeMode=Sprite.SizeMode.CUSTOM;this.rootOpacity=this.root.addComponent(UIOpacity);
+  this.mask.getComponent(UITransform)!.setContentSize(4096,4096);this.drawMask(255);
+  this.root=uiNode('StartupLoadingLayer',parent);this.base=this.root.addComponent(Sprite);this.base.sizeMode=Sprite.SizeMode.CUSTOM;this.base.enabled=false;this.rootOpacity=this.root.addComponent(UIOpacity);
   this.dynamic=uiNode('LoadingDynamic',this.root);this.dynOpacity=this.dynamic.addComponent(UIOpacity);this.dynOpacity.opacity=0;
   const fillNode=uiNode('LoadingRibbonFill',this.dynamic);this.fill=fillNode.addComponent(Sprite);this.fill.sizeMode=Sprite.SizeMode.CUSTOM;
   this.pin=uiNode('LoadingPinwheel',this.dynamic);const ps=this.pin.addComponent(Sprite);ps.sizeMode=Sprite.SizeMode.CUSTOM;
@@ -38,11 +39,11 @@ export class StartupLoadingLayer {
  /** Prefer the decoded image the first screen already holds; else load the same file from the package root. */
  private adopt(key:'composite'|'fill'|'pinwheel',sprite:Sprite,ext:string){
   const fs=handoff();this.firstScreen=fs;const img=fs&&fs.images?fs.images[key]:null;
-  if(img){try{sprite.spriteFrame=frameOf(img);this.sources[key]='first-screen';this.syncFill();return;}catch(e){this.sources[key]='first-screen-failed';}}
+  if(img){try{sprite.spriteFrame=frameOf(img);if(sprite===this.base)this.base.enabled=true;this.sources[key]='first-screen';this.syncFill();return;}catch(e){this.sources[key]='first-screen-failed';}}
   const url=(ART as any)[key] as string;this.sources[key]=this.sources[key]==='pending'?'loadRemote':this.sources[key]+'>loadRemote';
   try{assetManager.loadRemote<ImageAsset>(url,{ext},(err,asset)=>{if(this.disposed||!isValid(sprite.node,true))return;
    if(err||!asset){this.sources[key]='failed';console.warn('[startup-loading] '+url+' unavailable',String(err));return;}
-   sprite.spriteFrame=frameOf(asset);this.sources[key]='loadRemote:ok';this.syncFill();});}catch(e){this.sources[key]='failed';}
+   sprite.spriteFrame=frameOf(asset);if(sprite===this.base)this.base.enabled=true;this.sources[key]='loadRemote:ok';this.syncFill();});}catch(e){this.sources[key]='failed';}
  }
  /** The engine's fillStart/fillRange setters run bar-filled updateUVs on a FILLED sprite, which reads spriteFrame.width without
   *  a null check: the ribbon only becomes FILLED (and only gets ranges) once its frame is set. Until then it draws nothing. */
@@ -71,6 +72,7 @@ export class StartupLoadingLayer {
   this.apply();return this.timeline.hidden;}
  private apply(){const t=this.timeline,c=coverTransform(this.size.w,this.size.h),head=ribbonHead(t.shown);
   this.rootOpacity.opacity=t.layerOpacity();this.drawMask(t.layerOpacity());this.dynOpacity.opacity=t.introOpacity();
+  if(!this.retry)this.hint.string=hintForStage(t.stage)+'  '+Math.round(t.shown*100)+'%';
   this.syncFill();const pp=toCentered(c,head.x,head.y);this.pin.setPosition(pp.x,pp.y,0);this.pin.angle=t.spin;}
  /** Graphics bakes fillColor into its vertex colours and the 2D batcher never multiplies them by UIOpacity, so the cream mask
   *  fades by being redrawn with the layer alpha (same curve as the picture above it). */

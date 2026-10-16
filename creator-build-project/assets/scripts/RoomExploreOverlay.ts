@@ -8,7 +8,7 @@ type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)
  * unlock lives in audio/AudioUnlock.ts (wx/canvas/cocos layers); these calls are the in-handler backup. */
 export class RoomExploreOverlay {
  private root:Node;private prompt:Label;private guide:Label;private pointer:number|null=null;private start={x:0,y:0};private last={x:0,y:0};private dragged=false;private blocked=false;private width=1;private height=1;private disposed=false;private rect={x:0,y:0,w:0,h:0};private handle={x:0,y:0,visible:false};
- private leave:()=>void;
+ private leave:()=>void;private idle=0;
  constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void){
   this.leave=()=>{AudioUnlock.gesture('door-tap','leave');leave();};
   this.root=new Node('RoomExploreSurface');this.root.layer=Layers.Enum.UI_2D;parent.addChild(this.root);this.root.addComponent(UITransform);this.root.active=false;
@@ -16,13 +16,13 @@ export class RoomExploreOverlay {
   this.root.on(Node.EventType.TOUCH_START,this.down,this);this.root.on(Node.EventType.TOUCH_MOVE,this.move,this);this.root.on(Node.EventType.TOUCH_END,this.up,this);this.root.on(Node.EventType.TOUCH_CANCEL,this.cancel,this);
  }
  private text(name:string,text:string,size:number,width:number){const n=new Node(name);n.layer=Layers.Enum.UI_2D;this.root.addChild(n);n.addComponent(UITransform).setContentSize(width,48);const l=n.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+5;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;l.enableOutline=true;l.outlineColor=new Color(33,45,45,170);l.outlineWidth=1;return l;}
- sync(width:number,height:number){if(this.disposed||!isValid(this.root,true))return;this.width=width;this.height=height;this.root.getComponent(UITransform)!.setContentSize(width,height);
+ sync(width:number,height:number,dt=0){if(this.disposed||!isValid(this.root,true))return;this.width=width;this.height=height;this.idle+=Math.max(0,Math.min(Number(dt)||0,.1));this.root.getComponent(UITransform)!.setContentSize(width,height);
   const c=this.commands(),v=c?.roomView(width/height),enabled=!!v?.enabled&&this.allowed();this.root.active=enabled;
   if(!enabled){this.cancel();return;}
   this.handle={x:v!.door.x*width,y:v!.door.y*height,visible:v!.door.visible};
   this.prompt.node.active=v!.door.visible;this.guide.node.active=!v!.door.visible;
   if(v!.door.visible){const w=Math.min(224,width-32),h=48;this.prompt.node.getComponent(UITransform)!.setContentSize(w,h);const x=Math.max(w/2+16,Math.min(width-w/2-16,this.handle.x)),y=Math.max(84,Math.min(height-100,this.handle.y+42));this.prompt.node.setPosition(x-width/2,y-height/2,0);this.rect={x:x-w/2,y:y-h/2,w,h};}
-  else {this.guide.string=v!.door.direction>0?'向左轻拖，看看门口  ›':'‹  向右轻拖，看看门口';this.guide.node.setPosition(0,-height/2+88,0);this.rect={x:0,y:0,w:0,h:0};}
+  else {const dir=v!.door.direction>0?-1:1,phase=this.idle%4,nudge=phase<0.35?Math.sin(phase/0.35*Math.PI)*8*dir:0;this.guide.string=v!.door.direction>0?'向左轻拖，看看门口  ›':'‹  向右轻拖，看看门口';this.guide.node.setPosition(nudge,-height/2+88,0);this.rect={x:0,y:0,w:0,h:0};}
  }
  private down(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchstart');if(!this.root.active||!this.allowed())return;const id=e.getID();if(id===null)return;if(this.pointer!==null||e.getAllTouches().length>1){this.blocked=true;return;}const p=e.getUILocation();this.pointer=id;this.start={x:p.x,y:p.y};this.last={...this.start};this.dragged=false;}
  private move(e:EventTouch){if(e.getID()!==this.pointer||this.blocked)return;if(!this.allowed()||!this.commands()?.roomView(this.width/this.height).enabled){this.cancel();return;}const p=e.getUILocation();if(Math.hypot(p.x-this.start.x,p.y-this.start.y)>8)this.dragged=true;if(this.dragged)this.commands()?.lookRoom((p.x-this.last.x)/this.width,(p.y-this.last.y)/this.height);this.last={x:p.x,y:p.y};}
