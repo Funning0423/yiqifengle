@@ -71,6 +71,6 @@ function index(geo,{ignore=IGNORE,cell=.3}={}){const grid=new Map(),key=(i,j,k)=
     return null;}
   return {clearance,occluded,triangles:count};
 }
-module.exports={decode,index,GLB,dracoDir};
+module.exports={decode,index,GLB,dracoDir,IGNORE};
 if(require.main===module)decode().then(g=>{if(!g){console.log('draco3d not found');process.exit(2);}const I=index(g);console.log(JSON.stringify({sha:g.sha.slice(0,16),decoder:g.decoder,meshes:Object.keys(g.meshes).length,indexed:I.triangles,
   homeClearance:I.clearance([-1.317,1.386,-2.111])}));});

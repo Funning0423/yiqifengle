@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
    *  frontalDeg: wind reaches 1 the first time the lens is within this many
    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
-  crane: { settleSeconds: 32,
+  crane: { settleSeconds: 29,
     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.25, cartesian: 1, cruiseRampIn: 0.3 } } },
+      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.12, cartesian: 1, cruiseRampIn: 0.3, nudge: { at: 4.8, width: 4.5, up: 0.35 } } } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on

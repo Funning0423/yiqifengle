@@ -30,7 +30,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
 }
 type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
 /** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
-type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number}>;
+type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number;nudge?:Readonly<{at:number;width:number;up:number;out?:number}>}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -134,6 +134,9 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
       if(b.cartesian){ // straight-line (Cartesian) offset blend follow -> island: shortest lens path, stays on her right because both ends do
         const bF=c0.b+(bf-c0.b)*wS,rF=c0.r+(cf.r-c0.r)*wS,ox=Math.sin(bF)*rF,oz=Math.cos(bF)*rF,ex=Math.sin(c3.b)*c3.r,ez2=Math.cos(c3.b)*c3.r;
         const cm=b.cartesian===true?1:Math.max(0,Math.min(1,+b.cartesian||0));p=[p[0]+(h[0]+ox+(ex-ox)*wb-p[0])*cm,yy,p[2]+(h[2]+oz+(ez2-oz)*wb-p[2])*cm];}
+      if(b.nudge&&b.nudge.width>0){ // local clearance bump: C2 bell (s5 up, s5 down) over [at-width/2, at+width/2], up and radially away from her
+        const u=(tau-(b.nudge.at-b.nudge.width/2))/b.nudge.width,bell=u<=0||u>=1?0:(u<.5?s5(2*u):s5(2-2*u));
+        if(bell>0){const dx=p[0]-h[0],dz=p[2]-h[2],dl=Math.hypot(dx,dz)||1,o=(b.nudge.out||0)*bell;p=[p[0]+dx/dl*o,p[1]+b.nudge.up*bell,p[2]+dz/dl*o];}}
       const lk:Vec=[h[0]+fx*b.look,h[1]+b.targetHeight,h[2]+fz*b.look];
       const m:Vec=[doorT0[0]+(lk[0]-doorT0[0])*w1,doorT0[1]+(lk[1]-doorT0[1])*w1,doorT0[2]+(lk[2]-doorT0[2])*w1];
       const it=island.target,tg:Vec=[m[0]+(it[0]-m[0])*w2,m[1]+(it[1]-m[1])*w2,m[2]+(it[2]-m[2])*w2];
