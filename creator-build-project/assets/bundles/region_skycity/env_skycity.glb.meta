@@ -1157,6 +1157,12 @@
   },
   "userData": {
     "tangents": 1,
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "encode": false,
+      "quantize": false
+    },
     "imageMetas": [
       {
         "name": "tex_sky_palette_256",
