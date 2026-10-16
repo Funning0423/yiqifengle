@@ -14,7 +14,7 @@
 // 海鸥事件（给场景特效bot 的可见海鸥，docs/audio-events.md）：每声海鸥先 'scheduled' 再 'start'（同一 id），
 //   方位 yawWorldDeg 由这里选定，声像每帧按当前镜头朝向重算（L/R 两个声源等功率声像）。夜里随机海鸥稀一些、轻一些。
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
-import { GameAudio, SfxName } from './GameAudio';
+import { qfAudioLog, GameAudio, SfxName } from './GameAudio';
 const { ccclass } = _decorator;
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
@@ -203,6 +203,7 @@ export class AmbienceAudio extends Component {
     const a = AmbienceAudio.inst; return a && a.alive ? a.request(dist, yawWorldDeg) : null;
   }
 
+  private lastGate = '';
   static ensure() {
     try {
       const a = GameAudio.ensure();
@@ -216,8 +217,8 @@ export class AmbienceAudio extends Component {
     this.src.playOnAwake = false; this.src.loop = true; this.src.volume = 0;
     resources.load(WAVES_PATH, AudioClip, (err, clip) => {
       if (!this.alive || !isValid(this.node, true)) return;
-      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); return; }
-      clip.addRef(); this.clip = clip; if (this.src) this.src.clip = clip;
+      if (err || !clip) { console.warn('[AmbienceAudio] waves load failed', err); qfAudioLog('waves-load-failed', { err: String(err) }); return; }
+      clip.addRef(); this.clip = clip; qfAudioLog('waves-loaded', {}); if (this.src) this.src.clip = clip;
     });
     // 声像用的 L/R 版本（缺了就退回 GameAudio.play 居中播放）
     for (let i = 0; i < GULLS.length; i++) {
@@ -426,12 +427,14 @@ export class AmbienceAudio extends Component {
     if (!allowed) this.vol = 0;
     // Slider scales the smoothed bed at once: 0 is silence, 1 is the design level above (duck included).
     const heard = this.vol * musicBed();
+    { const g = !audio ? 'no-gameaudio' : !canSound ? 'gameaudio:' + ((audio as any).ambienceGate?.() ?? '?') : !this.clip ? 'no-clip' : outdoor < 0 ? 'no-world' : 'ok';
+      if (g !== this.lastGate) { this.lastGate = g; qfAudioLog('waves-gate', { gate: g, outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } }
     if (!allowed || heard < 0.002) {
       try { src.volume = 0; } catch { /* ignore */ }
       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
     } else {
       src.volume = heard;
-      if (!src.playing) { try { src.play(); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
+      if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
     if (wind < E.exitOn) { this.exitActive = false; this.distantDone = []; }
@@ -481,3 +484,4 @@ export class AmbienceAudio extends Component {
 }
 
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
+GameAudio.ambienceMounters.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio

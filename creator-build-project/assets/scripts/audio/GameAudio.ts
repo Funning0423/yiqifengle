@@ -49,6 +49,8 @@
 //   d) “音乐真正开始”的时刻：GameAudio.onMusicStart(cb) / globalThis.__gameAudioMusic.onMusicStart(cb)，
 //      loopSource 第一次确认 playing 时发一次（每次 setMusic 一次；切后台回来的恢复记 first=false）。
 import { _decorator, Component, Node, AudioSource, AudioClip, resources, assetManager, director, game, Game, sys, isValid, input, Input } from 'cc';
+/** A1b: [QF_AUDIO] acceptance log, only with globalThis.__worldFlowLog (no cost otherwise). */
+export function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 const { ccclass } = _decorator;
 
 export type SfxName = 'sfx_match_normal' | 'sfx_combo_1' | 'sfx_combo_2' | 'sfx_combo_3'
@@ -186,6 +188,12 @@ export class GameAudio extends Component {
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   private musicError: string | null = null;
   private gestureSeen = false;
+  private audioProven = false; // A1b: an sfx actually started (exit track) — ambience may follow it
+  /** A1b: WindAudio/AmbienceAudio register their ensure() here (they import GameAudio, not the other way round). */
+  static ambienceMounters: Array<() => void> = [];
+  static ensureAmbience(state: string) { for (const f of GameAudio.ambienceMounters) { try { f(); } catch { } } qfAudioLog('ensure-ambience', { state, mounters: GameAudio.ambienceMounters.length, gate: GameAudio.instance?.ambienceGate() ?? 'no-gameaudio' }); }
+  /** Why ambience is (not) allowed right now — for [QF_AUDIO] logs. */
+  ambienceGate(): string { return !GameAudio.usable(this) ? 'unusable' : GameAudio.instance !== this ? 'not-instance' : this.muted ? 'muted' : this.reasons.size ? 'suspended:' + Array.from(this.reasons).join(',') : !(this.gestureSeen || this.audioProven) ? 'no-gesture' : 'ok'; }
   private loopRequested = false;
   private loopPendingSince: number | null = null;
   private loopNeedsReplacement = false;
@@ -961,7 +969,8 @@ export class GameAudio extends Component {
   /** World flow state feed (WorldIntegrationBoot, once per change). */
   onWorldState(state: string) {
     if (!GameAudio.usable(this)) return;
-    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { this.stopExitCine('restart'); this.loadExitCine(); return; }
+    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { GameAudio.ensureAmbience(state); this.stopExitCine('restart'); this.loadExitCine(); return; }
+    if (state === 'crossing-out' || EXIT_PRELOAD_STATES.indexOf(state) >= 0) GameAudio.ensureAmbience(state); // A1b: wind + waves mounted before the outdoor segment
     if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }
     if (state === 'island') return;   // 20 s track runs out on its own over the settle
     this.stopExitCine('left-exit');
@@ -1001,6 +1010,9 @@ export class GameAudio extends Component {
       source.play();
       if (late > 0.05) { try { source.currentTime = late; } catch { /* seek optional */ } }
       this.exitCineSource = source; this.exitCineMark('play', Math.max(0, late));
+      // A1b: the exit track starting proves the platform let audio play; the wind/sea beds (which replaced the baked-in
+      // wind and sea) must not stay gated on a UI-button gesture the outdoor segment may never have seen.
+      if (!this.gestureSeen) { this.audioProven = true; qfAudioLog('gesture-proven-by-exit-track', {}); }
     } catch (e) {
       if (source) this.retireSfx(source);
       console.warn('[GameAudio] exit track playback failed', e);
@@ -1045,7 +1057,7 @@ export class GameAudio extends Component {
 
   /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */
   canPlayAmbience(): boolean {
-    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && this.gestureSeen;
+    return GameAudio.usable(this) && GameAudio.instance === this && !this.muted && this.reasons.size === 0 && (this.gestureSeen || this.audioProven);
   }
 
   onButton() { this.play('sfx_ui_click', UI_TAP_VOLUME); }

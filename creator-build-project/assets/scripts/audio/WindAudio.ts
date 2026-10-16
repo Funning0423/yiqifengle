@@ -21,6 +21,7 @@
 import { _decorator, Component, AudioSource, AudioClip, resources, director, Director, isValid } from 'cc';
 import { GameAudio } from './GameAudio';
 import { AmbienceAudio } from './AmbienceAudio';
+import { qfAudioLog } from './GameAudio';
 const { ccclass } = _decorator;
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
@@ -100,8 +101,8 @@ export class WindAudio extends Component {
       this.clips[p] = null;
       resources.load(p, AudioClip, (err, clip) => {
         if (!this.alive || !isValid(this.node, true)) return;
-        if (err || !clip) { console.warn('[WindAudio] load failed', p, err); return; }
-        clip.addRef(); this.clips[p] = clip;
+        if (err || !clip) { console.warn('[WindAudio] load failed', p, err); qfAudioLog('wind-load-failed', { path: p, err: String(err) }); return; }
+        clip.addRef(); this.clips[p] = clip; qfAudioLog('wind-loaded', { path: p });
       });
     }
   }
@@ -229,13 +230,15 @@ export class WindAudio extends Component {
       if (!src) { src = this.newSource(true); if (which === 'soft') this.softSrc = src; else this.strongSrc = src; }
       if (src.clip !== clip) src.clip = clip;
       src.volume = vol;
-      if (!src.playing) src.play();
+      if (!src.playing) { src.play(); qfAudioLog('wind-play', { which, vol: +vol.toFixed(3), s: +this.s.toFixed(3) }); }
     } catch (e) { console.warn('[WindAudio] wind play failed', which, e); }
   }
 
+  private lastGate = '';
+  private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
   private pauseLoops() {
     for (const src of [this.softSrc, this.strongSrc]) {
-      if (src && src.playing) { try { src.pause(); } catch { /* ignore */ } }
+      if (src && src.playing) { try { src.pause(); qfAudioLog('wind-pause', {}); } catch { /* ignore */ } }
     }
   }
 
@@ -244,6 +247,7 @@ export class WindAudio extends Component {
     this.locate(dt);
     const g = this.gustValue(dt);
     const allowed = this.allowed();
+    this.gate(allowed ? 'ok' : !GameAudio.instance ? 'no-gameaudio' : !GameAudio.instance.canPlayAmbience() ? 'gameaudio:' + ((GameAudio.instance as any).ambienceGate?.() ?? '?') : !this.flow ? 'no-flow' : 'world-hidden');
     if (!allowed) {
       this.s = 0; this.sWind = 0; AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0); this.quietFor = IDLE_PAUSE_S;
       this.pauseLoops();
@@ -279,3 +283,6 @@ export class WindAudio extends Component {
 }
 
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
+// A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
+// launched, the once() above never fires and the outdoor segment was silent.
+GameAudio.ambienceMounters.push(() => WindAudio.ensure());

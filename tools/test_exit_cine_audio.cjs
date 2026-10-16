@@ -52,6 +52,18 @@ test('load failure is silent; __worldFlowLog gets timestamped events',()=>{const
  const ev=a.exitCineDiagnostics().log.map(e=>e.event);assert.equal(JSON.stringify(ev),JSON.stringify(['load-failed','segment-start']));assert(h.logs.some(l=>l.includes('exit-cine')&&l.includes('segment-start')));});
 test('「主页」 transition fade applies to the exit track (it is an owned sfx voice)',()=>{const h=harness(),a=h.a;h.setBundle();a.onWorldState('standing');h.bundleLoads[0].cb(null,h.clip());a.onWorldState('opening-door');a.onWorldState('crossing-out');a.fadeTransition(0,0);assert.equal(src_(a).volume,0);});
 test('Boot feeds world states to GameAudio.onWorldState',()=>{const b=fs.readFileSync('creator-build-project/assets/scripts/WorldIntegrationBoot.ts','utf8');assert(/trackTransitionHud\(state:string\)\{[^\n]*\n[^\n]*onWorldState\?\.\(state\)/.test(b));});
+test('A1b: standing + crossing-out mount the wind/sea beds; the exit track starting opens the ambience gate; [QF_AUDIO] logs',()=>{
+ const h=harness(),a=h.a,A=h.A;h.ctx.__worldFlowLog=true;const calls=[];A.ambienceMounters.length=0;A.ambienceMounters.push(()=>calls.push('wind'),()=>calls.push('waves'));
+ h.setBundle();assert.equal(a.canPlayAmbience(),false,'no gesture yet');a.onWorldState('standing');assert.deepEqual(calls,['wind','waves']);
+ h.bundleLoads[0].cb(null,h.clip());a.onWorldState('opening-door');a.onWorldState('crossing-out');
+ assert(calls.length>=4,'mounted again at crossing-out');assert(src_(a),'exit track playing');
+ assert.equal(a.canPlayAmbience(),true,'wind/sea may follow the exit track');assert.equal(a.ambienceGate(),'ok');
+ assert(h.logs.some(l=>l.includes('[QF_AUDIO]')&&l.includes('ensure-ambience')),'ensure logged');assert(h.logs.some(l=>l.includes('gesture-proven-by-exit-track')));
+ a.setMuted(true);assert.equal(a.canPlayAmbience(),false,'mute still wins');assert.equal(a.ambienceGate(),'muted');
+ const w=fs.readFileSync('creator-build-project/assets/scripts/audio/WindAudio.ts','utf8'),m=fs.readFileSync('creator-build-project/assets/scripts/audio/AmbienceAudio.ts','utf8');
+ assert(/GameAudio\.ambienceMounters\.push\(\(\) => WindAudio\.ensure\(\)\)/.test(w)&&/GameAudio\.ambienceMounters\.push\(\(\) => AmbienceAudio\.ensure\(\)\)/.test(m),'both beds register a mounter');
+ for(const e of ['wind-gate','wind-play','wind-loaded'])assert(w.includes("qfAudioLog('"+e+"'"),e);for(const e of ['waves-gate','waves-play','waves-loaded'])assert(m.includes("qfAudioLog('"+e+"'"),e);
+});
 test('asset: re-encoded mono mp3 in region_island subpackage, fixed Cocos meta, budget size',()=>{
  const p='creator-build-project/assets/bundles/region_island/audio_cine/sfx_exit_outbound.mp3',bytes=fs.readFileSync(p);
  // A1 (Voice Bot f57b8d2): 32 kHz 56k CBR mono, 140,660 B; budget 150 KB. Header must be MPEG-1 Layer III 32 kHz (not 22.05k).
