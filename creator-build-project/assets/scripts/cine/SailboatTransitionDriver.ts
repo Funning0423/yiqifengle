@@ -19,7 +19,7 @@ import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudL
 import type { SailboatCloudLayer } from './SailboatCloudLayer';
 import { cloudBankCovers } from './SailboatCloudLayout';
 import { prepareMeadowReveal, restoreSailboatMeadowNight, syncSailboatMeadowNight } from './SailboatMeadowWarmup';
-import { prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
+import { consumeSailboatMeadow, prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
   SAILBOAT_TIMING_RESOURCE, SAILBOAT_MAX_FRAME_DT, createSailboatPlayback, createSailboatStartGate, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
 } from './SailboatTransitionModel';
@@ -327,6 +327,7 @@ export class SailboatTransitionDriver extends Component {
   private cleanup() {
     if (this.closed) return;
     this.closed = true;
+    consumeSailboatMeadow();
     this.offCancel?.(); this.offCancel = null;
     input.off(Input.EventType.TOUCH_END, this.onTap, this);
     input.off(Input.EventType.MOUSE_UP, this.onTap, this);
