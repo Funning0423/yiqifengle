@@ -1,0 +1,87 @@
+{
+  "coordinates": "metres; right-handed glTF; Y up",
+  "character": "Baked in frozen BODY09 analysis coordinates; identity outer transform. Standing static reference, not seated.",
+  "stool": "Keep original internal GLB node transform, apply this outer matrix.",
+  "stoolOuterMatrixColumnMajor": [
+    1.2,
+    0.0,
+    8.537799650042482e-18,
+    0.0,
+    0.0,
+    1.2,
+    0.0,
+    0.0,
+    8.537799650042482e-18,
+    0.0,
+    1.2,
+    0.0,
+    -0.00044400000000041184,
+    0.000126,
+    0.1227978420148815,
+    1.0
+  ],
+  "stoolOuterMatrixRows": [
+    [
+      1.2,
+      0.0,
+      8.537799650042482e-18,
+      -0.00044400000000041184
+    ],
+    [
+      0.0,
+      1.2,
+      0.0,
+      0.000126
+    ],
+    [
+      8.537799650042482e-18,
+      0.0,
+      1.2,
+      0.1227978420148815
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "originalRuntimeOuterTransform": {
+    "position": [
+      0.32125496646724905,
+      0.000126,
+      -4.259117228155124
+    ],
+    "scale": [
+      1.2,
+      1.2,
+      1.2
+    ],
+    "yawRadians": -2.0,
+    "yawDegrees": -114.59155902616465,
+    "nodeYMustRemain": 0.000126
+  },
+  "analysisOrigin": [
+    0.4327299590357003,
+    0.0,
+    -4.207611566608304
+  ],
+  "analysisRotationRows": [
+    [
+      -0.4161468365471424,
+      0.0,
+      -0.9092974268256817
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.9092974268256817,
+      0.0,
+      -0.4161468365471424
+    ]
+  ],
+  "note": "This is the exact original static preview placement. Do not lower the chair another 0.0549 m. No seated pose or joint-contact acceptance is implied."
+}
