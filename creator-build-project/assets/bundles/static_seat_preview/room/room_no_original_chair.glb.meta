@@ -995,7 +995,7 @@
       "userData": {
         "gltfIndex": 0,
         "wrapMode": 2,
-        "sample": 30,
+        "sample": 24,
         "span": {
           "from": 0,
           "to": 12.041666984558105
@@ -1712,7 +1712,7 @@
       {
         "name": "idle_loop",
         "duration": 12.041666984558105,
-        "fps": 30,
+        "fps": 24,
         "splits": [
           {
             "name": "idle_loop",
