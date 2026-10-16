@@ -9,7 +9,7 @@
  * before the bank opens. One @ccclass in this file.
  */
 import { _decorator, Component, Node, Prefab, Vec3, resources, JsonAsset, assetManager, input, Input, game, Game, director, isValid } from 'cc';
-import { REGIONS, loadRegionPrefab, mountRegion } from '../region/RegionLoader';
+import { REGIONS, mountRegion } from '../region/RegionLoader';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
 import type { Pose } from '../world-r1/WorldFlowCore';
@@ -19,6 +19,7 @@ import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudL
 import type { SailboatCloudLayer } from './SailboatCloudLayer';
 import { cloudBankCovers } from './SailboatCloudLayout';
 import { prepareMeadowReveal } from './SailboatMeadowWarmup';
+import { prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
   SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
 } from './SailboatTransitionModel';
@@ -150,9 +151,11 @@ export class SailboatTransitionDriver extends Component {
   private maybePreload(view: SailboatView) { if (view.preload) this.requestMeadow(); }
   private requestMeadow() {
     if (this.meadowPrefab || this.meadowPending || this.meadowError || this.closed) return;
+    const ready = prefetchedSailboatMeadow();
+    if (ready) { this.meadowPrefab = ready; return; }
     this.meadowPending = true;
     this.meadowAttempts++;
-    loadRegionPrefab(REGIONS.meadow).then(prefab => {
+    prefetchSailboatMeadow().then(prefab => {
       this.meadowPending = false;
       if (this.closed) return;
       this.meadowPrefab = prefab;

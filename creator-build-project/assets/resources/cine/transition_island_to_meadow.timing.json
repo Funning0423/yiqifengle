@@ -66,10 +66,10 @@
   },
   "skipBeforeSceneSwap": "cloud/white fade covers; swap bundle under cover; hold cover until meadow bundle loaded",
   "cloudCover": {
-   "inStartFrame": 72,
+   "inStartFrame": 66,
    "fullFrom": 78,
    "fullTo": 84,
-   "outEndFrame": 90
+   "outEndFrame": 96
   },
   "sceneSwapFrame": 81,
   "preloadMeadowFromFrame": 0,

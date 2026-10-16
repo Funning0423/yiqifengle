@@ -10,6 +10,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { requiresMeadowScene } from '../world-r2/LevelRegion';
 import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
+import { prefetchSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
@@ -166,6 +167,8 @@ export class WorldFlowComponent extends Component {
    *  Returns an unsubscribe fn (idempotent). Safe before the flow exists (attached when it is created). */
   onWindStrength(listener:(strength:number)=>void):()=>void {this.windListeners.add(listener);return ()=>{this.windListeners.delete(listener);};}
   private forwardCameraEvent(e:CameraEvent){
+    // Outbound crane or island settle: start the meadow load now so the sailboat cover never waits on it.
+    if(e.kind!=='settled'||e.place==='island'){try{prefetchSailboatMeadow();}catch(error){console.warn('meadow prefetch failed',String(error));}}
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
     for(const fn of list){try{e.kind==='settled'?fn(e.place):fn({segment:e.segment,progress:e.progress,seconds:e.seconds});}catch(error){console.warn('camera hook listener failed',String(error));}}
   }

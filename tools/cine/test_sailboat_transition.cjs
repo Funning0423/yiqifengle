@@ -31,7 +31,7 @@ function pump(playback, seconds, input, step = 1 / timing.fps) {
 }
 function kinds(commands) { return commands.map(command => command.kind); }
 
-assert.equal(crypto.createHash('sha256').update(rawText).digest('hex'), '0fc8dbf89e0ba397bd61dc8ba925916fcd2d6b9bcf53790e8327d3b46121c7ad');
+assert.equal(crypto.createHash('sha256').update(rawText).digest('hex'), 'b443e5d1b32ab6177c019515d57737b06f9bc84e82517b169ebb4800ae5e2d21');
 assert.equal(timing.fps, raw.fps);
 assert.equal(timing.lastFrame, raw.lastFrame);
 assert.equal(timing.frameCount, raw.frameCount);
@@ -279,3 +279,48 @@ console.log('sailboat transition tests ok', JSON.stringify({
   skipFrom: timing.skipEnabledFromFrame, swap: timing.sceneSwapFrame,
   cloud: timing.cloud, cine: model.SAILBOAT_CINE_FILE,
 }));
+
+// r3 (运镜bot): procedural cloud texture, staggered dissolve, early meadow prefetch.
+{
+  const texPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatCloudTexture.ts');
+  const tex = new Function(stripTypeScriptTypes(fs.readFileSync(texPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { sailboatCloudPixels, puffDissolveAlpha, puffPlacement, cloudNightTint, SAILBOAT_CLOUD_TEX_SIZE };')();
+  const n = tex.SAILBOAT_CLOUD_TEX_SIZE;
+  const px = tex.sailboatCloudPixels(n, 11);
+  assert.equal(px.length, n * n * 4);
+  const at = (x, y) => (y * n + x) * 4;
+  assert.equal(px[at(n / 2, n / 2) + 3], 255, 'cloud core is opaque');
+  assert.equal(px[at(0, 0) + 3], 0, 'cloud corner is clear');
+  let edgeMin = 255, edgeMax = 0, lumMin = 255, lumMax = 0;
+  for (let a = 0; a < 64; a++) {
+    const t = a / 64 * Math.PI * 2, r = 0.72 * n / 2;
+    const i = at(Math.round(n / 2 + Math.cos(t) * r), Math.round(n / 2 + Math.sin(t) * r));
+    edgeMin = Math.min(edgeMin, px[i + 3]); edgeMax = Math.max(edgeMax, px[i + 3]);
+  }
+  for (let y = 40; y < 88; y++) for (let x = 40; x < 88; x++) { lumMin = Math.min(lumMin, px[at(x, y)]); lumMax = Math.max(lumMax, px[at(x, y)]); }
+  assert.ok(edgeMax - edgeMin > 60, 'edge is ragged (fBm), not a clean disc: ' + edgeMin + '..' + edgeMax);
+  assert.ok(lumMax - lumMin > 12, 'core has billow shading, not a flat plate');
+  for (const rank of [0, 0.3, 1]) {
+    assert.equal(tex.puffDissolveAlpha(1, rank), 1);
+    assert.equal(tex.puffDissolveAlpha(0, rank), 0);
+    let prev = 0;
+    for (let c = 0; c <= 1.0001; c += 0.01) { const v = tex.puffDissolveAlpha(Math.min(1, c), rank); assert.ok(v >= prev - 1e-9); prev = v; }
+  }
+  assert.ok(tex.puffDissolveAlpha(0.3, 0) > tex.puffDissolveAlpha(0.3, 1), 'billows lead, fill lags');
+  assert.deepEqual(tex.puffPlacement(0.4, 0.2, 1, 1), { x: 0.4, y: 0.2, scale: 1 }, 'a shut puff sits on its authored spot');
+  assert.ok(tex.puffPlacement(0.4, 0, 1, 0).x > 0.7, 'an arriving puff slides in from outside');
+  assert.deepEqual(tex.cloudNightTint([255, 255, 255], 0), [255, 255, 255]);
+  assert.ok(tex.cloudNightTint([255, 255, 255], 1)[0] < 120, 'night clouds are moonlit, not white');
+  for (const p of layout.SAILBOAT_CLOUD_PUFFS) assert.ok(p.length === 7 && p[6] >= 0 && p[6] <= 1, 'every puff has a dissolve rank');
+  const cloudSrc2 = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatCloudLayer.ts'), 'utf8');
+  assert.match(cloudSrc2, /USE_TEXTURE: true/);
+  assert.match(cloudSrc2, /puffDissolveAlpha/);
+  const pre = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatMeadowPrefetch.ts'), 'utf8');
+  assert.equal((pre.match(/@ccclass\(/g) || []).length, 0);
+  assert.match(fs.readFileSync(path.join(scriptRoot, 'cine/SailboatTransitionDriver.ts'), 'utf8'), /prefetchedSailboatMeadow\(\)/);
+  assert.match(fs.readFileSync(path.join(scriptRoot, 'world-r1/WorldFlowComponent.ts'), 'utf8'), /prefetchSailboatMeadow\(\)/);
+  // Cover ramps are >= 0.4 s each way (r2: 6-frame ramp read as a hard cut).
+  assert.ok((timing.cloud.fullFrom - timing.cloud.inStartFrame) / timing.fps >= 0.4 - 1e-9);
+  assert.ok((timing.cloud.outEndFrame - timing.cloud.fullTo) / timing.fps >= 0.4 - 1e-9);
+  assert.equal(timing.durationSec, 5.2);
+}
+console.log('sailboat r3 cloud texture/dissolve/prefetch: ok');
