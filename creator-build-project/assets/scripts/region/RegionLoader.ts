@@ -36,9 +36,11 @@ export async function loadRegionPrefab(def:RegionDef,progress?:(fraction:number)
     if(e)return fail(e);const p=list.find(x=>x.name===def.prefabName)||(list.length===1?list[0]:null);
     p?ok(p):fail(Error(`prefab ${def.prefabName} not found in ${def.bundle}: ${list.map(x=>x.name).join(',')}`));}));
 }
-/** Instantiates a loaded region prefab under parent and starts its ambient loops. */
-export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node):Node{
+/** Instantiates a loaded region prefab under parent and starts its ambient loops.
+ * inactive: the root is switched off before addChild, so nothing loads or draws until the caller activates it. */
+export function mountRegion(def:RegionDef,prefab:Prefab,parent:Node,inactive?:boolean):Node{
   const model=instantiate(prefab);
+  if(inactive)model.active=false;
   if(def.ambientClips?.length||def.ambientClipUuids?.length||def.gestureClips?.length){const a=model.addComponent(RegionAmbientAnimation);a.clipNames=def.ambientClips||[];a.clipUuids=def.ambientClipUuids||[];a.gestureNames=def.gestureClips||[];if(def.gestureClips?.length)model.addComponent(SkycityRobotInteract);}
   if(isValid(parent,true))parent.addChild(model);
   return model;

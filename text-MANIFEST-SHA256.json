@@ -1245,9 +1245,19 @@
     "sha256": "011d3314ab924976d02aa24166cefc565e61561a82e3cbb2e4c9fc52b45763fb"
   },
   {
+    "path": "creator-build-project/assets/scripts/cine/SailboatMeadowStager.ts",
+    "bytes": 5523,
+    "sha256": "59fc55845a16487c5259a9bb6fbed16a4fa66cb17d65d87630fc9fbc6560dafb"
+  },
+  {
+    "path": "creator-build-project/assets/scripts/cine/SailboatMeadowStager.ts.meta",
+    "bytes": 171,
+    "sha256": "f171e1c636365b8756bc3ef88fce79173c6cfe31d3e21f47abe3956fa8c1f824"
+  },
+  {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowWarmup.ts",
-    "bytes": 2480,
-    "sha256": "f23d01d55d676ddeabe22ac7ad52746574f3f42ccf184bacff309bf0f90c5e53"
+    "bytes": 2938,
+    "sha256": "54ec93bb84560ac1019d0eebfa8800c3229dc1d994724b1075b7f49469bb0981"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowWarmup.ts.meta",
@@ -1266,8 +1276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
-    "bytes": 17970,
-    "sha256": "2500780050496cf3171a72cadee45747bab0beb46a3915eadf9876f4b43de866"
+    "bytes": 20167,
+    "sha256": "180871775e2e9889fd5daddf17a3cde05ba2143d417198fddf318562a8733e90"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
@@ -1546,8 +1556,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts",
-    "bytes": 4007,
-    "sha256": "34271941d5facec3b926532ea89f93f8227def086a9df20bcf4b42229321bb68"
+    "bytes": 4171,
+    "sha256": "ee57bb768a9111cea77b1c0161daf5073ab7761fee171ea7a1977a90841d75e8"
   },
   {
     "path": "creator-build-project/assets/scripts/region/RegionLoader.ts.meta",

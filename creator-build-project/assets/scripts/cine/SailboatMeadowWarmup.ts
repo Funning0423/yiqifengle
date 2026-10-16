@@ -11,6 +11,18 @@ const KEY_LIGHT = 'SailboatMeadowKeyLight';
 let savedClear: { camera: Camera; r: number; g: number; b: number; a: number } | null = null;
 
 export function prepareMeadowReveal(model: Node, cameraNode: Node): string[] {
+  const changed = stageMeadowReveal(model, cameraNode);
+  // Night sky and the key light are set before the hidden warm frames, and before the cover opens.
+  syncSailboatMeadowNight(model, cameraNode);
+  return changed;
+}
+
+/**
+ * The part of prepareMeadowReveal that is safe on an inactive meadow before the cloud bank shuts:
+ * vertex-colour variants, cameras and clips off, key light added. It does not touch the world
+ * camera (applyMeadowNightSky sets its clear colour), so the caller syncs the night sky under cover.
+ */
+export function stageMeadowReveal(model: Node, cameraNode: Node): string[] {
   const changed = configureMeadowVertexColors(model);
   const cameras = model.getComponentsInChildren(Camera);
   for (let i = 0; i < cameras.length; i++) cameras[i].enabled = false;
@@ -26,8 +38,6 @@ export function prepareMeadowReveal(model: Node, cameraNode: Node): string[] {
   light.size = 30;
   light.luminance = light.luminance * 12;
   light.visibility = visibility;
-  // Night sky and the key light are set before the hidden warm frames, and before the cover opens.
-  syncSailboatMeadowNight(model, cameraNode);
   return changed;
 }
 
