@@ -30,7 +30,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
 }
 type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
 /** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
-type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number}>;
+type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean;cruiseRampIn?:number}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -126,9 +126,14 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     const unwrapNear=(a:number,ref:number)=>{while(a-ref>Math.PI)a-=2*Math.PI;while(a-ref<-Math.PI)a+=2*Math.PI;return a;};
     const bf=unwrapNear(cf.b,c0.b);let b3=unwrapNear(c3.b,bf);const rightB=Math.atan2(rx,rz);
     const passR=unwrapNear(rightB,bf);if(!(Math.min(bf,b3)<=passR&&passR<=Math.max(bf,b3)))b3+=b3<bf?2*Math.PI:-2*Math.PI;
-    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=s5((tau-b.riseAt)/(span-b.riseAt)),wb=s5((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
-      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=s5((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
-      const p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
+    const rr=b.cruiseRamp??0,eI=(x:number)=>x*x*x*x*(x*x-3*x+2.5),
+      ra0=b.cruiseRampIn??rr,tot=1-(ra0+rr)/2,ez=(u:number)=>{if(!(rr>0))return s5(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-rr?tot-rr*eI((1-x)/rr):ra0*.5+(x-ra0))/tot;}; // smooth-trapezoid speed profile (s5-shaped ramp-in ra0, ramp-out rr): peak = mean/tot
+    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(span-b.riseAt)),wb=ez((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
+      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ez((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
+      let p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
+      if(b.cartesian){ // straight-line (Cartesian) offset blend follow -> island: shortest lens path, stays on her right because both ends do
+        const bF=c0.b+(bf-c0.b)*wS,rF=c0.r+(cf.r-c0.r)*wS,ox=Math.sin(bF)*rF,oz=Math.cos(bF)*rF,ex=Math.sin(c3.b)*c3.r,ez2=Math.cos(c3.b)*c3.r;
+        p=[h[0]+ox+(ex-ox)*wb,yy,h[2]+oz+(ez2-oz)*wb];}
       const lk:Vec=[h[0]+fx*b.look,h[1]+b.targetHeight,h[2]+fz*b.look];
       const m:Vec=[doorT0[0]+(lk[0]-doorT0[0])*w1,doorT0[1]+(lk[1]-doorT0[1])*w1,doorT0[2]+(lk[2]-doorT0[2])*w1];
       const it=island.target,tg:Vec=[m[0]+(it[0]-m[0])*w2,m[1]+(it[1]-m[1])*w2,m[2]+(it[2]-m[2])*w2];

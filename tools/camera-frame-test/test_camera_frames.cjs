@@ -265,7 +265,9 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
     // Voice bot AmbienceAudio (int/v1 e439b62) triggers seagulls on RISING crossings of 0.4 and 0.7: exactly once each per trip.
     const rising=th=>{let n=0;for(let i=1;i<w.length;i++)if(w[i-1]<th&&w[i]>=th)n++;return n;};
     check('wind-rising-crossings',rising(.4)===1&&rising(.7)===1,{'0.4':rising(.4),'0.7':rising(.7),expectedEach:1});
-    check('wind-frontal',!!fr&&frontDeg(fr)<=25&&holdFront!==null&&holdFront<=40,{frontalDegAtPeak:fr?+frontDeg(fr).toFixed(1):null,limit:25,maxDegDuringHold:holdFront===null?null:+holdFront.toFixed(1),holdLimit:40});}
+    // exit shot (B5.3): from wind peak to island settle the lens must never be behind her face plane (angle to her facing < 90 deg); no frontal-angle limit
+    const tail=peak>=0?F.slice(peak,si?si.frame+1:F.length):[],tailMax=tail.length?Math.max(...tail.map(frontDeg)):null,last=F[si?si.frame:F.length-1];
+    check('wind-frontal',!!fr&&tailMax!==null&&tailMax<90,{rule:'camera never behind her face (front angle < 90) from wind peak to island settle',frontalDegAtPeak:fr?+frontDeg(fr).toFixed(1):null,maxFrontDegPeakToSettle:tailMax===null?null:+tailMax.toFixed(1),frontDegAtSettle:last?+frontDeg(last).toFixed(1):null,limit:90});}
   const timeline=run.states.map(s=>({t:+(s.frame*dt).toFixed(3),state:s.state}));
   // --- T2+ leave from a dragged room view (door-facing, RoomLook extreme): ONE continuous move, no cut, in frame after rejoin
   if(!args.includes('--no-drag')){const env2=S.create(envOpts),h=env2.cfg.cameraHome,yaw=Math.atan2(0-h.position[0],0-h.position[2]);
