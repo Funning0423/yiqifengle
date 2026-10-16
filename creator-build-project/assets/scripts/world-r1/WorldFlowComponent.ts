@@ -1,5 +1,5 @@
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
-import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Camera, Vec3, Vec4, isValid, MeshRenderer, Node, game, Game, sys, director, DirectionalLight, Color, gfx, geometry, RenderTexture } from 'cc';
 import { RoomLook } from './RoomLook';
 import { createIslandRail, IslandRail } from './IslandRail';
 import { RegionAmbientAnimation } from '../region/RegionAmbientAnimation';
@@ -20,6 +20,7 @@ import type { CameraPose, V3 } from './CameraPose';
 import { REGION_CAMERA, homePoseEntry, islandPoseEntry, characterPoseEntry } from './RegionCameraData';
 import { localNight, resolveDayNight, writeNightBlend, DAY_NIGHT_FADE_S, fadeWeight, type DayNightMode } from './DayNightContract';
 import { reducedMotion } from '../ui/UiPrefs';
+import { scenePixelsReady } from '../ui/StartupLoadingLayout';
 /** World x where the cabin annex starts (env_lighthouse_ext tower radius ~2.6). */
 export const CABIN_MIN_X=2.6;
 const {ccclass,property}=_decorator;
@@ -221,6 +222,10 @@ export class WorldFlowComponent extends Component {
   private returnTimer:any=null;
   private wxOff:[string,()=>void][]=[];
   private lastDiagnosticAt=0;
+  /** Offscreen copy of the world camera. Cream stays up until this texture is no longer the black clear. */
+  private scenePresented=false;
+  private probeCam:Camera|null=null;
+  private probeTex:RenderTexture|null=null;
   private releaseRearGlass:(()=>void)|null=null;
   private unlitBackdrops=new Map<MeshRenderer,UnlitBackdropBinding>();
   private islandAlphaReleases:(()=>void)[]=[];
@@ -261,7 +266,8 @@ export class WorldFlowComponent extends Component {
       enterLevel:(id:string)=>flow().enterLevel(id),exitLevel:()=>flow().exitLevel(),resume:()=>flow().resume(),
       enterSkycity:()=>flow().enterSkycity(),exitSkycity:()=>flow().exitSkycity(),
       cancelTransition:()=>{const settling=!!this.roomLookToken;this.cancelRoomLook();return settling?{ok:true}:flow().cancelTransition();},setMode:(m:Mode)=>{this.cancelRoomLook();return flow().setMode(m);},
-      dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true)});
+      dayNight:()=>this.dayNightSnapshot(),toggleDayNight:()=>this.toggleDayNight(),setDayNight:(mode:DayNightMode)=>this.setDayNight(mode,true),
+      debugPlace:(where:'home'|'island')=>flow().debugPlace(where),sceneFrameReady:()=>this.sceneFrameReady()});
   }
   private hitLighthouse(x:number,y:number):boolean {
     const s=this.flow?.snapshot();if(!s||s.state!=='island'||s.hidden||s.needsResume||!s.characterReady||this.disposed||this.safetyFailure||!this.worldCamera||!Number.isFinite(x)||!Number.isFinite(y))return false;
@@ -540,6 +546,43 @@ export class WorldFlowComponent extends Component {
     this.atmosphere?.setView(this.exteriorVisible,this.dayNightMode==='night',this.backdropVisible);
     this.shore?.setView(this.exteriorVisible,this.backdropVisible,this.dayNightMode==='night');
   }
+  /** Startup cover. False while the home frame is still the black clear, or night sky materials are not on yet. */
+  private sceneFrameReady():boolean {
+    if(this.scenePresented)return true;
+    if(this.disposed||!this.flow||!this.worldCamera)return false;
+    const snap=this.flow.snapshot();
+    if(snap.state==='loading'||snap.state==='idle'||snap.state==='disposed'||snap.state==='error')return false;
+    this.ensureProbe();
+    const night=this.dayNightMode==='night',k=this.blend;
+    const mats=night?(k>0.98&&this.backdropVisible):(k<0.02&&(this.interiorVisible||this.exteriorVisible));
+    if(!mats||!this.probeLit())return false;
+    this.scenePresented=true;this.releaseProbe();return true;
+  }
+  private ensureProbe():void {
+    if(this.probeCam||!this.worldCamera||!isValid(this.worldCamera.node,true))return;
+    try{
+      const n=new Node('SceneReadyProbe');this.worldCamera.node.addChild(n);n.setPosition(0,0,0);n.setRotationFromEuler(0,0,0);
+      const cam=n.addComponent(Camera);cam.enabled=false;cam.projection=this.worldCamera.projection;cam.fov=this.worldCamera.fov;cam.orthoHeight=this.worldCamera.orthoHeight;
+      cam.near=this.worldCamera.near;cam.far=this.worldCamera.far;cam.visibility=this.worldCamera.visibility;cam.priority=5;cam.usePostProcess=this.worldCamera.usePostProcess;
+      cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;cam.clearColor=new Color(0,0,0,255);
+      const tex=new RenderTexture();tex.reset({name:'SceneReadyProbe',width:32,height:32});cam.targetTexture=tex;cam.enabled=true;
+      this.probeCam=cam;this.probeTex=tex;
+    }catch(e){console.warn('[startup] scene probe unavailable',String(e));}
+  }
+  private probeLit():boolean {
+    const tex=this.probeTex,cam=this.probeCam,world=this.worldCamera;
+    if(!tex||!cam||!world)return false;
+    cam.fov=world.fov;cam.orthoHeight=world.orthoHeight;cam.visibility=world.visibility;cam.near=world.near;cam.far=world.far;
+    let pixels:Uint8Array|null=null;
+    try{pixels=tex.readPixels(0,0,32,32) as Uint8Array;}catch(e){void e;return false;}
+    return scenePixelsReady(pixels,this.dayNightMode==='night');
+  }
+  private releaseProbe():void {
+    if(this.probeCam&&isValid(this.probeCam.node,true))this.probeCam.node.destroy();
+    this.probeCam=null;
+    try{this.probeTex?.destroy();}catch(e){void e;}
+    this.probeTex=null;
+  }
   private dayNightSnapshot(){const view=resolveDayNight(this.dayNightMode,this.exteriorVisible);const k=Math.max(0,Math.min(1,this.blend));return {mode:this.dayNightMode,override:this.nightOverride,exteriorVisible:this.exteriorVisible,nightRenderersEnabled:view.nightRenderersEnabled,nightSkyBackdropsEnabled:k>0.02&&this.backdropVisible,nightRendererCount:this.nightRenderers.length,skyNightBlend:this.appliedBlend,uiBlend:k,lightScale:1+(0.35-1)*k};}
   private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';const target=mode==='night'?1:0;let snap=!this.blendReady;try{if(reducedMotion())snap=true;}catch(e){void e;}if(snap||target===this.blend){this.blend=this.blendFrom=this.blendTo=target;this.blendT=1;}else{this.blendFrom=this.blend;this.blendTo=target;this.blendT=0;}this.blendReady=true;this.applyDayNight();return this.dayNightSnapshot();}
   private toggleDayNight(){return this.setDayNight(this.dayNightMode==='night'?'day':'night',true);}
@@ -549,7 +592,7 @@ export class WorldFlowComponent extends Component {
     if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
     this.unbindWxLifecycle();
     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
-    if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
+    if(this.disposed)return;this.disposed=true;this.releaseProbe();this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
     if(this.mainLight?.isValid){this.mainLight.illuminance=this.lightHome;if(this.lightHomeColor)this.mainLight.color=this.lightHomeColor;}

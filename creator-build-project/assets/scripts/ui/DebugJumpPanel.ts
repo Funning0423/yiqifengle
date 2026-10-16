@@ -32,6 +32,16 @@ export function considerDebugChord(state: DebugChordState, now: number, fingers:
   state.chordAt = now;
   return false;
 }
+export type DomChordClock = { last: number };
+/** DOM/simulator touchstarts. Chrome device emulation delivers one touchstart per finger, with
+ *  touches.length 1, then 2, then 3. A 1- or 2-finger start must not arm, disarm, or start the 50 ms
+ *  dedupe, or the event that finally has three fingers is dropped. */
+export function debugDomTouch(state: DebugChordState, clock: DomChordClock, now: number, phase: 'start' | 'move' | 'end' | 'cancel', liveCount: number): boolean {
+  if (phase === 'start' && liveCount < 3) return false;
+  if (phase === 'start' && now - clock.last < 50) return false;
+  if (phase === 'start') clock.last = now;
+  return considerDebugChord(state, now, liveCount, phase);
+}
 export class DebugJumpPanel {
   private readonly root: Node;
   private readonly sheet: Node;
@@ -96,11 +106,12 @@ export class DebugJumpPanel {
     const win = typeof window !== 'undefined' ? window : null;
     if (doc) doc.addEventListener('keydown', this.onKey, true);
     if (win) win.addEventListener('keydown', this.onKey, true);
-    if (doc) {
-      doc.addEventListener('touchstart', this.onTouchStart, true);
-      doc.addEventListener('touchmove', this.onTouchMove, true);
-      doc.addEventListener('touchend', this.onTouchEnd, true);
-      doc.addEventListener('touchcancel', this.onTouchEnd, true);
+    for (const target of [doc, win]) {
+      if (!target) continue;
+      target.addEventListener('touchstart', this.onTouchStart, true);
+      target.addEventListener('touchmove', this.onTouchMove, true);
+      target.addEventListener('touchend', this.onTouchEnd, true);
+      target.addEventListener('touchcancel', this.onTouchEnd, true);
     }
     input.on(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.on(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
@@ -110,14 +121,14 @@ export class DebugJumpPanel {
   private unlisten() {
     const doc = typeof document !== 'undefined' ? document : null;
     const win = typeof window !== 'undefined' ? window : null;
-    if (doc) {
-      doc.removeEventListener('keydown', this.onKey, true);
-      doc.removeEventListener('touchstart', this.onTouchStart, true);
-      doc.removeEventListener('touchmove', this.onTouchMove, true);
-      doc.removeEventListener('touchend', this.onTouchEnd, true);
-      doc.removeEventListener('touchcancel', this.onTouchEnd, true);
+    for (const target of [doc, win]) {
+      if (!target) continue;
+      target.removeEventListener('keydown', this.onKey, true);
+      target.removeEventListener('touchstart', this.onTouchStart, true);
+      target.removeEventListener('touchmove', this.onTouchMove, true);
+      target.removeEventListener('touchend', this.onTouchEnd, true);
+      target.removeEventListener('touchcancel', this.onTouchEnd, true);
     }
-    if (win) win.removeEventListener('keydown', this.onKey, true);
     input.off(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.off(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
     input.off(Input.EventType.TOUCH_END, this.onCocosEnd, this);
@@ -126,10 +137,11 @@ export class DebugJumpPanel {
   private feed(fingers: number, phase: 'start' | 'move' | 'end' | 'cancel') {
     if (this.disposed) return;
     const now = Date.now();
-    // Document capture and the Cocos input both see one browser touch. A second start inside 50 ms is the same chord.
-    if (phase === 'start' && now - this.lastChordEvent < 50) return;
-    if (phase === 'start') this.lastChordEvent = now;
-    if (considerDebugChord(this.chord, now, fingers, phase)) this.toggle();
+    const clock: DomChordClock = { last: this.lastChordEvent };
+    // Document capture and the Cocos input both see one browser touch. debugDomTouch drops a second
+    // three-finger start inside 50 ms, and ignores the 1- and 2-finger starts Chrome emits on the way there.
+    if (debugDomTouch(this.chord, clock, now, phase, fingers)) this.toggle();
+    this.lastChordEvent = clock.last;
     if (fingers <= 0) this.fingers.length = 0;
   }
   private domCount(e: TouchEvent, ending: boolean) {

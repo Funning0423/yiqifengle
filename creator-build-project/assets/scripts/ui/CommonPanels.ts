@@ -57,7 +57,11 @@ export function openSettings(stack: PopupStack, opts: { onClose?: () => void; on
     face.getComponent(UITransform)!.setContentSize(136, 62);
   }
   const paintSeg = (mode: string) => { day.setKind(mode === 'day' ? 'primary' : 'secondary'); night.setKind(mode === 'night' ? 'primary' : 'secondary'); };
-  function pick(mode: string) { const now = dayNight(); if (!now) return; if (now.mode !== mode) { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } } const after = dayNight(); paintSeg(after ? after.mode : mode); }
+  function pick(mode: string) {
+    const now = dayNight(); if (!now || now.mode === mode) return;
+    // The sky cross-fade is 0.8 s. Close this panel first so it is gone before the mode changes.
+    p.close(() => { try { now.toggle(); } catch (e) { console.warn('[SETTINGS] day/night', String(e)); } });
+  }
   paintSeg(dn ? dn.mode : 'day'); if (!dn) { day.setEnabled(false); night.setEnabled(false); }
   iconRow(p, 'popup/icon_motion', '减少动态', rows[3]);
   p.toggle(230, rows[3], 56, reducedMotion(), on => setReducedMotion(on), 'ReducedMotion');

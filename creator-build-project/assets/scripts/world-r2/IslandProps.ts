@@ -1,7 +1,7 @@
 import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
-import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, buttonFadeSkip, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
 import { bindSeaSurface, unbindSeaSurface } from './SeaSurfaceFollow';
 import { onPropTap } from './IslandPropTaps';
 
@@ -30,7 +30,7 @@ export class IslandProps {
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
   private entrance = 1; private fade: { r: MeshRenderer; i: number; m: Material }[] = []; private signText: UIOpacity | null = null; private view = { width: 0, height: 0 };
   /** Bottom-bar meshes fade with the dock (same e). Temporary transparent copies only; the shared palette is never written. */
-  private buttonFade = 1; private buttonMats: { r: MeshRenderer; i: number; m: Material }[] = [];
+  private buttonFade = 1; private buttonMats: { r: MeshRenderer; i: number; m: Material; shared: Material | null }[] = [];
   private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
   /** R3: the sign's water nodes (contact shadow + ripples) are deactivated with the sign at entrance 0 (not just alpha 0). */
   private waterNodes: Node[] = [];
@@ -280,11 +280,12 @@ export class IslandProps {
    * deactivated), lamp SphereLight (disabled) and both additive glows (inactive at alpha 0). The night sea tint is NOT
    * part of the sign (it follows the night weight while the exterior is visible and is restored on dispose).
    */
-  /** Same entrance alpha as the dock labels. e <= 0 hides the pivots; 0 < e < 1 fades copies; e >= 1 restores the shared palette. */
+  /** Same entrance alpha as the dock labels. e <= 0 hides the pivots; 0 < e < 1 fades copies; e >= 1 restores the shared palette.
+   *  A last step within 0.004 of 1 must still restore: the temporary transparent instance is what the mesh keeps drawing. */
   setButtonFade(e: number) {
     if (!this.ready || this.disposed) return;
     e = Math.max(0, Math.min(1, Number.isFinite(e) ? e : 1));
-    if (Math.abs(e - this.buttonFade) < 0.004 && (e <= 0 || e >= 1 || this.buttonMats.length > 0)) return;
+    if (buttonFadeSkip(e, this.buttonFade, this.buttonMats.length)) return;
     this.buttonFade = e;
     if (e <= 0 || e >= 1) {
       this.endButtonFade();
@@ -309,9 +310,11 @@ export class IslandProps {
       for (const r of n.getComponentsInChildren(MeshRenderer)) {
         const count = Math.max(1, r.sharedMaterials.length);
         for (let i = 0; i < count; i++) {
-          const shared = r.sharedMaterials[i]; if (!shared || !shared.effectAsset) continue;
+          const read = r as MeshRenderer & { getSharedMaterial?: (index: number) => Material | null };
+          const shared = (typeof read.getSharedMaterial === 'function' ? read.getSharedMaterial(i) : null) || r.sharedMaterials[i];
+          if (!shared || !shared.effectAsset) continue;
           const tech = shared.effectAsset.techniques.findIndex(t => t.name === 'transparent'); if (tech < 0) continue;
-          try { const m = new Material(); m.copy(shared, { technique: tech }); r.setMaterial(m, i); this.buttonMats.push({ r, i, m }); }
+          try { const m = new Material(); m.copy(shared, { technique: tech }); r.setMaterial(m, i); this.buttonMats.push({ r, i, m, shared }); }
           catch (err) { console.warn('[T9_PROPS] button fade unavailable', String(err)); }
         }
       }
@@ -319,8 +322,19 @@ export class IslandProps {
   }
   private endButtonFade() {
     if (!this.buttonMats.length) return;
-    for (const f of this.buttonMats) {
-      if (isValid(f.r, true) && this.palette) f.r.setSharedMaterial(this.palette, f.i);
+    for (let k = 0; k < this.buttonMats.length; k++) {
+      const f = this.buttonMats[k];
+      if (isValid(f.r, true)) {
+        // setMaterial leaves a material instance. getRenderMaterial prefers that instance over the shared slot,
+        // so writing the shared palette alone keeps the transparent technique (black compass, missing star, flat bag).
+        const renderer = f.r as MeshRenderer & { setMaterialInstance?: (mat: Material | null, index: number) => void };
+        try {
+          if (typeof renderer.setMaterialInstance === 'function') renderer.setMaterialInstance(null, f.i);
+          else f.r.setMaterial(null as unknown as Material, f.i);
+        } catch (err) { void err; }
+        const shared = f.shared || this.palette;
+        if (shared) f.r.setSharedMaterial(shared, f.i);
+      }
       f.m.destroy();
     }
     this.buttonMats = [];

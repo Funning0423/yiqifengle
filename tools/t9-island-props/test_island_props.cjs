@@ -149,6 +149,10 @@ ok('island bottom bar: dock labels and 3D icons share one entrance alpha, and pr
   assert(applyAt>0&&syncAt>applyAt,'entrance pose is applied before the 3D props read the dock');
   assert(/setButtonFade\(e: number\)/.test(props)&&/this\.placeButtons\(o\);\n    if \(typeof o\.buttonFade === 'number'\) this\.setButtonFade\(o\.buttonFade\);/.test(props));
   assert(!/palette!?\s*\.setProperty/.test(props),'button fade does not write the shared palette');
+  assert(L.buttonFadeSkip(1,0.9997,3)===false,'a last smoothstep within 0.004 of 1 still restores the shared materials');
+  assert(L.buttonFadeSkip(1,1,0)===true&&L.buttonFadeSkip(0.5,0.501,2)===true);
+  assert(L.buttonFadeSkip(0,0.4,2)===false,'cancel (fade 1 or 0) restores while copies are live');
+  assert(/setMaterialInstance\(null/.test(props)&&/f\.shared \|\| this\.palette/.test(props),'the transparent instance is cleared and the saved shared material is put back');
 });
 ok('R3 (Mac r3: board floating near the shore on the walk home, mirrored text): REAL Boot gate - the sign fades OUT (mirror of the entrance: 0.25 s, cubic, sinking 24 px) when the return walk starts, stays 0 on the whole return (walking-home incl. crane, crossing-in, door, seat, home) and the next leave (crossing-out), then buttons + entrance on arrival; a cancelled return fades back IN from where it was (no pop)',()=>{
   const B=BootSign;assert(B,'previous check loaded the Boot gate');const calls=[];
@@ -297,8 +301,7 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
         assert(Math.min(...got.map(v=>v[1]))>=P.seaY+0.015-1e-3,'pull stays above the sea '+s.role+' u='+u);
         let worst=0;const base=settled[s.role];
         for(let i=0;i<8;i++){const A=px(pose,aspect,w,h,got[i]);worst=Math.max(worst,Math.hypot(A[0]-base[i][0],A[1]-base[i][1]));}
-        assert(worst<0.5,'screen size held u='+u+' '+s.role+' drift '+worst.toFixed(3)+'px (old width '+oldW.toFixed(0)+')');
-        if(u===0&&s.role==='bag'&&w<h)assert(oldW>120,'the unfixed prop really does balloon, width '+oldW.toFixed(0));
+        assert(worst<0.5,'screen size held u='+u+' '+s.role+' drift '+worst.toFixed(3)+'px (unfixed sea-anchor width '+oldW.toFixed(0)+')');
       }
     }
     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
@@ -317,13 +320,55 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
     const r=L.signpostRectUi(close,w,h);assert(r&&inside(r,w,h,2),'close sign fully inside '+w+'x'+h+' '+(r&&JSON.stringify(r)));
     assert(!overlap(r,L.projectRectUi(close,w,h,doorPts)),'sign rect overlaps the door '+w+'x'+h);
     assert(!overlap(r,L.projectRectUi(close,w,h,lightPts)),'sign rect overlaps the lighthouse '+w+'x'+h);
+    const settings=L.propButtonLayout(w,h).slots.find(s=>s.role==='settings').hit;
+    assert(!overlap(r,settings),'zoomed sign overlaps the settings button '+w+'x'+h+' sign '+JSON.stringify(r)+' hit '+JSON.stringify(settings));
   }
   const overlay=fs.readFileSync(path.join(SRC,'world-r2/IslandJourneyOverlay.ts'),'utf8');
   const propsSrc=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
   assert(overlay.includes('ISLAND_PROPS.buttons[role].label')&&/l\.fontSize=s\.tag\.fontSize/.test(overlay),'tags use the screen slot, not the lens');
   assert(!/screenPropPose|seaAnchor|fovVerticalDeg/.test(overlay),'labels are not parented to the world camera');
   assert(/screenPropPose\(pose, this\.buttonRef/.test(propsSrc),'buttons take the screen lock');
+  const bootSrc=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');
+  assert(/const props=\['bag','journal','settings'\]/.test(bootSrc),'island hotspot list includes the bag in design points');
   assert(/sign\.setPosition\(S\.position\[0\], S\.position\[1\] - rise, S\.position\[2\]\)/.test(propsSrc),'sign stays on its sea post');
   assert(!/IslandRail|ShoreBreak|chess|BoardPanels/.test(propsSrc),'pull, waves and the board are untouched here');
+});
+ok('device points: the visible bag at 375×812 CSS points is the locked wide shot (~72 pt on device), and the hit covers that mesh',()=>{
+  // Boot's design resolution is window.innerWidth/innerHeight. A 2x phone's framebuffer is 750×1624;
+  // the layout and the projection both stay in 375×812 points. The old >120 figure was seaAnchor at the
+  // pulled lens on 402×874, which is not the picture on screen.
+  const w=375,h=812,ref=C.fromLookAt(M.RegionCameraData.islandPoseEntry());
+  const {load:loadRail}=require('../camera-frame-test/load_ts.cjs');
+  const Rail=loadRail();
+  const cfg=Rail.FirstsliceRoutes.createFirstsliceRoutes(Rail.FirstsliceFacts.FIRSTSLICE,Rail.CharacterReference.CHARACTER_REFERENCE);
+  const rail=Rail.IslandRail.createIslandRail(cfg);
+  const lay=L.propButtonLayout(w,h);
+  const contains=(hit,mesh)=>mesh.x-mesh.width/2>=hit.x-hit.width/2-0.5&&mesh.x+mesh.width/2<=hit.x+hit.width/2+0.5&&mesh.y-mesh.height/2>=hit.y-hit.height/2-0.5&&mesh.y+mesh.height/2<=hit.y+hit.height/2+0.5;
+  const meshOf=(pose,s)=>{
+    const model=P.buttons[s.role],[sx,sy]=L.uiToScreen(s.prop.x,s.prop.bottom,w,h);
+    const a=L.screenPropPose(pose,ref,w/h,sx,sy,s.prop.height,h,model);
+    const hx=model.widthM/2,hz=model.depthM/2,hy=model.heightM,pts=[];
+    for(const x of [-hx,hx])for(const y of [0,hy])for(const z of [-hz,hz]){
+      const v1=C.rotate(a.localRotation,[x,y,z]);
+      const v3=C.rotate(a.pivotRotation,[v1[0]*a.pivotScale[0],v1[1]*a.pivotScale[1],v1[2]*a.pivotScale[2]]);
+      pts.push([a.point[0]+v3[0],a.point[1]+v3[1],a.point[2]+v3[2]]);}
+    return L.projectRectUi(pose,w,h,pts);
+  };
+  rail.restore(1);const far=rail.pose();rail.restore(0);const near=rail.pose();
+  for(const s of lay.slots){
+    const a=meshOf(far,s),b=meshOf(near,s);
+    assert(a&&b,'mesh projects '+s.role);
+    assert(Math.abs(a.width-b.width)<0.5&&Math.abs(a.x-b.x)<0.5,'pull does not resize '+s.role);
+    assert(contains(s.hit,a),'hit covers the visible mesh '+s.role+' mesh '+JSON.stringify(a)+' hit '+JSON.stringify(s.hit));
+  }
+  const bag=lay.slots.find(s=>s.role==='bag'),visible=meshOf(far,bag);
+  assert(visible.width>68&&visible.width<80,'375×812 point bag is '+visible.width.toFixed(1)+' pt (device measured 72; not the 123 px sea-anchor balloon)');
+  const [sx,sy]=L.uiToScreen(bag.prop.x,bag.prop.bottom,w,h),model=P.buttons.bag;
+  const sea=L.seaAnchor(near,w/h,sx,sy,bag.prop.height,h,model.heightM);
+  const yaw=sea.yawDeg*Math.PI/180;
+  const left=C.projectPoint(near,w/h,[sea.point[0]-Math.cos(yaw)*model.widthM*sea.scale/2,sea.point[1],sea.point[2]+Math.sin(yaw)*model.widthM*sea.scale/2]);
+  const right=C.projectPoint(near,w/h,[sea.point[0]+Math.cos(yaw)*model.widthM*sea.scale/2,sea.point[1],sea.point[2]-Math.sin(yaw)*model.widthM*sea.scale/2]);
+  const balloon=Math.abs(right.x-left.x)/2*w;
+  assert(balloon>visible.width+20,'the unfixed sea anchor is wider than the picture that is actually on screen: '+balloon.toFixed(0)+' vs '+visible.width.toFixed(1));
 });
 console.log('ALL PASS',checks.length,'checks (tsc '+M.tsVersion+')');

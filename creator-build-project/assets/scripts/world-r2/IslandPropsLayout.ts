@@ -22,7 +22,8 @@
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
  */
-import { projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { fromLookAt, projectPoint, rotate, type CameraPose } from '../world-r1/CameraPose';
+import { islandPoseEntry } from '../world-r1/RegionCameraData';
 export type V3 = [number, number, number];
 export type PropRole = 'bag' | 'journal' | 'settings';
 export type WorldProp = Readonly<{ prefab: string; position: V3; yawDeg: number; scale: number }>;
@@ -102,26 +103,61 @@ export type PropButtonSlot = { role: PropRole; prop: { x: number; bottom: number
 export function propButtonLayout(width: number, height: number): { portrait: boolean; slots: PropButtonSlot[] } {
   if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) throw Error('Invalid prop frame');
   const portrait = width < height, row = portrait || width < 568;
-  // 8% of the screen height on a phone row: at 402×874 the pulled-in satchel projects wider than 120 px.
+  // 8% of the screen height on a phone row. Design size is CSS points (Boot sets the resolution to
+  // innerWidth/innerHeight). The mesh keeps the wide shot, so a 375×812 point phone shows a bag near 75 pt,
+  // not the unfixed sea-anchor balloon. The hit grows to that projection.
   const propH = Math.round(Math.max(48, Math.min(84, row ? height * 0.08 : height * 0.12)));
   const font = Math.max(12, Math.min(15, Math.round(propH * 0.22)));
   const tagH = font + 12;
+  const gapL = Math.max(width * 0.105, 66), lastL = width < 700 ? width / 2 - 36 : width * 0.41;
+  const centres = PROP_ROLES.map((_, i) => row ? (i - 1) * Math.min(width * 0.3, 140) : lastL - (2 - i) * gapL);
   const slots = PROP_ROLES.map((role, i) => {
     // landscape (mockup-landscape.png): bottom-right row at x = 0.70 / 0.805 / 0.91 W, kept >= 66 px apart and on screen
-    const gapL = Math.max(width * 0.105, 66), lastL = width < 700 ? width / 2 - 36 : width * 0.41;
-    const cx = row ? (i - 1) * Math.min(width * 0.3, 140) : lastL - (2 - i) * gapL;
+    const cx = centres[i];
     // portrait: prop centre at 0.885 H from the top, but keep the tag above a 30 px bottom inset (home indicator)
     const centreFromTop = row ? Math.min(height * 0.885, height - 30 - tagH - 8 - propH / 2) : height * 0.86 - propH / 2;
     const cy = height / 2 - centreFromTop, bottom = cy - propH / 2;
     const tagW = Math.round(font * (ISLAND_PROPS.buttons[role].label.length + 1.5));
     const tagY = bottom - 6 - tagH / 2;
-    const top = cy + propH / 2, low = tagY - tagH / 2, w = Math.max(propH * 1.15, tagW + 8, 64);
+    const low = tagY - tagH / 2, w = Math.max(propH * 1.15, tagW + 8, 64);
+    const mesh = projectedButton(role, cx, bottom, propH, width, height);
+    let left = cx - w / 2, right = cx + w / 2, top = cy + propH / 2;
+    if (mesh) {
+      left = Math.min(left, mesh.x - mesh.width / 2 - 1);
+      right = Math.max(right, mesh.x + mesh.width / 2 + 1);
+      top = Math.max(top, mesh.y + mesh.height / 2 + 1);
+    }
+    const inset = 2, minX = -width / 2 + inset, maxX = width / 2 - inset, maxY = height / 2 - inset;
+    const leftLimit = i > 0 ? (centres[i - 1] + cx) / 2 + 1 : minX;
+    const rightLimit = i < centres.length - 1 ? (cx + centres[i + 1]) / 2 - 1 : maxX;
+    left = Math.max(minX, leftLimit, left); right = Math.min(maxX, rightLimit, right); top = Math.min(maxY, top);
     return { role, prop: { x: cx, bottom, height: propH }, tag: { x: cx, y: tagY, width: tagW, height: tagH, fontSize: font },
-      hit: { x: cx, y: (top + low) / 2, width: Math.round(w), height: Math.round(top - low + 4) } };
+      hit: { x: (left + right) / 2, y: (top + low) / 2, width: Math.round(right - left), height: Math.round(top - low + 4) } };
   });
   return { portrait, slots };
 }
 
+/** A finished fade (0 or 1) must restore the shared materials while temporary copies are still bound.
+ *  A mid-fade repeat closer than 0.004 keeps those copies. */
+export function buttonFadeSkip(e: number, prev: number, liveCopies: number): boolean {
+  if (e <= 0 || e >= 1) return liveCopies === 0 && e === prev;
+  return liveCopies > 0 && Math.abs(e - prev) < 0.004;
+}
+let widePose: CameraPose | null = null;
+function wideShot(): CameraPose { if (!widePose) widePose = fromLookAt(islandPoseEntry()); return widePose; }
+/** Projected AABB of one bottom-row mesh at the settled wide shot. The pull keeps this picture. */
+function projectedButton(role: PropRole, x: number, bottom: number, pixels: number, width: number, height: number): Rect | null {
+  const model = ISLAND_PROPS.buttons[role], pose = wideShot();
+  const [sx, sy] = uiToScreen(x, bottom, width, height);
+  const a = screenPropPose(pose, pose, width / height, sx, sy, pixels, height, model);
+  const hx = model.widthM / 2, hz = model.depthM / 2, hy = model.heightM, pts: V3[] = [];
+  for (let ix = 0; ix < 2; ix++) for (let iy = 0; iy < 2; iy++) for (let iz = 0; iz < 2; iz++) {
+    const v1 = rotate(a.localRotation, [ix ? hx : -hx, iy ? hy : 0, iz ? hz : -hz]);
+    const v3 = rotate(a.pivotRotation, [v1[0] * a.pivotScale[0], v1[1] * a.pivotScale[1], v1[2] * a.pivotScale[2]]);
+    pts.push([a.point[0] + v3[0], a.point[1] + v3[1], a.point[2] + v3[2]]);
+  }
+  return projectRectUi(pose, width, height, pts);
+}
 /** UI (centre origin, +y up) -> normalised screen (0..1 from the top-left). */
 export function uiToScreen(x: number, y: number, width: number, height: number): [number, number] { return [0.5 + x / width, 0.5 - y / height]; }
 

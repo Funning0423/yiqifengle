@@ -32,6 +32,25 @@ export const INTRO_FADE_S = 0.25;
 /** Whole layer (picture + cream mask) fades out once the room is ready. Linear, not ease-out: an ease-out of 0.4 s
  * is already near invisible by 0.25 s. 0.5 s stays measurable at >= 0.4 s. One held opaque frame, then the fade. */
 export const OUTRO_FADE_S = 0.5;
+/** Cream may wait this long for a real scene frame. A missing readback must not trap the startup layer. */
+export const COVER_HOLD_MAX_S = 8;
+/** True when an offscreen probe of the world camera has drawn something other than its black clear.
+ *  Night accepts the sky's blue (authored near 0.46, about 48 at 8-bit) or any clearly lit pixel. */
+export function scenePixelsReady(pixels: ArrayLike<number> | null | undefined, night: boolean): boolean {
+  if (!pixels || pixels.length < 4) return false;
+  const n = pixels.length - (pixels.length % 4);
+  for (let i = 0; i < n; i += 4) {
+    const r = pixels[i] || 0, g = pixels[i + 1] || 0, b = pixels[i + 2] || 0;
+    if (night) { if (b > 22 || r > 40 || g > 40) return true; }
+    else if (r > 12 || g > 12 || b > 12) return true;
+  }
+  return false;
+}
+/** No probe (unit stubs) fades as soon as the room is ready. A live probe holds the cream until that frame exists. */
+export function startupCover(sceneFrameReady: (() => boolean) | null | undefined): 'fade' | 'hold' {
+  if (typeof sceneFrameReady !== 'function') return 'fade';
+  try { return sceneFrameReady() ? 'fade' : 'hold'; } catch (err) { void err; return 'hold'; }
+}
 /** Displayed progress eases toward the REAL stage target (no timer-driven creep). */
 export const PROGRESS_TAU_S = 0.18;
 

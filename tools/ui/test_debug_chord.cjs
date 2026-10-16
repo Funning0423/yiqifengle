@@ -8,8 +8,8 @@ const start = src.indexOf('const CHORD_MIN_MS');
 const end = src.indexOf('export class DebugJumpPanel');
 assert(start > 0 && end > start, 'chord helpers must sit above the panel class');
 const js = ts.transpileModule(src.slice(start, end).replace(/export /g, ''), { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.None } }).outputText;
-const api = new Function(js + '\nreturn { isDebugShortcut, considerDebugChord };')();
-const { isDebugShortcut, considerDebugChord } = api;
+const api = new Function(js + '\nreturn { isDebugShortcut, considerDebugChord, debugDomTouch };')();
+const { isDebugShortcut, considerDebugChord, debugDomTouch } = api;
 const chord = () => ({ armed: false, chordAt: 0 });
 const tap = (s, t, phase, fingers) => considerDebugChord(s, t, fingers, phase);
 
@@ -46,4 +46,30 @@ assert(/win\.addEventListener\('keydown'/.test(src) && /doc\.addEventListener\('
 assert(!/if \(sys\.isBrowser\) \{[\s\S]{0,240}return;/.test(src), 'browser touch handling must not skip the Cocos listener');
 assert(/Date\.now\(\) - this\.lastDom < 50/.test(src), 'one gesture is not counted twice');
 assert(/lastShortcut < 30/.test(src), 'window and document do not double-toggle the shortcut');
-console.log(JSON.stringify({ status: 'PASS', checks: ['chord pair', 'held retap', 'late pair', 'cancel', 'shortcut', 'listeners'] }));
+assert(/debugDomTouch\(this\.chord/.test(src), 'the panel feeds DOM touches through the same helper');
+assert(/win\.addEventListener\('touchstart'/.test(src) || /target\.addEventListener\('touchstart'/.test(src), 'touchstart is observed on window as well as document');
+
+// Chrome device emulation: one touchstart per finger, live list grows 1 → 2 → 3, often in the same millisecond.
+function chromeChord(state, clock, t) {
+  debugDomTouch(state, clock, t, 'start', 1);
+  debugDomTouch(state, clock, t, 'start', 2);
+  return debugDomTouch(state, clock, t, 'start', 3);
+}
+const dom = chord(), clock = { last: 0 };
+assert.equal(chromeChord(dom, clock, 8000), false, 'the third finger of the first chord is not dropped by the 50 ms dedupe');
+assert.equal(dom.armed, true, 'three live touches arm the chord');
+debugDomTouch(dom, clock, 8100, 'end', 2);
+debugDomTouch(dom, clock, 8100, 'end', 1);
+debugDomTouch(dom, clock, 8100, 'end', 0);
+assert.equal(chromeChord(dom, clock, 8300), true, 'lift, then a second three-finger chord inside 700 ms toggles');
+
+const already = chord(), clock2 = { last: 0 };
+assert.equal(debugDomTouch(already, clock2, 9000, 'start', 3), false, 'one event whose touches.length is already 3 does not toggle');
+debugDomTouch(already, clock2, 9100, 'end', 0);
+assert.equal(debugDomTouch(already, clock2, 9300, 'start', 3), true, 'a second already-complete chord toggles');
+
+const stray = chord(), clock3 = { last: 0 };
+debugDomTouch(stray, clock3, 10000, 'start', 3);
+assert.equal(debugDomTouch(stray, clock3, 10010, 'start', 1), false);
+assert.equal(stray.armed, true, 'a 1-finger start does not disarm an in-progress chord');
+console.log(JSON.stringify({ status: 'PASS', checks: ['chord pair', 'held retap', 'late pair', 'cancel', 'shortcut', 'listeners', 'chrome touch sequence'] }));

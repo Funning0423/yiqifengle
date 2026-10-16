@@ -192,12 +192,9 @@ export class WorldNativeComposition extends Component {
     return again.ok?this.enterSelectedLevel():again;
   }
   private async debugReach(where:'home'|'island'):Promise<Result>{
-    const cmd=this.world!.commands();let state=cmd.snapshot().state as string;
-    if(state==='level'){const r=cmd.exitLevel();if(!r.ok)return r;state=cmd.snapshot().state;}
-    else if(state==='skycity'){const r=cmd.exitSkycity();if(!r.ok)return r;state=cmd.snapshot().state;}
-    else if(state==='skycity-loading'){const r=cmd.cancelTransition();if(!r.ok)return r;state=cmd.snapshot().state;}
-    if(where==='island'){if(state==='island')return {ok:true};if(state==='home')return cmd.leaveHome();return {ok:false,reason:'debug-stay:'+state};}
-    if(state==='home')return {ok:true};if(state==='island')return cmd.returnHome();return {ok:false,reason:'debug-stay:'+state};
+    const cmd=this.world!.commands() as {debugPlace?:(place:'home'|'island')=>Result};
+    if(typeof cmd.debugPlace==='function')return cmd.debugPlace(where);
+    return {ok:false,reason:'debug-place-missing'};
   }
   attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');return this.world.bindCharacter(adapter);}
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}

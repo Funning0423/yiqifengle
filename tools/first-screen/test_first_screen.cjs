@@ -126,6 +126,15 @@ const fillSprite=layer=>layer.root.children[0].children[0].getComponent(CC.Sprit
  const half=Math.floor(mask.length/2);for(let i=1;i<half;i++)assert(mask[i]<mask[i-1],'first half of the fade: mask alpha drops every frame ('+i+')');
  const steps=mask.map((a,i)=>(i?mask[i-1]:255)-a);
  ok('H outro: Graphics mask redrawn with alpha each frame (no UIOpacity), held opaque on the first outro frame, then monotonic 255 -> 0 together with the picture over '+L.OUTRO_FADE_S+' s',{maskAlpha60fps:mask,maxStep:Math.max.apply(null,steps)});
+ assert.equal(L.startupCover(null),'fade','a stub with no scene probe fades as soon as the room is ready');
+ assert.equal(L.startupCover(()=>false),'hold');assert.equal(L.startupCover(()=>true),'fade');
+ assert.equal(L.startupCover(()=>{throw Error('read');}),'hold');
+ const black=new Uint8Array(32*32*4);assert.equal(L.scenePixelsReady(black,false),false);assert.equal(L.scenePixelsReady(black,true),false);
+ const day=black.slice();day[0]=13;assert.equal(L.scenePixelsReady(day,false),true);assert.equal(L.scenePixelsReady(day,true),false);
+ const sky=black.slice();sky[2]=23;assert.equal(L.scenePixelsReady(sky,true),true,'night sky blue counts as a presented frame');
+ const bootHold=fs.readFileSync(path.join(S,'WorldIntegrationBoot.ts'),'utf8');
+ assert(/startupCover\(this\.sceneFrameReadyFn\(\)\)==='hold'/.test(bootHold),'cream stays up until the probe reports a frame');
+ assert(/COVER_HOLD_MAX_S/.test(bootHold),'a missing readback cannot trap the loading layer');
  delete CC.G.__firstScreen;CC.remote.length=0;}
 const SCREENS=[['16:9 iPhone 8 (375x667 pt)',375,667,750,1334],['19.5:9 iPhone 14 (390x844 pt)',390,844,1170,2532],['20:9 Android (360x800 dp)',360,800,1080,2400],['18:9 Android (360x720 dp)',360,720,1080,2160],['4:3 iPad portrait (768x1024 pt)',768,1024,1536,2048]];
 const layoutReport=[];
