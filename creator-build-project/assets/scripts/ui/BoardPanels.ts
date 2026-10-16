@@ -159,10 +159,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const goalIcons = groups.ResultGoals?.node.children.filter(n => !n.getComponent(Label)) || [];
   const frame = p.body.getChildByName('PanelFrame')!; frame.setScale(frame.scale.x * 0.45, frame.scale.y * 0.45, 1);
   const plateScales = new Map<Node, number>();
-  const buttonTextInset = 16, rewardIconLane = 96;
+  const buttonTextInset = 16;
   let rowGap = 6;
   const buttonTextWidth = (width: number) => width - buttonTextInset;
-  const rewardTextWidth = (cell: number) => buttonTextWidth(cell - rewardIconLane);
   for (const g of Object.values(groups)) for (const v of g.original) original.set(v.node, v);
   for (const g of Object.values(groups)) g.node.active = false;
   const getRow = (id: string, height: number): Row => {
@@ -176,10 +175,24 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const k = Math.min(w / Math.max(1, ow), h / Math.max(1, oh));
     n.setScale((v?.sx ?? 1) * k, (v?.sy ?? 1) * k, 1);
   };
-  const layoutButton = (n: Node, w: number, text?: string, height = 48) => {
+  /** Soft drop shadow under a wooden button or card: same rounded box, offset down, dark warm brown. */
+  const dropShadow = (host: Node, name: string, w: number, h: number, offset: number, radius: number) => {
+    let n = host.getChildByName(name);
+    if (!n) {
+      n = uiNode(name, host, w, h); n.setSiblingIndex(0); const shadowNode = n;
+      p.tint.shape(n.addComponent(Graphics), (g, night, alpha) => {
+        const ui = shadowNode.getComponent(UITransform)!, off = (shadowNode as any).__offset ?? offset;
+        g.fillColor = new Color(Math.round(74 - 30 * night), Math.round(50 - 20 * night), Math.round(30 - 6 * night), Math.round(110 * alpha));
+        g.roundRect(-ui.width / 2, -ui.height / 2 - off, ui.width, ui.height, radius); g.fill();
+      });
+    }
+    (n as any).__offset = offset; n.getComponent(UITransform)!.setContentSize(w, h); n.setPosition(0, 0, 0); n.active = true; return n;
+  };
+  const actionShadow = (n: Node, w: number, h: number) => dropShadow(n, 'ActionShadow', w - 4, h - 2, ACTION_SHADOW, Math.min(18, h / 2));
+  const layoutButton = (n: Node, w: number, text?: string, height = 48, artK = 0.45) => {
     const plate = n.getChildByName('Face')!.getChildByName('Plate')!;
     if (!plateScales.has(plate)) plateScales.set(plate, plate.scale.x);
-    const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : 0.45); plate.setScale(artScale, artScale, 1);
+    const artScale = plateScales.get(plate)! * (w < 80 ? 0.25 : artK); plate.setScale(artScale, artScale, 1);
     fitResultButton(n, w, height, 16); n.setScale(1, 1, 1);
     const face = n.getChildByName('Face')!, label = face.getChildByName('Label')?.getComponent(Label);
     const icon = face.getChildByName('Icon'); if (icon) icon.active = false;
@@ -236,15 +249,20 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const prevDestroy = p.destroy.bind(p);
   p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
-  const CHEST_W = 120, CHEST_H = 108, RAY = 156;
+  // Chest hero: 240 × 216 when the page has room, never under 96 × 86 (the 3D render keeps its aspect).
+  const CHEST_W = 240, CHEST_H = 216, RAY = 240, CHEST_MIN_H = 86;
+  // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
+  const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 5;
+  // Region items are icon cards (icon above, name below) in one centred row under the chest.
+  const CARD_W = 120, CARD_H = 120, CARD_H_DENSE = 96, CARD_GAP = 12, CARD_SHADOW = 4;
+  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW }, card: { width: CARD_W, height: CARD_H, shadow: CARD_SHADOW } });
   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
   const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
   const sideRewards = () => m.rewards.filter(r => !isChest(r));
-  const pairedRewards = (inner: number) => { const side = sideRewards(); return side.length === 2 && inner >= 400 && side.every(r => textWidth(r.label, 16) <= rewardTextWidth((inner - 12) / 2)); };
   // Measure the same content used by reflow. Tall phones no longer turn a short
   // result into a near-full-screen panel with a vertically centred empty area.
   const naturalHeight = (w: number) => {
-    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, heights: number[] = [];
+    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
@@ -252,10 +270,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
-    const paired = pairedRewards(inner);
-    const side = sideRewards(), cell = paired ? (inner - 12) / 2 : inner, cardH = shortPhone ? 64 : 96;
-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { lines(r.label, 16); heights.push(heroHeightFor(inner, r)); continue; } if (textWidth(r.label, 16) > rewardTextWidth(cell)) lines(r.label, 16); }
-    side.forEach((_r, i) => { if (!paired || i === 0) heights.push(cardH); });
+    const side = sideRewards(), cardH = shortPhone ? CARD_H_DENSE : CARD_H;
+    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { if (!(r.state === 'ready' && anyReady())) lines(r.label, 16); heights.push(heroHeightFor(inner, r)); } }
+    if (side.length) heights.push(cardH);
     if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
   };
@@ -276,7 +293,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // Opening animation must not rebuild the pages or reset a held finger.
     if (layoutKey === key) return; layoutKey = key;
     resetPresses(p.root);
-    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 72 : 60, dense = compactViewport;
+    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, dense = compactViewport;
     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
@@ -303,6 +320,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       return;
     }
     available = h - contentTop - reserve;
+    // Short pages (SE-class) keep everything on one page: smaller stars, compact cards, the claim button names the chest.
+    const tight = !dense && available < 520, snug = !dense && available < 600;
     const rows: Row[] = [];
     const labelRows = (id: string, text: string, size = 16, role: 'brown' | 'brown2' | 'teal' | 'grey' = 'brown') => {
       const lines = wrap(text, inner - 4, size);
@@ -327,7 +346,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i], width = actions.length === 1 ? Math.min(320, inner) : (inner - 8) / 2;
       const x = actions.length === 1 ? 0 : (i - 0.5) * (width + 8);
-      layoutButton(a.handle.node, width); a.handle.node.setPosition(x, -h / 2 + (roomy ? 44 : 32), 0);
+      layoutButton(a.handle.node, width, undefined, ACTION_H, ACTION_ART); actionShadow(a.handle.node, width, ACTION_H);
+      a.handle.node.setPosition(x, -h / 2 + (roomy ? 48 : 38), 0);
     }
     const stars = groups.ResultStars.node;
     if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
@@ -335,7 +355,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
       scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
     } else {
-      const starH = shortPhone ? 44 : dense ? 44 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : 0.32;
+      const starH = shortPhone ? 44 : dense ? 44 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : tight ? 0.2 : snug ? 0.24 : 0.32;
       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
       if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
@@ -372,9 +392,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       }
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
-    const paired = pairedRewards(inner);
-    const cell = paired ? (inner - 12) / 2 : inner;
     let sideIndex = 0, claimPlaced = false;
+    const sideCount = m.rewards.filter(r => !isChest(r)).length;
+    const sideRowH = Math.max(1, Math.min(dense || tight ? CARD_H_DENSE : CARD_H, available));
     // 56 is the settled claim control. A short page keeps it inside the content band
     // (4 units of slack sit above the action buttons) and never under 44.
     const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
@@ -396,8 +416,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     for (let i = 0; i < rewards.length; i++) {
       const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
       if (isChest(r)) {
-        let chestW = Math.min(CHEST_W, inner), chestH = CHEST_H * (chestW / CHEST_W), raySize = Math.min(RAY, inner), body = Math.max(raySize, chestH);
         const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
+        // Fit the hero into what this page has left after the rows above, its label, the claim and the card row.
+        const usedAbove = rows.reduce((sum, row) => sum + row.height + rowGap, 0);
+        const chestLabelInClaim = claimH > 0 && r.state === 'ready';
+        const room = available - usedAbove - (chestLabelInClaim ? 0 : 22 + rowGap) - (claimH ? claimH + gap : 0) - (sideCount ? sideRowH + rowGap : 0);
+        let chestH = Math.max(CHEST_MIN_H, Math.min(CHEST_H, room, inner * CHEST_H / CHEST_W)), chestW = chestH * CHEST_W / CHEST_H;
+        let raySize = Math.min(inner, chestH * RAY / CHEST_H, Math.max(chestH, room)), body = Math.max(raySize, chestH);
         let rowH = body + gap + claimH, claimInRow = claimH > 0;
         const budget = Math.max(1, available);
         if (rowH > budget) {
@@ -407,7 +432,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
         const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
         const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
-        labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+        if (!chestLabelInClaim) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
         if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
         else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
         add(row, raysNode, 0, chestY);
@@ -416,6 +441,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
         if (!chestRig) {
           chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
+          // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
+          if (r.state === 'claimed') chestRig.open(false);
           const shown = flat;
           void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
         } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
@@ -427,45 +454,43 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
         continue;
       }
-      const columnX = paired ? (sideIndex - 0.5) * (cell + 12) : 0, sideAt = sideIndex++;
-      // Use the actual CLAMP label width, including its padding and icon lane.
-      const label = r.label, long = textWidth(label, 16) > rewardTextWidth(cell);
-      if (long) labelRows('ResultRewardLabel-' + i, label, 16, r.state === 'locked' ? 'grey' : 'brown2');
-      const cardHeight = Math.min(dense ? 64 : 96, Math.max(48, available));
-      const row = getRow(paired ? 'reward-pair' : 'reward-' + i, cardHeight);
+      // Icon card: chest-style rays + icon on top, name underneath, cream well with a 4-unit drop shadow.
+      const sideAt = sideIndex++, cardW = Math.min(CARD_W, (inner - CARD_GAP * (sideCount - 1)) / sideCount), cardH = sideRowH;
+      const columnX = (sideAt - (sideCount - 1) / 2) * (cardW + CARD_GAP);
+      const row = getRow('reward-cards', cardH);
+      if (claim) claim.active = false; // 「全部领取」 is the one claim on this page.
+      let card = row.node.getChildByName('ResultRewardCard-' + i);
+      if (!card) {
+        card = uiNode('ResultRewardCard-' + i, row.node, cardW, cardH);
+        const cardNode = card;
+        p.tint.shape(card.addComponent(Graphics), (g, night, alpha) => {
+          const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
+          g.fillColor = new Color(Math.round(246 * k), Math.round(236 * k), Math.round(210 * k), Math.round(255 * alpha));
+          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
+          g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * alpha)); g.lineWidth = 2;
+          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.stroke();
+        });
+      }
+      card.getComponent(UITransform)!.setContentSize(cardW, cardH); add(row, card, columnX);
+      dropShadow(row.node, 'ResultRewardCardShadow-' + i, cardW, cardH, CARD_SHADOW, 16).setPosition(columnX, 0, 0);
+      const nameH = 22, iconBox = Math.max(32, Math.min(cardW - 24, cardH - nameH - 20)), iconY = cardH / 2 - 8 - iconBox / 2;
+      let rays = card.getChildByName('ResultRewardCardRays');
+      if (!rays) { rays = p.sprite('popup/fx_rays', 0, 0, iconBox * 1.3, iconBox * 1.3, 'half').node; rays.name = 'ResultRewardCardRays'; card.addChild(rays); }
+      rays.getComponent(UITransform)!.setContentSize(iconBox * 1.3, iconBox * 1.3); rays.setPosition(0, iconY, 0); rays.active = r.state !== 'locked';
+      let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
+      if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
+      const fits = textWidth(r.label, 16) <= cardW - 8;
+      if (!fits) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
+      l.string = fits ? r.label : (r.state === 'claimed' ? '已领取' : r.state === 'locked' ? '未解锁' : '道具'); l.fontSize = 16; l.lineHeight = nameH;
+      l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+      l.node.getComponent(UITransform)!.setContentSize(cardW - 8, nameH); l.node.setPosition(0, -cardH / 2 + 8 + nameH / 2, 0);
       const art = rewardIcons[i];
-      let card: Node;
-      if (claim) {
-        layoutButton(claim, cell, long ? '领取' : label, cardHeight); add(row, claim, columnX);
-        card = claim.getChildByName('Face')!;
-        const l = card.getChildByName('Label')!.getComponent(Label)!;
-        l.node.setPosition(rewardIconLane / 2, 0, 0);
-        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40);
-      } else {
-        let well = row.node.getChildByName('ResultRewardCard-' + i);
-        if (!well) {
-          well = uiNode('ResultRewardCard-' + i, row.node, cell, cardHeight);
-          const cardNode = well;
-          p.tint.shape(well.addComponent(Graphics), (g, night, alpha) => {
-            const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
-            g.fillColor = new Color(Math.round(236 * k), Math.round(229 * k), Math.round(207 * k), Math.round(255 * alpha));
-            g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
-          });
-        }
-        well.getComponent(UITransform)!.setContentSize(cell, cardHeight); add(row, well, columnX); card = well;
-        let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
-        if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
-        l.string = long ? (r.state === 'claimed' ? '已领取' : '未解锁') : label; l.fontSize = 16; l.lineHeight = 22;
-        l.node.getComponent(UITransform)!.setContentSize(rewardTextWidth(cell), 40); l.node.setPosition(rewardIconLane / 2, 0, 0);
-      }
-      // Art shares the card/pressed-face transform and stays inside its hit area.
-      // Claimed stamps get their own small badge, rather than covering the icon.
       for (let j = 0; j < art.length; j++) {
-        const n = art[j], badge = j > 0, size = badge ? 24 : Math.min(72, cardHeight - 12);
-        fitArt(n, size, size); card.addChild(n); n.active = true;
-        n.setPosition(-cell / 2 + rewardIconLane / 2 + (badge ? 25 : 0), badge ? -cardHeight / 2 + 18 : 0, 0);
+        const n = art[j], badge = n.name === 'stamp_claimed';
+        fitArt(n, badge ? 32 : iconBox, badge ? 32 : iconBox); card.addChild(n); n.active = true;
+        n.setPosition(badge ? cardW / 2 - 20 : 0, badge ? cardH / 2 - 20 : iconY, 0);
       }
-      if (!paired || sideAt === 0) rows.push(row);
+      if (sideAt === 0) rows.push(row);
     }
     if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
     else if (claimAll && !claimPlaced) claimAll.active = false;
