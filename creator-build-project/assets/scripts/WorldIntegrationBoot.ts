@@ -31,6 +31,30 @@ import {runHomeTransition,HOME_FADE} from './world-r2/HomeTransition';
 import {GameAudio} from './audio/GameAudio';
 import {SCENE_TRACKS} from './audio/SceneMusic';
 const {ccclass,property}=_decorator;
+/** Claims fired in one turn share a single invoke. The busy gate would otherwise drop every call after the first. */
+function enqueueResultBatch(start:(run:()=>Promise<any>)=>void):(fn:()=>any)=>void{
+  let q:Array<()=>any>|null=null,running=false;
+  return (fn:()=>any)=>{
+    if(running)return;
+    if(!q){
+      const batch:Array<()=>any>=[];q=batch;
+      // A microtask, not a timer: every claim fired by the same 全部领取 tap is already queued when it runs.
+      void Promise.resolve().then(()=>{
+        if(q!==batch)return;q=null;
+        start(async()=>{
+          running=true;
+          try{
+            let last:any={ok:true};
+            for(let i=0;i<batch.length;i++){const r=await batch[i]();last=r;if(r&&r.ok===false&&r.reason!=='cancelled')return r;}
+            return last;
+          }finally{running=false;}
+        });
+      });
+    }
+    q.push(fn);
+  };
+}
+/** end enqueueResultBatch */
 /** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
 const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting','region-loading','region-travel','meadow'];
 /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
@@ -373,7 +397,7 @@ export class WorldIntegrationBoot extends Component {
  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
  private islandProps:IslandProps|null=null;private propSign=false;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
- private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
+ private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private notice!:Label;private status!:Label;private ready=false;private busy=false;private lastState='';private hudState='';private suppressedStatus='';private islandEntrance=-1;private signEntrance=-1;private error='';
  start(){profiler.hideStats();if(!this.smokeFixture)throw Error('Bind existing fixture');const scene=director.getScene()!;
  this.createNavigation();this.resize();view.on('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.addEventListener('resize',this.resize);
  (globalThis as any).__regionDebug={mount:(id:string)=>loadRegionPrefab(REGIONS[id]).then(p=>{const n=mountRegion(REGIONS[id],p,director.getScene()!);n.name='REGION_DEBUG_'+id;return {ok:true,node:n.name};},e=>({ok:false,error:String(e)}))};
@@ -477,7 +501,7 @@ export class WorldIntegrationBoot extends Component {
  private board(){return director.getScene()?.getComponentsInChildren(ManagedMobileBoardUI).find(x=>x.node.isValid)||null;}
  private select(stageId:string,seed:number){const r=this.composition.selectProvider({provider:'r5',stageId,seed});return r.ok?this.composition.enterSelectedLevel():r;}
  private async invoke(fn:()=>any){if(this.busy||this.board()?.hostModalOpen()||this.islandJourney?.isOpen())return;this.busy=true;this.error='';try{const r=await fn();if(r&&!r.ok&&r.reason!=='cancelled')this.error=({ 'meadow-scene-load-failed':'草原暂时加载失败，成绩与奖励已保留，请重试','stage-locked':'先完成对应地区的主线，再开启挑战','finish-or-discard-current-attempt':'请先继续或结束当前挑战','completion-unsaved':'请先保存当前成绩','preserved-storage-error':'记录暂时无法安全读取，请保留并稍后重试' } as any)[r.reason]||r.reason;}catch(e){this.error=String(e);}finally{this.busy=false;if(this.error)this.board()?.showHostResultError(this.error);this.paintNavigation();}}
- private createNavigation(){this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
+ private createNavigation(){this.enqueueResult=enqueueResultBatch(run=>{void this.invoke(run);});this.canvas=new Node('WorldNavigationCanvas');this.canvas.layer=Layers.Enum.UI_2D;this.node.addChild(this.canvas);this.canvas.addComponent(UITransform);const c=this.canvas.addComponent(Canvas);c.alignCanvasWithScreen=false;const cn=new Node('WorldNavigationCamera');this.node.addChild(cn);cn.setPosition(0,0,1000);const cam=cn.addComponent(Camera);cam.projection=Camera.ProjectionType.ORTHO;cam.near=.1;cam.far=2000;cam.priority=60;cam.visibility=Layers.Enum.UI_2D;cam.clearFlags=Camera.ClearFlag.DEPTH_ONLY;c.cameraComponent=cam;
  this.createLoadingBackdrop();this.notice=this.label('',0,0,12,320);this.status=this.label('世界加载中',0,0,16,320);
  this.button('mainline','继续旅程  →',()=>this.composition.enterMainline());this.button('mainNext','主线下一关',()=>this.composition.advanceMainline());this.button('chest','打开本关宝箱',()=>this.composition.mainlineReward('openChest',this.board()?.hostPresentation().active.level));this.button('regionReward','领取主线地区奖励',()=>this.composition.mainlineReward('claimRegion',Math.floor(this.board()?.hostPresentation().active.level/4)));this.button('r4','原地区 · 潮汐',()=>this.composition.enterR4());this.button('leave','出门 · 选择地区',()=>this.composition.worldCommands().leaveHome());this.button('home','主页',()=>this.goHome());this.button('tide','潮汐小径',()=>this.composition.enterRegion('tide'));this.button('meadow','花粉草甸',()=>this.composition.enterRegion('meadow'));this.button('sky','天空回声',()=>this.composition.enterRegion('sky'));this.button('skycity','天空城 · 看看',()=>this.composition.worldCommands().enterSkycity());this.button('returnIsland','返回小岛',()=>this.composition.worldCommands().exitSkycity());this.button('cancelVisit','取消前往',()=>this.composition.worldCommands().cancelTransition(),true);this.button('next','下一关',()=>this.composition.advanceRegistered());this.button('claim','领取地区印记',()=>this.composition.claimRegisteredMemento());this.button('resume','继续',()=>this.composition.resumeJourney());this.button('dayNight','晴昼',()=>this.composition.worldCommands().toggleDayNight());
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
@@ -497,7 +521,7 @@ export class WorldIntegrationBoot extends Component {
  private label(text:string,x:number,y:number,size:number,w:number){const n=new Node('LabelPlate');n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.setPosition(x,y,0);n.addComponent(UITransform).setContentSize(w,size+10);const bg=n.addComponent(Graphics);bg.fillColor=new Color('#123233');bg.roundRect(-w/2,-(size+10)/2,w,size+10,10);bg.fill();const t=new Node('VisibleLabel');t.layer=Layers.Enum.UI_2D;n.addChild(t);t.addComponent(UITransform).setContentSize(w,size+10);const l=t.addComponent(Label);l.string=text;l.fontSize=size;l.lineHeight=size+4;l.color=new Color('#fff2cf');l.horizontalAlign=Label.HorizontalAlign.CENTER;l.verticalAlign=Label.VerticalAlign.CENTER;return l;}
  private button(id:string,text:string,fn:()=>any,interrupt=false){const n=new Node(id);n.layer=Layers.Enum.UI_2D;this.canvas.addChild(n);n.addComponent(UITransform).setContentSize(240,46);const surface=warmButton(n,240,46);const l=this.label(text,0,0,17,230);const plate=l.node.parent!;plate.removeFromParent();plate.getComponent(Graphics)!.clear();n.addChild(plate);surface.addContent(plate);const blocked=()=>!!(this.board()?.hostModalOpen()||this.islandJourney?.isOpen()||this.busy&&!interrupt);
  if(id==='mainline')n.on(Node.EventType.TOUCH_START,()=>emitPropTap('signpost','press',blocked())); // T9: IslandPropTaps (signpost hosts mainline)
- this.resultActions[id]=()=>{if(!blocked())void this.invoke(fn);};
+ this.resultActions[id]=()=>{if(!blocked())this.enqueueResult(fn);};
  surface.bind(()=>{if(id==='mainline')emitPropTap('signpost','confirm',blocked());if(blocked())return false;if(interrupt){const r=fn();if(r&&!r.ok)this.error=r.reason;this.paintNavigation();return;}void this.invoke(fn);});this.controls.set(id,n);}
  private resize=()=>{if(!this.canvas)return;const f=typeof window!=='undefined'?{width:window.innerWidth,height:window.innerHeight}:view.getFrameSize();view.setDesignResolutionSize(f.width,f.height,ResolutionPolicy.EXACT_FIT);if(game.canvas)director.root?.resize(game.canvas.width,game.canvas.height);this.canvas.getComponent(UITransform)!.setContentSize(f.width,f.height);this.canvas.getComponent(Canvas)!.cameraComponent!.orthoHeight=f.height/2;this.notice.node.parent!.setPosition(0,-f.height/2+55,0);this.status.node.parent!.setPosition(0,this.loadPhase==='ready'?f.height/2-130:-f.height/2+172,0);this.loadingLayer?.layout(f.width,f.height);let i=0;for(const [k,n]of Array.from(this.controls)){n.setPosition(0,70-(i++)*56,0);}this.controls.get('leave')!.setPosition(0,-f.height/2+115,0);this.controls.get('resume')!.setPosition(0,-f.height/2+115,0);
  // T2: bake the FINAL island button size/skin while it is still hidden. Otherwise the first island frame resizes the

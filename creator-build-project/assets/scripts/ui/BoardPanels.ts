@@ -92,7 +92,14 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
       y += rewardsH;
     }
     const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
-    if (ready.length) p.button('primary', '全部领取', 0, y, 220, 56, () => { for (let i = 0; i < ready.length; i++) ready[i].claim?.(); }, { fontSize: 26, name: 'ClaimAll' });
+    if (ready.length) {
+      let spent = false;
+      const handle = p.button('primary', '全部领取', 0, y, 220, 56, () => {
+        if (spent) return;
+        spent = true; handle.setEnabled(false); handle.node.active = false;
+        for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); }
+      }, { fontSize: 26, name: 'ClaimAll' });
+    }
     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
