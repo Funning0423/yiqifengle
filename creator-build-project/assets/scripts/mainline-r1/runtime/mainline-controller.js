@@ -2,6 +2,7 @@
 
 var Session = require('./mainline-session'),
   seedBanks = require('./verified-seeds'),
+  Campaign = require('./region-campaign'),
   Journey = require('./journey-bridge'),
   Store = require('./durable-store'),
   copy = Store.clone;
@@ -232,22 +233,24 @@ Controller.prototype.snapshot = function () {
   }
   var self = this,
     stages = Session.Engine.levels.map(function (level, i) {
-      return {
+      var campaignStage = Campaign.stage(Session.stageId(i));
+      return Object.assign({}, campaignStage, {
         id: Session.stageId(i),
         level: i,
         region: ['tide', 'meadow', 'sky'][Math.floor(i / 4)],
         ordinal: i + 1,
-        name: level.name,
-        chapter: level.chapter,
-        chapterName: level.chapterName,
-        description: level.description,
+        name: campaignStage.name,
+        chapter: campaignStage.chapter,
+        chapterName: campaignStage.chapterName,
+        description: campaignStage.description,
         moves: level.moves,
         seedBank: seedBanks[i].slice(),
         goals: copy(level.goals),
         unlocked: !self.readOnly && !view.readOnly && i <= view.unlocked,
         record: copy(view.records[i])
-      };
+      });
     });
+  var campaign = Campaign.inspect(this.readOnly ? Object.assign({}, view, {readOnly: true}) : view);
   return Session.freeze({
     provider: PACK,
     storageKey: KEY,
@@ -259,7 +262,9 @@ Controller.prototype.snapshot = function () {
     readOnly: this.readOnly,
     error: copy(this.error),
     stages: stages,
-    regions: [],
+    regions: campaign.regions,
+    campaign: campaign,
+    rewardHandoff: active ? Campaign.rewardHandoff(view, active.stageId, !!receipt && this._state() === 'result.saved') : null,
     journey: view,
     result: result,
     nextStageId: receipt && active.level < 11 && stages[active.level + 1].unlocked ? Session.stageId(active.level + 1) : null,

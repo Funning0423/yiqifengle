@@ -50,3 +50,9 @@ audio-preview/
 
 # 本地测试输出（test_composition 等写到这里），不进仓库
 /evidence/
+
+# Per-run Web build logs, resolved configs, manifests, and generated packages.
+/output/cloud-web-build/
+
+# Creator-generated local questionnaire/authorization state is never public input.
+/creator-build-project/settings/v2/packages/information.json

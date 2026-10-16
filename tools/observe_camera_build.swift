@@ -2,8 +2,8 @@ import Cocoa
 import Foundation
 import Darwin
 // Build only this isolated Creator project. Observe foreground; never activate it.
-let base="/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-r5-fb338ef-integrated-20261010"
-let executable="/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator"
+guard let base=ProcessInfo.processInfo.environment["QF_PROJECT_ROOT"], !base.isEmpty else { fputs("Set QF_PROJECT_ROOT to an isolated checkout.\n", stderr); exit(2) }
+guard let executable=ProcessInfo.processInfo.environment["QF_CREATOR_EXECUTABLE"], !executable.isEmpty else { fputs("Set QF_CREATOR_EXECUTABLE to the verified Creator executable.\n", stderr); exit(2) }
 let prefix=base+"/evidence/e6c3b54-camera-20261010/creator"
 FileManager.default.createFile(atPath:prefix+".log",contents:nil)
 let output=try FileHandle(forWritingTo:URL(fileURLWithPath:prefix+".log"))

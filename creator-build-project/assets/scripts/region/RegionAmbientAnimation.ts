@@ -28,7 +28,7 @@ export class RegionAmbientAnimation extends Component {
   private onHide(){this.hidden=true;this.syncPause();}
   private onShow(){this.hidden=false;this.syncPause();}
   onDisable(){this.inactive=true;this.syncPause();}
-  onEnable(){this.inactive=false;this.syncPause();}
+  onEnable(){this.inactive=false;this.startPlaybackIfReady();this.syncPause();}
   /** World flow retains this gate across EVENT_SHOW until its explicit Resume action. */
   setHostPaused(paused:boolean){if(this.disposed||paused===this.hostPaused)return;this.hostPaused=paused;this.syncPause();}
   private syncPause(){
@@ -39,11 +39,14 @@ export class RegionAmbientAnimation extends Component {
     }else{for(const s of this.pausedStates)if(s.isPlaying&&s.isPaused)s.resume();this.pausedStates.length=0;}
   }
   private preparation:Promise<void>|null=null;
+  private prepared=false;private playbackStarted=false;
   start(){void this.prepare().catch(error=>{if(!this.disposed)console.error('Ambient preparation failed',error);});}
   /** Resource gate shared by startup and Creator lifecycle. Failures never become a ready room. */
   prepare():Promise<void>{if(this.disposed)return Promise.reject(Error('Ambient owner disposed'));if(!this.preparation)this.preparation=this.prepareOnce();return this.preparation;}
   private async prepareOnce(){
     this.anim=this.getComponent(SkeletalAnimation)||this.addComponent(SkeletalAnimation);
+    // This component owns every ambient loop, including while UUID loads are pending.
+    this.anim.playOnLoad=false;
     if(!this.anim.clips.filter(Boolean).length&&this.clipUuids.length){
       const loaded=await Promise.all(this.clipUuids.map(uuid=>new Promise<AnimationClip>((ok,fail)=>assetManager.loadAny({uuid},(err:any,clip:AnimationClip)=>err||!clip?fail(err||Error('Ambient clip missing: '+uuid)):ok(clip)))));
       if(this.disposed||!isValid(this.node,true))throw Error('Ambient owner destroyed during preparation');
@@ -52,16 +55,24 @@ export class RegionAmbientAnimation extends Component {
     if(this.disposed||!isValid(this.node,true))throw Error('Ambient owner destroyed before playback');
     const clips=this.anim.clips.filter(Boolean) as AnimationClip[];
     if(!clips.length||this.clipNames.some(name=>!clips.some(clip=>clip.name===name)))throw Error('Required ambient animation unavailable');
-    this.play();this.syncPause();
+    this.prepared=true;this.inactive=!(this.enabled&&this.node.activeInHierarchy);
+    this.startPlaybackIfReady();this.syncPause();
+  }
+  private startPlaybackIfReady(){
+    if(this.disposed||!this.prepared||this.playbackStarted||!this.enabled||!this.node.activeInHierarchy)return;
+    // On first activation Creator runs all onLoad callbacks before onEnable.
+    // Animation.onLoad creates/replaces states, so never retain/play pre-onLoad states.
+    this.play();this.playbackStarted=true;
   }
   private play(){
     const anim=this.anim!;const clips=anim.clips.filter(Boolean) as AnimationClip[];
     const wanted=this.clipNames.length?clips.filter(c=>this.clipNames.includes(c.name)):clips;
-    if(!wanted.length){console.warn('RegionAmbientAnimation: no clips to play on',this.node.name);return;}
+    if(!wanted.length||this.clipNames.some(name=>!wanted.some(c=>c.name===name)))throw Error('Required ambient animation unavailable');
     if(wanted.length>1)anim.useBakedAnimation=false;
-    anim.playOnLoad=true;anim.defaultClip=wanted[0];
-    this.playing=wanted.map(c=>{const s=anim.getState(c.name)!;s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
-      if(this.randomizeStart)s.time=Math.random()*s.duration;s.play();return s;});
+    anim.playOnLoad=false;anim.defaultClip=wanted[0];
+    this.playing=wanted.map(c=>{const s=anim.getState(c.name)||anim.createState(c,c.name);s.wrapMode=AnimationClip.WrapMode.Loop;s.repeatCount=Infinity;
+      if(this.randomizeStart)s.time=Math.random()*s.duration;return s;});
+    for(const state of this.playing)state.play();
   }
   /** Plays watering or give-flower once. Stops robot_idle for that skeleton and leaves sky_ambient_loop running. */
   playGesture(name:string):boolean{

@@ -388,9 +388,10 @@ export class ManagedMobileBoardUI extends Component {
     return hit;
   }
   private moveGhost(x: number, y: number) {
-    const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); }
+    const d = this.layoutInfo; if (!this.toolGhost) { this.toolGhost = this.box('ToolDragGhost', this.root, 0, 0, 56, 56); this.tint.sprite(this.toolGhost.addComponent(Sprite), 'ui'); this.box('ToolFallback', this.toolGhost, 0, 0, 56, 56).addComponent(Graphics); }
     const sprite = this.toolGhost.getComponent(Sprite)!; sprite.sizeMode = Sprite.SizeMode.CUSTOM; sprite.spriteFrame = this.toolFrame(this.toolDrag!.kind);
     const ghost = toolDisplaySize(this.toolDrag!.kind, 56); this.toolGhost.getComponent(UITransform)!.setContentSize(ghost.width, ghost.height);
+    this.paintToolFallback(this.toolGhost, this.toolDrag!.kind, true, !!sprite.spriteFrame);
     const at = this.pointerWorld(x, y, this.toolDrag?.yDown, this.toolDrag && typeof this.toolDrag.sx === 'number' ? { x: this.toolDrag.sx, y: this.toolDrag.sy as number } : null);
     this.toolGhost.active = true; this.toolGhost.setSiblingIndex(this.root.children.length - 1); this.toolGhost.setWorldPosition(at.x, at.y, 0);
   }
@@ -485,7 +486,8 @@ export class ManagedMobileBoardUI extends Component {
     const n = this.box('slot-' + slot, this.tray, 0, 0, 64, 64);
     const face = this.box('Face', n, 0, 0, 64, 64);
     const sel = this.box('ToolSelection', face, 0, 0, 64, 64); sel.addComponent(Graphics);
-    const art = this.box('OriginalToolArt', face, 0, 0, 60, 60); this.tint.sprite(art.addComponent(Sprite), 'ui'); art.addComponent(Graphics); art.addComponent(UIOpacity);
+    const art = this.box('OriginalToolArt', face, 0, 0, 60, 60); this.tint.sprite(art.addComponent(Sprite), 'ui'); art.addComponent(UIOpacity);
+    this.box('ToolFallback', art, 0, 0, 60, 60).addComponent(Graphics);
     const count = this.box('ToolCount', face, 22, 21, 24, 24); count.addComponent(Graphics); const q = makeLabel(count, '', 0, 0, 14, { width: 26, name: 'Quantity' }); this.tint.label(q, 'brown');
     n.on(Node.EventType.ACTIVE_IN_HIERARCHY_CHANGED, () => { if (!n.activeInHierarchy && this.toolDrag?.slot === slot) this.resetInput(); });
     n.on(Node.EventType.TOUCH_START, (e: EventTouch) => {
@@ -529,7 +531,7 @@ export class ManagedMobileBoardUI extends Component {
       const legacy = !TOOL_KEYS[tool.kind], box = legacy ? size * 0.72 : size, fit = legacy ? { width: box, height: box } : toolDisplaySize(tool.kind, box);
       artNode.getComponent(UITransform)!.setContentSize(fit.width, fit.height); artNode.setPosition(0, legacy ? 4 : 0, 0);
       sprite.spriteFrame = frame; sprite.grayscale = !tool.available; artNode.getComponent(UIOpacity)!.opacity = tool.available ? 255 : 140;
-      const fallback = artNode.getComponent(Graphics)!; fallback.clear(); if (!frame) this.drawToolEmblem(fallback, tool.kind, tool.available);
+      this.paintToolFallback(artNode, tool.kind, tool.available, !!frame);
       const badge = n.getChildByName('Face')!.getChildByName('ToolCount')!, bg = badge.getComponent(Graphics)!, night = this.tint.weight(), k = 1 - 0.38 * night, r = 11 * g.k;
       badge.setPosition(size * 0.29, size * 0.28, 0); bg.clear();
       bg.fillColor = new Color(60, 40, 20, 70); bg.circle(0.5, -1.5, r); bg.fill();
@@ -540,6 +542,12 @@ export class ManagedMobileBoardUI extends Component {
       if (this.armedTool === tool.kind || this.toolDrag?.kind === tool.kind) { sel.fillColor = new Color(255, 226, 140, 90); sel.circle(0, -4, size * 0.5); sel.fill(); sel.strokeColor = new Color(255, 214, 110, 255); sel.lineWidth = 3; sel.circle(0, -4, size * 0.5); sel.stroke(); }
       this.targets['tool-' + tool.kind] = n; if (tool.kind === 'bomb') this.targets.bomb = n;
     });
+  }
+  private paintToolFallback(art: Node, kind: string, available: boolean, hasFrame: boolean) {
+    // Creator allows one UI renderer per node; keep vector art beneath its own node.
+    const node = art.getChildByName('ToolFallback')!, size = art.getComponent(UITransform)!.contentSize;
+    node.getComponent(UITransform)!.setContentSize(size.width, size.height); node.active = !hasFrame;
+    const graphics = node.getComponent(Graphics)!; graphics.clear(); if (!hasFrame) this.drawToolEmblem(graphics, kind, available);
   }
   private drawToolEmblem(g: Graphics, kind: string, available: boolean) {
     if (kind === 'prismShift') {

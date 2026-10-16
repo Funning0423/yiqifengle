@@ -28,12 +28,12 @@ export function configureMeadowVertexColors(model:Node):string[] {
  }
  return changed;
 }
-function loadWindEffect():Promise<EffectAsset> {
+export function loadWindEffect():Promise<EffectAsset> {
  const bundle=assetManager.getBundle(REGIONS.meadow.bundle);if(!bundle)return Promise.reject(Error('Meadow bundle missing'));
  return new Promise((ok,fail)=>bundle.load('meadow-grass-wind',EffectAsset,(error,effect)=>error||!effect?fail(error||Error('Meadow grass shader missing')):ok(effect)));
 }
 /** Preflight happens before exiting a saved result. Import/shader failures retain its rewards and retry action. */
-function validateModel(model:Node):MeshRenderer[] {
+export function validateModel(model:Node):MeshRenderer[] {
  for(const name of ['scene_root','player_spawn','windmill_sail_hub','wind_bell_frame_root','meadow_terrain','meadow_river'])if(!find(model,name))throw Error('Meadow anchor/mesh missing: '+name);
  const grass=model.getComponentsInChildren(MeshRenderer).filter(grassRenderer);if(grass.length!==5)throw Error('Meadow merged grass renderer count: '+grass.length);return grass;
 }

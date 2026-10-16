@@ -6,3 +6,7 @@ export function requiresMeadowScene(selection: RegionSelection): boolean {
  const id = String(selection?.stageId || '');
  return /^r05-meadow-/.test(id) || /^mainline-0[5-8]$/.test(id);
 }
+
+export function requiresSkycityScene(selection:RegionSelection):boolean {
+ const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
+}

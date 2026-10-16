@@ -99,8 +99,8 @@ GB_MARK combo:result ... expect=0,1,2,3 tiers=0,1,2,3 sfx=sfx_cheer_1_great,sfx_
 
 ## Mac 命令（在隔离副本里跑，不要在原工程里跑）
 ```sh
-ORIG=/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-board-teardown-validation-20261010
-C=/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-migration-local-20261009/tooling/creator-3.8.8/CocosCreator.app
+ORIG="${QF_PROJECT_ROOT:?Set QF_PROJECT_ROOT}"
+C="${QF_CREATOR_APP:?Set QF_CREATOR_APP}"
 T0=/path/to/repo/tools/grokbot-autoplay          # 本目录（work/GGbot-t0 分支）
 ISO=~/grokbot-tests/t0-autoplay-$(date +%Y%m%d-%H%M)
 rsync -a --exclude build --exclude temp --exclude local "$ORIG/" "$ISO/"     # 要测 near/T1，就先把对应候选装进 ISO

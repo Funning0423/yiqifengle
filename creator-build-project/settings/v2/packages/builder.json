@@ -45,7 +45,7 @@
     "autoFit": true,
     "logo": {
       "type": "custom",
-      "image": "/Users/shineanl/Documents/Codex/2026-10-09/task/cocos-r5-fb338ef-integrated-20261010/tools/branding/game-title-temporary.png"
+      "image": "project://build-resources/game-title-temporary.png"
     },
     "background": {
       "type": "color",
