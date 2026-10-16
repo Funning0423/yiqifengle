@@ -4,10 +4,89 @@
   "imported": true,
   "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "c658d": {
+      "importer": "gltf-mesh",
+      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@c658d",
+      "displayName": "",
+      "id": "c658d",
+      "name": "LK_terrain.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 1380
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "nearest",
+        "magfilter": "nearest",
+        "mipfilter": "nearest",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a448d": {
+      "importer": "gltf-material",
+      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@a448d",
+      "displayName": "",
+      "id": "a448d",
+      "name": "M_LK_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4f8ac": {
+      "importer": "gltf-scene",
+      "uuid": "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@4f8ac",
+      "displayName": "",
+      "id": "4f8ac",
+      "name": "LK_terrain.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "tangents": 1,
-    "imageMetas": [],
+    "imageMetas": [
+      {
+        "name": "T_LK_palette_256",
+        "uri": "db://assets/bundles/region_lakeside/models/T_LK_palette_256.png"
+      }
+    ],
     "lods": {
       "enable": false,
       "hasBuiltinLOD": false,
@@ -31,6 +110,21 @@
       "compress": true,
       "quantize": true,
       "encode": true
+    },
+    "assetFinder": {
+      "meshes": [
+        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@c658d"
+      ],
+      "skeletons": [],
+      "textures": [
+        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@e39f7"
+      ],
+      "materials": [
+        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@a448d"
+      ],
+      "scenes": [
+        "cf4e4fee-4c2b-5817-a6d5-08f145e4b0c8@4f8ac"
+      ]
     }
   }
 }

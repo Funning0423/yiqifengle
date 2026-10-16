@@ -4,7 +4,58 @@
   "imported": true,
   "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "25334": {
+      "importer": "gltf-material",
+      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@25334",
+      "displayName": "",
+      "id": "25334",
+      "name": "M_prev_float.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b842e": {
+      "importer": "gltf-mesh",
+      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@b842e",
+      "displayName": "",
+      "id": "b842e",
+      "name": "LK_rope_float.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 24
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cc84f": {
+      "importer": "gltf-scene",
+      "uuid": "cc5048f6-6129-51a6-96cc-bc9779fe12f2@cc84f",
+      "displayName": "",
+      "id": "cc84f",
+      "name": "LK_rope_float.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "tangents": 1,
     "imageMetas": [],
@@ -31,6 +82,19 @@
       "compress": true,
       "quantize": true,
       "encode": true
+    },
+    "assetFinder": {
+      "meshes": [
+        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@b842e"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@25334"
+      ],
+      "scenes": [
+        "cc5048f6-6129-51a6-96cc-bc9779fe12f2@cc84f"
+      ]
     }
   }
 }

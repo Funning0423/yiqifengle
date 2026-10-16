@@ -4,7 +4,58 @@
   "imported": true,
   "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "d0603": {
+      "importer": "gltf-mesh",
+      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@d0603",
+      "displayName": "",
+      "id": "d0603",
+      "name": "LK_contact_shadow.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 8
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "08352": {
+      "importer": "gltf-material",
+      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@08352",
+      "displayName": "",
+      "id": "08352",
+      "name": "M_prev_shadow.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e9d86": {
+      "importer": "gltf-scene",
+      "uuid": "00655f62-d835-5648-9c7a-3e0854a3b34b@e9d86",
+      "displayName": "",
+      "id": "e9d86",
+      "name": "LK_contact_shadow.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "tangents": 1,
     "imageMetas": [],
@@ -31,6 +82,19 @@
       "compress": true,
       "quantize": true,
       "encode": true
+    },
+    "assetFinder": {
+      "meshes": [
+        "00655f62-d835-5648-9c7a-3e0854a3b34b@d0603"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "00655f62-d835-5648-9c7a-3e0854a3b34b@08352"
+      ],
+      "scenes": [
+        "00655f62-d835-5648-9c7a-3e0854a3b34b@e9d86"
+      ]
     }
   }
 }
