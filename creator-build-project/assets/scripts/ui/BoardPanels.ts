@@ -132,7 +132,8 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     button('primary', '返回海岛', 552, 440, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   }
   configureResultLayout(p, ph, m, groups, actions, rewards);
-  dropStars(p, starNodes);
+  // R1b: a claim repaint that adopted the live chest shows the stars already landed (no second drop-in).
+  if (!chestAdopted) dropStars(p, starNodes);
   // R1: the claim repaint replaces an already-open panel; it must not replay the 0.22 s pop-in (92% scale, fade from 0,
   // shade from clear) that showed as a small glowing chest for ~3 frames.
   if (chestAdopted) { chestAdopted = false; p.settleOpen(); }

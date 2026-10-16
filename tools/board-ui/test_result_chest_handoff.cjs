@@ -61,7 +61,9 @@ const { createHarness } = require('./harness.cjs');
     const s = activeScore(q.root), a0 = wy(s); assert(Math.abs(a0 - y0) < 0.6, 'R1a: score starts at the tapped y after a double repaint: ' + a0 + ' vs ' + y0);
     q.update(0.025); const a1 = wy(s); settle(20); const a2 = wy(s);
     assert(Math.abs(a2 - y0) > 30, 'harness reproduces the open-state score move'); assert(Math.abs(a1 - a2) > 5, 'R1a: one frame later still easing, not jumped: ' + a1 + ' → ' + a2);
-    out.doubleRepaint = { from: +y0.toFixed(1), frame1: +a1.toFixed(1), to: +a2.toFixed(1) }; stack.clear(); settle();
+    const stars = []; const v = n => { if (/^Star/.test(n.name) && n.activeInHierarchy) stars.push(n); n.children.forEach(v); }; v(q.root);
+    stack.update(0.0); for (const n of stars) { const o = n.getComponent(H.cc.UIOpacity); assert(!o || o.opacity === 255, 'R1b: star ' + n.name + ' visible on the first frame, no re-drop'); }
+    out.doubleRepaint = { from: +y0.toFixed(1), frame1: +a1.toFixed(1), to: +a2.toFixed(1), stars: stars.length }; stack.clear(); settle();
   }
   assert(Math.abs(P.scoreEaseAt(0)) < 1e-9 && P.scoreEaseAt(P.SCORE_EASE_S) === 1 && P.scoreEaseAt(0.1) > 0.4 && P.scoreEaseAt(0.1) < 1);
   console.log(JSON.stringify({ status: 'PASS', ...out }));
