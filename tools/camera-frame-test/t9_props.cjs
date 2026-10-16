@@ -7,7 +7,7 @@
  * signpost during the fly-to-island segment; it is still included (conservative). */
 const fs=require('fs'),path=require('path'),os=require('os'),cp=require('child_process'),G=require('./glb_geometry.cjs');
 const T9_SHA='0ec1701',ROOT=path.resolve(__dirname,'..','..'),REL='creator-build-project/assets/bundles/region_island/ui-props';
-const PROPS=[{prefab:'ui_signpost',position:[-4.08,0.127,0.7],yawDeg:5.58,scale:0.79},
+const PROPS=[{prefab:'ui_signpost',position:[-4.4,-1.15,1.5],yawDeg:-55,scale:2.3},
   {prefab:'beach_palm_tall',position:[-0.5,-0.30,9.0],yawDeg:200,scale:0.9},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
 function dir(){return process.env.T9_ROOT?path.join(process.env.T9_ROOT,REL):'git:'+T9_SHA+':'+REL;}
 function glbFile(prefab){

@@ -7,7 +7,7 @@ function load(rel) {
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(dir, rel), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { exports: m.exports, module: m });
   return m.exports;
 }
-const L = require('../t9-island-props/load_ts.cjs').load(['world-r1/CameraPose', 'world-r2/IslandPropsLayout']).IslandPropsLayout;
+const L = require('../t9-island-props/load_ts.cjs').load(['world-r1/CameraPose', 'world-r1/RegionCameraData', 'world-r2/IslandPropsLayout']).IslandPropsLayout;
 const S = load('render/ShoreBreakCore.ts'), F = load('render/IslandAtmosphereFxCore.ts');
 const P = L.ISLAND_PROPS, shadowLift = P.signpost.water.ripple.lift * 0.5, rippleLift = P.signpost.water.ripple.lift, poolLift = P.signpost.lampLight.reflection.lift;
 const oldShadowY = P.seaY + shadowLift;

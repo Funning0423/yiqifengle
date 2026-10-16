@@ -18,7 +18,7 @@ export const GULL_FX = {
   lighthouse: { c: [0, -2.65] as [number, number], r: 3.3, topY: 10.8 },
   house: { min: [.7, -2, -5.1] as V3, max: [5.5, 5.9, 1.2] as V3 },
   trees: [[2.3, -7.9, 2, 3.9], [-4.9, .2, 2.4, 6.6], [5.1, 9.3, 2.2, 4.5], [3.1, 2.6, 1.7, 5], [-3.2, -6, 2.8, 7.4]] as number[][],   // x, z, r, top
-  sign: { base: [-4.08, 0.127, 0.7] as V3, topY: 1.85, clearM: 2, postR: 1 },
+  sign: { base: [-4.4, -1.15, 1.5] as V3, topY: 3.9, clearM: 2, postR: 1 },
   /** Body-centre positions (surface + 0.09 m body half-height). Not on the lighthouse, not on the signpost. */
   perches: [
     { id: 'roof_ridge_a', p: [3.25, 4.55, -1.38] as V3, out: null as number[] | null },

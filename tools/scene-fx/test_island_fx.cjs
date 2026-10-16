@@ -106,7 +106,7 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
    const cam=pose.position,q=pose.rotation,tY=Math.tan(pose.fovVerticalDeg*Math.PI/360),R=qrot(q,[1,0,0]),U=qrot(q,[0,1,0]),W=qrot(q,[0,0,-1]);
    const pj=p=>{const d=[p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]],z=d[0]*W[0]+d[1]*W[1]+d[2]*W[2];if(z<=0)return null;return [((d[0]*R[0]+d[1]*R[1]+d[2]*R[2])/z/(tY*aspect)+1)/2,(1-(d[0]*U[0]+d[1]*U[1]+d[2]*U[2])/z/tY)/2,z];};
    const M=X.moon,B=X.band,mc=pj(M.pos),dist=d3(M.pos,cam),rScr=M.radiusM/dist/(2*tY),haloScr=M.haloRadiusM*.5/dist/(2*tY); // halo core radius (vertex alpha > ~.25), fraction of screen height
-   const S=X.seaY,SG=[-4.08,0.127,0.7],sign=[pj([SG[0]-1.2,S,SG[2]]),pj([SG[0]+1.2,SG[1]+1.5,SG[2]])],head=pj([hero[0],1.75,hero[2]]),feet=pj(hero);
+   const S=X.seaY,SG=[-4.4,-1.15,1.5],sign=[pj([SG[0]-1.2,S,SG[2]]),pj([SG[0]+1.2,S+3.2,SG[2]])],head=pj([hero[0],1.75,hero[2]]),feet=pj(hero);
    const horizon=pj([cam[0]+W[0]*250/Math.hypot(W[0],W[2]),S,cam[2]+W[2]*250/Math.hypot(W[0],W[2])]);
    let cloudHits=0,cloudVerts=0;if(G&&G.meshes.env_cloud_layer){for(const tri of G.meshes.env_cloud_layer)for(const v of tri){const c=pj(v);if(!c)continue;cloudVerts++;const dx=(c[0]-mc[0])*aspect,dy=c[1]-mc[1];if(Math.hypot(dx,dy)<haloScr*1.4)cloudHits++;}}
    const signRect={x0:Math.min(sign[0][0],sign[1][0]),x1:Math.max(sign[0][0],sign[1][0]),y0:Math.min(sign[0][1],sign[1][1]),y1:Math.max(sign[0][1],sign[1][1])};
