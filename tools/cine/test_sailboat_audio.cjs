@@ -235,7 +235,7 @@ test('pause holds the cine voice and resume continues the same source', () => {
   assert.equal(c.refs, 1);
 });
 
-test('cloud hold fades the cine bed over 80ms without cutting it, then the wind bed is still up', () => {
+test('a short fadeCineSlot (80ms) fades without cutting it, then the wind bed is still up', () => {
   const h = harness();
   const a = h.create();
   h.input.emit('touch');
@@ -297,6 +297,67 @@ test('sail sting loads from the region_island bundle and a missing bundle only w
   c.playCineSlot(CINE, 'region_island');
   assert.match(missing.warnings.join('\n'), /cine slot missing/);
   assert.equal(missing.sources().length, before);
+});
+
+
+test('cloud-hold 0.4s fade: still live at 250ms+0.39s, stopped only after 0.4s', () => {
+  const h = harness();
+  const a = h.create();
+  h.input.emit('touch');
+  a.playCineSlot(CINE);
+  const cine = h.clip('cine');
+  deliver(h, CINE, cine);
+  const voice = h.sources().filter(s => s.clip === cine)[0];
+  h.advance(250); a.update();
+  assert.equal(voice.destroyed, false); assert.ok(Math.abs(voice.volume - 1) < 1e-6);
+  a.fadeCineSlot(0.4);
+  h.advance(200); a.update();
+  assert.ok(Math.abs(voice.volume - Math.cos(Math.PI / 4)) < 1e-6);
+  h.advance(190); a.update();
+  assert.equal(voice.destroyed, false);
+  h.advance(10); a.update();
+  assert.equal(voice.destroyed, true);
+  assert.equal(cine.refs, 0);
+});
+
+test('restoreCineSlot mid-fade puts the sting back at full gain and it keeps playing', () => {
+  const h = harness();
+  const a = h.create();
+  h.input.emit('touch');
+  a.playCineSlot(CINE);
+  const cine = h.clip('cine');
+  deliver(h, CINE, cine);
+  const voice = h.sources().filter(s => s.clip === cine)[0];
+  a.fadeCineSlot(0.4);
+  h.advance(200); a.update();
+  assert.ok(voice.volume < 0.75);
+  a.restoreCineSlot();
+  assert.ok(Math.abs(voice.volume - 1) < 1e-6);
+  h.advance(1000); a.update();
+  assert.equal(voice.destroyed, false);
+  assert.ok(Math.abs(voice.volume - 1) < 1e-6);
+  assert.equal(voice.stops, 0);
+  a.fadeCineSlot(0.3);
+  h.advance(300); a.update();
+  assert.equal(voice.destroyed, true, 'skip fade still works after a restore');
+});
+
+test('restoreCineSlot with no fade or after the slot stopped is a no-op', () => {
+  const h = harness();
+  const a = h.create();
+  h.input.emit('touch');
+  a.restoreCineSlot();
+  a.playCineSlot(CINE);
+  const cine = h.clip('cine');
+  deliver(h, CINE, cine);
+  const voice = h.sources().filter(s => s.clip === cine)[0];
+  a.restoreCineSlot();
+  assert.ok(Math.abs(voice.volume - 1) < 1e-6);
+  a.fadeCineSlot(0.4);
+  h.advance(400); a.update();
+  assert.equal(voice.destroyed, true);
+  a.restoreCineSlot();
+  assert.equal(h.sources().filter(s => s.clip === cine && !s.destroyed).length, 0);
 });
 
 console.log(JSON.stringify({ status: 'PASS_SAILBOAT_AUDIO', cases: count }));

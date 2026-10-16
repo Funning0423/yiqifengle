@@ -1171,8 +1171,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts",
-    "bytes": 68082,
-    "sha256": "16faf6a0a436db428f2b1dba45a1f9386412ab82211a1b24946e17a4d66c68cc"
+    "bytes": 68418,
+    "sha256": "e67a4cb6069e5506a00887a08e14c09006a03000a61f2be3bf272394cabb0928"
   },
   {
     "path": "creator-build-project/assets/scripts/audio/GameAudio.ts.meta",
@@ -1276,8 +1276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
-    "bytes": 20167,
-    "sha256": "180871775e2e9889fd5daddf17a3cde05ba2143d417198fddf318562a8733e90"
+    "bytes": 20240,
+    "sha256": "a001bda089647479e0d522ea443aff1b09c0128d67a94d60c46bf2bf7de18060"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
@@ -1286,8 +1286,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts",
-    "bytes": 21894,
-    "sha256": "1031f6e56d937f4bf248476cfd052de99701ae77f94757cfddab55cfe707c297"
+    "bytes": 22937,
+    "sha256": "12e8e6f3caa36c06a1df0b92c7fbc6f2766fa73bb729cba23e6e3468a582a16f"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts.meta",
