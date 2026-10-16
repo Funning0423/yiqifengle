@@ -57,7 +57,7 @@ export const ISLAND_PROPS = Object.freeze({
     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
   },
   palms: [
-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
+    { prefab: 'beach_palm_tall', position: [-3.3, 0.05, 6.6] as V3, yawDeg: 60, scale: 0.75 }, // candidate C: out of the 0.46 close pull (was [-0.5,-0.30,9.0], 200, 0.9)
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
   buttons: {
