@@ -14,6 +14,7 @@ import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
 import type { Pose } from '../world-r1/WorldFlowCore';
 import { GameAudio } from '../audio/GameAudio';
+import { WindAudio } from '../audio/WindAudio';
 import { SailboatPrefabSlot, SAILBOAT_PREFAB_RESOURCE, SAILBOAT_PREFAB_SLOT } from './SailboatPrefabSlot';
 import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudLayer } from './SailboatCloudLayer';
 import type { SailboatCloudLayer } from './SailboatCloudLayer';
@@ -136,6 +137,7 @@ export class SailboatTransitionDriver extends Component {
       // Sail start (timing frame 0): boat shown, sting and countdown begin in this same update.
       console.log('[sailboat] gate open', this.gate.reason, 'waited', this.gate.waitedSec.toFixed(3), 't', Date.now());
       if (this.boat && isValid(this.boat, true)) this.boat.active = true;
+      try { WindAudio.releaseExitDuck(); } catch (error) { console.warn('[sailboat] wind duck release failed', error); }
       this.apply(this.playback.begin());
       return;
     }

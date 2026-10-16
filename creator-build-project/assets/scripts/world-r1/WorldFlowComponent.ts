@@ -10,6 +10,10 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { requiresMeadowScene } from '../world-r2/LevelRegion';
 import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
+import { createExitAudioCue } from '../cine/ExitAudioCue';
+import type { ExitAudioCommand } from '../cine/ExitAudioCue';
+import { GameAudio } from '../audio/GameAudio';
+import { WindAudio } from '../audio/WindAudio';
 import { prefetchSailboatMeadow, releaseSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
@@ -148,6 +152,7 @@ export class WorldFlowComponent extends Component {
   private readonly craneListeners=new Set<(info:{segment:'toIsland';progress:number;seconds:number})=>void>();
   private readonly doorShutListeners=new Set<()=>void>();
   private flowEventsOff:(()=>void)|null=null;
+  private readonly exitAudio=createExitAudioCue();
   private doorShutOff:(()=>void)|null=null;
   private windStrength=0;private readonly windListeners=new Set<(strength:number)=>void>();private windOff:(()=>void)|null=null;
   /** T2+ hook (contract with GGbot T0): fires once per completed journey when the camera has reached cameraIsland /
@@ -230,7 +235,7 @@ export class WorldFlowComponent extends Component {
     this.installCameraDebug();
     this.dayNightMode=localNight(new Date())?'night':'day';
     const routes=createFirstsliceRoutes(FIRSTSLICE,CHARACTER_REFERENCE);this.islandRail=createIslandRail(routes);
-    this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
+    this.flow=new WorldFlow({config:routes,mode,levels,character,skycity:createSkycityVisitAdapter({parent:this.node,camera:this.worldCamera,snapshot:()=>this.flow!.snapshot()}),onChange:s=>{this.reportRuntime('state:'+s.state);this.applyExitAudio(this.exitAudio.state(s.state));onStatus?.(s);},loadWorld:t=>this.createWorld(t)});this.flowEventsOff?.();this.flowEventsOff=this.flow.onCameraEvent(e=>this.forwardCameraEvent(e));
     this.doorShutOff?.();this.doorShutOff=this.flow.onDoorShut(()=>this.forwardDoorShut());
     this.windOff?.();this.windOff=this.flow.onWindStrength(s=>{this.windStrength=s;Array.from(this.windListeners).forEach(fn=>{try{fn(s);}catch(error){console.warn('wind listener failed',String(error));}});});
     game.on(Game.EVENT_HIDE,this.onHide,this);game.on(Game.EVENT_SHOW,this.onShow,this);this.bindWxLifecycle();
@@ -473,7 +478,19 @@ export class WorldFlowComponent extends Component {
     if (sail && isValid(sail, true)) { sail.active = false; sail.destroy(); }
   }
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.shore?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength(),this.shore?.surfaceWorldY());}}
-  private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
+  /** Exit shot sound (cine/ExitAudioCue). Audio failures never touch the flow. */
+  private applyExitAudio(commands:ExitAudioCommand[]):void {
+    for(const c of commands){try{
+      if(c.kind==='release-duck'){WindAudio.releaseExitDuck();continue;}
+      const audio=GameAudio.ensure();if(!audio)continue;
+      if(c.kind==='play'){console.log('[exit] sfx start','t',Date.now());audio.playCineSlot(c.path,c.bundle);}
+      else if(c.kind==='fade')audio.fadeCineSlot(c.seconds);
+      else audio.stopCineSlot();
+    }catch(error){console.warn('[exit] audio failed',String(error));}}
+  }
+  /** Skip the exit shot's sound: 0.3 s fade + release the wind duck. For a future exit skip control. */
+  skipExitAudio():void {this.applyExitAudio(this.exitAudio.skip());}
+  private onHide():void {this.applyExitAudio(this.exitAudio.background());this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.revealReturn();this.scheduleReturn();}
   /** wx.onShow and EVENT_SHOW both land here. The place comes back paused; resume() stays explicit.
    *  A paused director is resumed so the return can paint. An error fault is left blank. */
@@ -536,6 +553,7 @@ export class WorldFlowComponent extends Component {
     if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
     this.unbindWxLifecycle();
     this.flowEventsOff?.();this.flowEventsOff=null;this.doorShutOff?.();this.doorShutOff=null;this.settledListeners.clear();this.craneListeners.clear();this.doorShutListeners.clear();this.windOff?.();this.windOff=null;this.windStrength=0;this.windListeners.clear();
+    this.applyExitAudio(this.exitAudio.background());
     if(this.disposed)return;this.disposed=true;this.lighthouseTargets=[];this.cancelRoomLook();game.off(Game.EVENT_HIDE,this.onHide,this);game.off(Game.EVENT_SHOW,this.onShow,this);
     this.flow?.dispose();this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;this.worldAmbient=null;this.ownedModel?.destroy();this.ownedModel=null;
     // The light belongs to the scene; a retry must capture the authored day baseline.
