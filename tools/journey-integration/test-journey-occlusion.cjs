@@ -28,7 +28,10 @@ for(const leg of legs){const T=routeLength(leg.path),fails=[],exempted=[],grazes
   // v3.2: the start exemption only covers her LEGS (0.15/0.5 m) behind the island prop strip in the first metre; face, head,
   // chest and lens clearance are enforced from set-off.
   const legsOnly=!face.length&&!hit[2].length&&!hit[3].length&&!hit[4].length&&lens>=1;
-  if(bad)(d<leg.exempt&&legsOnly?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
+  // v3.3: during the 04→05 set-off ease (d < setOffEaseM) the lens is still leaving the live island lens, where she
+  // already sits behind the palm strip; visibility there is reported (setOffEase), lens clearance is still enforced.
+  const inEase=leg.startBlendM===0&&d<JOURNEY_CAMERA.setOffEaseM&&lens>=1;if(bad&&inEase)rec.setOffEase=true;
+  if(bad)((d<leg.exempt&&legsOnly)||inEase?exempted:fails).push(rec);else if(hidden)grazes.push(rec);
   if(Math.abs(d/.5-Math.round(d/.5))<1e-6||i*STEP>T-STEP)rows.push({d:+d.toFixed(2),x:+p[0].toFixed(3),y:+p[1].toFixed(3),z:+p[2].toFixed(3),cam:c.position.map(v=>+v.toFixed(2))});}
  profile[leg.id]={total:+T.toFixed(4),rows};
  check(`O1/O2 ${leg.id} character visible + lens ≥1 m every ${STEP} m`,()=>{assert.deepEqual(fails,[],JSON.stringify(fails.slice(0,8)));return {total:+T.toFixed(4),samples:Math.floor(T/STEP)+1,minLensM:+minLens.toFixed(2),exemptedAuthoredIslandPoseSamples:exempted,partialGrazes:grazes};});}

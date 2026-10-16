@@ -1,6 +1,6 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-16T19:06:44.108Z",
+ "timeUTC": "2026-10-16T19:15:00.985Z",
  "fixture": {
   "json": "occlusion/fixture-occluders.json",
   "jsonSha256": "1b25fab5e9169b22af987719ce8bb0e7907701d858ac1df48a977fbe2f6139be",
@@ -49,6 +49,7 @@
   "lookM": 2.4,
   "blendLiftM": 2.5,
   "fovDeg": 48,
+  "setOffEaseM": 0.78,
   "arrivalBlendM": 14,
   "arrivalHoldM": 3,
   "arrivalLiftM": 8,
@@ -168,12 +169,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.05,
@@ -181,12 +189,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.1,
@@ -194,12 +209,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.15,
@@ -207,12 +229,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.2,
@@ -220,12 +249,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.25,
@@ -233,12 +269,19 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "face": [
+      "island:env_prop_palm_lean_01"
+     ],
+     "setOffEase": true
     },
     {
      "d": 0.3,
@@ -246,116 +289,55 @@
       "0.15": [
        "island:env_island_props_merged"
       ],
-      "0.5": [
-       "island:env_island_props_merged"
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "setOffEase": true
     },
     {
      "d": 0.35,
      "hidden": {
       "0.15": [
-       "island:env_island_props_merged"
+       "island:env_island_props_merged",
+       "island:env_prop_palm_lean_01"
       ],
       "0.5": [
-       "island:env_island_props_merged"
+       "island:env_prop_palm_lean_01"
+      ],
+      "0.9": [
+       "island:env_prop_palm_lean_01"
+      ],
+      "1.25": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "setOffEase": true
     },
     {
      "d": 0.4,
      "hidden": {
       "0.15": [
-       "island:env_island_props_merged"
+       "island:env_island_props_merged",
+       "island:env_prop_palm_lean_01"
       ],
       "0.5": [
-       "island:env_island_props_merged"
+       "island:env_prop_palm_lean_01"
+      ],
+      "0.9": [
+       "island:env_prop_palm_lean_01"
       ]
      },
      "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.45,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.5,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.55,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.6,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.65,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
-    },
-    {
-     "d": 0.7,
-     "hidden": {
-      "0.15": [
-       "island:env_island_props_merged"
-      ],
-      "0.5": [
-       "island:env_island_props_merged"
-      ]
-     },
-     "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "setOffEase": true
     },
     {
      "d": 0.75,
@@ -368,7 +350,8 @@
       ]
      },
      "lens": 3,
-     "lensObj": null
+     "lensObj": null,
+     "setOffEase": true
     },
     {
      "d": 0.8,
@@ -411,6 +394,16 @@
     }
    ],
    "partialGrazes": [
+    {
+     "d": 0.7,
+     "hidden": {
+      "0.15": [
+       "island:env_island_props_merged"
+      ]
+     },
+     "lens": 3,
+     "lensObj": null
+    },
     {
      "d": 0.95,
      "hidden": {
@@ -659,9 +652,9 @@
      "y": 0,
      "z": 5.281,
      "cam": [
-      -5.56,
-      3.4,
-      -0.84
+      -12,
+      15.5,
+      48
      ]
     },
     {
@@ -670,9 +663,9 @@
      "y": 0,
      "z": 5.766,
      "cam": [
-      -5.35,
-      3.4,
-      -0.4
+      -7,
+      6.42,
+      11.66
      ]
     },
     {

@@ -37,7 +37,7 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  *    Position and view direction both move on smootherstep over arrivalBlendM metres; direction is slerped, so the
  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
-export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
+export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,setOffEaseM:0.78,
  arrivalBlendM:14,arrivalHoldM:3,arrivalLiftM:8,arrivalRiseM:6,arrivalDropM:4,arrivalBackM:10,arrivalSideM:-1,arrivalUpM:3.5,arrivalAim:.45} as const;
 export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
@@ -97,6 +97,12 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;
+ // v3.3 (Grok Bot, Oi review): startBlendM 0 must not hard-cut from the live lens at set-off. Over the first setOffEaseM
+ // (0.78 m = 0.65 s at 1.2 m/s) ease position, aim point and FOV from the live lens onto the follow pose (smootherstep, C2).
+ // From setOffEaseM on the result is exactly the startBlendM-0 follow pose (post-set-off unchanged).
+ if(startBlendM<=0&&C.setOffEaseM>0&&distance<C.setOffEaseM){const e=smoother(distance/C.setOffEaseM),sf=start.fovVerticalDeg??45;
+  const ps=lerp(start.position,position,e),ds=slerpDir(unit(rel(start.target,start.position)),dir,e);
+  return {position:ps,target:[ps[0]+ds[0]*8,ps[1]+ds[1]*8,ps[2]+ds[2]*8],fovVerticalDeg:sf+(fov-sf)*e};}
  return {position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.
