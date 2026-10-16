@@ -323,7 +323,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   ok(dup.length === 0, 'no duplicate uuids across assets/**/*.meta (' + allMetas.length + ' metas)', dup);
   for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['bundles/audio_bgm_island/audio/bgm_main.mp3', 83, 84.5]]) {
     const p = path.join(P, 'assets', f), m = J(p + '.meta'), buf = fs.readFileSync(p);
-    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0110 = 48 kbps, mode != 3 (stereo)
+    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0101 = 40 kbps since v3.2 size pass (was 48), mode != 3 (stereo)
     let i = 0; if (buf.slice(0, 3).toString() === 'ID3') i = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
     while (i < buf.length - 4 && !(buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0)) i++;
     const KB = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
@@ -332,10 +332,10 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
     const br = (buf[i + 2] >> 4) & 15, sr = (buf[i + 2] >> 2) & 3, mode = (buf[i + 3] >> 6) & 3;
     const kbps = KB[br];
     // first frame may be the Xing/LAME info frame (still 48k CBR header with LAME); check a later frame too
-    ok(m.importer === 'audio-clip' && kbps === 48 && sr === 0 && mode !== 3 && buf.length > 3e5 && buf.length < 6e5, f + ': audio-clip meta, MPEG-1 44.1 kHz stereo, ' + buf.length + ' B', { kbps, mode, uuid: m.uuid });
+    ok(m.importer === 'audio-clip' && kbps === 40 && sr === 0 && mode !== 3 && buf.length > 3e5 && buf.length < 6e5, f + ': audio-clip meta, MPEG-1 44.1 kHz stereo, ' + buf.length + ' B', { kbps, mode, uuid: m.uuid });
   }
   ok(J(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-… after the move');
-  ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '21ca21ac0972a076e772bff62b8cc5e5c4725002d02b51bc46f1be9c5eb1519a', 'island bgm_main.mp3 bytes unchanged by the move (sha256 21ca21ac…)');
+  ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28', 'island bgm_main.mp3 = v3.2 40 kbps re-encode of 21ca21ac… (sha256 183993fb…)');
 }
 console.log((fail ? 'FAILED ' + fail : 'ALL PASS') + ' scene-bgm (' + pass + ' checks)');
 process.exitCode = fail ? 1 : 0;
