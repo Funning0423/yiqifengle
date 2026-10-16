@@ -1,0 +1,11 @@
+{
+  "status": "NOT_EXECUTED_HELPER",
+  "file": "tools/walk-driver/test_locomotion.cjs",
+  "exports": [
+    "install",
+    "run"
+  ],
+  "invocation": "tools/walk-driver/test_walk_driver.cjs:235",
+  "blockedBy": "Host fails at line 144 on original and candidate due to missing hips in fixture. Standalone require/node defines helper functions and does not invoke tests.",
+  "countedAsPass": false
+}

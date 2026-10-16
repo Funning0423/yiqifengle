@@ -1,4 +1,4 @@
-import { requiresMeadowScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
+import { requiresMeadowScene, requiresSkycityScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
 import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset, Texture2D } from 'cc';
 /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
@@ -8,13 +8,12 @@ export const BOARD_BACKGROUND = { bundle: 'region_island', path: 'board/bg_islan
 /** 天空回声 regional boards (r05-sky-*). Painted from env_skycity.glb. Night multiplies this same picture by K_SEA. */
 export const SKY_BOARD_BACKGROUND = { bundle: 'region_skycity', path: 'board/bg_skycity_board' } as const;
 export type BoardPicture = { readonly bundle: string; readonly path: string };
-/** '' | 'tide' | 'meadow' | 'sky'. Only r05-* stage ids are chapters here.
- *  Mainline-09..12 are 月影古树 (继续旅程), not the 天空回声 board opened from the journey book. */
+/** Mainline chapter identity follows the same island → meadow → sky-city campaign as regional challenges. */
 export function boardChapter(selection: { provider?: string; stageId?: string } | null): string {
   const id = selection && selection.stageId ? String(selection.stageId) : '';
   if (id.indexOf('r05-tide-') === 0) return 'tide';
   if (requiresMeadowScene(selection)) return 'meadow';
-  if (id.indexOf('r05-sky-') === 0) return 'sky';
+  if (requiresSkycityScene(selection)) return 'sky';
   return '';
 }
 /** Exact supported picture; missing meadow scenery is an explicit entry failure. */

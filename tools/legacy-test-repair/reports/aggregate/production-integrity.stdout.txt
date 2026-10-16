@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:21:19.014Z",
+  "scope": "Frozen shipped bytes plus explicit reversible controller patch; no rendered quality inferred",
+  "checks": [
+    {
+      "id": "immutable-shipped-assets-and-engine",
+      "files": 311
+    },
+    {
+      "id": "reviewed-character-endpoint-patch-only",
+      "baselineSectionSHA256": "171b4e16d91ae0a95bdcad27ae084796ca109e6e329141f2d975692e4abb6342",
+      "sectionSHA256": "c73a4dec47cda188a9aa672c74bd592e912661215b17827d8d72a26df443010f",
+      "exactReviewedReplacements": 3,
+      "baselineReconstructionVerified": true,
+      "note": "Controller bytes intentionally changed; not a byte-identical claim."
+    }
+  ]
+}

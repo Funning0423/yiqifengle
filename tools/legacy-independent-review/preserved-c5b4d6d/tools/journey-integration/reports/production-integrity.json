@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:05:30.283Z",
+  "scope": "Byte identity only; no rendered quality inferred",
+  "checks": [
+    {
+      "id": "immutable-shipped-assets-and-engine",
+      "files": 311
+    },
+    {
+      "id": "existing-character-controller-byte-identical"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+PASS pathHeading-unit               {"startDeg":0,"endDeg":90,"shortOnlyDeg":0,"minDist":0.05}
+PASS turn-meets-next-walk           {"turnsFollowedByWalk":[{"toDeg":-2.8,"walkHeadingDeg":-2.8,"errDeg":0},{"toDeg":-161.5,"walkHeadingDeg":-177.7,"errDeg":16.2}]}
+PASS return-turn-not-3mm-segment    {"returnTurn":{"toDeg":-161.5,"walkHeadingDeg":-177.7,"errDeg":16.2},"toThresholdSeg0M":0.003}
+PASS no-raw-path1-heading           {"matches":[]}
+ALL PASS turn-targets

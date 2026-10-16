@@ -1,0 +1,42 @@
+{
+  "status": "PASS_PURE_NODE_STUBS_NOT_RENDER_ACCEPTANCE",
+  "checks": [
+    {
+      "check": "stand-half-clock-exact-endpoint-and-single-completion",
+      "resolutions": 1
+    },
+    {
+      "check": "cancel-no-late-walk-or-clip-writes"
+    },
+    {
+      "check": "adapter-120Hz-substeps-consume-full-frame-and-settle",
+      "suppliedSeconds": 10,
+      "end": [
+        11,
+        0,
+        0
+      ]
+    },
+    {
+      "check": "door-manual-clock-and-reset-cancellation"
+    },
+    {
+      "check": "sit-half-clock-exact-endpoint"
+    },
+    {
+      "check": "completion-tolerance-canonicalizes-root-before-resolve",
+      "terminalEquality": "strict",
+      "outsideTolerancePending": true
+    },
+    {
+      "check": "missing-action-clip-rejects-and-disposal-never-revives"
+    },
+    {
+      "check": "actual-WorldFlow-long-frame-cap-hide-show-explicit-resume",
+      "hostFrameCapSeconds": 0.1,
+      "pausedNoRootOrClipWrites": true
+    }
+  ],
+  "typescript": "5.9.3",
+  "scope": "Actual production FlowReferenceStandin + AnimRig + CharacterMotion + WorldFlow. Cocos node/clip boundaries are structural doubles; no Creator, GUI, asset import, browser, physical-device or visual acceptance."
+}

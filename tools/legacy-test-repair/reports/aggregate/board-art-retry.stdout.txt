@@ -1,0 +1,8 @@
+PASS hung-directory: failed entry → restored resources → rebuilt UI → real swap, stale callbacks inert
+PASS missing-frame: failed entry → restored resources → rebuilt UI → real swap, stale callbacks inert
+PASS hung-bundle: failed entry → restored resources → rebuilt UI → real swap, stale callbacks inert
+PASS destroy before deadline without readiness waiter releases pending generation
+PASS destroy before deadline with readiness waiter releases pending generation
+PASS partial texture-construction failure publishes nothing, destroys staged objects, then retries
+PASS valid completed art is retained when an unrelated controller entry fails or UI is destroyed
+{"status":"PASS","checks":7,"failed":[]}

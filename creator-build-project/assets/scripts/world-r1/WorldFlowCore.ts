@@ -1,12 +1,13 @@
+import type { RegionJourneyController, JourneyRegion, JourneySnapshot } from './RegionJourneyCore';
 import { CameraTrackFailure } from './CameraPose';
 import type { TrackOptions, WeightRamp } from './CameraPose';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
-export type Place = 'home' | 'island' | 'level' | 'skycity';
+export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity';
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
-  'closing-door' | 'walking-to-seat' | 'sitting' | 'paused' | 'error' | 'disposed';
+  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
 /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
  * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
 export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
@@ -177,7 +178,7 @@ export interface RouteConfig {
   islandYawRad?:number;
 }
 export type Result={ok:true}|{ok:false;reason:string};
-export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null}>;
+export type Snapshot=Readonly<{state:State;stable:Place;mode:Mode;hidden:boolean;needsResume:boolean;characterReady:boolean;error:string|null;journey?:JourneySnapshot}>;
 const HOME:Layers={interior:true,exterior:false,door:true,backdrop:true};
 const ISLAND:Layers={interior:false,exterior:true,door:true,backdrop:true,doorwayInterior:true};
 const BOTH:Layers={interior:true,exterior:true,door:true,backdrop:true};
@@ -230,6 +231,7 @@ export class WorldFlow {
   private hidden=false; private needsResume=false; private error:string|null=null;
   private current:Cancellation|null=null; private world:WorldLease|null=null; private level:LevelLease|null=null;
   private character:CharacterAdapter|null; private readonly config:RouteConfig;
+  private readonly journey:RegionJourneyController|undefined;private levelOrigin:JourneyRegion='island';
   private visit:RegionVisitLease|null=null; private readonly skycity:RegionVisitAdapter|undefined;
   private readonly levels:LevelAdapter; private readonly loadWorld:(token:Cancellation)=>Promise<WorldLease>;
   private readonly emit:(snapshot:Snapshot)=>void;
@@ -253,12 +255,12 @@ export class WorldFlow {
   onDoorShut(listener:()=>void):()=>void {this.doorShutListeners.add(listener);return ()=>{this.doorShutListeners.delete(listener);};}
   private emitDoorShut():void {if(this.doorShutSent)return;this.doorShutSent=true;
     for(const fn of Array.from(this.doorShutListeners)){try{fn();}catch(error){console.warn('door shut listener failed',String(error));}}}
-  constructor(options:{config:RouteConfig;mode?:Mode;character?:CharacterAdapter;levels:LevelAdapter;skycity?:RegionVisitAdapter;loadWorld:(t:Cancellation)=>Promise<WorldLease>;onChange?:(s:Snapshot)=>void}) {
-    this.config=options.config;this.mode=options.mode??'fixed';this.character=options.character??null;this.levels=options.levels;this.skycity=options.skycity;this.loadWorld=options.loadWorld;this.emit=options.onChange??(()=>{});
+  constructor(options:{config:RouteConfig;mode?:Mode;character?:CharacterAdapter;levels:LevelAdapter;skycity?:RegionVisitAdapter;journey?:RegionJourneyController;loadWorld:(t:Cancellation)=>Promise<WorldLease>;onChange?:(s:Snapshot)=>void}) {
+    this.journey=options.journey;this.config=options.config;this.mode=options.mode??'fixed';this.character=options.character??null;this.levels=options.levels;this.skycity=options.skycity;this.loadWorld=options.loadWorld;this.emit=options.onChange??(()=>{});
   }
   /** T2+: leaveHome({from}) starts the stand-up move on `from` (no rejoin cut needed by the caller). */
   get continuousLeave():boolean {const c=this.config;return this.mode==='motion'&&!!(c.cameraStandTurn&&c.cameraTracks?.standTurn);}
-  snapshot():Snapshot {return Object.freeze({state:this.state,stable:this.stable,mode:this.mode,hidden:this.hidden,needsResume:this.needsResume,characterReady:this.characterReady(),error:this.error});}
+  snapshot():Snapshot {return Object.freeze({state:this.state,stable:this.stable,mode:this.mode,hidden:this.hidden,needsResume:this.needsResume,characterReady:this.characterReady(),error:this.error,...(this.journey?{journey:this.journey.snapshot()}:{})});}
   private change(state:State):void {this.state=state;this.emit(this.snapshot());}
   private characterReady():boolean {
     const a=this.character,c=a?.coordinates,s=this.config.seat;
@@ -266,10 +268,15 @@ export class WorldFlow {
       c.clearanceRadiusM>0&&c.clearanceRadiusM<=.18&&distance(c.standingRoot,s.standingControllerRoot)<1e-4&&
       distance(c.seatedRoot,s.seatedControllerRoot)<1e-4&&Math.abs(c.seatYawRad-s.yawRad)<1e-5);
   }
-  private pose():StablePose {return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
+  private pose():StablePose {if(this.stable!=='home'&&this.journey?.position())return this.journey.position()!;return this.stable==='home'?{kind:'seated',seat:this.config.seat}:{kind:'standing',controllerRoot:this.config.toIsland[this.config.toIsland.length-1],yawRad:this.config.islandYawRad??0};}
   private restore():void {
     this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.islandDoorDeg());
+    if(this.stable!=='home'&&this.journey?.hasCheckpoint()&&this.characterReady()){
+      const visible=!this.hidden&&!this.needsResume&&this.stable!=='level';
+      this.world.setLayers(visible?ISLAND:NONE);this.world.setRoomLightWeight?.(0);this.world.setExteriorKey?.(0);
+      this.journey.restore(this.character!,this.world,visible);this.world.assertStaticWorld();return;
+    }
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
     this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
@@ -430,7 +437,33 @@ export class WorldFlow {
       this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});
     });
   }
+  /** Real scene preparation can run over a settled result. A failed load leaves its lease and rewards intact. */
+  async prepareRegion(target:JourneyRegion):Promise<Result>{
+    if(!this.journey)return {ok:false,reason:'journey-unavailable'};
+    if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
+    const expected=this.stable,fail=this.blocked(expected,true);if(fail)return fail;
+    if(!['island','meadow','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
+    if(expected==='level'&&!this.level?.isSettledResult?.())return {ok:false,reason:'journey-requires-settled-result'};
+    return this.operate('region-loading',async token=>{
+      const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      await this.journey!.prepare(target,pose.controllerRoot,token);token.check();this.change(this.stable);
+    });
+  }
+  async travelRegion(target:JourneyRegion):Promise<Result>{
+    if(!this.journey)return {ok:false,reason:'journey-unavailable'};
+    if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
+    const fail=this.blocked(this.stable,true);if(fail)return fail;
+    if(!['island','meadow'].includes(this.stable))return {ok:false,reason:'journey-wrong-origin'};
+    return this.operate('region-loading',async token=>{
+      const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+      await this.journey!.prepare(target,pose.controllerRoot,token);token.check();
+      this.world!.setLayers(ISLAND);this.world!.setRoomLightWeight?.(0);this.character!.setVisible(true);
+      this.change('region-travel');await this.journey!.walk(this.character!,this.world!,token);token.check();
+      this.stable=target;this.restore();this.change(target);
+    });
+  }
   async enterSkycity():Promise<Result> {
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
     const fail=this.blocked('island');if(fail)return fail;
     if(!this.skycity)return {ok:false,reason:'skycity-unavailable'};
     return this.operate('skycity-loading',async token=>{
@@ -441,11 +474,14 @@ export class WorldFlow {
     });
   }
   exitSkycity():Result {
+    if(this.journey?.snapshot().region==='skycity')return {ok:false,reason:'return-route-not-yet-available'};
     const fail=this.blocked('skycity');if(fail)return fail;
     const visit=this.visit;this.visit=null;visit?.dispose();this.stable='island';this.restore();this.change('island');return {ok:true};
   }
   async enterLevel(stageId:string):Promise<Result> {
-    const fail=this.blocked('island');if(fail)return fail;
+    const origin=this.journey?.snapshot().region??'island';
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
+    const fail=this.blocked(origin);if(fail)return fail;
     if(!stageId.trim())return {ok:false,reason:'empty-stage'};
     return this.operate('level-loading',async t=>{
       const pending=this.levels.enter(stageId,t).then(lease=>{if(t.cancelled){lease.dispose();throw new Cancelled();}return lease;});
@@ -458,7 +494,7 @@ export class WorldFlow {
         if(lease.whenPlayable)await t.wait(lease.whenPlayable());
         t.check();await cover;t.check();
         lease.reveal?.();
-        this.level=lease;this.stable='level';this.restore();this.change('level');
+        this.level=lease;this.levelOrigin=origin;this.stable='level';this.restore();this.change('level');
       } catch(error) {
         if(lease&&this.level!==lease){try{lease.dispose();}catch(disposeError){console.warn('enter-level dispose failed',String(disposeError));}}
         // A hung board must not stay on screen with input frozen. The island is still the stable place.
@@ -484,9 +520,10 @@ export class WorldFlow {
   exitLevel():Result {
     const fail=this.blocked('level');if(fail)return fail;
     const accepted=this.level!.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
-    this.level?.dispose();this.level=null;this.stable='island';this.restore();this.change('island');return {ok:true};
+    this.level?.dispose();this.level=null;this.stable=this.levelOrigin;this.restore();this.change(this.levelOrigin);return {ok:true};
   }
   async returnHome():Promise<Result> {
+    if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
       this.doorShutSent=false; // this return may shut the leaf again
@@ -569,10 +606,10 @@ export class WorldFlow {
   }
   advance(seconds:number):void {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
-    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady())this.character!.advance(Math.min(seconds,.1));
+    if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world);}
   }
   hide():void {
-    if(this.state==='disposed'||this.hidden)return;this.hidden=true;this.needsResume=true;this.invalidate();
+    if(this.state==='disposed'||this.hidden)return;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
   /** Back from background: the place the player left is visible again, still paused until resume().
@@ -588,7 +625,8 @@ export class WorldFlow {
   private presentPausedView():void {
     if(!this.world)return;
     const place=this.stable;
-    if(place==='home'||place==='island'){this.world.setLayers(place==='home'?HOME:ISLAND);if(this.characterReady())this.character?.setVisible(true);}
+    if(this.journey?.hasCheckpoint()&&place!=='home'&&place!=='level'){this.world.setLayers(ISLAND);this.journey.show(true);this.character?.setVisible(true);}
+    else if(place==='home'||place==='island'){this.world.setLayers(place==='home'?HOME:ISLAND);if(this.characterReady())this.character?.setVisible(true);}
     else if(place==='skycity')this.visit?.show();
   }
   resume():Result {
@@ -600,6 +638,7 @@ export class WorldFlow {
   }
   cancelTransition():Result {
     if(!this.current)return {ok:false,reason:'no-transition'};
+    if(this.character&&this.world)this.journey?.suspend(this.character,this.world);
     this.invalidate();this.restore();this.change(this.world?this.stable:'idle');return {ok:true};
   }
   fault(message:string):void {
@@ -607,6 +646,6 @@ export class WorldFlow {
   }
   dispose():void {
     if(this.state==='disposed')return;this.setWind(0);this.windListeners.clear();this.doorShutListeners.clear();this.invalidate();this.level?.dispose();this.level=null;this.visit?.dispose();this.visit=null;
-    this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
+    this.journey?.dispose();this.character?.dispose();this.character=null;this.world?.dispose();this.world=null;this.change('disposed');
   }
 }

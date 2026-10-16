@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "allReadsAndWritesWithinFreshRoot": true,
+  "mainlineR4R5ShareJourney": true,
+  "normalPortsRestoredWithoutStorageIO": true,
+  "releaseBlocked": true,
+  "scope": "Temporary node/engine harness, no native or normal-save field inspection"
+}

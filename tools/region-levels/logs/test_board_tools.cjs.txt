@@ -1,0 +1,25 @@
+PASS bar: priority order, max 3, no pearl, no permanent names, count badges; frozen for the run
+PASS tap arms a targeted tool (toast prompt), cell tap uses it; tapping again disarms with no cost
+PASS drag to a cell uses the tool; drag outside / cancel keep it; second finger is ignored; hide/late-end cancels
+PASS no tool input while paused / read-only / a popup is open
+PASS regional reward art: tideNet / sunSeed / starShears use the r2 slices; mainline stays on the square board slices
+PASS drag ghost tracks the pointer every frame with no lift; cancel never spends the tool
+PASS press-hold: the piece follows the finger, swaps only on release over a neighbor, and an armed tool cannot eat the drag
+PASS tray drag: ghost follows the live finger every frame and the tool is used only on touch end
+PASS piece swap waits for a real touch end; cancel does not swap or clear
+PASS layout points and UI points both land on their cells; the reported bomb points are the top row
+PASS hold a piece and release on a layout-space neighbor swaps; a slide inside the cell stays a tap
+PASS drag a bomb from the tray onto the reported cells and release calls useTool
+PASS regional tools: one slot, tideAnchor / prismShift fire at once, sunSeed targets a cell
+PASS seed 1 rejects the corner pairs but still calls swap; holding and cancel do not
+PASS seed 1 legal layout releases clear and spend a move once the visual clock runs
+PASS a screen point that is not the UI point still releases onto that cell and clears
+PASS a touch end stuck on the press cell still swaps to the last layout cell
+PASS layout bomb release calls useTool and the clear shows after the visual clock; cancel does not
+PASS input stays blocked until presentForPlay, then a legal drag clears
+PASS level 03 浆果野餐 uses the same release path and clears a legal swap
+PASS a stale screen channel never overrides a newer owner live sample returning to the press
+PASS touch end on the neighbor cell swaps that cell, the same identity as the second tap
+PASS known layout-alias END rollback to the tray preserves PR52 when no newer owner sample returns
+PASS touch end on the bomb cell uses that cell, and a later move off the board still retracts
+{"status":"PASS","checks":24,"scope":"Real board-ui ManagedMobileBoardUI tool bar on Cocos memory doubles; no rendering or device touch"}

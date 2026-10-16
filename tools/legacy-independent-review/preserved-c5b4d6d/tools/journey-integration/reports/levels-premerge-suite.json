@@ -1,0 +1,20 @@
+{
+  "startedAt": "2026-10-15T16:57:18.228Z",
+  "gitHead": "acfa1c66f1fcece380ad834181f8a1aa26805349",
+  "worktreeStatus": "M tools/journey-integration/README.md\n M tools/journey-integration/reports/mainline-boundaries.json\n M tools/journey-integration/run-suite.cjs\n?? output/retry-protection-results.json\n?? tools/journey-integration/frozen-production-inputs.json\n?? tools/journey-integration/reports/board-art-retry.stderr.txt\n?? tools/journey-integration/reports/board-art-retry.stdout.txt\n?? tools/journey-integration/reports/board-freeze-recovery.stderr.txt\n?? tools/journey-integration/reports/board-freeze-recovery.stdout.txt\n?? tools/journey-integration/reports/board-runtime.stderr.txt\n?? tools/journey-integration/reports/board-runtime.stdout.txt\n?? tools/journey-integration/reports/board-storage-recovery.stderr.txt\n?? tools/journey-integration/reports/board-storage-recovery.stdout.txt\n?? tools/journey-integration/reports/chapter-gates.stderr.txt\n?? tools/journey-integration/reports/chapter-gates.stdout.txt\n?? tools/journey-integration/reports/child-first-teardown.stderr.txt\n?? tools/journey-integration/reports/child-first-teardown.stdout.txt\n?? tools/journey-integration/reports/deferred-entry-art.stderr.txt\n?? tools/journey-integration/reports/deferred-entry-art.stdout.txt\n?? tools/journey-integration/reports/input-ownership.stderr.txt\n?? tools/journey-integration/reports/input-ownership.stdout.txt\n?? tools/journey-integration/reports/journey-typecheck-premerge.stdout.txt\n?? tools/journey-integration/reports/legacy-browser-not-started.txt\n?? tools/journey-integration/reports/mainline-integrated.stdout.txt\n?? tools/journey-integration/reports/navigation-guard.stderr.txt\n?? tools/journey-integration/reports/navigation-guard.stdout.txt\n?? tools/journey-integration/reports/production-binding.stderr.txt\n?? tools/journey-integration/reports/production-binding.stdout.txt\n?? tools/journey-integration/reports/production-integrity.json\n?? tools/journey-integration/reports/qualify-mainline.stdout.txt\n?? tools/journey-integration/reports/region-entry.stderr.txt\n?? tools/journey-integration/reports/region-entry.stdout.txt\n?? tools/journey-integration/reports/region-failure.stderr.txt\n?? tools/journey-integration/reports/region-failure.stdout.txt\n?? tools/journey-integration/reports/region-levels.stderr.txt\n?? tools/journey-integration/reports/region-levels.stdout.txt\n?? tools/journey-integration/reports/region-ports.stderr.txt\n?? tools/journey-integration/reports/region-ports.stdout.txt\n?? tools/journey-integration/reports/region-reentry.stderr.txt\n?? tools/journey-integration/reports/region-reentry.stdout.txt\n?? tools/journey-integration/reports/region-ui.stderr.txt\n?? tools/journey-integration/reports/region-ui.stdout.txt\n?? tools/journey-integration/reports/restored-entry-resume.stderr.txt\n?? tools/journey-integration/reports/restored-entry-resume.stdout.txt\n?? tools/journey-integration/reports/result-retry.stderr.txt\n?? tools/journey-integration/reports/result-retry.stdout.txt\n?? tools/journey-integration/reports/retry-protection.stderr.txt\n?? tools/journey-integration/reports/retry-protection.stdout.txt\n?? tools/journey-integration/reports/reward-background-return.stderr.txt\n?? tools/journey-integration/reports/reward-background-return.stdout.txt\n?? tools/journey-integration/reports/suite.json\n?? tools/journey-integration/test-production-integrity.cjs",
+  "testRuntime": "v24.19.0",
+  "typescriptModule": null,
+  "status": "BLOCKED",
+  "renderedAcceptance": "BLOCKED_NOT_RUN",
+  "deviceAcceptance": "NOT_RUN",
+  "checks": [
+    {
+      "id": "navigation-guard",
+      "file": "tools/test_world_navigation_guard.cjs",
+      "status": "BLOCKED",
+      "reason": "Browser-launching legacy suite is excluded from this Node-only runner; use an authorized browser adapter and official artifact"
+    }
+  ],
+  "finishedAt": "2026-10-15T16:57:18.245Z",
+  "scope": "Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution."
+}

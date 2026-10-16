@@ -1,0 +1,80 @@
+PASS piece foreign end preserves owner then exactly one commit
+PASS piece foreign move preserves owner then exactly one commit
+PASS piece foreign cancel preserves owner then exactly one commit
+PASS piece foreign second-start preserves owner then exactly one commit
+PASS piece outside-end UI
+PASS piece outside-end layout
+PASS piece outside-positive-end UI
+PASS piece outside-positive-end layout
+PASS piece outside-move UI
+PASS piece outside-move layout
+PASS piece return-move UI
+PASS piece return-move layout
+PASS piece return-live UI
+PASS piece return-live layout
+PASS piece outside-live UI
+PASS piece outside-live layout
+PASS piece cancel-late-end UI
+PASS piece cancel-late-end layout
+PASS piece origin-end-without-move UI
+PASS piece origin-end-without-move layout
+PASS piece drag out then re-enter node commits normally
+PASS piece drag out then re-enter live commits normally
+PASS bomb foreign end preserves owner then exactly one use
+PASS bomb foreign move preserves owner then exactly one use
+PASS bomb foreign cancel preserves owner then exactly one use
+PASS bomb foreign second-start preserves owner then exactly one use
+PASS bomb outside-end UI
+PASS bomb outside-end layout
+PASS bomb outside-positive-end UI
+PASS bomb outside-positive-end layout
+PASS bomb return-move UI
+PASS bomb return-move layout
+PASS bomb return-live UI
+PASS bomb return-live layout
+PASS bomb outside-live UI
+PASS bomb outside-live layout
+PASS bomb cancel-late-end UI
+PASS bomb cancel-late-end layout
+PASS bomb drag out then back in commits once
+PASS PR52 layout alias bomb END rollback without newer return remains supported
+PASS piece component-disable resets before late release
+PASS piece owner-hide resets before late release
+PASS piece root-hide resets before late release
+PASS piece game-hide resets before late release
+PASS piece host-hide resets before late release
+PASS piece destroy resets before late release
+PASS bomb component-disable resets before late release
+PASS bomb owner-hide resets before late release
+PASS bomb root-hide resets before late release
+PASS bomb game-hide resets before late release
+PASS bomb host-hide resets before late release
+PASS bomb destroy resets before late release
+PASS first piece owns board across piece/tool second start
+PASS first bomb owns board across piece/tool second start
+PASS piece foreign receiving cell cannot override explicit outside END
+PASS bomb foreign receiving cell cannot override explicit outside END
+PASS PR52 split screen/UI selects calibrated screen target
+PASS PR52 stale screen channel cannot override valid layout release
+PASS pause foreign-end
+PASS pause foreign-move
+PASS pause foreign-cancel
+PASS pause second-start
+PASS pause outside-end
+PASS pause out-in
+PASS pause hide-show
+PASS pause destroy
+PASS popup-home foreign-end
+PASS popup-home foreign-move
+PASS popup-home foreign-cancel
+PASS popup-home second-start
+PASS popup-home outside-end
+PASS popup-home out-in
+PASS popup-home hide-show
+PASS popup-home destroy
+PASS captured Home cannot exit through newly opened Settings or revive afterwards
+PASS closing panel rejects existing and fresh button gestures
+PASS disable-reenable art button clears press and permits a fresh tap
+PASS slider owns one pointer; hide resets without a late value write
+PASS board teardown releases game-hide listener ownership
+{"status":"PASS","checks":79,"failed":[]}

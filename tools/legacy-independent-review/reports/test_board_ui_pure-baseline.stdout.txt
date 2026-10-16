@@ -1,0 +1,8 @@
+PASS BuildInfo: committed placeholder dev; label "v0.1 · 构建 <sha>"; write_build_info stamps a 7-char sha
+PASS UI flags live in localStorage under qfl.ui.* (seenTools JSON list, cabinHintSeen "1"), tolerate corrupt values, never in journey code
+PASS GameAudio sfxMuted: qfl.audio.sfxMuted persists, mutes every SFX (UI clicks included) but not music; restored on next load
+PASS BoardLayout reference phone 390×844: pause (38,67) hit 44, plate 88–302 × 96–156, pitch 42.6, tray centre ≈400, tools y 730 step 82
+PASS tool bar choice: in-stock only, 星光 > 风语铃 > 潮汐瓶 > regional, max 3, never pearl
+PASS idle hint clock: first hint after 5 s idle, then every 8 s; input or inactive restarts; frame spikes clamp to 0.25 s
+PASS night tint: sprites multiply by K_UI / K_SEA, text recolours; every role keeps contrast ≥ 4.5 on the night panel
+PASS cabin hint curve: 0.4 s in to 0.25, 3 × (0.7 s up to 1, 0.9 s down to 0.25), rests at 0.25; reduced motion holds 0.6

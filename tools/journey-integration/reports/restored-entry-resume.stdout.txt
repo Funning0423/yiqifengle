@@ -1,0 +1,1 @@
+PASS restored paused entry: explicit resume, no silent state change, exact saved bytes and action retained

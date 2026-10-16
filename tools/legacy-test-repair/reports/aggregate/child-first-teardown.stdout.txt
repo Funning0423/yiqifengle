@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "scope": "Actual UI TS with child-first/null-field lifecycle double, no Cocos engine",
+  "checks": [
+    {
+      "mode": "idle",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    },
+    {
+      "mode": "piece-drag",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    },
+    {
+      "mode": "tool-drag",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    },
+    {
+      "mode": "pause-pressed",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    },
+    {
+      "mode": "home-pressed",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    },
+    {
+      "mode": "settings-slider",
+      "hideListeners": 0,
+      "lateHideSafe": true
+    }
+  ]
+}

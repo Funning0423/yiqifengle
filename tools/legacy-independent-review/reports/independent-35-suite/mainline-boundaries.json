@@ -1,0 +1,256 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T17:26:57.492Z",
+  "scope": "Real production mainline/reward controllers, deterministic legal actions, isolated Map storage. No Cocos engine, pixels, GPU, browser, phone, or normal user save acceptance.",
+  "campaignStatus": "PRESENT",
+  "checks": [
+    {
+      "id": "J01/J11 legal-all-twelve-stage-progression",
+      "status": "PASS",
+      "legalActions": 190,
+      "states": [
+        {
+          "completed": 0,
+          "challengeGates": [
+            false,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "completed": 1,
+          "challengeGates": [
+            false,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "completed": 2,
+          "challengeGates": [
+            false,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "completed": 3,
+          "challengeGates": [
+            false,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "completed": 4,
+          "challengeGates": [
+            true,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "completed": 5,
+          "challengeGates": [
+            true,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "completed": 6,
+          "challengeGates": [
+            true,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "completed": 7,
+          "challengeGates": [
+            true,
+            false,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "completed": 8,
+          "challengeGates": [
+            true,
+            true,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "completed": 9,
+          "challengeGates": [
+            true,
+            true,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "completed": 10,
+          "challengeGates": [
+            true,
+            true,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "completed": 11,
+          "challengeGates": [
+            true,
+            true,
+            false
+          ],
+          "regionGates": [
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "completed": 12,
+          "challengeGates": [
+            true,
+            true,
+            true
+          ],
+          "regionGates": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "campaignPresent": true
+    },
+    {
+      "id": "J07 reward-once-boundary-4",
+      "status": "PASS",
+      "completed": 4,
+      "reloadsPreserved": true
+    },
+    {
+      "id": "J07 reward-once-boundary-8",
+      "status": "PASS",
+      "completed": 8,
+      "reloadsPreserved": true
+    },
+    {
+      "id": "J08 write-failure-4-forest-mainline-cocos-r1-active",
+      "status": "PASS",
+      "failedState": "run.unsaved",
+      "afterRetry": "result.saved",
+      "oneClearAfterColdReload": true
+    },
+    {
+      "id": "J08 write-failure-4-forest-v33-journey",
+      "status": "PASS",
+      "failedState": "result.unsaved",
+      "afterRetry": "result.saved",
+      "oneClearAfterColdReload": true
+    },
+    {
+      "id": "J08 write-failure-8-forest-mainline-cocos-r1-active",
+      "status": "PASS",
+      "failedState": "run.unsaved",
+      "afterRetry": "result.saved",
+      "oneClearAfterColdReload": true
+    },
+    {
+      "id": "J08 write-failure-8-forest-v33-journey",
+      "status": "PASS",
+      "failedState": "result.unsaved",
+      "afterRetry": "result.saved",
+      "oneClearAfterColdReload": true
+    },
+    {
+      "id": "J05/J10 paused-hidden-visual-token-ownership",
+      "status": "PASS",
+      "duplicateActionRejected": true,
+      "oldVisualTokenRejected": true,
+      "explicitResumeRequired": true
+    },
+    {
+      "id": "J09 corrupt-forest-mainline-cocos-r1-active-be302461",
+      "status": "PASS",
+      "bytesPreserved": true,
+      "writes": 0
+    },
+    {
+      "id": "J09 corrupt-forest-mainline-cocos-r1-active-368a0a76",
+      "status": "PASS",
+      "bytesPreserved": true,
+      "writes": 0
+    },
+    {
+      "id": "J09 corrupt-forest-v33-journey-be302461",
+      "status": "PASS",
+      "bytesPreserved": true,
+      "writes": 0
+    },
+    {
+      "id": "J09 corrupt-forest-v33-journey-368a0a76",
+      "status": "PASS",
+      "bytesPreserved": true,
+      "writes": 0
+    }
+  ]
+}

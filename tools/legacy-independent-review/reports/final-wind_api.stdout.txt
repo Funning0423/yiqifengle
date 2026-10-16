@@ -1,0 +1,10 @@
+PASS signatures                   {"getWindStrength":"():number","onWindStrength":"(listener:(strength:number)=>void):()=>void"}
+PASS default-0                    
+PASS clamped-0..1                 [[0.4,0.4],[1.7,1],[-0.2,0],[null,0],[1,1],[0,0]]
+PASS disposed-0                   
+PASS unsubscribe-fn               
+PASS unsubscribe-idempotent       
+PASS debug-__worldCamera          
+PASS debug-__worldDayNight        
+PASS listeners-cleared-on-destroy 
+ALL PASS wind-api

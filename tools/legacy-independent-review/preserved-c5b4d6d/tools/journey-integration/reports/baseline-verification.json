@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "timeUTC": "2026-10-15T16:45:34.129384+00:00",
+  "sourceManifest": "/workspace/shared/task21-cloud-20261015/verified-originals/deliverables/source-after-final-manifest.json",
+  "sourceManifestSHA256": "9183915105c982a82389633ceca4ea30cf4cfefc0f8369e694002814af74484c",
+  "manifestCount": 2244,
+  "verifiedCount": 2244,
+  "manifestCanonicalSHA256": "864ebcd842aa964f35e84a1b945ba73eda2bac2197ddd38eb9d18875cd5480b9",
+  "missing": [],
+  "mismatches": [],
+  "extra": [],
+  "scope": "Byte-for-byte source identity, not runtime or visual acceptance"
+}

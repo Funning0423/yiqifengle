@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "saveFailureKeepsChallengeLocked": true,
+  "noUnlockSuccessHintOnFailure": true,
+  "retryRegistersActualWin": true,
+  "scope": "Failure injection only in temporary test namespace"
+}

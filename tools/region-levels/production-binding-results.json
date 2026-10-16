@@ -1,0 +1,274 @@
+{
+  "status": "PASS",
+  "scope": "Actual MainlineHost/ManagedMainlineBinding/port + ManagedMobileBoardUI on Cocos memory doubles. No pixel, WebGL, real storage or device acceptance.",
+  "checks": [
+    {
+      "stageId": "mainline-05",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "05  风车下的花环",
+      "goals": [
+        "moss",
+        "type2"
+      ],
+      "moves": 31,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "06  草桥双结",
+      "goals": [
+        "roots",
+        "type0"
+      ],
+      "moves": 31,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-07",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "07  风铃合奏",
+      "goals": [
+        "type1",
+        "type3",
+        "specials"
+      ],
+      "moves": 34,
+      "titleWidth": 403.7668948995656,
+      "plateWidth": 443.7668948995656
+    },
+    {
+      "stageId": "mainline-08",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "08  长风的约定",
+      "goals": [
+        "moss",
+        "roots",
+        "type1"
+      ],
+      "moves": 34,
+      "titleWidth": 376.07839781662517,
+      "plateWidth": 416.07839781662517
+    },
+    {
+      "stageId": "mainline-09",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "09  云阶初见",
+      "goals": [
+        "moss",
+        "roots",
+        "type3"
+      ],
+      "moves": 35,
+      "titleWidth": 395.9890135074484,
+      "plateWidth": 435.9890135074484
+    },
+    {
+      "stageId": "mainline-10",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "10  星门前的根结",
+      "goals": [
+        "roots",
+        "type4"
+      ],
+      "moves": 36,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-11",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "11  云庭花园",
+      "goals": [
+        "moss",
+        "roots",
+        "type2",
+        "type5"
+      ],
+      "moves": 38,
+      "titleWidth": 513.5893307495116,
+      "plateWidth": 553.5893307495116
+    },
+    {
+      "stageId": "mainline-12",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "title": "12  天空之城的回声",
+      "goals": [
+        "moss",
+        "roots",
+        "type0",
+        "type3"
+      ],
+      "moves": 42,
+      "titleWidth": 513.5893307495116,
+      "plateWidth": 553.5893307495116
+    },
+    {
+      "stageId": "mainline-05",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "05  风车下的花环",
+      "goals": [
+        "moss",
+        "type2"
+      ],
+      "moves": 31,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-06",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "06  草桥双结",
+      "goals": [
+        "roots",
+        "type0"
+      ],
+      "moves": 31,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-07",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "07  风铃合奏",
+      "goals": [
+        "type1",
+        "type3",
+        "specials"
+      ],
+      "moves": 34,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-08",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "08  长风的约定",
+      "goals": [
+        "moss",
+        "roots",
+        "type1"
+      ],
+      "moves": 34,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-09",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "09  云阶初见",
+      "goals": [
+        "moss",
+        "roots",
+        "type3"
+      ],
+      "moves": 35,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-10",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "10  星门前的根结",
+      "goals": [
+        "roots",
+        "type4"
+      ],
+      "moves": 36,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-11",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "11  云庭花园",
+      "goals": [
+        "moss",
+        "roots",
+        "type2",
+        "type5"
+      ],
+      "moves": 38,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-12",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "title": "12  天空之城的回声",
+      "goals": [
+        "moss",
+        "roots",
+        "type0",
+        "type3"
+      ],
+      "moves": 42,
+      "titleWidth": 371,
+      "plateWidth": 411
+    },
+    {
+      "stageId": "mainline-05",
+      "productionBindingActions": 9,
+      "paints": 88,
+      "replayClearCount": 2,
+      "duplicateChestSafe": true
+    },
+    {
+      "stageId": "mainline-09",
+      "productionBindingActions": 27,
+      "paints": 256,
+      "replayClearCount": 2,
+      "duplicateChestSafe": true
+    }
+  ]
+}

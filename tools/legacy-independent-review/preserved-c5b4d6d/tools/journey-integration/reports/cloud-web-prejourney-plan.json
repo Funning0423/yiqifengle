@@ -1,0 +1,26 @@
+{
+  "runId": "integration-levels-plan-20261015T1658",
+  "startedAt": "2026-10-15T16:58:01.229Z",
+  "status": "PLAN_ONLY",
+  "hostPlatform": "linux",
+  "engineBuild": "NOT_RUN",
+  "runtimeSmoke": "NOT_RUN",
+  "visualAcceptance": "NOT_RUN",
+  "sourceSha256": "59c988559cee07ea8511578aceaa49ae2bc5f883bb094377b220f1a6e9565fda",
+  "toolingSha256": "d278713ac7d49fa534476aa128c9cd3f0bacf91051192c1b12073ea6ca47b71f",
+  "command": {
+    "executable": null,
+    "args": [
+      "--project",
+      "/workspace/shared/game-integration-20261015/creator-build-project",
+      "--build",
+      "configPath=/workspace/shared/game-integration-20261015/output/cloud-web-build/integration-levels-plan-20261015T1658/resolved-build-options.json;logDest=/workspace/shared/game-integration-20261015/output/cloud-web-build/integration-levels-plan-20261015T1658/creator.log"
+    ],
+    "shell": false
+  },
+  "artifactPath": "/workspace/shared/game-integration-20261015/output/cloud-web-build/integration-levels-plan-20261015T1658/artifacts/world-r5",
+  "blockers": [
+    "Official Creator 3.8 editor installation/CLI support is documented for Windows/macOS, not this linux host.",
+    "An explicitly verified official Cocos Creator 3.8.8 executable is required."
+  ]
+}

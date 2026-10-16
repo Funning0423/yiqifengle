@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+'use strict';
+// No browser/editor launch. Process completion is reported separately from visual acceptance.
+const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),crypto=require('node:crypto');
+const ROOT=path.resolve(__dirname,'../..'),out=path.join(__dirname,'reports');fs.mkdirSync(out,{recursive:true});
+const tests=[
+ ['production-integrity','tools/journey-integration/test-production-integrity.cjs'],
+ ['journey-types','tools/journey-integration/test-journey-types.cjs'],
+ ['independent-mainline','tools/journey-integration/test-mainline-boundaries.cjs'],
+ ['independent-journey','tools/journey-integration/test-journey-lifecycle.cjs'],
+ ['composition-boundaries','tools/journey-integration/test-composition-boundaries.cjs'],
+ ['world-region-exit','tools/journey-integration/test-world-region-exit.cjs'],
+ ['region-levels','tools/region-levels/test-region-levels.cjs'],
+ ['production-binding','tools/region-levels/test-production-binding.cjs'],
+ ['region-journey-flow','tools/test_region_journey.cjs'],
+ ['region-journey-host','tools/test_region_journey_host.cjs'],
+ ['region-entry','tools/board-ui/test_region_flow_entry.cjs'],
+ ['region-failure','tools/board-ui/test_region_flow_failure.cjs'],
+ ['region-ui','tools/board-ui/test_region_flow_ui.cjs'],
+ ['region-reentry','tools/board-ui/test_region_flow_reentry.cjs'],
+ ['region-ports','tools/board-ui/test_region_flow_ports.cjs'],
+ ['chapter-gates','tools/board-ui/test_chapter_gates.cjs'],
+ ['input-ownership','tools/board-ui/test_input_ownership.cjs'],
+ ['board-runtime','tools/board-ui/test_board_runtime.cjs'],
+ ['board-freeze-recovery','tools/board-ui/test_board_freeze_recovery.cjs'],
+ ['board-storage-recovery','tools/board-ui/test_board_storage_recovery.cjs'],
+ ['reward-background-return','tools/board-ui/test_reward_background_return.cjs'],
+ ['restored-entry-resume','tools/board-ui/test_restored_entry_resume.cjs'],
+ ['result-retry','tools/board-ui/test_result_retry.cjs'],
+ ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
+ ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
+ ['child-first-teardown','tools/board-ui/test_child_first_teardown.cjs'],
+ ['navigation-guard','tools/test_world_navigation_guard.cjs'],
+ ['retry-protection','tools/test_retry_protection.cjs'],
+ ['cloud-web-contract','tools/cloud-web/test.cjs'],
+];
+const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+const git=a=>cp.execFileSync('git',a,{cwd:ROOT,encoding:'utf8'}).trim();
+const report={startedAt:new Date().toISOString(),gitHead:git(['rev-parse','HEAD']),worktreeStatus:git(['status','--short']),testRuntime:process.version,typescriptModule:process.env.QF_TYPESCRIPT_MODULE||null,status:'RUNNING',renderedAcceptance:'BLOCKED_NOT_RUN',deviceAcceptance:'NOT_RUN',checks:[]};
+for(const [id,file]of selected){const p=path.join(ROOT,file);if(!fs.existsSync(p)){report.checks.push({id,file,status:'BLOCKED',reason:'Required development commit has not been integrated'});continue;}const content=fs.readFileSync(p,'utf8');if(/chromium\.launch|firefox\.launch|webkit\.launch|launchPersistentContext|chromiumExecutable/.test(content)){report.checks.push({id,file,status:'BLOCKED',reason:'Browser-launching legacy suite is excluded from this Node-only runner; use an authorized browser adapter and official artifact'});console.log(id+': BLOCKED_BROWSER');continue;}const started=Date.now(),r=cp.spawnSync(process.execPath,[file],{cwd:ROOT,env:{...process.env,QF_JOURNEY_SOURCE_ROOT:ROOT},encoding:'utf8',timeout:180000,maxBuffer:20*1024*1024});const stdout=r.stdout||'',stderr=r.stderr||'';fs.writeFileSync(path.join(out,id+'.stdout.txt'),stdout);fs.writeFileSync(path.join(out,id+'.stderr.txt'),stderr);report.checks.push({id,file,sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),status:r.status===0?'PASS':'FAIL',exitCode:r.status,signal:r.signal,error:r.error?String(r.error):null,durationMs:Date.now()-started,stdout:id+'.stdout.txt',stderr:id+'.stderr.txt'});console.log(id+': '+report.checks.at(-1).status);}
+report.finishedAt=new Date().toISOString();report.status=report.checks.some(x=>x.status==='FAIL')?'FAIL':report.checks.some(x=>x.status==='BLOCKED')?'BLOCKED':'PASS';report.scope='Production logic and Cocos component doubles only. No official Creator build, actual browser/WebGL rendering, user data, physical device or WeChat execution.';fs.writeFileSync(path.join(out,'suite.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,total:report.checks.length,passed:report.checks.filter(x=>x.status==='PASS').length,renderedAcceptance:report.renderedAcceptance},null,2));if(report.status!=='PASS')process.exitCode=1;

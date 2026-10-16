@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "checkedCompletedCounts": 13,
+  "cardMilestones": [
+    4,
+    8,
+    12
+  ],
+  "actualProviderFailureOverridesCard": true
+}
