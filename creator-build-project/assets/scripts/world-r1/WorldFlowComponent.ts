@@ -10,7 +10,7 @@ import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
 import { requiresMeadowScene } from '../world-r2/LevelRegion';
 import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
-import { prefetchSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
+import { prefetchSailboatMeadow, releaseSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
@@ -169,6 +169,8 @@ export class WorldFlowComponent extends Component {
   private forwardCameraEvent(e:CameraEvent){
     // Outbound crane or island settle: start the meadow load now so the sailboat cover never waits on it.
     if(e.kind!=='settled'||e.place==='island'){try{prefetchSailboatMeadow();}catch(error){console.warn('meadow prefetch failed',String(error));}}
+    // Back home: no sail is coming, drop the preloaded meadow (a live meadow keeps its own refs).
+    else releaseSailboatMeadow('home');
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
     for(const fn of list){try{e.kind==='settled'?fn(e.place):fn({segment:e.segment,progress:e.progress,seconds:e.seconds});}catch(error){console.warn('camera hook listener failed',String(error));}}
   }
@@ -384,7 +386,7 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
-        playRegionArrival:(stageId,token)=>requiresMeadowScene({stageId})?playSailboatTransition({setCamera,cameraNode:camera.node,cameraFov:()=>camera.fov,islandRoot:model,mountParent:this.node,token}):null,
+        playRegionArrival:(stageId,token)=>requiresMeadowScene({stageId})?playSailboatTransition({setCamera,cameraNode:camera.node,cameraFov:()=>camera.fov,islandRoot:model,mountParent:this.node,token}):(releaseSailboatMeadow('not-meadow'),null),
         playEnterLevel:(token)=>{
           // Push in from the live island camera (including a finger pull). Not the exit arc.
           // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.

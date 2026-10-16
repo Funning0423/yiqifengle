@@ -1,5 +1,6 @@
 import { _decorator, Animation, Camera, Color, Component, EffectAsset, Material, MeshRenderer, Node, Prefab, SphereLight, Vec4, assetManager, director, game, Game, isValid, instantiate } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from './RegionLoader';
+import { noteMeadowLease } from '../cine/SailboatMeadowPrefetch';
 import { MEADOW_SCENE_SOURCE, meadowScenePose } from './MeadowSceneData';
 import { applyCameraPose, fromLookAt } from '../world-r1/CameraPose';
 import { uiNightWeight } from '../ui/NightTint';
@@ -118,12 +119,14 @@ export class MeadowSceneMotion extends Component {
 export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
  let rig:Node|null=null,prefab:Prefab|null=null,effect:EffectAsset|null=null,material:Material|null=null,camera:Camera|null=null,motion:MeadowSceneMotion|null=null;
  const heldAssets:Array<{decRef():unknown}>=[];
- let disposed=false,visible=false,paused=true,offCancel=()=>{};
+ let disposed=false,visible=false,paused=true,offCancel=()=>{},leased=false;
  const dispose=()=>{
   if(disposed)return;disposed=true;offCancel();
   if(camera&&isValid(camera,true))camera.enabled=false;
   if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;motion=null;
   material?.destroy();material=null;for(const asset of heldAssets.splice(0))asset.decRef();effect=null;prefab=null;
+  // Last live meadow gone: the sailboat preload ref goes too (this lease's own refs are already dropped).
+  if(leased){leased=false;noteMeadowLease(-1);}
  };
  offCancel=token.onCancel(dispose);
  const waitAsset=async<T extends {addRef():unknown;decRef():unknown}>(pending:Promise<T>):Promise<T>=>{
@@ -133,7 +136,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
  try{
   token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('Meadow scene owner missing');
   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&MEADOW_LAYER)!==0))throw Error('Meadow layer visible to an existing camera');
-  prefab=await waitAsset(loadRegionPrefab(REGIONS.meadow));effect=await waitAsset(loadWindEffect());token.check();if(!isValid(parent,true)||!isValid(scene,true))throw Error('Meadow scene owner destroyed during load');
+  prefab=await waitAsset(loadRegionPrefab(REGIONS.meadow));leased=true;noteMeadowLease(1);effect=await waitAsset(loadWindEffect());token.check();if(!isValid(parent,true)||!isValid(scene,true))throw Error('Meadow scene owner destroyed during load');
   rig=new Node('MeadowLiveScene');rig.active=false;parent.addChild(rig);
   const model=mountRegion(REGIONS.meadow,prefab,rig);setLayer(model);
   // The lease owns its camera and animation clock; imported cameras and autoplay

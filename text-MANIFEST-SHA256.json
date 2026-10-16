@@ -1026,8 +1026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 89784,
-    "sha256": "b6a26440209898d3e58e0574daed30e3e2123654d31aa226e7247aeb06cf107c"
+    "bytes": 90084,
+    "sha256": "b523b9d244281b0b56730315d5c49d6717008a5e331ea4dc6d3e879ef2539cad"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1236,8 +1236,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowPrefetch.ts",
-    "bytes": 1056,
-    "sha256": "655f4e5136cf7bec68adf3436be9e60f616c256fde28255f5bc1ac8851c108bf"
+    "bytes": 6616,
+    "sha256": "83ad7d39a464849db006379a1e30fa22a3651b22e06214dd2b413a0194a7cd68"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowPrefetch.ts.meta",
@@ -1266,8 +1266,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
-    "bytes": 17918,
-    "sha256": "aabdc178c85e27e7c0fc8c4dfd27ae61d2c8a63e3202bb4f31f3b63b4badf056"
+    "bytes": 17970,
+    "sha256": "2500780050496cf3171a72cadee45747bab0beb46a3915eadf9876f4b43de866"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
@@ -1516,8 +1516,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts",
-    "bytes": 12250,
-    "sha256": "cd621af641cf99b5076d7424444b527e29e08db5ef0a6a7f2da9610271d0c73e"
+    "bytes": 12515,
+    "sha256": "b8b431a50c3b8e3d9a8f097d9a7daf9535c6fef35cd10ec85f54761e921fa660"
   },
   {
     "path": "creator-build-project/assets/scripts/region/MeadowBoardBackground.ts.meta",
@@ -2141,8 +2141,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts",
-    "bytes": 54773,
-    "sha256": "f9f22a83d9c0ae46ff7b8bdfc519c74454084e2908bcc77a495351e7adea20e6"
+    "bytes": 54973,
+    "sha256": "749289e2d38eeb0727135f692204350e0f45573da42cbcafc5ec5ade63b099e7"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r1/WorldFlowComponent.ts.meta",
