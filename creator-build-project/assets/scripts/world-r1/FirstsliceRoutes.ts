@@ -30,7 +30,7 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
 }
 type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
 /** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
-type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number;nudge?:Readonly<{at:number;width:number;up:number;out?:number}>}>;
+type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number;cruiseRamp?:number;cartesian?:boolean|number;cruiseRampIn?:number;heightRampOut?:number;retime?:Readonly<{geomSpan:number;easeIn:number;easeOut:number;from?:number}>;nudge?:Readonly<{at:number;width:number;up:number;out?:number}>}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -126,10 +126,12 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     const unwrapNear=(a:number,ref:number)=>{while(a-ref>Math.PI)a-=2*Math.PI;while(a-ref<-Math.PI)a+=2*Math.PI;return a;};
     const bf=unwrapNear(cf.b,c0.b);let b3=unwrapNear(c3.b,bf);const rightB=Math.atan2(rx,rz);
     const passR=unwrapNear(rightB,bf);if(!(Math.min(bf,b3)<=passR&&passR<=Math.max(bf,b3)))b3+=b3<bf?2*Math.PI:-2*Math.PI;
+    const spanG=b.retime?Math.max(span,b.retime.geomSpan):span; // B5.5: path geometry is built on the geomSpan schedule, then re-timed onto span
     const rr=b.cruiseRamp??0,eI=(x:number)=>x*x*x*x*(x*x-3*x+2.5),
       ra0=b.cruiseRampIn??rr,tot=1-(ra0+rr)/2,ez=(u:number)=>{if(!(rr>0))return s5(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-rr?tot-rr*eI((1-x)/rr):ra0*.5+(x-ra0))/tot;}; // smooth-trapezoid speed profile (s5-shaped ramp-in ra0, ramp-out rr): peak = mean/tot
-    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(span-b.riseAt)),wb=ez((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
-      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ez((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
+    const hR=b.heightRampOut??rr,totH=1-(ra0+hR)/2,ezH=(u:number)=>{if(!(hR>0))return ez(u);const x=Math.max(0,Math.min(1,u));return (x<ra0?ra0*eI(x/ra0):x>1-hR?totH-hR*eI((1-x)/hR):ra0*.5+(x-ra0))/totH;}; // height channel: own (longer) ramp-out so the end of the rise is a gentle bend
+    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=ez((tau-b.riseAt)/(spanG-b.riseAt)),wb=ez((tau-b.riseAt)/((spanG-b.riseAt)*b.turnShare));
+      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=ezH((tau-b.riseAt)/((spanG-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
       let p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
       if(b.cartesian){ // straight-line (Cartesian) offset blend follow -> island: shortest lens path, stays on her right because both ends do
         const bF=c0.b+(bf-c0.b)*wS,rF=c0.r+(cf.r-c0.r)*wS,ox=Math.sin(bF)*rF,oz=Math.cos(bF)*rF,ex=Math.sin(c3.b)*c3.r,ez2=Math.cos(c3.b)*c3.r;
@@ -151,8 +153,24 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     const cP=corr([d0.position,d1.position,d2.position],[r0.p,r1.p,r2.p]),cT=corr([d0.target,d1.target,d2.target],[r0.tg,r1.tg,r2.tg]);
     const fade=(tau:number)=>{const g=1-s5(tau/b.matchSeconds);return g;};
     const add=(v:Vec,c:{e0:number[];dv:number[];da:number[]},tau:number):Vec=>{const g=fade(tau);return [0,1,2].map(k=>v[k]+(c.e0[k]+c.dv[k]*tau+.5*c.da[k]*tau*tau)*g) as unknown as Vec;};
-    const atTau=(tau:number):Look=>{if(tau>=span-1e-9)return {position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:f1};
+    const atTauG=(tau:number):Look=>{if(tau>=spanG-1e-9)return {position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:f1};
       const r=raw(tau);return {position:add(r.p,cP,tau),target:add(r.tg,cT,tau),fovVerticalDeg:r.fov};};
+    /** B5.5 retime: same lens path (atTauG over [0,spanG]) re-timed by arc length onto [0,span] with an S-curve speed
+     *  profile: v0 (the door key speed) -> smootherstep ramp over easeIn -> constant cruise -> smootherstep ramp to rest over easeOut.
+     *  Peak accel = 1.875*dv/ease, jerk continuous; cruise speed solved so the arc length lands exactly on the end pose. */
+    const atTau=(()=>{if(!b.retime)return atTauG;
+      const N=Math.max(400,Math.ceil(spanG*240)),TG:number[]=[],SG:number[]=[];let prev=atTauG(0).position,acc=0;
+      for(let i=0;i<=N;i++){const tg=spanG*i/N,p=atTauG(tg).position;if(i)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1],p[2]-prev[2]);TG.push(tg);SG.push(acc);prev=p;}
+      // identity (original timing, she is still followed) until `from`, then the S-curve on the remaining arc
+      const F0=Math.max(0,Math.min(span*.5,b.retime.from??0)),iF=Math.round(F0/spanG*N),sF=SG[iF],tF=TG[iF],v0=iF<N?(SG[iF+1]-sF)/(TG[iF+1]-tF):0;
+      const L=acc-sF,R=span-F0,Ei=Math.min(b.retime.easeIn,R*.45),Eo=Math.min(b.retime.easeOut,R*.45);
+      const vc=(L-Ei*v0/2)/(R-Ei/2-Eo/2);if(!(vc>0))throw Error('B5 retime: span too short');
+      const iS5=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*t*(t*(t-3)+2.5);}; // integral of s5 on [0,x]
+      const sOf=(t:number)=>{if(t<=0)return 0;if(t<Ei)return v0*t+(vc-v0)*Ei*iS5(t/Ei);const sI=Ei*(v0+vc)/2;
+        if(t<R-Eo)return sI+vc*(t-Ei);const u=(t-(R-Eo))/Eo;return Math.min(L,sI+vc*(R-Eo-Ei)+vc*Eo*(Math.min(1,u)-iS5(u)));};
+      const tgOf=(s1:number)=>{const s0=s1+sF;if(s0<=0)return 0;if(s0>=acc)return spanG;let lo=0,hi=N;while(hi-lo>1){const m=(lo+hi)>>1;if(SG[m]<s0)lo=m;else hi=m;}
+        const d=SG[hi]-SG[lo];return TG[lo]+(d>1e-12?(s0-SG[lo])/d:0)*(TG[hi]-TG[lo]);};
+      return (tau:number):Look=>tau<=F0?atTauG(tau*tF/(F0||1)):tau>=span-1e-9?atTauG(spanG):atTauG(tgOf(sOf(tau-F0)));})();
     const tOfQ=(q:number)=>invertProgress(q,track)*T;
     const poseQ=(q:number):Look=>q<=qCrossEnd?doorAtS(SOfQ(q)):atTau(tOfQ(q)-tC);
     const nS=Math.ceil(span*60);for(let j=1;j<=nS;j++){const t=tC+span*j/nS,q=j===nS?1:qOfT(t);push(poseQ(q),q);}

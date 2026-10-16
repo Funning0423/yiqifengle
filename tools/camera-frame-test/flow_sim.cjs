@@ -32,7 +32,7 @@ async function run(env,{fps=60,script=['leaveHome','returnHome'],standSeconds=1.
     animateCamera:(path,seconds,t,options,progress,onSample)=>{const tr=C.createCameraTrack(cam,path,'sim.animateCamera',options);log('track',{keys:path.length,seconds,options:options||null,byDistance:!!progress});
       // mirrors WorldFlowComponent: CameraPose.createProgressFollower (smoothed distance correction, monotone, ends on 1)
       const tick=v=>{const e=tr.tick(v);if(onSample&&e>=0)onSample(e);};
-      if(!progress)return runJob(seconds,t,tick);const follow=C.createProgressFollower(seconds);return runJob(seconds,t,p=>tick(follow(p,progress())));},
+      if(!progress)return runJob(seconds,t,tick);const follow=C.createProgressFollower(seconds,options?.followTauSeconds??0.25);return runJob(seconds,t,p=>tick(follow(p,progress())));},
     // T5 133018c contract: clamp 0..1, effective only with the interior view on (else false / get 0); linear cancellable blend.
     setRoomLightWeight(w){if(!world.layers?.interior||!Number.isFinite(w))return false;world.weight=Math.max(0,Math.min(1,w));log('weight',w);return true;},
     getRoomLightWeight:()=>world.layers?.interior?world.weight:0,
