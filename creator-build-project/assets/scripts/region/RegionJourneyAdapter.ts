@@ -5,14 +5,13 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
-/** Layout candidate, not visually approved. Keep metre scale. The meadow's low outer ground sits below the island sea;
- * source-mesh samples are recorded separately. Do not increase its Y offset without repeating that overlap audit. */
-export const REGION_JOURNEY_LAYOUT={islandApproachM:3.2,meadowOffset:[0,0,24] as Vec,skycityOffset:[0,12,24] as Vec,bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4} as const;
-const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+/** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+export {REGION_JOURNEY_LAYOUT};
 /** First-pass bridge surface, not replacement region art. Seven narrow mesh strips share the exact controller
  * centreline; no animated/scaled actor, imported model edits, alpha loading cover or scene replacement. */
 function rainbowBridge(parent:Node,path:readonly Vec[],owned:Array<Mesh|Material>):void{
@@ -28,7 +27,6 @@ function rainbowBridge(parent:Node,path:readonly Vec[],owned:Array<Mesh|Material
   const node=new Node('RainbowBridgeStrip'+band);parent.addChild(node);const renderer=node.addComponent(MeshRenderer);renderer.mesh=mesh;renderer.setSharedMaterial(material,0);owned.push(mesh,material);
  }
 }
-function bridgePath(a:Vec,b:Vec,arch:number):Vec[]{const out:Vec[]=[];for(let i=0;i<=REGION_JOURNEY_LAYOUT.bridgeSamples;i++){const t=i/REGION_JOURNEY_LAYOUT.bridgeSamples;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t+Math.sin(Math.PI*t)*arch,a[2]+(b[2]-a[2])*t]);}return out;}
 /** Real bundled GLBs and required anchors/materials are prepared before publishing ready. Rigid placement only,
  * at original metre scale. The original island remains alive; a second area never replaces the visible first area. */
 export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJourneyController{
@@ -55,19 +53,25 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');
     }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
     progress(.86);
-    let approach:Vec[]=[start];
-    if(from==='island')approach.push(plus(start,[0,0,REGION_JOURNEY_LAYOUT.islandApproachM]));
-    else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');for(let i=3;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)approach.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));}
-    const edge=approach[approach.length-1],incomingName=to==='meadow'?'player_spawn':'anchor_cloudbridge_end';
-    model.setRotationFromEuler(0,to==='meadow'?180:215,0);
-    const incoming=anchor(model,incomingName),landing=plus(edge,to==='meadow'?REGION_JOURNEY_LAYOUT.meadowOffset:REGION_JOURNEY_LAYOUT.skycityOffset);
-    model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
-    const end=anchor(model,incomingName),bridge=bridgePath(edge,end,to==='meadow'?REGION_JOURNEY_LAYOUT.meadowBridgeArchM:REGION_JOURNEY_LAYOUT.skyBridgeArchM),arrival:Vec[]=[];
-    if(to==='meadow'){for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));}
-    else{
-     // Arrive at the city's real cloud-bridge entrance. The next board need not force a long commute to the court.
-     const gate=anchor(model,'anchor_cloudbridge_start'),length=Math.hypot(gate[0]-end[0],gate[1]-end[1],gate[2]-end[2]),t=Math.min(1,REGION_JOURNEY_LAYOUT.skyEntryWalkM/length);
-     arrival.push([end[0]+(gate[0]-end[0])*t,end[1]+(gate[1]-end[1])*t,end[2]+(gate[2]-end[2])*t]);
+    let approach:Vec[];
+    if(from==='island')approach=islandApproach(start);
+    else{const meadow=mounted.get('meadow');if(!meadow)throw Error('journey-meadow-lease-missing');approach=[start];for(let i=3;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)approach.push(anchor(meadow,'walk_path_'+String(i).padStart(2,'0')));}
+    const edge=approach[approach.length-1];let bridge:Vec[],arrival:Vec[];
+    if(to==='meadow'){
+     model.setRotationFromEuler(0,180,0);
+     const incoming=anchor(model,'player_spawn'),landing=plus(edge,REGION_JOURNEY_LAYOUT.meadowOffset);
+     model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
+     bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
+     for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+    }else{
+     // Face the city's own cloud bridge back at the meadow exit, then put the terminus platform's OUTER rim on the
+     // rainbow bridge. Arrive at the same real entrance (2.4 m in from anchor_cloudbridge_end) as before.
+     model.setRotationFromEuler(0,0,0);
+     model.setRotationFromEuler(0,skycityYawDeg(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),0);
+     const placed=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start')),landing=plus(edge,REGION_JOURNEY_LAYOUT.skycityOffset);
+     model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-placed.rim[0],landing[1]-placed.rim[1],landing[2]-placed.rim[2]]));
+     const deck=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
+     bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];
     }
     const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps};
     rainbowBridge(rig,bridge,owned);token.check();mounted.set(to,model);progress(.98);

@@ -35,7 +35,10 @@ function loadBridge(text) {
   const js = ts.transpileModule(text + '\nexport { rainbowBridge, bridgePath };', {
     fileName: file, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText;
-  new Function('require', 'exports', 'module', js)(name => name === 'cc' ? cc : {}, module.exports, module);
+  // bridgePath moved to the engine-free RegionJourneyLayout (Build05 occlusion fix); load the real module for it.
+  const layoutFile = path.join(path.dirname(file), 'RegionJourneyLayout.ts'), layout = { exports: {} };
+  new Function('require', 'exports', 'module', ts.transpileModule(fs.readFileSync(layoutFile, 'utf8'), { fileName: layoutFile, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText)(() => ({}), layout.exports, layout);
+  new Function('require', 'exports', 'module', js)(name => name === 'cc' ? cc : name === './RegionJourneyLayout' ? layout.exports : {}, module.exports, module);
   return module.exports;
 }
 const { rainbowBridge: bridge, bridgePath } = loadBridge(source);

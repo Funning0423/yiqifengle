@@ -1,0 +1,25 @@
+{
+ "note": "Build05 (3bda6a93 reconstructed as 3ff5b73) 09-arrival reference. pose390x844 = skycityVisitPose(anchor_spawn_girl, anchor_starcourt_center, 390/844) in the board background rig. arrivalFromEndModel = old adapter arrival (2.4 m from anchor_cloudbridge_end toward anchor_cloudbridge_start), model space.",
+ "sourceSha256": {
+  "region/SkycityBoardBackground.ts": "39a44dc07fbf575d029c249a2745df24f21d403736cc254a911e2d531a068bd8",
+  "region/SkycityVisitPose.ts": "c02d463c7df3d18b88d1ef4f5beb4d81342f33069af539f4ad80c89de56a5e03"
+ },
+ "pose390x844": {
+  "position": [
+   5.273205398256558,
+   11.88217414435124,
+   57.18419360998453
+  ],
+  "target": [
+   -0.7000874989532814,
+   0.9311371661331996,
+   31.2999243887419
+  ],
+  "fovVerticalDeg": 55
+ },
+ "arrivalFromEndModel": [
+  1.3651499581447175,
+  0.3203467387715373,
+  -1.9477534645678127
+ ]
+}

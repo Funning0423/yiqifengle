@@ -21,13 +21,24 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
  if(!((route.from==='island'&&route.to==='meadow')||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
 }
-/** Arc-length camera rail: same sample as the controller, fixed follow offset. The first four metres smoothly
- * rejoin from the actual live lens, so user-dragged island views do not cut to an authored start shot. */
+/** Follow lens for the region bridges (Build05 occlusion fix). Same arc-length sample as the controller; the offset
+ * is now in the PATH frame (behind/left/up of the smoothed walking heading) instead of a fixed world +X/-Z offset,
+ * so a bridge that turns (meadow exit → sky platform rim, around the platform post) keeps the lens behind her rather
+ * than beside the windmill or inside the post. The first blendM metres rejoin from the actual live lens; during that
+ * swing the lens arcs up by blendLiftM so it passes over the beach palms instead of through their canopies.
+ * Numbers are checked by tools/journey-integration/test-journey-occlusion.cjs against the real region GLB geometry. */
+export const JOURNEY_CAMERA={blendM:4,headingWindowM:3,backM:6.2,sideM:-3,upM:5,leadM:.8,lookM:1.05,blendLiftM:5.5,fovDeg:48} as const;
+export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
+ const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
+ return l>1e-6?[x/l,z/l]:[0,1];
+}
 export function journeyCamera(path:readonly Vec[],distance:number,start:Pose):Pose {
- const p=sampleRoute(path,distance),u=Math.min(1,Math.max(0,distance/4)),blend=u*u*(3-2*u);
- const target:Vec=[p[0],p[1]+1.05,p[2]+.8],position:Vec=[p[0]+3.6,p[1]+3.4,p[2]-6.2];
+ const C=JOURNEY_CAMERA,p=sampleRoute(path,distance),[hx,hz]=journeyHeading(path,distance),sx=hz,sz=-hx;
+ const u=Math.min(1,Math.max(0,distance/C.blendM)),blend=u*u*(3-2*u);
+ const target:Vec=[p[0]+hx*C.leadM,p[1]+C.lookM,p[2]+hz*C.leadM],position:Vec=[p[0]-hx*C.backM+sx*C.sideM,p[1]+C.upM,p[2]-hz*C.backM+sz*C.sideM];
  const mix=(a:Vec,b:Vec):Vec=>[a[0]+(b[0]-a[0])*blend,a[1]+(b[1]-a[1])*blend,a[2]+(b[2]-a[2])*blend];
- return {position:mix(start.position,position),target:mix(start.target,target),fovVerticalDeg:(start.fovVerticalDeg??45)+(48-(start.fovVerticalDeg??45))*blend};
+ const m=mix(start.position,position),lens:Vec=[m[0],m[1]+C.blendLiftM*Math.sin(Math.PI*blend),m[2]];
+ return {position:lens,target:mix(start.target,target),fovVerticalDeg:(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend};
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.
  * The flow owns the sole clock. Assets become ready only after real prefab/anchor/material validation succeeds. */
