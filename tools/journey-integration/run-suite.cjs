@@ -45,6 +45,7 @@ const tests=[
  ['retry-protection','tools/test_retry_protection.cjs'],
  ['cloud-web-contract','tools/cloud-web/test.cjs'],
  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
+ ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
