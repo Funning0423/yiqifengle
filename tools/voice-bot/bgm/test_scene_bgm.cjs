@@ -337,5 +337,25 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   ok(J(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3.meta')).uuid === '24969762-d70f-41d5-abe0-6cf06ce46946', 'island bgm_main.mp3 keeps its uuid 24969762-… after the move');
   ok(crypto.createHash('sha256').update(fs.readFileSync(path.join(P, 'assets/bundles/audio_bgm_island/audio/bgm_main.mp3'))).digest('hex') === '183993fbb55f983368fc91d67333ee07620bbf79625cbcee0b4b782212cd6e28', 'island bgm_main.mp3 = v3.2 40 kbps re-encode of 21ca21ac… (sha256 183993fb…)');
 }
+// ---------- 「主页」 transition (GGbot, Mac re-check 2607de6): region bgm + wind/waves bed + sfx_* fade with the picture, then island bgm fades in ----------
+{ const w = world({ noInitial: true }); unlock(w); const a = w.a;
+  a.setMusic('audio/bgm_skycity', 'region_skycity'); const sb = w.mkBundle('region_skycity'); w.bundles.region_skycity = sb; w.bundleLoads[0].cb(null, sb); sb.loads[0].cb(null, w.clip('bgm_skycity', 72));
+  w.step(.5); const sky = w.live().find(x => x.clip && x.clip.name === 'bgm_skycity'); const v0 = sky && sky.volume;
+  a.clips.set('sfx_tap', w.clip('sfx_tap', 3)); a.play('sfx_tap', .8); const sfx = w.live().find(x => x.clip && x.clip.name === 'sfx_tap');
+  ok(!!sky && v0 > 0 && !!sfx, 'transition setup: skycity bgm + one sfx playing', { v0 });
+  a.fadeTransition(0, .4); w.step(.2);
+  ok(near(a.transitionGain(), .5, .06) && near(sky.volume, v0 * .5, v0 * .08) && near(sfx.volume, .4, .06), 'mid fade (0.2 of 0.4 s): bgm, sfx and the bed gain all at ~50% together (no hard cut)', { g: a.transitionGain(), bgm: sky.volume, sfx: sfx.volume });
+  ok(a.getMusicVolume() === .4, 'the settings slider value is untouched by the transition', a.getMusicVolume());
+  w.step(.25);
+  ok(a.transitionGain() === 0 && sky.volume === 0 && sfx.volume === 0, 'end of the 0.4 s fade-out: region bgm and sfx silent', { bgm: sky.volume, sfx: sfx.volume });
+  const island = w.SM.SCENE_TRACKS.island; a.switchTrackAfterTransition(island.path, island.bundle);
+  ok(!sky.playing && !sfx.playing && a.transitionGain() === 1, 'after returnHome: skycity bgm stopped, sfx stopped, gain restored', { sky: sky.playing, sfx: sfx.playing });
+  const ib = w.mkBundle(island.bundle); w.bundles[island.bundle] = ib; w.bundleLoads.at(-1).cb(null, ib); ib.loads[0].cb(null, w.clip('bgm_main', 60));
+  w.step(.3); const isl = w.live().find(x => x.clip && x.clip.name === 'bgm_main'); const vIn = isl && isl.volume; w.step(1.5);
+  ok(!!isl && isl.playing && vIn > 0 && vIn < isl.volume - 1e-3 && near(isl.volume, .4, .02), 'island bgm fades in (not a hard start) and reaches the slider level', { vIn, v: isl && isl.volume });
+  ok(w.live().filter(x => x.clip && x.clip.name === 'bgm_skycity').length === 0 && a.musicDiagnostics().path === island.path, 'region (skycity) bgm is not playing on the island; island bgm is the music', a.musicDiagnostics().path);
+  a.setMusic('audio/bgm_main_x', null); a.fadeTransition(0, .4); w.step(.1); a.fadeTransition(1, .2); w.step(.3);
+  ok(a.transitionGain() === 1, 'failure path: fadeTransition(1) restores the gain', a.transitionGain());
+}
 console.log((fail ? 'FAILED ' + fail : 'ALL PASS') + ' scene-bgm (' + pass + ' checks)');
 process.exitCode = fail ? 1 : 0;

@@ -22,7 +22,8 @@ function musicBed(): number {
   const audio: any = GameAudio.instance;
   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
   const value = Number(audio.getMusicVolume());
-  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
+  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
+  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
 }
 
 const WAVES_PATH = 'audio_amb/amb_waves_loop';

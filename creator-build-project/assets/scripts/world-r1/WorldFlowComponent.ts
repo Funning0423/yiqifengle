@@ -1,3 +1,6 @@
+import { DEBUG } from 'cc/env';
+/** Full world-snapshot console line: debug builds or explicit opt-in only. */
+export function worldFlowConsoleEnabled(debug:boolean,optIn:unknown):boolean{return !!debug||optIn===true;}
 import { createRegionJourney } from '../region/RegionJourneyAdapter';
 import type { JourneyRegion } from './RegionJourneyCore';
 import { createSkycityVisitAdapter } from '../region/SkycityVisitAdapter';
@@ -212,7 +215,9 @@ export class WorldFlowComponent extends Component {
     // Periodic telemetry must not keep resetting the IDE's storage persistence debounce.
     // State transitions remain inspectable; tick details remain in console.
     try {if(event!=='tick')sys.localStorage.setItem('dot-runtime-diagnostics-20261010:world-flow',JSON.stringify(data));}catch(error){console.warn('[OI_WORLD_FLOW] diagnostic storage unavailable',String(error));}
-    console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
+    // build05 DevTools check: the full snapshot (~11.7 KB) flooded the release console. Debug builds, or an explicit
+    // opt-in (globalThis.__worldFlowLog = true, e.g. for a recording session), only. snapshot() itself is untouched.
+    if(worldFlowConsoleEnabled(DEBUG,(globalThis as any).__worldFlowLog))console.info('[OI_WORLD_FLOW]',JSON.stringify(data));
   }
   /** Called once by a composition root, after real adapters are ready. Character may be omitted for scene inspection. */
   async initialize(levels:LevelAdapter,character?:CharacterAdapter,mode:Mode='fixed',onStatus?:(s:Snapshot)=>void) {

@@ -173,6 +173,9 @@ export class GameAudio extends Component {
   private windDuckAt = -1;      // 上次平滑的 GameAudio.now()（ms）
   private musicGeneration = 0;
   private musicVolume = 0.4;
+  /** Screen-transition gain (「主页」 fade, Mac re-check 2607de6): ramps music, wind/waves beds and live sfx_* together. */
+  private transFrom = 1; private transTo = 1; private transAt: number | null = null; private transS = 0;
+  private sfxBase = new Map<AudioSource, number>();
   private musicStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   private musicError: string | null = null;
   private gestureSeen = false;
@@ -357,6 +360,7 @@ export class GameAudio extends Component {
   update() {
     if (!GameAudio.usable(this)) return;
     this.observeSfxVoices();
+    if (this.transAt !== null || this.transTo < 1) this.applyTransition();
     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
       if (this.loopPartner || this.fadeOutSource) this.retireMusicExtras();
@@ -404,6 +408,7 @@ export class GameAudio extends Component {
   }
   private retireSfx(source: AudioSource) {
     // Remove ownership first: synchronous and late native events must not affect a new voice.
+    this.sfxBase.delete(source);
     if (!this.sfxVoices.delete(source)) return;
     try { source.volume = 0; } catch (e) { console.warn('[GameAudio] sfx silence failed', e); }
     try { source.stop(); } catch (e) { console.warn('[GameAudio] sfx stop failed', e); }
@@ -467,6 +472,37 @@ export class GameAudio extends Component {
   }
   isSfxMuted() { return this.sfxMuted; }
   getMusicVolume() { return this.musicVolume; }
+  /** 0..1 transition gain; WindAudio / AmbienceAudio multiply their bed by it (the slider value stays untouched). */
+  transitionGain() {
+    if (this.transAt === null) return this.transTo;
+    const t = this.transS > 0 ? (GameAudio.now() - this.transAt) / (this.transS * 1000) : 1;
+    if (t >= 1) { this.transAt = null; this.transFrom = this.transTo; return this.transTo; }
+    return this.transFrom + (this.transTo - this.transFrom) * Math.max(0, t);
+  }
+  /** Ramp music + beds + live sfx to `to` over `seconds` (existing music gain path; no new assets). */
+  fadeTransition(to: number, seconds: number) {
+    const from = this.transitionGain(), v = Math.max(0, Math.min(1, Number(to)));
+    this.transFrom = from; this.transTo = v; this.transS = Math.max(0, Number(seconds) || 0); this.transAt = this.transS > 0 ? GameAudio.now() : null;
+    if (this.transAt === null) this.transFrom = v;
+    this.applyTransition();
+  }
+  /** End of the fade-out: stop the region bed and sfx (already silent), restore the gain and fade the next track in. */
+  switchTrackAfterTransition(path: string, bundle: string | null) {
+    this.stopAllSfx();
+    this.setMusic(null);
+    this.transFrom = this.transTo = 1; this.transAt = null;
+    this.setMusic(path, bundle, { fadeIn: true });
+    this.applyTransition();
+  }
+  private applyTransition() {
+    this.applyMusicGains();
+    const g = this.transitionGain();
+    this.sfxVoices.forEach((_v, source) => {
+      let base = this.sfxBase.get(source);
+      if (base === undefined) { try { base = Number(source.volume); } catch (e) { base = 1; } this.sfxBase.set(source, base); }
+      try { source.volume = base * g; } catch (e) { /* ignore */ }
+    });
+  }
 
   /** 只读：当前是否挂起，以及原因（给日志/验收用，AudioBridge 不需要） */
   isSuspended() { return this.reasons.size > 0; }
@@ -662,14 +698,15 @@ export class GameAudio extends Component {
    *  The wind duck stays a ratio on the player's level (up to -4 dB); it does not replace the slider.
    *  Waves and wind read getMusicVolume() and scale their own design curves by it. */
   private applyMusicGains() {
-    const v = this.musicVolume * this.windDuckGain();
+    const tg = this.transitionGain();
+    const v = this.musicVolume * this.windDuckGain() * tg;
     const scene = this.sceneFadeIn ? GameAudio.eqIn(this.sceneT()) : 1;
     const loopOut = this.loopPartner && this.loopXfadeAt !== null ? GameAudio.eqOut(this.loopT()) : 1;
     const loopIn = this.loopPartner ? (this.loopXfadeAt !== null ? GameAudio.eqIn(this.loopT()) : 0) : 0;
     const musicScale = this.fadeOutAtVolume > 1e-4 ? this.musicVolume / this.fadeOutAtVolume : 1;
     try { if (this.loopSource) this.loopSource.volume = v * scene * loopOut; } catch (e) { /* native getter/setter may fail */ }
     try { if (this.loopPartner) this.loopPartner.volume = v * scene * loopIn; } catch (e) { /* ignore */ }
-    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
+    try { if (this.fadeOutSource) this.fadeOutSource.volume = this.fadeOutFrom * musicScale * tg * (this.sceneFadeAt === null ? 1 : GameAudio.eqOut(this.sceneT())); } catch (e) { /* ignore */ }
   }
   private retireMusicSource(source: AudioSource | null) {
     if (!source) return;

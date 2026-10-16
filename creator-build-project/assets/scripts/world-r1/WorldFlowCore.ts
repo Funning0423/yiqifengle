@@ -530,7 +530,10 @@ export class WorldFlow {
     if(!['island','meadow','skycity'].includes(this.state))return null;
     if(j.snapshot().region==='island'&&!j.isInTransit())return null;
     try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
-    this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});return null;
+    // Mac re-check 2607de6: walking island→home from a region took 44-48 s (day) / >127 s (night, frame-dt
+    // capped at 0.1 s while fps<10). From a journey region the host covers the screen with a fade, so place
+    // her straight at home (seated pose, home camera/layers) instead of replaying the walk.
+    this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});return {ok:true};
   }
   async returnHome():Promise<Result> {
     const left=this.leaveJourneyForIsland();if(left)return left;

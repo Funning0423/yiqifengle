@@ -18,14 +18,14 @@ function make({hold=false}={}){let root=zero,camera=pose,release=null;const walk
 const results=[];const test=async(name,fn)=>{await fn();results.push(name);console.log('PASS',name);};
 (async()=>{
  for(const [region,stage,legs] of [['meadow','mainline-05',['meadow']],['skycity','mainline-09',['meadow','skycity']]])
-  await test(`returnHome after arriving in ${region} (${stage}) and exitLevel walks her home; journey reset, not completed`,async()=>{
+  await test(`returnHome after arriving in ${region} (${stage}) and exitLevel places her at home (no walk); journey reset, not completed`,async()=>{
    const x=make();assert((await x.flow.load()).ok);assert((await x.flow.leaveHome()).ok);
    for(const r of legs)assert((await x.flow.travelRegion(r)).ok,'travel '+r);
    assert((await x.flow.enterLevel(stage)).ok);assert(x.flow.exitLevel().ok);assert.equal(x.flow.snapshot().state,region);
    const walks=x.walks.length,r=await x.flow.returnHome();assert.deepEqual(r,{ok:true});
    assert.equal(x.flow.snapshot().state,'home');assert.deepEqual(x.root(),zero,'seated at home');
    const j=x.journey.snapshot();assert.equal(j.region,'island');assert.equal(j.phase,'idle');assert.equal(j.target,null);assert.equal(x.scenes.disposed,x.scenes.made,'journey scenes released');
-   assert(x.walks.length>walks,'walked home');
+   assert.equal(x.walks.length,walks,'placed at home directly (host fade covers it), no walk');
    // the next trip starts from the island again and walks the whole route (nothing was marked arrived/complete)
    assert((await x.flow.leaveHome()).ok);for(const r2 of legs)assert((await x.flow.travelRegion(r2)).ok);assert.equal(x.flow.snapshot().state,region);
    assert((await x.flow.enterLevel(stage)).ok,'stage re-enterable after the second trip');});
