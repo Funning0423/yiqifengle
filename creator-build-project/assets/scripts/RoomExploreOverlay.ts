@@ -1,6 +1,7 @@
 import {Node,UITransform,Label,Layers,Color,EventTouch,isValid} from 'cc';
 import {AudioUnlock} from './audio/AudioUnlock';
 type RoomView={enabled:boolean;settling:boolean;door:{visible:boolean;x:number;y:number;direction:number}};
+type GlassSignTap={tap:(x:number,y:number)=>boolean;hit:(x:number,y:number)=>boolean};
 type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)=>boolean;leaveHome:()=>unknown};
 /** Plain scene-linked copy: no Button, panel, extra camera, asset load, timer or global input hook.
  * Audio (GGbot 2026-10-11): this full-screen surface swallows every room touch, so it forwards the gesture to GameAudio itself,
@@ -9,7 +10,7 @@ type Commands={roomView:(aspect:number)=>RoomView;lookRoom:(dx:number,dy:number)
 export class RoomExploreOverlay {
  private root:Node;private prompt:Label;private guide:Label;private pointer:number|null=null;private start={x:0,y:0};private last={x:0,y:0};private dragged=false;private blocked=false;private width=1;private height=1;private disposed=false;private rect={x:0,y:0,w:0,h:0};private handle={x:0,y:0,visible:false};
  private leave:()=>void;
- constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void){
+ constructor(parent:Node,private commands:()=>Commands|null,private allowed:()=>boolean,leave:()=>void,private sign:()=>GlassSignTap|null=()=>null){
   this.leave=()=>{AudioUnlock.gesture('door-tap','leave');leave();};
   this.root=new Node('RoomExploreSurface');this.root.layer=Layers.Enum.UI_2D;parent.addChild(this.root);this.root.addComponent(UITransform);this.root.active=false;
   this.prompt=this.text('DoorHandleInvitation','推开门，开始冒险',17,224);this.guide=this.text('RoomLookGuide','向左轻拖，看看门口  ›',14,260);
@@ -26,9 +27,12 @@ export class RoomExploreOverlay {
  }
  private down(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchstart');if(!this.root.active||!this.allowed())return;const id=e.getID();if(id===null)return;if(this.pointer!==null||e.getAllTouches().length>1){this.blocked=true;return;}const p=e.getUILocation();this.pointer=id;this.start={x:p.x,y:p.y};this.last={...this.start};this.dragged=false;}
  private move(e:EventTouch){if(e.getID()!==this.pointer||this.blocked)return;if(!this.allowed()||!this.commands()?.roomView(this.width/this.height).enabled){this.cancel();return;}const p=e.getUILocation();if(Math.hypot(p.x-this.start.x,p.y-this.start.y)>8)this.dragged=true;if(this.dragged)this.commands()?.lookRoom((p.x-this.last.x)/this.width,(p.y-this.last.y)/this.height);this.last={x:p.x,y:p.y};}
- private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
+ private up(e:EventTouch){AudioUnlock.gesture(this.onDoor(e)?'door-tap':'room-swipe','touchend');if(e.getID()!==this.pointer){if(e.getAllTouches().length===0)this.cancel();return;}const p=e.getUILocation(),r=this.rect;
+  // Glass sign (world-r1/GlassSign.ts): a still tap on its projected card starts its feedback; the sign leaves home itself.
+  {const still=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8,s=e.getLocation();if(still&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled&&this.sign()?.tap(s.x,s.y)){AudioUnlock.gesture('door-tap','leave');this.cancel();return;}}
+  const tap=!this.blocked&&!this.dragged&&Math.hypot(p.x-this.start.x,p.y-this.start.y)<=8&&this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);this.cancel();if(tap&&this.allowed()&&this.commands()?.roomView(this.width/this.height).enabled)this.leave();}
  /** Same door-handle hit area as up(): rect or within 28 px of the handle, door on screen. */
- private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
+ private onDoor(e:EventTouch){try{const p=e.getUILocation(),r=this.rect,g=e.getLocation();if(this.sign()?.hit(g.x,g.y))return true;return this.handle.visible&&((p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h)||Math.hypot(p.x-this.handle.x,p.y-this.handle.y)<=28);}catch{return false;}}
  private cancel(){this.pointer=null;this.dragged=false;this.blocked=false;}
  diagnostics(){return {visible:this.root.active,doorVisible:this.handle.visible,prompt:this.prompt.string,handle:{...this.handle},rect:{...this.rect},dragging:this.dragged,buttonless:true};}
  dispose(){if(this.disposed)return;this.disposed=true;this.cancel();if(isValid(this.root,true)){this.root.off(Node.EventType.TOUCH_START,this.down,this);this.root.off(Node.EventType.TOUCH_MOVE,this.move,this);this.root.off(Node.EventType.TOUCH_END,this.up,this);this.root.off(Node.EventType.TOUCH_CANCEL,this.cancel,this);this.root.destroy();}}
