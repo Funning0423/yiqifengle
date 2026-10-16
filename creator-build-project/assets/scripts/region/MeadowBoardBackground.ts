@@ -12,6 +12,33 @@ export const MEADOW_LOOP_CLIPS = ['windmill_sails_loop','meadow_butterflies_loop
 function find(n:Node,name:string):Node|null { if(n.name===name)return n;for(const child of n.children){const hit=find(child,name);if(hit)return hit;}return null; }
 function setLayer(n:Node) { n.layer=MEADOW_LAYER;for(const child of n.children)setLayer(child); }
 function grassRenderer(r:MeshRenderer) { for(let n:Node|null=r.node;n;n=n.parent)if(n.name.startsWith('meadow_grass_instances.'))return true;return false; }
+/** Island unlit night multipliers (env_sky_dome / env_cloud_layer). Authored day colour is 1. */
+export const MEADOW_SKY_NIGHT: readonly [number, number, number] = [0.18, 0.24, 0.46];
+export const MEADOW_CLOUD_NIGHT: readonly [number, number, number] = [0.22, 0.28, 0.43];
+const DAY_CLEAR: readonly [number, number, number] = [0x87, 0xbf, 0xc9];
+const NIGHT_CLEAR: readonly [number, number, number] = [0x2e, 0x3d, 0x75];
+function clamp01(w:number){return w<0?0:w>1?1:w;}
+export function meadowNightChannels(day:readonly number[], night:readonly number[], w:number):[number,number,number]{
+ const t=clamp01(w);if(t===0)return [day[0],day[1],day[2]];if(t===1)return [night[0],night[1],night[2]];return [day[0]+(night[0]-day[0])*t, day[1]+(night[1]-day[1])*t, day[2]+(night[2]-day[2])*t];
+}
+function hasVertexColor(r:MeshRenderer){
+ const bundles=r.mesh?.struct?.vertexBundles;if(!bundles)return false;
+ for(const bundle of bundles)for(const attribute of bundle.attributes)if(attribute.name==='a_color')return true;
+ return false;
+}
+/** builtin-unlit outputs mainColor * vertex colour only when USE_VERTEX_COLOR is on.
+ *  M_meadow_cloud is unlit, has COLOR_0 and no texture, so the instance must keep that define.
+ *  M_meadow_sky is unlit with a day panorama (factor 1); mainColor multiplies the texture.
+ *  Missing nodes are skipped. Names stay meadow_sky_dome / meadow_clouds_near. */
+export function bindMeadowNightSurfaces(model:Node):{sky:Material|null;cloud:Material|null}{
+ const take=(name:string,keepVertexColor:boolean):Material|null=>{
+  const renderer=find(model,name)?.getComponent(MeshRenderer)??null;if(!renderer)return null;
+  const material=renderer.getMaterialInstance(0);if(!material)return null;
+  if(keepVertexColor&&hasVertexColor(renderer))material.recompileShaders({USE_VERTEX_COLOR:true});
+  return material;
+ };
+ return {sky:take('meadow_sky_dome',false),cloud:take('meadow_clouds_near',true)};
+}
 /** Imported palette material is shared by colour-bearing flowers and colourless
  * path/river/windmill meshes. A missing vertex colour defaults to black on GPU;
  * use a renderer-owned variant, preserving the authored texture and lighting. */
@@ -75,7 +102,7 @@ export async function preflightMeadowScene():Promise<void> {
 }
 @ccclass('MeadowSceneMotion')
 export class MeadowSceneMotion extends Component {
- material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;
+ material:Material|null=null;skyMaterial:Material|null=null;cloudMaterial:Material|null=null;viewCamera:Camera|null=null;sail:Node|null=null;light:SphereLight|null=null;
  private _hostPaused=true;private _visible=false;
  private seconds=0;private hidden=false;private loops:AnimationState[]=[];
  get hostPaused(){return this._hostPaused;}set hostPaused(value:boolean){this._hostPaused=value;this.syncLoops();}
@@ -98,9 +125,14 @@ export class MeadowSceneMotion extends Component {
   const night=uiNightWeight();
   // windmill_sails_loop owns windmill_sail_hub. Writing Euler here would replace the clip.
   this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,0));
+  // Day/night follows the world clock even while the loops are paused.
+  const sky=meadowNightChannels([1,1,1],MEADOW_SKY_NIGHT,night),cloud=meadowNightChannels([1,1,1],MEADOW_CLOUD_NIGHT,night);
+  this.skyMaterial?.setProperty('mainColor',new Vec4(sky[0],sky[1],sky[2],1));
+  this.cloudMaterial?.setProperty('mainColor',new Vec4(cloud[0],cloud[1],cloud[2],1));
+  if(this.viewCamera){const rgb=meadowNightChannels(DAY_CLEAR,NIGHT_CLEAR,night);this.viewCamera.clearColor=new Color(Math.round(rgb[0]),Math.round(rgb[1]),Math.round(rgb[2]),255);}
  }
  diagnostics(){return {seconds:this.seconds,paused:!this.running(),windmillLoopSeconds:MEADOW_SCENE_SOURCE.windmillSeconds,grassWaveSeconds:4,loops:this.loops.map(state=>({name:state.name,paused:!!state.isPaused,playing:!!state.isPlaying,wrapMode:state.wrapMode,repeatCount:state.repeatCount}))};}
- onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);for(const state of this.loops)if(state.isPlaying)state.pause();this.loops=[];this.material=null;this.sail=null;this.light=null;}
+ onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);for(const state of this.loops)if(state.isPlaying)state.pause();this.loops=[];this.material=null;this.skyMaterial=null;this.cloudMaterial=null;this.viewCamera=null;this.sail=null;this.light=null;}
 }
 /** The actual meadow model renders behind the board at camera priority 44.
  * No static picture/RenderTexture substitute, world-camera write, save or progression mutation.
@@ -140,7 +172,8 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   const cameraNode=new Node('MeadowBackgroundCamera');cameraNode.layer=MEADOW_LAYER;rig.addChild(cameraNode);camera=cameraNode.addComponent(Camera);
   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=.1;camera.far=1000;camera.visibility=MEADOW_LAYER;
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color('#87bfc9');camera.enabled=false;
-  motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;motion.bindLoops(loops);
+  const nightSurfaces=bindMeadowNightSurfaces(model);
+  motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.skyMaterial=nightSurfaces.sky;motion.cloudMaterial=nightSurfaces.cloud;motion.viewCamera=camera;motion.sail=find(model,'windmill_sail_hub');motion.light=light;motion.bindLoops(loops);
   return {
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
     const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');},
