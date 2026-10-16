@@ -133,6 +133,9 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
   }
   configureResultLayout(p, ph, m, groups, actions, rewards);
   dropStars(p, starNodes);
+  // R1: the claim repaint replaces an already-open panel; it must not replay the 0.22 s pop-in (92% scale, fade from 0,
+  // shade from clear) that showed as a small glowing chest for ~3 frames.
+  if (chestAdopted) { chestAdopted = false; p.settleOpen(); }
   return p;
 }
 type ResultPose = { node: Node; x: number; y: number; sx: number; sy: number; width: number; height: number; font?: number; line?: number; wrap?: boolean; overflow?: number };
@@ -263,10 +266,16 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
   let chestPose: { node: Node; flat: Node | null; y: number; rigY: number; w: number; h: number } | null = null;
   let guideT = 0, riseT = 0, flatScale = { x: 1, y: 1 };
+  let adoptedScoreY: number | null = null, scoreEase: { node: Node; base: number; delta: number; t: number } | null = null;
+  // delta holds the score's previous WORLD y; the offset is re-derived each frame because the panel scale can still change.
+  const applyScoreEase = () => { const e = scoreEase; if (!e) return; if (!isValid(e.node, true)) { scoreEase = null; return; }
+    const n = e.node, k = scoreEaseAt(e.t); n.setPosition(n.position.x, e.base, n.position.z); if (k >= 1) { scoreEase = null; return; }
+    const ps = n.parent ? n.parent.worldScale.y : 1, off = (e.delta - n.worldPosition.y) / Math.max(1e-6, ps);
+    n.setPosition(n.position.x, e.base + off * (1 - k), n.position.z); };
   // Pulsing light guide on a ready chest; floating rewards rise out of the open chest, then bob gently.
   const baseUpdate = p.update.bind(p);
   p.update = (dt: number) => {
-    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d);
+    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); }
     const still = reducedMotion(), wave = Math.sin(guideT * 2 * Math.PI / GUIDE_PERIOD);
     if (guideDiag.pulsing && !still) {
       const sine = 0.5 - 0.5 * Math.cos(guideT * 2 * Math.PI / GUIDE_PERIOD); // sineInOut 0→1→0
@@ -291,9 +300,19 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       f.node.setPosition(f.x * Math.min(1, e), f.fromY + (f.y - f.fromY) * e + bob, 0); const o = f.node.getComponent(UIOpacity) || f.node.addComponent(UIOpacity); o.opacity = Math.round(255 * Math.min(1, k * 2));
     }
   };
-  (p as any).resultChestTapped = () => { guideDiag.pulsing = false; chestTappedAt = Date.now(); chestRig?.open(true); };
+  (p as any).resultChestTapped = () => { guideDiag.pulsing = false; chestTappedAt = Date.now(); tappedScoreY = scoreWorldY(p.root); chestRig?.open(true); };
+  let tappedScoreY: number | null = null; // R1: captured while this panel is live (destroy may run after detach)
   const prevDestroy = p.destroy.bind(p);
-  p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
+  p.destroy = () => {
+    // R1: the claim repaints the result (closeResult → openResult). Hand the live 3D rig (lid mid-open) and the score's
+    // screen y to the claimed panel instead of disposing it; otherwise the new panel shows the small 2D fallback for the
+    // ~3 frames its own rig needs to load, and the score row snaps up.
+    disposeChestHandoff();
+    if (chestRig && chestRig.ready && Date.now() - chestTappedAt < CHEST_HANDOFF_MS && isValid(chestRig.node, true)) {
+      chestRig.node.removeFromParent(); chestHandoff = { rig: chestRig, at: Date.now(), scoreY: tappedScoreY };
+    } else chestRig?.dispose();
+    chestRig = null; prevDestroy();
+  };
   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
   // Chest hero: 240 × 216 when the page has room, never under 96 × 86 (the 3D render keeps its aspect).
   // Spec v2: chest 168 × 130 (compact 120 × 93), halo / hit area 220 (compact 160), rays 280 only once open.
@@ -594,7 +613,11 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         if (chestRig?.ready) flat.active = false;
       }
       for (let j = 0; j < art.length; j++) { const n = art[j]; if (n !== flat) n.active = false; } // no stamp: the open lid says it
-      if (!chestRig) {
+      const adopted = !chestRig && r.state === 'claimed' ? takeChestHandoff() : null;
+      if (adopted) {
+        chestRig = adopted.rig; chestAdopted = true; row.node.addChild(chestRig.node); chestRig.node.active = true; adoptedScoreY = adopted.scoreY;
+        if (flat) flat.active = false; floor.active = true; // the 3D chest stays on screen: no 2D fallback frames
+      } else if (!chestRig) {
         chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
         // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
         if (r.state === 'claimed') chestRig.open(Date.now() - chestTappedAt < 3000); // just tapped: play the lid open; otherwise already open
@@ -626,10 +649,24 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       pages[pages.length - 1].push(row); used += row.height + (used ? rowGap : 0);
     }
     page = Math.min(page, pages.length - 1); showPage(); p.tint.update(true);
+    if (adoptedScoreY !== null) { const sn = findNamed(p.root, 'Score'); const y = sn ? sn.worldPosition.y : null; // R1: ease the score into its open-state row
+      if (sn && y !== null && Math.abs(adoptedScoreY - y) > 0.5) scoreEase = { node: sn, base: sn.position.y, delta: adoptedScoreY, t: 0 };
+      adoptedScoreY = null; }
+    if (scoreEase) { scoreEase.base = scoreEase.node.position.y; applyScoreEase(); } // a reflow re-places the row; keep the eased offset
   });
 }
 /** The host repaints the result after a claim; the next (claimed) panel plays the lid opening when this is recent. */
 let chestTappedAt = -1e12;
+/** R1: the opening 3D chest carried from the tapped panel into the repainted (claimed) one, plus the score's world y. */
+export const CHEST_HANDOFF_MS = 3000, SCORE_EASE_S = 0.25;
+let chestAdopted = false;
+let chestHandoff: { rig: ResultChest3D; at: number; scoreY: number | null } | null = null;
+function disposeChestHandoff() { const h = chestHandoff; chestHandoff = null; try { h?.rig.dispose(); if (h && isValid(h.rig.node, true)) h.rig.node.destroy(); } catch { } }
+function takeChestHandoff() { const h = chestHandoff; chestHandoff = null; if (!h) return null; if (Date.now() - h.at > CHEST_HANDOFF_MS || !h.rig.ready || !isValid(h.rig.node, true)) { try { h.rig.dispose(); } catch { } return null; } return h; }
+/** cubicOut 0→1 over SCORE_EASE_S (clamped). */
+export function scoreEaseAt(t: number) { const x = Math.max(0, Math.min(1, t / SCORE_EASE_S)); return 1 - Math.pow(1 - x, 3); }
+function findNamed(n: Node, name: string): Node | null { if (n.name === name && n.activeInHierarchy) return n; for (const c of n.children) { const r = findNamed(c, name); if (r) return r; } return null; }
+function scoreWorldY(root: Node): number | null { try { const n = findNamed(root, 'Score'); return n ? n.worldPosition.y : null; } catch { return null; } }
 function isNight(): boolean { try { const m = (globalThis as any).__worldDayNight?.snapshot?.()?.mode; return typeof m === 'string' && m.includes('night'); } catch { return false; } }
 function bounceOut(t: number) { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
 function backOut(t: number, s = 1.70158) { const u = t - 1; return u * u * ((s + 1) * u + s) + 1; }

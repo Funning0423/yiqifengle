@@ -328,6 +328,8 @@ export class PopupPanel {
     for (let i = 0; i < this.toggles.length; i++) this.toggles[i].update(step);
     this.tint.update();
   }
+  /** Show fully open now (no pop-in): for a panel that replaces one already on screen. */
+  settleOpen() { if (this.closing >= 0 || !isValid(this.root, true)) return; this.t = OPEN_S; this.update(0); }
   close(done?: () => void) {
     if (this.closing >= 0 || !isValid(this.root, true)) return; this.done = done || null; this.closing = CLOSE_S; this.setInputEnabled(false);
     this.options.onClose?.();

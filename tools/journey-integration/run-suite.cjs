@@ -47,6 +47,7 @@ const tests=[
  ['exit-cine-audio','tools/test_exit_cine_audio.cjs'],
  ['cconb-bin-only','tools/test_cconb_bin_only.cjs'],
  ['fade-cover-alpha','tools/test_fade_cover_alpha.cjs'],
+ ['result-chest-handoff','tools/board-ui/test_result_chest_handoff.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
