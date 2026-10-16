@@ -1,3 +1,4 @@
+import './SharedBundles';
 import { _decorator, Component, assetManager, Prefab, Node, instantiate, isValid, director, Camera, Vec3, MeshRenderer, SkeletalAnimation } from 'cc';
 import { PreviewLease } from './static-seat/PreviewLease';
 import { FIRSTSLICE } from './world-r1/FirstsliceFacts';

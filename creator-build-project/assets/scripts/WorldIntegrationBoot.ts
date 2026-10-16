@@ -1,3 +1,4 @@
+import './SharedBundles';
 import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { DEBUG } from 'cc/env';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
