@@ -10,7 +10,7 @@
  * F7 04→05 lens on her right side from set-off (v3.2 camera rule).
  * Geometry on real GLB triangles + real TS; not a rendered or device acceptance. */
 const sc=require('./journey-scene.cjs'),F=require('./journey-framing-lib.cjs');
-const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
+const {sha,meta}=sc;const {fs,assert,Core,legs,sampleRoute,routeLength,journeyCamera,island,meadow,skyFrame,focus2,JOURNEY_CAMERA,L}=sc;
 const results=[];function check(id,fn){try{results.push({id,status:'PASS',evidence:fn()});}catch(e){results.push({id,status:'FAIL',error:String(e&&e.stack||e)});}}
 const STEP=.1,isMass=o=>o.tag==='skycity',bvh=F.buildBvh([...island,...meadow,...skyFrame]);
 const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
@@ -45,6 +45,6 @@ check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const
 check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge, her x ≤ 80% of the width',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
  assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.max(f[0],h[0])<=.6&&Math.min(f[0],h[0])>=-.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)} (≤0.60 = 80% of the width)`);
  return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2),xPctOfWidth:+((Math.max(f[0],h[0])+1)/2*100).toFixed(1)};});
-const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
+const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),fixture:(()=>{const o=__dirname+'/occlusion/';return {json:'occlusion/fixture-occluders.json',jsonSha256:sha(o+'fixture-occluders.json'),binGz:'occlusion/fixture-occluders.bin.gz',binGzSha256:sha(o+'fixture-occluders.bin.gz'),bytes:meta.bytes,binSha256:meta.binSha256,sources:meta.sources.map(s=>({id:s.id,glb:s.glb,sha256:s.sha256}))};})(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
 console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
