@@ -323,7 +323,7 @@ for (const order of ['unlock-then-load', 'load-then-unlock', 'unlock-before-room
   ok(dup.length === 0, 'no duplicate uuids across assets/**/*.meta (' + allMetas.length + ' metas)', dup);
   for (const [f, minS, maxS] of [['bundles/region_meadow/audio/bgm_meadow.mp3', 72, 73.5], ['bundles/region_skycity/audio/bgm_skycity.mp3', 71.5, 73], ['bundles/audio_bgm_island/audio/bgm_main.mp3', 83, 84.5]]) {
     const p = path.join(P, 'assets', f), m = J(p + '.meta'), buf = fs.readFileSync(p);
-    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0101 = 40 kbps since v3.2 size pass (was 48), mode != 3 (stereo)
+    // MPEG-1 Layer III frame header after the ID3/Xing area: bitrate index 0b0010 = 40 kbps (MPEG-1 L3 table index 2; 48 = 0b0011) since v3.2 size pass (was 48), mode != 3 (stereo)
     let i = 0; if (buf.slice(0, 3).toString() === 'ID3') i = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
     while (i < buf.length - 4 && !(buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0)) i++;
     const KB = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
