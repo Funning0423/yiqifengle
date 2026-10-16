@@ -2,6 +2,8 @@
  * her at home, resolve as soon as the flow state is home, then fade back in. Pure (no cc imports): the host
  * injects the cover, audio and a wall clock so tests can drive simulated time. Every path resolves. */
 export const HOME_FADE={outS:.4,inS:.5,timeoutS:10} as const;
+/** Cover alpha (0..1) → fill-colour byte; Graphics fills carry their own alpha (UIOpacity does not affect them). */
+export function coverAlphaByte(a:number):number{return Math.max(0,Math.min(255,Math.round(255*(Number.isFinite(a)?a:0))));}
 export type HomeResult={ok:boolean;reason?:string};
 export interface HomeTransitionHost{
   now():number;                       // wall-clock seconds
