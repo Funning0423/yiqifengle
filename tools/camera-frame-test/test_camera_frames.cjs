@@ -78,7 +78,8 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   check('lighting-continuity',wStep<=LIMITS.maxWeightStep&&island.every(f=>f.weight===0)&&home.every(f=>f.weight===1),{maxWeightStepPerFrame:+wStep.toFixed(4),at:wAt,islandWeight:[...new Set(island.map(f=>f.weight))],homeWeight:[...new Set(home.map(f=>f.weight))]});
   // --- collision (decoded GLB)
   // T9 props (GGbot 1653f02 signpost + beach palms) are merged when the T9 worktree is present (T9_ROOT); reported either way.
-  if(!args.includes('--no-geometry')){const base=await G.decode(),geoT9=base&&!args.includes('--no-t9')?await T9.merged(base):null,geo=geoT9||base;
+  let exitGeo=null; // shared with the B5.4.1 exit clearance check (one decode: heap)
+  if(!args.includes('--no-geometry')){const base=await G.decode(),geoT9=base&&!args.includes('--no-t9')?await T9.merged(base):null,geo=geoT9||base;exitGeo=geo;
     console.log('geometry: island GLB'+(geoT9?' + T9 props '+T9.T9_SHA+' ('+T9.dir()+')':' (T9 props NOT loaded)'));
     if(!geo)check('collision',false,{skipped:'draco3d not found: cd tools/camera-frame-test && npm i --no-save draco3d@1.5.7 (or set DRACO3D)'});
     else{const I=G.index(geo),hp=cfg.cameraHome.position;let minClr={d:1},occl=[],near=null;
@@ -228,7 +229,7 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   // then rises in one smooth ease. Checked on BOTH clocks (constant walk here, real walk driver below):
   // peak speed <= EXIT_LIMITS.peakMps, smoothed |accel| / |jerk| caps (no spikes/kinks), and the lens on her right side
   // (lateral offset on her right axis >= -EXIT_LIMITS.leftToleranceM). No cruise band, no door-angle condition.
-  const EXIT_LIMITS={peakMps:2.2,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
+  const EXIT_LIMITS={peakMps:2.0,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
   const exitKin=(frames,dtE,tFrom)=>{const ex=frames.filter(f=>f.state==='crossing-out'&&f.t>=tFrom-.5);const n=ex.length,h=EXIT_LIMITS.smoothFrames>>1;
     const w=[];for(let k=-h;k<=h;k++){let c=1;for(let q=0;q<k+h;q++)c=c*(2*h-q)/(q+1);w.push(c);}const ws=w.reduce((p,q)=>p+q,0);
     const P=ex.map((f,i)=>{let x=[0,0,0];for(let k=-h;k<=h;k++){const g=ex[Math.max(0,Math.min(n-1,i+k))].cam.position;for(let c=0;c<3;c++)x[c]+=g[c]*w[k+h]/ws;}return x;});
@@ -243,6 +244,10 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   {const xo=run.states.find(s=>s.state==='crossing-out'),t0=xo?xo.frame*dt:0,tDoor=t0+env.W.pathDuration(cfg.outCrossing,cfg.speed);
     const e=exitKin(F,dt,tDoor);console.log('exit-kinematics',JSON.stringify(e));
     check('exit-overlap',e.ok,{clock:'span time (constant walk)',limits:EXIT_LIMITS,...e});
+    // B5.4.1: point clearance to every non-exempt mesh (lens_rays ARCH + door leaves exempt) >= EXIT_LIMITS.clearM, every frame from the doorway key to the settle
+    {const gx=exitGeo;if(gx){const Ic=G.index(gx,{ignore:new RegExp(G.IGNORE.source+'|'+LR.ARCH.source+'|@(open|closed)$')});let mc={d:9,who:null,t:null};
+      for(const f of F){if(f.t<tDoor-1e-6||f.state!=='crossing-out')continue;const c=Ic.clearance(f.cam.position,2);if(c.d<mc.d)mc={d:+c.d.toFixed(3),who:c.who,t:+f.t.toFixed(3)};}
+      console.log('exit-clearance',JSON.stringify(mc));check('exit-prop-clearance',mc.d>=EXIT_LIMITS.clearM,{limitM:EXIT_LIMITS.clearM,exempt:String(LR.ARCH),...mc});}}
     const prevRest=process.env.QF_REAL_WALK_REST;process.env.QF_REAL_WALK_REST='1';
     const envR=S.create({realWalk:true}),runR=await S.run(envR,{script:['leaveHome'],fps:60});
     if(prevRest===undefined)delete process.env.QF_REAL_WALK_REST;else process.env.QF_REAL_WALK_REST=prevRest;
