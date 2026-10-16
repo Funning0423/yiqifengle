@@ -41,10 +41,10 @@ check('F7b 08→09 lens on her right side (vs her facing) until the last 10 m',(
 check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const leg=legs[1];let maxUp=0,at=0;for(const r of R[1].rows){const p=sampleRoute(leg.path,r.d),u=r.c.position[1]-p[1];if(u>maxUp){maxUp=u;at=r.d;}}
  assert(maxUp<=7,'lens up '+maxUp.toFixed(2));return {maxUpM:+maxUp.toFixed(2),atM:at};});
 // F9 (landing A v2): final 08→09 frame shows her WHOLE body — feet (0.05 m) and head top (1.65 m) inside the frame with at least
-// 5% of screen height below her feet (ndc y ≥ −0.90) and |x| ≤ 0.85.
-check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
- assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.abs(f[0])<=.85&&Math.abs(h[0])<=.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)}`);
- return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2)};});
+// 5% of screen height below her feet (ndc y ≥ −0.90); her x ≤ 80% of the width (ndc ≤ 0.60, Mac check 379e137: was 89%).
+check('F9 08→09 final frame: whole body in frame, feet ≥ 5% of screen height above the bottom edge, her x ≤ 80% of the width',()=>{const leg=legs[1],T=routeLength(leg.path),c=journeyCamera(leg.path,T,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,T),f=F.ndc(c,[p[0],p[1]+.05,p[2]]),h=F.ndc(c,[p[0],p[1]+1.65,p[2]]);
+ assert(f[2]>0&&h[2]>0,'behind camera');assert(f[1]>=-.9,`feet ndc y ${f[1].toFixed(3)}`);assert(h[1]<=.9,'head out');assert(Math.max(f[0],h[0])<=.6&&Math.min(f[0],h[0])>=-.85,`x ${f[0].toFixed(2)},${h[0].toFixed(2)} (≤0.60 = 80% of the width)`);
+ return {feetNdcY:+f[1].toFixed(3),bottomMarginPct:+((f[1]+1)/2*100).toFixed(1),headNdcY:+h[1].toFixed(3),x:+f[0].toFixed(2),xPctOfWidth:+((Math.max(f[0],h[0])+1)/2*100).toFixed(1)};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
 console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;

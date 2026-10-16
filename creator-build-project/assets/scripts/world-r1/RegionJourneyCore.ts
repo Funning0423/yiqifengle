@@ -38,11 +38,12 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
- // Landing A (final, v2): 11 m behind / 2 m right / 2 m up from the end, plaza centred, her 0.164 of screen height with her
- // whole body in frame (feet 25% above the bottom edge). The low lens cuts the plaza rock in the frame centre from 9/25 to 5/25
- // samples (it cannot reach 0 with the plaza centred: the rock is the plaza's own pedestal). A small 1.5 m late lift keeps her
- // head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until the last ~10 m.
- arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:1.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:11,arrivalSideM:-2,arrivalUpM:2,arrivalAim:0} as const;
+ // Landing A (final, v3, Mac check 379e137): 12 m behind / 1.5 m right / 2 m up from the end, view pitched 2.5 deg up over the
+ // plaza-centred aim: plaza 50% across / 55% down, her centre at 75% of the width (was 86-89%), her 0.153 of screen height
+ // with her whole body in frame (feet 21% above the bottom edge), plaza rock in the frame centre 5/25 samples. A small 2.5 m
+ // late lift keeps her head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until
+ // the last ~10 m.
+ arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:2.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-1.5,arrivalUpM:2,arrivalAim:0,arrivalPitchDeg:2.5} as const;
 export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
  return l>1e-6?[x/l,z/l]:[0,1];
@@ -73,7 +74,7 @@ export function arrivalPose(path:readonly Vec[],focus:Vec):{position:Vec;target:
  const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
  // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
  // chest by arrivalAim so she stays in the lower part of the portrait frame.
- const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
+ const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
  return {position,target:[position[0]+aim[0]*8,position[1]+aim[1]*8,position[2]+aim[2]*8]};
 }
 /** Her-relative lens offset moved on an orbit: horizontal angle, horizontal radius and height interpolate separately,
@@ -156,5 +157,10 @@ export class RegionJourneyController {
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
  restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
+ /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
+  * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */
+ returnToIsland():void{if(this.busy)throw Error('journey-busy');if(this.phase==='disposed')throw Error('journey-disposed');
+  ++this.serial;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.region='island';this.target=null;this.phase='idle';
+  this.distance=0;this.startDistance=0;this.root=null;this.camera=null;this.startCamera=null;this.activePath=null;this.error=null;this.loadProgress=0;}
  dispose(){++this.serial;this.phase='disposed';this.activePath=null;for(const scene of this.scenes)scene.dispose();this.scenes=[];this.lease=null;this.root=null;}
 }

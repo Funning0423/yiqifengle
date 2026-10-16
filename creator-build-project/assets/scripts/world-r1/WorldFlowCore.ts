@@ -522,7 +522,18 @@ export class WorldFlow {
     const accepted=this.level!.requestExit();if(!accepted.ok){this.error=accepted.reason;this.emit(this.snapshot());return accepted;}
     this.level?.dispose();this.level=null;this.stable=this.levelOrigin;this.restore();this.change(this.levelOrigin);return {ok:true};
   }
+  /** 「主页」 must work wherever she stands. From an arrived meadow/skycity journey region (no walk-back route exists) or a
+   *  paused/failed journey she is first set back on the island (journey scenes released, campaign save untouched), then
+   *  walks home as usual. A journey that is actively running stays busy; the region-visit skycity keeps exitSkycity. */
+  private leaveJourneyForIsland():Result|null {
+    const j=this.journey;if(!j||this.current||this.visit||this.hidden||this.needsResume)return null;
+    if(!['island','meadow','skycity'].includes(this.state))return null;
+    if(j.snapshot().region==='island'&&!j.isInTransit())return null;
+    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+    this.stable='island';this.restore();this.change('island');this.cameraEvent({kind:'settled',place:'island'});return null;
+  }
   async returnHome():Promise<Result> {
+    const left=this.leaveJourneyForIsland();if(left)return left;
     if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
     const fail=this.blocked('island',true);if(fail)return fail;
     return this.operate('walking-home',async t=>{
