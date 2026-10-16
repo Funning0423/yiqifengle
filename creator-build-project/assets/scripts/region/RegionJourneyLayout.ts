@@ -31,6 +31,9 @@ export const REGION_JOURNEY_LAYOUT={
  /** The city's cloud-bridge deck starts 0.26 m ABOVE the platform just past anchor_cloudbridge_end. Step onto it 0.35 m in,
   * then keep the original 2.4 m arrival root. */
  skyStepOnto:[.35,0,.31] as readonly [number,number,number],
+ /** v3 local lens keys for 08→09, metres from the rainbow bridge START (see RegionJourneyCore.LensKey). Under the sky
+  * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). */
+ skyLens:[{at:-8},{at:-4,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:15,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
 } as const;
 export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
@@ -50,3 +53,5 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
  const length=Math.hypot(gate[0]-end[0],gate[1]-end[1],gate[2]-end[2]),t=Math.min(1,L.skyEntryWalkM/length);
  return {rim:at(...L.skyLanding),deck:[...L.skyPlatformWalk.map(([a,l,lift])=>at(a,l,lift)),at(...L.skyStepOnto)],arrival:[end[0]+(gate[0]-end[0])*t,end[1]+(gate[1]-end[1])*t,end[2]+(gate[2]-end[2])*t]};
 }
+/** Route lens keys from bridge-relative metres to route metres. */
+export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}

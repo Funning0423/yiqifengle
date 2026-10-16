@@ -212,7 +212,7 @@
   {
    "id": "skycity",
    "glb": "region_skycity/env_skycity.glb",
-   "sha256": "0bf5d3e51130d833b97b41e9bd7eb2065818b1415d178b7ea48a9da9ad2997d7",
+   "sha256": "78c5e3d0ffd79e5b649fbf4ccf851aacd4255123c422561f9ea0062d49297201",
    "box": [
     [
      -90,
@@ -275,66 +275,110 @@
     {
      "name": "env_sky_static_foliage_cards",
      "offset": 1729692,
-     "count": 808
+     "count": 3808
     },
     {
      "name": "env_sky_static_palette",
-     "offset": 1758780,
-     "count": 5360
+     "offset": 1866780,
+     "count": 8041
     },
     {
      "name": "env_sky_static_rock_strata",
-     "offset": 1951740,
+     "offset": 2156256,
      "count": 559
     },
     {
      "name": "env_sky_windchime_01",
-     "offset": 1971864,
+     "offset": 2176380,
      "count": 60
     },
     {
      "name": "state_bridge_after",
-     "offset": 1974024,
+     "offset": 2178540,
      "count": 404
     },
     {
      "name": "state_bridge_before",
-     "offset": 1988568,
+     "offset": 2193084,
      "count": 44
     },
     {
      "name": "state_court_after",
-     "offset": 1990152,
+     "offset": 2194668,
      "count": 30
     },
     {
      "name": "state_court_after_flowers",
-     "offset": 1991232,
+     "offset": 2195748,
      "count": 72
     },
     {
      "name": "state_court_before",
-     "offset": 1993824,
+     "offset": 2198340,
      "count": 30
     },
     {
      "name": "state_gate_after",
-     "offset": 1994904,
+     "offset": 2199420,
      "count": 92
     },
     {
      "name": "state_gate_after_flowers",
-     "offset": 1998216,
+     "offset": 2202732,
      "count": 24
     },
     {
      "name": "state_gate_before",
-     "offset": 1999080,
+     "offset": 2203596,
      "count": 12
+    }
+   ]
+  },
+  {
+   "id": "skycity_frame",
+   "glb": "region_skycity/env_skycity.glb",
+   "sha256": "78c5e3d0ffd79e5b649fbf4ccf851aacd4255123c422561f9ea0062d49297201",
+   "box": null,
+   "keep": "/^env_sky_static_palette$|^env_sky_static_rock_strata$|^env_sky_floatingrocks_[0-9]$|^env_sky_ruins$|^env_sky_island_vines$/",
+   "objects": [
+    {
+     "name": "env_sky_floatingrocks_1",
+     "offset": 2204028,
+     "count": 270
+    },
+    {
+     "name": "env_sky_floatingrocks_2",
+     "offset": 2213748,
+     "count": 270
+    },
+    {
+     "name": "env_sky_floatingrocks_3",
+     "offset": 2223468,
+     "count": 270
+    },
+    {
+     "name": "env_sky_island_vines",
+     "offset": 2233188,
+     "count": 6992
+    },
+    {
+     "name": "env_sky_ruins",
+     "offset": 2484900,
+     "count": 6637
+    },
+    {
+     "name": "env_sky_static_palette",
+     "offset": 2723832,
+     "count": 22686
+    },
+    {
+     "name": "env_sky_static_rock_strata",
+     "offset": 3540528,
+     "count": 1873
     }
    ]
   }
  ],
- "bytes": 1999512,
- "binSha256": "0b10790e1dadea1ec3d88685972a374ad9d82fbe7057aa68dd458b2e11a32581"
+ "bytes": 3607956,
+ "binSha256": "dbf6a99bdc9b1ad586aa0bebe1485d3993e42fa912e11b9f75ccb21007bd4b79"
 }

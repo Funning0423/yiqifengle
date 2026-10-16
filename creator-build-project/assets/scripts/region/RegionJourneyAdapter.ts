@@ -5,7 +5,7 @@ import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
-import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
@@ -74,7 +74,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      const deck=skyDeckRoute(anchor(model,'anchor_cloudbridge_end'),anchor(model,'anchor_cloudbridge_start'));
      bridge=bridgePath(edge,deck.rim,REGION_JOURNEY_LAYOUT.skyBridgeArchM);arrival=[...deck.deck,deck.arrival];focus=anchor(model,'anchor_starcourt_center');
     }
-    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,...(focus?{focus}:{})};
+    const path=[...approach,...bridge.slice(1),...arrival],route:JourneyRoute={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{})};
     rainbowBridge(rig,bridge,owned);token.check();mounted.set(to,model);progress(.98);
     const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(motion){motion.visible=visible;motion.hostPaused=!visible;}model?.getComponent(RegionAmbientAnimation)?.setHostPaused(!visible);},dispose:release};
     return lease;
