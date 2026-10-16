@@ -38,7 +38,9 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  *    angular speed is bounded (≤ 20°/s at 1.2 m/s, asserted by the framing test). */
 export type LensKey = Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>;
 export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,backM:6.6,sideM:-2.4,upM:3.4,leadM:1.2,lookM:2.4,blendLiftM:2.5,fovDeg:48,
- arrivalBlendM:14,arrivalHoldM:3,arrivalLiftM:8,arrivalRiseM:6,arrivalDropM:4,arrivalBackM:10,arrivalSideM:-1,arrivalUpM:3.5,arrivalAim:.45} as const;
+ // Landing A (final): no lift (the mushroom sink clears d41-45), 12 m behind / 4.5 m above the end, plaza centred, her ~0.15 of
+ // screen height. Blend 14.3 m keeps the turn <=20 deg/s and the lens stays on her right until the last ~10 m.
+ arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:0,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-.5,arrivalUpM:4.5,arrivalAim:0} as const;
 export function journeyHeading(path:readonly Vec[],distance:number):[number,number]{
  const a=sampleRoute(path,Math.max(0,distance-JOURNEY_CAMERA.headingWindowM)),b=sampleRoute(path,distance+JOURNEY_CAMERA.headingWindowM),x=b[0]-a[0],z=b[2]-a[2],l=Math.hypot(x,z);
  return l>1e-6?[x/l,z/l]:[0,1];

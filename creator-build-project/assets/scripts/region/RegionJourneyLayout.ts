@@ -32,8 +32,11 @@ export const REGION_JOURNEY_LAYOUT={
   * then keep the original 2.4 m arrival root. */
  skyStepOnto:[.35,0,.31] as readonly [number,number,number],
  /** v3 local lens keys for 08→09, metres from the rainbow bridge START (see RegionJourneyCore.LensKey). Under the sky
-  * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). */
- skyLens:[{at:-8},{at:-4,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:15,upM:4.5,backM:6.6,lookM:1.6,sideM:2.4},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
+  * city the lens rises and pulls back so the city's grey underside stays ≤ 10% of the frame (lead review: 73–84 s). v3.2: sideM −2.4 = her RIGHT (was +2.4, her left);
+  * at the 66° meadow-exit → bridge corner the lens swings wider right so it is right of behind for both headings.
+  * Landing A final: on her right the lens sits higher/further (6.5–7 m up, 9 m back, 0.5–1.2 m right, a short 8 m swing right at
+  * the 66° corner) and ramps up from 11 m before the bridge, keeping the underside ≤ 10% (F3) and the night sky in view (F4) with no lift. */
+ skyLens:[{at:-11},{at:-7,upM:6.5,backM:9,lookM:2.4,sideM:-1.2},{at:-0.2,upM:6.5,backM:9,lookM:2.4,sideM:-8},{at:1.3,upM:6.5,backM:9,lookM:2.4,sideM:-5.5},{at:4.5,upM:7,backM:9,lookM:2.4,sideM:-1},{at:8,upM:6.5,backM:9,lookM:2.4,sideM:-0.5},{at:15,upM:6.5,backM:9,lookM:2.4,sideM:-0.5},{at:19}] as ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,
  bridgeWidthM:2.1,meadowBridgeArchM:2,skyBridgeArchM:2,speedMps:1.2,bridgeSamples:32,meadowExitPathIndex:8,skyEntryWalkM:2.4,
 } as const;
 export const plus=(a:Vec,b:Vec):Vec=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];

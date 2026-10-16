@@ -31,6 +31,15 @@ check('F6 04→05 start follows her: in frame from 1.25 m, first 10 m turn ≤ 2
 check('F7 04→05 lens on her right side from set-off (never left of behind)',()=>{const leg=legs[0],T=routeLength(leg.path);let worst=-999,at=0;
  for(let d=0;d<=T+1e-9;d+=.1){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,dd),[hx,hz]=Core.journeyHeading(leg.path,dd),vx=c.position[0]-p[0],vz=c.position[2]-p[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;at=dd;}}
  assert(worst<=0,`lens ${worst.toFixed(1)}° left of behind at d=${at.toFixed(1)}`);return {worstLeftOfBehindDeg:+worst.toFixed(1),atM:+at.toFixed(1)};});
+// F7b (landing A, 2026-10-16): 08→09 lens on her RIGHT against her FACING (runtime yaw = route tangent 0.08 m ahead),
+// never left of directly behind, except in the last 10 m where landing A may swing round to her left.
+const facing=(path,d)=>{const a=sampleRoute(path,d),b=sampleRoute(path,d+.08);let x=b[0]-a[0],z=b[2]-a[2];if(Math.hypot(x,z)<1e-4){const c=sampleRoute(path,Math.max(0,d-.08));x=a[0]-c[0];z=a[2]-c[2];}const l=Math.hypot(x,z)||1;return [x/l,z/l];};
+check('F7b 08→09 lens on her right side (vs her facing) until the last 10 m',()=>{const leg=legs[1],T=routeLength(leg.path);let worst=-999,at=0;
+ for(let d=0;d<T-10;d+=.05){const c=journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM),p=sampleRoute(leg.path,d),[hx,hz]=facing(leg.path,d),vx=c.position[0]-p[0],vz=c.position[2]-p[2],back=-(vx*hx+vz*hz),right=vx*(-hz)+vz*hx,a=Math.atan2(-right,back)*180/Math.PI;if(a>worst){worst=a;at=d;}}
+ assert(worst<=0,`lens ${worst.toFixed(1)}° left of behind at d=${at.toFixed(1)}`);return {worstLeftOfBehindDeg:+worst.toFixed(1),atM:+at.toFixed(1),leftAllowedFromM:+(T-10).toFixed(2)};});
+// F8 (landing A): no lift — 08→09 lens never more than 7 m above her feet over the whole leg.
+check('F8 08→09 no lift: lens ≤ 7 m above her over the whole leg',()=>{const leg=legs[1];let maxUp=0,at=0;for(const r of R[1].rows){const p=sampleRoute(leg.path,r.d),u=r.c.position[1]-p[1];if(u>maxUp){maxUp=u;at=r.d;}}
+ assert(maxUp<=7,'lens up '+maxUp.toFixed(2));return {maxUpM:+maxUp.toFixed(2),atM:at};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',timeUTC:new Date().toISOString(),scope:'Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.',camera:JOURNEY_CAMERA,checks:results};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/journey-framing.json',JSON.stringify(report,null,1)+'\n');
 console.log(JSON.stringify({status:report.status,checks:results.map(r=>({id:r.id,status:r.status,evidence:r.evidence,error:r.error&&r.error.split('\n')[0].slice(0,300)}))},null,1));if(report.status!=='PASS')process.exitCode=1;
