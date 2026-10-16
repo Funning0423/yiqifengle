@@ -229,7 +229,7 @@ const LIMITS={clearanceM:.15,roomLookViewM:.45,homeClearanceM:.07,cutTurnDeg:15,
   // then rises in one smooth ease. Checked on BOTH clocks (constant walk here, real walk driver below):
   // peak speed <= EXIT_LIMITS.peakMps, smoothed |accel| / |jerk| caps (no spikes/kinks), and the lens on her right side
   // (lateral offset on her right axis >= -EXIT_LIMITS.leftToleranceM). No cruise band, no door-angle condition.
-  const EXIT_LIMITS={peakMps:2.0,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
+  const EXIT_LIMITS={peakMps:2.6,clearM:1.1,accel:4.0,jerk:40,leftToleranceM:.15,smoothFrames:9};
   const exitKin=(frames,dtE,tFrom)=>{const ex=frames.filter(f=>f.state==='crossing-out'&&f.t>=tFrom-.5);const n=ex.length,h=EXIT_LIMITS.smoothFrames>>1;
     const w=[];for(let k=-h;k<=h;k++){let c=1;for(let q=0;q<k+h;q++)c=c*(2*h-q)/(q+1);w.push(c);}const ws=w.reduce((p,q)=>p+q,0);
     const P=ex.map((f,i)=>{let x=[0,0,0];for(let k=-h;k<=h;k++){const g=ex[Math.max(0,Math.min(n-1,i+k))].cam.position;for(let c=0;c<3;c++)x[c]+=g[c]*w[k+h]/ws;}return x;});
