@@ -1,0 +1,79 @@
+{
+ "windmill_remap": {
+  "(0.591, 0.469)->cream2": 32,
+  "(0.55, 0.469)->lwood2": 24,
+  "(0.516, 0.719)->cream": 32,
+  "(0.75, 0.469)->lwood": 6,
+  "(0.639, 0.594)->brick": 32,
+  "(0.35, 0.469)->lwood2": 6,
+  "(0.82, 0.719)->cream": 2,
+  "(0.42, 0.719)->cream2": 2,
+  "(0.62, 0.719)->cream": 8,
+  "(0.7, 0.719)->cream": 14,
+  "(0.3, 0.719)->cream2": 14,
+  "(0.5, 0.469)->teal_dark": 2,
+  "(0.1, 0.469)->teal_dark": 2,
+  "(0.3, 0.469)->teal": 8,
+  "(0.45, 0.469)->teal_dark": 2,
+  "(0.348, 0.594)->brick": 2,
+  "(0.05, 0.469)->teal_dark": 2,
+  "(0.25, 0.469)->teal": 8,
+  "(0.78, 0.469)->lwood": 14,
+  "(0.38, 0.469)->lwood": 14,
+  "(0.645, 0.594)->brick": 1,
+  "(0.45, 0.594)->brick_dark": 1,
+  "(0.3, 0.594)->brick_dark": 14
+ },
+ "sails_remap": {
+  "(0.1, 0.469)->lwood": 972,
+  "(0.3, 0.469)->lwood2": 48,
+  "(0.979, 0.889)->canvas_w": 48
+ },
+ "flowers": {
+  "clumps": 50,
+  "flowers": 326,
+  "rejected_near_path_or_door": 16,
+  "verts": 13692
+ },
+ "contact_ring_verts": 120,
+ "new_nodes": {
+  "flowers": [
+   "meadow_vb_flowers"
+  ],
+  "butterflies": [
+   "meadow_butterfly_00",
+   "meadow_butterfly_00_wing_L",
+   "meadow_butterfly_00_wing_R",
+   "meadow_butterfly_01",
+   "meadow_butterfly_01_wing_L",
+   "meadow_butterfly_01_wing_R",
+   "meadow_butterfly_02",
+   "meadow_butterfly_02_wing_L",
+   "meadow_butterfly_02_wing_R"
+  ],
+  "birds": [
+   "meadow_birds_root",
+   "meadow_bird_00",
+   "meadow_bird_00_wing_L",
+   "meadow_bird_00_wing_R",
+   "meadow_bird_01",
+   "meadow_bird_01_wing_L",
+   "meadow_bird_01_wing_R",
+   "meadow_bird_02",
+   "meadow_bird_02_wing_L",
+   "meadow_bird_02_wing_R",
+   "meadow_bird_03",
+   "meadow_bird_03_wing_L",
+   "meadow_bird_03_wing_R",
+   "meadow_bird_04",
+   "meadow_bird_04_wing_L",
+   "meadow_bird_04_wing_R"
+  ],
+  "flag": [
+   "windmill_flag_pole",
+   "windmill_flag_seg_0",
+   "windmill_flag_seg_1",
+   "windmill_flag_seg_2"
+  ]
+ }
+}

@@ -65,16 +65,28 @@
         "name": "wx_astc6_etc2",
         "options": {
           "miniGame": {
-            "astc_6x6": "medium",
-            "etc2_rgba": "slow"
+            "astc_6x6": {
+              "quality": "medium"
+            },
+            "etc2_rgba": {
+              "quality": "slow"
+            }
           },
           "web-mobile": {
-            "astc_6x6": "medium",
-            "etc2_rgba": "slow"
+            "astc_6x6": {
+              "quality": "medium"
+            },
+            "etc2_rgba": {
+              "quality": "slow"
+            }
           },
           "web-desktop": {
-            "astc_6x6": "medium",
-            "etc2_rgba": "slow"
+            "astc_6x6": {
+              "quality": "medium"
+            },
+            "etc2_rgba": {
+              "quality": "slow"
+            }
           }
         }
       }

@@ -1,0 +1,11 @@
+glb total: 原版 6409332 B | v6 6606360 B | v7 6968428 B | v7-v6 +362068 B
+v6 images {'meadow_palette_256': 2511, 'meadow_ground_v0_8_1024': 138578, 'meadow_sky_4096x1024': 87407, 'meadow_ground_detail_v0_8_512': 229307}
+v7 images {'meadow_palette_256': 2540, 'meadow_ground_v0_8_1024': 138784, 'meadow_sky_4096x1024': 87407, 'meadow_ground_detail_v0_8_512': 229307}
+mesh windmill_static_merged verts(glTF) v6 498 v7 498
+mesh windmill_sails verts(glTF) v6 2136 v7 2136
+mesh meadow_vb_flowers verts(glTF) v6 0 v7 6693
+new animated-group nodes 29 verts 187
+anim windmill_sails_loop channels 1 keys/channel 241 bytes≈ 4820
+anim meadow_butterflies_loop channels 12 keys/channel 193 bytes≈ 35512
+anim meadow_birds_loop channels 16 keys/channel 241 bytes≈ 56876
+anim windmill_flag_loop channels 3 keys/channel 49 bytes≈ 2548

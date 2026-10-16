@@ -768,6 +768,45 @@
             "previousId": "58f70"
           }
         ]
+      },
+      {
+        "name": "meadow_butterflies_loop",
+        "duration": 8,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "meadow_butterflies_loop",
+            "from": 0,
+            "to": 8,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "meadow_birds_loop",
+        "duration": 20,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "meadow_birds_loop",
+            "from": 0,
+            "to": 20,
+            "wrapMode": 2
+          }
+        ]
+      },
+      {
+        "name": "windmill_flag_loop",
+        "duration": 2,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "windmill_flag_loop",
+            "from": 0,
+            "to": 2,
+            "wrapMode": 2
+          }
+        ]
       }
     ],
     "imageMetas": [

@@ -17,6 +17,11 @@ export function flowTestLayout(width:number,height:number,host?:{windowWidth?:nu
  const exit=rect(x+(twoColumns ? .5*(cellWidth+12):0),rowStart+(twoColumns?1:3)*54+23,cellWidth,46);
  return {supported:cellWidth>=112&&safeHeight>=(twoColumns?206:314),top,mark,entry,stages,exit};
 }
+/** The progress banner is part of the open debug menu on the home/island shell.
+ *  A running checkpoint must not paint it over the meadow or any other play screen. */
+export function flowTestBannerVisible(menuOpen:boolean, onShell:boolean, layoutSupported:boolean):boolean {
+ return !!(menuOpen && onShell && layoutSupported);
+}
 export function readFlowTestHost():any {
  const wx=(globalThis as any).wx;let host:any={};try{host=wx?.getWindowInfo?.()||wx?.getSystemInfoSync?.()||{};}catch{}
  try{return {...host,capsule:wx?.getMenuButtonBoundingClientRect?.()};}catch{return host;}
