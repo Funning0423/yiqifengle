@@ -10,7 +10,7 @@ const timingPath = path.join(root, 'creator-build-project/assets/resources/cine/
 const modelPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts');
 const windPath = path.join(root, 'creator-build-project/assets/scripts/audio/WindAudio.ts');
 
-const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE };')();
+const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE, createSailboatStartGate, SAILBOAT_START_STILL_FRAMES, SAILBOAT_START_TIMEOUT_SEC, SAILBOAT_MAX_FRAME_DT };')();
 const rawText = fs.readFileSync(timingPath, 'utf8');
 const raw = JSON.parse(rawText);
 const timing = model.parseSailboatTiming(raw);
@@ -377,3 +377,52 @@ console.log('sailboat transition tests ok', JSON.stringify({
   assert.equal(timing.durationSec, 5.2);
 }
 console.log('sailboat r3 cloud texture/dissolve/prefetch: ok');
+
+// r3 (Mac): sting + countdown started ~1.78 s before the boat set sail, while the exit camera was still easing.
+{
+  const gate = model.createSailboatStartGate();
+  const cam = (z, f = 0) => ({ position: [0, 20, z], forward: [0, -0.5, -0.86 + f] });
+  // exit camera still easing: 1.78 s of motion must not open the gate
+  let t = 0;
+  for (let i = 0; i < 107; i++) { t += 1 / 60; assert.equal(gate.feed(1 / 60, cam(35 + (107 - i) * 0.01)), false, 'gate open while camera moves at ' + t.toFixed(2)); }
+  // settles: opens after exactly SAILBOAT_START_STILL_FRAMES still frames (+1 reference frame)
+  let opened = -1;
+  for (let i = 0; i < 10 && opened < 0; i++) if (gate.feed(1 / 60, cam(35))) opened = i;
+  assert.equal(opened, model.SAILBOAT_START_STILL_FRAMES);
+  assert.equal(gate.reason, 'settled');
+  assert.ok(opened / 60 <= 2 / timing.fps, 'sting start within 2 timing frames of settle');
+}
+{ // hitches do not count as still frames; timeout fallback still starts the transition
+  const gate = model.createSailboatStartGate();
+  const still = { position: [1, 2, 3], forward: [0, 0, -1] };
+  for (let i = 0; i < 20; i++) assert.equal(gate.feed(0.2, still) && gate.reason === 'settled', false);
+  assert.equal(gate.open, true); assert.equal(gate.reason, 'timeout');
+  assert.ok(gate.waitedSec >= model.SAILBOAT_START_TIMEOUT_SEC - 1e-9);
+}
+{ // the cloud-hold fade can only engage at the scene-swap frame, under full cover, never earlier
+  for (const step of [1 / 60, 1 / 30, 1 / 20, 0.1]) {
+    const playback = model.createSailboatPlayback(timing);
+    playback.begin();
+    let fadeFrame = -1; let view = null;
+    for (let i = 0; i < 400 && fadeFrame < 0; i++) {
+      const s = playback.advance(step, { meadowReady: false });
+      view = s.view;
+      if (s.commands.some(c => c.kind === 'cine-fade')) fadeFrame = view.frame;
+    }
+    assert.equal(fadeFrame, timing.sceneSwapFrame, 'hold fade at swap frame (step ' + step + ')');
+    assert.equal(view.cloud, 1);
+    assert.ok(fadeFrame >= timing.cloud.fullFrom);
+  }
+}
+{ // ready meadow: 5.2 s from begin() to done, no hold, at any frame rate the driver's cap allows
+  assert.ok(model.SAILBOAT_MAX_FRAME_DT >= 0.2);
+  for (const step of [1 / 60, 1 / 30, 1 / 24]) {
+    const playback = model.createSailboatPlayback(timing);
+    playback.begin();
+    let t = 0; let held = false; let v = null;
+    while (t < 10) { const s = playback.advance(step, { meadowReady: true }); t += step; v = s.view; if (v.holding) held = true; if (v.phase === 'done') break; }
+    assert.equal(held, false);
+    assert.ok(Math.abs(t - timing.durationSec) <= step + 1e-6, 'duration ' + t);
+  }
+}
+console.log('r3 start gate / hold timing: ok');

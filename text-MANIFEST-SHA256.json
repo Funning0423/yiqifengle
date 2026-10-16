@@ -1266,8 +1266,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts",
-    "bytes": 16105,
-    "sha256": "7694b6c57a39ac42c5bcf3f38355814bb94019912eac12c308616aa524f01b6d"
+    "bytes": 17028,
+    "sha256": "aee7e30e7a7b0c8f72880d9798eb1f804da7cc41651042f398290b3d8d64b2b7"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionDriver.ts.meta",
@@ -1276,8 +1276,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts",
-    "bytes": 18994,
-    "sha256": "439de6eda0a82710f4a010b8eb2a41ae59926cde12cface91269c97b17dee068"
+    "bytes": 21753,
+    "sha256": "3708bbfc6db8069dd5877df879acad3efac88b073dae4e49ba13a70abc9579ee"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts.meta",

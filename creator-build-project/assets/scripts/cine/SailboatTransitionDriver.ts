@@ -21,9 +21,9 @@ import { cloudBankCovers } from './SailboatCloudLayout';
 import { prepareMeadowReveal } from './SailboatMeadowWarmup';
 import { prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
-  SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
+  SAILBOAT_TIMING_RESOURCE, SAILBOAT_MAX_FRAME_DT, createSailboatPlayback, createSailboatStartGate, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
 } from './SailboatTransitionModel';
-import type { SailboatAudioCommand, SailboatPlayback, SailboatSample, SailboatTiming, SailboatView } from './SailboatTransitionModel';
+import type { SailboatStartGate, SailboatAudioCommand, SailboatPlayback, SailboatSample, SailboatTiming, SailboatView } from './SailboatTransitionModel';
 
 const { ccclass } = _decorator;
 
@@ -63,6 +63,9 @@ export class SailboatTransitionDriver extends Component {
   private resolveRun: (() => void) | null = null;
   private rejectRun: ((error: Error) => void) | null = null;
   private playback: SailboatPlayback | null = null;
+  /** Sting and countdown start together, only once the exit camera has settled (see createSailboatStartGate). */
+  private begun = false;
+  private gate: SailboatStartGate = createSailboatStartGate();
   private timing: SailboatTiming | null = null;
   private closed = false;
   private presentedDone = false;
@@ -112,8 +115,6 @@ export class SailboatTransitionDriver extends Component {
       try { this.timing = parseSailboatTiming(asset.json); }
       catch (parseError) { this.fail(new SailboatTransitionUnavailable(String(parseError))); return; }
       this.playback = createSailboatPlayback(this.timing, { startFov: this.startPose?.fovVerticalDeg });
-      this.apply(this.playback.begin());
-      if (this.hidden) this.step(0, false, true);
     });
     this.maybeUseBoatAsset();
   }
@@ -121,9 +122,20 @@ export class SailboatTransitionDriver extends Component {
   update(dt: number) {
     if (this.closed || !this.playback || this.hidden) return;
     if (this.presentedDone) { this.succeed(); return; }
+    if (!this.begun) {
+      const cam = this.host?.cameraNode;
+      const sample = cam && isValid(cam, true) ? { position: [cam.worldPosition.x, cam.worldPosition.y, cam.worldPosition.z], forward: [cam.forward.x, cam.forward.y, cam.forward.z] } : null;
+      if (!this.gate.feed(dt, sample)) return;
+      this.begun = true;
+      this.tapQueued = false;
+      if (this.gate.reason !== 'settled') console.warn('[sailboat] start gate', this.gate.reason, this.gate.waitedSec.toFixed(2));
+      if (this.boat && isValid(this.boat, true)) this.boat.active = true;
+      this.apply(this.playback.begin());
+      return;
+    }
     const tap = this.tapQueued;
     this.tapQueued = false;
-    this.frameDt = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
+    this.frameDt = Number.isFinite(dt) && dt > 0 ? Math.min(dt, SAILBOAT_MAX_FRAME_DT) : 0;
     const budget = this.frameDt;
     let left = budget;
     let first = true;
@@ -142,7 +154,7 @@ export class SailboatTransitionDriver extends Component {
   }
 
   private step(dt: number, tap: boolean, background: boolean) {
-    if (this.closed || !this.playback) return;
+    if (this.closed || !this.playback || !this.begun) return;
     this.frameDt = 0;
     const sample = this.playback.advance(dt, { meadowReady: this.warmed, tap, background });
     this.apply(sample);
@@ -285,6 +297,7 @@ export class SailboatTransitionDriver extends Component {
     host.mountParent.addChild(boat);
     boat.layer = host.islandRoot.layer;
     this.boat = boat;
+    boat.active = false; // shown on the first applied frame, after the start gate opens
     this.slot = boat.addComponent(SailboatPrefabSlot);
     this.slot.refresh();
   }
