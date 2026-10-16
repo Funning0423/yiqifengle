@@ -37,4 +37,14 @@ ok('S6 night journey sea Y ≤ 0.25 from the measured Mac night pixels; island n
  assert(Math.max(...out)<=.25,'predicted night journey sea Y '+out);assert(Math.min(...out)>=.12,'still reads as sea, not black '+out);
  let prev=9;for(const j of [0,.25,.5,.75,1]){const v=Y(seaLinearFactor(1,j));assert(v<prev);prev=v;}console.log('   predicted Y',out);});
 ok('Boot wiring: IslandProps ticks the sea every sync with the journey weight',()=>{const {SRC}=require('./load_ts.cjs'),s=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8'),b=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8');assert(/\n    this\.tickSea\(this\.nightW\);/.test(s));assert(/t\.tick\(w, this\.journeyW, dt\)/.test(s));assert(/journey:s\.state==='region-travel'/.test(b));});
+ok('S7 Oi 16:05Z: 0.001 -> 0 with the journey weight unchanged still restores the authored uniform exactly',()=>{
+ const W=world(),t=new SeaNightTint(()=>W.root);const i=W.instance(mat('rlr'));t.tick(1,.4,.1);t.tick(.001,.4,.1);t.tick(0,.4,.1);assert.deepEqual(i.u,AUTH);
+ t.tick(.999,1,.1);const f=seaLinearFactor(1,1);assert.deepEqual(i.u.map(x=>+x.toFixed(6)),[AUTH[0]*f[0],AUTH[1]*f[1],AUTH[2]*f[2],1].map(x=>+x.toFixed(6)),'0.999 snaps to full night');
+ assert.equal(SeaNightTint.snap(.0019),0);assert.equal(SeaNightTint.snap(.9981),1);assert.equal(SeaNightTint.snap(.5),.5);});
+ok('S8 Oi 16:05Z: readback compares y and w too (green/alpha corrupted to 99 -> failed, not instance-tint)',()=>{
+ for(const c of [1,3]){const W=world(),t=new SeaNightTint(()=>W.root);const i=W.instance(mat('rlr'));const set=i.setProperty;i.setProperty=(k,v)=>{set(k,v);i.u[c]=99;};
+  t.tick(1,1,.1);assert.equal(t.state,'failed','component '+c);assert.equal(t.error,'readback mismatch');}});
+ok('S9 Oi 16:05Z: another system overwrites the uniform while the weights are unchanged -> re-written next tick',()=>{
+ const W=world(),t=new SeaNightTint(()=>W.root);const i=W.instance(mat('rlr'));t.tick(1,1,.1);const want=i.u.slice();i.u=AUTH.slice();t.tick(1,1,.1);
+ assert.deepEqual(i.u,want);assert.equal(t.overwrites,1);t.tick(1,1,.1);assert.equal(t.overwrites,1,'no rewrite while it is still ours');});
 console.log(JSON.stringify({passed:results.length}));

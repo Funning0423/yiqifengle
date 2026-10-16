@@ -37,21 +37,32 @@ export class SeaNightTint {
     else this.own = false;
     const a = SeaNightTint.read(shared) ?? SeaNightTint.read(m); if (!a) { this.state = 'failed'; this.error = 'mainColor uniform missing'; return false; }
     if (this.r) this.rebinds++;
-    this.r = r; this.mat = m; this.authored = a; this.lastW = this.lastJ = -1; this.state = this.own ? 'own-instance-tint' : 'instance-tint'; return true;
+    this.r = r; this.mat = m; this.authored = a; this.lastW = this.lastJ = -1; this.written = null; this.state = this.own ? 'own-instance-tint' : 'instance-tint'; return true;
   }
-  /** w = night weight, j = journey weight, dt seconds. Safe to call every frame. */
+  /** w = night weight, j = journey weight, dt seconds. Safe to call every frame.
+   * Oi review 16:05Z: weights within 0.002 of 0/1 snap to the endpoint, and an endpoint change is always written (so day
+   * really restores the authored uniform after 0.001 -> 0); the readback checks x, y, z AND w; while the weights are
+   * unchanged the uniform is still read back and re-written if another system overwrote it. */
   tick(w: number, j: number, dt: number): void {
     try {
-      if (!this.bind(dt)) return; if (Math.abs(w - this.lastW) < 0.002 && Math.abs(j - this.lastJ) < 0.002) return;
-      const a = this.authored!, f = seaLinearFactor(w, j), v = w <= 0 ? a.clone() : new Vec4(a.x * f[0], a.y * f[1], a.z * f[2], a.w);
+      if (!this.bind(dt)) return;
+      const sw = SeaNightTint.snap(w), sj = SeaNightTint.snap(j);
+      const endpointChanged = SeaNightTint.isEnd(sw) !== SeaNightTint.isEnd(this.lastW) || SeaNightTint.isEnd(sj) !== SeaNightTint.isEnd(this.lastJ) || (SeaNightTint.isEnd(sw) && sw !== this.lastW) || (SeaNightTint.isEnd(sj) && sj !== this.lastJ);
+      const unchanged = !endpointChanged && Math.abs(sw - this.lastW) < 0.002 && Math.abs(sj - this.lastJ) < 0.002;
+      if (unchanged && this.written) { const cur = SeaNightTint.read(this.mat); if (cur && SeaNightTint.same(cur, this.written)) return; this.overwrites++; }
+      const a = this.authored!, f = seaLinearFactor(sw, sj), v = sw <= 0 ? a.clone() : new Vec4(a.x * f[0], a.y * f[1], a.z * f[2], a.w);
       this.mat.setProperty(ISLAND_PROPS.seaNight.property, v); const back = SeaNightTint.read(this.mat);
-      if (!back || Math.abs(back.x - v.x) > 1e-4 || Math.abs(back.z - v.z) > 1e-4) { this.state = 'failed'; this.error = 'readback mismatch'; return; }
-      this.uniform = [back.x, back.y, back.z, back.w].map(x => +x.toFixed(4)); this.lastW = w; this.lastJ = j;
+      if (!back || !SeaNightTint.same(back, v)) { this.state = 'failed'; this.error = 'readback mismatch'; return; }
+      this.written = v.clone(); this.uniform = [back.x, back.y, back.z, back.w].map(x => +x.toFixed(4)); this.lastW = sw; this.lastJ = sj;
     } catch (e) { this.state = 'failed'; this.error = String(e); }
   }
+  overwrites = 0; private written: Vec4 | null = null;
+  static snap(x: number): number { const k = Math.max(0, Math.min(1, x)); return k < 0.002 ? 0 : k > 0.998 ? 1 : k; }
+  private static isEnd(x: number): boolean { return x === 0 || x === 1; }
+  private static same(a: Vec4, b: Vec4): boolean { return Math.abs(a.x - b.x) <= 1e-4 && Math.abs(a.y - b.y) <= 1e-4 && Math.abs(a.z - b.z) <= 1e-4 && Math.abs(a.w - b.w) <= 1e-4; }
   restore(): void {
     try { if (this.mat && isValid(this.mat, true) && this.authored) this.mat.setProperty(ISLAND_PROPS.seaNight.property, this.authored.clone());
       if (this.own && this.r && isValid(this.r, true) && this.r.getRenderMaterial(0) === this.mat) this.r.setSharedMaterial(this.r.getSharedMaterial(0)!, 0, true as any); } catch { /* best effort */ }
-    this.r = null; this.mat = null; this.authored = null; this.state = 'unbound';
+    this.r = null; this.mat = null; this.authored = null; this.written = null; this.lastW = this.lastJ = -1; this.state = 'unbound';
   }
 }
