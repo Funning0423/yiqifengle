@@ -70,6 +70,7 @@ export type SailboatAudioCommand =
   | { kind: 'wind-loop'; path: string }
   | { kind: 'wind-fade'; path: string; seconds: number }
   | { kind: 'wind-stop'; path: string };
+/** meadowReady is the warmed meadow (hidden frames done), not a bare prefab load. */
 export interface SailboatInput { meadowReady?: boolean; tap?: boolean; background?: boolean }
 export interface SailboatSample { view: SailboatView; commands: SailboatAudioCommand[] }
 
@@ -217,6 +218,15 @@ function blendSettle(u: number, easeFrac: number): number {
 export function sailboatCoverAlpha(view: SailboatView): number {
   if (view.phase === 'done') return 0;
   return view.cloud > view.white ? view.cloud : view.white;
+}
+
+/**
+ * Frames the meadow must actually render under a full cloud bank before the cover may open.
+ * Frame 1 compiles pipelines; frame 2 is the first lit result. Neither is shown.
+ */
+export const SAILBOAT_WARM_FRAMES = 2;
+export function meadowRevealReady(warmFrames: number): boolean {
+  return warmFrames >= SAILBOAT_WARM_FRAMES;
 }
 
 type CineState = 'idle' | 'playing' | 'paused' | 'fading' | 'stopped';

@@ -10,7 +10,7 @@ const timingPath = path.join(root, 'creator-build-project/assets/resources/cine/
 const modelPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts');
 const windPath = path.join(root, 'creator-build-project/assets/scripts/audio/WindAudio.ts');
 
-const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE };')();
+const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE };')();
 const rawText = fs.readFileSync(timingPath, 'utf8');
 const raw = JSON.parse(rawText);
 const timing = model.parseSailboatTiming(raw);
@@ -240,6 +240,31 @@ for (const file of walkTs(scriptRoot, [])) {
   if (names.length > 1) packed.push(path.relative(root, file) + ' ' + names.join(','));
 }
 assert.deepEqual(packed, [], 'one @ccclass Component per file');
+assert.equal(model.SAILBOAT_WARM_FRAMES >= 2, true);
+assert.equal(model.meadowRevealReady(model.SAILBOAT_WARM_FRAMES - 1), false);
+assert.equal(model.meadowRevealReady(model.SAILBOAT_WARM_FRAMES), true);
+const layoutPath = path.join(scriptRoot, 'cine/SailboatCloudLayout.ts');
+const layout = new Function(stripTypeScriptTypes(fs.readFileSync(layoutPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { SAILBOAT_CLOUD_PUFFS, cloudBankCovers, cloudShownAlpha };')();
+assert.ok(layout.SAILBOAT_CLOUD_PUFFS.length >= 7);
+assert.equal(layout.cloudBankCovers(1), true);
+assert.equal(layout.cloudBankCovers(0.5), false);
+assert.ok(layout.cloudShownAlpha(0.2) > 0.2);
+assert.equal(layout.cloudShownAlpha(0), 0);
+assert.equal(layout.cloudShownAlpha(1), 1);
+const driverSrc = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatTransitionDriver.ts'), 'utf8');
+const warmupSrc = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatMeadowWarmup.ts'), 'utf8');
+const cloudSrc = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatCloudLayer.ts'), 'utf8');
+assert.equal(driverSrc.includes('SailboatCloudCover'), false);
+assert.equal(driverSrc.includes('meadowReady: !!this.meadowPrefab'), false);
+assert.match(driverSrc, /meadowReady: this\.warmed/);
+assert.match(driverSrc, /prepareMeadowReveal/);
+assert.equal((driverSrc.match(/@ccclass\(/g) || []).length, 1);
+assert.match(warmupSrc, /configureMeadowVertexColors/);
+assert.match(warmupSrc, /SphereLight/);
+assert.equal((warmupSrc.match(/@ccclass\(/g) || []).length, 0);
+assert.match(cloudSrc, /SailboatCloudLayer/);
+assert.equal(cloudSrc.includes('SailboatCloudCover'), false);
+assert.equal((cloudSrc.match(/@ccclass\(/g) || []).length, 0);
 assert.equal(fs.existsSync(path.join(scriptRoot, 'cine/SailboatTransitionPlayer.ts')), false);
 for (const name of ['SailboatPrefabSlot', 'SailboatTransitionDriver']) {
   const file = path.join(scriptRoot, 'cine', name + '.ts');

@@ -4,16 +4,23 @@
  * Meadow art is loaded and mounted only through RegionLoader.
  * The sailboat model lives on SailboatPrefabSlot (its own file): cine/sailboat when that
  * prefab exists, otherwise SailboatPlaceholder.
+ * The cover is a cloud bank, not a flat plate. The meadow is mounted under that bank,
+ * its vertex-colour palette and key light are prepared, and it renders hidden frames
+ * before the bank opens. One @ccclass in this file.
  */
-import { _decorator, Component, Node, Prefab, Vec3, Color, MeshRenderer, Material, Mesh, utils, resources, JsonAsset, assetManager, input, Input, game, Game, director, isValid, EffectAsset, view } from 'cc';
+import { _decorator, Component, Node, Prefab, Vec3, resources, JsonAsset, assetManager, input, Input, game, Game, director, isValid } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from '../region/RegionLoader';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
 import type { Pose } from '../world-r1/WorldFlowCore';
 import { GameAudio } from '../audio/GameAudio';
 import { SailboatPrefabSlot, SAILBOAT_PREFAB_RESOURCE, SAILBOAT_PREFAB_SLOT } from './SailboatPrefabSlot';
+import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudLayer } from './SailboatCloudLayer';
+import type { SailboatCloudLayer } from './SailboatCloudLayer';
+import { cloudBankCovers } from './SailboatCloudLayout';
+import { prepareMeadowReveal } from './SailboatMeadowWarmup';
 import {
-  SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, parseSailboatTiming, sailboatCoverAlpha,
+  SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
 } from './SailboatTransitionModel';
 import type { SailboatAudioCommand, SailboatPlayback, SailboatSample, SailboatTiming, SailboatView } from './SailboatTransitionModel';
 
@@ -23,7 +30,6 @@ const PLACEHOLDER_DEPARTURE_DOLLY_M = 8;
 const ISLAND_DOCK_NAMES = ['boat_dock', 'sailboat_dock', 'exit_path_17'];
 const MEADOW_DOCK_NAMES = ['boat_dock', 'sailboat_dock', 'player_spawn'];
 const ACTOR_NODE = 'FLOW_REFERENCE_PLACEHOLDER_NOT_B';
-const ALPHA_BLEND = 3;
 
 export class SailboatTransitionUnavailable extends Error {
   constructor(message: string) {
@@ -69,7 +75,12 @@ export class SailboatTransitionDriver extends Component {
   private islandWasActive = true;
   private actor: Node | null = null;
   private actorWasActive = true;
-  private cloud: { node: Node; material: Material } | null = null;
+  private cloud: SailboatCloudLayer | null = null;
+  private frameDt = 0;
+  /** Prefab is not enough: reveal waits until the meadow has rendered hidden under the cloud bank. */
+  private warmed = false;
+  private warmFrames = 0;
+  private lastView: SailboatView | null = null;
   private boat: Node | null = null;
   private slot: SailboatPrefabSlot | null = null;
   private startPose: Pose | null = null;
@@ -93,6 +104,7 @@ export class SailboatTransitionDriver extends Component {
     if (this.actor) this.actorWasActive = this.actor.active;
     this.islandWasActive = host.islandRoot.active;
     this.prepareVisuals();
+    this.requestMeadow();
     resources.load(SAILBOAT_TIMING_RESOURCE, JsonAsset, (error, asset) => {
       if (this.closed) return;
       if (error || !asset) { this.fail(new SailboatTransitionUnavailable(String(error || 'timing json missing'))); return; }
@@ -110,25 +122,28 @@ export class SailboatTransitionDriver extends Component {
     if (this.presentedDone) { this.succeed(); return; }
     const tap = this.tapQueued;
     this.tapQueued = false;
-    const budget = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
+    this.frameDt = Number.isFinite(dt) && dt > 0 ? Math.min(dt, 0.1) : 0;
+    const budget = this.frameDt;
     let left = budget;
     let first = true;
     let done = false;
     do {
       const step = Math.min(left > 0 ? left : 0, 1 / 30);
-      const sample = this.playback.advance(first ? Math.max(step, 0) : step, { meadowReady: !!this.meadowPrefab, tap: first && tap, background: false });
+      const sample = this.playback.advance(first ? Math.max(step, 0) : step, { meadowReady: this.warmed, tap: first && tap, background: false });
       first = false;
       this.apply(sample);
       if (sample.view.phase === 'done') done = true;
       if (this.closed) return;
       left -= step > 0 ? step : left;
     } while (left > 1e-4);
+    if (this.lastView) this.noteWarmth(this.lastView);
     if (done) this.presentedDone = true;
   }
 
   private step(dt: number, tap: boolean, background: boolean) {
     if (this.closed || !this.playback) return;
-    const sample = this.playback.advance(dt, { meadowReady: !!this.meadowPrefab, tap, background });
+    this.frameDt = 0;
+    const sample = this.playback.advance(dt, { meadowReady: this.warmed, tap, background });
     this.apply(sample);
   }
 
@@ -153,8 +168,10 @@ export class SailboatTransitionDriver extends Component {
     if (this.closed || !this.host || !this.timing) return;
     this.dispatchAudio(sample.commands);
     const view = sample.view;
+    this.lastView = view;
     this.maybePreload(view);
     if (this.meadowError && (view.holding || view.phase === 'skip-hold')) { this.fail(Error('meadow-scene-load-failed')); return; }
+    this.mountUnderCloud(view);
     this.syncScene(view);
     this.syncCamera(view);
     this.syncBoat(view);
@@ -162,19 +179,35 @@ export class SailboatTransitionDriver extends Component {
     this.syncActor(view);
   }
 
-  private syncScene(view: SailboatView) {
+  /** Mount and compile while the cloud bank is shut. The island stays up until the swap, still behind that bank. */
+  private mountUnderCloud(view: SailboatView) {
     const host = this.host;
-    if (!host || !view.swapped || this.meadowNode || !this.meadowPrefab) return;
+    if (!host || this.meadowNode || this.meadowError || !this.meadowPrefab || !cloudBankCovers(sailboatCoverAlpha(view))) return;
     try {
       const mounted = mountRegion(REGIONS.meadow, this.meadowPrefab, host.mountParent);
       mounted.name = 'SailboatMeadowMount';
+      prepareMeadowReveal(mounted, host.cameraNode);
       this.meadowNode = mounted;
-      host.islandRoot.active = false;
+      this.warmFrames = 0;
+      this.warmed = false;
     } catch (error) {
       console.warn('[sailboat] meadow mount failed', error);
       this.meadowError = error instanceof Error ? error : Error('meadow-scene-load-failed');
       if (view.holding || view.phase === 'skip-hold' || view.phase === 'done') this.fail(Error('meadow-scene-load-failed'));
     }
+  }
+
+  private noteWarmth(view: SailboatView) {
+    if (this.warmed || this.closed) return;
+    if (!this.meadowNode || !cloudBankCovers(sailboatCoverAlpha(view))) { this.warmFrames = 0; return; }
+    this.warmFrames += 1;
+    if (meadowRevealReady(this.warmFrames)) this.warmed = true;
+  }
+
+  private syncScene(view: SailboatView) {
+    const host = this.host;
+    if (!host || !view.swapped || !this.meadowNode || !isValid(host.islandRoot, true)) return;
+    host.islandRoot.active = false;
   }
 
   private syncCamera(view: SailboatView) {
@@ -212,22 +245,9 @@ export class SailboatTransitionDriver extends Component {
   private syncCloud(view: SailboatView) {
     const cloud = this.cloud;
     const host = this.host;
-    if (!cloud || !host || !isValid(cloud.node, true)) return;
-    const alpha = sailboatCoverAlpha(view);
-    const visible = alpha > 1 / 255;
-    cloud.node.active = visible;
-    if (!visible) return;
-    const dist = 0.35;
-    const fov = host.cameraFov() * Math.PI / 180;
-    const height = 2 * Math.tan(fov * 0.5) * dist;
-    const frame = host.cameraNode.parent ? viewSizeRatio() : 0.46;
-    cloud.node.setPosition(0, 0, -dist);
-    cloud.node.setScale(height * frame, height, 1);
-    const white = view.white;
-    const r = Math.round(226 + (255 - 226) * white);
-    const g = Math.round(236 + (255 - 236) * white);
-    const b = Math.round(245 + (255 - 245) * white);
-    cloud.material.setProperty('mainColor', new Color(r, g, b, Math.round(alpha * 255)));
+    if (!cloud || !host) return;
+    syncSailboatCloudLayer(cloud, host.cameraNode, sailboatCoverAlpha(view), host.cameraFov(), this.frameDt);
+    this.frameDt = 0;
   }
 
   private syncActor(view: SailboatView) {
@@ -257,7 +277,7 @@ export class SailboatTransitionDriver extends Component {
   private prepareVisuals() {
     const host = this.host;
     if (!host) return;
-    this.cloud = makeCloud(host.cameraNode);
+    this.cloud = createSailboatCloudLayer(host.cameraNode);
     const boat = new Node(SAILBOAT_PREFAB_SLOT);
     host.mountParent.addChild(boat);
     boat.layer = host.islandRoot.layer;
@@ -293,20 +313,12 @@ export class SailboatTransitionDriver extends Component {
     if (this.actor && isValid(this.actor, true)) this.actor.active = this.actorWasActive;
     if (this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
     this.meadowNode = null;
-    if (this.cloud?.node && isValid(this.cloud.node, true)) this.cloud.node.destroy();
-    this.cloud?.material.destroy();
+    destroySailboatCloudLayer(this.cloud);
     this.cloud = null;
     if (this.boat && isValid(this.boat, true)) this.boat.destroy();
     this.boat = null;
     if (this.node && isValid(this.node, true)) this.node.destroy();
   }
-}
-
-function viewSizeRatio(): number {
-  try {
-    const size = view.getVisibleSize();
-    return size.width / Math.max(1, size.height);
-  } catch { return 0.46; }
 }
 
 function pullBack(pose: Pose, meters: number, fov: number): Pose {
@@ -349,26 +361,4 @@ function anchorOr(root: Node | null, names: string[], fallback: Node, offset: [n
   if (named) return named.worldPosition.clone();
   const base = fallback.worldPosition;
   return new Vec3(base.x + offset[0], base.y + offset[1], base.z + offset[2]);
-}
-function makeCloud(cameraNode: Node): { node: Node; material: Material } | null {
-  if (!EffectAsset.get('builtin-unlit')) { console.warn('[sailboat] builtin-unlit missing; cloud cover skipped'); return null; }
-  const material = new Material();
-  material.initialize({ effectName: 'builtin-unlit', technique: ALPHA_BLEND });
-  material.setProperty('mainColor', new Color(226, 236, 245, 0));
-  const node = new Node('SailboatCloudCover');
-  cameraNode.addChild(node);
-  node.layer = cameraNode.layer;
-  const renderer = node.addComponent(MeshRenderer);
-  renderer.mesh = quadMesh();
-  renderer.setMaterial(material, 0);
-  renderer.shadowCastingMode = MeshRenderer.ShadowCastingMode.OFF;
-  renderer.receiveShadow = MeshRenderer.ShadowReceivingMode.OFF;
-  try { (renderer as MeshRenderer & { priority?: number }).priority = 240; } catch { /* optional */ }
-  node.active = false;
-  return { node, material };
-}
-function quadMesh(): Mesh {
-  const positions = [-0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 0];
-  const indices = [0, 1, 2, 0, 2, 3];
-  return utils.createMesh({ positions, indices, minPos: new Vec3(-0.5, -0.5, 0), maxPos: new Vec3(0.5, 0.5, 0) });
 }
