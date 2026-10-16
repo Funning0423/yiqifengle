@@ -46,8 +46,20 @@ export async function preflightMeadowScene():Promise<void> {
   material=new Material();material.initialize({effectAsset:effect});if(!material.passes.length)throw Error('Meadow wind material unavailable');
  }finally{clearTimeout(timer);model?.destroy();material?.destroy();}
 }
+/** Same sRGB tint WorldFlowComponent.bindUnlitBackdrop gives env_cloud_layer at night. */
+export const MEADOW_CLOUD_NIGHT_TINT:readonly number[]=[.22,.28,.43];
+export function meadowCloudColor(w:number):number[]{const t=Math.max(0,Math.min(1,w));return MEADOW_CLOUD_NIGHT_TINT.map(k=>1+(k-1)*t);}
+/** Collect builtin-unlit cloud material instances under `node` (instances, the shared glTF material stays untouched). */
+export function meadowCloudMaterials(node:Node|null):Material[]{
+ const out:Material[]=[];if(!node)return out;
+ for(const r of node.getComponentsInChildren(MeshRenderer))for(let i=0;i<r.sharedMaterials.length;i++){const m=r.getMaterialInstance(i);if(m&&m.passes[0]?.getHandle('mainColor'))out.push(m);}
+ return out;
+}
 @ccclass('MeadowSceneMotion')
 export class MeadowSceneMotion extends Component {
+ /** N2: journey mode (93-120 s night journey). Grass gets the world's lit-night grade (windParams.w=1) and the unlit
+  *  meadow_clouds_near gets the env_cloud_layer night tint, both following uiNightWeight(). Board background keeps w=0. */
+ journeyNight=false;clouds:Material[]=[];
  material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;hostPaused=true;visible=false;
  private seconds=0;private hidden=false;
  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
@@ -56,7 +68,8 @@ export class MeadowSceneMotion extends Component {
   if(this.visible&&!this.hostPaused&&!this.hidden&&Number.isFinite(dt)&&dt>0)this.seconds=(this.seconds+Math.min(dt,.1))%120;
   const night=uiNightWeight();
   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);
-  this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,0));
+  this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,this.journeyNight?1:0));
+  if(this.journeyNight)for(const m of this.clouds){const c=meadowCloudColor(night);m.setProperty('mainColor',new Vec4(c[0],c[1],c[2],1));}
  }
  diagnostics(){return {seconds:this.seconds,paused:this.hostPaused||this.hidden||!this.visible,windmillLoopSeconds:8,grassWaveSeconds:4};}
  onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);this.material=null;this.sail=null;this.light=null;}

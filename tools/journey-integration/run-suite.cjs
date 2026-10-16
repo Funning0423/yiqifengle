@@ -51,6 +51,7 @@ const tests=[
  ['result-float-lift','tools/board-ui/test_result_float_lift.cjs'],
  ['meadow-night-sky','tools/test_meadow_night_sky.cjs'],
  ['wind-audio','tools/voice-bot/wind/test_wind_audio.cjs'],
+ ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
