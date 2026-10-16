@@ -77,6 +77,22 @@
             "etc2_rgba": "slow"
           }
         }
+      },
+      "wx_astc6x6": {
+        "name": "wx_astc6x6",
+        "options": {
+          "miniGame": {
+            "astc_6x6": "medium"
+          }
+        }
+      },
+      "wx_astc4x4": {
+        "name": "wx_astc4x4",
+        "options": {
+          "miniGame": {
+            "astc_4x4": "slow"
+          }
+        }
       }
     }
   }

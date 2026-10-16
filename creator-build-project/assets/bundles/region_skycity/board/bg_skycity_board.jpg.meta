@@ -37,6 +37,10 @@
     "type": "texture",
     "fixAlphaTransparencyArtifacts": false,
     "hasAlpha": false,
-    "redirect": "4bbf3f37-4598-59fb-aeac-aa958dcba705@6c48a"
+    "redirect": "4bbf3f37-4598-59fb-aeac-aa958dcba705@6c48a",
+    "compressSettings": {
+      "useCompressTexture": true,
+      "presetId": "wx_astc6x6"
+    }
   }
 }

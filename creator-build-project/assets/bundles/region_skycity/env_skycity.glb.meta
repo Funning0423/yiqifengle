@@ -936,10 +936,14 @@
       "id": "d2a4d",
       "name": "tex_sky_palette_256.image",
       "userData": {
-        "gltfIndex": 0,
+        "gltfIndex": 1,
         "fixAlphaTransparencyArtifacts": true,
         "hasAlpha": false,
-        "type": "texture"
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
       },
       "ver": "1.0.3",
       "imported": true,
@@ -956,10 +960,14 @@
       "id": "a9fef",
       "name": "tex_sky_foliage_512.image",
       "userData": {
-        "gltfIndex": 1,
+        "gltfIndex": 0,
         "fixAlphaTransparencyArtifacts": true,
         "hasAlpha": true,
-        "type": "texture"
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
       },
       "ver": "1.0.3",
       "imported": true,
@@ -976,10 +984,14 @@
       "id": "f20ef",
       "name": "tex_sky_rock_strata_512.image",
       "userData": {
-        "gltfIndex": 2,
         "fixAlphaTransparencyArtifacts": true,
         "hasAlpha": false,
-        "type": "texture"
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        },
+        "legacyUnmatchedImage": true
       },
       "ver": "1.0.3",
       "imported": true,
@@ -1153,6 +1165,366 @@
         ".json"
       ],
       "subMetas": {}
+    },
+    "0c882": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@0c882",
+      "displayName": "",
+      "id": "0c882",
+      "name": "tex_robot_metal_normal_1024.image",
+      "userData": {
+        "gltfIndex": 2,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "3a753": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3a753",
+      "displayName": "",
+      "id": "3a753",
+      "name": "tex_robot_metal_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 3,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "2ac06": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@2ac06",
+      "displayName": "",
+      "id": "2ac06",
+      "name": "tex_robot_metal_orm_1024.image",
+      "userData": {
+        "gltfIndex": 4,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "d6ddf": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@d6ddf",
+      "displayName": "",
+      "id": "d6ddf",
+      "name": "tex_sky_grass_tint_normal_512.image",
+      "userData": {
+        "gltfIndex": 5,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "86222": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@86222",
+      "displayName": "",
+      "id": "86222",
+      "name": "tex_sky_grass_tint_albedo_512.image",
+      "userData": {
+        "gltfIndex": 6,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "e6539": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@e6539",
+      "displayName": "",
+      "id": "e6539",
+      "name": "tex_sky_grass_tint_orm_512.image",
+      "userData": {
+        "gltfIndex": 7,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "f5bc6": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5bc6",
+      "displayName": "",
+      "id": "f5bc6",
+      "name": "tex_sky_rock_strata_normal_512.image",
+      "userData": {
+        "gltfIndex": 8,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "f4622": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@f4622",
+      "displayName": "",
+      "id": "f4622",
+      "name": "tex_sky_rock_strata_albedo_512.image",
+      "userData": {
+        "gltfIndex": 9,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "946cb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@946cb",
+      "displayName": "",
+      "id": "946cb",
+      "name": "tex_sky_rock_strata_orm_512.image",
+      "userData": {
+        "gltfIndex": 10,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "397be": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@397be",
+      "displayName": "",
+      "id": "397be",
+      "name": "tex_laputa_stone_normal_1024.image",
+      "userData": {
+        "gltfIndex": 11,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "52729": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@52729",
+      "displayName": "",
+      "id": "52729",
+      "name": "tex_laputa_stone_albedo_1024.image",
+      "userData": {
+        "gltfIndex": 12,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "428fb": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@428fb",
+      "displayName": "",
+      "id": "428fb",
+      "name": "tex_laputa_stone_orm_1024.image",
+      "userData": {
+        "gltfIndex": 13,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "474c9": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@474c9",
+      "displayName": "",
+      "id": "474c9",
+      "name": "tex_sky_bark_normal_512.image",
+      "userData": {
+        "gltfIndex": 14,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc4x4"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "81084": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@81084",
+      "displayName": "",
+      "id": "81084",
+      "name": "tex_sky_bark_albedo_512.image",
+      "userData": {
+        "gltfIndex": 15,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
+    },
+    "3fdf7": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0694320f-9061-478a-8d1f-cdfb7537ab22@3fdf7",
+      "displayName": "",
+      "id": "3fdf7",
+      "name": "tex_sky_bark_orm_512.image",
+      "userData": {
+        "gltfIndex": 16,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture",
+        "compressSettings": {
+          "useCompressTexture": true,
+          "presetId": "wx_astc6x6"
+        }
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".jpg"
+      ],
+      "subMetas": {}
     }
   },
   "userData": {
@@ -1175,6 +1547,66 @@
       {
         "name": "tex_sky_rock_strata_512",
         "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f20ef"
+      },
+      {
+        "name": "tex_robot_metal_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@0c882"
+      },
+      {
+        "name": "tex_robot_metal_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@3a753"
+      },
+      {
+        "name": "tex_robot_metal_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@2ac06"
+      },
+      {
+        "name": "tex_sky_grass_tint_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@d6ddf"
+      },
+      {
+        "name": "tex_sky_grass_tint_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@86222"
+      },
+      {
+        "name": "tex_sky_grass_tint_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@e6539"
+      },
+      {
+        "name": "tex_sky_rock_strata_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f5bc6"
+      },
+      {
+        "name": "tex_sky_rock_strata_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@f4622"
+      },
+      {
+        "name": "tex_sky_rock_strata_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@946cb"
+      },
+      {
+        "name": "tex_laputa_stone_normal_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@397be"
+      },
+      {
+        "name": "tex_laputa_stone_albedo_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@52729"
+      },
+      {
+        "name": "tex_laputa_stone_orm_1024",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@428fb"
+      },
+      {
+        "name": "tex_sky_bark_normal_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@474c9"
+      },
+      {
+        "name": "tex_sky_bark_albedo_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@81084"
+      },
+      {
+        "name": "tex_sky_bark_orm_512",
+        "uri": "0694320f-9061-478a-8d1f-cdfb7537ab22@3fdf7"
       }
     ],
     "animationImportSettings": [

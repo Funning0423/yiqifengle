@@ -656,13 +656,13 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/board/bg_skycity_board.jpg.meta",
-    "bytes": 1001,
-    "sha256": "5bbf511de76170146510e02fa4b70d6821504151f1db6857a09d4c5d1f80295a"
+    "bytes": 1099,
+    "sha256": "428aabc21f71b90aa4bacee7700304623778f06780bbce3189d9dcb3e0f79e6b"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 32049,
-    "sha256": "314444aefae9063ec84de06c9c9a437f4ac89e7a9be1e03975c85886380c40e4"
+    "bytes": 43419,
+    "sha256": "6745bdfa3d7dffa223de9df5cfe91c6cc8697d7132019ce4ce5e790a218671b8"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
@@ -2341,8 +2341,8 @@
   },
   {
     "path": "creator-build-project/settings/v2/packages/builder.json",
-    "bytes": 1986,
-    "sha256": "3938bcc8b742eae650ab3b84a53ab8c95a2e68da7aa4088e81b2f7a8b6b694de"
+    "bytes": 2306,
+    "sha256": "748871895002181ec8f37163dca7b17d17ad552d9fb9cec6394499bb978fe6fc"
   },
   {
     "path": "creator-build-project/settings/v2/packages/device.json",
