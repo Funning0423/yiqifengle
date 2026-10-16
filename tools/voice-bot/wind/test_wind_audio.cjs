@@ -4,7 +4,7 @@ const path = require('path'), fs = require('fs'), Module = require('module');
 const ROOT = path.resolve(__dirname, '../../..');
 const DIR = path.join(ROOT, 'creator-build-project/assets/scripts/audio');
 const SRC = path.join(DIR, 'WindAudio.ts'), AMB = path.join(DIR, 'AmbienceAudio.ts');
-const VN = process.env.VB_TS || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
+const VN = process.env.VB_TS || process.env.QF_TYPESCRIPT_MODULE || '/workspace/yiqifengle/work/GGbot/tools/vendor-node/node_modules/typescript';
 const ts = require(VN);
 const tr = (f) => ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES5, experimentalDecorators: true } }).outputText;
 const js = tr(SRC), ambJs = tr(AMB);
@@ -224,7 +224,10 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
   ok(z.soft === 0 && z.strong === 0 && !z.softPlaying && !z.strongPlaying && e.a.src.volume === 0 && !e.a.src.playing, 'music 0: wind and waves inaudible on the next frame', { wind: z, waves: e.a.src.volume, playing: e.a.src.playing });
   music = 1; e.run(1 / 60);
   ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.w.snapshot().soft, full.soft, 0.02) && e.a.src.playing && near(e.a.src.volume, full.waves, 0.02), 'music back to 1 restores the design full level', { wind: e.w.snapshot(), waves: e.a.src.volume, full });
-  music = 0.5; e.run(1 / 60);
-  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.5: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+  // A1c (GGbot): the default slider 0.4 is the design level (was ×0.4 → ~12 dB under the bgm outdoors); below it the bed scales linearly.
+  music = 0.4; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong, 0.02) && near(e.a.src.volume, full.waves, 0.02), 'music 0.4 (default): design full level', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
+  music = 0.2; e.run(1 / 60);
+  ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.2: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
 }
 console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;

@@ -22,6 +22,14 @@ import { _decorator, Component, AudioSource, AudioClip, resources, director, Dir
 import { GameAudio } from './GameAudio';
 import { AmbienceAudio } from './AmbienceAudio';
 const { ccclass } = _decorator;
+/** A1c: wind/sea used to be multiplied by the raw music slider (default 0.4 → ×0.4, −8 dB) on top of their own curves,
+ *  while the bgm sits at the same 0.4 → about 12 dB under the bgm outdoors. The slider is now normalised to its default
+ *  (0.4 → 1, 0 → silent, capped at 1), times the 「主页」 transition fade. Mute / background still gate via canPlayAmbience(). */
+export const AMBIENCE_BED_REF = 0.4;
+export function ambienceBedGain(slider: number, transition = 1): number {
+  const v = Number.isFinite(slider) ? Math.max(0, Math.min(1, slider)) : 1, t = Number.isFinite(transition) ? Math.max(0, Math.min(1, transition)) : 1;
+  return Math.min(1, v / AMBIENCE_BED_REF) * t;
+}
 /** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
 function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 
@@ -29,9 +37,7 @@ function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((g
 function musicBed(): number {
   const audio: any = GameAudio.instance;
   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
-  const value = Number(audio.getMusicVolume());
-  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
-  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
+  return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
 }
 
 export type ApronLiftStrength = 'full' | 'soft';
@@ -236,6 +242,7 @@ export class WindAudio extends Component {
   }
 
   private lastGate = '';
+  private levelLogIn = 0;
   private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
   private pauseLoops() {
     for (const src of [this.softSrc, this.strongSrc]) {
@@ -278,6 +285,7 @@ export class WindAudio extends Component {
       return;
     }
     this.quietFor = 0;
+    this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('wind-level', { s: +this.s.toFixed(3), soft: +sv.toFixed(3), strong: +st.toFixed(3), bed: +music.toFixed(3) }); }
     if (sv >= ON_GAIN) this.startLoop('soft', sv); else if (this.softSrc) this.softSrc.volume = 0;
     if (st >= ON_GAIN) this.startLoop('strong', st); else if (this.strongSrc) this.strongSrc.volume = 0;
   }

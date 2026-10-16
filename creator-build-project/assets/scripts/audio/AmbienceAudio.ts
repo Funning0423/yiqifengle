@@ -18,14 +18,20 @@ import { GameAudio, SfxName } from './GameAudio';
 /** [QF_AUDIO] log (local copy: audio test doubles mock GameAudio without it). */
 function qfAudioLog(event: string, data: Record<string, unknown>) { try { if ((globalThis as any).__worldFlowLog) console.info('[QF_AUDIO] ' + JSON.stringify({ event, t: Date.now(), ...data })); } catch { } }
 const { ccclass } = _decorator;
+/** A1c: wind/sea used to be multiplied by the raw music slider (default 0.4 → ×0.4, −8 dB) on top of their own curves,
+ *  while the bgm sits at the same 0.4 → about 12 dB under the bgm outdoors. The slider is now normalised to its default
+ *  (0.4 → 1, 0 → silent, capped at 1), times the 「主页」 transition fade. Mute / background still gate via canPlayAmbience(). */
+export const AMBIENCE_BED_REF = 0.4;
+export function ambienceBedGain(slider: number, transition = 1): number {
+  const v = Number.isFinite(slider) ? Math.max(0, Math.min(1, slider)) : 1, t = Number.isFinite(transition) ? Math.max(0, Math.min(1, transition)) : 1;
+  return Math.min(1, v / AMBIENCE_BED_REF) * t;
+}
 
 /** Settings music slider. A stub with no getMusicVolume stays at the design full level (1). */
 function musicBed(): number {
   const audio: any = GameAudio.instance;
   if (!audio || typeof audio.getMusicVolume !== 'function') return 1;
-  const value = Number(audio.getMusicVolume());
-  const trans = typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1;   // 「主页」 fade
-  return (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1) * (Number.isFinite(trans) ? Math.max(0, Math.min(1, trans)) : 1);
+  return ambienceBedGain(Number(audio.getMusicVolume()), typeof audio.transitionGain === 'function' ? Number(audio.transitionGain()) : 1);
 }
 
 const WAVES_PATH = 'audio_amb/amb_waves_loop';
@@ -206,6 +212,7 @@ export class AmbienceAudio extends Component {
   }
 
   private lastGate = '';
+  private levelLogIn = 0;
   static ensure() {
     try {
       const a = GameAudio.ensure();
@@ -436,6 +443,7 @@ export class AmbienceAudio extends Component {
       if (src.playing) { try { src.pause(); } catch { /* ignore */ } }
     } else {
       src.volume = heard;
+      this.levelLogIn -= dt; if (this.levelLogIn <= 0) { this.levelLogIn = 1; qfAudioLog('waves-level', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); }
       if (!src.playing) { try { src.play(); qfAudioLog('waves-play', { vol: +heard.toFixed(3), outdoor: +outdoor.toFixed(3), wind: +wind.toFixed(3) }); } catch (e) { console.warn('[AmbienceAudio] waves play failed', e); } }
     }
     // 出门风声段：远处海鸥在风力越线时决定、distantDelayS 后开始；回到 exitOn 以下重置
