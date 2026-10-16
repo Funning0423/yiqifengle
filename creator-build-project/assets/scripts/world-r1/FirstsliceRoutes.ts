@@ -153,7 +153,12 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
     let qFr=-1,qHold=-1,tFr=0,minD=99;
     for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);if(m.dist<minD)minD=m.dist;
       if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=Math.max(tFr+.05,Math.min(tFr+1.6,tOfQ(1)-2.0)))qHold=Math.min(q,1-1e-4);}
-    if(qFr<0){qFr=1-1e-4;qHold=1-5e-5;tFr=tOfQ(qFr);}
+    if(qFr<0){ // no frontal sample (side end pose): wind peaks where the lens is nearest her front, but >= 3 s before the end so it can ease out
+      const tEnd=tOfQ(1);let best=1e9;const A:Array<{q:number,ang:number,t:number}>=[];
+      for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);A.push({q,ang:m.ang,t:m.t});if(m.t<=tEnd-3&&m.ang<best)best=m.ang;}
+      const fr=A.find(a=>a.t<=tEnd-3&&a.ang<=best+2)!;qFr=fr.q;tFr=fr.t;qHold=qFr;
+      for(const a of A)if(a.q>qFr&&a.t<=Math.min(tFr+1.6,tEnd-2.5))qHold=a.q;
+      if(!(qHold>qFr+1e-4))qHold=Math.min(qFr+2e-4,1-5e-5);}
     if(!(minD>=1.7))throw Error('B5: lens crowds her '+minD.toFixed(2));
     const bound=poseQ(qWalkEnd);
     const locC=(q:number)=>q/qCrossEnd,locI=(q:number)=>(q-qCrossEnd)/(qWalkEnd-qCrossEnd),locS=(q:number)=>(q-qWalkEnd)/(1-qWalkEnd);
