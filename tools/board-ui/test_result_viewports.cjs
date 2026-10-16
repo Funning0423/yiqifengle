@@ -252,7 +252,7 @@ async function runInputChecks() {
       send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
       revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
       send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, expected);
-      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, expected.concat(expected));
+      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, target === 'ClaimAll' ? expected : expected.concat(expected), target === 'ClaimAll' ? '全部领取 is one-shot: a later tap claims nothing' : undefined);
     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
   });
   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {
