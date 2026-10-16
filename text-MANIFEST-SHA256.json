@@ -1091,8 +1091,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts",
-    "bytes": 90411,
-    "sha256": "1410ff3e88fb638c4524aff1e3ad7f9046cfee8762cc6743f03dda66eec257a8"
+    "bytes": 90547,
+    "sha256": "ea6ef8e859433d2953e5a6efbacd347c8bf64f156f768f52dc4c79429653577e"
   },
   {
     "path": "creator-build-project/assets/scripts/WorldIntegrationBoot.ts.meta",
@@ -2076,8 +2076,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts",
-    "bytes": 2043,
-    "sha256": "37c1293193ecdb0584961d54ab7ca315c295288b8b18e4f521df2381017d8ed4"
+    "bytes": 2374,
+    "sha256": "3be2637b1ae03c94cdf9d8bd8fa58b5abc833cb7ae9a51f4cbd0de57d4ebc179"
   },
   {
     "path": "creator-build-project/assets/scripts/world-r2/FlowTestLayout.ts.meta",

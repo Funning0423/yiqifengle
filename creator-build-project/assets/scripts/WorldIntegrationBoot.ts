@@ -1,4 +1,4 @@
-import { flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
+import { flowTestBannerVisible, flowTestLayout, readFlowTestHost } from './world-r2/FlowTestLayout';
 import { DEBUG } from 'cc/env';
 import {IslandHomeInteraction} from './world-r2/IslandHomeInteraction';
 import {IslandJourneyOverlay} from './world-r2/IslandJourneyOverlay';
@@ -476,7 +476,7 @@ export class WorldIntegrationBoot extends Component {
  this.islandJourney=new IslandJourneyOverlay(this.canvas,{invoke:fn=>{void this.invoke(fn);},mainlineStatus:()=>this.composition.islandOverview(),gates:()=>this.composition.islandGates(),enterRegion:id=>this.composition.enterRegion(id),enterR4:()=>this.composition.enterR4(),enterSkycity:()=>this.composition.worldCommands().enterSkycity(),returnHome:()=>this.composition.worldCommands().returnHome(),toggleDayNight:()=>this.composition.worldCommands().toggleDayNight(),dayNight:()=>this.composition.worldCommands().dayNight()});
  this.roomExplore=new RoomExploreOverlay(this.canvas,()=>this.composition?.worldCommands()??null,()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.board()?.hostModalOpen(),()=>{void this.invoke(()=>this.composition.worldCommands().leaveHome());});this.islandHome=new IslandHomeInteraction(this.canvas,{canUse:()=>this.loadPhase==='ready'&&this.ready&&!this.busy&&!this.loadingLayer?.fading&&!this.error&&!this.islandJourney?.isOpen(),hit:(x,y)=>this.composition.worldCommands().hitLighthouse(x,y),returnHome:()=>this.invoke(()=>this.composition.worldCommands().returnHome()),hitCabin:(x,y)=>this.composition.worldCommands().hitCabin(x,y),openCabin:()=>this.openCabin(),pull:(dy:number,scale:number)=>this.composition.worldCommands().pullIsland(dy,scale)});
  if(DEBUG){
- this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);
+ this.flowTestMark=this.label('测试包 · 独立地区流程',0,0,13,360);this.flowTestMark.node.parent!.active=false;
  this.button('flowTests','地区流程测试',()=>{this.flowTestMenu=!this.flowTestMenu;});
  for(const n of [4,8,12])this.button('flowTest'+n,String(n).padStart(2,'0')+' · 最后一步',()=>{this.flowTestMenu=false;return this.composition.startRegionFlowTest(n);});
  this.button('flowTestExit','退出测试',()=>{const r=this.composition.exitRegionFlowTest();if(r.ok)this.flowTestMenu=false;return r;});
@@ -589,8 +589,9 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  this.flowTestMark.string=test?'独立测试进度 · 主线 '+String(mark).padStart(2,'0')+(onLast?' 最后一步 '+cell(a[1])+' ↔ '+cell(a[2]):''):'测试包 · 地区流程入口';
  const r=testLayout.mark,plate=this.flowTestMark.node.parent!;
  this.flowTestMark.node.getComponent(UITransform)!.setContentSize(r.width-12,r.height);this.flowTestMark.enableWrapText=true;this.flowTestMark.lineHeight=17;
- const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}plate.active=testLayout.supported;
- plate.setPosition(r.x,r.y,0);this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
+ const ui=plate.getComponent(UITransform)!;if(ui.width!==r.width||ui.height!==r.height){ui.setContentSize(r.width,r.height);const bg=plate.getComponent(Graphics)!;bg.clear();bg.fillColor=new Color('#123233');bg.roundRect(-r.width/2,-r.height/2,r.width,r.height,10);bg.fill();}
+ plate.active=flowTestBannerVisible(this.flowTestMenu, outside, testLayout.supported);
+ plate.setPosition(r.x,r.y,0);if(plate.active)this.flowTestMark.node.parent!.setSiblingIndex(this.canvas.children.length-1);}
  }
  // Character/door action timing belongs to WorldFlow, never to navigation paint frequency.
 
