@@ -466,8 +466,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_meadow/env_meadow.glb",
-    "bytes": 7076792,
-    "sha256": "91587c6f7499c4423c94d1cbaa7d901eaee81fa5c2bac0a31ff9335610d850c7"
+    "bytes": 7076868,
+    "sha256": "690a7675fee4b3268dae71fafb993092b4309cae39e1c2565f291e7df6312724"
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/audio/bgm_skycity.mp3",

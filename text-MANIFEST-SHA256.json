@@ -661,8 +661,8 @@
   },
   {
     "path": "creator-build-project/assets/bundles/region_skycity/env_skycity.glb.meta",
-    "bytes": 43419,
-    "sha256": "6745bdfa3d7dffa223de9df5cfe91c6cc8697d7132019ce4ce5e790a218671b8"
+    "bytes": 42729,
+    "sha256": "9b16c707ba9cfc685c2fe4ec082610574e38c3f264cab7ad02566aadbca6ddb6"
   },
   {
     "path": "creator-build-project/assets/bundles/static_seat_preview.meta",
@@ -2341,8 +2341,8 @@
   },
   {
     "path": "creator-build-project/settings/v2/packages/builder.json",
-    "bytes": 2306,
-    "sha256": "748871895002181ec8f37163dca7b17d17ad552d9fb9cec6394499bb978fe6fc"
+    "bytes": 2232,
+    "sha256": "b9865e21b22289b372ee8fec9c7d2d697fa3dbf95397adeb3482de9507fa3733"
   },
   {
     "path": "creator-build-project/settings/v2/packages/device.json",
