@@ -234,6 +234,53 @@ export function meadowRevealReady(warmFrames: number): boolean {
   return warmFrames >= SAILBOAT_WARM_FRAMES;
 }
 
+/**
+ * Start gate: frame 0 is "the first frame after the exit camera settles on the island final pose".
+ * Mac r3 showed the sting and the clock starting about 1.8 s before the boat visibly set sail, while the
+ * exit camera was still easing. The playback (sting + countdown) begins only once the live camera has
+ * held still for `stillFrames` consecutive rendered frames, each of them no longer than `maxFrameDt`.
+ * `timeoutSec` is the fallback so a camera that never settles still gets a transition.
+ */
+export const SAILBOAT_START_STILL_FRAMES = 3;
+export const SAILBOAT_START_MAX_FRAME_DT = 0.05;
+export const SAILBOAT_START_TIMEOUT_SEC = 3;
+export const SAILBOAT_START_POS_EPS = 0.002;
+export const SAILBOAT_START_DIR_EPS = 0.0005;
+/** Per-frame dt cap for the timeline. 0.1 s silently stretched heavy (night) frames; substeps stay 1/30. */
+export const SAILBOAT_MAX_FRAME_DT = 0.25;
+export interface SailboatCameraSample { position: readonly number[]; forward: readonly number[] }
+export interface SailboatStartGate { feed(dt: number, camera: SailboatCameraSample | null): boolean; readonly open: boolean; readonly waitedSec: number; readonly reason: string }
+export function createSailboatStartGate(options?: { stillFrames?: number; maxFrameDt?: number; timeoutSec?: number }): SailboatStartGate {
+  const need = options?.stillFrames ?? SAILBOAT_START_STILL_FRAMES;
+  const maxDt = options?.maxFrameDt ?? SAILBOAT_START_MAX_FRAME_DT;
+  const timeout = options?.timeoutSec ?? SAILBOAT_START_TIMEOUT_SEC;
+  let last: SailboatCameraSample | null = null;
+  let still = 0;
+  let waited = 0;
+  let open = false;
+  let reason = 'waiting';
+  return {
+    get open() { return open; },
+    get waitedSec() { return waited; },
+    get reason() { return reason; },
+    feed(dt: number, camera: SailboatCameraSample | null): boolean {
+      if (open) return true;
+      const step = Number.isFinite(dt) && dt > 0 ? dt : 0;
+      waited += step;
+      if (camera && last) {
+        const dp = Math.hypot(camera.position[0] - last.position[0], camera.position[1] - last.position[1], camera.position[2] - last.position[2]);
+        const df = Math.hypot(camera.forward[0] - last.forward[0], camera.forward[1] - last.forward[1], camera.forward[2] - last.forward[2]);
+        if (dp <= SAILBOAT_START_POS_EPS && df <= SAILBOAT_START_DIR_EPS && step > 0 && step <= maxDt) still++;
+        else still = 0;
+      } else still = 0;
+      last = camera ? { position: [camera.position[0], camera.position[1], camera.position[2]], forward: [camera.forward[0], camera.forward[1], camera.forward[2]] } : null;
+      if (still >= need) { open = true; reason = 'settled'; }
+      else if (waited >= timeout) { open = true; reason = 'timeout'; }
+      return open;
+    },
+  };
+}
+
 type CineState = 'idle' | 'playing' | 'paused' | 'fading' | 'stopped';
 
 export interface SailboatPlayback {
