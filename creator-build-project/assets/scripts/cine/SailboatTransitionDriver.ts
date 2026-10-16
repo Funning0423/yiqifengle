@@ -18,7 +18,7 @@ import { SailboatPrefabSlot, SAILBOAT_PREFAB_RESOURCE, SAILBOAT_PREFAB_SLOT } fr
 import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudLayer } from './SailboatCloudLayer';
 import type { SailboatCloudLayer } from './SailboatCloudLayer';
 import { cloudBankCovers } from './SailboatCloudLayout';
-import { prepareMeadowReveal } from './SailboatMeadowWarmup';
+import { prepareMeadowReveal, restoreSailboatMeadowNight, syncSailboatMeadowNight } from './SailboatMeadowWarmup';
 import { prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
   SAILBOAT_TIMING_RESOURCE, createSailboatPlayback, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
@@ -136,8 +136,11 @@ export class SailboatTransitionDriver extends Component {
       if (sample.view.phase === 'done') done = true;
       if (this.closed) return;
       left -= step > 0 ? step : left;
+      // Present the covered skip frame before a later substep can drop the cover.
+      if (sample.view.phase === 'skip-hold') break;
     } while (left > 1e-4);
     if (this.lastView) this.noteWarmth(this.lastView);
+    if (this.meadowNode && this.host) syncSailboatMeadowNight(this.meadowNode, this.host.cameraNode);
     if (done) this.presentedDone = true;
   }
 
@@ -312,6 +315,7 @@ export class SailboatTransitionDriver extends Component {
     game.off(Game.EVENT_HIDE, this.onHide, this);
     game.off(Game.EVENT_SHOW, this.onShow, this);
     const host = this.host;
+    restoreSailboatMeadowNight();
     if (host && isValid(host.islandRoot, true)) host.islandRoot.active = this.islandWasActive;
     if (this.actor && isValid(this.actor, true)) this.actor.active = this.actorWasActive;
     if (this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();

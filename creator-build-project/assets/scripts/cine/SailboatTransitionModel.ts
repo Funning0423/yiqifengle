@@ -270,15 +270,15 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
       const easeFrac = s5.durationSec > 0 ? Math.min(1, timing.endPose.easeOutSec / s5.durationSec) : 1;
       meadowBlend = blendSettle(shotProgress(s5, frameIndex), easeFrac);
     } else if (s4 && frameIndex >= s4.startFrame) meadowBlend = 0.5 * shotProgress(s4, frameIndex);
-    if (phase === 'done') meadowBlend = 1;
+    if (phase === 'done' || phase === 'skip-hold') meadowBlend = 1;
     let fov = endFov;
     if (s2 && frameIndex < s2.startFrame) fov = startFov;
     else if (s2 && frameIndex < s2.endFrame) fov = startFov + (endFov - startFov) * shotProgress(s2, frameIndex);
     let boatAlong = 0;
     if (!swapped) boatAlong = departure;
+    else if (phase === 'done' || phase === 'skip-hold') boatAlong = 1;
     else if (s4 && frameIndex >= s4.startFrame && (!s5 || frameIndex < s5.startFrame)) boatAlong = shotProgress(s4, frameIndex);
     else if (s5 && frameIndex >= s5.startFrame) boatAlong = 1;
-    else if (phase === 'done') boatAlong = 1;
     return { departure, meadowBlend, fov, boatAlong };
   }
   function view(): SailboatView {
@@ -379,8 +379,10 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
       if (phase === 'skip-fade') {
         skipT += step;
         if (timing.skipFadeSec <= 0 || skipT >= timing.skipFadeSec - 1e-9) {
-          if (ready || swapped) land(commands);
-          else { phase = 'skip-hold'; windOn(commands); }
+          // Stay shut on this sample. Landing in the same advance drops the cover
+          // before the meadow camera has drawn a frame.
+          phase = 'skip-hold';
+          swapped = true;
         }
       } else if (phase === 'skip-hold') {
         if (ready) land(commands);
