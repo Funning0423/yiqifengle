@@ -42,6 +42,57 @@ export function debugDomTouch(state: DebugChordState, clock: DomChordClock, now:
   if (phase === 'start') clock.last = now;
   return considerDebugChord(state, now, liveCount, phase);
 }
+/** Labels in the same order the sheet lays out. Page names match DebugJumpPanel.page. */
+export function debugPanelLabels(page: string): string[] {
+  const levels = (prefix: string, n: number) => {
+    const out: string[] = [];
+    for (let i = 1; i <= n; i++) out.push(prefix + String(i).padStart(2, '0'));
+    out.push('返回');
+    return out;
+  };
+  if (page === 'mainline') return levels('主线', 12);
+  if (page === 'tide') return levels('潮汐', 4);
+  if (page === 'meadow') return levels('草甸', 4);
+  if (page === 'sky') return levels('天空', 4);
+  return ['主页', '小岛', '天空城', '主线', '潮汐', '草甸', '天空', '原地区', '主线04末步', '主线08末步', '主线12末步', '退出流程', '关闭'];
+}
+export type DebugButtonRect = { label: string; x: number; y: number; w: number; h: number };
+/** Button rects in design points: origin at the screen centre, +y up. Matches place(). */
+export function debugPanelButtons(width: number, height: number, labels: string[]): DebugButtonRect[] {
+  const cols = 2, bw = Math.min(168, Math.floor((width - 56) / cols)), bh = 46, gap = 8;
+  const rows = Math.ceil(labels.length / cols), blockH = rows * bh + (rows - 1) * gap;
+  const top = Math.min(height / 2 - 36, blockH / 2 + 24), out: DebugButtonRect[] = [];
+  for (let i = 0; i < labels.length; i++) {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = (col - (cols - 1) / 2) * (bw + gap), y = top - row * (bh + gap) - bh / 2;
+    out.push({ label: labels[i], x, y, w: bw, h: bh });
+  }
+  return out;
+}
+/** CSS client point → button label. The board guide's BlockInputEvents can take the Cocos hit;
+ *  a DOM/simulator touch still resolves against these rects. */
+export function debugPanelHit(width: number, height: number, labels: string[], clientX: number, clientY: number): string | null {
+  if (!(width > 0 && height > 0) || !Number.isFinite(clientX) || !Number.isFinite(clientY)) return null;
+  const dx = clientX - width / 2, dy = height / 2 - clientY;
+  const buttons = debugPanelButtons(width, height, labels);
+  for (let i = buttons.length - 1; i >= 0; i--) {
+    const b = buttons[i];
+    if (Math.abs(dx - b.x) <= b.w / 2 && Math.abs(dy - b.y) <= b.h / 2) return b.label;
+  }
+  return null;
+}
+export type SheetTapState = { multi: boolean };
+/** One-finger release may press a sheet button. A three-finger chord, including its last finger lifting, must not. */
+export function debugSheetTap(state: SheetTapState, phase: 'start' | 'end', liveCount: number): boolean {
+  if (phase === 'start') {
+    if (liveCount >= 2) state.multi = true;
+    else if (liveCount === 1) state.multi = false;
+    return false;
+  }
+  const tap = !state.multi && liveCount === 1;
+  if (liveCount <= 1) state.multi = false;
+  return tap;
+}
 export class DebugJumpPanel {
   private readonly root: Node;
   private readonly sheet: Node;
@@ -55,6 +106,9 @@ export class DebugJumpPanel {
   private lastDom = 0;
   private lastShortcut = 0;
   private lastChordEvent = 0;
+  private lastButtonRun = 0;
+  private blockClickUntil = 0;
+  private readonly sheetTap: SheetTapState = { multi: false };
   private readonly chord: DebugChordState = { armed: false, chordAt: 0 };
   private readonly fingers: Finger[] = [];
   private readonly onKey = (e: KeyboardEvent) => {
@@ -62,9 +116,26 @@ export class DebugJumpPanel {
     const now = Date.now(); if (now - this.lastShortcut < 30) return;
     this.lastShortcut = now; e.preventDefault(); this.toggle();
   };
-  private readonly onTouchStart = (e: TouchEvent) => { this.lastDom = Date.now(); this.rememberList(e.changedTouches); if (this.drifted(e.changedTouches)) this.feed(0, 'cancel'); else this.feed(this.domCount(e, false), 'start'); };
+  private readonly onTouchStart = (e: TouchEvent) => {
+    this.lastDom = Date.now(); this.rememberList(e.changedTouches);
+    debugSheetTap(this.sheetTap, 'start', this.domCount(e, false));
+    if (this.drifted(e.changedTouches)) this.feed(0, 'cancel'); else this.feed(this.domCount(e, false), 'start');
+  };
   private readonly onTouchMove = (e: TouchEvent) => { this.lastDom = Date.now(); if (this.drifted(e.changedTouches)) this.feed(0, 'cancel'); };
-  private readonly onTouchEnd = (e: TouchEvent) => { this.lastDom = Date.now(); this.forgetList(e.changedTouches); this.feed(this.domCount(e, true), 'end'); };
+  private readonly onTouchEnd = (e: TouchEvent) => {
+    this.lastDom = Date.now();
+    const wasMulti = this.sheetTap.multi;
+    const tap = debugSheetTap(this.sheetTap, 'end', this.fingers.length);
+    if (wasMulti) this.blockClickUntil = Date.now() + 700;
+    const point = tap && e.changedTouches && e.changedTouches.length === 1 ? e.changedTouches[0] : null;
+    this.forgetList(e.changedTouches);
+    if (point) this.activateDom(point.clientX, point.clientY);
+    this.feed(this.domCount(e, true), 'end');
+  };
+  private readonly onClick = (e: MouseEvent) => {
+    if (this.disposed || !this.open || Date.now() < this.blockClickUntil || Date.now() - this.lastButtonRun < 400) return;
+    this.activateDom(e.clientX, e.clientY);
+  };
   private readonly onCocosStart = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; this.rememberCocos(e); this.feed(this.cocosCount(e), 'start'); };
   private readonly onCocosMove = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; if (this.driftedCocos(e)) this.feed(0, 'cancel'); };
   private readonly onCocosEnd = (e: EventTouch) => { if (Date.now() - this.lastDom < 50) return; this.feed(this.cocosCount(e), 'end'); };
@@ -112,6 +183,7 @@ export class DebugJumpPanel {
       target.addEventListener('touchmove', this.onTouchMove, true);
       target.addEventListener('touchend', this.onTouchEnd, true);
       target.addEventListener('touchcancel', this.onTouchEnd, true);
+      target.addEventListener('click', this.onClick, true);
     }
     input.on(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.on(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
@@ -128,6 +200,7 @@ export class DebugJumpPanel {
       target.removeEventListener('touchmove', this.onTouchMove, true);
       target.removeEventListener('touchend', this.onTouchEnd, true);
       target.removeEventListener('touchcancel', this.onTouchEnd, true);
+      target.removeEventListener('click', this.onClick, true);
     }
     input.off(Input.EventType.TOUCH_START, this.onCocosStart, this);
     input.off(Input.EventType.TOUCH_MOVE, this.onCocosMove, this);
@@ -222,8 +295,22 @@ export class DebugJumpPanel {
     const surface = warmButton(n, bw, bh);
     applyJourneyNavigationSkin(n, 'primary', bw, bh);
     surface.addContent(text);
-    surface.bind(() => { const run = item.run; setTimeout(run, 0); });
+    surface.bind(() => this.activate(item.run));
     return n;
+  }
+  /** One finger on an open sheet. Capture-phase DOM events run before the board guide can swallow the Cocos hit. */
+  private activateDom(clientX: number, clientY: number) {
+    if (!this.open || this.disposed) return;
+    const label = debugPanelHit(this.w || 375, this.h || 667, debugPanelLabels(this.page), clientX, clientY);
+    if (!label) return;
+    const item = this.items().find(it => it.label === label);
+    if (item) this.activate(item.run);
+  }
+  private activate(run: () => void) {
+    const now = Date.now();
+    if (now - this.lastButtonRun < 80) return;
+    this.lastButtonRun = now;
+    setTimeout(run, 0);
   }
   private items(): Item[] {
     const go = (cmd: DebugCommand) => () => this.opts.go(cmd);

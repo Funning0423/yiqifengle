@@ -53,7 +53,7 @@ export class ManagedMobileBoardUI extends Component {
   private popups!: PopupStack; private tint = new TintSet(); private resultKey = ''; private hostActions: HostResultActions = {}; private hostResultError='';
   private claimBase: { key: string; tools: Record<string, number>; charms: number; chests: string; regions: string; mementos: string } | null = null;
   private rewardShown: RewardItem[] = []; private rewardChest = false; private toolBubbleKey = '';
-  private introQueue: string[] = []; private guideShown = ''; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
+  private introQueue: string[] = []; private guideShown = ''; private hostModalsSealed = false; private artOff: (() => void) | null = null; private boardArtRequest: Promise<boolean> | null = null;
   /** World entry sets this before initializeManaged so a finger cannot land until presentForPlay. Standalone and test boards stay presented. */
   deferPresentation = false;
   /** Managed entry keeps the board off-screen until the island shot ends and a finger can land. Standalone boards start presented. */
@@ -712,6 +712,13 @@ export class ManagedMobileBoardUI extends Component {
   hostPresentation() { return this.snapshot; }
   /** Dialogs that block the world host. The result page itself is not one: its actions are host commands. */
   hostModalOpen() { return this.modalOpen(); }
+  /** Debug Home: drop the onboarding guide and every modal it still holds (rule guide, tool intro, anything stacked on them).
+   *  Destroy at once — the 0.15 s close must not keep this level on screen — and do not let the next render reopen them. */
+  dismissHostModals() {
+    this.hostModalsSealed = true;
+    this.introQueue.length = 0;
+    try { this.popups?.clear(); } catch (e) { void e; }
+  }
   hostLayout() { return this.layoutInfo; }
   showHostResultError(text:string) { this.hostResultError=text; if(this.snapshot&&this.isResult(this.snapshot)&&this.root?.activeInHierarchy&&!this.modalOpen())this.paintResult(this.snapshot); }
   setHostActions(a: HostResultActions | null) { this.hostActions = a || {}; if (this.snapshot && this.isResult(this.snapshot)) this.paintResult(this.snapshot); }
@@ -737,7 +744,7 @@ export class ManagedMobileBoardUI extends Component {
     if (relayout && this.geo) { this.layout(); return; }
     this.layoutPlate(); this.syncToolBar(); this.paintToolTray();
     if (!board) { this.hintCells = []; this.hintClock.reset(); }
-    if (s.state === 'run.ready' && !this.modalOpen() && s.provider === 'regional-r05' && s.active?.guide) {
+    if (!this.hostModalsSealed && s.state === 'run.ready' && !this.modalOpen() && s.provider === 'regional-r05' && s.active?.guide) {
       const id = String(s.active.stageId || s.active.guide.title || '');
       if (this.guideShown !== id) { this.guideShown = id; if (!hasSeenGuide(id)) { markGuideSeen(id); this.showRuleGuide(); } else this.say(s.active.guide.title || '这一关的规则'); }
     }
@@ -854,7 +861,7 @@ export class ManagedMobileBoardUI extends Component {
     if (this.hintCells.length) { this.hintT += dt; this.paintMarks(); }
     if (!reducedMotion()) { this.spinT = (this.spinT + dt * 120) % 360; for (let i = 0; i < 49; i++) if (this.under[i].node.active) this.under[i].node.setRotationFromEuler(0, 0, -this.spinT); }
     if (this.toastT >= 0) { this.toastT += dt; const op = this.toast.getComponent(UIOpacity)!, k = this.toastT < 0.2 ? this.toastT / 0.2 : this.toastT < TOAST_S ? 1 : Math.max(0, 1 - (this.toastT - TOAST_S) / 0.3); op.opacity = Math.round(255 * k); if (k <= 0 && this.toastT > TOAST_S) this.toastT = -1; }
-    if (this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
+    if (!this.hostModalsSealed && this.introQueue.length && s?.state === 'run.ready' && !this.popups.any()) { const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind); }
   }
   // ---------------- dialogs ----------------
   private openPausePanel() {
@@ -876,7 +883,7 @@ export class ManagedMobileBoardUI extends Component {
     });
   }
   private showRuleGuide() {
-    const guide = this.snapshot?.active?.guide; if (!guide || this.modalOpen()) return;
+    const guide = this.snapshot?.active?.guide; if (this.hostModalsSealed || !guide || this.modalOpen()) return;
     this.cancelToolInput(); this.dragStart = null; this.paintToolTray();
     const body = [guide.rule, guide.tool?.description].filter(Boolean).join('\n'), lines = Math.min(8, Math.ceil(measure(body, 28) / 560) + body.split('\n').length);
     const ph = 104 + 48 + 40 + lines * 40 + 48 + 104 + 72, p = this.popups.open({ name: 'RuleGuidePanel', height: ph, title: guide.title || '这一关的规则' });
@@ -927,7 +934,7 @@ export class ManagedMobileBoardUI extends Component {
     const shown = this.rewardShown.slice(), hadChest = this.rewardChest;
     openReward(this.popups, shown, this.toolArt, { chest: hadChest, description: desc, done: () => { this.rewardShown = []; this.rewardChest = false; if (behind && behind.alive) behind.root.active = true; for (let i = 0; i < shown.length; i++) { const k = shown[i].kind; if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); } this.flushIntro(); } });
   }
-  private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
+  private flushIntro() { if (this.hostModalsSealed || !this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {
     if (this.disposing) return; this.disposing = true;
     // Cocos destroys child nodes before this component. Detach global listeners
