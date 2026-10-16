@@ -28,7 +28,9 @@ export function cranePose(a:Pose,ra:Vec,b:Pose,rb:Vec,root:Vec,u:number,progress
   return {position:[root[0]+d[0]*L,root[1]+d[1]*L,root[2]+d[2]*L],target:[ta[0]+(b.target[0]-ta[0])*w,ta[1]+(b.target[1]-ta[1])*w,ta[2]+(b.target[2]-ta[2])*w],
     fovVerticalDeg:a.fovVerticalDeg!+(b.fovVerticalDeg!-a.fovVerticalDeg!)*u,progress};
 }
-type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number}>;
+type PaceOpts=Readonly<{sampleMetres:number;rampSeconds:number;cruiseMps:number;depart:Readonly<{turn?:-1|1;shiftX?:number;hop?:number;rayTau?:number;straightM?:number;rayMps?:number;preTurnDeg?:number;minZ?:number;blendMetres:number;aimDeg:number;radial:number;climb:number;seconds:number;handle:number;lead:readonly [number,number,number]}>;chest:number;frontalDeg:number;holdMaxDeg:number;b5?:B5Opts}>;
+/** B5 exit (运镜bot 2026-10-16): follow her, then one minimum-jerk rise. All times in seconds after the doorway key. */
+type B5Opts=Readonly<{smoothSeconds:number;followIn:number;riseAt:number;side:number;back:number;height:number;look:number;targetHeight:number;fovVerticalDeg:number;matchSeconds:number;turnShare:number;sideDelay:number;sideIn:number;heightShare:number}>;
 type Look=Readonly<{position:Vec;target:Vec;fovVerticalDeg?:number}>;
 /** Centripetal Catmull-Rom. Passes through every point; u=0 at points[i], u=1 at points[i+1]. */
 function centripetal(points:readonly Vec[]):(seg:number,u:number)=>Vec{
@@ -100,6 +102,71 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   const sm5=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
   const back=doorAtS(Math.max(0,sAcc-.05)).position,tdx=P0[0]-back[0],tdy=P0[1]-back[1],tdz=P0[2]-back[2],tl=Math.hypot(tdx,tdy,tdz)||1;
   const Tdir:Vec=[tdx/tl,tdy/tl,tdz/tl];
+  if(opts.b5)return paceB5(opts.b5);
+  /** B5: C(t) = H(t) + cyl(bearing, radius, height)(t) + e(t). H = her root low-passed in time (Gaussian, C-inf);
+   *  the offset moves door -> follow (smootherstep over followIn) -> cameraIsland (smootherstep from riseAt to the end),
+   *  so position, velocity and acceleration are continuous everywhere and zero-jerk-step at both blends.
+   *  e(t) carries the doorway key's velocity and acceleration into the follow and fades out over matchSeconds. */
+  function paceB5(b:B5Opts){
+    const T=totalSeconds,tC=invertProgress(qCrossEnd,track)*T,tE=T,span=tE-tC;
+    if(!(b.followIn>0.3&&b.riseAt>=b.followIn&&span-b.riseAt>=2&&b.smoothSeconds>0&&b.matchSeconds>0&&b.turnShare>0.3&&b.turnShare<=1&&b.sideDelay>=0&&b.sideIn>0.3&&b.heightShare>0.3&&b.heightShare<=1&&(span-b.riseAt)*Math.min(b.heightShare,b.turnShare)>=2))throw Error('B5: timing (rise must last >= 2 s)');
+    const qOfT=(t:number)=>remapProgress(Math.max(0,Math.min(1,t/T)),track);
+    const rootT=(t:number):Vec=>actorAt(qOfT(t)).root;
+    const sg=b.smoothSeconds,nK=12;
+    const H=(t:number):Vec=>{let x=0,y=0,z=0,w=0;for(let k=-nK;k<=nK;k++){const u=k/nK*2.5,wt=Math.exp(-.5*u*u),r=rootT(Math.max(0,Math.min(tE,t+u*sg)));x+=r[0]*wt;y+=r[1]*wt;z+=r[2]*wt;w+=wt;}return [x/w,y/w,z/w];};
+    const s5=(x:number)=>{const t=Math.max(0,Math.min(1,x));return t*t*t*(t*(t*6-15)+10);};
+    const doorT0=door[door.length-1].target,f0=door[door.length-1].fovVerticalDeg??50,f1=island.fovVerticalDeg??42;
+    const H0=H(tC),HE=H(tE);
+    // follow frame: her mean heading over the follow window (fixed, so the offset itself never yaws)
+    const Ha=H(tC+b.riseAt),hx=Ha[0]-H0[0],hz=Ha[2]-H0[2],hl=Math.hypot(hx,hz)||1,fx=hx/hl,fz=hz/hl;
+    const rx=-fz,rz=fx; // her right (+x = left when she faces +z)
+    const cyl=(p:Vec,h:Vec)=>{const dx=p[0]-h[0],dz=p[2]-h[2];return {b:Math.atan2(dx,dz),r:Math.hypot(dx,dz),y:p[1]};};
+    const c0=cyl(P0,H0),cf=cyl([H0[0]+rx*b.side-fx*b.back,b.height,H0[2]+rz*b.side-fz*b.back],H0),c3=cyl(island.position,HE);
+    // bearings unwrapped so the sweep goes through her right side (never across her back to the left)
+    const unwrapNear=(a:number,ref:number)=>{while(a-ref>Math.PI)a-=2*Math.PI;while(a-ref<-Math.PI)a+=2*Math.PI;return a;};
+    const bf=unwrapNear(cf.b,c0.b);let b3=unwrapNear(c3.b,bf);const rightB=Math.atan2(rx,rz);
+    const passR=unwrapNear(rightB,bf);if(!(Math.min(bf,b3)<=passR&&passR<=Math.max(bf,b3)))b3+=b3<bf?2*Math.PI:-2*Math.PI;
+    const raw=(tau:number):{p:Vec;tg:Vec;fov:number}=>{const t=tC+tau,h=H(t),w1=s5(tau/b.followIn),w2=s5((tau-b.riseAt)/(span-b.riseAt)),wb=s5((tau-b.riseAt)/((span-b.riseAt)*b.turnShare));
+      const wS=s5((tau-b.sideDelay)/b.sideIn),be=c0.b+(bf-c0.b)*wS+(b3-bf)*wb,ra=c0.r+(cf.r-c0.r)*wS+(c3.r-cf.r)*w2,wy=s5((tau-b.riseAt)/((span-b.riseAt)*b.heightShare)),yy=c0.y+(cf.y-c0.y)*w1+(c3.y-cf.y)*wy;
+      const p:Vec=[h[0]+Math.sin(be)*ra,yy,h[2]+Math.cos(be)*ra];
+      const lk:Vec=[h[0]+fx*b.look,h[1]+b.targetHeight,h[2]+fz*b.look];
+      const m:Vec=[doorT0[0]+(lk[0]-doorT0[0])*w1,doorT0[1]+(lk[1]-doorT0[1])*w1,doorT0[2]+(lk[2]-doorT0[2])*w1];
+      const it=island.target,tg:Vec=[m[0]+(it[0]-m[0])*w2,m[1]+(it[1]-m[1])*w2,m[2]+(it[2]-m[2])*w2];
+      const fv=f0+(b.fovVerticalDeg-f0)*w1+(f1-b.fovVerticalDeg)*w2;return {p,tg,fov:fv};};
+    // doorway key motion (the door spline in time), backward differences over 1/30 s
+    const dH=1/30,doorAtT=(t:number):Look=>doorAtS(SOfQ(Math.min(qCrossEnd,qOfT(t))));
+    const d0=doorAtT(tC),d1=doorAtT(tC-dH),d2=doorAtT(tC-2*dH),r0=raw(0),r1=raw(dH),r2=raw(2*dH);
+    const V=(a:Vec,b2:Vec)=>[(a[0]-b2[0])/dH,(a[1]-b2[1])/dH,(a[2]-b2[2])/dH];
+    const Ac=(a:Vec,m:Vec,c:Vec)=>[(a[0]-2*m[0]+c[0])/(dH*dH),(a[1]-2*m[1]+c[1])/(dH*dH),(a[2]-2*m[2]+c[2])/(dH*dH)];
+    const corr=(dp:Vec[],rp:Vec[])=>{const vD=V(dp[0],dp[1]),aD=Ac(dp[0],dp[1],dp[2]),vR=V(rp[1],rp[0]),aR=Ac(rp[2],rp[1],rp[0]);
+      const e0=[dp[0][0]-rp[0][0],dp[0][1]-rp[0][1],dp[0][2]-rp[0][2]];return {e0,dv:[vD[0]-vR[0],vD[1]-vR[1],vD[2]-vR[2]],da:[aD[0]-aR[0],aD[1]-aR[1],aD[2]-aR[2]]};};
+    const cP=corr([d0.position,d1.position,d2.position],[r0.p,r1.p,r2.p]),cT=corr([d0.target,d1.target,d2.target],[r0.tg,r1.tg,r2.tg]);
+    const fade=(tau:number)=>{const g=1-s5(tau/b.matchSeconds);return g;};
+    const add=(v:Vec,c:{e0:number[];dv:number[];da:number[]},tau:number):Vec=>{const g=fade(tau);return [0,1,2].map(k=>v[k]+(c.e0[k]+c.dv[k]*tau+.5*c.da[k]*tau*tau)*g) as unknown as Vec;};
+    const atTau=(tau:number):Look=>{if(tau>=span-1e-9)return {position:[...island.position] as unknown as Vec,target:[...island.target] as unknown as Vec,fovVerticalDeg:f1};
+      const r=raw(tau);return {position:add(r.p,cP,tau),target:add(r.tg,cT,tau),fovVerticalDeg:r.fov};};
+    const tOfQ=(q:number)=>invertProgress(q,track)*T;
+    const poseQ=(q:number):Look=>q<=qCrossEnd?doorAtS(SOfQ(q)):atTau(tOfQ(q)-tC);
+    const nS=Math.ceil(span*60);for(let j=1;j<=nS;j++){const t=tC+span*j/nS,q=j===nS?1:qOfT(t);push(poseQ(q),q);}
+    const angAt=(q:number)=>{const pose=poseQ(q),actor=actorAt(q),dx=pose.position[0]-actor.root[0],dz=pose.position[2]-actor.root[2],dist=Math.hypot(dx,dz)||1;
+      return {ang:Math.acos(Math.max(-1,Math.min(1,(Math.sin(actor.yaw)*dx+Math.cos(actor.yaw)*dz)/dist)))*180/Math.PI,dist,t:tOfQ(q)};};
+    let qFr=-1,qHold=-1,tFr=0,minD=99;
+    for(let i=0;i<=320;i++){const q=qCrossEnd+(1-qCrossEnd)*i/320,m=angAt(q);if(m.dist<minD)minD=m.dist;
+      if(qFr<0&&m.ang<=opts.frontalDeg){qFr=q;tFr=m.t;qHold=q;}else if(qFr>=0&&m.ang<=opts.holdMaxDeg&&m.t<=tFr+1.6)qHold=q;}
+    if(qFr<0){qFr=1-1e-4;qHold=1-5e-5;tFr=tOfQ(qFr);}
+    if(!(minD>=1.7))throw Error('B5: lens crowds her '+minD.toFixed(2));
+    const bound=poseQ(qWalkEnd);
+    const locC=(q:number)=>q/qCrossEnd,locI=(q:number)=>(q-qCrossEnd)/(qWalkEnd-qCrossEnd),locS=(q:number)=>(q-qWalkEnd)/(1-qWalkEnd);
+    const cross:Pose[]=out.filter(k=>(k.progress??0)<qCrossEnd-1e-6).map(k=>({...k,progress:locC(k.progress!)}));cross.push(posed(poseQ(qCrossEnd),1));
+    const toIsland:Pose[]=[posed(poseQ(qCrossEnd),0)];
+    for(const k of out){const q=k.progress!;if(q>qCrossEnd+1e-6&&q<qWalkEnd-2e-4)toIsland.push({...k,progress:locI(q)});}
+    toIsland.push(posed(bound,1));
+    const settle:Pose[]=[posed(bound,0)];
+    for(const k of out){const q=k.progress!;if(q>qWalkEnd+2e-4&&q<1-1e-6)settle.push({...k,progress:locS(q)});}
+    settle.push({position:[island.position[0],island.position[1],island.position[2]],target:[island.target[0],island.target[1],island.target[2]],fovVerticalDeg:island.fovVerticalDeg,progress:1});
+    const walkStart=qCrossEnd*T,walkStop=qWalkEnd*T,frontalWalk=tFr<=walkStart?0:tFr>=walkStop?1:(tFr-walkStart)/(walkStop-walkStart);
+    return {cross,toIsland,settle,frontalQ:qFr,holdQ:qHold,frontalWalk,frontalSeconds:tFr};
+  }
   const D=1-qCrossEnd,C0=Math.max(1e-3,(SOfQ(qCrossEnd)-SOfQ(qCrossEnd-1e-4))/1e-4);
   // Cruise is an arc-length clock, not the doorway follow. A short smoothstep leaves that follow speed, then
   // ds/dq stays at Cc so the turn and the lift hold one speed. Ease-out (on the track) is the only later brake.
@@ -115,7 +182,7 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   const aimBear=dep.aimDeg*Math.PI/180,doorActor=actorAt(qCrossEnd);
   const r0=Math.max(1.95,Math.hypot(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]));
   const bear0=Math.atan2(P0[0]-doorActor.root[0],P0[2]-doorActor.root[2]);
-  let bear1=-aimBear;while(bear1>bear0-.05)bear1-=Math.PI*2;
+  const turnDir=dep.turn??-1;let bear1=-aimBear;if(turnDir<0){while(bear1>bear0-.05)bear1-=Math.PI*2;}else{while(bear1<bear0+.05)bear1+=Math.PI*2;}
   let arcPts:Vec[]=[],arcS:number[]=[0],arcL=0,Cc=cruise*totalSeconds/slope;
   arcL=Math.max(1,Cc*D-(Cc-C0)*qr*.5);
   const sAt=(q:number,L:number,C:number)=>{const x=q-qCrossEnd;if(x<=0)return 0;if(q>=1)return L;
@@ -124,7 +191,7 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
   for(let pass=0;pass<4;pass++){
     const qAt=(s:number)=>qAtS(s,arcL,Cc);
     const slot=(tau:number,sNow:number):Vec=>{const h=actorAt(qAt(sNow)).root;
-      const t=Math.max(0,Math.min(1,tau/dep.seconds)),uB=1-(1-t)*(1-t),bear=bear0+(bear1-bear0)*uB,rad=r0+dep.radial*tau;
+      const rv0=dep.rayMps??1.35,tS=(dep.straightM??0)/rv0,tt=Math.max(0,tau-tS),t=Math.max(0,Math.min(1,tt/(dep.seconds-tS))),uB=1-(1-t)*(1-t),bS=bear0+Math.sign(bear1-bear0)*Math.min(Math.abs(bear1-bear0),(dep.preTurnDeg??0)*Math.PI/180),bear=bS+(bear1-bS)*uB,rad=r0+dep.radial*tau;
       const uH=t<=.62?0:Math.min(1,(t-.62)/.38),integ=uH-.7*(uH*uH*uH-.5*uH*uH*uH*uH);
       const yLin=Math.min(P3[1]-1.6,P0[1]+dep.climb*dep.seconds*(.62*Math.min(1,t/.62)+.38*integ));
       // Ease the climb off the door tangent. A full-rate rise during the fillet pitches the look
@@ -137,11 +204,11 @@ function paceOutbound(opts:PaceOpts,door:readonly Pose[],cut:Readonly<{qCrossEnd
       // passes under the gull orbit instead of rising into the swept wings.
       const hFade=1-sm5(Math.max(0,Math.min(1,(tau-1.6)/2)));
       const vFade=1-sm5(Math.max(0,Math.min(1,(tau-.4)/2.6)));
-      const orbit:Vec=[h[0]+Math.sin(bear)*rad-1.05*hFade,y+1.05*vFade,h[2]+Math.cos(bear)*rad+.5*hFade];
+      const orbit:Vec=[h[0]+Math.sin(bear)*rad+(dep.shiftX??-1.05)*hFade,y+1.05*vFade,Math.max(dep.minZ??-1e9,h[2]+Math.cos(bear)*rad+.5*hFade)];
       // The blend is still mostly on the door ray when that ray meets the open leaf, so the ray
       // itself rises over the leaf. The rise is a smootherstep (zero slope at the doorway).
-      const hop=1.32*sm5(Math.min(1,tau/1.05));
-      const k=sm5(Math.min(1,tau/1.6)),ray:Vec=[P0[0]+Tdir[0]*tau*1.35,P0[1]+Tdir[1]*tau*1.35+hop,P0[2]+Tdir[2]*tau*1.35];
+      const hop=(dep.hop??1.32)*sm5(Math.min(1,tau/1.05));
+      const rv=dep.rayMps??1.35,t0=(dep.straightM??0)/rv,k=sm5(Math.max(0,Math.min(1,(tau-t0)/(dep.rayTau??1.6)))),ray:Vec=[P0[0]+Tdir[0]*tau*rv,P0[1]+Tdir[1]*tau*rv+hop,P0[2]+Tdir[2]*tau*rv];
       return [ray[0]*(1-k)+orbit[0]*k,ray[1]*(1-k)+orbit[1]*k,ray[2]*(1-k)+orbit[2]*k];};
     const pts:Vec[]=[slot(0,0)];let pos:Vec=[pts[0][0],pts[0][1],pts[0][2]],tau=0,tang:Vec=[Tdir[0],Tdir[1],Tdir[2]],sNow=0;
     const stepS=.02;
@@ -275,8 +342,11 @@ export function createFirstsliceRoutes(facts:any,reference:{seatedRoot:Vec;stand
   // Retain both approved stable cameras. This close follow pose stays behind the moving actor,
   // rather than putting the lens beside her at the old outdoor threshold.
   const cameraOutside:Pose={position:[-.35,1.35,-.9],target:[-.3,.86,1.3],fovVerticalDeg:72};
-  const outCrossing:Vec[]=[a('door_stand_point'),a('exit_point'),...range('exit_path',6,7)];
-  const toIsland:Vec[]=range('exit_path',7,17);
+  // B5 (运镜bot 2026-10-16): she walks ~2.3 m straight out of the door first (x stays near the door, clear of the lighthouse
+  // wall and palm_tall_01 on her right), then one gentle curve onto exit_path_17 (unchanged: island stop / return untouched).
+  const EXIT_B4:Vec[]=[[-0.32,0,0.69],[-0.38,0,1.45],[-0.5,0,2.2],[-0.78,0,2.95],[-1.22,0,3.65],[-1.68,0,4.3],[-2.0,0,4.85]];
+  const outCrossing:Vec[]=[a('door_stand_point'),a('exit_point'),EXIT_B4[0],EXIT_B4[1]];
+  const toIsland:Vec[]=[EXIT_B4[1],...EXIT_B4.slice(2),a('exit_path_17')];
   const toThreshold:Vec[]=[a('exit_path_17'),...range('return_path',0,7)];
   const inCrossing:Vec[]=[a('return_path_07'),a('return_path_08'),a('entrance_point')];
   const follow=(route:readonly Vec[],progress:number,position:Vec,fovVerticalDeg:number):Pose=>{
