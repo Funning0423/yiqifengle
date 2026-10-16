@@ -1,4 +1,7 @@
 'use strict';
+// v2 spec (provisional): Next/Home before opening auto-claims the ready rewards first; input-lifecycle checks compare
+// the navigation part only (test_result_screen_style asserts the auto-claim itself).
+const nav = c => c.some(x => x === 'Next' || x === 'Home') ? c.filter(x => !/^Claim-/.test(x) && x !== 'chest' && x !== 'regionReward') : c;
 /** Actual TS/node regressions. Logical UI geometry only; never a Cocos/device screenshot.
  * QF_RESULT_SAFE_SOURCE can point at an immutable baseline for a negative control.
  * QF_RESULT_SAFE_OUTPUT selects a separate evidence directory. */
@@ -133,7 +136,7 @@ async function matrix() {
                             if (i + 1 < pageCount(H, p))
                                 H.tap(p.root.find('ResultNextPage'));
                         }
-                        const expected = [...(m.kind === 'win' && m.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
+                        const expected = [...(m.kind === 'win' && m.rewards.some(r => r.state === 'ready' && r.claim) ? ['ResultChestTap'] : []), ...(m.kind === 'win' && m.next ? ['Next'] : []), ...(m.kind === 'lose' && m.replay ? ['Replay'] : []), ...(m.kind === 'unsaved' ? ['RetrySave'] : []), 'Home'];
                         record(`reachable ${width}x${height} ${mode} ${spec.name} ${loaded}/${reduced}`, () => { if (p.root.find('Home').activeInHierarchy) {
                             for (const name of expected)
                                 assert(seen.has(name), name);
@@ -141,7 +144,7 @@ async function matrix() {
                         else {
                             assert(!rows.at(-1).supported);
                             assert.equal(seen.size, 0, 'unsupported geometry exposes no actions');
-                        } assert.deepEqual(calls, [], 'paging must never claim, leave or retry'); });
+                        } assert.deepEqual(nav(calls), [], 'paging must never claim, leave or retry'); });
                         if (p.root.find('Home').activeInHierarchy)
                             record(`complete text ${width}x${height} ${mode} ${spec.name} ${loaded}/${reduced}`, () => {
                                 const fragments = id => [...allText.values()].filter(b => b.name === id || b.name.startsWith(id + '-continued-')).sort((a, b) => (Number(a.name.split('-continued-')[1]) || 0) - (Number(b.name.split('-continued-')[1]) || 0)).map(b => b.text).join('');
@@ -149,9 +152,15 @@ async function matrix() {
                                     assert.equal(fragments('Score'), m.score + ' 分');
                     if (spec.name === 'win-extreme') assert.equal(new Set([...allText.values()].filter(b => b.name === 'Score' || b.name.startsWith('Score-continued-')).map(b => b.page)).size, 1, 'full numeric score remains on one page');
                                 if (m.kind === 'win') {
-                                    const summary = [m.movesUsed !== null ? m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩 ' + m.movesLeft + ' 步' : '', '已保存'].filter(Boolean).join(' · ');
-                                    assert.equal(fragments('ResultSummary'), summary + (m.unlockHint ? ' · ' + m.unlockHint : ''));
-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); if (!full && !short && (r.iconKind === 'chest' || r.id === 'chest') && r.state === 'ready' && r.claim) { assert(p.root.find('ClaimAll'), 'a ready chest is named by 全部领取 under it'); return; } assert.equal(full || short, r.label); });
+                                    const summary = [m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩余 ' + m.movesLeft + ' 步' : ''].filter(Boolean).join(' · ');
+                                    assert.equal(fragments('ResultSummary') || '', summary); assert(!fragments('ResultSummary') || !fragments('ResultSummary').includes('已保存'), 'no 成绩已保存');
+                                    const ready = m.rewards.some(r => r.state === 'ready' && r.claim);
+                                    if (m.unlockHint) assert.equal(fragments('ResultUnlockHint') || '', ready ? '' : m.unlockHint, 'unlock hint shows once the chest is open');
+                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); const chestR = m.rewards.find(c => c.iconKind === 'chest' || c.id === 'chest');
+                                        // v2 (Funning 2026-10-16): the chest carries no label (light guide + tap), items float over it only once it is open.
+                                        if (r === chestR) { if (r.state === 'ready' && r.claim) assert(p.root.find('ResultChestTap'), 'a ready chest is the tap target'); if (r.state !== 'locked') { assert(!full && !short, 'no chest caption'); return; } }
+                                        else if (chestR && chestR.state !== 'claimed' && r.state !== 'claimed') { assert(!full && !short, 'items stay inside the closed chest'); return; }
+                                        assert.equal(full || short, r.label); });
                                 }
                                 if (m.kind === 'readonly')
                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');
@@ -201,7 +210,7 @@ async function host() {
                     assert(!rows.at(-1).supported);
                     assert.equal(calls.length, 0);
                     return;
-                } const claim = reveal(H, p, 'ClaimAll'); H.tap(claim); assert.deepEqual(calls.slice(0, 2), ['chest', 'regionReward']); const n = reveal(H, p, 'Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
+                } const claim = reveal(H, p, 'ResultChestTap'); H.tap(claim); assert.deepEqual(calls.slice(0, 2), ['chest', 'regionReward']); const n = reveal(H, p, 'Next'); n.emit('touch-start', H.event(H.point(n), 1)); const before = calls.length; H.setViewport(640, 360); H.cc.view.emit('canvas-resize'); n.emit('touch-end', H.event(H.point(n), 1)); assert.equal(calls.length, before); H.tap(n); assert.equal(calls.length, before + 1); });
                 b.u.onDestroy();
                 record('host teardown', () => assert.equal(H.cc.game.listeners('hide'), 0));
             }
@@ -222,8 +231,8 @@ async function lifecycle() {
     let viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
     H.setViewport(320, 320);
     const stack = new K.PopupStack(owner, () => viewport);
-    const targets = [['ClaimAll', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
-    const fired = (target, spec) => target === 'ClaimAll' ? (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id) : [target];
+    const targets = [['ResultChestTap', cases[0]], ['Next', cases[0]], ['Home', cases[0]], ['Replay', cases.find(c => c.kind === 'lose' && c.replay)], ['RetrySave', cases.find(c => c.kind === 'unsaved')]];
+    const fired = (target, spec) => target === 'ResultChestTap' ? (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id) : [target];
     for (const [target, spec] of targets)
         for (const mode of ['other-pointer', 'outside', 'cancel', 'hide', 'node-hide', 'ancestor-hide', 'disable', 'cover', 'page-away', 'rotate', 'inset-only', 'unchanged', 'destroy', 'closing']) {
             const calls = [], p = P.openResult(stack, model(spec, calls), null);
@@ -233,9 +242,9 @@ async function lifecycle() {
             record(target + ' ' + mode, () => {
                 if (mode === 'other-pointer') {
                     n.emit('touch-end', H.event(point, 2));
-                    assert.deepEqual(calls, []);
+                    assert.deepEqual(nav(calls), []);
                     n.emit('touch-end', H.event(point, 1));
-                    assert.deepEqual(calls, fired(target, spec));
+                    assert.deepEqual(nav(calls), fired(target, spec));
                     return;
                 }
                 if (mode === 'outside')
@@ -261,7 +270,7 @@ async function lifecycle() {
                     const cover = stack.open({ name: 'Cover', height: 300, title: 'Cover' });
                     n.emit('touch-end', H.event(point, 1));
                     H.tap(n);
-                    assert.deepEqual(calls, []);
+                    assert.deepEqual(nav(calls), []);
                     cover.close();
                     settle(stack);
                 }
@@ -284,35 +293,35 @@ async function lifecycle() {
                     stack.layout();
                     stack.update(.01);
                     n.emit('touch-end', H.event(point, 1));
-                    assert.deepEqual(calls, fired(target, spec));
+                    assert.deepEqual(nav(calls), fired(target, spec));
                     return;
                 }
                 if (mode === 'destroy') {
                     p.destroy();
                     n.emit('touch-end', H.event(point, 1));
-                    assert.deepEqual(calls, []);
+                    assert.deepEqual(nav(calls), []);
                     return;
                 }
                 if (mode === 'closing') {
                     p.close();
                     n.emit('touch-end', H.event(point, 1));
                     H.tap(n);
-                    assert.deepEqual(calls, []);
+                    assert.deepEqual(nav(calls), []);
                     return;
                 }
                 n.emit('touch-end', H.event(H.point(n), 1));
-                assert.deepEqual(calls, []);
+                assert.deepEqual(nav(calls), []);
                 const again = reveal(H, p, target);
                 assert(again.activeInHierarchy);
                 H.tap(again);
-                assert.deepEqual(calls, fired(target, spec));
+                assert.deepEqual(nav(calls), fired(target, spec));
             });
             stack.clear();
             viewport = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
             H.setViewport(320, 320);
         }
     // Same-size insets translation (width/height unchanged) must also cancel.
-    record('equal-safe-size translation cancels', () => { const calls = [], p = P.openResult(stack, model(cases[0], calls), null); settle(stack); const n = p.root.find('Next'); n.emit('touch-start', H.event(H.point(n), 1)); viewport.safeInsets = { ...viewport.safeInsets, left: 4, right: 0 }; stack.layout(); n.emit('touch-end', H.event(H.point(n), 1)); assert.deepEqual(calls, []); stack.clear(); });
+    record('equal-safe-size translation cancels', () => { const calls = [], p = P.openResult(stack, model(cases[0], calls), null); settle(stack); const n = p.root.find('Next'); n.emit('touch-start', H.event(H.point(n), 1)); viewport.safeInsets = { ...viewport.safeInsets, left: 4, right: 0 }; stack.layout(); n.emit('touch-end', H.event(H.point(n), 1)); assert.deepEqual(nav(calls), []); stack.clear(); });
     owner.destroy();
 }
 async function transitions() {
@@ -324,7 +333,7 @@ async function transitions() {
         H.setViewport(320, 320);
         const s = new K.PopupStack(o, () => v), calls = [], p = P.openResult(s, model(cases[0], calls), null);
         settle(s);
-        const n = reveal(H, p, 'ClaimAll');
+        const n = reveal(H, p, 'ResultChestTap');
         n.emit('touch-start', H.event(H.point(n), 1));
         const pending = Promise.all(['board', 'popup', 'r2'].map(d => A.BoardArt.shared().load(d)));
         v = { width: 568, height: 320, safeInsets: insetModes.host(568, 320) };
@@ -334,11 +343,11 @@ async function transitions() {
             s.clear();
         await pending;
         await H.flush();
-        record('delayed art ' + destroyed, () => { n.emit('touch-end', H.event(destroyed ? { x: 0, y: 0 } : H.point(n), 1)); assert.deepEqual(calls, []); if (!destroyed) {
+        record('delayed art ' + destroyed, () => { n.emit('touch-end', H.event(destroyed ? { x: 0, y: 0 } : H.point(n), 1)); assert.deepEqual(nav(calls), []); if (!destroyed) {
             assert.equal(s.find('ResultPanel'), p);
             snapshot(H, p, v, { case: 'delayed-art', phase: 'settled', insets: 'host', page: 1 });
-            H.tap(reveal(H, p, 'ClaimAll'));
-            assert.deepEqual(calls, ['Claim-chest', 'Claim-regionReward']);
+            H.tap(reveal(H, p, 'ResultChestTap'));
+            assert.deepEqual(nav(calls), ['Claim-chest', 'Claim-regionReward']);
         }
         else
             assert(!p.alive); });
@@ -382,13 +391,13 @@ async function transitions() {
                 const after = pageNumber(H, p);
                 n.emit('touch-end', H.event(H.point(n), 1));
                 assert.equal(pageNumber(H, p), after);
-                assert.deepEqual(calls, []);
+                assert.deepEqual(nav(calls), []);
                 if (action === 'degrade') {
                     v = { width: 320, height: 320, safeInsets: insetModes.host(320, 320) };
                     s.layout();
                     assert(p.root.find('Home').activeInHierarchy);
                     H.tap(p.root.find('Home'));
-                    assert.deepEqual(calls, ['Home']);
+                    assert.deepEqual(nav(calls), ['Home']);
                 }
             });
             s.clear();
@@ -410,11 +419,11 @@ async function transitions() {
     b.step(1);
     {
         let p = b.u.popups.find('ResultPanel');
-        const n = reveal(H, p, 'ClaimAll');
+        const n = reveal(H, p, 'ResultChestTap');
         H.tap(n);
         await H.flush();
         b.step(1);
-        record('actual host asynchronous claim-all returns one reward panel', () => { assert.equal(calls.filter(x => x === 'chest').length, 1); assert.equal(calls.filter(x => x === 'regionReward').length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find('ClaimAll'), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === 'chest').length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
+        record('actual host asynchronous claim-all returns one reward panel', () => { assert.equal(calls.filter(x => x === 'chest').length, 1); assert.equal(calls.filter(x => x === 'regionReward').length, 1); assert(!p.alive); const replacement = b.u.popups.find('ResultPanel'); assert(replacement); assert(!replacement.root.find('ResultChestTap'), 'claimed action must be removed'); assert(b.u.popups.find('RewardPanel')); n.emit('touch-end', H.event({ x: 0, y: 0 }, 1)); assert.equal(calls.filter(x => x === 'chest').length, 1); const upper = b.u.popups.find('RewardPanel'); H.tap(upper.root.find('Accept')); b.step(1); assert(replacement.root.activeInHierarchy); assert.equal(b.u.popups.top(), replacement); const home = replacement.root.find('Home'); assert(home.activeInHierarchy); });
     }
     record('actual host last page keeps Next after both rewards', () => { const p = b.u.popups.find('ResultPanel'); for (let i = 1; i < pageCount(H, p); i++)
         H.tap(p.root.find('ResultNextPage')); H.tap(p.root.find('Next')); assert.equal(calls.at(-1), 'next'); });

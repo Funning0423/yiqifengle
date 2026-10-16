@@ -1,8 +1,9 @@
-import { Color, Graphics, Label, Node, UIOpacity, UITransform, isValid } from 'cc';
+import { Color, Graphics, Label, Node, Sprite, UIOpacity, UITransform, isValid } from 'cc';
 import { GameAudio } from '../audio/GameAudio';
 import { PopupPanel, PopupStack, resetPresses, uiNode, measure, type ArtButtonHandle, type ButtonOptions } from './PopupKit';
 import { toolArt, type ToolArtSource } from './CommonPanels';
 import { ResultChest3D } from '../ResultChest3D';
+import { BoardArt } from './BoardArt';
 import { reducedMotion } from './UiPrefs';
 /** Board-only panels (c-popups compose.py / compose2.py): pause (layout frozen by PM, only the lite frame and width 680
  *  changed), restart confirmation and the four result pages. */
@@ -54,10 +55,9 @@ const TITLES: Record<ResultKind, [string, string]> = { win: ['过关啦', 'popup
 function resultSummary(m: ResultModel): string {
   if (m.kind !== 'win') return '';
   const parts: string[] = [];
-  if (m.movesUsed !== null) parts.push(m.movesUsed + ' 步');
-  if (m.movesLeft !== null) parts.push('剩 ' + m.movesLeft + ' 步');
-  parts.push('已保存');
-  if (m.unlockHint) parts.push(m.unlockHint);
+  // v2 spec: "用了 6 步 · 剩余 22 步"; no 成绩已保存; the unlock hint is its own line shown once the chest is open.
+  if (m.movesUsed !== null) parts.push('用了 ' + m.movesUsed + ' 步');
+  if (m.movesLeft !== null) parts.push('剩余 ' + m.movesLeft + ' 步');
   return parts.join(' · ');
 }
 export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSource | null): PopupPanel {
@@ -94,12 +94,21 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     const ready = m.rewards.filter(r => r.state === 'ready' && r.claim);
     if (ready.length) {
       let spent = false;
-      const handle = p.button('primary', '全部领取', 0, y, 220, 56, () => {
+      // Funning 2026-10-16: no 「全部领取」 button. The chest itself is the tap target (an invisible hit area over it,
+      // guided by the pulsing light); one tap claims every ready reward once, later taps are ignored.
+      const handle = p.button('primary', '', 0, y, 220, 56, () => {
         if (spent) return;
         spent = true; handle.setEnabled(false); handle.node.active = false;
+        (p as any).resultChestTapped?.();
+        try { (globalThis as any).wx?.vibrateShort?.({ type: 'light' }); } catch { }
         for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); }
-      }, { fontSize: 26, name: 'ClaimAll' });
+      }, { name: 'ResultChestTap' });
+      (p as any).resultClaimAll = () => { if (!spent && isValid(handle.node, true)) { spent = true; handle.setEnabled(false); handle.node.active = false; for (let i = 0; i < ready.length; i++) { const claim = ready[i].claim; if (claim) claim(); } } };
     }
+    // Spec v2 (provisional): leaving before opening claims everything first, no confirmation popup.
+    const claimFirst = (go: () => void) => () => { (p as any).resultClaimAll?.(); go(); };
+    if (m.next) m = { ...m, next: claimFirst(m.next) };
+    const home0 = m.home; m = { ...m, home: claimFirst(home0) };
     if (m.next) { button('primary', m.nextUnavailable ? '草原待就绪' : '下一关', y - 24, 480, 104, m.next, { fontSize: 36, name: 'Next' }).setEnabled(!m.nextUnavailable); button('secondary', '回小岛', y + 96, 320, 88, m.home, { icon: 'popup/icon_home', fontSize: 30, name: 'Home', sound: 'back' }); }
     else button('primary', '回小岛', y - 24, 480, 104, m.home, { icon: 'popup/icon_home', fontSize: 36, name: 'Home', sound: 'back' });
   } else if (m.kind === 'lose') {
@@ -243,26 +252,81 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     if (target === page) return;
     resetPresses(p.root); page = target; showPage();
   }
-  let compactViewport = false, shortPhone = false;
+  let compactViewport = false, shortPhone = false, specCompact = false;
   let chestRig: ResultChest3D | null = null;
-  let raysNode: Node | null = null;
+  let raysNode: Node | null = null, haloNode: Node | null = null;
+  let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
+  let chestPose: { node: Node; flat: Node | null; y: number; rigY: number; w: number; h: number } | null = null;
+  let guideT = 0, riseT = 0, flatScale = { x: 1, y: 1 };
+  // Pulsing light guide on a ready chest; floating rewards rise out of the open chest, then bob gently.
+  const baseUpdate = p.update.bind(p);
+  p.update = (dt: number) => {
+    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d);
+    const still = reducedMotion(), wave = Math.sin(guideT * 2 * Math.PI / GUIDE_PERIOD);
+    if (guideDiag.pulsing && !still) {
+      const sine = 0.5 - 0.5 * Math.cos(guideT * 2 * Math.PI / GUIDE_PERIOD); // sineInOut 0→1→0
+      if (haloNode && isValid(haloNode, true)) { const hk = 0.95 + 0.1 * sine; haloNode.setScale(hk, hk, 1); const o = haloNode.getComponent(UIOpacity) || haloNode.addComponent(UIOpacity); o.opacity = Math.round(255 * (0.7 + 0.3 * sine)); }
+      if (hintLabel && isValid(hintLabel.node, true)) { const o = hintLabel.node.getComponent(UIOpacity) || hintLabel.node.addComponent(UIOpacity); o.opacity = Math.round(255 * (0.55 + 0.45 * sine)); }
+      if (chestPose) {
+        const c = 1 + 0.04 * sine;
+        // hop: after 3 s idle, every 2.4 s, 420 ms: up 8 (quadOut) then bounceOut down, ±3° wobble.
+        const idle = guideT - 3, ph = idle >= 0 ? idle % 2.4 : 9, hop = ph < 0.21 ? 1 - Math.pow(1 - ph / 0.21, 2) : ph < 0.42 ? 1 - bounceOut((ph - 0.21) / 0.21) : 0, rot = ph < 0.42 ? 3 * Math.sin(ph / 0.42 * 2 * Math.PI) : 0;
+        const rig = chestPose.node, flat = chestPose.flat;
+        if (isValid(rig, true)) { rig.setPosition(0, chestPose.rigY + 8 * hop, 0); rig.setScale(c, c, 1); rig.setRotationFromEuler(0, 0, rot); }
+        if (flat && isValid(flat, true)) { flat.setPosition(0, chestPose.y + 8 * hop, 0); flat.setScale(flatScale.x * c, flatScale.y * c, 1); flat.setRotationFromEuler(0, 0, rot); }
+      }
+    }
+    if (raysNode && isValid(raysNode, true) && raysNode.active && !still) raysNode.setRotationFromEuler(0, 0, -riseT * 18); // 20 s per turn
+    for (const f of floatNodes) {
+      if (!isValid(f.node, true)) continue;
+      const k = still ? 1 : Math.max(0, Math.min(1, (riseT - f.phase) / 0.42)), e = backOut(k, 1.4), bob = still || k < 1 ? 0 : 3 * Math.sin((riseT - f.phase - 0.42) * Math.PI);
+      const sc = 0.3 + 0.7 * e;
+      // The plate + icon scale 0.3 → 1; the name keeps its readable 16-unit size throughout.
+      for (const c of f.node.children) { if (c.getComponent(Label)) continue; const b = (c as any).__floatBase || ((c as any).__floatBase = { x: c.scale.x, y: c.scale.y }); c.setScale(b.x * sc, b.y * sc, 1); }
+      f.node.setPosition(f.x * Math.min(1, e), f.fromY + (f.y - f.fromY) * e + bob, 0); const o = f.node.getComponent(UIOpacity) || f.node.addComponent(UIOpacity); o.opacity = Math.round(255 * Math.min(1, k * 2));
+    }
+  };
+  (p as any).resultChestTapped = () => { guideDiag.pulsing = false; chestTappedAt = Date.now(); chestRig?.open(true); };
   const prevDestroy = p.destroy.bind(p);
   p.destroy = () => { chestRig?.dispose(); chestRig = null; prevDestroy(); };
   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
   // Chest hero: 240 × 216 when the page has room, never under 96 × 86 (the 3D render keeps its aspect).
-  const CHEST_W = 240, CHEST_H = 216, RAY = 240, CHEST_MIN_H = 86;
+  // Spec v2: chest 168 × 130 (compact 120 × 93), halo / hit area 220 (compact 160), rays 280 only once open.
+  const CHEST_FRAME = { width: 0.6, offsetY: 0.155 }, LID_REACH = 0.53;
+  // SPEC v2.1: chest shown 180 wide closed / 176 open (compact 120), hit area 220 (compact 160), glow r120 closed / r150 open
+  // (compact r80), rays 300 centred 48 above the chest, only once open. 2D fallback art aspect: closed 380×329, open 380×412.
+  const CHEST_W = 180, CHEST_H = 156, CHEST_W_C = 120, CHEST_H_C = 104, HALO = 220, HALO_C = 160, RAY = 300, CHEST_MIN_H = 72;
+  const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 412 / 380, GLOW_R = 120, GLOW_R_OPEN = 150, GLOW_R_C = 80, RAY_LIFT = 48;
   // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
-  const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 5;
-  // Region items are icon cards (icon above, name below) in one centred row under the chest.
-  const CARD_W = 120, CARD_H = 120, CARD_H_DENSE = 96, CARD_GAP = 12, CARD_SHADOW = 4;
-  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW }, card: { width: CARD_W, height: CARD_H, shadow: CARD_SHADOW } });
+  const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 6, GUIDE_PERIOD = 1.6;
+  // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
+  // FLOAT_PLATE: the mockup's flat cream plate behind each reward; off (keep the game's art), one switch for the redesign.
+  const FLOAT_PLATE = true; // SPEC v2.1 RewardBadge (existing icon on a cream round badge)
+  const FLOAT_ICON = 68, FLOAT_ICON_DENSE = 56, FLOAT_NAME = 22, FLOAT_GAP = 28, FLOAT_STEP = 76, FLOAT_STEP_MANY = 64;
+  // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
+  const ACTION_SIDE = 26, ACTION_SIDE_TIGHT = 12, ACTION_GAP = 16, ACTION_BOTTOM = 24, ACTION_H_C = 52;
+  (p as any).resultDiagnostics = () => ({ chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
+  let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
+  let hintLabel: Label | null = null;
   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
-  const heroHeightFor = (inner: number, _r: ResultReward) => Math.min(inner, Math.max(RAY, CHEST_H)) + (anyReady() ? 64 : 0);
+  const hasChest = () => m.rewards.some(isChest);
+  /** Items float over the chest once it is open (or on their own when there is no chest). */
+  const floating = () => sideRewards().filter(r => !hasChest() || m.rewards.some(c => isChest(c) && c.state === 'claimed') || r.state === 'claimed');
+  const floatBand = (dense: boolean) => floating().length ? (dense ? FLOAT_ICON_DENSE : FLOAT_ICON) + FLOAT_NAME + 12 : 0;
+  const chestOpened = () => m.rewards.some(c => isChest(c) && c.state === 'claimed');
+  const chestReady = () => m.rewards.some(c => isChest(c) && c.state === 'ready' && !!c.claim);
+  const heroHeightFor = (inner: number, r: ResultReward) => {
+    const halo = Math.min(inner, specCompact ? HALO_C : HALO), cw = specCompact ? CHEST_W_C : CHEST_W;
+    // Size the panel for the open state in both states, so it does not jump when the chest opens (SPEC: one panel size).
+    const band = sideRewards().length && r.state !== 'locked' ? (specCompact ? FLOAT_ICON_DENSE : FLOAT_ICON) + FLOAT_NAME + 12 : 0;
+    if (!band) return halo;
+    return specCompact ? halo + Math.round(band * 0.6) : halo + band + Math.max(0, Math.round(LID_REACH * cw / CHEST_FRAME.width - halo / 2));
+  };
   const sideRewards = () => m.rewards.filter(r => !isChest(r));
   // Measure the same content used by reflow. Tall phones no longer turn a short
   // result into a near-full-screen panel with a vertically centred empty area.
   const naturalHeight = (w: number) => {
-    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, heights: number[] = [];
+    const roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, heights: number[] = [];
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
@@ -270,10 +334,10 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
-    const side = sideRewards(), cardH = shortPhone ? CARD_H_DENSE : CARD_H;
-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { if (!(r.state === 'ready' && anyReady())) lines(r.label, 16); heights.push(heroHeightFor(inner, r)); } }
-    if (side.length) heights.push(cardH);
-    if (anyReady() && !m.rewards.some(isChest)) heights.push(56);
+    const side = sideRewards();
+    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { if (r.state === 'locked') lines(r.label, 16); heights.push(heroHeightFor(inner, r)); if (r.state === 'ready' && r.claim) heights.push(20); } }
+    if (m.kind === 'win' && m.unlockHint && !anyReady()) lines(m.unlockHint, 16);
+    if (side.length && !hasChest()) heights.push(floatBand(shortPhone) + 24);
     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
   };
   p.setLayoutStrategy((width, height, safeInsets) => {
@@ -282,9 +346,10 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // Reserve the capsule's whole top band: the result title and pager never
     // overlap the system menu even when its horizontal position is asymmetric.
     const top = Math.max(number(safeInsets?.top), number(safeInsets?.capsule?.bottom));
-    const w = Math.min(680, Math.max(1, width - left - right - 24));
+    // Spec v2: 350-wide panel on a 390 screen (20 each side); narrower screens keep a 12-unit inset.
+    const w = Math.min(350, Math.max(1, width - left - right - (width - left - right >= 360 ? 40 : 24)));
     const maxHeight = Math.max(1, height - top - bottom - 24);
-    shortPhone = height <= 700 && width >= 360 && width < height;
+    shortPhone = height <= 700 && width >= 360 && width < height; specCompact = height <= 700;
     compactViewport = maxHeight < 400 || shortPhone; rowGap = compactViewport ? 1 : 6;
     const h = Math.min(maxHeight, naturalHeight(w));
     return { width: w, height: h, scale: 1, titleY: h / 2 - 23, offsetX: (left - right) / 2, offsetY: (bottom - top) / 2 };
@@ -293,7 +358,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     // Opening animation must not rebuild the pages or reset a held finger.
     if (layoutKey === key) return; layoutKey = key;
     resetPresses(p.root);
-    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 80 : 68, dense = compactViewport;
+    const w = geometry.width, h = geometry.height, roomy = w >= 320, inner = w - (roomy ? 48 : 16), reserve = roomy ? 92 : 68, dense = compactViewport;
     // 216 × 196 safe rectangle, less the 12-unit frame margin on each side.
     const supported = w >= 192 && h >= 172;
     p.body.getChildByName('TitlePlank')!.active = supported;
@@ -303,7 +368,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       for (let i = 0; i < n.children.length; i++) { const f = walkNamed(n.children[i], name); if (f) return f; }
       return null;
     };
-    const claimAll = walkNamed(p.root, 'ClaimAll');
+    const claimAll = walkNamed(p.root, 'ResultChestTap');
     spaceNotice.node.active = !supported; readableTitle.node.active = false;
     if (!supported) {
       if (claimAll) claimAll.active = false;
@@ -344,10 +409,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     counter.node.setPosition(0, h / 2 - 46, 0); counter.node.getComponent(UITransform)!.setContentSize(titleWidth, 20);
     for (const [b, x] of [[previous, -w / 2 + 24], [next, w / 2 - 24]] as const) { layoutButton(b.node, 48); b.node.setPosition(x, h / 2 - 28, 0); }
     for (let i = 0; i < actions.length; i++) {
-      const a = actions[i], width = actions.length === 1 ? Math.min(320, inner) : (inner - 8) / 2;
-      const x = actions.length === 1 ? 0 : (i - 0.5) * (width + 8);
-      layoutButton(a.handle.node, width, undefined, ACTION_H, ACTION_ART); actionShadow(a.handle.node, width, ACTION_H);
-      a.handle.node.setPosition(x, -h / 2 + (roomy ? 48 : 38), 0);
+      const side = roomy ? ACTION_SIDE : ACTION_SIDE_TIGHT, span = Math.max(1, w - 2 * side);
+      const a = actions[i], width = actions.length === 1 ? Math.min(240, span) : (span - ACTION_GAP) / 2;
+      const x = actions.length === 1 ? 0 : (i - 0.5) * (width + ACTION_GAP);
+      const bh = specCompact ? ACTION_H_C : ACTION_H;
+      layoutButton(a.handle.node, width, undefined, bh, ACTION_ART); actionShadow(a.handle.node, width, bh);
+      a.handle.node.setPosition(x, -h / 2 + (roomy ? ACTION_BOTTOM : 12) + bh / 2, 0);
     }
     const stars = groups.ResultStars.node;
     if (m.kind !== 'lose' && dense && !shortPhone && textWidth(scoreText, 20) <= inner - 100) {
@@ -355,7 +422,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       add(row, scoreLabel.node, 50); scoreLabel.fontSize = 20; scoreLabel.lineHeight = 28;
       scoreLabel.node.getComponent(UITransform)!.setContentSize(inner - 100, 28); rows.push(row);
     } else {
-      const starH = shortPhone ? 44 : dense ? 44 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : tight ? 0.2 : snug ? 0.24 : 0.32;
+      const starH = shortPhone ? 44 : dense ? 44 : specCompact ? 50 : tight ? 56 : snug ? 64 : 88, starS = shortPhone ? 0.248 : dense ? 0.14 : specCompact ? 0.19 : tight ? 0.2 : snug ? 0.24 : 0.32;
       const row = getRow('stars', starH); stars.setScale(starS, starS, 1); add(row, stars, 0, shortPhone || dense ? -4 : -12); rows.push(row);
       scoreLabel.node.active = false;
       if (m.kind === 'lose') labelRows('ResultMessage', scoreText, 16);
@@ -392,20 +459,6 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       }
     } else labelRows('ResultNotice', m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16, 'brown2');
     if (m.chestHint && m.kind !== 'win') labelRows('ResultChestHint', m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16, 'brown2');
-    let sideIndex = 0, claimPlaced = false;
-    const sideCount = m.rewards.filter(r => !isChest(r)).length;
-    const sideRowH = Math.max(1, Math.min(dense || tight ? CARD_H_DENSE : CARD_H, available));
-    // 56 is the settled claim control. A short page keeps it inside the content band
-    // (4 units of slack sit above the action buttons) and never under 44.
-    const claimFit = available >= 44 ? Math.min(56, available) : (available >= 40 ? 44 : Math.max(1, available));
-    const placeClaim = (row: Row, y: number, height = 56) => {
-      if (!claimAll || claimPlaced || !anyReady()) return;
-      const bw = Math.min(220, inner);
-      layoutButton(claimAll, bw, '全部领取', height);
-      const face = claimAll.getChildByName('Face')!, l = face.getChildByName('Label')!.getComponent(Label)!;
-      l.string = '全部领取'; l.node.setPosition(0, 0, 0); l.node.getComponent(UITransform)!.setContentSize(buttonTextWidth(bw), 40);
-      add(row, claimAll, 0, y); claimPlaced = true;
-    };
     const fitBox = (n: Node, boxW: number, boxH: number) => {
       const v = original.get(n), ui = n.getComponent(UITransform)!;
       const ow = Math.max(1, v ? v.width * Math.abs(v.sx) : ui.width * Math.abs(n.scale.x));
@@ -413,87 +466,140 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       const sx = v?.sx ?? 1, sy = v?.sy ?? 1;
       n.setScale(sx * (boxW / ow), sy * (boxH / oh), 1);
     };
+    /** The chest (or, with no chest, the floating items) is the claim: an invisible hit area, no button art. */
+    const placeTap = (row: Row, y: number, tw: number, th: number) => {
+      if (!claimAll || !anyReady()) return;
+      const face = claimAll.getChildByName('Face')!;
+      for (const c of face.children) c.active = false;
+      claimAll.getComponent(UITransform)!.setContentSize(tw, th); face.getComponent(UITransform)!.setContentSize(tw, th);
+      add(row, claimAll, 0, y); claimAll.setSiblingIndex(row.node.children.length - 1);
+    };
+    if (claimAll && !anyReady()) claimAll.active = false;
+    const floatIcon = dense || specCompact ? FLOAT_ICON_DENSE : FLOAT_ICON;
+    floatNodes = []; floatDiag.length = 0;
+    /** Reward items hovering in a centred row: icon above, name under it. */
+    const placeFloating = (row: Row, baseY: number, mouthY = baseY - 40, fit = Infinity) => {
+      const list = floating(); if (!list.length) return;
+      const colW = Math.min(inner / list.length, list.length > 4 ? FLOAT_STEP_MANY : FLOAT_STEP); const icon = Math.max(16, Math.min(list.length > 4 ? 56 : floatIcon, fit - FLOAT_NAME - 12));
+      list.forEach((r, k) => {
+        const i = m.rewards.indexOf(r), x = (k - (list.length - 1) / 2) * colW;
+        let holder = row.node.getChildByName('ResultFloat-' + i);
+        const hh = icon + FLOAT_NAME + 12, iconY = hh / 2 - icon / 2;
+        if (!holder) holder = uiNode('ResultFloat-' + i, row.node, colW, hh);
+        holder.getComponent(UITransform)!.setContentSize(colW, hh); add(row, holder, x, baseY);
+        // Plate: 64 × 64 r20 #FFF8E6, 4-unit base #E2C58C, 18-unit outer glow #FFDC78 α90% (not dimmed at night).
+        let plate = holder.getChildByName('ResultFloatPlate');
+        if (!plate) {
+          plate = uiNode('ResultFloatPlate', holder, icon, icon); const pn = plate;
+          pn.addComponent(Graphics); (pn as any).__draw = () => {
+            const g = pn.getComponent(Graphics)!, ui = pn.getComponent(UITransform)!, s2 = ui.width / 2; g.clear();
+            // RewardBadge: glow r46 #FFE28C α78% → 6pt base #C4A06C (night #A0805C) → outer #FFF8E4 → inner #FAECCC Ø60/68.
+            const night = !!(pn as any).__night, k2 = s2 / 34;
+            for (let k = 0; k < 8; k++) { const r = 46 * k2 * (1 - k / 8) + s2 * (k / 8); g.fillColor = new Color(0xFF, 0xE2, 0x8C, Math.round(199 / 8 * (0.4 + k / 8))); g.circle(0, 0, r); g.fill(); }
+            g.fillColor = night ? new Color(0xA0, 0x80, 0x5C, 255) : new Color(0xC4, 0xA0, 0x6C, 255); g.circle(0, -6 * k2, s2); g.fill();
+            g.fillColor = new Color(0xFF, 0xF8, 0xE4, 255); g.circle(0, 0, s2); g.fill();
+            g.fillColor = new Color(0xFA, 0xEC, 0xCC, 255); g.circle(0, 0, s2 * 60 / 68); g.fill();
+          };
+        }
+        delete (plate as any).__floatBase; plate.setScale(1, 1, 1); plate.getComponent(UITransform)!.setContentSize(icon, icon); plate.setPosition(0, iconY, 0); (plate as any).__night = isNight(); (plate as any).__draw(); plate.active = FLOAT_PLATE;
+        // Art style stays the game's own: the existing reward icon with the existing fx_rays glow behind it.
+        let glow = holder.getChildByName('ResultFloatGlow');
+        if (!glow) { glow = p.sprite('popup/fx_rays', 0, 0, icon * 1.6, icon * 1.6, 'half').node; glow.name = 'ResultFloatGlow'; holder.addChild(glow); glow.setSiblingIndex(0); }
+        glow.getComponent(UITransform)!.setContentSize(icon * 1.6, icon * 1.6); glow.setPosition(0, iconY, 0); glow.active = !FLOAT_PLATE && r.state !== 'locked';
+        for (const n of rewardIcons[i]) {
+          if (n.name === 'stamp_claimed') { n.active = false; continue; }
+          delete (n as any).__floatBase; fitArt(n, FLOAT_PLATE ? icon * 54 / 68 : icon, FLOAT_PLATE ? icon * 54 / 68 : icon); holder.addChild(n); n.active = true; n.setPosition(0, iconY, 0);
+        }
+        let l = holder.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
+        if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown', { name: 'ResultRewardState-' + i, parent: holder });
+        const fits = textWidth(r.label, 16) <= colW - 4;
+        l.string = fits ? r.label : (r.state === 'locked' ? '未解锁' : '道具'); l.fontSize = 16; l.lineHeight = FLOAT_NAME;
+        l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
+        l.node.getComponent(UITransform)!.setContentSize(colW - 4, FLOAT_NAME); l.node.setPosition(0, -hh / 2 + FLOAT_NAME / 2, 0);
+        if (!fits) labelRows('ResultRewardLabel-' + i, r.label, 16, 'brown2');
+        holder.setSiblingIndex(row.node.children.length - 1); floatNodes.push({ node: holder, x, y: baseY, phase: k * 0.09, fromY: mouthY }); floatDiag.push({ name: r.label, x, y: baseY, icon });
+      });
+    };
     for (let i = 0; i < rewards.length; i++) {
-      const r = m.rewards[i], g = rewards[i], claim = g.original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
-      if (isChest(r)) {
-        const claimH = anyReady() && claimAll ? 56 : 0, gap = claimH ? 8 : 0;
-        // Fit the hero into what this page has left after the rows above, its label, the claim and the card row.
-        const usedAbove = rows.reduce((sum, row) => sum + row.height + rowGap, 0);
-        const chestLabelInClaim = claimH > 0 && r.state === 'ready';
-        const room = available - usedAbove - (chestLabelInClaim ? 0 : 22 + rowGap) - (claimH ? claimH + gap : 0) - (sideCount ? sideRowH + rowGap : 0);
-        let chestH = Math.max(CHEST_MIN_H, Math.min(CHEST_H, room, inner * CHEST_H / CHEST_W)), chestW = chestH * CHEST_W / CHEST_H;
-        let raySize = Math.min(inner, chestH * RAY / CHEST_H, Math.max(chestH, room)), body = Math.max(raySize, chestH);
-        let rowH = body + gap + claimH, claimInRow = claimH > 0;
-        const budget = Math.max(1, available);
-        if (rowH > budget) {
-          const chrome = gap + claimH, room = budget - chrome;
-          if (room >= 48) { body = room; raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body + chrome; }
-          else { claimInRow = false; body = Math.min(body, budget); raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body; }
-        }
-        const row = getRow('reward-chest', rowH), chestY = rowH / 2 - body / 2, art = rewardIcons[i];
-        const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
-        if (!chestLabelInClaim) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
-        if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
-        else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
-        add(row, raysNode, 0, chestY);
-        if (flat) { flat.name = 'ResultChestArt'; fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); if (chestRig?.ready) flat.active = false; }
-        for (let j = 0; j < art.length; j++) { const n = art[j]; if (n === flat) continue; fitArt(n, 24, 24); add(row, n, chestW * 0.28, chestY - chestH * 0.28); }
-        if (claimInRow) placeClaim(row, -rowH / 2 + claimH / 2, claimH);
-        if (!chestRig) {
-          chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
-          // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
-          if (r.state === 'claimed') chestRig.open(false);
-          const shown = flat;
-          void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
-        } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
-        chestRig.node.setPosition(0, chestY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(chestW, chestH);
-        rows.push(row);
-        if (!claimInRow && claimH) {
-          const buttonRow = getRow('reward-chest-claim', claimFit);
-          placeClaim(buttonRow, 0, claimFit); rows.push(buttonRow);
-        }
-        continue;
+      const r = m.rewards[i], claim = rewards[i].original.map(v => v.node).find(n => n.name === 'Claim-' + r.id);
+      if (claim) claim.active = false; // the chest is the one claim on this page
+      if (!isChest(r)) continue;
+      let band = floatBand(dense || specCompact), split = false;
+      const usedAbove = rows.reduce((sum, row) => sum + row.height + rowGap, 0);
+      const labelled = r.state === 'locked';
+      const cwS = specCompact ? CHEST_W_C : CHEST_W, haloS = specCompact ? HALO_C : HALO;
+      // Closed: rewards would hover over the halo's top edge. Open: they must clear the raised lid, which reaches 53% of the
+      // square chest frame above the chest centre (result_chest.glb at −118°), so the band starts above it.
+      let lap = !band ? 0 : r.state === 'claimed' && !specCompact ? -Math.max(0, Math.round(LID_REACH * cwS / CHEST_FRAME.width - haloS / 2)) : Math.round(band * 0.4);
+      const after = (r.state === 'ready' && anyReady() ? 20 + rowGap : 0) + (m.unlockHint && !anyReady() ? Math.ceil(16 * 1.35) + rowGap : 0);
+      const room = available - usedAbove - (labelled ? 22 + rowGap : 0) - (band - lap) - after;
+      const cw0 = specCompact ? CHEST_W_C : CHEST_W, ch0 = specCompact ? CHEST_H_C : CHEST_H, halo = specCompact ? HALO_C : HALO;
+      let chestH = Math.max(Math.min(CHEST_MIN_H, ch0), Math.min(ch0, room * ch0 / halo, inner * ch0 / cw0)), chestW = chestH * cw0 / ch0;
+      let raySize = Math.min(inner, Math.max(chestH, room), chestH * RAY / ch0), body = Math.min(Math.max(chestH, room), chestH * halo / ch0, inner);
+      let rowH = body + band - lap;
+      const budget = Math.max(1, available);
+      if (rowH > budget && band && budget - band < Math.min(CHEST_MIN_H, ch0)) { split = true; rowH -= band - lap; band = 0; lap = 0; }
+      if (rowH > budget) { body = Math.max(1, budget - band + lap); raySize = Math.min(raySize, body); chestH = Math.min(chestH, body); chestW = Math.min(chestW, body); rowH = body + band - lap; }
+      if (labelled) labelRows('ResultRewardLabel-' + i, r.label, 16, 'grey');
+      const row = getRow('reward-chest', rowH), chestY = -rowH / 2 + body / 2, art = rewardIcons[i], opened = r.state === 'claimed';
+      const flat = art.find(n => n.name !== 'stamp_claimed') || art[0];
+      // Warm halo under the chest: the light that invites the tap (pulses while the chest is ready).
+      // Glow: closed r120 #FFDE8C α82% (night α94%), open r150 #FFD678 α90%. Not night-tinted: at night the chest is the focus.
+      if (!haloNode || !isValid(haloNode, true)) {
+        haloNode = uiNode('ResultChestHalo', row.node, chestW, chestH); const hn = haloNode; hn.addComponent(Graphics);
+        (hn as any).__draw = (open: boolean, night: boolean) => {
+          const g = hn.getComponent(Graphics)!, r0 = hn.getComponent(UITransform)!.width / 2, c = open ? [0xFF, 0xD6, 0x78] : [0xFF, 0xDE, 0x8C], a0 = open ? 0.9 : night ? 0.94 : 0.82; g.clear();
+          for (let k = 0; k < 16; k++) { const f = 1 - k / 16; g.fillColor = new Color(c[0], c[1], c[2], Math.round(255 * a0 * (k === 0 ? 0.06 : 0.11) * (0.35 + 0.65 * (1 - f)))); g.circle(0, 0, r0 * f); g.fill(); }
+        };
       }
-      // Icon card: chest-style rays + icon on top, name underneath, cream well with a 4-unit drop shadow.
-      const sideAt = sideIndex++, cardW = Math.min(CARD_W, (inner - CARD_GAP * (sideCount - 1)) / sideCount), cardH = sideRowH;
-      const columnX = (sideAt - (sideCount - 1) / 2) * (cardW + CARD_GAP);
-      const row = getRow('reward-cards', cardH);
-      if (claim) claim.active = false; // 「全部领取」 is the one claim on this page.
-      let card = row.node.getChildByName('ResultRewardCard-' + i);
-      if (!card) {
-        card = uiNode('ResultRewardCard-' + i, row.node, cardW, cardH);
-        const cardNode = card;
-        p.tint.shape(card.addComponent(Graphics), (g, night, alpha) => {
-          const ui = cardNode.getComponent(UITransform)!, k = 1 - .4 * night;
-          g.fillColor = new Color(Math.round(246 * k), Math.round(236 * k), Math.round(210 * k), Math.round(255 * alpha));
-          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.fill();
-          g.strokeColor = new Color(Math.round(196 * k), Math.round(166 * k), Math.round(120 * k), Math.round(255 * alpha)); g.lineWidth = 2;
-          g.roundRect(-ui.width / 2, -ui.height / 2, ui.width, ui.height, 16); g.stroke();
-        });
+      const sk = chestW / (specCompact ? CHEST_W_C : CHEST_W), glowD = 2 * (specCompact ? GLOW_R_C : opened ? GLOW_R_OPEN : GLOW_R) * sk;
+      haloNode.getComponent(UITransform)!.setContentSize(glowD, glowD); add(row, haloNode, 0, chestY); (haloNode as any).__draw(opened, isNight());
+      // FloorShadow 140 × 20 #5A3A1E α25% under the chest.
+      let floor = row.node.getChildByName('ResultChestFloor');
+      if (!floor) { floor = uiNode('ResultChestFloor', row.node, 140, 20); const g = floor.addComponent(Graphics); g.fillColor = new Color(0x50, 0x32, 0x1A, 89); g.ellipse(0, 0, 70, 10); g.fill(); }
+      floor.setScale(chestW / CHEST_W, chestW / CHEST_W, 1); add(row, floor, 0, chestY - chestH / 2 + 4);
+      if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
+      else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
+      const rs = Math.min(RAY * sk, inner, rowH); raysNode.getComponent(UITransform)!.setContentSize(rs, rs); add(row, raysNode, 0, Math.max(-rowH / 2 + rs / 2, Math.min(chestY + RAY_LIFT * sk, rowH / 2 - rs / 2))); raysNode.active = opened; // rays only once open
+      if (flat) {
+        flat.name = 'ResultChestArt';
+        // 2D fallback: popup/chest_open once claimed (bottom-aligned with the closed art), popup/chest_closed before.
+        const openFrame = opened ? BoardArt.shared().frame('popup/chest_open') : null, sp = flat.getComponent(Sprite);
+        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, 0, chestY - chestH / 2 + oh / 2); }
+        else { fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); }
+        if (chestRig?.ready) flat.active = false;
       }
-      card.getComponent(UITransform)!.setContentSize(cardW, cardH); add(row, card, columnX);
-      dropShadow(row.node, 'ResultRewardCardShadow-' + i, cardW, cardH, CARD_SHADOW, 16).setPosition(columnX, 0, 0);
-      const nameH = 22, iconBox = Math.max(32, Math.min(cardW - 24, cardH - nameH - 20)), iconY = cardH / 2 - 8 - iconBox / 2;
-      let rays = card.getChildByName('ResultRewardCardRays');
-      if (!rays) { rays = p.sprite('popup/fx_rays', 0, 0, iconBox * 1.3, iconBox * 1.3, 'half').node; rays.name = 'ResultRewardCardRays'; card.addChild(rays); }
-      rays.getComponent(UITransform)!.setContentSize(iconBox * 1.3, iconBox * 1.3); rays.setPosition(0, iconY, 0); rays.active = r.state !== 'locked';
-      let l = card.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
-      if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown2', { name: 'ResultRewardState-' + i, parent: card });
-      const fits = textWidth(r.label, 16) <= cardW - 8;
-      if (!fits) labelRows('ResultRewardLabel-' + i, r.label, 16, r.state === 'locked' ? 'grey' : 'brown2');
-      l.string = fits ? r.label : (r.state === 'claimed' ? '已领取' : r.state === 'locked' ? '未解锁' : '道具'); l.fontSize = 16; l.lineHeight = nameH;
-      l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
-      l.node.getComponent(UITransform)!.setContentSize(cardW - 8, nameH); l.node.setPosition(0, -cardH / 2 + 8 + nameH / 2, 0);
-      const art = rewardIcons[i];
-      for (let j = 0; j < art.length; j++) {
-        const n = art[j], badge = n.name === 'stamp_claimed';
-        fitArt(n, badge ? 32 : iconBox, badge ? 32 : iconBox); card.addChild(n); n.active = true;
-        n.setPosition(badge ? cardW / 2 - 20 : 0, badge ? cardH / 2 - 20 : iconY, 0);
+      for (let j = 0; j < art.length; j++) { const n = art[j]; if (n !== flat) n.active = false; } // no stamp: the open lid says it
+      if (!chestRig) {
+        chestRig = new ResultChest3D(row.node, Math.max(chestW, chestH)); chestRig.node.active = false;
+        // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
+        if (r.state === 'claimed') chestRig.open(Date.now() - chestTappedAt < 3000); // just tapped: play the lid open; otherwise already open
+        const shown = flat;
+        void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
+      } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
+      // The 512² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
+      // (it fills 60% of the frame width and sits 15.5% below the frame centre, measured on result_chest.glb).
+      const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_FRAME.offsetY * frameSide;
+      chestRig.node.setPosition(0, frameY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(frameSide, frameSide);
+      chestPose = { node: chestRig.node, flat: flat || null, y: chestY, rigY: frameY, w: chestW, h: chestH }; if (flat) flatScale = { x: flat.scale.x, y: flat.scale.y };
+      guideDiag.pulsing = r.state === 'ready' && anyReady(); guideDiag.chest = { w: chestW, h: chestH, halo: body, hit: Math.max(44, body) };
+      // Items hover just above the open lid (lower edge overlaps the chest top by a quarter of the band).
+      if (!split) placeFloating(row, rowH / 2 - (floatIcon + FLOAT_NAME + 12) / 2, chestY + chestH * 0.3);
+      placeTap(row, chestY, Math.min(inner, Math.max(44, body)), Math.max(44, Math.min(rowH, body)));
+      rows.push(row);
+      if (split) { const fh = Math.max(1, Math.min(floatBand(true), available)); const fr = getRow('reward-floating', fh); placeFloating(fr, 0, 0, fh); rows.push(fr); }
+      if (r.state === 'ready' && anyReady()) {
+        const hr = getRow('chest-hint', 20); let hl = hr.node.getComponentInChildren(Label);
+        if (!hl) hl = p.text('✦ 点宝箱领取 ✦', 0, 0, 16, 'brown2', { name: 'ResultChestHint', width: inner, parent: hr.node });
+        hl.node.setPosition(0, 0, 0); hl.fontSize = 16; hl.lineHeight = 20; hl.enableWrapText = false; hl.overflow = Label.Overflow.CLAMP; hl.node.getComponent(UITransform)!.setContentSize(inner, 20);
+        hl.color = new Color(0xB0, 0x7A, 0x2A, 255); hintLabel = hl; rows.push(hr);
       }
-      if (sideAt === 0) rows.push(row);
     }
-    if (claimAll && !claimPlaced && anyReady()) { const row = getRow('claim-all', claimFit); placeClaim(row, 0, claimFit); rows.push(row); }
-    else if (claimAll && !claimPlaced) claimAll.active = false;
+    if (!hasChest() && sideRewards().length) {
+      const fh = Math.max(1, Math.min(floatBand(dense || tight) + 24, available)); const row = getRow('reward-floating', fh); placeFloating(row, 0, -20, fh);
+      placeTap(row, 0, inner, row.height); rows.push(row);
+    }
+    if (m.kind === 'win' && m.unlockHint && !anyReady()) { labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal'); }
     pages = [[]]; let used = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]; let needed = row.height;
@@ -504,6 +610,11 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     page = Math.min(page, pages.length - 1); showPage(); p.tint.update(true);
   });
 }
+/** The host repaints the result after a claim; the next (claimed) panel plays the lid opening when this is recent. */
+let chestTappedAt = -1e12;
+function isNight(): boolean { try { const m = (globalThis as any).__worldDayNight?.snapshot?.()?.mode; return typeof m === 'string' && m.includes('night'); } catch { return false; } }
+function bounceOut(t: number) { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+function backOut(t: number, s = 1.70158) { const u = t - 1; return u * u * ((s + 1) * u + s) + 1; }
 function chestLine(p: PopupPanel, y: number, text: string) {
   const s = p.sprite('popup/chest_closed', -150, y, 144, undefined, 'half'); s.grayscale = true; p.tint.setBase(s, [255, 255, 255], 153);
   p.text(text, -60, y, 28, 'brown2', { align: 'left', width: 320, bold: false });

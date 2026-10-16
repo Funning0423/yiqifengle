@@ -1,4 +1,7 @@
 'use strict';
+// v2 spec (provisional): Next/Home before opening auto-claims the ready rewards first; input-lifecycle checks compare
+// the navigation part only (test_result_screen_style asserts the auto-claim itself).
+const nav = c => c.some(x => x === 'Next' || x === 'Home') ? c.filter(x => !/^Claim-/.test(x) && x !== 'chest' && x !== 'regionReward') : c;
 /**
  * Actual BoardPanels / PopupKit TypeScript through the shipped Cocos node double.
  * This is a geometry and input/lifecycle regression gate, NOT a Cocos render,
@@ -61,7 +64,7 @@ function makeModel(spec, calls = []) {
 }
 
 function expectedActions(model) {
-  if (model.kind === 'win') return [...(model.rewards.some(r => r.state === 'ready' && r.claim) ? ['ClaimAll'] : []), ...(model.next ? ['Next'] : []), 'Home'].sort();
+  if (model.kind === 'win') return [...(model.rewards.some(r => r.state === 'ready' && r.claim) ? ['ResultChestTap'] : []), ...(model.next ? ['Next'] : []), 'Home'].sort();
   if (model.kind === 'lose') return [...(model.replay ? ['Replay'] : []), 'Home'].sort();
   if (model.kind === 'unsaved') return ['Home', 'RetrySave'];
   return ['Home'];
@@ -181,7 +184,7 @@ function revealAction(H, panel, target) {
 }
 function send(H, node, type, point = H.point(node), pointer = 1) { node.emit('touch-' + type, H.event(point, pointer)); }
 const targetCases = [
-  ['ClaimAll', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
+  ['ResultChestTap', { kind: 'win', hasNext: true, rewards: [reward('chest'), reward('gift')] }],
   ['Next', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
   ['Home', { kind: 'win', hasNext: true, rewards: [reward('chest')] }],
   ['Replay', { kind: 'lose', hasReplay: true, chestHint: true }],
@@ -189,7 +192,7 @@ const targetCases = [
 ];
 
 function fired(spec, target) {
-  if (target !== 'ClaimAll') return [target];
+  if (target !== 'ResultChestTap') return [target];
   return (spec.rewards || []).filter(r => (r.state || 'ready') === 'ready').map(r => 'Claim-' + r.id);
 }
 async function runInputChecks() {
@@ -207,33 +210,33 @@ async function runInputChecks() {
       if (mode === 'foreign-move') send(H, node, 'move', { x: -100, y: -100 }, 2);
       if (mode === 'foreign-cancel') send(H, node, 'cancel', point, 2);
       if (mode === 'second-start') { send(H, node, 'start', point, 2); send(H, node, 'end', point, 2); }
-      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(calls, []); send(H, node, 'end', point); assert.deepEqual(calls, expected); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
-      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
-      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(calls, expected); }
-      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected); }
+      if (mode.startsWith('foreign-') || mode === 'second-start') { assert.deepEqual(nav(calls), []); send(H, node, 'end', point); assert.deepEqual(nav(calls), expected); send(H, node, 'end', point); assert.deepEqual(nav(calls), expected); }
+      else if (mode === 'outside-end' || mode === 'outside-positive-end') { send(H, node, 'end', mode === 'outside-end' ? { x: -100, y: -100 } : { x: 4000, y: 4000 }); assert.deepEqual(nav(calls), []); H.tap(node); assert.deepEqual(nav(calls), expected); }
+      else if (mode === 'out-in') { send(H, node, 'move', { x: -100, y: -100 }); send(H, node, 'move', point); send(H, node, 'end', point); assert.deepEqual(nav(calls), expected); }
+      else if (mode === 'cancel-late-end') { send(H, node, 'cancel', point); send(H, node, 'end', point); assert.deepEqual(nav(calls), []); H.tap(node); assert.deepEqual(nav(calls), expected); }
       else if (mode === 'node-hide' || mode === 'ancestor-hide' || mode === 'component-disable' || mode === 'game-hide') {
         if (mode === 'node-hide') { node.active = false; node.active = true; }
         if (mode === 'ancestor-hide') { panel.body.active = false; panel.body.active = true; }
         if (mode === 'component-disable') { const guard = node.components.find(c => typeof c.reset === 'function' && typeof c.cleanup === 'function'); assert(guard); guard.enabled = false; guard.enabled = true; }
         if (mode === 'game-hide') { H.cc.game.emit(H.cc.Game.EVENT_HIDE); H.cc.game.emit(H.cc.Game.EVENT_SHOW); }
-        send(H, node, 'end', point); assert.deepEqual(calls, []); H.tap(node); assert.deepEqual(calls, expected);
+        send(H, node, 'end', point); assert.deepEqual(nav(calls), []); H.tap(node); assert.deepEqual(nav(calls), expected);
       }
-      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(calls, expected); }
+      else if (mode === 'unchanged-layout') { for (let j = 0; j < 8; j++) { stack.layout(); stack.update(.016); } send(H, node, 'end', point); assert.deepEqual(nav(calls), expected); }
       else if (mode === 'modal-cover' || mode === 'modal-cover-rotation') {
         const upper = stack.open({ name: 'CoverProbe', height: 300, title: 'Cover' });
         if (mode === 'modal-cover-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
-        send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(calls, [], 'covered result must reject old and fresh input');
-        upper.close(); stack.update(.05); H.tap(node); assert.deepEqual(calls, [], 'closing upper modal still covers result');
-        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
+        send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(nav(calls), [], 'covered result must reject old and fresh input');
+        upper.close(); stack.update(.05); H.tap(node); assert.deepEqual(nav(calls), [], 'closing upper modal still covers result');
+        settle(stack); send(H, node, 'end', H.point(node)); assert.deepEqual(nav(calls), [], 'covered gesture must not revive'); revealAction(H, panel, target); H.tap(node); assert.deepEqual(nav(calls), expected);
       }
       else if (mode === 'closing' || mode === 'closing-rotation') {
         panel.close(); if (mode === 'closing-rotation') { H.setViewport(viewport[1], viewport[0]); stack.layout(); }
-        send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(calls, []); settle(stack); assert(!panel.alive);
+        send(H, node, 'end', H.point(node)); H.tap(node); assert.deepEqual(nav(calls), []); settle(stack); assert(!panel.alive);
       }
-      else if (mode === 'destroy') { panel.destroy(); send(H, node, 'end', point); H.tap(node); assert.deepEqual(calls, []); assert.doesNotThrow(() => panel.destroy()); }
+      else if (mode === 'destroy') { panel.destroy(); send(H, node, 'end', point); H.tap(node); assert.deepEqual(nav(calls), []); assert.doesNotThrow(() => panel.destroy()); }
       else if (mode === 'teardown-after-reflow') {
         H.setViewport(480, 240); stack.layout(); send(H, node, 'start', H.point(node), 3); stack.clear();
-        send(H, node, 'end', point, 1); send(H, node, 'end', point, 3); assert.deepEqual(calls, []); assert.doesNotThrow(() => stack.clear()); assert.doesNotThrow(() => H.cc.game.emit(H.cc.Game.EVENT_HIDE));
+        send(H, node, 'end', point, 1); send(H, node, 'end', point, 3); assert.deepEqual(nav(calls), []); assert.doesNotThrow(() => stack.clear()); assert.doesNotThrow(() => H.cc.game.emit(H.cc.Game.EVENT_HIDE));
       }
     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0, 'lifecycle listener leak'); }
     return { callbackCount: calls.length };
@@ -248,11 +251,11 @@ async function runInputChecks() {
       H.setViewport(...pair[1]); stack.layout(); stack.update(.016);
       snapshot(H, panel, { ...meta, phase: 'rotation-after' }, makeModel(spec));
       assert.equal(stack.find('ResultPanel'), panel); assert.equal(panel.root, root); assert.equal(panel.body, body); assert.equal(panel.root.find(target), node, 'reflow retains real action identity');
-      send(H, node, 'end', H.point(node)); assert.deepEqual(calls, [], 'pre-reflow owned press must not activate at the new hit center');
-      send(H, node, 'end', point); assert.deepEqual(calls, [], 'old-coordinate late END must not activate');
-      revealAction(H, panel, target); H.tap(node); assert.deepEqual(calls, expected);
-      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(calls, expected);
-      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(calls, target === 'ClaimAll' ? expected : expected.concat(expected), target === 'ClaimAll' ? '全部领取 is one-shot: a later tap claims nothing' : undefined);
+      send(H, node, 'end', H.point(node)); assert.deepEqual(nav(calls), [], 'pre-reflow owned press must not activate at the new hit center');
+      send(H, node, 'end', point); assert.deepEqual(nav(calls), [], 'old-coordinate late END must not activate');
+      revealAction(H, panel, target); H.tap(node); assert.deepEqual(nav(calls), expected);
+      send(H, node, 'start', H.point(node), 4); H.setViewport(...pair[0]); stack.layout(); send(H, node, 'end', H.point(node), 4); assert.deepEqual(nav(calls), expected);
+      revealAction(H, panel, target); H.tap(node, 5); assert.deepEqual(nav(calls), target === 'ResultChestTap' ? expected : expected.concat(expected), target === 'ResultChestTap' ? '全部领取 is one-shot: a later tap claims nothing' : undefined);
     } finally { stack.clear(); assert.equal(H.cc.game.listeners('hide'), 0); }
   });
   for (const [target, spec] of targetCases) await check(`${target} child-first null-field teardown after reflow`, () => {
@@ -268,7 +271,7 @@ async function runInputChecks() {
     try {
       assert.doesNotThrow(() => panel.root.destroy()); assert.doesNotThrow(() => panel.destroy()); assert.doesNotThrow(() => panel.destroy());
       for (const [fn, context] of endCallbacks) assert.doesNotThrow(() => fn.call(context, H.event(point)));
-      assert.deepEqual(calls, []); assert.equal(H.cc.game.listeners('hide'), 0); assert.doesNotThrow(() => H.cc.game.emit(H.cc.Game.EVENT_HIDE));
+      assert.deepEqual(nav(calls), []); assert.equal(H.cc.game.listeners('hide'), 0); assert.doesNotThrow(() => H.cc.game.emit(H.cc.Game.EVENT_HIDE));
     } finally { H.cc.Node.prototype.destroy = destroy; stack.clear(); owner.children = owner.children.filter(n => n.isValid); }
   });
   owner.destroy();
@@ -283,9 +286,9 @@ async function runDelayedArtChecks() {
     const pending = Promise.all(['board', 'popup', 'r2', 'r3'].map(dir => A.BoardArt.shared().load(dir)));
     if (closeBeforeLoad) stack.clear(); else { H.setViewport(480, 240); stack.layout(); }
     assert((await pending).every(Boolean)); await H.flush();
-    send(H, home, 'end'); assert.deepEqual(calls, []);
-    if (!closeBeforeLoad) { settle(stack); snapshot(H, panel, { case: 'delayed-art-live', loadedArt: true, reducedMotion: false, tint: 'day', phase: 'settled', primaryViewport: true }, model); H.tap(home); assert.deepEqual(calls, ['Home']); }
-    else { assert(!panel.alive); const replacement = P.openResult(stack, model, null); H.tap(home); assert.deepEqual(calls, []); H.tap(replacement.root.find('Home')); assert.deepEqual(calls, ['Home']); }
+    send(H, home, 'end'); assert.deepEqual(nav(calls), []);
+    if (!closeBeforeLoad) { settle(stack); snapshot(H, panel, { case: 'delayed-art-live', loadedArt: true, reducedMotion: false, tint: 'day', phase: 'settled', primaryViewport: true }, model); H.tap(home); assert.deepEqual(nav(calls), ['Home']); }
+    else { assert(!panel.alive); const replacement = P.openResult(stack, model, null); H.tap(home); assert.deepEqual(nav(calls), []); H.tap(replacement.root.find('Home')); assert.deepEqual(nav(calls), ['Home']); }
     stack.clear(); owner.destroy(); assert.equal(H.cc.game.listeners('hide'), 0);
   });
 }
