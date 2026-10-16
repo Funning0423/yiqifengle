@@ -1,0 +1,8 @@
+used ['KHR_materials_unlit'] req None
+0 {"doubleSided": true, "extensions": {"KHR_materials_unlit": {}}, "name": "M_meadow_cloud", "pbrMetallicRoughness": {"metallicFactor": 0, "roughnessFactor": 0.
+1 {"doubleSided": true, "name": "M_meadow_palette", "pbrMetallicRoughness": {"baseColorTexture": {"index": 0}, "metallicFactor": 0, "roughnessFactor": 0.8999999
+2 {"doubleSided": true, "extras": {"engine_shader": "meadow_grass_wind (see README_meadow.md v0.4): COLOR_0 is wind data, NOT a colour multiplier", "engine_colo
+3 {"doubleSided": true, "extras": {"bank_combine": "c = g * (0.55 + 0.9 * d.r) * (0.8 + 0.4 * d2) exactly as M_meadow_terrain (same ground + detail images, same
+4 {"doubleSided": true, "extensions": {"KHR_materials_unlit": {}}, "name": "M_meadow_sky", "pbrMetallicRoughness": {"baseColorTexture": {"index": 3}, "metallicF
+5 {"doubleSided": true, "extras": {"ground_texture": "meadow_ground_v0_8_1024.jpg (baseColorTexture, TEXCOORD_0 = world XY / 160 m)", "detail_texture": "meadow_
+6 {"doubleSided": false, "name": "M_meadow_palette_card", "pbrMetallicRoughness": {"baseColorTexture": {"index": 0}, "metallicFactor": 0, "roughnessFactor": 0.8
