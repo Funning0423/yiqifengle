@@ -11,6 +11,7 @@ import { openPause, openRestartConfirm, openResult, type ResultModel, type Resul
 import { hasSeenTool, reducedMotion } from './ui/UiPrefs';
 import Controller from './r4-cloud-compat/runtime/challenge-controller.js';
 import Port from './r4-cloud-compat/adapter/cocos-port.js';
+import { cancelScheduledSailboatMeadowPreload, scheduleSailboatMeadowPreload } from './cine/SailboatMeadowPrefetch';
 const { ccclass } = _decorator;
 const { createSynchronousStorage, bindChallengeController } = Port;
 /** Result-page actions owned by the world host (WorldIntegrationBoot): availability is pushed every frame. */
@@ -898,7 +899,7 @@ export class ManagedMobileBoardUI extends Component {
     const m = this.resultModel(s), key = [s.state, s.provider, s.active?.stageId, s.active?.attemptId, m.kind, m.stars, m.score, m.unlockHint, !!m.next, m.rewards.map(r => r.id + ':' + r.state).join(',')].join('|');
     if (key === this.resultKey && this.popups.find('ResultPanel')) return;
     this.resultKey = key; this.closeResult(); this.cancelToolInput(); this.toastT = -1; this.toast.getComponent(UIOpacity)!.opacity = 0;
-    const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));
+    if (m.kind === 'win') scheduleSailboatMeadowPreload('result'); const p = openResult(this.popups, m, this.toolArt); if (this.modalOpen()) p.root.setSiblingIndex(Math.max(0, this.root.children.length - 2));
   }
   /** Reward claim popup: shown when a chest / regional tool / memento flips to claimed while this board is open. */
   private watchClaims(s: any) {
@@ -914,11 +915,13 @@ export class ManagedMobileBoardUI extends Component {
     const gained = items.map(i => i.kind);
     const behind = this.popups.find('ResultPanel'); if (behind) behind.root.active = false;
     const desc = memento ? '地区印记收进旅程册了。' : region && !chest ? '收进旅人的行囊了。' : '海风吹开了宝箱，收进行囊吧。';
+    if (chest) scheduleSailboatMeadowPreload('chest');
     openReward(this.popups, items, this.toolArt, { chest: !!chest, description: desc, done: () => { if (behind && behind.alive) behind.root.active = true; for (const k of gained) if (INTRO_TEXT[k] && !hasSeenTool(SEEN_ID[k] || k) && this.introQueue.indexOf(k) < 0) this.introQueue.push(k); this.flushIntro(); } });
   }
   private flushIntro() { if (!this.introQueue.length || this.modalOpen()) return; const kind = this.introQueue.shift()!; if (!hasSeenTool(SEEN_ID[kind] || kind)) openToolIntro(this.popups, kind, () => this.flushIntro()); else this.flushIntro(); }
   onDestroy() {
     if (this.disposing) return; this.disposing = true;
+    cancelScheduledSailboatMeadowPreload();
     // Cocos destroys child nodes before this component. Detach global listeners
     // before cleanup and never assume a child still owns its event/child arrays.
     game.off(Game.EVENT_HIDE, this.resetOnHide); game.off(Game.EVENT_HIDE, this.hide); game.off(Game.EVENT_SHOW, this.show); view.off('canvas-resize', this.resize, this);

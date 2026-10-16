@@ -1026,8 +1026,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts",
-    "bytes": 89784,
-    "sha256": "b6a26440209898d3e58e0574daed30e3e2123654d31aa226e7247aeb06cf107c"
+    "bytes": 90063,
+    "sha256": "e146d4b27a66117f1eadd540d2fee4ccb6b1a06177cbccf4b1bf79f51d19c862"
   },
   {
     "path": "creator-build-project/assets/scripts/ManagedMobileBoardUI.ts.meta",
@@ -1236,8 +1236,8 @@
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowPrefetch.ts",
-    "bytes": 1056,
-    "sha256": "655f4e5136cf7bec68adf3436be9e60f616c256fde28255f5bc1ac8851c108bf"
+    "bytes": 3228,
+    "sha256": "d5a5066ed89fb354e8508f85ee1df6eaf1ea010b076783dcaff7ed9165c3936d"
   },
   {
     "path": "creator-build-project/assets/scripts/cine/SailboatMeadowPrefetch.ts.meta",
