@@ -93,6 +93,8 @@ export interface WorldLease {
   // `path`); drives the wind-strength channel. Leases that omit it simply never report wind (stays 0).
   /** T2+ optional: resolve after `seconds` of the same world job clock (used for timed camera marks). */
   wait?(seconds:number,token:Cancellation):Promise<void>;
+  /** v3.3 optional full-screen black cover ramp (alpha 0..1 over seconds, wall clock); resolves at the target. Omitted = no fade. */
+  fadeCover?(alpha:number,seconds:number):Promise<void>|void;
   cancelTransient():void;
   /** T5 room-light API (optional; owner GGbot; contract in render/RoomLightingRig.ts + docs/T5-material-swap.md "API").
    * WorldFlowCore itself never drives w; camera-segment owners call these. Older adapters may omit them. */
