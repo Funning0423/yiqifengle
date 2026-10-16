@@ -28,11 +28,19 @@ function glb() {
     M.LID_KEYS.forEach((k, i) => { if (i < M.LID_KEYS.length - 1) assert(Math.abs(M.lidAngleAt(i / 30) - k) < 1e-9); });
     assert(Math.abs(M.lidAngleAt(7.5 / 30) - (M.LID_KEYS[7] + M.LID_KEYS[8]) / 2) < 1e-9, 'linear between keys like the GLB sampler');
   });
-  await ok('camera: 40° pitch, looking at the chest mouth, framing covers the lid sweep', () => {
-    assert.equal(M.CHEST_CAMERA.pitchDeg, 40); const p = M.chestCameraPosition(), t = M.CHEST_CAMERA.target;
-    const dy = p[1] - t[1], dz = p[2] - t[2]; assert(Math.abs(Math.atan2(dy, dz) * 180 / Math.PI - 40) < 1e-9); assert(Math.abs(Math.hypot(dy, dz) - M.CHEST_CAMERA.distance) < 1e-9);
-    const half = M.CHEST_CAMERA.fovDeg / 2 * Math.PI / 180, top = [0, 2.0, -0.35]; const v = [top[1] - p[1], top[2] - p[2]], ang = Math.atan2(-v[0], -v[1]) * 180 / Math.PI;
-    assert(Math.abs(ang - 40) < M.CHEST_CAMERA.fovDeg / 2, 'lid top inside the vertical FOV');
+  await ok('camera (SPEC v2.2): 3/4 top-down, 36° pitch from the front-right (azimuth 38°), fov 36, distance 5.6; closed chest and open lid both inside the frame', () => {
+    const C = M.CHEST_CAMERA; assert.equal(C.pitchDeg, 36); assert.equal(C.azimuthDeg, 38); assert.equal(C.fovDeg, 36); assert.equal(C.distance, 5.6);
+    const p = M.chestCameraPosition(), t = C.target, d = [p[0] - t[0], p[1] - t[1], p[2] - t[2]], h = Math.hypot(d[0], d[2]);
+    assert(Math.abs(Math.hypot(...d) - 5.6) < 1e-9); assert(Math.abs(Math.atan2(d[1], h) * 180 / Math.PI - 36) < 1e-9); assert(Math.abs(Math.atan2(d[0], d[2]) * 180 / Math.PI - 38) < 1e-9, 'from the front-right');
+    // Project the GLB bounds (body + lid closed / at −118°) through the camera: every corner inside the square frame.
+    const sub = (a, b) => a.map((v, i) => v - b[i]), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nrm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+    const f = nrm(sub(t, p)), r = nrm(cross(f, [0, 1, 0])), u = cross(r, f), th = Math.tan(C.fovDeg / 2 * Math.PI / 180);
+    const proj = q => { const v = sub(q, p); return [dot(v, r) / dot(v, f) / th / 2, dot(v, u) / dot(v, f) / th / 2]; };
+    const corners = (x, y, z) => { const o = []; for (const a of x) for (const b of y) for (const c of z) o.push([a, b, c]); return o; };
+    const lidAt = deg => corners([-0.82, 0.82], [-0.09, 0.5235], [-0.05, 1.158]).map(([x, y, z]) => { const a = deg * Math.PI / 180; return [x, y * Math.cos(a) - z * Math.sin(a) + 0.8, y * Math.sin(a) + z * Math.cos(a) - 0.52]; });
+    for (const deg of [0, -93, -118, -126]) for (const q of [...corners([-0.84, 0.84], [0, 0.81], [-0.56, 0.595]), ...lidAt(deg)]) { const [x, y] = proj(q); assert(Math.abs(x) < 0.5 && Math.abs(y) < 0.5, 'inside at ' + deg + '°'); }
+    const L = M.CHEST_LOOK.lights; assert(L.key.pos[1] > 4 && L.key.pos[0] < 0, 'key from the top-left'); assert(L.fill.lum < 0.5 * L.key.lum / 4 + 0.3, 'fill weaker'); assert(L.rim.pos[2] < 0 && L.rim.pos[1] > 2, 'rim behind/above');
+    assert.deepEqual(M.CHEST_LOOK.material.albedoScale, [1.10, 1.06, 1.0]); assert.equal(M.CHEST_LOOK.material.roughness, 0.6); assert.equal(M.CHEST_OUTLINE.width, 1.5);
   });
   const lid = new cc.Node('chest_lid'), prefab = { lid };
   cc.instantiate = () => { const m = new cc.Node('result_chest'); const l = new cc.Node('chest_lid'); m.addChild(l); m.addChild(new cc.Node('chest_body')); l.addComponent(cc.MeshRenderer).sharedMaterials = [null]; return m; };
@@ -42,9 +50,10 @@ function glb() {
     const host = new cc.Node('Host'); cc._scene.addChild(host); const c = new M.ResultChest3D(host, 340);
     assert.equal(await c.load(), true); assert.equal(c.diagnostics().state, 'ready');
     const rig = cc._scene.getChildByName('ResultChestRig'); assert(rig); assert.deepEqual([rig.position.x, rig.position.y, rig.position.z], [10000, 10000, 10000]);
-    const cam = rig.getComponentsInChildren(cc.Camera)[0]; assert.equal(cam.visibility, M.CHEST_LAYER); assert.equal(cam.projection, cc.Camera.ProjectionType.PERSPECTIVE); assert.equal(cam.fov, 30); assert(cam.targetTexture);
+    const cam = rig.getComponentsInChildren(cc.Camera)[0]; assert.equal(cam.visibility, M.CHEST_LAYER); assert.equal(cam.projection, cc.Camera.ProjectionType.PERSPECTIVE); assert.equal(cam.fov, 36); assert(cam.targetTexture);
     rig.walk(n => { if (n !== rig) assert.equal(n.layer, M.CHEST_LAYER, n.name + ' layer'); });
     assert(c.sprite.spriteFrame && c.sprite.spriteFrame.texture === cam.targetTexture); assert.equal(c.node.getComponent(cc.UITransform).width, 340);
+    const outl = c.node.children.filter(n => n.name.startsWith('ChestOutline-')); assert.equal(outl.length, 8, 'outline by silhouette expansion (8 offset copies)'); assert(outl.every(n => n.getComponent(cc.Sprite).spriteFrame === c.sprite.spriteFrame && Math.abs(Math.hypot(n.position.x, n.position.y) - 1.5) < 0.02)); assert.equal(c.node.children[c.node.children.length - 1], c.sprite.node, 'render drawn over its outline');
     c.open(true); assert.equal(c.angle(), 0); for (let i = 0; i < 15; i++) c.update(1 / 30); assert.equal(c.angle(), -118);
     c.close(); assert.equal(c.angle(), 0); c.open(false); assert.equal(c.angle(), -118, 'reduced motion jumps to open');
     const frame = c.sprite.spriteFrame, rt = cam.targetTexture; c.dispose(); c.dispose();

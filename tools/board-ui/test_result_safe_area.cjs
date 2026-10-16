@@ -152,15 +152,10 @@ async function matrix() {
                                     assert.equal(fragments('Score'), m.score + ' 分');
                     if (spec.name === 'win-extreme') assert.equal(new Set([...allText.values()].filter(b => b.name === 'Score' || b.name.startsWith('Score-continued-')).map(b => b.page)).size, 1, 'full numeric score remains on one page');
                                 if (m.kind === 'win') {
-                                    const summary = [m.movesUsed !== null ? '用了 ' + m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩余 ' + m.movesLeft + ' 步' : ''].filter(Boolean).join(' · ');
-                                    assert.equal(fragments('ResultSummary') || '', summary); assert(!fragments('ResultSummary') || !fragments('ResultSummary').includes('已保存'), 'no 成绩已保存');
-                                    const ready = m.rewards.some(r => r.state === 'ready' && r.claim);
-                                    if (m.unlockHint) assert.equal(fragments('ResultUnlockHint') || '', ready ? '' : m.unlockHint, 'unlock hint shows once the chest is open');
-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); const chestR = m.rewards.find(c => c.iconKind === 'chest' || c.id === 'chest');
-                                        // v2 (Funning 2026-10-16): the chest carries no label (light guide + tap), items float over it only once it is open.
-                                        if (r === chestR) { if (r.state === 'ready' && r.claim) assert(p.root.find('ResultChestTap'), 'a ready chest is the tap target'); if (r.state !== 'locked') { assert(!full && !short, 'no chest caption'); return; } }
-                                        else if (chestR && chestR.state !== 'claimed' && r.state !== 'claimed') { assert(!full && !short, 'items stay inside the closed chest'); return; }
-                                        assert.equal(full || short, r.label); });
+                                    // SPEC v2.2 text list: a win page has no step line, 成绩已保存, 点宝箱领取, reward names / ×N or unlock hint.
+                                    for (const id of ['ResultSummary', 'ResultUnlockHint', 'ResultChestHint']) assert.equal(fragments(id) || '', '', id + ' removed (SPEC v2.2)');
+                                    m.rewards.forEach((r, i) => { assert.equal((fragments('ResultRewardLabel-' + i) || '') + (fragments('ResultRewardState-' + i) || ''), '', 'no reward names (SPEC v2.2)'); });
+                                    if (m.rewards.some(r => r.state === 'ready' && r.claim)) assert(p.root.find('ResultChestTap'), 'a ready reward page keeps the tap target');
                                 }
                                 if (m.kind === 'readonly')
                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');

@@ -44,7 +44,7 @@ export function openRestartConfirm(stack: PopupStack, restart: () => void): Popu
   return p;
 }
 export type ResultKind = 'win' | 'lose' | 'unsaved' | 'readonly';
-export interface ResultReward { id: string; label: string; icon: string; iconKind?: 'chest' | 'seal' | 'tool'; tool?: string; state: 'ready' | 'claimed' | 'locked'; claim?: () => void }
+export interface ResultReward { id: string; label: string; icon: string; iconKind?: 'chest' | 'seal' | 'tool'; tool?: string; state: 'ready' | 'claimed' | 'locked'; claim?: () => void; count?: number }
 export interface ResultModel {
   kind: ResultKind; score: number; stars: number | null; movesUsed: number | null; movesLeft: number | null;
   goalsLeft: Array<{ art: string; count: number }>; chestHint: boolean; rewards: ResultReward[];
@@ -81,9 +81,7 @@ export function openResult(stack: PopupStack, m: ResultModel, legacy: ToolArtSou
     ? p.text('步数用完了，换个顺序试试？', 0, 336, 28, 'brown', { bold: false, name: 'ResultMessage' })
     : p.text(m.score + ' 分', 0, 336, 64, 'brown', { name: 'Score' }));
   if (m.kind === 'win') {
-    section('ResultDetails', 0, 416, () => {
-      p.text(resultSummary(m), 0, 416, 14, 'brown2', { bold: false, width: 560, name: 'ResultSummary' });
-    });
+    // SPEC v2.2 text list: a win page keeps only 过关啦 / the score / 下一关 / 回小岛 (no step line, hint, names or unlock line).
     let y = 600;
     if (m.rewards.length) {
       const n = m.rewards.length, step = n === 1 ? 0 : n === 2 ? (wideReward ? 280 : 220) : 200;
@@ -298,13 +296,16 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   const isChest = (r: ResultReward) => r.iconKind === 'chest' || r.id === 'chest';
   // Chest hero: 240 × 216 when the page has room, never under 96 × 86 (the 3D render keeps its aspect).
   // Spec v2: chest 168 × 130 (compact 120 × 93), halo / hit area 220 (compact 160), rays 280 only once open.
-  const CHEST_FRAME = { width: 0.6, offsetY: 0.155 }, LID_REACH = 0.53;
+  // ResultChest3D v2.2 camera (36° pitch, 38° azimuth, fov 36, look-at y 0.68): the closed chest spans 60% of the square frame,
+  // its centre 2.8% of the frame below the frame centre; the open lid (−118°) reaches 47% of the frame above the chest centre.
+  const CHEST_FRAME = { width: 0.60, offsetY: 0.028 }, LID_REACH = 0.47;
   // SPEC v2.1: chest shown 180 wide closed / 176 open (compact 120), hit area 220 (compact 160), glow r120 closed / r150 open
   // (compact r80), rays 300 centred 48 above the chest, only once open. 2D fallback art aspect: closed 380×329, open 380×412.
-  const CHEST_W = 180, CHEST_H = 156, CHEST_W_C = 120, CHEST_H_C = 104, HALO = 220, HALO_C = 160, RAY = 300, CHEST_MIN_H = 72;
-  const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 412 / 380, GLOW_R = 74, GLOW_R_OPEN = 78, GLOW_R_C = 50, RAY_LIFT = 48;
+  const CHEST_W = 180, CHEST_H = 147, CHEST_W_C = 120, CHEST_H_C = 98, HALO = 220, HALO_C = 160, RAY = 300, CHEST_MIN_H = 72;
+  const CHEST_OPEN_W = 176 / 180, FLAT_OPEN_ASPECT = 387 / 400, /* chest_v3 fallback art (400 × 327 closed / 400 × 387 open, outline + contact shadow baked in) */ GLOW_R = 74, GLOW_R_OPEN = 78, GLOW_R_C = 50, RAY_LIFT = 48;
   // Glow hugs the chest (radius ≤ 0.45 × chest width): closed centre 4 below the chest centre, open 26 above; peak α 47% (night 59%) / open 59%.
-  const GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
+  // SPEC v2.2: the chest sits 8 right of centre so the shadow to its right/back doesn't pull it off-centre visually.
+  const CHEST_DX = 8, GLOW_DY = -4, GLOW_DY_OPEN = 26, GLOW_A = 0.47, GLOW_A_NIGHT = 0.59, GLOW_A_OPEN = 0.59, BADGE_GLOW_R = 40, BADGE_GLOW_A = 0.43;
   // Bottom actions match the home-screen wooden buttons: 56 high, plate art 0.6, a 5-unit drop shadow, equal widths.
   const ACTION_H = 56, ACTION_ART = 0.6, ACTION_SHADOW = 6, GUIDE_PERIOD = 1.6;
   // Rewards float above the open chest: icon + name, a gentle rise then bob. No card module under the chest.
@@ -338,13 +339,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     const lines = (text: string, size: number, line?: number) => { const lh = line || Math.ceil(size * 1.35); for (const _ of wrap(text, inner - 4, size)) heights.push(lh); };
     heights.push(shortPhone ? 44 : 88);
     if (m.kind === 'lose') lines(scoreText, 16); else lines(scoreText, 34, 46);
-    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) lines(summary, 16); }
+    if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
     else if (m.kind === 'lose') { for (const _ of goalIcons) heights.push(40); }
     else lines(m.kind === 'unsaved' ? '成绩还没存进旅程册' : '记录暂时不能写入，这局只看不存', 16);
     if (m.chestHint && m.kind !== 'win') lines(m.kind === 'lose' ? '过关后可以打开宝箱' : '存好后就能打开宝箱', 16);
     const side = sideRewards();
-    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { if (r.state === 'locked') lines(r.label, 16); heights.push(heroHeightFor(inner, r)); if (r.state === 'ready' && r.claim) heights.push(20); } }
-    if (m.kind === 'win' && m.unlockHint && !anyReady()) lines(m.unlockHint, 16);
+    for (let i = 0; i < m.rewards.length; i++) { const r = m.rewards[i]; if (isChest(r)) { heights.push(heroHeightFor(inner, r)); } }
     if (side.length && !hasChest()) heights.push(floatBand(shortPhone) + 24);
     return contentTop + reserve + heights.reduce((sum, h) => sum + h, 0) + Math.max(0, heights.length - 1) * rowGap;
   };
@@ -450,7 +450,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
       }
     }
-    if (m.kind === 'win') { const summary = resultSummary(m); if (summary) labelRows('ResultSummary', summary, 16, 'brown2'); }
+    if (m.kind === 'win') { /* SPEC v2.2: no step line */ }
     else if (m.kind === 'lose') {
       const goals = groups.ResultGoals;
       if (goals) {
@@ -520,11 +520,18 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         }
         let l = holder.getChildByName('ResultRewardState-' + i)?.getComponent(Label);
         if (!l) l = p.text('', 0, 0, 16, r.state === 'locked' ? 'grey' : 'brown', { name: 'ResultRewardState-' + i, parent: holder });
-        const fits = textWidth(r.label, 16) <= colW - 4;
-        l.string = fits ? r.label : (r.state === 'locked' ? '未解锁' : '道具'); l.fontSize = 16; l.lineHeight = FLOAT_NAME;
+        l.string = ''; l.node.active = false; l.fontSize = 16; l.lineHeight = FLOAT_NAME; // SPEC v2.2: icons only, no names
         l.enableWrapText = false; l.overflow = Label.Overflow.CLAMP;
         l.node.getComponent(UITransform)!.setContentSize(colW - 4, FLOAT_NAME); l.node.setPosition(0, -hh / 2 + FLOAT_NAME / 2, 0);
-        if (!fits) labelRows('ResultRewardLabel-' + i, r.label, 16, 'brown2');
+        // CountBadge (count > 1 only): Ø24 at the badge centre +(24, 26 up); #E88034 face, 2pt #B05C1E base, 2pt #FFF8E4 ring, 14pt bold white.
+        let cb = holder.getChildByName('ResultCountBadge-' + i);
+        if ((r.count || 0) > 1) {
+          const k3 = icon / 68;
+          if (!cb) { cb = uiNode('ResultCountBadge-' + i, holder, 24, 24); const g = cb.addComponent(Graphics);
+            g.fillColor = new Color(0xFF, 0xF8, 0xE4, 255); g.circle(0, -1, 13); g.fill(); g.fillColor = new Color(0xB0, 0x5C, 0x1E, 255); g.circle(0, -2, 10); g.fill(); g.fillColor = new Color(0xE8, 0x80, 0x34, 255); g.circle(0, 0, 10); g.fill();
+            const t = p.text(String(r.count), 0, 0, 14, 'white', { name: 'ResultCount', width: 24, parent: cb }); t.lineHeight = 16; t.node.setPosition(0, 0, 0); }
+          delete (cb as any).__floatBase; cb.setScale(k3, k3, 1); cb.setPosition(24 * k3, iconY + 26 * k3, 0); cb.active = true; cb.setSiblingIndex(holder.children.length - 1);
+        } else if (cb) cb.active = false;
         holder.setSiblingIndex(row.node.children.length - 1); floatNodes.push({ node: holder, x, y: baseY, phase: k * 0.09, fromY: mouthY }); floatDiag.push({ name: r.label, x, y: baseY, icon });
       });
     };
@@ -534,12 +541,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       if (!isChest(r)) continue;
       let band = floatBand(dense || specCompact), split = false;
       const usedAbove = rows.reduce((sum, row) => sum + row.height + rowGap, 0);
-      const labelled = r.state === 'locked';
+      const labelled = false; // SPEC v2.2: no reward names
       const cwS = specCompact ? CHEST_W_C : CHEST_W, haloS = specCompact ? HALO_C : HALO;
       // Closed: rewards would hover over the halo's top edge. Open: they must clear the raised lid, which reaches 53% of the
       // square chest frame above the chest centre (result_chest.glb at −118°), so the band starts above it.
       let lap = !band ? 0 : r.state === 'claimed' && !specCompact ? -Math.max(0, Math.round(LID_REACH * cwS / CHEST_FRAME.width - haloS / 2)) : Math.round(band * 0.4);
-      const after = (r.state === 'ready' && anyReady() ? 20 + rowGap : 0) + (m.unlockHint && !anyReady() ? Math.ceil(16 * 1.35) + rowGap : 0);
+      const after = 0;
       const room = available - usedAbove - (labelled ? 22 + rowGap : 0) - (band - lap) - after;
       const cw0 = specCompact ? CHEST_W_C : CHEST_W, ch0 = specCompact ? CHEST_H_C : CHEST_H, halo = specCompact ? HALO_C : HALO;
       let chestH = Math.max(Math.min(CHEST_MIN_H, ch0), Math.min(ch0, room * ch0 / halo, inner * ch0 / cw0)), chestW = chestH * cw0 / ch0;
@@ -564,10 +571,13 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       }
       const sk = chestW / (specCompact ? CHEST_W_C : CHEST_W), glowD = 2 * Math.min(0.45 * chestW, (specCompact ? GLOW_R_C : opened ? GLOW_R_OPEN : GLOW_R) * sk);
       haloNode.getComponent(UITransform)!.setContentSize(glowD, glowD); add(row, haloNode, 0, chestY + (opened ? GLOW_DY_OPEN : GLOW_DY) * sk); (haloNode as any).__draw(opened, isNight());
-      // FloorShadow 140 × 20 #5A3A1E α25% under the chest.
+      // Contact shadow (SPEC v2.2, 3D only; the 2D fallback art has it baked in): soft ellipse #3C2614 α45% day / 30% night,
+      // 220 × 60 for a 220-wide chest, offset to the right/back (light from the top-left), feathered edge.
       let floor = row.node.getChildByName('ResultChestFloor');
-      if (!floor) { floor = uiNode('ResultChestFloor', row.node, 140, 20); const g = floor.addComponent(Graphics); g.fillColor = new Color(0x50, 0x32, 0x1A, 89); g.ellipse(0, 0, 70, 10); g.fill(); }
-      floor.setScale(chestW / CHEST_W, chestW / CHEST_W, 1); add(row, floor, 0, chestY - chestH / 2 + 4);
+      if (!floor) { floor = uiNode('ResultChestFloor', row.node, 220, 60); const fl = floor; fl.addComponent(Graphics); (fl as any).__draw = (night: boolean) => {
+        const g = fl.getComponent(Graphics)!, n = 10, a0 = night ? 0.30 : 0.45, st = 1 - Math.pow(1 - a0, 1 / n); g.clear();
+        for (let k = 0; k < n; k++) { const f = 1 - k / n * 0.6; g.fillColor = new Color(0x3C, 0x26, 0x14, Math.round(255 * st)); g.ellipse(0, 0, 110 * f, 30 * f); g.fill(); } }; }
+      (floor as any).__draw(isNight()); floor.setScale(chestW / 220, chestW / 220, 1); add(row, floor, chestW * 0.06, chestY - chestH / 2 + chestW * 0.06); floor.active = !!chestRig?.ready;
       if (!raysNode || !isValid(raysNode, true)) { raysNode = p.sprite('popup/fx_rays', 0, 0, raySize, raySize, 'half').node; raysNode.name = 'ResultChestRays'; }
       else raysNode.getComponent(UITransform)!.setContentSize(raySize, raySize);
       const rs = Math.min(RAY * sk, inner, rowH); raysNode.getComponent(UITransform)!.setContentSize(rs, rs); add(row, raysNode, 0, Math.max(-rowH / 2 + rs / 2, Math.min(chestY + RAY_LIFT * sk, rowH / 2 - rs / 2))); raysNode.active = opened; // rays only once open
@@ -575,8 +585,8 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         flat.name = 'ResultChestArt';
         // 2D fallback: popup/chest_open once claimed (bottom-aligned with the closed art), popup/chest_closed before.
         const openFrame = opened ? BoardArt.shared().frame('popup/chest_open') : null, sp = flat.getComponent(Sprite);
-        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, 0, chestY - chestH / 2 + oh / 2); }
-        else { fitBox(flat, chestW, chestH); add(row, flat, 0, chestY); }
+        if (openFrame && sp) { sp.spriteFrame = openFrame; const ow = chestW * CHEST_OPEN_W, oh = ow * FLAT_OPEN_ASPECT; fitBox(flat, ow, oh); add(row, flat, CHEST_DX * sk, chestY - chestH / 2 + oh / 2); }
+        else { fitBox(flat, chestW, chestH); add(row, flat, CHEST_DX * sk, chestY); }
         if (chestRig?.ready) flat.active = false;
       }
       for (let j = 0; j < art.length; j++) { const n = art[j]; if (n !== flat) n.active = false; } // no stamp: the open lid says it
@@ -585,12 +595,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
         // Claimed: the chest stays open (lid at the end of chest_open) instead of returning to the closed pose.
         if (r.state === 'claimed') chestRig.open(Date.now() - chestTappedAt < 3000); // just tapped: play the lid open; otherwise already open
         const shown = flat;
-        void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; });
+        const fl0 = floor; void chestRig.load().then(ok => { if (!ok || !chestRig || !isValid(chestRig.node, true)) return; chestRig.node.active = true; if (shown && isValid(shown, true)) shown.active = false; if (fl0 && isValid(fl0, true)) fl0.active = true; });
       } else if (chestRig.node.parent !== row.node) row.node.addChild(chestRig.node);
       // The 512² RenderTexture is square: show it square (no squash) so the closed chest body spans chestW
       // (it fills 60% of the frame width and sits 15.5% below the frame centre, measured on result_chest.glb).
       const frameSide = chestW / CHEST_FRAME.width, frameY = chestY + CHEST_FRAME.offsetY * frameSide;
-      chestRig.node.setPosition(0, frameY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(frameSide, frameSide);
+      chestRig.node.setPosition(CHEST_DX * sk, frameY, 0); chestRig.node.getComponent(UITransform)!.setContentSize(frameSide, frameSide);
       chestPose = { node: chestRig.node, flat: flat || null, y: chestY, rigY: frameY, w: chestW, h: chestH }; if (flat) flatScale = { x: flat.scale.x, y: flat.scale.y };
       guideDiag.pulsing = r.state === 'ready' && anyReady(); guideDiag.chest = { w: chestW, h: chestH, halo: body, hit: Math.max(44, body) };
       // Items hover just above the open lid (lower edge overlaps the chest top by a quarter of the band).
@@ -598,18 +608,12 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
       placeTap(row, chestY, Math.min(inner, Math.max(44, body)), Math.max(44, Math.min(rowH, body)));
       rows.push(row);
       if (split) { const fh = Math.max(1, Math.min(floatBand(true), available)); const fr = getRow('reward-floating', fh); placeFloating(fr, 0, 0, fh); rows.push(fr); }
-      if (r.state === 'ready' && anyReady()) {
-        const hr = getRow('chest-hint', 20); let hl = hr.node.getComponentInChildren(Label);
-        if (!hl) hl = p.text('✦ 点宝箱领取 ✦', 0, 0, 16, 'brown2', { name: 'ResultChestHint', width: inner, parent: hr.node });
-        hl.node.setPosition(0, 0, 0); hl.fontSize = 16; hl.lineHeight = 20; hl.enableWrapText = false; hl.overflow = Label.Overflow.CLAMP; hl.node.getComponent(UITransform)!.setContentSize(inner, 20);
-        hl.color = new Color(0xB0, 0x7A, 0x2A, 255); hintLabel = hl; rows.push(hr);
-      }
+      // SPEC v2.2: no 点宝箱领取 line; breathing + hop + the glow are the guide.
     }
     if (!hasChest() && sideRewards().length) {
       const fh = Math.max(1, Math.min(floatBand(dense || tight) + 24, available)); const row = getRow('reward-floating', fh); placeFloating(row, 0, -20, fh);
       placeTap(row, 0, inner, row.height); rows.push(row);
     }
-    if (m.kind === 'win' && m.unlockHint && !anyReady()) { labelRows('ResultUnlockHint', m.unlockHint, 16, 'teal'); }
     pages = [[]]; let used = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]; let needed = row.height;

@@ -35,11 +35,11 @@ const { createHarness } = require('./harness.cjs');
     const d = p.resultDiagnostics(), tap = p.root.find('ResultChestTap'), halo = p.root.find('ResultChestHalo');
     assert(tap && tap.activeInHierarchy && halo && halo.activeInHierarchy);
     assert(Math.abs(world(tap).x - world(p.body).x) < 0.5, 'chest centred');
-    if (!compact) { assert.equal(d.guide.chest.w, 180, 'SPEC v2.1 chest 180 wide'); assert.equal(d.guide.chest.h, 156); assert.equal(d.guide.chest.halo, 220); }
+    if (!compact) { assert.equal(d.guide.chest.w, 180, 'SPEC v2.1 chest 180 wide'); assert.equal(d.guide.chest.h, 147, 'chest_v3 aspect 400×327'); assert.equal(d.guide.chest.halo, 220); }
     else assert(d.guide.chest.w <= 120 && d.guide.chest.h <= 104.5, 'compact chest ≤ 120 wide');
     const tb = box(tap); assert(tb.w >= 44 && tb.h >= 44, 'hit area ≥ 44'); assert.equal(tb.w, d.guide.chest.hit);
     assert(d.guide.pulsing, 'ready chest pulses'); assert(!p.root.find('ResultChestRays').activeInHierarchy, 'rays only after opening');
-    assert(all.includes('✦ 点宝箱领取 ✦'), 'hint under the chest'); assert(!all.includes('主线 05 · 潮汐挑战已开放'), 'unlock hint waits for the open chest');
+    for (const x of all.filter(x => x)) assert(['过关啦', '630 分', '下一关', '回小岛'].includes(x), 'SPEC v2.2: closed page shows only 过关啦 / score / 下一关 / 回小岛, got ' + x);
     // SPEC 16:35: glow hugs the chest (r74 closed, ≤ 0.45 × chest width); panel 9-slice inset 212, edge ≈ 23 pt, plain paper.
     const hb0 = box(halo); assert(hb0.w <= 0.9 * d.guide.chest.w + 0.5, 'glow radius ≤ 0.45 × chest width'); if (!compact) assert(Math.abs(hb0.w / 2 / halo.scale.x - 74) < 0.5 || Math.abs(hb0.w / 2 - 74) < 4, 'glow r74');
     const pf = p.body.getChildByName('PanelFrame'), psf = pf.getComponent(H.cc.Sprite).spriteFrame;
@@ -62,16 +62,23 @@ const { createHarness } = require('./harness.cjs');
     // Provisional spec: leaving before opening auto-claims first, without a popup, exactly once.
     const c2 = []; const q0 = P.openResult(stack, model('ready', c2), null); settle(); H.tap(q0.root.find('Next'));
     assert.deepEqual(c2, ['chest', 'regionReward', 'Next'], 'Next before opening claims first'); stack.clear(); settle();
-    // 2) open: lid open, rewards float above the chest with icon + name, bob, unlock hint shown.
+    // 2) open: lid open, rewards float above the chest as icons only (SPEC v2.2), bob; no unlock hint.
     const c3 = []; const q = P.openResult(stack, model('claimed', c3), null); settle(10);
     const e = q.resultDiagnostics(); assert.equal(e.chestOpen, true); assert(e.chest && e.chest.angle <= -110, 'open lid');
     const f = q.root.find('ResultFloat-1'); assert(f && f.activeInHierarchy, 'reward floats'); assert(!q.root.find('ResultChestTap') || !q.root.find('ResultChestTap').activeInHierarchy);
     const chest = q.root.find('ResultChestHalo'); assert(world(f).y > world(chest).y, 'reward above the chest');
-    assert.equal(f.getChildByName('ResultRewardState-1').getComponent(H.cc.Label).string, '潮汐网'); assert(f.getChildByName('ResultFloatPlate') && f.getChildByName('ResultFloatPlate').active, 'RewardBadge behind the existing icon'); if (!compact) assert.equal(e.float[0].icon, 68, 'badge 68');
+    assert(!f.getChildByName('ResultRewardState-1') || !f.getChildByName('ResultRewardState-1').activeInHierarchy, 'SPEC v2.2: icons only, no reward names'); assert(f.getChildByName('ResultFloatPlate') && f.getChildByName('ResultFloatPlate').active, 'RewardBadge behind the existing icon'); if (!compact) assert.equal(e.float[0].icon, 68, 'badge 68');
     assert(q.root.find('ResultChestRays').activeInHierarchy, 'rays once open');
     const y1 = world(f).y; settle(20); const y2 = world(f).y; assert.notEqual(y1, y2, 'gentle bob'); assert(Math.abs(y2 - (world(f.parent).y + e.float[0].y)) <= 3.5, 'bob ±3');
-    assert(texts(q.root).includes('主线 05 · 潮汐挑战已开放'), 'unlock hint after opening'); assert(!q.root.find('ResultPageNumber').activeInHierarchy, 'one page open');
+    { const t = texts(q.root).filter(x => x); for (const x of t) assert(['过关啦', '630 分', '下一关', '回小岛'].includes(x) || /^\d+$/.test(x), 'SPEC v2.2 text list only, got ' + x); assert(!t.includes('主线 05 · 潮汐挑战已开放'), 'no unlock hint'); } assert(!q.root.find('ResultPageNumber').activeInHierarchy, 'one page open');
     report[key].float = { ...screen(f, w, h), icon: e.float[0].icon };
+    { // CountBadge: only for count > 1, Ø24 at +(24, 26) from the badge centre, the number is the only text added.
+      stack.clear(); settle(); const mm = model('claimed', []); mm.rewards = mm.rewards.map((r, i) => i === 1 ? { ...r, count: 2 } : r);
+      const q2 = P.openResult(stack, mm, null); settle(10); const f2 = q2.root.find('ResultFloat-1'), cb = f2 && f2.getChildByName('ResultCountBadge-1');
+      assert(cb && cb.activeInHierarchy, 'count badge for ×2'); assert.equal(cb.getChildByName('ResultCount').getComponent(H.cc.Label).string, '2');
+      assert.equal(cb.getComponent(H.cc.UITransform).width, 24); { const ic = q2.resultDiagnostics().float[0].icon; assert(Math.abs(cb.position.x - 24 * ic / 68) < 1e-6, 'badge +24 right (scaled with the 68 badge)'); }
+      assert(!q2.root.find('ResultCountBadge-0') || !q2.root.find('ResultCountBadge-0').activeInHierarchy, 'no badge for a single item');
+    }
     stack.clear(); settle();
   }
   console.log(JSON.stringify({ status: 'PASS', report }, null, 1));
