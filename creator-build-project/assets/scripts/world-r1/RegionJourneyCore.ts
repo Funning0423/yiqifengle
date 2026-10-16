@@ -149,7 +149,7 @@ export class RegionJourneyController {
    // v3.3 set-off fade (Grok Bot: no hard cut, no camera swoop): leaving the live island lens on a startBlendM-0 route,
    // fade to black (SETOFF_FADE.outS), cut to the follow pose (FOV straight to 48) and show the journey scenes only under
    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
-   const fade=this.distance===0&&this.lease.route.startBlendM===0&&typeof world.fadeCover==='function';
+   const fade=this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
     this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0);world.setCamera(this.camera);}
    this.show(true);token.check();
