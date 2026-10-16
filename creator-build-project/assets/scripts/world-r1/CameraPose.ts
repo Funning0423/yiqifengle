@@ -97,7 +97,7 @@ export function sampleLookAtPath(path: readonly LookAtPose[], progress: readonly
  * - easeIn / easeOut: fraction of the track time used to accelerate from / decelerate to zero speed. C2 time remap
  *   (velocity AND acceleration continuous at the joins); the end pose is still reached exactly at p=1.
  */
-export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number }>;
+export type TrackOptions = Readonly<{ interpolation?: 'linear' | 'pchip'; easeIn?: number; easeOut?: number; /** createProgressFollower tau (s) for distance-driven progress; default 0.25 */ followTauSeconds?: number }>;
 /** C2 ease-in / linear / ease-out remap of [0,1] onto [0,1], f(0)=0, f(1)=1, f'(0)=0 if easeIn>0, f'(1)=0 if easeOut>0. */
 export function remapProgress(p: number, o?: TrackOptions): number {
   const x = Math.max(0, Math.min(1, p)); if (!o) return x;

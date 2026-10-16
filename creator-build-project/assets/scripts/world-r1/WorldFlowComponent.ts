@@ -400,7 +400,7 @@ export class WorldFlowComponent extends Component {
           // walk-duration contract: follow the reported distance-travelled progress (smoothed, monotone), else time.
           // onSample (wind channel): eased key progress of each written sample.
           const tick=(v:number)=>{const e=track.tick(v);if(onSample&&e>=0)onSample(e);};
-          if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds);return this.run(seconds,t,p=>tick(follow(p,progress())));},
+          if(!progress)return this.run(seconds,t,tick);const follow=createProgressFollower(seconds,options?.followTauSeconds??0.25);return this.run(seconds,t,p=>tick(follow(p,progress())));},
         cancelTransient:()=>{this.cancelRoomLook();this.cancelJobs();},
         dispose:()=>{if(!alive)return;alive=false;this.cancelJobs();this.releaseRearGlass?.();this.releaseRearGlass=null;this.releaseUnlitBackdrops();this.releaseIslandAlpha();this.doorSpill?.dispose();this.doorSpill=null;this.atmosphere?.dispose();this.atmosphere=null;this.shore?.dispose();this.shore=null;this.roomLighting?.dispose();this.roomLighting=null;if(this.worldAmbient===ambient)this.worldAmbient=null;model.destroy();if(this.ownedModel===model)this.ownedModel=null;},
       };
