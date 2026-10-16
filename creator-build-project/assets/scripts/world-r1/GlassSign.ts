@@ -58,13 +58,13 @@ export class GlassSign {
     this.text.addComponent(RenderRoot2D); this.text.addComponent(UITransform).setContentSize(S.px[0], S.px[1]); this.textOpacity = this.text.addComponent(UIOpacity);
     const add = (name: string, s: string, size: number, x: number, w: number) => {
       const n = new Node(name); n.layer = this.root.layer; this.text.addChild(n); n.addComponent(UITransform).setContentSize(w, S.px[1]); n.setPosition(x, 1, 0);
-      const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'Noto Sans CJK SC, PingFang SC, sans-serif';
+      const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'sans-serif'; // bold system face (CSS 600); an outline pass merged strokes into blobs
       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
     };
     // CSS: leaf (30px) + 12px margin + caption (34px, letter-spacing 4px), centred as one line
-    const capW = 5 * 34 + 5 * 4, leafW = 34, total = leafW + 12 + capW;
-    add('Leaf', S.leaf, 30, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
+    const capW = 5 * 34 + 5 * 4, leafW = 44, total = leafW + 12 + capW;
+    add('Leaf', S.leaf, 42, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
   }
   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
   private feedback() {
