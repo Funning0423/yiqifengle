@@ -5,10 +5,11 @@
  * only other material is the signpost lamp's own M_signpost_lamp (day). No textures, no new fonts.
  *
  * World props (fixed in the island's world space, Cocos metres, +Y up, island scene_root is identity):
- *   - ui_signpost "继续旅程" in the water just west of the lighthouse, seaward of the house front.
- *     The close pull (u = 0) looks inland from the shore, so the old front-right post (z = 18.8)
- *     sat behind that lens. This spot keeps the whole board in front of that lens and inside
- *     both a 0.46 and a 0.75 frame, clear of the door.
+ *   - ui_signpost "继续旅程" on the west lawn, just clear of the shrubs. The posts sit on the
+ *     grass (env_island_main, palette row 0), not in the sea. The face is turned about 15°
+ *     off both the wide shot and the closest pull, so the words stay readable and the board
+ *     still reads as a solid. Scale is small enough that the wide shot keeps it under 22%
+ *     of the frame and the close shot stays left of the lighthouse.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
@@ -16,7 +17,7 @@
  *   (IslandRail) only moves the world camera: these three keep the settled wide shot's screen position and
  *   pixel size (screenPropPose). Their hit areas and the labels 行囊 / 旅程册 / 设置 stay on the existing
  *   IslandJourneyOverlay buttons (same handlers, same screen slots, not scaled by the pull).
- * The signpost "继续旅程" stays a world prop in the shallows. It is not a screen HUD and it does grow when the
+ * The signpost "继续旅程" stays a world prop on the lawn. It is not a screen HUD and it does grow when the
  *   lens comes closer.
  * Not added (the island already has them, see combined_visual_m.glb): beach_gull (env_anim_seagull_01 + two
  * flying gulls), beach_crab (env_anim_crab_01, env_anim_hermit_crab_v22), beach_turtle (env_anim_turtle_01).
@@ -36,7 +37,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-4.4, -1.15, 1.5] as V3, yawDeg: -55, scale: 2.3,
+    prefab: 'ui_signpost', position: [-4.08, 0.127, 0.7] as V3, yawDeg: 5.58, scale: 0.79,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },

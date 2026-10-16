@@ -27,16 +27,16 @@ ok('screen props stand on the sea under their anchor at the runtime island camer
     const top=C.projectPoint(pose,w/h,[a.point[0],a.point[1]+P.buttons[s.role].heightM*a.scale,a.point[2]]);assert(Math.abs((top.y-q.y)/2*h-s.prop.height)<s.prop.height*.05,'pixel height');
     assert(a.scale>.3&&a.scale<6,'scale '+a.scale);}
 });
-ok('signpost: main-button size (>= 1.8x the 1653f02 scale 1.2), in the west water beside the house, inside the 8 px safe inset, clear of bottom-row hits and the girl',()=>{
+ok('signpost: on the west lawn, face turned toward the lens, inside the 8 px safe inset, clear of bottom-row hits and the girl, wide-shot width <= 22%',()=>{
   const girl=C.characterBox([-2.1135,0,5.2814],1.7253,.3),S=P.signpost;
-  assert(S.scale>=1.2*1.8,'scale '+S.scale+' vs 1653f02 1.2');
+  assert(S.scale>=0.7&&S.scale<=1.2,'scale '+S.scale);
   for(const [w,h] of FRAMES){const r=L.signpostRectUi(pose,w,h);assert(r,'sign visible '+w+'x'+h);assert(inside(r,w,h,8),'sign inside safe inset '+w+'x'+h);
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'sign vs '+s.role+' '+w+'x'+h);
     const g=L.projectRectUi(pose,w,h,girl);assert(!overlap(r,g),'sign covers girl '+w+'x'+h);}
-  // West of the lighthouse mesh (x >= -2.70) and just seaward of the house front (z <= 0.89). The old
-  // front-right shallows at z = 18.8 sit behind the closest pull, which looks inland from the shore.
-  assert(S.position[0]<-2.7&&S.position[2]>0.9&&S.position[2]<4,'sign in the west water beside the house: '+S.position);
-  const r=L.signpostRectUi(pose,390,844);assert(r.width/390>=.20,'portrait width fraction '+(r.width/390).toFixed(2));
+  // Posts stand on the west grass (above the sea). The old front-right shallows at z = 18.8 sit behind the closest pull.
+  assert(S.position[0]<-2.7&&S.position[1]>P.seaY&&S.position[2]>0.4&&S.position[2]<2,'sign on the west lawn: '+S.position);
+  for(const [w,h] of [[402,874],[600,800]]){const r=L.signpostRectUi(pose,w,h);assert(r.width/w<=.22,'far width '+w+'x'+h+' '+(r.width/w).toFixed(3));}
+  const r=L.signpostRectUi(pose,402,874);assert(r.width/402>=.08,'far portrait still readable '+(r.width/402).toFixed(3));
   const base=C.projectPoint(pose,390/844,S.position);assert(base.depth>20);
 });
 ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers the whole sign, inside the 8 px inset, clear of bottom-row hits and the girl',()=>{
@@ -48,7 +48,7 @@ ok('signpost mainline hit area: >= 88x88 logical px on every viewport, covers th
     for(const s of L.propButtonLayout(w,h).slots)assert(!overlap(r,s.hit),'hit vs '+s.role+' '+w+'x'+h);
     assert(!overlap(r,L.projectRectUi(pose,w,h,girl)),'hit covers girl '+w+'x'+h);}
 });
-ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base under sea level, Tangents=Exclude metas, all prefabs present',()=>{
+ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world props: palms on the beach band, sign base on the lawn above the sea, Tangents=Exclude metas, all prefabs present',()=>{
   const W=P.signpost.water,sh=L.softEllipse(W.centerX,W.shadow.rx,W.shadow.rz),rg=L.softRing(W.centerX,W.ripple.rx,W.ripple.rz,W.ripple.band);
   for(const m of [sh,rg]){assert.equal(m.positions.length/3,m.colors.length/4);assert(m.indices.every(i=>i<m.positions.length/3));assert(m.positions.every((v,i)=>i%3!==1||v===0),'flat');}
   assert.equal(sh.colors[3],1);assert.equal(sh.colors[sh.colors.length-1],0,'shadow fades to 0 at the rim');assert(rg.colors.filter((_,i)=>i%4===3).every(a=>a===0||a===1));
@@ -56,7 +56,7 @@ ok('sign water: shadow + 2 ripple rings, soft alpha, ripple period/phase; world 
   const a0=L.rippleAt(0,0),a1=L.rippleAt(0,1),aw=L.rippleAt(W.ripple.periodS,0);assert.equal(a0.scale,1);assert(Math.abs(a1.scale-(1+W.ripple.grow/2))<1e-9);assert(Math.abs(aw.scale-a0.scale)<1e-9,'periodic');
   assert(L.rippleAt(W.ripple.periodS/2,0).alpha>.99&&a0.alpha<1e-9,'fade in/out');assert(W.ripple.nightAlpha<W.ripple.alpha&&W.shadow.nightAlpha<W.shadow.alpha,'dimmer at night');
   for(const p of P.palms){assert(p.position[2]>6.5&&p.position[2]<10.5,'palm z on beach');assert(p.position[1]>-1&&p.position[1]<.2);}
-  assert(P.signpost.position[1]<P.seaY,'sign posts stand in the water');
+  assert(P.signpost.position[1]>P.seaY,'sign posts stand on the lawn, above the sea');
   const dir=path.resolve(SRC,'../bundles/region_island',P.dir),names=[P.signpost.prefab,...P.palms.map(p=>p.prefab),...Object.values(P.buttons).map(b=>b.prefab)];
   for(const n of names){const m=JSON.parse(fs.readFileSync(path.join(dir,n+'.glb.meta'),'utf8'));assert.equal(m.importer,'gltf');assert.equal(m.userData.tangents,1,'Tangents=Exclude '+n);
     const b=fs.readFileSync(path.join(dir,n+'.glb')),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));assert(!j.images,'no embedded images '+n);
@@ -303,7 +303,7 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
     }
     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
     assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
-    assert.deepEqual(P.signpost.position,[-4.4,-1.15,1.5]);
+    assert.deepEqual(P.signpost.position,[-4.08,0.127,0.7]);
   }
   rail.restore(0);const close=rail.pose();
   const aabb=(b)=>{const o=[];for(const x of [b[0][0],b[1][0]])for(const y of [b[0][1],b[1][1]])for(const z of [b[0][2],b[1][2]])o.push([x,y,z]);return o;};
