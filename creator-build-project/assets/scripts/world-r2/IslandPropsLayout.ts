@@ -68,7 +68,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
    * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
    * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
-  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#2c4058' },
+  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#4a6a8c' },
   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
   nightFadeS: 0.5,
   notAdded: {
