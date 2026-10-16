@@ -1,6 +1,41 @@
 {
  "status": "PASS",
- "timeUTC": "2026-10-16T11:54:28.187Z",
+ "timeUTC": "2026-10-16T19:06:37.397Z",
+ "fixture": {
+  "json": "occlusion/fixture-occluders.json",
+  "jsonSha256": "1b25fab5e9169b22af987719ce8bb0e7907701d858ac1df48a977fbe2f6139be",
+  "binGz": "occlusion/fixture-occluders.bin.gz",
+  "binGzSha256": "189a697c96cb3f992d4f5a66ca02eec0fd410ea155b78dfa56219525083da33d",
+  "bytes": 3752676,
+  "binSha256": "92091dac28161f9d1bff1fe01f656765266d44e25f3420a9f7a8fccdedb03365",
+  "sources": [
+   {
+    "id": "island",
+    "glb": "static_seat_preview/room/room_no_original_chair.glb",
+    "sha256": "f62e2832d326d3ec025161b5bcb55c56ab72560e10ee954d2a7fceffa39c8d29"
+   },
+   {
+    "id": "palm_tall",
+    "glb": "region_island/ui-props/beach_palm_tall.glb",
+    "sha256": "869dbf0c0633c936b573de0e644653fb9b2430169cb2f9ae23c480b8ed9c4528"
+   },
+   {
+    "id": "palm_short",
+    "glb": "region_island/ui-props/beach_palm_short.glb",
+    "sha256": "0ae020ed15d77e93b48fa217f1b97dd2583d8b67386552deb5d09da7541e0f1d"
+   },
+   {
+    "id": "skycity",
+    "glb": "region_skycity/env_skycity.glb",
+    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
+   },
+   {
+    "id": "skycity_frame",
+    "glb": "region_skycity/env_skycity.glb",
+    "sha256": "1727cfdb35c3a00517be3c74bc15c604f31cc609a3a61358178a83dffaf1a4b8"
+   }
+  ]
+ },
  "scope": "Screen-space geometry (ray grid 13×28, 390×844) on real GLB triangles + real TS. Not a render.",
  "camera": {
   "blendM": 18,
