@@ -13,8 +13,14 @@ export const SAILBOAT_TIMING_RESOURCE = 'cine/transition_island_to_meadow.timing
 export const SAILBOAT_CINE_FILE = 'audio_cine/sfx_transition_island_to_meadow.mp3';
 export const SAILBOAT_CINE_PATH = 'audio_cine/sfx_transition_island_to_meadow';
 export const SAILBOAT_CINE_BUNDLE = 'region_island';
-/** Cloud-hold sting fade. Skip uses the timing file's skipFadeSec instead. */
-export const SAILBOAT_HOLD_CINE_FADE_SEC = 0.08;
+/**
+ * Cloud-hold sting guard (Mac r4: an 80 ms fade on a 9 ms hold cut the sting for good).
+ * The sting keeps playing for the first SAILBOAT_HOLD_FADE_DELAY_SEC of a hold; only a hold
+ * that lasts longer fades it, over SAILBOAT_HOLD_FADE_SEC. Leaving the hold before that fade
+ * has finished restores the sting. Skip uses the timing file's skipFadeSec instead.
+ */
+export const SAILBOAT_HOLD_FADE_DELAY_SEC = 0.25;
+export const SAILBOAT_HOLD_FADE_SEC = 0.4;
 export const SAILBOAT_HOLD_WIND_PATH = 'audio_amb/amb_wind_soft_loop';
 
 export interface SailboatShot {
@@ -71,6 +77,7 @@ export type SailboatAudioCommand =
   | { kind: 'cine-pause'; path: string }
   | { kind: 'cine-resume'; path: string }
   | { kind: 'cine-fade'; path: string; seconds: number }
+  | { kind: 'cine-restore'; path: string }
   | { kind: 'cine-stop'; path: string }
   | { kind: 'wind-loop'; path: string }
   | { kind: 'wind-fade'; path: string; seconds: number }
@@ -249,8 +256,8 @@ export function meadowRevealReady(warmFrames: number): boolean {
 
 /**
  * Start gate: frame 0 is "the first frame after the exit camera settles on the island final pose".
- * Mac r3 showed the sting and the clock starting about 1.8 s before the boat visibly set sail, while the
- * exit camera was still easing. The playback (sting + countdown) begins only once the live camera has
+ * (The r3 "sting 1.8 s early" reading was a recorder audio-alignment artifact; re-aligned it was ~0.1 s.
+ * The gate stays as the guarantee of the timing file's frame-0 definition.) The playback (sting + countdown) begins only once the live camera has
  * held still for `stillFrames` consecutive rendered frames, each of them no longer than `maxFrameDt`.
  * `timeoutSec` is the fallback so a camera that never settles still gets a transition.
  */
@@ -312,6 +319,8 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
   let cine: CineState = 'idle';
   let paused = false;
   let started = false;
+  let holdT = 0;
+  let holdFadeT = -1;
 
   const frameNow = () => frameAt(elapsed);
   function frameAt(seconds: number): number {
@@ -393,12 +402,28 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
   function enterHold(commands: SailboatAudioCommand[]) {
     elapsed = timing.sceneSwapFrame / timing.fps;
     if (phase !== 'holding') phase = 'holding';
-    cineTo('fading', commands, SAILBOAT_HOLD_CINE_FADE_SEC);
+    holdT = 0;
+    holdFadeT = -1;
     windOn(commands);
+  }
+  function tickHold(step: number, commands: SailboatAudioCommand[]) {
+    holdT += step;
+    if (holdFadeT >= 0) { holdFadeT += step; return; }
+    if (holdT > SAILBOAT_HOLD_FADE_DELAY_SEC + 1e-9 && cine === 'playing') {
+      cineTo('fading', commands, SAILBOAT_HOLD_FADE_SEC);
+      holdFadeT = 0;
+    }
   }
   function leaveHold(commands: SailboatAudioCommand[]) {
     swapped = true;
     if (phase === 'holding') phase = 'playing';
+    if (holdFadeT >= 0 && cine === 'fading') {
+      if (holdFadeT < SAILBOAT_HOLD_FADE_SEC - 1e-9) {
+        cine = 'playing';
+        commands.push({ kind: 'cine-restore', path: SAILBOAT_CINE_PATH });
+      } else cine = 'stopped';
+    }
+    holdFadeT = -1;
   }
   function land(commands: SailboatAudioCommand[]) {
     phase = 'done';
@@ -448,6 +473,7 @@ export function createSailboatPlayback(timing: SailboatTiming, options?: { start
         if (ready) land(commands);
       } else if (phase === 'holding') {
         if (ready) leaveHold(commands);
+        else tickHold(step, commands);
       }
       if (phase === 'playing') {
         const swapAt = timing.sceneSwapFrame / timing.fps;

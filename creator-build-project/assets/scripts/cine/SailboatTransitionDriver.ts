@@ -334,6 +334,7 @@ export class SailboatTransitionDriver extends Component {
       else if (command.kind === 'cine-pause') audio.pauseCineSlot();
       else if (command.kind === 'cine-resume') audio.resumeCineSlot();
       else if (command.kind === 'cine-fade') audio.fadeCineSlot(command.seconds);
+      else if (command.kind === 'cine-restore') audio.restoreCineSlot();
       else if (command.kind === 'cine-stop') audio.stopCineSlot();
       else if (command.kind === 'wind-loop') audio.loopHoldAmbience(command.path);
       else if (command.kind === 'wind-fade') audio.fadeHoldAmbience(command.seconds);

@@ -1014,6 +1014,13 @@ export class GameAudio extends Component {
     try { if (this.cineSource && !this.cineSource.playing) this.cineSource.play(); } catch { /* still loading */ }
     this.tickCineFade();
   }
+  /** Cancel a fade that has not finished and put the sting back at its pre-fade gain. */
+  restoreCineSlot() {
+    if (!GameAudio.usable(this) || this.cineFadeAt === null) return;
+    const gain = this.cineFadeFrom;
+    this.cineFadeAt = null;
+    try { if (this.cineSource) this.cineSource.volume = gain; } catch { /* ignore */ }
+  }
   stopCineSlot() {
     this.cineGen++;
     this.cinePaused = false;

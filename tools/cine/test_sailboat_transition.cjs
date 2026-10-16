@@ -10,7 +10,7 @@ const timingPath = path.join(root, 'creator-build-project/assets/resources/cine/
 const modelPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts');
 const windPath = path.join(root, 'creator-build-project/assets/scripts/audio/WindAudio.ts');
 
-const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, sailboatIslandActive, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE, createSailboatStartGate, SAILBOAT_START_STILL_FRAMES, SAILBOAT_START_TIMEOUT_SEC, SAILBOAT_MAX_FRAME_DT };')();
+const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, sailboatIslandActive, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_FADE_DELAY_SEC, SAILBOAT_HOLD_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE, createSailboatStartGate, SAILBOAT_START_STILL_FRAMES, SAILBOAT_START_TIMEOUT_SEC, SAILBOAT_MAX_FRAME_DT };')();
 const rawText = fs.readFileSync(timingPath, 'utf8');
 const raw = JSON.parse(rawText);
 const timing = model.parseSailboatTiming(raw);
@@ -55,7 +55,9 @@ assert.equal(timing.holdCoverIfNotLoaded, true);
 assert.equal(model.SAILBOAT_CINE_FILE, 'audio_cine/sfx_transition_island_to_meadow.mp3');
 assert.equal(model.SAILBOAT_CINE_PATH, 'audio_cine/sfx_transition_island_to_meadow');
 assert.equal(model.SAILBOAT_CINE_BUNDLE, 'region_island');
-assert.equal(model.SAILBOAT_HOLD_CINE_FADE_SEC, 0.08);
+assert.equal(model.SAILBOAT_HOLD_FADE_DELAY_SEC, 0.25);
+assert.equal(model.SAILBOAT_HOLD_FADE_SEC, 0.4);
+assert.equal('SAILBOAT_HOLD_CINE_FADE_SEC' in model, false);
 assert.equal(model.SAILBOAT_HOLD_WIND_PATH, 'audio_amb/amb_wind_soft_loop');
 assert.match(fs.readFileSync(windPath, 'utf8'), /audio_amb\/amb_wind_soft_loop/);
 assert.equal(fs.existsSync(path.join(root, 'creator-build-project/assets/resources/audio_amb/amb_wind_soft_loop.mp3')), true);
@@ -193,15 +195,16 @@ assert.equal(waiting.view.swapped, false);
 assert.equal(kinds(waiting.commands).filter(kind => kind === 'wind-loop').length, 1);
 assert.equal(kinds(waiting.commands).includes('cine-pause'), false);
 assert.equal(kinds(waiting.commands).includes('cine-stop'), false);
-const holdFade = waiting.commands.find(command => command.kind === 'cine-fade');
-assert.equal(holdFade.seconds, model.SAILBOAT_HOLD_CINE_FADE_SEC);
-assert.ok(holdFade.seconds < timing.skipFadeSec);
-assert.ok(kinds(waiting.commands).indexOf('cine-fade') < kinds(waiting.commands).indexOf('wind-loop'));
+// pump stops at the hold; the sting is not faded yet.
+assert.equal(kinds(waiting.commands).includes('cine-fade'), false);
 const stuck = held.advance(2, { meadowReady: false });
 assert.equal(stuck.view.frame, timing.sceneSwapFrame);
 assert.equal(stuck.view.phase, 'holding');
-assert.equal(stuck.commands.length, 0);
+const holdFade = stuck.commands.find(command => command.kind === 'cine-fade');
+assert.equal(holdFade.seconds, model.SAILBOAT_HOLD_FADE_SEC);
+assert.equal(held.advance(1, { meadowReady: false }).commands.length, 0);
 const released = held.advance(0, { meadowReady: true });
+assert.equal(kinds(released.commands).includes('cine-restore'), false, 'a finished hold fade is not restored');
 assert.equal(released.view.phase, 'playing');
 assert.equal(released.view.scene, 'meadow');
 assert.equal(released.view.swapped, true);
@@ -236,7 +239,7 @@ for (let left = custom.durationSec + 1; left > 1e-8;) {
   if (customHeld.view.phase === 'holding') break;
 }
 assert.equal(customHeld.view.phase, 'holding');
-assert.equal(customHeld.commands.find(command => command.kind === 'cine-fade').seconds, model.SAILBOAT_HOLD_CINE_FADE_SEC);
+assert.equal(kinds(customHeld.commands).includes('cine-fade'), false);
 assert.equal(kinds(customHeld.commands).includes('wind-loop'), true);
 
 const background = model.createSailboatPlayback(timing);
@@ -564,3 +567,65 @@ console.log('sailboat r3 cloud texture/dissolve/prefetch: ok');
   }
 }
 console.log('r3 start gate / hold timing: ok');
+
+// Cloud-hold sting guard: short hold no fade; long hold fades after 250 ms over 0.4 s; leaving mid-fade restores.
+function holdAt(dtFrame) {
+  const p = model.createSailboatPlayback(timing);
+  p.begin();
+  let s = null;
+  for (let left = timing.durationSec + 1; left > 1e-8; left -= dtFrame) {
+    s = p.advance(dtFrame, { meadowReady: false });
+    if (s.view.phase === 'holding') break;
+  }
+  assert.equal(s.view.phase, 'holding');
+  assert.equal(kinds(s.commands).includes('cine-fade'), false);
+  return p;
+}
+{
+  const p = holdAt(1 / 60);
+  let all = [];
+  for (let t = 0; t < 0.24; t += 1 / 60) all = all.concat(p.advance(1 / 60, { meadowReady: false }).commands);
+  assert.equal(kinds(all).includes('cine-fade'), false, 'no fade within 250 ms of hold');
+  const out = p.advance(1 / 60, { meadowReady: true });
+  assert.equal(kinds(out.commands).includes('cine-restore'), false);
+  assert.equal(kinds(out.commands).includes('cine-stop'), false);
+  const rest = [];
+  let s = out;
+  for (let i = 0; i < 600 && s.view.phase !== 'done'; i++) { s = p.advance(1 / 60, { meadowReady: true }); rest.push(...s.commands); }
+  assert.equal(kinds(rest).some(k => k.startsWith('cine-')), false, 'sting plays out untouched');
+  console.log('PASS short hold (<250ms) never fades the sting');
+}
+{
+  const p = holdAt(1 / 60);
+  let fadeAt = null; let t = 0;
+  for (let i = 0; i < 60; i++) {
+    const s = p.advance(1 / 60, { meadowReady: false });
+    t += 1 / 60;
+    const f = s.commands.find(c => c.kind === 'cine-fade');
+    if (f) { assert.equal(fadeAt, null); fadeAt = t; assert.equal(f.seconds, 0.4); }
+  }
+  assert.ok(fadeAt > 0.25 && fadeAt <= 0.25 + 1 / 60 + 1e-9, 'fade starts right after 250 ms: ' + fadeAt);
+  console.log('PASS long hold fades after 250ms over 0.4s');
+}
+{
+  const p = holdAt(1 / 60);
+  let faded = false;
+  for (let i = 0; i < 16 + 12; i++) faded = p.advance(1 / 60, { meadowReady: false }).commands.some(c => c.kind === 'cine-fade') || faded;
+  assert.ok(faded);
+  const out = p.advance(0, { meadowReady: true });
+  assert.deepEqual(kinds(out.commands).filter(k => k.startsWith('cine-')), ['cine-restore']);
+  assert.equal(out.view.swapped, true);
+  // after restore, a tap skip can fade it again (state is playing)
+  const tap = p.advance(0, { meadowReady: true, tap: true });
+  assert.equal(tap.commands.find(c => c.kind === 'cine-fade').seconds, timing.skipFadeSec);
+  console.log('PASS leaveHold mid-fade restores the sting');
+}
+{
+  const p = holdAt(1 / 60);
+  const s = p.advance(0.1, { meadowReady: false, tap: true });
+  assert.equal(s.view.phase, 'skip-fade');
+  assert.equal(s.commands.find(c => c.kind === 'cine-fade').seconds, timing.skipFadeSec);
+  const more = p.advance(0.5, { meadowReady: false });
+  assert.equal(kinds(more.commands).includes('cine-fade'), false);
+  console.log('PASS skip during hold keeps the 0.3s skip fade only');
+}
