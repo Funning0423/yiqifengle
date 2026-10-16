@@ -94,6 +94,7 @@ CCProgram glass-sign-fs %{
     float cover = 1.0 - smoothstep(-w, w, dq);
     float t = clamp(dot(q - C, vec2(0.34202, 0.93969)) / 189.76 + 0.5, 0.0, 1.0);
     float fa = t < 0.55 ? mix(0.34, 0.10, t / 0.55) : mix(0.10, 0.18, (t - 0.55) / 0.45);
+    fa += 0.08; // round 2: denser base tint (no blur available) so wall seams read less, closer to the prototype
     float glow = 0.12 * (1.0 - phi(sdCapsule(q + vec2(0.0, 6.0), vec2(140.0, 50.0), 50.0) / 7.0));
     float ca = (fa + glow * (1.0 - fa)) * cover;
     col = over(vec4(ca, ca, ca, ca), col);
