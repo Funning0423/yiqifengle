@@ -131,6 +131,24 @@ export class GameAudio extends Component {
   private static innerAudioOptionPending = false;
 
   private sfxVoices = new Map<AudioSource, SfxVoice>();
+  /** One-shot cinematic bed (island→meadow). Missing file is a no-op. Not part of the short-sfx voice budget. */
+  private cineSource: AudioSource | null = null;
+  private cineClip: AudioClip | null = null;
+  private cineGen = 0;
+  private cinePaused = false;
+  private cineFadeAt: number | null = null;
+  private cineFadeS = 0;
+  private cineFadeFrom = 1;
+  /** Existing ambience loop used only while a cinematic holds for a bundle load. */
+  private holdSource: AudioSource | null = null;
+  private holdClip: AudioClip | null = null;
+  private holdPath: string | null = null;
+  private holdGen = 0;
+  private holdWanted = false;
+  private holdLoading = false;
+  private holdFadeAt: number | null = null;
+  private holdFadeS = 0;
+  private holdFadeFrom = 1;
   private readonly onSfxStarted = (source: AudioSource) => {
     const voice = this.sfxVoices.get(source);
     if (voice) voice.started = true;
@@ -231,6 +249,8 @@ export class GameAudio extends Component {
     this.retireMusicExtras();
     this.detachLoopSource();
     this.stopAllSfx();
+    this.stopCineSlot?.();
+    this.stopHoldAmbience?.();
     // Creator 3.8.8 validates the direct parent destroy.call form in editor builds.
     return Component.prototype.destroy.call(this);
   }
@@ -273,6 +293,8 @@ export class GameAudio extends Component {
       this.reasons = new Set(cur.reasons);
       this.interruptGen = cur.interruptGen; this.activeGen = cur.activeGen;
       this.staleGen = cur.staleGen; this.staleSince = cur.staleSince;
+      cur.stopCineSlot();
+      cur.stopHoldAmbience();
       cur.alive = false;
       cur.loopRequested = false;
       cur.retireMusicExtras();
@@ -343,6 +365,8 @@ export class GameAudio extends Component {
     this.node.off(AudioSource.EventType.STARTED, this.onSfxStarted, this);
     this.node.off(AudioSource.EventType.ENDED, this.onSfxEnded, this);
     this.stopAllSfx();
+    this.stopCineSlot();
+    this.stopHoldAmbience();
     this.retireMusicExtras();
     this.detachLoopSource();
     this.musicClip?.decRef(); this.musicClip = null;
@@ -356,6 +380,9 @@ export class GameAudio extends Component {
   /** 兜底：引擎在 onShow 时会自己恢复它暂停过的播放器；挂起或静音期间都要再按住（审查 #5） */
   update() {
     if (!GameAudio.usable(this)) return;
+    this.tickCineFade();
+    this.tickHoldFade();
+    if (this.holdWanted && !this.holdSource && this.holdFadeAt === null) this.resumeHoldIfWanted();
     this.observeSfxVoices();
     if (this.reasons.size > 0 || this.muted || !this.gestureSeen || this.musicVolume === 0) {
       if (this.loopRequested || this.loopSource?.playing) this.pauseLoop();
@@ -455,7 +482,7 @@ export class GameAudio extends Component {
     if (!GameAudio.usable(this)) return;
     this.muted = m;
     try { sys.localStorage.setItem(MUTE_KEY, m ? '1' : '0'); } catch (e) { console.warn('[GameAudio] mute preference not saved', e); }
-    if (m) { this.stopAllSfx(); this.pauseLoop(); } else this.resumeLoopIfAllowed();
+    if (m) { this.stopAllSfx(); this.pauseLoop(); this.stopCineSlot(); this.stopHoldAmbience(); } else this.resumeLoopIfAllowed();
   }
   isMuted() { return this.muted; }
   /** 只关音效（含鼓励音），音乐照常；正在播的音效立即停 */
@@ -463,7 +490,7 @@ export class GameAudio extends Component {
     if (!GameAudio.usable(this)) return;
     this.sfxMuted = !!m;
     try { sys.localStorage.setItem(SFX_MUTE_KEY, m ? '1' : '0'); } catch (e) { console.warn('[GameAudio] sfx preference not saved', e); }
-    if (m) this.stopAllSfx();
+    if (m) { this.stopAllSfx(); this.stopCineSlot(); }
   }
   isSfxMuted() { return this.sfxMuted; }
   getMusicVolume() { return this.musicVolume; }
@@ -479,11 +506,11 @@ export class GameAudio extends Component {
     if (!GameAudio.usable(this) || this.reasons.has(reason)) return;               // 幂等：重复事件不重复处理
     const wasActive = this.reasons.size === 0;
     this.reasons.add(reason);
-    if (wasActive) { this.stopAllSfx(); this.pauseLoop(); }
+    if (wasActive) { this.stopAllSfx(); this.pauseLoop(); this.stopCineSlot(); this.stopHoldAmbience(); }
   }
   private resume(reason: SuspendReason) {
     if (!this.alive || !this.reasons.delete(reason)) return;           // 幂等：没有这个原因就什么都不做
-    if (this.reasons.size === 0) this.resumeLoopIfAllowed();
+    if (this.reasons.size === 0) { this.resumeLoopIfAllowed(); this.resumeHoldIfWanted(); }
   }
   private createLoopSource() {
     const source = this.node.addComponent(AudioSource);
@@ -924,6 +951,179 @@ export class GameAudio extends Component {
     if (playingLevel >= level) return;
     for (let i = 0; i < voices.length; i++) if (CHEERS.indexOf(voices[i].name) >= 0) this.retireSfx(voices[i].source);
     this.play(CHEERS[level]);
+  }
+
+  /**
+   * Cinematic one-shot (path without extension). An empty bundle loads from resources;
+   * otherwise assetManager.loadBundle then bundle.load, same as setMusic.
+   * A missing clip is logged and ignored. Background / mute stops it; skip and the
+   * cloud hold fade it with fadeCineSlot (equal-power, then stop once the gain is ~0).
+   */
+  playCineSlot(path: string, bundle?: string | null) {
+    if (!GameAudio.usable(this) || this.muted || this.sfxMuted || this.reasons.size > 0 || !path) return;
+    this.stopCineSlot();
+    const gen = ++this.cineGen;
+    this.cinePaused = false;
+    const bundleName = bundle ? String(bundle) : '';
+    const where = bundleName ? bundleName + '/' + path : path;
+    const loaded = (err: any, clip: AudioClip) => {
+      if (!GameAudio.usable(this) || gen !== this.cineGen) return;
+      if (err || !clip) { console.warn('[GameAudio] cine slot missing', where, err || ''); return; }
+      clip.addRef();
+      this.cineClip = clip;
+      try {
+        const source = this.node.addComponent(AudioSource);
+        source.playOnAwake = false;
+        source.loop = false;
+        source.clip = clip;
+        source.volume = this.cineGainNow();
+        this.cineSource = source;
+        if (this.cineFadeAt !== null && this.cineGainNow() <= 0.001) { this.stopCineSlot(); return; }
+        source.play();
+        if (this.cinePaused) source.pause();
+      } catch (error) { console.warn('[GameAudio] cine play failed', where, error); this.stopCineSlot(); }
+    };
+    try {
+      if (!bundleName) { resources.load(path, AudioClip, loaded); return; }
+      const ready = assetManager.getBundle(bundleName);
+      if (ready) { ready.load(path, AudioClip, loaded); return; }
+      assetManager.loadBundle(bundleName, (err: any, b: any) => {
+        if (!GameAudio.usable(this) || gen !== this.cineGen) return;
+        if (err || !b) { loaded(err || new Error('bundle ' + bundleName + ' unavailable'), null as any); return; }
+        try { b.load(path, AudioClip, loaded); } catch (e) { loaded(e, null as any); }
+      });
+    } catch (e) { loaded(e, null as any); }
+  }
+  pauseCineSlot() {
+    if (!GameAudio.usable(this)) return;
+    this.cinePaused = true;
+    try { if (this.cineSource?.playing) this.cineSource.pause(); } catch (error) { console.warn('[GameAudio] cine pause failed', error); }
+  }
+  resumeCineSlot() {
+    if (!GameAudio.usable(this) || this.muted || this.sfxMuted || this.reasons.size > 0) return;
+    this.cinePaused = false;
+    try { if (this.cineSource && !this.cineSource.playing) this.cineSource.play(); } catch (error) { console.warn('[GameAudio] cine resume failed', error); }
+  }
+  /** Equal-power fade to silence, then stop. `seconds` comes from the timing file. */
+  fadeCineSlot(seconds: number) {
+    if (!GameAudio.usable(this)) return;
+    this.cinePaused = false;
+    this.cineFadeS = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    this.cineFadeAt = GameAudio.now();
+    this.cineFadeFrom = this.cineSource ? this.cineSource.volume : 1;
+    try { if (this.cineSource && !this.cineSource.playing) this.cineSource.play(); } catch { /* still loading */ }
+    this.tickCineFade();
+  }
+  /** Cancel a fade that has not finished and put the sting back at its pre-fade gain. */
+  restoreCineSlot() {
+    if (!GameAudio.usable(this) || this.cineFadeAt === null) return;
+    const gain = this.cineFadeFrom;
+    this.cineFadeAt = null;
+    try { if (this.cineSource) this.cineSource.volume = gain; } catch { /* ignore */ }
+  }
+  stopCineSlot() {
+    this.cineGen++;
+    this.cinePaused = false;
+    this.cineFadeAt = null;
+    this.retireOwned(this.cineSource, this.cineClip);
+    this.cineSource = null;
+    this.cineClip = null;
+  }
+  /**
+   * Loop an existing ambience clip while a cinematic waits on a bundle.
+   * Reuses the caller's path (the wind bed); no new asset. Fades out with fadeHoldAmbience.
+   */
+  loopHoldAmbience(path: string) {
+    if (!GameAudio.usable(this) || !path) return;
+    this.holdWanted = true;
+    this.holdFadeAt = null;
+    if (this.holdPath === path && this.holdSource?.playing) {
+      try { this.holdSource.volume = this.holdBed(); } catch { /* ignore */ }
+      return;
+    }
+    this.holdPath = path;
+    if (!this.canPlayAmbience()) return;
+    this.startHold(path);
+  }
+  fadeHoldAmbience(seconds: number) {
+    if (!GameAudio.usable(this)) return;
+    this.holdWanted = false;
+    this.holdFadeS = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    this.holdFadeAt = GameAudio.now();
+    this.holdFadeFrom = this.holdSource ? this.holdSource.volume : 1;
+    this.tickHoldFade();
+  }
+  stopHoldAmbience() {
+    this.holdGen++;
+    this.holdWanted = false;
+    this.holdLoading = false;
+    this.holdFadeAt = null;
+    this.holdPath = null;
+    this.retireOwned(this.holdSource, this.holdClip);
+    this.holdSource = null;
+    this.holdClip = null;
+  }
+  private resumeHoldIfWanted() {
+    if (this.holdWanted && this.holdPath && !this.holdLoading && this.canPlayAmbience()) this.startHold(this.holdPath);
+  }
+  private startHold(path: string) {
+    if (this.holdLoading) return;
+    const gen = ++this.holdGen;
+    const existing = this.holdPath === path ? this.holdClip : null;
+    const begin = (clip: AudioClip) => {
+      this.holdLoading = false;
+      if (!GameAudio.usable(this) || gen !== this.holdGen || !this.holdWanted) return;
+      this.retireOwned(this.holdSource, this.holdClip && this.holdClip !== clip ? this.holdClip : null);
+      if (this.holdClip !== clip) { clip.addRef(); this.holdClip = clip; }
+      try {
+        const source = this.node.addComponent(AudioSource);
+        source.playOnAwake = false;
+        source.loop = true;
+        source.clip = clip;
+        source.volume = this.holdBed();
+        this.holdSource = source;
+        source.play();
+      } catch (error) { console.warn('[GameAudio] hold ambience failed', path, error); }
+    };
+    if (existing) { begin(existing); return; }
+    this.holdLoading = true;
+    resources.load(path, AudioClip, (err, clip) => {
+      this.holdLoading = false;
+      if (!GameAudio.usable(this) || gen !== this.holdGen) return;
+      if (err || !clip) { console.warn('[GameAudio] hold ambience missing', path, err || ''); return; }
+      begin(clip);
+    });
+  }
+  private holdBed(): number {
+    const music = this.musicVolume;
+    return Math.max(0, Math.min(1, (Number.isFinite(music) ? music : 1) * 0.8));
+  }
+  private cineGainNow(): number {
+    if (this.cineFadeAt === null) return 1;
+    const t = this.cineFadeS <= 0 ? 1 : (GameAudio.now() - this.cineFadeAt) / (this.cineFadeS * 1000);
+    return this.cineFadeFrom * Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2);
+  }
+  private tickCineFade() {
+    if (this.cineFadeAt === null) return;
+    const gain = this.cineGainNow();
+    if (gain <= 0.001) { this.stopCineSlot(); return; }
+    try { if (this.cineSource) this.cineSource.volume = gain; } catch { /* ignore */ }
+  }
+  private tickHoldFade() {
+    if (this.holdFadeAt === null) return;
+    const t = this.holdFadeS <= 0 ? 1 : (GameAudio.now() - this.holdFadeAt) / (this.holdFadeS * 1000);
+    if (t >= 1) { this.stopHoldAmbience(); return; }
+    const gain = this.holdFadeFrom * Math.cos(Math.max(0, Math.min(1, t)) * Math.PI / 2);
+    try { if (this.holdSource) this.holdSource.volume = gain; } catch { /* ignore */ }
+  }
+  private retireOwned(source: AudioSource | null, clip: AudioClip | null) {
+    if (source) {
+      try { source.volume = 0; } catch { /* ignore */ }
+      try { source.stop(); } catch { /* ignore */ }
+      try { source.clip = null; } catch { /* ignore */ }
+      try { source.destroy(); } catch { /* ignore */ }
+    }
+    if (clip) { try { clip.decRef(); } catch { /* ignore */ } }
   }
 
   /** A4：环境声（AmbienceAudio）用来判断现在能不能出声：未静音、无挂起、已有过用户手势 */

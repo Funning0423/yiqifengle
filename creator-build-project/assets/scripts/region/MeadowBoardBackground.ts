@@ -1,5 +1,6 @@
 import { _decorator, Animation, Camera, Color, Component, EffectAsset, Material, MeshRenderer, Node, Prefab, SphereLight, Vec4, assetManager, director, game, Game, isValid, instantiate } from 'cc';
 import { REGIONS, loadRegionPrefab, mountRegion } from './RegionLoader';
+import { noteMeadowLease } from '../cine/SailboatMeadowPrefetch';
 import { MEADOW_SCENE_SOURCE, meadowScenePose } from './MeadowSceneData';
 import { applyCameraPose, fromLookAt } from '../world-r1/CameraPose';
 import { uiNightWeight } from '../ui/NightTint';
@@ -28,6 +29,54 @@ export function configureMeadowVertexColors(model:Node):string[] {
  }
  return changed;
 }
+/** Day mainColor of the unlit sky/cloud materials is white, same as the island backdrops.
+ *  Night targets match the island sky dome and cloud layer. Clear is the meadow camera. */
+export const MEADOW_DOME_NIGHT: readonly number[] = [0.18, 0.24, 0.46];
+export const MEADOW_CLOUD_NIGHT: readonly number[] = [0.22, 0.28, 0.43];
+export const MEADOW_CLEAR_DAY: readonly number[] = [135, 191, 201];
+export const MEADOW_CLEAR_NIGHT: readonly number[] = [46, 61, 117];
+export const MEADOW_KEY_DAY: readonly number[] = [255, 243, 218];
+export const MEADOW_KEY_NIGHT: readonly number[] = [180, 198, 232];
+export const MEADOW_KEY_NIGHT_SCALE = 0.35;
+const meadowDayLuminance = new WeakMap<SphereLight, number>();
+export function meadowNightMix(day: readonly number[], night: readonly number[], w: number): number[] {
+ const t = w > 0 ? (w < 1 ? w : 1) : 0;
+ const out: number[] = [];
+ for (let i = 0; i < day.length; i++) out.push(day[i] + ((night[i] ?? day[i]) - day[i]) * t);
+ return out;
+}
+function tintMeadowSurface(root: Node, name: string, nightRgb: readonly number[], w: number) {
+ const node = find(root, name); if (!node) return;
+ const renderer = node.getComponent(MeshRenderer);
+ if (!renderer || typeof renderer.getMaterialInstance !== 'function') return;
+ let instance: Material | null = null;
+ try { instance = renderer.getMaterialInstance(0); } catch { return; }
+ if (!instance || typeof instance.setProperty !== 'function') return;
+ const rgb = meadowNightMix([1, 1, 1], nightRgb, w);
+ try { instance.setProperty('mainColor', new Vec4(rgb[0], rgb[1], rgb[2], 1)); } catch { /* uniform missing */ }
+}
+/** Sky dome, near clouds, meadow camera clear, and the reveal key light.
+ *  Missing nodes are ignored. Call on mount and every frame, including while paused. */
+export function applyMeadowNightSky(root: Node | null, camera: Camera | null, light: SphereLight | null, night = uiNightWeight()): void {
+ const w = night > 0 ? (night < 1 ? night : 1) : 0;
+ if (root && isValid(root, true)) {
+  tintMeadowSurface(root, 'meadow_sky_dome', MEADOW_DOME_NIGHT, w);
+  tintMeadowSurface(root, 'meadow_clouds_near', MEADOW_CLOUD_NIGHT, w);
+  const cameras = root.getComponentsInChildren(Camera);
+  for (let i = 0; i < cameras.length; i++) paintMeadowClear(cameras[i], w);
+ }
+ if (camera && isValid(camera, true)) paintMeadowClear(camera, w);
+ if (light && isValid(light, true)) {
+  const rgb = meadowNightMix(MEADOW_KEY_DAY, MEADOW_KEY_NIGHT, w);
+  light.color = new Color(rgb[0], rgb[1], rgb[2], 255);
+  if (!meadowDayLuminance.has(light)) meadowDayLuminance.set(light, light.luminance);
+  light.luminance = (meadowDayLuminance.get(light) as number) * (1 + (MEADOW_KEY_NIGHT_SCALE - 1) * w);
+ }
+}
+function paintMeadowClear(camera: Camera, w: number) {
+ const rgb = meadowNightMix(MEADOW_CLEAR_DAY, MEADOW_CLEAR_NIGHT, w);
+ camera.clearColor = new Color(rgb[0], rgb[1], rgb[2], 255);
+}
 function loadWindEffect():Promise<EffectAsset> {
  const bundle=assetManager.getBundle(REGIONS.meadow.bundle);if(!bundle)return Promise.reject(Error('Meadow bundle missing'));
  return new Promise((ok,fail)=>bundle.load('meadow-grass-wind',EffectAsset,(error,effect)=>error||!effect?fail(error||Error('Meadow grass shader missing')):ok(effect)));
@@ -48,7 +97,7 @@ export async function preflightMeadowScene():Promise<void> {
 }
 @ccclass('MeadowSceneMotion')
 export class MeadowSceneMotion extends Component {
- material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;hostPaused=true;visible=false;
+ material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;skyCamera:Camera|null=null;hostPaused=true;visible=false;
  private seconds=0;private hidden=false;
  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
  private hide(){this.hidden=true;}private show(){this.hidden=false;}
@@ -57,6 +106,8 @@ export class MeadowSceneMotion extends Component {
   const night=uiNightWeight();
   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);
   this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,0));
+  // Every frame, whether or not the grass clock is running.
+  applyMeadowNightSky(this.node,this.skyCamera,this.light,night);
  }
  diagnostics(){return {seconds:this.seconds,paused:this.hostPaused||this.hidden||!this.visible,windmillLoopSeconds:8,grassWaveSeconds:4};}
  onDestroy(){game.off(Game.EVENT_HIDE,this.hide,this);game.off(Game.EVENT_SHOW,this.show,this);this.material=null;this.sail=null;this.light=null;}
@@ -68,12 +119,14 @@ export class MeadowSceneMotion extends Component {
 export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
  let rig:Node|null=null,prefab:Prefab|null=null,effect:EffectAsset|null=null,material:Material|null=null,camera:Camera|null=null,motion:MeadowSceneMotion|null=null;
  const heldAssets:Array<{decRef():unknown}>=[];
- let disposed=false,visible=false,paused=true,offCancel=()=>{};
+ let disposed=false,visible=false,paused=true,offCancel=()=>{},leased=false;
  const dispose=()=>{
   if(disposed)return;disposed=true;offCancel();
   if(camera&&isValid(camera,true))camera.enabled=false;
   if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;motion=null;
   material?.destroy();material=null;for(const asset of heldAssets.splice(0))asset.decRef();effect=null;prefab=null;
+  // Last live meadow gone: the sailboat preload ref goes too (this lease's own refs are already dropped).
+  if(leased){leased=false;noteMeadowLease(-1);}
  };
  offCancel=token.onCancel(dispose);
  const waitAsset=async<T extends {addRef():unknown;decRef():unknown}>(pending:Promise<T>):Promise<T>=>{
@@ -83,7 +136,7 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
  try{
   token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('Meadow scene owner missing');
   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&MEADOW_LAYER)!==0))throw Error('Meadow layer visible to an existing camera');
-  prefab=await waitAsset(loadRegionPrefab(REGIONS.meadow));effect=await waitAsset(loadWindEffect());token.check();if(!isValid(parent,true)||!isValid(scene,true))throw Error('Meadow scene owner destroyed during load');
+  prefab=await waitAsset(loadRegionPrefab(REGIONS.meadow));leased=true;noteMeadowLease(1);effect=await waitAsset(loadWindEffect());token.check();if(!isValid(parent,true)||!isValid(scene,true))throw Error('Meadow scene owner destroyed during load');
   rig=new Node('MeadowLiveScene');rig.active=false;parent.addChild(rig);
   const model=mountRegion(REGIONS.meadow,prefab,rig);setLayer(model);
   // The lease owns its camera and animation clock; imported cameras and autoplay
@@ -99,7 +152,8 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   const cameraNode=new Node('MeadowBackgroundCamera');cameraNode.layer=MEADOW_LAYER;rig.addChild(cameraNode);camera=cameraNode.addComponent(Camera);
   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=.1;camera.far=1000;camera.visibility=MEADOW_LAYER;
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color('#87bfc9');camera.enabled=false;
-  motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;
+  motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;motion.skyCamera=camera;
+  applyMeadowNightSky(rig,camera,light);
   return {
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
     const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');},

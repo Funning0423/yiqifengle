@@ -8,6 +8,9 @@ import { DoorSpillHint } from '../render/DoorSpillHint';
 import { IslandAtmosphereFx } from '../render/IslandAtmosphereFx';
 import { ShoreBreak } from '../render/ShoreBreak';
 import { REGIONS } from '../region/RegionLoader';
+import { requiresMeadowScene } from '../world-r2/LevelRegion';
+import { playSailboatTransition } from '../cine/SailboatTransitionDriver';
+import { prefetchSailboatMeadow, releaseSailboatMeadow } from '../cine/SailboatMeadowPrefetch';
 import { SkyNightTexture } from '../render/SkyNightTexture';
 import { WorldFlow, Cancellation, Cancelled, ENTER_LEVEL_SHOT_S } from './WorldFlowCore';
 import type { CharacterAdapter, LevelAdapter, WorldLease, Layers, Pose, Mode, Snapshot, CameraEvent } from './WorldFlowCore';
@@ -164,6 +167,10 @@ export class WorldFlowComponent extends Component {
    *  Returns an unsubscribe fn (idempotent). Safe before the flow exists (attached when it is created). */
   onWindStrength(listener:(strength:number)=>void):()=>void {this.windListeners.add(listener);return ()=>{this.windListeners.delete(listener);};}
   private forwardCameraEvent(e:CameraEvent){
+    // Outbound crane or island settle: start the meadow load now so the sailboat cover never waits on it.
+    if(e.kind!=='settled'||e.place==='island'){try{prefetchSailboatMeadow();}catch(error){console.warn('meadow prefetch failed',String(error));}}
+    // Back home: no sail is coming, drop the preloaded meadow (a live meadow keeps its own refs).
+    else releaseSailboatMeadow('home');
     const list:Array<(x:any)=>void>=e.kind==='settled'?Array.from(this.settledListeners) as any:Array.from(this.craneListeners) as any;
     for(const fn of list){try{e.kind==='settled'?fn(e.place):fn({segment:e.segment,progress:e.progress,seconds:e.seconds});}catch(error){console.warn('camera hook listener failed',String(error));}}
   }
@@ -363,7 +370,7 @@ export class WorldFlowComponent extends Component {
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
-        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);},
+        setLayers:(layers:Layers)=>{const worldOn=!!(layers.interior||layers.exterior||layers.backdrop);if(!worldOn)model.active=false;this.dropSailboatMeadow(worldOn);for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);if(!worldOn)model.active=true;},
         // T5 room-light API (contract: render/RoomLightingRig.ts header). setLayers(interior) lands on w=1, setLayers(!interior) on w=0;
         // only these calls produce intermediate w. blendRoomLight is a cancellable job like animateDoor/animateCamera.
         setRoomLightWeight:(w:number)=>this.setRoomLightWeight(w),
@@ -379,6 +386,7 @@ export class WorldFlowComponent extends Component {
         wait:(seconds,t)=>this.run(seconds,t,()=>{}),
         // 0007 v1.3: lerp position/target/fov + fromLookAt each sample (no slerp). A rejected sample aborts the track and
         // writes the end pose (see createCameraTrack); never continues silently.
+        playRegionArrival:(stageId,token)=>requiresMeadowScene({stageId})?playSailboatTransition({setCamera,cameraNode:camera.node,cameraFov:()=>camera.fov,islandRoot:model,mountParent:this.node,token}):(releaseSailboatMeadow('not-meadow'),null),
         playEnterLevel:(token)=>{
           // Push in from the live island camera (including a finger pull). Not the exit arc.
           // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.
@@ -457,6 +465,13 @@ export class WorldFlowComponent extends Component {
    * levels/skycity/hidden, where the world stays loaded with layers NONE and w reads 0. A paused return (needsResume)
    * puts home/island layers back, so the room or island stays visible until resume(). */
   isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
+  /** The sailboat meadow stays mounted through the resolving frame so that frame is still meadow.
+   *  Drop it when the world comes back, or when the level seal hides the world (board camera is already on). */
+  private dropSailboatMeadow(worldOn: boolean): void {
+    if (!worldOn && this.flow?.snapshot().stable !== 'level') return;
+    const sail = this.node.getChildByName('SailboatMeadowMount');
+    if (sail && isValid(sail, true)) { sail.active = false; sail.destroy(); }
+  }
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.shore?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength(),this.shore?.surfaceWorldY());}}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.revealReturn();this.scheduleReturn();}
