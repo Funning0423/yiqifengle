@@ -129,6 +129,8 @@ export class SailboatTransitionDriver extends Component {
       this.begun = true;
       this.tapQueued = false;
       if (this.gate.reason !== 'settled') console.warn('[sailboat] start gate', this.gate.reason, this.gate.waitedSec.toFixed(2));
+      // Sail start (timing frame 0): boat shown, sting and countdown begin in this same update.
+      console.log('[sailboat] gate open', this.gate.reason, 'waited', this.gate.waitedSec.toFixed(3), 't', Date.now());
       if (this.boat && isValid(this.boat, true)) this.boat.active = true;
       this.apply(this.playback.begin());
       return;
@@ -186,6 +188,9 @@ export class SailboatTransitionDriver extends Component {
     if (this.closed || !this.host || !this.timing) return;
     this.dispatchAudio(sample.commands);
     const view = sample.view;
+    const wasHolding = !!this.lastView && this.lastView.phase === 'holding';
+    if (view.phase === 'holding' && !wasHolding) console.log('[sailboat] hold enter', 't', Date.now());
+    else if (wasHolding && view.phase !== 'holding') console.log('[sailboat] hold leave', 't', Date.now());
     this.lastView = view;
     this.maybePreload(view);
     if (this.meadowError && (view.holding || view.phase === 'skip-hold')) { this.fail(Error('meadow-scene-load-failed')); return; }
@@ -281,7 +286,7 @@ export class SailboatTransitionDriver extends Component {
     try { audio = GameAudio.ensure(); } catch (error) { console.warn('[sailboat] audio unavailable', error); return; }
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i];
-      if (command.kind === 'cine-play') audio.playCineSlot(command.path, command.bundle);
+      if (command.kind === 'cine-play') { console.log('[sailboat] sting start', 't', Date.now()); audio.playCineSlot(command.path, command.bundle); }
       else if (command.kind === 'cine-pause') audio.pauseCineSlot();
       else if (command.kind === 'cine-resume') audio.resumeCineSlot();
       else if (command.kind === 'cine-fade') audio.fadeCineSlot(command.seconds);
