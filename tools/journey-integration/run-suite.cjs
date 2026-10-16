@@ -38,6 +38,8 @@ const tests=[
  ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
  ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
  ['child-first-teardown','tools/board-ui/test_child_first_teardown.cjs'],
+ ['result-claim-batch','tools/board-ui/test_claim_batch.cjs'],
+ ['result-screen-style','tools/board-ui/test_result_screen_style.cjs'],
  ['navigation-guard','tools/test_world_navigation_guard.cjs'],
  ['retry-protection','tools/test_retry_protection.cjs'],
  ['cloud-web-contract','tools/cloud-web/test.cjs'],

@@ -151,7 +151,7 @@ async function matrix() {
                                 if (m.kind === 'win') {
                                     const summary = [m.movesUsed !== null ? m.movesUsed + ' 步' : '', m.movesLeft !== null ? '剩 ' + m.movesLeft + ' 步' : '', '已保存'].filter(Boolean).join(' · ');
                                     assert.equal(fragments('ResultSummary'), summary + (m.unlockHint ? ' · ' + m.unlockHint : ''));
-                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); assert.equal(full || short, r.label); });
+                                    m.rewards.forEach((r, i) => { const full = fragments('ResultRewardLabel-' + i), short = fragments('ResultRewardState-' + i); if (!full && !short && (r.iconKind === 'chest' || r.id === 'chest') && r.state === 'ready' && r.claim) { assert(p.root.find('ClaimAll'), 'a ready chest is named by 全部领取 under it'); return; } assert.equal(full || short, r.label); });
                                 }
                                 if (m.kind === 'readonly')
                                     assert.equal(fragments('ResultNotice'), '记录暂时不能写入，这局只看不存');
