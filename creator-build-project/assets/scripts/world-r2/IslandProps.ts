@@ -1,4 +1,4 @@
-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
+import { Node, Prefab, Material, MeshRenderer, gfx, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
 import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
@@ -22,7 +22,7 @@ export class IslandProps {
   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
   /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
+  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, legs: 'none' as string };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
   private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
@@ -66,6 +66,7 @@ export class IslandProps {
         n.removeFromParent(); pivot.addChild(n); n.setPosition(0, 0, 0); n.setScale(1, 1, 1); n.active = true;
         this.pivots.set(role, pivot); this.buttons.set(role, n);
       }
+      this.levelSignPosts(this.sign);
       this.addSignText(this.sign);
       this.addSignWater();
       this.addLampLight();
@@ -73,6 +74,27 @@ export class IslandProps {
       if (!this.seaBound) { bindSeaSurface(this.onSeaSurface); this.seaBound = true; }
       this.ready_ = true; return true;
     } catch (e) { this.failure = String(e); console.warn('[T9_PROPS] props unavailable, flat buttons stay', this.failure); return false; }
+  }
+  /** A2: lengthen the left post so both posts stand on the sloped lawn (ISLAND_PROPS.signpost.legs). Copies the board
+   * mesh once with the left post's bottom ring moved down; on any failure the imported mesh stays (posts as before). */
+  private legMesh: Mesh | null = null;
+  private levelSignPosts(sign: Node) {
+    const L = ISLAND_PROPS.signpost.legs; if (!L || !(L.leftExtendLocal > 0)) return;
+    try {
+      for (const r of sign.getComponentsInChildren(MeshRenderer)) {
+        const m = r.mesh; if (r.node.name === ISLAND_PROPS.signpost.lampNode || !m) continue;
+        if (m.struct.primitives.length !== 1) { this.stats.legs = 'skipped:primitives'; return; }
+        const pos = m.readAttribute(0, gfx.AttributeName.ATTR_POSITION), nor = m.readAttribute(0, gfx.AttributeName.ATTR_NORMAL);
+        const uv = m.readAttribute(0, gfx.AttributeName.ATTR_TEX_COORD), idx = m.readIndices(0);
+        if (!pos || !idx) { this.stats.legs = 'skipped:no-data'; return; }
+        const copy = (a: ArrayLike<number>) => { const o: number[] = []; for (let i = 0; i < a.length; i++) o.push(a[i]); return o; };
+        const p = copy(pos as unknown as ArrayLike<number>); let moved = 0;
+        for (let i = 0; i < p.length; i += 3) if (p[i + 1] < L.bottomBandM && p[i] < L.splitX) { p[i + 1] -= L.leftExtendLocal; moved++; }
+        const mesh = utils.MeshUtils.createMesh({ positions: p, normals: nor ? copy(nor as unknown as ArrayLike<number>) : undefined,
+          uvs: uv ? copy(uv as unknown as ArrayLike<number>) : undefined, indices: copy(idx as unknown as ArrayLike<number>) });
+        r.mesh = mesh; this.legMesh = mesh; this.stats.legs = 'extended:' + moved;
+      }
+    } catch (e) { this.stats.legs = 'failed:' + String(e); console.warn('[T9_PROPS] sign legs unchanged', String(e)); }
   }
   private mount(prefab: Prefab, p: readonly number[], yawDeg: number, scale: number): Node {
     const n = instantiate(prefab); this.root.addChild(n); n.setPosition(p[0], p[1], p[2]); n.setRotationFromEuler(0, yawDeg, 0); n.setScale(scale, scale, scale);
@@ -367,5 +389,5 @@ export class IslandProps {
     const r = signpostHitUi(pose, width, height); if (!r) return null;
     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
   }
-  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; this.legMesh?.destroy(); this.legMesh = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
 }

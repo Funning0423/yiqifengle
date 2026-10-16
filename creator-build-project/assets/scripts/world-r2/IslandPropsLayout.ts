@@ -8,8 +8,12 @@
  *   - ui_signpost "继续旅程" on the west lawn, just clear of the shrubs. The posts sit on the
  *     grass (env_island_main, palette row 0), not in the sea. The face is turned about 15°
  *     off both the wide shot and the closest pull, so the words stay readable and the board
- *     still reads as a solid. Scale is small enough that the wide shot keeps it under 22%
- *     of the frame and the close shot stays left of the lighthouse.
+ *     still reads as a solid. Candidate A2 (Voice Bot): scale 0.85 (was 0.79) on the flat
+ *     part of the west lawn at (-4.05, 1.1), yaw -2. Here no tree or palm covers the words at the 0.46 pull (402x874
+ *     and 600x800), the board clears the lighthouse foot and the door in the wide shot, and each post footprint is level
+ *     within 8 mm. The lawn still drops ~4.9 cm from the right post to the left one, so `legs` lengthens the left post
+ *     in code (bottom ring moved down) instead of sinking the right one. beach_palm_tall trimmed (0.75) and moved to
+ *     the west shore so the closest pull no longer looks through its crown.
  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
@@ -37,8 +41,12 @@ export const ISLAND_PROPS = Object.freeze({
   /** env_sea_surface node height in combined_visual_m.glb. */
   seaY: -0.92,
   signpost: {
-    prefab: 'ui_signpost', position: [-4.08, 0.127, 0.7] as V3, yawDeg: 5.58, scale: 0.79,
+    prefab: 'ui_signpost', position: [-4.05, 0.1295, 1.1] as V3, yawDeg: -2, scale: 0.85,
     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
+    /** A2: lengthen the left post at runtime so both posts reach the sloped lawn (sign-local metres). Vertices of the
+     * board mesh with y < bottomBandM and x < splitX (the left post's bottom ring) move down by leftExtendLocal.
+     * Measured ground (env_island_main): right post 0.126..0.133, left post 0.077..0.085 -> 0.0485 m / 0.85 = 0.057. */
+    legs: { leftExtendLocal: 0.057, splitX: 0.235, bottomBandM: 0.03 },
     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
       ripple: { rx: 1.05, rz: 0.36, band: 0.1, color: '#f4fbff', alpha: 0.75, nightColor: '#a9c4dc', nightAlpha: 0.30, periodS: 2.6, grow: 0.45, lift: 0.015 } },
@@ -57,7 +65,7 @@ export const ISLAND_PROPS = Object.freeze({
     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
   },
   palms: [
-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
+    { prefab: 'beach_palm_tall', position: [-3.3, 0.05, 6.6] as V3, yawDeg: 60, scale: 0.75 },
     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
   ] as readonly WorldProp[],
   buttons: {

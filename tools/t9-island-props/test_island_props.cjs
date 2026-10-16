@@ -303,7 +303,7 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
     }
     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
     assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
-    assert.deepEqual(P.signpost.position,[-4.08,0.127,0.7]);
+    assert.deepEqual(P.signpost.position,[-4.05,0.1295,1.1]);
   }
   rail.restore(0);const close=rail.pose();
   const aabb=(b)=>{const o=[];for(const x of [b[0][0],b[1][0]])for(const y of [b[0][1],b[1][1]])for(const z of [b[0][2],b[1][2]])o.push([x,y,z]);return o;};
