@@ -14,7 +14,7 @@ export type PoseEntry = AuthoredPose & Readonly<{ characterYawDeg?: number; sour
 export const REGION_CAMERA = {
   version: 2,
   fovAxis: 'vertical',
-  islandPoseSource: 'yunjing-final' as IslandPoseSource,
+  islandPoseSource: 'v24-readable' as IslandPoseSource,
   /** Arrival framing. Stable island view stays on islandPoseSource; arrival close-up remains unchanged. */
   characterPoseSource: 'v23-girl' as IslandPoseSource,
   homePoseSource: 'sitting-room' as HomePoseSource,
@@ -189,14 +189,14 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  before the door; ease-out is only the landing brake, onto cameraIsland near height 15.5.
    *  frontalDeg: wind reaches 1 the first time the lens is within this many
    *  degrees of her facing, and stays 1 while it remains within holdMaxDeg (same arc, not a later phase). She does not wait. */
-  crane: { settleSeconds: 11.3,
+  crane: { settleSeconds: 32,
     pace: { sampleMetres: 0.05, rampSeconds: 1.03, cruiseMps: 7,
       depart: { turn: 1, straightM: 0.45, rayMps: 1.15, blendMetres: 0.5, aimDeg: 22, radial: 1.55, climb: 1.35, seconds: 7.4, handle: 8, lead: [0.34, 0.67, 0.34] as [number, number, number] },
       chest: 1.05, frontalDeg: 20, holdMaxDeg: 36,
       /** B5 (运镜bot 2026-10-16, Funning rejected B4: mid-way surge + abrupt lift). Follow her at walking pace, then ONE
        *  minimum-jerk (smootherstep) rise from her right to cameraIsland; all seconds after the doorway key. */
       /* Rollback to B4: delete this b5 entry (depart above is the B4 arc). */
-      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 2.4, riseAt: 1.2, side: 1.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.65, cruiseRamp: 0.25, cartesian: true, cruiseRampIn: 0.45 } } },
+      b5: { smoothSeconds: 0.45, followIn: 1.2, sideDelay: 1.2, sideIn: 3.6, riseAt: 1.2, side: 2.0, back: 2.0, height: 1.8, look: 0.2, targetHeight: 0.68, fovVerticalDeg: 73, matchSeconds: 1.2, turnShare: 1, heightShare: 0.52, cruiseRamp: 0.25, cartesian: 1, cruiseRampIn: 0.3 } } },
   /** T2+ wind strength (outbound only; WorldFlowComponent.getWindStrength). 0 indoors -> `base` as she steps over the
    *  door sill (outCrossing progress doorProgress) -> held to toIsland progress swingStart -> rises to exactly 1 when
    *  the exit arc first faces her -> held while she stays in front -> eases to exactly 0 when the camera settles on
@@ -242,7 +242,7 @@ export const TRANSITION_CAMERA = Object.freeze({
    *  the column above her path before dropping, inside the ring (min 2.48 m from either swept orbit, no frustum ray meets it within 2.5 m; key 1 stays
    *  high/out so the descent's peak acceleration is <= 14.4 m/s^2 also with the accel/chained walk profiles).
    *  Generated (rollback: delete positions): [-3.38,11.04,3.89], [-2.56,7.34,1.33], [-1.96,4.36,0.24]. */
-  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 0.861, positions: [[-3.1, 11.6, 2.6], [-1.7, 7.8, -0.3], [-1.75, 4.4, 0]] as Array<[number, number, number]> },
+  craneDown: { endProgress: 0.42, steps: 4, leadSeconds: 1.6, positions: [[-3.1, 11.6, 2.6], [-1.7, 7.8, -0.3], [-1.75, 4.4, 0]] as Array<[number, number, number]> },
   /** Mac r4 return FOLLOW (Funning 2026-10-11: "从外面回到灯塔的时候，镜头就一直跟随着人就好了，等他坐下的时候再把机位回归到最初
    *  进入游戏的那个机位" + "人从外面回到房间的时候画面不能一亮一暗"). Replaces railIn/railInDoor/entry.keys (the lens no longer backs
    *  into the room ahead of her, overtakes her at the right wall and swings back): when enabled the route builder generates
