@@ -230,6 +230,15 @@ ok('T9n-2 lamp + sea: amber unlit lamp glass (not white), soft glow, board light
   const lin=L.srgbToLinear(P.seaNight.tint);assert.deepEqual(lin.map(v=>+v.toFixed(3)),[0.212,0.347,0.451]);
   assert.deepEqual(L.seaColorAt([255,255,255,255],0),[255,255,255,255]);assert.deepEqual(L.seaColorAt([255,255,255,255],1),[127,159,179,255]);
   assert.deepEqual(L.seaColorAt([200,220,240,255],0.5),[150,179,204,255]);
+  // v3.1 journey night sea: day untouched whatever the journey weight; j=0 is the old night; j=1 deepens to journeyTint
+  assert.equal(P.seaNight.tint,'#7f9fb3');assert.equal(P.seaNight.journeyTint,'#2c4058');
+  for(const c of [[255,255,255,255],[200,220,240,255],[90,180,210,200]])for(const j of [0,.3,1])assert.deepEqual(L.seaColorAt(c,0,j),c,'day sea must stay authored');
+  assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,0),L.seaColorAt([200,220,240,255],0.5));
+  assert.deepEqual(L.seaColorAt([255,255,255,255],1,1),[44,64,88,255]);assert.deepEqual(L.seaColorAt([200,220,240,255],0.5,1),[117,138,161,255]);
+  {const lum=v=>.2126*v[0]+.7152*v[1]+.0722*v[2],base=[120,200,220,255];let prev=1e9;for(const j of [0,.25,.5,.75,1]){const l=lum(L.seaColorAt(base,1,j));assert(l<prev,'journey tint monotonic darker');prev=l;}}
+  {const boot=fs.readFileSync(path.join(SRC,'WorldIntegrationBoot.ts'),'utf8'),src2=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
+   assert(/night:dn\?\.mode==='night',journey:s\.state==='region-travel'/.test(boot),'boot passes journey from region-travel');
+   assert(/journey\?: boolean/.test(src2)&&/approachNight\(this\.journeyW, !!o\.journey, dt\)/.test(src2)&&/seaColorAt\(sea\.authored, w, j\)/.test(src2),'IslandProps fades journey weight into the sea tint');}
   const src=fs.readFileSync(path.join(SRC,'world-r2/IslandProps.ts'),'utf8');
   assert(/mat === shared\) \{ this\.stats\.sea = 'skipped:no-instance'/.test(src),'never the shared sea material');
   assert(!/setSharedMaterial\([^)]*sea/i.test(src)&&/restoreSea\(\)/.test(src)&&/this\.tickSea\(w\)/.test(src));

@@ -68,7 +68,7 @@ export const ISLAND_PROPS = Object.freeze({
   /** T9n-2 night sea: env_sea_surface's render material (RoomLightingRig's own instance, which only scrolls tilingOffset) gets
    * mainColor = authored mainColor x tint, blended by the props night weight; restored exactly at weight 0. Never the shared
    * M_env_sea material; skipped when the renderer has no instance. tint is sRGB hex (linear = (0.212, 0.347, 0.451)). */
-  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3' },
+  seaNight: { node: 'env_sea_surface', property: 'mainColor', tint: '#7f9fb3', journeyTint: '#2c4058' },
   /** Seconds for the props' night weight to follow a day/night switch (labels, lamp light, water tint fade together). */
   nightFadeS: 0.5,
   notAdded: {
@@ -301,8 +301,10 @@ export function propNightWeight(): number { return propNight; }
 export function srgbToLinear(h: string): [number, number, number] {
   const x = h.replace('#', ''); return [0, 2, 4].map(i => { const v = parseInt(x.slice(i, i + 2), 16) / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }) as [number, number, number];
 }
-/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it). */
-export function seaColorAt(authored: readonly number[], w: number): number[] {
-  const k = Math.max(0, Math.min(1, w)), t = hexRgba(ISLAND_PROPS.seaNight.tint);
-  return [0, 1, 2].map(i => Math.round(authored[i] + (authored[i] * t[i] / 255 - authored[i]) * k)).concat([authored[3] ?? 255]);
+/** Night sea mainColor at weight w: authored colour (0..255 RGBA) lerped toward authored x tint (sRGB-byte multiply, as Color stores it).
+ * j (0..1) = region-journey weight: the night tint deepens toward seaNight.journeyTint so the open sea under the journey lens reads as night,
+ * not day-cyan. w = 0 (day) always returns the authored colour, whatever j is. */
+export function seaColorAt(authored: readonly number[], w: number, j = 0): number[] {
+  const k = Math.max(0, Math.min(1, w)), q = Math.max(0, Math.min(1, j)), a = hexRgba(ISLAND_PROPS.seaNight.tint), b = hexRgba(ISLAND_PROPS.seaNight.journeyTint);
+  return [0, 1, 2].map(i => { const t = a[i] + (b[i] - a[i]) * q; return Math.round(authored[i] + (authored[i] * t / 255 - authored[i]) * k); }).concat([authored[3] ?? 255]);
 }

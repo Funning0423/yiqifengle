@@ -23,9 +23,9 @@ export class IslandProps {
   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
-  private nightW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+  private nightW = 0; private journeyW = 0; private lastTime = -1; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
-  private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number } | null = null;
+  private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number; appliedJ: number } | null = null;
   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
   private entrance = 1; private fade: { r: MeshRenderer; i: number; m: Material }[] = []; private signText: UIOpacity | null = null; private view = { width: 0, height: 0 };
   private water: { meshes: Mesh[]; shadow: Material | null; ripples: { node: Node; material: Material }[] } = { meshes: [], shadow: null, ripples: [] };
@@ -133,12 +133,12 @@ export class IslandProps {
       const r = find(top)?.getComponent(MeshRenderer), shared = r?.getSharedMaterial(0), mat = r?.getRenderMaterial(0) as Material | null;
       if (!r || !shared || !mat || mat === shared) { this.stats.sea = 'skipped:no-instance'; return; }
       const c = mat.getProperty(ISLAND_PROPS.seaNight.property) as Color | null; if (!c) { this.stats.sea = 'skipped:no-mainColor'; return; }
-      this.sea = { material: mat, authored: [c.r, c.g, c.b, c.a], applied: 0 }; this.stats.sea = 'instance-tint';
+      this.sea = { material: mat, authored: [c.r, c.g, c.b, c.a], applied: 0, appliedJ: 0 }; this.stats.sea = 'instance-tint';
     } catch (e) { this.sea = null; this.stats.sea = 'failed:' + String(e); }
   }
   private tickSea(w: number) {
-    const sea = this.sea; if (!sea || !isValid(sea.material, true)) return; if (Math.abs(w - sea.applied) < 0.004 && !(w === 0 && sea.applied !== 0)) return;
-    const v = seaColorAt(sea.authored, w); sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(v[0], v[1], v[2], v[3])); sea.applied = w;
+    const sea = this.sea; if (!sea || !isValid(sea.material, true)) return; const j = this.journeyW; if (Math.abs(w - sea.applied) < 0.004 && Math.abs(j - sea.appliedJ) < 0.004 && !(w === 0 && sea.applied !== 0)) return;
+    const v = seaColorAt(sea.authored, w, j); sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(v[0], v[1], v[2], v[3])); sea.applied = w; sea.appliedJ = j;
   }
   private restoreSea() { const sea = this.sea; this.sea = null; if (sea && isValid(sea.material, true)) sea.material.setProperty(ISLAND_PROPS.seaNight.property, new Color(sea.authored[0], sea.authored[1], sea.authored[2], sea.authored[3])); }
   /** T9n: warm SphereLight next to lamp_glass, night only. Light.visibility = the sign's own layer bit (a user layer the
@@ -192,13 +192,14 @@ export class IslandProps {
     return { position: [p.x, p.y, p.z], rotation: [q.x, q.y, q.z, q.w], fovVerticalDeg: c.fov };
   }
   /** Once per frame from the host. exterior = island exterior layer visible; buttons = island dock is showing. */
-  sync(o: { exterior: boolean; night: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number } }) {
+  sync(o: { exterior: boolean; night: boolean; journey?: boolean; buttons: boolean; width: number; height: number; dock?: { dy: number; k: number } }) {
     if (!this.ready || !isValid(this.root, true)) return;
     if (this.root.active !== o.exterior) this.root.active = o.exterior;
     this.view.width = o.width; this.view.height = o.height;
     const now = game.totalTime / 1000, first = this.lastTime < 0, dt = first ? 0 : now - this.lastTime; this.lastTime = now;
     // first sync snaps to the current mode (no fade at startup); afterwards a switch fades over nightFadeS
     this.nightW = first ? (o.night ? 1 : 0) : approachNight(this.nightW, o.night, dt);
+    this.journeyW = first ? (o.journey ? 1 : 0) : approachNight(this.journeyW, !!o.journey, dt);
     this.stats.nightWeight = +this.nightW.toFixed(3); setPropNightWeight(this.nightW);
     // lamp glass day/night material: swapped at the middle of the fade (light is half up), not at the switch instant
     const lampNight = this.nightW >= 0.5;

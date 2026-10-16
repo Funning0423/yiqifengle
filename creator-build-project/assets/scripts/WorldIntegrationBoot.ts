@@ -554,7 +554,7 @@ export class WorldIntegrationBoot extends Component {
   const p=this.islandProps,m=this.controls.get('mainline')!;let sign=null as null|{x:number;y:number;width:number;height:number};
   if(p?.ready){let dn:any=null;try{dn=this.composition.worldCommands().dayNight();}catch{}
    const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');
-   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
+   p.sync({exterior:!!dn?.exteriorVisible,night:dn?.mode==='night',journey:s.state==='region-travel',buttons:!!this.islandJourney?.dockVisible(),width:f.width,height:f.height,dock:dock?{dy:dock.position.y,k:dock.scale.x}:undefined});
    if(s.state==='island'&&m.active)sign=p.signRect(f.width,f.height);}
   const was=this.propSign;this.propSign=!!sign;setPropTapLook(!!p?.ready&&(this.propSign||!!this.islandJourney?.dockVisible()));
   if(sign&&(this.islandEntrance>=0||this.signEntrance>=0))sign={x:sign.x,y:sign.y,width:0,height:0}; // hit area live only once the signpost entrance finished
