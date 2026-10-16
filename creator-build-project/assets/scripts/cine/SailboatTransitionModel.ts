@@ -226,6 +226,19 @@ export function sailboatCoverAlpha(view: SailboatView): number {
 }
 
 /**
+ * Home-island root during the sail and the handoff into the board.
+ * Live: hidden once the meadow owns the frame (scene swap, skip-hold, landing).
+ * Settled: the resolving update must not turn the island back on. The board
+ * camera is still a turn away, and that one active frame is the home-island flash.
+ * Aborted: restore the flag saved when the sail started.
+ */
+export function sailboatIslandActive(phase: SailboatPhase, swapped: boolean, handoff: 'live' | 'settled' | 'aborted', wasActive: boolean): boolean {
+  if (handoff === 'aborted') return wasActive;
+  if (handoff === 'settled') return false;
+  return !(swapped || phase === 'done' || phase === 'skip-hold');
+}
+
+/**
  * Frames the meadow must actually render under a full cloud bank before the cover may open.
  * Frame 1 compiles pipelines; frame 2 is the first lit result. Neither is shown.
  */

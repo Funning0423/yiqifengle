@@ -370,7 +370,7 @@ export class WorldFlowComponent extends Component {
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
-        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);},
+        setLayers:(layers:Layers)=>{const worldOn=!!(layers.interior||layers.exterior||layers.backdrop);if(!worldOn)model.active=false;this.dropSailboatMeadow(worldOn);for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);if(!worldOn)model.active=true;},
         // T5 room-light API (contract: render/RoomLightingRig.ts header). setLayers(interior) lands on w=1, setLayers(!interior) on w=0;
         // only these calls produce intermediate w. blendRoomLight is a cancellable job like animateDoor/animateCamera.
         setRoomLightWeight:(w:number)=>this.setRoomLightWeight(w),
@@ -465,6 +465,13 @@ export class WorldFlowComponent extends Component {
    * levels/skycity/hidden, where the world stays loaded with layers NONE and w reads 0. A paused return (needsResume)
    * puts home/island layers back, so the room or island stays visible until resume(). */
   isWorldVisible():boolean {return this.hasRoomLight()&&(this.interiorVisible||this.exteriorVisible);}
+  /** The sailboat meadow stays mounted through the resolving frame so that frame is still meadow.
+   *  Drop it when the world comes back, or when the level seal hides the world (board camera is already on). */
+  private dropSailboatMeadow(worldOn: boolean): void {
+    if (!worldOn && this.flow?.snapshot().stable !== 'level') return;
+    const sail = this.node.getChildByName('SailboatMeadowMount');
+    if (sail && isValid(sail, true)) { sail.active = false; sail.destroy(); }
+  }
   lateUpdate(dt:number):void {if(!this.disposed&&!this.safetyFailure){this.roomLighting?.advance(dt);this.doorSpill?.advance(dt);this.shore?.advance(dt);this.atmosphere?.advance(dt,this.worldCamera?.node??null,this.getWindStrength(),this.shore?.surfaceWorldY());}}
   private onHide():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.clock.hideEvents++;this.hiddenTicks=0;this.flow?.hide();this.reportRuntime('hide');}
   private onShow():void {this.revealReturn();this.scheduleReturn();}

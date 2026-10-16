@@ -10,7 +10,7 @@ const timingPath = path.join(root, 'creator-build-project/assets/resources/cine/
 const modelPath = path.join(root, 'creator-build-project/assets/scripts/cine/SailboatTransitionModel.ts');
 const windPath = path.join(root, 'creator-build-project/assets/scripts/audio/WindAudio.ts');
 
-const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE, createSailboatStartGate, SAILBOAT_START_STILL_FRAMES, SAILBOAT_START_TIMEOUT_SEC, SAILBOAT_MAX_FRAME_DT };')();
+const model = new Function(stripTypeScriptTypes(fs.readFileSync(modelPath, 'utf8').replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { parseSailboatTiming, parseSailboatTimingText, createSailboatPlayback, sailboatCoverAlpha, sailboatIslandActive, meadowRevealReady, SAILBOAT_WARM_FRAMES, SAILBOAT_CINE_FILE, SAILBOAT_CINE_PATH, SAILBOAT_CINE_BUNDLE, SAILBOAT_HOLD_CINE_FADE_SEC, SAILBOAT_HOLD_WIND_PATH, SAILBOAT_TIMING_RESOURCE, createSailboatStartGate, SAILBOAT_START_STILL_FRAMES, SAILBOAT_START_TIMEOUT_SEC, SAILBOAT_MAX_FRAME_DT };')();
 const rawText = fs.readFileSync(timingPath, 'utf8');
 const raw = JSON.parse(rawText);
 const timing = model.parseSailboatTiming(raw);
@@ -322,6 +322,54 @@ assert.equal(driverSrc.includes('meadowReady: !!this.meadowPrefab'), false);
 assert.match(driverSrc, /meadowReady: this\.warmed/);
 assert.match(driverSrc, /playCineSlot\(command\.path, command\.bundle\)/);
 assert.match(driverSrc, /Present the covered skip frame/);
+assert.match(driverSrc, /sailboatIslandActive/);
+assert.equal(driverSrc.includes('islandRoot.active = this.islandWasActive'), false);
+{
+  // Skip landing and the normal meadow -> board handoff. Once the meadow owns the
+  // frame, including the settled handoff, the home island root stays inactive.
+  function traceHandoff(tap) {
+    const play = model.createSailboatPlayback(timing);
+    let sample = play.begin();
+    let tapped = false;
+    const seen = [];
+    const note = (view, handoff) => {
+      const active = model.sailboatIslandActive(view.phase, view.swapped, handoff, true);
+      const owned = view.swapped || view.phase === 'done' || view.phase === 'skip-hold' || handoff === 'settled';
+      if (owned) assert.equal(active, false, view.phase + '/' + handoff);
+      seen.push(active);
+    };
+    note(sample.view, 'live');
+    for (let n = 0; n < 500 && sample.view.phase !== 'done'; n++) {
+      const press = tap && !tapped && sample.view.frame >= timing.skipEnabledFromFrame && sample.view.phase === 'playing';
+      if (press) tapped = true;
+      sample = play.advance(1 / timing.fps, { meadowReady: true, tap: press });
+      note(sample.view, 'live');
+    }
+    assert.equal(sample.view.phase, 'done');
+    assert.equal(sample.view.scene, 'meadow');
+    note(sample.view, 'settled');
+    assert.equal(seen.includes(false), true);
+    return sample.view;
+  }
+  const skipped = traceHandoff(true);
+  assert.equal(skipped.phase, 'done');
+  const played = traceHandoff(false);
+  assert.equal(played.frame, timing.lastFrame);
+  assert.equal(model.sailboatIslandActive('playing', false, 'live', true), true);
+  assert.equal(model.sailboatIslandActive('skip-hold', true, 'live', true), false);
+  assert.equal(model.sailboatIslandActive('done', true, 'settled', true), false);
+  assert.equal(model.sailboatIslandActive('done', true, 'aborted', true), true);
+  assert.equal(model.sailboatIslandActive('holding', false, 'live', true), true);
+  const flowSrc = fs.readFileSync(path.join(scriptRoot, 'world-r1/WorldFlowCore.ts'), 'utf8');
+  const restoreAt = flowSrc.indexOf('private restore()');
+  const restore = flowSrc.slice(restoreAt, flowSrc.indexOf('private invalidate()'));
+  assert.ok(restore.indexOf('if(hideWorld)this.world.setLayers(NONE)') < restore.indexOf('this.world.setCamera'), 'hide island before the island camera snap');
+  const worldSrc = fs.readFileSync(path.join(scriptRoot, 'world-r1/WorldFlowComponent.ts'), 'utf8');
+  assert.match(worldSrc, /dropSailboatMeadow/);
+  assert.match(worldSrc, /SailboatMeadowMount/);
+  assert.match(worldSrc, /if\(!worldOn\)model\.active=false/);
+  console.log('island handoff hidden: ok');
+}
 assert.match(driverSrc, /syncSailboatMeadowNight/);
 assert.match(fs.readFileSync(path.join(scriptRoot, 'cine/SailboatMeadowWarmup.ts'), 'utf8'), /applyMeadowNightSky/);
 assert.match(driverSrc, /prepareMeadowReveal/);

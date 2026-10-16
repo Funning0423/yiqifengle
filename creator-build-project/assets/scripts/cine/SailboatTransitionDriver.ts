@@ -21,7 +21,7 @@ import { cloudBankCovers } from './SailboatCloudLayout';
 import { prepareMeadowReveal, restoreSailboatMeadowNight, syncSailboatMeadowNight } from './SailboatMeadowWarmup';
 import { consumeSailboatMeadow, prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
-  SAILBOAT_TIMING_RESOURCE, SAILBOAT_MAX_FRAME_DT, createSailboatPlayback, createSailboatStartGate, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha,
+  SAILBOAT_TIMING_RESOURCE, SAILBOAT_MAX_FRAME_DT, createSailboatPlayback, createSailboatStartGate, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha, sailboatIslandActive,
 } from './SailboatTransitionModel';
 import type { SailboatStartGate, SailboatAudioCommand, SailboatPlayback, SailboatSample, SailboatTiming, SailboatView } from './SailboatTransitionModel';
 
@@ -229,8 +229,9 @@ export class SailboatTransitionDriver extends Component {
 
   private syncScene(view: SailboatView) {
     const host = this.host;
-    if (!host || !view.swapped || !this.meadowNode || !isValid(host.islandRoot, true)) return;
-    host.islandRoot.active = false;
+    if (!host || !isValid(host.islandRoot, true)) return;
+    // Hide synchronously in this update, before the camera sample, and never turn it back on.
+    if (!sailboatIslandActive(view.phase, view.swapped, 'live', this.islandWasActive)) host.islandRoot.active = false;
   }
 
   private syncCamera(view: SailboatView) {
@@ -321,10 +322,10 @@ export class SailboatTransitionDriver extends Component {
     });
   }
 
-  private succeed() { this.cleanup(); this.resolveRun?.(); this.resolveRun = null; this.rejectRun = null; }
-  private fail(error: Error) { this.cleanup(); this.rejectRun?.(error); this.resolveRun = null; this.rejectRun = null; }
+  private succeed() { this.cleanup(true); this.resolveRun?.(); this.resolveRun = null; this.rejectRun = null; }
+  private fail(error: Error) { this.cleanup(false); this.rejectRun?.(error); this.resolveRun = null; this.rejectRun = null; }
 
-  private cleanup() {
+  private cleanup(settled: boolean) {
     if (this.closed) return;
     this.closed = true;
     consumeSailboatMeadow();
@@ -335,9 +336,12 @@ export class SailboatTransitionDriver extends Component {
     game.off(Game.EVENT_SHOW, this.onShow, this);
     const host = this.host;
     restoreSailboatMeadowNight();
-    if (host && isValid(host.islandRoot, true)) host.islandRoot.active = this.islandWasActive;
+    // Settled keeps the island hidden. Restoring it here paints one frame of home
+    // before the board camera and setLayers(NONE) run (skip landing, and meadow -> board).
+    if (host && isValid(host.islandRoot, true)) host.islandRoot.active = sailboatIslandActive('done', true, settled ? 'settled' : 'aborted', this.islandWasActive);
     if (this.actor && isValid(this.actor, true)) this.actor.active = this.actorWasActive;
-    if (this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
+    // Leave the meadow mounted on success so this render is still the meadow. The level seal drops it.
+    if (!settled && this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
     this.meadowNode = null;
     destroySailboatCloudLayer(this.cloud);
     this.cloud = null;

@@ -273,8 +273,11 @@ export class WorldFlow {
   private restore():void {
     this.setWind(0); // stable poses (island idle, home, level, paused, after a cancel) are always wind 0
     if(!this.world)return;this.world.cancelTransient();this.world.setDoor(this.stable==='home'?0:this.islandDoorDeg());
+    const hideWorld=this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity';
+    // Hide the island before the camera snaps to the island pose. The other order draws one frame of home.
+    if(hideWorld)this.world.setLayers(NONE);
     this.world.setCamera(this.stable==='home'?this.config.cameraHome:this.config.cameraIsland);
-    this.world.setLayers(this.hidden||this.needsResume||this.stable==='level'||this.stable==='skycity'?NONE:this.stable==='home'?HOME:ISLAND);
+    if(!hideWorld)this.world.setLayers(this.stable==='home'?HOME:ISLAND);
     // Stable endpoints land on the full light set (home = room 1; island has the interior view off, rig ignores it).
     this.world.setRoomLightWeight?.(this.stable==='home'?1:0);
     this.world.setExteriorKey?.(0); // R3: no keyed sun outside a walk
