@@ -111,6 +111,13 @@ const WIND_DUCK_TO = 1.0;
 /** currentTime 在小游戏里可能按 ~250 ms 更新；外推最多超前这么多 */
 const POS_EXTRAPOLATE_MAX_S = 0.35;
 
+/** B5.5 exit (出门) track, Voice Bot 8b22546: 20 s, t=0 = the doorway key (state 'crossing-out'), in the region_island
+ *  subpackage. Re-encoded 24 kbps mono 22.05 kHz for the package budget. Preloaded when she stands up; played on
+ *  'crossing-out'; stopped when the flow leaves the exit (anything but crossing-out / island). */
+export const EXIT_CINE = { bundle: 'region_island', path: 'audio_cine/sfx_exit_outbound', volume: 1, maxLateS: 1.5 } as const;
+/** States from stand-up to the doorway: preload only. */
+const EXIT_PRELOAD_STATES = ['standing', 'turning-out', 'walking-out', 'opening-door'];
+
 type SfxVoice = { source: AudioSource; name: SfxName; requestedAt: number; started: boolean };
 
 type WxFn = (cb: (...a: any[]) => void) => void;
@@ -349,6 +356,7 @@ export class GameAudio extends Component {
     this.retireMusicExtras();
     this.detachLoopSource();
     this.musicClip?.decRef(); this.musicClip = null;
+    this.exitCineClip?.decRef(); this.exitCineClip = null; this.exitCineSource = null;
     // loose ES5：Map 不能 for-of，先转数组
     const owned = Array.from(this.clips.values());
     for (let i = 0; i < owned.length; i++) owned[i].decRef();
@@ -937,6 +945,78 @@ export class GameAudio extends Component {
   onChestResult(r: any) { if (r?.newlyGrantedRewards?.length > 0) this.play('sfx_chest_open'); }
   /** 地区首通 claimR5FirstClear() 和四关全通纪念物 claimRegisteredMemento()：r.ok && !r.duplicate 才播（审稿 D）。 */
   onClaimResult(r: any) { if (r?.ok && !r.duplicate) this.play('sfx_chest_open'); }
+
+  // ---------- B5.5 出门音轨 ----------
+  private exitCineClip: AudioClip | null = null;
+  private exitCineLoading = false;
+  private exitCineSource: AudioSource | null = null;
+  /** Wall time (GameAudio.now) of 'crossing-out'; null = no exit segment running. */
+  private exitCineAt: number | null = null;
+  private exitCineLog: Array<{ event: string; at: number; offsetS?: number }> = [];
+  private exitCineMark(event: string, offsetS?: number) {
+    const e = offsetS === undefined ? { event, at: GameAudio.now() } : { event, at: GameAudio.now(), offsetS };
+    this.exitCineLog.push(e); if (this.exitCineLog.length > 20) this.exitCineLog.shift();
+    try { if ((globalThis as any).__worldFlowLog) console.info('[GameAudio] exit-cine ' + JSON.stringify(e)); } catch { /* ignore */ }
+  }
+  /** World flow state feed (WorldIntegrationBoot, once per change). */
+  onWorldState(state: string) {
+    if (!GameAudio.usable(this)) return;
+    if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { this.stopExitCine('restart'); this.loadExitCine(); return; }
+    if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }
+    if (state === 'island') return;   // 20 s track runs out on its own over the settle
+    this.stopExitCine('left-exit');
+  }
+  private loadExitCine() {
+    if (this.exitCineClip || this.exitCineLoading) return;
+    this.exitCineLoading = true;
+    const done = (err: any, clip: AudioClip | null) => {
+      this.exitCineLoading = false;
+      if (!this.alive) return;
+      if (err || !clip) { this.exitCineMark('load-failed'); console.warn('[GameAudio] exit track unavailable', String(err)); return; }
+      clip.addRef(); this.exitCineClip = clip; this.exitCineMark('loaded');
+      if (this.exitCineAt !== null && !this.exitCineSource) this.startExitCine();
+    };
+    try {
+      const b = assetManager.getBundle(EXIT_CINE.bundle);
+      if (b) { b.load(EXIT_CINE.path, AudioClip, done as any); return; }
+      assetManager.loadBundle(EXIT_CINE.bundle, (err: any, bundle: any) => {
+        if (err || !bundle) { done(err || new Error('bundle ' + EXIT_CINE.bundle + ' unavailable'), null); return; }
+        bundle.load(EXIT_CINE.path, AudioClip, done);
+      });
+    } catch (e) { done(e, null); }
+  }
+  /** Starts (or joins late, seeking by the lateness) once the segment has begun and the clip is ready. */
+  private startExitCine() {
+    if (this.exitCineSource && !this.sfxVoices.has(this.exitCineSource)) this.exitCineSource = null;
+    if (this.exitCineAt === null || this.exitCineSource || !this.exitCineClip) return;
+    const late = (GameAudio.now() - this.exitCineAt) / 1000;
+    if (late > EXIT_CINE.maxLateS) { this.exitCineMark('dropped-late', late); this.exitCineAt = null; return; }
+    if (this.muted || this.sfxMuted || this.reasons.size > 0) { this.exitCineMark('skipped-muted'); this.exitCineAt = null; return; }
+    let source: AudioSource | null = null;
+    try {
+      source = this.node.addComponent(AudioSource);
+      this.sfxVoices.set(source, { source, name: 'sfx_exit_outbound' as SfxName, requestedAt: GameAudio.now(), started: false });
+      source.playOnAwake = false; source.loop = false; source.volume = EXIT_CINE.volume;
+      source.clip = this.exitCineClip;
+      source.play();
+      if (late > 0.05) { try { source.currentTime = late; } catch { /* seek optional */ } }
+      this.exitCineSource = source; this.exitCineMark('play', Math.max(0, late));
+    } catch (e) {
+      if (source) this.retireSfx(source);
+      console.warn('[GameAudio] exit track playback failed', e);
+    }
+  }
+  private stopExitCine(reason: string) {
+    const src = this.exitCineSource, running = this.exitCineAt !== null;
+    this.exitCineAt = null; this.exitCineSource = null;
+    if (src && this.sfxVoices.has(src)) { this.retireSfx(src); this.exitCineMark('stop:' + reason); }
+    else if (running) this.exitCineMark('cancel:' + reason);
+  }
+  /** Read-only, for tests / acceptance logs. */
+  exitCineDiagnostics() {
+    let playing = false; try { playing = !!this.exitCineSource?.playing; } catch { playing = false; }
+    return { loaded: !!this.exitCineClip, loading: this.exitCineLoading, active: !!this.exitCineSource, playing, segmentAt: this.exitCineAt, log: this.exitCineLog.slice() };
+  }
 
   /** 飘字等视觉反馈订阅：level 0..3 = Great / Excellent / Amazing / Unbelievable；visual 是触发这一档的那一帧 kind==='clear'
    *  原始 visual 对象（和 onBoardFrame 收到的同一个），消除格子的位置从里面取。返回取消订阅函数。

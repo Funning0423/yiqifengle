@@ -540,6 +540,7 @@ export class WorldIntegrationBoot extends Component {
   * cutscenes, island, errors, skycity); see docs/HUD-status-api.md. No hide/slideIn calls remain; this only starts the
   * T2 island button entrance. */
  private trackTransitionHud(state:string){const prev=this.hudState;if(state===prev)return;this.hudState=state;
+  try{(GameAudio.instance as any)?.onWorldState?.(state);}catch(error){console.warn('exit audio state feed failed',String(error));}   // B5.5 出门音轨
   if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
  }
  /** Status bar removed: its text is console-only. Logs once per change, errors and the skycity hint only. */
