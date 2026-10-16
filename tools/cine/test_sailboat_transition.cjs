@@ -372,7 +372,83 @@ assert.equal(driverSrc.includes('islandRoot.active = this.islandWasActive'), fal
 }
 assert.match(driverSrc, /syncSailboatMeadowNight/);
 assert.match(fs.readFileSync(path.join(scriptRoot, 'cine/SailboatMeadowWarmup.ts'), 'utf8'), /applyMeadowNightSky/);
-assert.match(driverSrc, /prepareMeadowReveal/);
+assert.match(driverSrc, /stageMeadowReveal/);
+assert.equal(driverSrc.includes('mountUnderCloud'), false);
+assert.match(driverSrc, /mountRegion\(REGIONS\.meadow, this\.meadowPrefab as Prefab, parent, true\)/);
+// Stage once per rendered frame, after the substep loop, before warm counting.
+assert.match(driverSrc, /this\.stageMeadow\(this\.lastView\);\n\s*if \(this\.lastView\) this\.noteWarmth/);
+assert.equal(/private apply\([\s\S]*?\n  \}/.exec(driverSrc)[0].includes('stageMeadow'), false);
+assert.match(driverSrc, /\[sailboat\] meadow warm/);
+// Night sky (world clear colour) only under the shut bank, never in the inactive prep.
+const stageFn = /export function stageMeadowReveal[\s\S]*?\n\}/.exec(warmupSrc)[0];
+assert.equal(stageFn.includes('syncSailboatMeadowNight'), false);
+assert.equal(stageFn.includes('applyMeadowNightSky'), false);
+assert.match(/openRoot: [\s\S]*?syncSailboatMeadowNight/.exec(driverSrc)[0], /root\.active = true/);
+assert.match(fs.readFileSync(path.join(scriptRoot, 'region/RegionLoader.ts'), 'utf8'), /if\(inactive\)model\.active=false;\n  if\(def\.ambientClips/);
+{
+  // r4: frame-78 mount stalled 183 ms; the clamped dt jumped past sceneSwapFrame 81 before 2 warm frames.
+  const stagerSrc = fs.readFileSync(path.join(scriptRoot, 'cine/SailboatMeadowStager.ts'), 'utf8');
+  assert.equal((stagerSrc.match(/@ccclass\(/g) || []).length, 0);
+  assert.equal(/from 'cc'/.test(stagerSrc), false);
+  const st = new Function(stripTypeScriptTypes(stagerSrc.replace(/^export /gm, ''), { mode: 'transform' }) + '\nreturn { createMeadowStager, sliceByWeight, SAILBOAT_STAGE_INSTANTIATE_FROM_FRAME, SAILBOAT_STAGE_SLICES };')();
+  assert.equal(st.SAILBOAT_STAGE_INSTANTIATE_FROM_FRAME, raw.events.cloudCover.inStartFrame);
+  assert.ok(st.SAILBOAT_STAGE_INSTANTIATE_FROM_FRAME < raw.events.cloudCover.fullFrom);
+  assert.deepEqual(st.sliceByWeight([{ child: 'a', weight: 5 }, { child: 'b', weight: 1 }, { child: 'c', weight: 4 }, { child: 'd', weight: 1 }], 2), [['a', 'd'], ['b', 'c']]);
+  assert.deepEqual(st.sliceByWeight([{ child: 'a', weight: 1 }], 3), [['a']]);
+  assert.deepEqual(st.sliceByWeight([], 2), [[]]);
+  const run = (opts) => {
+    const ev = [], logs = []; let clock = 0;
+    const stager = st.createMeadowStager({
+      instantiate: () => { ev.push('inst'); return { active: true, kids: ['k1', 'k2', 'k3'] }; },
+      prepare: root => { ev.push('prep:' + root.active); return root.kids.map((k, i) => ({ child: k, weight: i + 1 })); },
+      openRoot: (root, kids) => { ev.push('open:' + kids.join(',')); root.active = true; },
+      activate: kids => ev.push('act:' + kids.join(',')),
+      now: () => (clock += 3),
+      log: m => logs.push(m),
+    }, opts);
+    return { stager, ev, logs };
+  };
+  // Simulate the r4 normal flow at 60 Hz: 30 fps timeline, prefab ready from the start.
+  const cover = f => f >= raw.events.cloudCover.fullFrom && f <= raw.events.cloudCover.fullTo;
+  const { stager, ev, logs } = run();
+  let warm = 0, readyAt = null, perFrame = [];
+  for (let k = 0; k < 400 && readyAt === null; k++) {
+    const frame = Math.floor(k / 2);
+    const before = ev.length;
+    stager.step({ frame, covered: cover(frame), prefabReady: true });
+    perFrame.push(ev.length - before);
+    if (stager.mounted && cover(frame)) { warm += 1; if (warm >= model.SAILBOAT_WARM_FRAMES) readyAt = frame; }
+    if (frame < raw.events.cloudCover.inStartFrame) assert.equal(ev.length, 0, 'nothing before cloud closing');
+    if (!cover(frame)) assert.equal(ev.some(e => e.startsWith('open') || e.startsWith('act')), false, 'no activation before the bank shuts at ' + frame);
+  }
+  assert.ok(readyAt !== null && readyAt < raw.events.sceneSwapFrame, 'warmed by frame ' + readyAt + ' before swap ' + raw.events.sceneSwapFrame);
+  assert.ok(perFrame.every(n => n <= 2), 'one stage per frame (open+first slice counts 2): ' + perFrame.join(''));
+  assert.deepEqual(ev, ['inst', 'prep:true', 'open:k1,k2,k3', 'act:k3', 'act:k1,k2']);
+  assert.equal(logs.length, 4);
+  for (const l of logs) assert.match(l, /^\[sailboat\] meadow (instantiate|prepare|activate \d\/2) frame \d+ ms \d+$/);
+  assert.match(logs[0], /instantiate frame 66 /);
+  assert.match(logs[2], /activate 1\/2 frame 78 /);
+  // Late prefab under cover still mounts (hold fallback covers the remaining frames).
+  const late = run();
+  late.stager.step({ frame: 40, covered: false, prefabReady: false });
+  assert.equal(late.ev.length, 0);
+  late.stager.step({ frame: 81, covered: true, prefabReady: true });
+  late.stager.step({ frame: 81, covered: true, prefabReady: true });
+  late.stager.step({ frame: 81, covered: true, prefabReady: true });
+  late.stager.step({ frame: 81, covered: true, prefabReady: true });
+  assert.equal(late.stager.mounted, true);
+  // Prepared but bank open: waits.
+  const wait = run();
+  wait.stager.step({ frame: 70, covered: false, prefabReady: true });
+  wait.stager.step({ frame: 70, covered: false, prefabReady: true });
+  assert.equal(wait.stager.step({ frame: 71, covered: false, prefabReady: true }), false);
+  assert.equal(wait.stager.phase, 'prepared');
+  // A throwing stage marks failed and does not retry.
+  const bad = st.createMeadowStager({ instantiate: () => { throw Error('boom'); }, prepare: () => [], openRoot() {}, activate() {}, now: () => 0, log() {} });
+  assert.throws(() => bad.step({ frame: 70, covered: true, prefabReady: true }), /boom/);
+  assert.equal(bad.phase, 'failed');
+  assert.equal(bad.step({ frame: 71, covered: true, prefabReady: true }), false);
+}
 assert.equal((driverSrc.match(/@ccclass\(/g) || []).length, 1);
 assert.match(warmupSrc, /configureMeadowVertexColors/);
 assert.match(warmupSrc, /SphereLight/);

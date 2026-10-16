@@ -8,7 +8,7 @@
  * its vertex-colour palette and key light are prepared, and it renders hidden frames
  * before the bank opens. One @ccclass in this file.
  */
-import { _decorator, Component, Node, Prefab, Vec3, resources, JsonAsset, assetManager, input, Input, game, Game, director, isValid } from 'cc';
+import { _decorator, Component, Node, Prefab, Vec3, MeshRenderer, resources, JsonAsset, assetManager, input, Input, game, Game, director, isValid } from 'cc';
 import { REGIONS, mountRegion } from '../region/RegionLoader';
 import { islandPoseEntry } from '../world-r1/RegionCameraData';
 import { Cancellation, Cancelled } from '../world-r1/WorldFlowCore';
@@ -18,7 +18,9 @@ import { SailboatPrefabSlot, SAILBOAT_PREFAB_RESOURCE, SAILBOAT_PREFAB_SLOT } fr
 import { createSailboatCloudLayer, destroySailboatCloudLayer, syncSailboatCloudLayer } from './SailboatCloudLayer';
 import type { SailboatCloudLayer } from './SailboatCloudLayer';
 import { cloudBankCovers } from './SailboatCloudLayout';
-import { prepareMeadowReveal, restoreSailboatMeadowNight, syncSailboatMeadowNight } from './SailboatMeadowWarmup';
+import { stageMeadowReveal, restoreSailboatMeadowNight, syncSailboatMeadowNight } from './SailboatMeadowWarmup';
+import { createMeadowStager } from './SailboatMeadowStager';
+import type { MeadowStager } from './SailboatMeadowStager';
 import { consumeSailboatMeadow, prefetchSailboatMeadow, prefetchedSailboatMeadow } from './SailboatMeadowPrefetch';
 import {
   SAILBOAT_TIMING_RESOURCE, SAILBOAT_MAX_FRAME_DT, createSailboatPlayback, createSailboatStartGate, meadowRevealReady, parseSailboatTiming, sailboatCoverAlpha, sailboatIslandActive,
@@ -72,7 +74,9 @@ export class SailboatTransitionDriver extends Component {
   private tapQueued = false;
   private hidden = false;
   private meadowPrefab: Prefab | null = null;
+  /** Set only once every slice is active; see SailboatMeadowStager. */
   private meadowNode: Node | null = null;
+  private stager: MeadowStager<Node> | null = null;
   private meadowPending = false;
   private meadowAttempts = 0;
   private meadowError: Error | null = null;
@@ -153,7 +157,8 @@ export class SailboatTransitionDriver extends Component {
       // Present the covered skip frame before a later substep can drop the cover.
       if (sample.view.phase === 'skip-hold') break;
     } while (left > 1e-4);
-    if (this.lastView) this.noteWarmth(this.lastView);
+    if (this.lastView) this.stageMeadow(this.lastView);
+    if (this.lastView) this.noteWarmth(this.lastView, budget);
     if (this.meadowNode && this.host) syncSailboatMeadowNight(this.meadowNode, this.host.cameraNode);
     if (done) this.presentedDone = true;
   }
@@ -194,7 +199,6 @@ export class SailboatTransitionDriver extends Component {
     this.lastView = view;
     this.maybePreload(view);
     if (this.meadowError && (view.holding || view.phase === 'skip-hold')) { this.fail(Error('meadow-scene-load-failed')); return; }
-    this.mountUnderCloud(view);
     this.syncScene(view);
     this.syncCamera(view);
     this.syncBoat(view);
@@ -202,28 +206,67 @@ export class SailboatTransitionDriver extends Component {
     this.syncActor(view);
   }
 
-  /** Mount and compile while the cloud bank is shut. The island stays up until the swap, still behind that bank. */
-  private mountUnderCloud(view: SailboatView) {
+  /**
+   * One mount stage per rendered frame (never per substep): instantiate inactive from the
+   * cloud-closing frames, prepare inactive, then activate in slices only under a shut bank.
+   * The island stays up until the swap, still behind that bank.
+   */
+  private stageMeadow(view: SailboatView) {
     const host = this.host;
-    if (!host || this.meadowNode || this.meadowError || !this.meadowPrefab || !cloudBankCovers(sailboatCoverAlpha(view))) return;
+    if (!host || this.meadowNode || this.meadowError || this.closed) return;
+    if (!this.stager) {
+      const parent = host.mountParent;
+      const cameraNode = host.cameraNode;
+      this.stager = createMeadowStager<Node>({
+        instantiate: () => {
+          const mounted = mountRegion(REGIONS.meadow, this.meadowPrefab as Prefab, parent, true);
+          mounted.name = 'SailboatMeadowMount';
+          return mounted;
+        },
+        prepare: root => {
+          stageMeadowReveal(root, cameraNode);
+          const out: { child: Node; weight: number }[] = [];
+          const kids = root.children.slice();
+          for (let i = 0; i < kids.length; i++) {
+            if (!kids[i].active) continue; // authored-off children stay off
+            out.push({ child: kids[i], weight: 1 + kids[i].getComponentsInChildren(MeshRenderer).length });
+          }
+          return out;
+        },
+        openRoot: (root, children) => {
+          for (let i = 0; i < children.length; i++) children[i].active = false;
+          root.active = true;
+          // Under the shut bank: night sky and clear colour before any meadow pixel is drawn.
+          syncSailboatMeadowNight(root, cameraNode);
+        },
+        activate: children => { for (let i = 0; i < children.length; i++) children[i].active = true; },
+        now: () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now()),
+        log: message => console.log(message, 't', Date.now()),
+      });
+    }
+    const covered = cloudBankCovers(sailboatCoverAlpha(view));
     try {
-      const mounted = mountRegion(REGIONS.meadow, this.meadowPrefab, host.mountParent);
-      mounted.name = 'SailboatMeadowMount';
-      prepareMeadowReveal(mounted, host.cameraNode);
-      this.meadowNode = mounted;
-      this.warmFrames = 0;
-      this.warmed = false;
+      this.stager.step({ frame: view.frame, covered, prefabReady: !!this.meadowPrefab });
     } catch (error) {
       console.warn('[sailboat] meadow mount failed', error);
+      const root = this.stager.root;
+      if (root && isValid(root, true)) root.destroy();
       this.meadowError = error instanceof Error ? error : Error('meadow-scene-load-failed');
       if (view.holding || view.phase === 'skip-hold' || view.phase === 'done') this.fail(Error('meadow-scene-load-failed'));
+      return;
+    }
+    if (this.stager.mounted) {
+      this.meadowNode = this.stager.root;
+      this.warmFrames = 0;
+      this.warmed = false;
     }
   }
 
-  private noteWarmth(view: SailboatView) {
+  private noteWarmth(view: SailboatView, dt: number) {
     if (this.warmed || this.closed) return;
     if (!this.meadowNode || !cloudBankCovers(sailboatCoverAlpha(view))) { this.warmFrames = 0; return; }
     this.warmFrames += 1;
+    console.log('[sailboat] meadow warm', this.warmFrames, 'frame', view.frame, 'dt ms', Math.round(dt * 1000), 't', Date.now());
     if (meadowRevealReady(this.warmFrames)) this.warmed = true;
   }
 
@@ -340,9 +383,13 @@ export class SailboatTransitionDriver extends Component {
     // before the board camera and setLayers(NONE) run (skip landing, and meadow -> board).
     if (host && isValid(host.islandRoot, true)) host.islandRoot.active = sailboatIslandActive('done', true, settled ? 'settled' : 'aborted', this.islandWasActive);
     if (this.actor && isValid(this.actor, true)) this.actor.active = this.actorWasActive;
-    // Leave the meadow mounted on success so this render is still the meadow. The level seal drops it.
-    if (!settled && this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
+    // Leave the staged meadow mounted on success so this render is still the meadow. The level seal drops it.
+    if (!settled) {
+      if (this.meadowNode && isValid(this.meadowNode, true)) this.meadowNode.destroy();
+      else if (this.stager && this.stager.root && isValid(this.stager.root, true)) this.stager.root.destroy();
+    }
     this.meadowNode = null;
+    this.stager = null;
     destroySailboatCloudLayer(this.cloud);
     this.cloud = null;
     if (this.boat && isValid(this.boat, true)) this.boat.destroy();
