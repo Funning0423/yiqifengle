@@ -298,11 +298,12 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // off (nothing draws it). The rig then stays active under the preload holder; only the camera follows "visible and the board host shown".
   if(pre){step='preload-activate';const kids=scenery.children.slice();for(const k of kids)k.active=false;rig.active=true;
    for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
-  const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&(!pre||(isValid(host,true)&&host.activeInHierarchy));};
+  else rig.active=true;/* r4.2 items 10/11: a direct build switches on with the (still hidden) board host, not on the swap frame */
+  const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&isValid(host,true)&&host.activeInHierarchy;};
   return {
    adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();syncDir();},
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');showCamera();syncDir();},
-   setVisible:value=>{if(dead)return;visible=value;if(!pre)rig!.active=value;if(pre)showCamera();else camera!.enabled=value;if(value)syncDir();else restoreDir();},
+   setVisible:value=>{if(dead)return;visible=value;showCamera();if(value)syncDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0,preloaded:!!pre,cameraOn:!!camera&&camera.enabled}),
    dispose,

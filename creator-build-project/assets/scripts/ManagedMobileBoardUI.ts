@@ -20,6 +20,7 @@ const GOAL_ART: Record<string, string> = { moss: 'board/obstacle_moss', roots: '
 export function goalArt(key: string): string { return /^type[0-5]$/.test(key) ? PIECE_KEYS[Number(key.slice(4))] : GOAL_ART[key] || 'board/piece_flower'; }
 /** b-board v3.1 board skin: wood tray with tile_a/b bases, piece_* art, obstacles, specials; top-left pause + one info
  *  plate; ≤3 tool slots; transient toast; idle auto-hint (5 s, then every 8 s); every dialog is a lite popup. */
+function countNodes(n: Node): number { let k = 1; for (const c of n.children) k += countNodes(c); return k; }
 @ccclass('ManagedMobileBoardUI')
 export class ManagedMobileBoardUI extends Component {
   private managed: any = null; private disposing = false; private frameKinds = new Set<string>(); private presentationError: string | null = null;
@@ -30,7 +31,8 @@ export class ManagedMobileBoardUI extends Component {
   diagnostics() {
     return { presentationError: this.presentationError,
       inputGate: { presented: this.presented, active: this.inputVisible(), state: this.snapshot?.state, piecePointer: this.dragStart?.pointer ?? null, toolPointer: this.toolDrag?.pointer ?? null,
-        visualPending: !!this.visualDone, visualLeft: this.visualLeft, entryPending: !!this.entryFinish }, background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
+        visualPending: !!this.visualDone, visualLeft: this.visualLeft, entryPending: !!this.entryFinish },
+      prewarm: { ...this.prewarmStats, pending: this.prewarm ? this.prewarm.parked.length - this.prewarm.next : 0, laidOut: this.prewarmedFrame }, background: this.backgroundStatus?.() ?? { state: 'missing-provider' }, snapshot: this.controller.snapshot(), checkpoint: this.controller.session?.checkpoint() || null, presentation: this.snapshot,
       layout: this.measureLayout(), storage: this.managed?.storageEntries?.() || [], frameKinds: Array.from(this.frameKinds), goalSemantics: this.goalKeys.map((key, i) => ({ key, value: this.goalLabels[i]?.string, icon: goalArt(key) })),
       toolBar: this.toolBar.slice(), popups: this.popups ? this.popups.names() : [], hintCells: this.hintCells.slice(), hints: this.hintClock.count(), toast: this.toastLabel?.string || '', art: BoardArt.shared().diagnostics() };
   }
@@ -291,9 +293,11 @@ export class ManagedMobileBoardUI extends Component {
   /** Called once the enter shot has finished and whenInteractive has resolved. The camera stays dark until this turn. */
   presentForPlay() {
     if (this.entryReleased || this.disposing) return;
-    this.presented = true; this.releaseBoardCamera();
+    this.presented = true; this.finishPrewarm(); this.releaseBoardCamera();
     if (this.node && isValid(this.node, true)) this.node.active = true;
-    if (!this.disposing && this.root && isValid(this.root, true)) this.layout();
+    // r4.2 items 10/11: a finished hidden pre-activation already laid out this frame size; the swap frame only toggles visibility.
+    if (!this.disposing && this.root && isValid(this.root, true) && (!this.prewarmedFrame || this.prewarmedFrame !== this.frameKey())) this.layout();
+    if (this.veil && isValid(this.veil, true)) this.veil.opacity = 255;
     // Restored attempts intentionally stay paused. Unlike an OS hide/show,
     // a new view has no boardWasHidden edge to request the recovery controls.
     // Offer explicit Resume on its first visible update; never unlock silently.
@@ -302,6 +306,44 @@ export class ManagedMobileBoardUI extends Component {
       else this.returnPause = true;
     }
   }
+  // ---------------- r4.2 items 10/11: hidden pre-activation ----------------
+  /** Nodes switched on per frame by the hidden pre-activation (a whole unit at a time; a grid layer of 49 sprites is one unit). */
+  static PREWARM_NODE_BUDGET = 64;
+  private prewarm: { parked: Node[]; next: number } | null = null; private prewarmedFrame = ''; private veil: UIOpacity | null = null;
+  private prewarmStats = { started: false, frames: 0, done: false, flushed: 0 };
+  /** World entry (r4.2 items 10/11, Mac r4: swap frame 29-42 ms). The swap frame used to switch the whole board UI on at once (~400 nodes,
+   *  label textures, the rule guide). The level adapter calls this after initializeManaged; afterFrame(go) runs go on a later frame. The host
+   *  is then switched on while nothing can draw it (board camera held, root at opacity 0 so no other UI_2D camera batches it), and the big
+   *  subtrees follow a budget per frame from update(); the last step lays out once. presentForPlay finishes whatever is left synchronously,
+   *  so visibility/input semantics are unchanged if frames never come. Only nodes no other code toggles are parked: the grid's layers and
+   *  cells, the HUD's pause button and info plate. */
+  prewarmPresentation(afterFrame: (go: () => void) => void) {
+    if (!this.deferPresentation || this.presented || this.prewarmStats.started || this.entryReleased || this.disposing || !this.root) return;
+    afterFrame(() => this.beginPrewarm());
+  }
+  private beginPrewarm() {
+    if (this.presented || this.prewarmStats.started || this.entryReleased || this.disposing || !this.node || !isValid(this.node, true) || !this.root || !isValid(this.root, true) || this.node.active) return;
+    this.prewarmStats.started = true;
+    const parked: Node[] = [];
+    for (const holder of [this.grid, this.hud]) if (holder && isValid(holder, true)) for (const c of holder.children.slice()) if (c.active) { c.active = false; parked.push(c); }
+    this.veil = this.root.getComponent(UIOpacity) || this.root.addComponent(UIOpacity); this.veil.opacity = 0;
+    this.prewarm = { parked, next: 0 };
+    this.holdBoardCamera(); this.node.active = true;
+  }
+  private stepPrewarm() {
+    const p = this.prewarm; if (!p) return;
+    let used = 0;
+    while (p.next < p.parked.length && used < ManagedMobileBoardUI.PREWARM_NODE_BUDGET) { const n = p.parked[p.next++]; if (isValid(n, true) && !n.active) { n.active = true; used += countNodes(n); } }
+    this.prewarmStats.frames++;
+    if (p.next < p.parked.length) return;
+    this.prewarm = null; this.prewarmStats.done = true;
+    if (!this.disposing && this.root && isValid(this.root, true)) { this.layout(); this.prewarmedFrame = this.frameKey(); }
+  }
+  private finishPrewarm() {
+    const p = this.prewarm; if (!p) return; this.prewarm = null;
+    for (; p.next < p.parked.length; p.next++) { const n = p.parked[p.next]; if (isValid(n, true) && !n.active) { n.active = true; this.prewarmStats.flushed++; } }
+  }
+  private frameKey() { const f = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); return Math.max(240, f.width) + 'x' + Math.max(320, f.height); }
   private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
   private syncToolBar() {
@@ -847,6 +889,8 @@ export class ManagedMobileBoardUI extends Component {
   }
   update(dt: number) {
     if (this.disposing || !this.root || !isValid(this.root, true)) return;
+    // r4.2: before presentForPlay the host is only active for the hidden pre-activation; nothing else runs (as when it was inactive).
+    if (!this.presented) { this.stepPrewarm(); return; }
     if (this.visualLeft >= 0) { this.visualLeft -= Math.max(0, dt); if (this.visualLeft <= 0) this.finishVisual(); }
     this.followGhost(); this.followPiece();
     if (this.returnPause) { this.returnPause = false; if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden && this.snapshot.active && !this.modalOpen()) this.openPausePanel(); }

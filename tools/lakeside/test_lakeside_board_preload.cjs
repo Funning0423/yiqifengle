@@ -16,8 +16,8 @@ run('spread: instances a batch per frame, then components enabled a batch per fr
  assert.match(bg,/for\(const k of kids\)k\.active=false;rig\.active=true;\n   for\(let i=0;i<kids\.length;i\+\+\)\{if\(isValid\(kids\[i\],true\)\)kids\[i\]\.active=true;if\(\(i\+1\)%LAKESIDE_PRELOAD_BATCH===0\)\{await pre\.yieldFrame\(\);token\.check\(\);\}\}/);
  assert.match(bg,/setTimeout\(go,50\)\/\* paused game: never stall \*\//);});
 run('swap: adopted lease keeps its rig active; the camera shows only when visible AND the board host is shown (reveal), lighting as before',()=>{
- assert.match(bg,/const showCamera=\(\)=>\{if\(!camera\|\|!isValid\(camera,true\)\)return;camera\.enabled=visible&&\(!pre\|\|\(isValid\(host,true\)&&host\.activeInHierarchy\)\);\};/);
- assert.match(bg,/setVisible:value=>\{if\(dead\)return;visible=value;if\(!pre\)rig!\.active=value;if\(pre\)showCamera\(\);else camera!\.enabled=value;if\(value\)syncDir\(\);else restoreDir\(\);\},/);
+ assert.match(bg,/const showCamera=\(\)=>\{if\(!camera\|\|!isValid\(camera,true\)\)return;camera\.enabled=visible&&isValid\(host,true\)&&host\.activeInHierarchy;\};/);
+ assert.match(bg,/setVisible:value=>\{if\(dead\)return;visible=value;showCamera\(\);if\(value\)syncDir\(\);else restoreDir\(\);\},/);
  assert.match(bg,/adopt:\(owner,next\)=>\{if\(dead\)return;host=owner;off\(\);token=next;off=next\.onCancel\(dispose\);/,'entry token owns it after adopt');
  assert.match(bg,/if\(st\)\{boardPreload=null;st\.adopted=true;let lease:LakesideBoardLease\|null=null;\n  try\{lease=await ctx\.token\.wait\(st\.promise\);\}catch\(error\)\{void st\.promise\.then\(l=>l\?\.dispose\(\)\);throw error;\}\n  if\(lease\)\{lease\.adopt\(ctx\.parent,ctx\.token\);return lease;\}/);
  assert.match(bg,/ return buildLakesideBoard\(ctx\);\n\};/,'no preload / failed preload → the normal build (and its single fallback reason)');});

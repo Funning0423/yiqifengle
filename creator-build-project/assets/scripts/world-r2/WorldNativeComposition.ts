@@ -1,4 +1,4 @@
-import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
+import { createSkycityBoardBackground } from '../region/SkycityBoardLive';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
