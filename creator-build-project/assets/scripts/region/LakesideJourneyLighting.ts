@@ -2,8 +2,8 @@ import {Camera,Color,DirectionalLight,Quat,Vec3,director,isValid} from 'cc';
 import {lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 import {onDayNightChange} from '../world-r1/DayNightContract';
-import {islandSkyFade,skyFollowTargetFromLinear} from '../world-r1/SkyFollowCore';
-import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideSkyDomeTargetLinear,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
+import {islandSkyFade} from '../world-r1/SkyFollowCore';
+import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideSkyDomeColor,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
 /** build05-next: island→lakeside journey lighting (LakesideJourneyAtmosphere). prime() runs when the journey scenes are
  *  shown (under the set-off fade's full black): it captures the island values and switches the fog to the board's mode at
  *  ~zero density, so the CC_USE_FOG shader-variant change happens under black (and the board entry later needs no switch).
@@ -30,7 +30,7 @@ export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number,l
    s.light.color=col(f.color);s.light.illuminance=f.illum;}
   const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
   if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
-  sky(skyFollowTargetFromLinear(lakesideSkyDomeTargetLinear(mode)),f.weight)/* r4 journey fix 4: zenith/low of the lakeside sky (linear), not the clear colour / horizon */;
+  sky(lakesideSkyDomeColor(mode),f.weight)/* r4 sky-dome fix: the board's clear colour for this mode (one accessor) */;
   const fog=g?.fog;if(fog&&f.fog){if(fog.type!==f.fog.type)fog.type=f.fog.type;fog.fogColor=col(f.fog.color);fog.fogTop=f.fog.top;fog.fogRange=f.fog.range;fog.fogAtten=f.fog.atten;fog.fogStart=f.fog.start;fog.fogEnd=f.fog.end;if(!fog.enabled)fog.enabled=true;}};
  const onToggle=()=>{if(!saved||lakesideBoardHolding())return;if(lastW>0)write(lastW);};
  return {
