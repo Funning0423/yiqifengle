@@ -27,15 +27,19 @@ const paint=new Function('s',stripTypeScriptTypes("const RESULT_ACTION_IDS=['mai
  const actions={mainNext:()=>next++,chest:()=>session.command('openChest',0),regionReward:()=>session.command('claimRegion',0)};
  const owner={board:()=>u,controls,resultActions:actions};const update=()=>paint.call(owner,flow.snapshot());
  const bytes=()=>JSON.stringify([...values]);update();const initialPanel=u.popups.find('ResultPanel');assert(initialPanel.root.find('ResultChestTap'));
+ // The claimed rewards are visible on the result panel (open chest, every reward slot claimed) and stay so across background trips.
+ const shown=()=>{const p=u.popups.find('ResultPanel');assert(p,'result panel still up');assert(p.resultDiagnostics().chestOpen,'chest shown open');assert(p.root.find('ResultReward-0'),'reward badges shown on the result panel');assert(!u.popups.find('RewardPanel'));};
  const checks=[];
  for(const which of ['before-claim','after-chest','after-region']){
   for(let i=0;i<3;i++){const saved=bytes(),panel=u.popups.find('ResultPanel'),names=u.popups.names().join(',');flow.hide();update();flow.hide();flow.show();flow.show();update();step();
    assert.equal(flow.snapshot().state,'level');assert.equal(controls.get('resume').active,false);assert.equal(bytes(),saved);assert.equal(u.popups.names().join(','),names);assert.equal(u.popups.find('ResultPanel'),panel);
-   assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);}
-  checks.push({which,cycles:3,duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
+   assert.equal(H.cc._scene.getComponentsInChildren(UI).length,1);
+   if(which!=='before-claim')shown();}
+  checks.push({which,cycles:3,rewardsShownOnResult:which!=='before-claim',duplicateEvents:true,storageUnchanged:true,sameResultPanel:true,noGlobalResume:true});
   if(which==='before-claim'){H.tap(u.popups.find('ResultPanel').root.find('ResultChestTap'));update();assert(session.snapshot().journey.chests[0].opened);assert(session.snapshot().journey.regionRewards[0].claimed);}
   if(which==='after-chest'){
-   const reward=u.popups.find('RewardPanel');assert(reward);H.tap(reward.root.find('Accept'));step();update();
+   // SPEC v2.1 / 3765e34: on the result screen the rewards show on the ResultPanel itself (open chest + reward badges), no 「获得」 RewardPanel.
+   assert(!u.popups.find('RewardPanel'),'no separate RewardPanel on the result screen');
    assert(!u.popups.find('ResultPanel').root.find('ResultChestTap'),'both rewards leave with the one claim');
   }
  }
