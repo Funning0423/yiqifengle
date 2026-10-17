@@ -15,8 +15,8 @@
  *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
- *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): landing END = board camera at the 360×780 reference
- *     (gap ≤ 1e-6 m / 0.01° / 0.01° FOV; residual per portrait layout reported); starts on the landing pose (lens at rest), ends exactly on
+ *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): landing END = board camera at the 390×844 reference (UI default
+ *     insets; gap ≤ 1e-6 m / 0.01° / 0.01° FOV; residual per portrait layout reported); starts on the landing pose (lens at rest), ends exactly on
  *     the board camera; one smootherstep for position/view (slerp)/FOV: monotonic, no overshoot, single-peak rates ≈ 0 at both ends;
  *     lens ≥ 1.1 m on every 60 Hz frame, her face/head/chest never hidden, lens on her right while it is behind her; per-frame
  *     displacement / speed / turn rate / FOV rate written to the report (perFrame) for the blend plots.
@@ -158,10 +158,10 @@ check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, 
   out[W+'x'+Hh]={seconds:b.seconds,frames:n+1,from:{position:from.position.map(r3),fov:r3(from.fovVerticalDeg)},to:{position:bw[0].map(r3),fov:r3(loc.fovVerticalDeg)},moveM:r3(totD),turnDeg:r3(totA*180/Math.PI),fovChangeDeg:r3(totF),
    minLensM:r3(minLens),minLensObj:minObj,minRightWhileBehindM:r3(minSide),passesHerAtS:ahead,peakSpeedMps:r3(pv.m),peakTurnDegS:r3(pw.m),peakTurnAtS:r3((pw.im+1)/60),peakTurnAccelDegS2:r3(Math.max(...acc)),peakFovRateDegS:r3(pf.m),
    endRates:{firstFrameTurnDegS:r3(pw.first),lastFrameTurnDegS:r3(pw.last),firstFrameFovDegS:r3(pf.first),lastFrameFovDegS:r3(pf.last)},perFrame:F.map(f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,+v.toFixed(5)])))};}
- // landing END = board camera (reviewer): no gap at the 360×780 reference, residual reported on every portrait layout
+ // landing END = board camera (reviewer): no gap at the 390×844 reference (board UI default insets), residual reported on every portrait layout
  const gaps={};for(const [name,W,Hh,safe] of K6_LAYOUTS){if(W>Hh)continue;const g=BL8.boardLayout(W,Hh,safe,2),b=LK.lakesideLandingBlend(cT,{width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}},j);
   assert(b.done(b.seconds)&&!b.done(b.seconds-1e-3)&&b.at(b.seconds)===b.boardWorld,'done()/at() swap frame');gaps[name]={positionM:+b.gap.positionM.toExponential(2),viewDeg:+b.gap.viewDeg.toFixed(4),fovDeg:+b.gap.fovDeg.toFixed(4)};}
- const ref=gaps['360x780 (0.46)'];assert(ref.positionM<=1e-6&&ref.viewDeg<=.01&&Math.abs(ref.fovDeg)<=.01,'landing end != board camera at 360x780: '+JSON.stringify(ref));
+ const ref=gaps['390x844 notch+capsule'];assert(ref.positionM<=1e-6&&ref.viewDeg<=.01&&Math.abs(ref.fovDeg)<=.01,'landing end != board camera at 390x844 (UI default insets): '+JSON.stringify(ref));
  return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},landingToBoardGap:gaps,blends:out};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
