@@ -77,5 +77,5 @@ export function reapplyLakesideJourney():boolean{const f=journeyReapply;if(!f)re
  *  the same value in applyDir), as sRGB-8 bytes for the skyFollow API. NOT the waterSky* params: those are the water reflection only
  *  (pre-compensated for the water tint). SkyFollowCore lerps the dome tint in LINEAR rgb, so every channel of what the dome shows moves
  *  monotonically from the island sky to this colour and the hue stays on the short arc between them (no detour).
- *  The one place to repoint (Voice Bot will export a per-mode skyDomeColor equal to the clear colour). Read-only. */
-export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).clearColor);}
+ *  The one place to repoint: reads lakesideModeLighting(mode).skyDomeColor (= the clear colour per mode, Voice Bot). Read-only. */
+export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).skyDomeColor);}

@@ -65,7 +65,7 @@ run('dome target = the board clear colour per mode (day 28/143/184 = lakesideDay
  assert.deepEqual(domeOf('day'),[28,143,184]);assert.deepEqual(domeOf('day'),rgb(new Color(D.lakesideDayClearColor())));for(const m of ['day','night'])assert.deepEqual(domeOf(m),clearOf(m),m);
  const src=fs.readFileSync(S+'region/LakesideJourneyLighting.ts','utf8'),at=fs.readFileSync(S+'region/LakesideJourneyAtmosphere.ts','utf8');
  assert.match(src,/sky\(lakesideSkyDomeColor\(mode\),f\.weight\)/);assert.doesNotMatch(src,/waterSky/,'journey lighting never reads waterSky*');
- const fn=at.slice(at.indexOf('export function lakesideSkyDomeColor'));assert.equal(fn.split('\n')[0],'export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).clearColor);}');
+ const fn=at.slice(at.indexOf('export function lakesideSkyDomeColor'));assert.equal(fn.split('\n')[0],'export function lakesideSkyDomeColor(mode:LakesideDayNight):Rgb{return hexRgb(lakesideModeLighting(mode).skyDomeColor);}');
  assert.equal(K.SKY_FOLLOW_MAX_GAIN,8,'gain clamp back to 8 (clear-colour gains fit)');});
 // r4 sky-dome fix (lead): sample the blend 0..1 in 21 steps, day and night, on the REAL dome / cloud averages and the island base tints
 // (WorldFlowComponent: day mainColor 1, night dome .18/.24/.46, cloud .22/.28/.43). What the mesh shows on average = mainColor × avg
