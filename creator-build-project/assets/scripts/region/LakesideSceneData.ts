@@ -94,6 +94,15 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
 
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
+  /** r4 land fill (VB, Grok Bot approved): the r4 global lights put the water + bridge on the engine-camera r5h3 reference but leave
+   *  the land too dark/brown (the reference land is lit by Blender's world). An extra flat, unshadowed fill (builtin-standard
+   *  emissive, linear, added before tone mapping, NOT scaled by exposure) on the LANDFORM GLBs only - the ground surface (near) and
+   *  the distant landscape (far). Not land: water, bridge, buildings, props, vegetation (trees/bushes/reeds/flowers), rocks, clouds.
+   *  The day/night values are per mode in lakesideModeLighting (landFillNearLinear / landFillFarLinear). */
+  landFillNearGlbs: ['LK_terrain.glb'] as const,
+  landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
+  landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
+  landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
@@ -144,20 +153,33 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   waterMainLightScale: 0.8, waterAmbientScale: 1.0, waterSkyStrength: 0.6, // r4 (r2 amb 0.6, sky 0.12)
   waterTintLinear: [0.7, 0.95, 1.0] as const, waterSkyReflectFloor: 0.28,
   waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
+  /** r4 land fill, night: cool (blue) and small - night land ~80% of the Mac r3 night land luma, no brown. */
+  landFillNearLinear: [0, 0, 0.0014] as const, landFillFarLinear: [0.0049, 0.0116, 0.0356] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
   ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
   waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number;
   /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
-  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[] }>;
+  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
+  /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
+  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[] }>;
 /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
 export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
-    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear };
+    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
+    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear };
+}
+export type LakesideLandFillClass = 'near' | 'far';
+/** r4 land fill: which landform class a GLB is (null = not land: never filled). */
+export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
+  const P = LAKESIDE_DIR_LIGHT_PARAMS;
+  if ((P.landFillNearGlbs as readonly string[]).includes(glb)) return 'near';
+  if ((P.landFillFarGlbs as readonly string[]).includes(glb)) return 'far';
+  return null;
 }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
