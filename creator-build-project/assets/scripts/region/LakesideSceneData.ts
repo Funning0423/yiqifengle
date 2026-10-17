@@ -51,18 +51,35 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
 export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
 /** ALL lakeside 'dir' lighting / water / fog values (one block; v3 = Voice Bot's verified r5h3 values where given, 20261017T051017Z):
  *  - sun*: scene_r5h3_lighting.json Sun exactly. ambientSky = r5h3 world zenith; ambientGround = r5h3 below-horizon clamp (VB).
- *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
+ *  - ambientSkyIllumToSun: v3.4 0.2 (see lakesideCocosLightColor; v2/v3.3 0.75 compensated sRGB-bytes-as-linear) - device check.
  *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
  *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
  *  - fog*: v3.1 sRGB 215/170/150; mode in LAKESIDE_FOG_MODE. linear60: 60 m -> 0.4 at 130 m; Cocos LINEAR has no max amount, so
  *    the end is stretched to 60 + 70/0.4 = 235 m (clouds at ~163 m reach ~0.44). Board 16–24 m, near shore <30 m: clear. */
+/** v3.4 (VB, bridge whiteness): Cocos 3.8.8 uses a light's Color bytes / 255 AS LINEAR (DirectionalLight.color -> colorTemperature-free
+ *  path, Ambient.skyLightingColor / groundLightingColor -> Color.x without SRGBToLinear; only fog colour is linearised). The lease sends
+ *  linearToSrgb8(<linear r5h3 colour>), so Cocos saw sRGB bytes as linear: sky ambient (0.110,0.565,0.718) instead of r5h3
+ *  (0.0116,0.2747,0.4793) - ~2x too bright and cyan - and ambient w = 0.75 x sun; ACES then washed the light stone bridge to
+ *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass). Fix, data only (call sites untouched):
+ *  lakesideCocosLightColor(lin) returns the value whose linearToSrgb8() is round(lin*255), i.e. Cocos gets the r5h3 linear colour.
+ *  The authored r5h3 values stay readable as LAKESIDE_R5H3_LIGHT_LINEAR. */
+export function lakesideCocosLightColor(lin: readonly number[]): [number, number, number] {
+  const dec = (x: number) => { const v = Math.max(0, Math.min(1, x)); return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return [dec(lin[0]), dec(lin[1]), dec(lin[2])];
+}
+export const LAKESIDE_R5H3_LIGHT_LINEAR = Object.freeze({
+  sun: [1.0, 0.6, 0.32] as const, ambientSky: [0.0116, 0.2747, 0.4793] as const, ambientGround: [1.0, 0.5457, 0.1441] as const,
+});
 export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   sunForward: [-0.4182, -0.3983, 0.8164] as const,
-  sunColorLinear: [1.0, 0.6, 0.32] as const,
-  sunIlluminanceScale: 1.0,
-  ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
-  ambientGroundColorLinear: [1.0, 0.5457, 0.1441] as const,
-  ambientSkyIllumToSun: 0.75,
+  /** pre-encoded for Cocos (see lakesideCocosLightColor): linearToSrgb8() of these = r5h3 linear x 255. */
+  sunColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.sun) as readonly number[],
+  /** v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
+   *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
+  sunIlluminanceScale: 0.5,
+  ambientSkyColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky) as readonly number[],
+  ambientGroundColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround) as readonly number[],
+  ambientSkyIllumToSun: 0.2,
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',

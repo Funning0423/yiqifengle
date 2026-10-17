@@ -5,7 +5,7 @@ const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,
 const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
 const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
 // Voice Bot verified values
-assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
+assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),[255,139,37],"v3.4 Cocos bytes = linear x 255");
 assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
 assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
 assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
