@@ -507,8 +507,15 @@ export class WorldFlowComponent extends Component {
     if(snap.state==='disposed'||snap.state==='error'||!snap.hidden)return;
     this.clock.showEvents++;
     if(this.nightOverride===null)this.setDayNight(localNight(new Date())?'night':'day',false);
-    this.flow.show();
+    this.flow.show();this.syncHostPause();
     this.reportRuntime('show');
+  }
+  /** r4.1: onHide paused the island ambient clips and the room-light rig. A paused return re-applies them through
+   *  setLayers; a frozen exit / walk home that resumed by itself keeps its layers, so un-pause them here from the
+   *  layers on screen (same rule as setLayers). */
+  private syncHostPause():void {
+    const s=this.flow?.snapshot();if(!s||s.hidden||s.needsResume)return;
+    const paused=!this.interiorVisible&&!this.exteriorVisible&&!this.backdropVisible;this.worldAmbient?.setHostPaused(paused);this.roomLighting?.setPaused(paused);
   }
   private scheduleReturn():void {
     if(this.returnTimer!=null||this.disposed)return;
@@ -559,7 +566,7 @@ export class WorldFlowComponent extends Component {
   private setDayNight(mode:DayNightMode,lock:boolean){if(mode!=='day'&&mode!=='night')return this.dayNightSnapshot();this.dayNightMode=mode;if(lock)this.nightOverride=mode==='night';this.applyDayNight();return this.dayNightSnapshot();}
   private toggleDayNight(){return this.setDayNight(this.dayNightMode==='night'?'day':'night',true);}
   onDisable():void {this.cancelRoomLook();this.worldAmbient?.setHostPaused(true);this.roomLighting?.setPaused(true);this.flow?.hide();}
-  onEnable():void {if(this.flow)this.flow.show();} // remains paused; explicit resume is required
+  onEnable():void {if(this.flow){this.flow.show();this.syncHostPause();}} // remains paused (explicit resume) unless a frozen exit / walk home resumed
   onDestroy():void {
     if(this.returnTimer!=null){clearTimeout(this.returnTimer);this.returnTimer=null;}
     this.unbindWxLifecycle();

@@ -8,8 +8,10 @@ export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity' | 'lakesi
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
   'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'lakeside' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
-/** V1: home-exit states (seat to island) that a background/foreground round trip restarts. */
+/** Home-exit states (seat to island). r4.1: a background trip in one of them freezes the exit in place (see hide()). */
 export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
+/** r4.1: walk-home states (island to seat); a background trip freezes them in place too. */
+export const RETURN_STATES:readonly State[]=['walking-home','crossing-in','closing-door','walking-to-seat','sitting'];
 /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
  * island camera (adapter-owned subset), without interior lighting. Omitted = false (old behaviour). */
 export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean; backdrop:boolean; doorwayInterior?:boolean}>;
@@ -289,7 +291,7 @@ export class WorldFlow {
     if(this.characterReady())this.character!.cancelAndReset(this.pose());this.character?.setVisible(this.characterReady()&&!this.hidden&&!this.needsResume&&this.stable!=='level'&&this.stable!=='skycity');this.world.assertStaticWorld();
     if(this.visit){if(this.stable==='skycity'&&!this.hidden&&!this.needsResume)this.visit.show();else this.visit.hide();}
   }
-  private invalidate():void {const old=this.current;this.current=null;old?.cancel();this.world?.cancelTransient();}
+  private invalidate():void {this.frozen=false;const old=this.current;this.current=null;old?.cancel();this.world?.cancelTransient();}
   private async operate(initial:State,body:(token:Cancellation)=>Promise<void>):Promise<Result> {
     const token=new Cancellation();this.current=token;this.error=null;this.change(initial);
     try {await body(token);token.check();return {ok:true};}
@@ -635,25 +637,32 @@ export class WorldFlow {
     if(this.state==='disposed'||this.state==='error'||this.hidden||this.needsResume)return;
     if(Number.isFinite(seconds)&&seconds>0&&this.characterReady()){this.character!.advance(Math.min(seconds,.1));if(this.state==='region-travel'&&this.world)this.journey?.observe(this.character!,this.world);}
   }
-  /** V1: hide() cancels a running transition by design (stable pose restored, see show()). When that transition was the
-   *  exit from home, show() restarts it cleanly from the seat instead of leaving her seated behind a resume button. */
-  private resumeExit=false;
+  /** r4.1 (Grok Bot, Mac evidence C_show_snapback_strip): a background trip during the home exit or the walk home no
+   *  longer cancels it. V1 cancelled the transition (token + jobs), restore()d the stable pose (home = the seat) and on
+   *  show() restarted leaveHome() from the chair: she snapped back to the seat and replayed the whole exit (exit track
+   *  from 0, wind/waves hard-stopped by the 'standing' quiet). Now hide() FREEZES it: token, jobs, camera track, character
+   *  action and state are kept untouched; hidden+needsResume stop both clocks (advance() here, the job loop in
+   *  WorldFlowComponent.update), so position, clip time, camera progress, door angle, light ramps and wind hold exactly.
+   *  show() lifts the freeze by itself (no 继续): the same walk continues from the same frame. Everything else (seated,
+   *  island, levels, journeys, sky visit) keeps the paused + resume() behaviour. */
+  private frozen=false;
+  private freezable():boolean {return !!this.current&&!!this.world&&(EXIT_STATES.indexOf(this.state)>=0||RETURN_STATES.indexOf(this.state)>=0);}
   hide():void {
     if(this.state==='disposed'||this.hidden)return;
-    this.resumeExit=this.stable==='home'&&!!this.current&&EXIT_STATES.indexOf(this.state)>=0;if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
+    if(this.freezable()){this.frozen=true;this.hidden=true;this.needsResume=true;this.emit(this.snapshot());return;}
+    if(this.character&&this.world)this.journey?.suspend(this.character,this.world);this.hidden=true;this.needsResume=true;this.invalidate();
     this.level?.hide();this.visit?.hide();this.restore();this.change('paused');
   }
   /** Back from background: the place the player left is visible again, still paused until resume().
-   *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose). */
+   *  Does not move the camera or replay the sit/stand pose (hide() already restored the stable pose).
+   *  r4.1: a frozen exit / walk home resumes by itself, from the frame it was hidden on. */
   show():void {
-    if(this.state==='disposed'||!this.hidden)return;this.hidden=false;this.level?.showPaused();
+    if(this.state==='disposed'||!this.hidden)return;this.hidden=false;
+    if(this.frozen){this.frozen=false;if(this.state!=='error'&&this.world){this.needsResume=false;if(!this.current)this.restore();this.emit(this.snapshot());return;}} // finished while hidden (last step resolved): land it visibly
+    this.level?.showPaused();
     if(this.state!=='error'&&this.stable==='level'&&this.level?.isSettledResult?.()){
       this.needsResume=false;this.restore();this.change('level');return;
     }
-    if(this.state!=='error'&&this.resumeExit&&this.stable==='home'&&this.world&&!this.current){
-      this.resumeExit=false;this.needsResume=false;this.restore();this.change('home');void this.leaveHome();return;
-    }
-    this.resumeExit=false;
     if(this.state!=='error')this.presentPausedView();this.emit(this.snapshot());
   }
   /** Home/island layers and the character, or the sky visit. A level keeps world layers NONE; the board is the screen. */

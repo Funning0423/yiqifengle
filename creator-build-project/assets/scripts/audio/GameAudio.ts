@@ -569,11 +569,11 @@ export class GameAudio extends Component {
     if (!GameAudio.usable(this) || this.reasons.has(reason)) return;               // 幂等：重复事件不重复处理
     const wasActive = this.reasons.size === 0;
     this.reasons.add(reason);
-    if (wasActive) { this.stopAllSfx(); this.pauseLoop(); }
+    if (wasActive) { this.holdExitCine(reason); this.stopAllSfx(); this.pauseLoop(); }
   }
   private resume(reason: SuspendReason) {
     if (!this.alive || !this.reasons.delete(reason)) return;           // 幂等：没有这个原因就什么都不做
-    if (this.reasons.size === 0) this.resumeLoopIfAllowed();
+    if (this.reasons.size === 0) { this.resumeLoopIfAllowed(); this.resumeExitCine(); }
   }
   private createLoopSource() {
     const source = this.node.addComponent(AudioSource);
@@ -922,6 +922,7 @@ export class GameAudio extends Component {
     if (this.activeGen !== 0) { this.staleGen = this.activeGen; this.staleSince = GameAudio.now(); this.activeGen = 0; this.reasons.delete('interrupted'); }
     else this.staleGen = 0;
     GameAudio.applyInnerAudioOption();                    // 之前失败过就在回前台时重试
+    if (this.exitCineHeldS !== null && this.exitCineShowAt === null) this.exitCineShowAt = GameAudio.now();
     this.resume('hidden');
   }
 
@@ -1034,12 +1035,40 @@ export class GameAudio extends Component {
       });
     } catch (e) { done(e, null); }
   }
-  /** Starts (or joins late, seeking by the lateness) once the segment has begun and the clip is ready. */
-  private startExitCine() {
+  /** r4.1: track offset (s) held when a background trip began during 'crossing-out' (the flow freezes the exit there, see
+   *  WorldFlowCore.hide); null = nothing held. exitCineShowAt: wall time of the return (wx.onShow / EVENT_SHOW). */
+  private exitCineHeldS: number | null = null;
+  private exitCineShowAt: number | null = null;
+  /** Called by suspend() before the sfx voices are retired. Only a background trip holds (an interruption keeps the old
+   *  rule: the voice ends), and only on 'crossing-out' (the island tail goes paused in the flow and stays cut). */
+  private holdExitCine(reason: SuspendReason) {
+    this.exitCineHeldS = null; this.exitCineShowAt = null;
+    if (reason !== 'hidden' || this.exitCineAt === null || this.lastWorldState !== 'crossing-out') return;
+    // Segment clock (wall time since 'crossing-out'; the track starts there or seeks by its lateness): exact, whereas a
+    // mini-game currentTime may lag ~250 ms.
+    const pos = (GameAudio.now() - this.exitCineAt) / 1000;
+    this.exitCineHeldS = Math.max(0, pos); this.exitCineMark('hold', this.exitCineHeldS);
+  }
+  /** Audio fully back (reasons empty): the exit track continues from the held offset (+ the time since the return, if a
+   *  later reason kept it silent), never from 0 and never a second voice. */
+  private resumeExitCine() {
+    const held = this.exitCineHeldS, shownAt = this.exitCineShowAt;
+    this.exitCineHeldS = null; this.exitCineShowAt = null;
+    if (held === null || this.exitCineAt === null || this.lastWorldState !== 'crossing-out') return;
+    if (this.exitCineSource && this.sfxVoices.has(this.exitCineSource)) return;
+    const offset = held + (shownAt === null ? 0 : Math.max(0, GameAudio.now() - shownAt) / 1000);
+    this.exitCineAt = GameAudio.now() - offset * 1000;        // the segment clock skips the frozen (hidden) time
+    this.exitCineMark('resume', offset);
+    this.startExitCine(offset);
+  }
+  /** Starts (or joins late, seeking by the lateness) once the segment has begun and the clip is ready.
+   *  resumeAt (r4.1): continue a held track at that offset (no maxLateS drop; past the clip end = nothing to play). */
+  private startExitCine(resumeAt?: number) {
     if (this.exitCineSource && !this.sfxVoices.has(this.exitCineSource)) this.exitCineSource = null;
     if (this.exitCineAt === null || this.exitCineSource || !this.exitCineClip) return;
-    const late = (GameAudio.now() - this.exitCineAt) / 1000;
-    if (late > EXIT_CINE.maxLateS) { this.exitCineMark('dropped-late', late); this.exitCineAt = null; return; }
+    const late = resumeAt !== undefined ? resumeAt : (GameAudio.now() - this.exitCineAt) / 1000;
+    if (resumeAt === undefined && late > EXIT_CINE.maxLateS) { this.exitCineMark('dropped-late', late); this.exitCineAt = null; return; }
+    if (resumeAt !== undefined) { let d = NaN; try { d = Number((this.exitCineClip as any).getDuration?.()); } catch { d = NaN; } if (d > 0 && late >= d) { this.exitCineMark('resume-past-end', late); return; } }
     if (this.muted || this.sfxMuted || this.reasons.size > 0) { this.exitCineMark('skipped-muted'); this.exitCineAt = null; return; }
     let source: AudioSource | null = null;
     try {
@@ -1060,7 +1089,7 @@ export class GameAudio extends Component {
   }
   private stopExitCine(reason: string) {
     const src = this.exitCineSource, running = this.exitCineAt !== null;
-    this.exitCineAt = null; this.exitCineSource = null;
+    this.exitCineAt = null; this.exitCineSource = null; this.exitCineHeldS = null; this.exitCineShowAt = null;
     if (src && this.sfxVoices.has(src)) { this.retireSfx(src); this.exitCineMark('stop:' + reason); }
     else if (running) this.exitCineMark('cancel:' + reason);
   }
