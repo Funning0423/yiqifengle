@@ -415,6 +415,8 @@ export class AmbienceAudio extends Component {
 
   private static smoothstep(a: number, b: number, x: number) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
 
+  /** V1 follow-up: drop the smoothed waves bed at once (GameAudio.quietAmbience); it fades back in from 0 if still outdoors. */
+  quiet() { this.vol = 0; const src = this.src; if (!src) return; try { src.volume = 0; if (src.playing) src.pause(); } catch { /* ignore */ } }
   update(dt: number) {
     const src = this.src; if (!src) return;
     this.clock += dt;
@@ -495,3 +497,4 @@ export class AmbienceAudio extends Component {
 
 director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => AmbienceAudio.ensure());
 (GameAudio as any).ambienceMounters?.push(() => AmbienceAudio.ensure()); // A1b: see WindAudio
+(GameAudio as any).ambienceQuieters?.push(() => (AmbienceAudio as any).inst?.quiet());

@@ -191,6 +191,11 @@ export class GameAudio extends Component {
   private audioProven = false; // A1b: an sfx actually started (exit track) — ambience may follow it
   /** A1b: WindAudio/AmbienceAudio register their ensure() here (they import GameAudio, not the other way round). */
   static ambienceMounters: Array<() => void> = [];
+  /** V1 follow-up: wind/waves register a hard-stop here. Called when the exit restarts after a background trip (and on
+   *  every 'standing'), so the bed left over from the cancelled exit does not linger ~1 s into the new one. */
+  static ambienceQuieters: Array<() => void> = [];
+  static quietAmbience(reason: string) { for (const f of GameAudio.ambienceQuieters) { try { f(); } catch { } } qfAudioLog('ambience-quiet', { reason, quieters: GameAudio.ambienceQuieters.length }); }
+  private lastWorldState = '';
   static ensureAmbience(state: string) { for (const f of GameAudio.ambienceMounters) { try { f(); } catch { } } qfAudioLog('ensure-ambience', { state, mounters: GameAudio.ambienceMounters.length, gate: GameAudio.instance?.ambienceGate() ?? 'no-gameaudio' }); }
   /** Why ambience is (not) allowed right now — for [QF_AUDIO] logs. */
   ambienceGate(): string { return !GameAudio.usable(this) ? 'unusable' : GameAudio.instance !== this ? 'not-instance' : this.muted ? 'muted' : this.reasons.size ? 'suspended:' + Array.from(this.reasons).join(',') : !(this.gestureSeen || this.audioProven) ? 'no-gesture' : 'ok'; }
@@ -969,6 +974,8 @@ export class GameAudio extends Component {
   /** World flow state feed (WorldIntegrationBoot, once per change). */
   onWorldState(state: string) {
     if (!GameAudio.usable(this)) return;
+    const prev = this.lastWorldState; this.lastWorldState = state;
+    if (state === 'standing' || (prev === 'paused' && state !== 'paused')) GameAudio.quietAmbience(prev === 'paused' ? 'resume:' + state : state);
     if (EXIT_PRELOAD_STATES.indexOf(state) >= 0) { GameAudio.ensureAmbience(state); this.stopExitCine('restart'); this.loadExitCine(); return; }
     if (state === 'crossing-out' || EXIT_PRELOAD_STATES.indexOf(state) >= 0) GameAudio.ensureAmbience(state); // A1b: wind + waves mounted before the outdoor segment
     if (state === 'crossing-out') { this.exitCineAt = GameAudio.now(); this.exitCineMark('segment-start'); this.loadExitCine(); this.startExitCine(); return; }

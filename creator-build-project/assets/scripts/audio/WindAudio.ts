@@ -244,6 +244,13 @@ export class WindAudio extends Component {
   private lastGate = '';
   private levelLogIn = 0;
   private gate(g: string) { if (g === this.lastGate) return; this.lastGate = g; qfAudioLog('wind-gate', { gate: g, wind: +this.windStrength().toFixed(3), clips: Object.keys(this.clips).filter(k => this.clips[k]).length }); }
+  /** V1 follow-up: hard stop (smoothed strength, gust, bgm duck, both loops) — see GameAudio.quietAmbience. */
+  quiet() {
+    this.s = 0; this.sWind = 0; this.gust = -1; this.quietFor = IDLE_PAUSE_S;
+    AmbienceAudio.setWindExit(0); WindAudio.duckBgm(0);
+    for (const src of [this.softSrc, this.strongSrc]) if (src) { try { src.volume = 0; } catch { /* ignore */ } }
+    this.pauseLoops();
+  }
   private pauseLoops() {
     for (const src of [this.softSrc, this.strongSrc]) {
       if (src && src.playing) { try { src.pause(); qfAudioLog('wind-pause', {}); } catch { /* ignore */ } }
@@ -295,3 +302,4 @@ director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => WindAudio.ensure());
 // A1b: also mount from GameAudio's world-state hook (standing / crossing-out): if this module ran after the scene had
 // launched, the once() above never fires and the outdoor segment was silent.
 (GameAudio as any).ambienceMounters?.push(() => WindAudio.ensure());
+(GameAudio as any).ambienceQuieters?.push(() => { const w = WindAudio.instance; if (w && (w as any).alive) w.quiet(); });
