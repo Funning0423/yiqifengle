@@ -93,18 +93,20 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',
-  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+  /** water-ref candidate (VB): with the v_color double decode fixed (effect), the r5h3 GRADED near water (saturation x1.35) needs a
+   *  saturating tint; stand-in fit to the graded sample points (ENGINE_COLOR_REFERENCE sample.py boxes). Was 0.9/1/1. */
+  waterTintLinear: [0.507, 0.981, 1.0] as const,
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
   /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
    *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
-  waterSkyStrength: 0.35, // r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
+  waterSkyStrength: 0.0, // water-ref candidate: the fit drops the sky-ramp reflection (it only added the fogged orange/cyan; r2 0.35)
   /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
    *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
    *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
   /** v3.4 (VB): with the v3.4 linear light colours (sun 0.5, ambient 0.2) the v3.3 scales left the near water too dark (emulator
    *  52/98/88); refit on the Mac-calibrated emulator (handoff camera, layered fog, wave fade on): main 1.67, ambient 1.27, sky 0.8,
    *  floor 0.30 -> near water 58/152/148 vs r5h3 66/152/146 (R is capped by the lake vertex colour). */
-  waterMainLightScale: 1.37, waterAmbientScale: 1.85, // r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
+  waterMainLightScale: 1.28, waterAmbientScale: 2.0, // water-ref candidate refit (r2 1.37 / 1.85); // r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
   /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
   waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
@@ -113,7 +115,7 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
   /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
    *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
-  waterSkyReflectFloor: 0.31, // r2 refit (v3.4 0.30, v3.2 0.25)
+  waterSkyReflectFloor: 0.39, // water-ref candidate (r2 0.31): with sky strength 0 this is a 39% darkening mix toward black
   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
@@ -132,7 +134,7 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   ambientSkyIllumToSun: 1.76, // r2: keeps hemisphere ambient night/day 0.219 vs the r2 day (warm fill 0.49)
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
-  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
+  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.0, // water-ref candidate: day sky reflection is 0 now, night follows (was 0.12)
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];

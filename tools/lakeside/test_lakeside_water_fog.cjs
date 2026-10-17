@@ -38,13 +38,13 @@ assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material'
 assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
 assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
 // v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
-assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
-assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
+assert.deepEqual([...P.waterTintLinear],[0.507,0.981,1.0],'water-ref candidate: saturating tint for the graded r5h3 target (vertex colours now linear)');
+assert(/waterTint:\s+\{ value: \[0\.507, 0\.981, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: decoded once (not at all in the shader)');
 assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
-assert.equal(P.waterSkyReflectFloor,0.31);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.31\]/.test(fx));
+assert.equal(P.waterSkyReflectFloor,0.39);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.39\]/.test(fx));
 assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
 assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
-assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[230,255,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
+assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[129,250,255],'water-ref: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
 // fog modes + URL override (guarded for WeChat)
 assert.equal(D.LAKESIDE_FOG_MODE,'layered');
 assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
@@ -60,8 +60,8 @@ assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
 assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
 // v3.3 near water: water-only light scales + dimmer reflected sky (floor and tint unchanged); default fog layered; waves fade with distance
 // v3.4 (VB): refit under the linear lights (dirlight test) on the Mac-calibrated emulator: near water 58/152/148 vs r5h3 66/152/146
-assert.equal(P.waterMainLightScale,1.37);assert.equal(P.waterAmbientScale,1.85);assert.equal(P.waterSkyStrength,0.35);
-assert(/lightParams:\s+\{ value: \[1\.37, 1\.85, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
+assert.equal(P.waterMainLightScale,1.28);assert.equal(P.waterAmbientScale,2.0);assert.equal(P.waterSkyStrength,0.0);
+assert(/lightParams:\s+\{ value: \[1\.28, 2\.0, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
 assert(/water\.setProperty\('lightParams',new Vec4\(P\.waterMainLightScale,P\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\)/.test(bg));
 assert(/vec3 col = albedo \* \(lit \* NL \/ 3\.14159265 \* lightParams\.x \+ amb \* lightParams\.y\);/.test(fx),'diffuse main x, ambient y');
 assert(/col \+= lit \* pow\(max\(dot\(N, H\), 0\.0\), ex\) \* specParams\.y \* F;/.test(fx),'streak keeps the full main light');
