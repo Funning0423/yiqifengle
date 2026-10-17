@@ -82,6 +82,15 @@ const tests=[
  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
  ['lakeside-merge-share','tools/lakeside/test_lakeside_merge_share.cjs'],
+ ['region-nodes-data','tools/region-nodes/test_region_nodes_data.cjs'],
+ ['region-nodes-progress','tools/region-nodes/test_region_nodes_progress.cjs'],
+ ['region-nodes-walk','tools/region-nodes/test_region_nodes_walk.cjs'],
+ ['explore-camera','tools/region-nodes/test_explore_camera.cjs'],
+ ['explore-input','tools/region-nodes/test_explore_input.cjs'],
+ ['node-board-pose','tools/region-nodes/test_node_board_pose.cjs'],
+ ['frame-background','tools/transitions/test_frame_background.cjs'],
+ ['transport-flag','tools/region-nodes/test_transport_flag.cjs'],
+ ['transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

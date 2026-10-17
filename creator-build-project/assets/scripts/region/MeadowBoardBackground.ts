@@ -100,7 +100,7 @@ export class MeadowSceneMotion extends Component {
 export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
  let rig:Node|null=null,prefab:Prefab|null=null,effect:EffectAsset|null=null,material:Material|null=null,camera:Camera|null=null,motion:MeadowSceneMotion|null=null;
  const heldAssets:Array<{decRef():unknown}>=[];
- let disposed=false,visible=false,paused=true,offCancel=()=>{};
+ let disposed=false,visible=false,paused=true,offCancel=()=>{},anchor:ReturnType<typeof meadowScenePose>|null=null;
  const dispose=()=>{
   if(disposed)return;disposed=true;offCancel();
   if(camera&&isValid(camera,true))camera.enabled=false;
@@ -134,7 +134,9 @@ export const createMeadowBoardBackground:LevelBackgroundFactory=async({parent,to
   motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');motion.light=light;
   return {
    frame:(_portrait,layout)=>{if(disposed)return;token.check();if(!camera||!isValid(camera,true)||!isValid(camera.node,true))throw Error('Meadow camera owner destroyed');if(!layout||!(layout.width>0&&layout.height>0))throw Error('Meadow requires current board layout');
-    const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');},
+    const pose=meadowScenePose(layout.width/layout.height);if(!applyCameraPose(camera!,fromLookAt(pose),'meadow.board-background'))throw Error('Meadow camera pose rejected');
+    if(anchor&&!applyCameraPose(camera!,fromLookAt(anchor),'meadow.node-anchor'))throw Error('Meadow node anchor rejected');},
+   setAnchor:pose=>{if(disposed)return;anchor=pose;},
    setVisible:value=>{if(disposed)return;visible=value;rig!.active=value;camera!.enabled=value;motion!.visible=value;},
    setPaused:value=>{if(disposed)return;paused=value;motion!.hostPaused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'meadow',bundle:REGIONS.meadow.bundle,prefabName:REGIONS.meadow.prefabName,source:MEADOW_SCENE_SOURCE,visible,paused,cameraPriority:44,layer:MEADOW_LAYER,motion:motion?.diagnostics()||null,dynamicTextureUploads:0}),
