@@ -1,4 +1,4 @@
-import {Camera, Color, Material, MeshRenderer, Node, director, gfx, utils} from 'cc';
+import {Camera, Color, Material, MeshRenderer, Node, Vec3, director, gfx, utils} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailCamera, sailM0World, sailRoute, sailVehicle} from './TransportLeg';
 import {boatMesh, cardMesh, cloudMesh, countDc, domeMesh, meadowSlab, seaMesh, vehicleNightScale, type FrameMesh} from './TransitBackdrop';
@@ -66,13 +66,14 @@ export function startSailShot(scene:Node):void{
  addMesh(rider,{name:'rider',tag:'rider',tris:Float32Array.from([-.15,0,-.1,.15,0,-.1,0,.7,-.1,-.2,.35,.05,.2,.35,.05,0,.9,.05]),dc:1},tint(240,200,150));
  let camNode:Node|null=null;
  const cams=scene.getComponentsInChildren(Camera);
- camNode=cams.length?cams[0].node:null;
- if(!camNode){camNode=new Node('SailShotCamera');scene.addChild(camNode);}
- const cam=camNode.getComponent(Camera)||camNode.addComponent(Camera);
+ for(const c of cams)c.enabled=false;
+ camNode=new Node('SailShotCamera');scene.addChild(camNode);
+ const cam=camNode.addComponent(Camera);
+ cam.priority=1000;
  cam.near=0.1;cam.far=900;cam.fov=pose.fovVerticalDeg||48;cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;
  cam.clearColor=night?new Color(18,28,72,255):new Color(120,196,235,255);
  camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
- camNode.lookAt(pose.target[0],pose.target[1],pose.target[2]);
+ camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
  let frames=0,acc=0,fps=60,last=typeof performance!=='undefined'?performance.now():Date.now();
  const tick=()=>{
   const now=typeof performance!=='undefined'?performance.now():Date.now();
