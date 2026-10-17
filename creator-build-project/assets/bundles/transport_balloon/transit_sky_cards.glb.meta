@@ -1,0 +1,93 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "8ac7942c-987e-4ccd-8ba0-600d106a1439",
+  "files": [],
+  "subMetas": {
+    "bcca5": {
+      "importer": "gltf-mesh",
+      "uuid": "8ac7942c-987e-4ccd-8ba0-600d106a1439@bcca5",
+      "displayName": "",
+      "id": "bcca5",
+      "name": "UnnamedMesh.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 8
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a146c": {
+      "importer": "gltf-material",
+      "uuid": "8ac7942c-987e-4ccd-8ba0-600d106a1439@a146c",
+      "displayName": "",
+      "id": "a146c",
+      "name": "cards.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "eaede": {
+      "importer": "gltf-scene",
+      "uuid": "8ac7942c-987e-4ccd-8ba0-600d106a1439@eaede",
+      "displayName": "",
+      "id": "eaede",
+      "name": "transit_sky_cards.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "8ac7942c-987e-4ccd-8ba0-600d106a1439@bcca5"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "8ac7942c-987e-4ccd-8ba0-600d106a1439@a146c"
+      ],
+      "scenes": [
+        "8ac7942c-987e-4ccd-8ba0-600d106a1439@eaede"
+      ]
+    }
+  }
+}

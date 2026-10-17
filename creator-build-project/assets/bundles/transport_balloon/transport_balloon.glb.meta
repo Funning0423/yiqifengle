@@ -1,0 +1,148 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48",
+  "files": [],
+  "subMetas": {
+    "82371": {
+      "importer": "gltf-mesh",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@82371",
+      "displayName": "",
+      "id": "82371",
+      "name": "UnnamedMesh-1.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 12
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "93738": {
+      "importer": "gltf-material",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@93738",
+      "displayName": "",
+      "id": "93738",
+      "name": "basket.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "057cb": {
+      "importer": "gltf-mesh",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@057cb",
+      "displayName": "",
+      "id": "057cb",
+      "name": "UnnamedMesh-0.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 112
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d114a": {
+      "importer": "gltf-mesh",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@d114a",
+      "displayName": "",
+      "id": "d114a",
+      "name": "UnnamedMesh-2.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 1
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9f073": {
+      "importer": "gltf-material",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@9f073",
+      "displayName": "",
+      "id": "9f073",
+      "name": "envelope.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4d6ba": {
+      "importer": "gltf-scene",
+      "uuid": "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@4d6ba",
+      "displayName": "",
+      "id": "4d6ba",
+      "name": "transport_balloon.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@057cb",
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@82371",
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@d114a"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@9f073",
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@93738"
+      ],
+      "scenes": [
+        "218f58d2-2edd-4eba-bb93-54a9a1ebdf48@4d6ba"
+      ]
+    }
+  }
+}
