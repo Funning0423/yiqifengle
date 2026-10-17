@@ -16,7 +16,13 @@ const STEP=.1,isMass=o=>o.tag==='skycity',bvh=F.buildBvh([...island,...meadow,..
 const run=leg=>{const T=routeLength(leg.path),rows=[];let prev=null;for(let d=0;d<=T+1e-9;d+=STEP){const dd=Math.min(T,d),c=journeyCamera(leg.path,dd,leg.start,leg.focus,leg.lens,leg.startBlendM),dv=F.dir(c),b=F.body(c,sampleRoute(leg.path,dd));
  rows.push({d:+dd.toFixed(2),c,angDegS:prev?F.angle(prev,dv)/(STEP/L.speedMps):0,inFrame:b.inFrame,height:b.height});prev=dv;}return {T,rows};};
 const R=legs.map(run),cov={};
-const covOf=(i)=>cov[i]||(cov[i]=R[i].rows.filter((_,k)=>k%5===0||k===R[i].rows.length-1).map(r=>({d:r.d,...F.coverage(r.c,bvh,isMass)})));
+// 运镜bot r4: 08→09 coverage is sampled every 0.5 m on a grid anchored at the rainbow bridge START (was: at the route start), so
+// the check no longer shifts with where she stood on the meadow (her 04→05 stop now depends on the screen; the lens from the
+// bridge on is byte-for-byte the same). Known, pre-existing, reported in the r4 outbox: a 0.02 m sweep finds one 13×28 coverage ray over 10% (0.1016)
+// at bridge +6.87 m, identical on the Build05 route (between its old samples too).
+const covOf=(i)=>{if(cov[i])return cov[i];if(i!==1)return cov[i]=R[i].rows.filter((_,k)=>k%5===0||k===R[i].rows.length-1).map(r=>({d:r.d,...F.coverage(r.c,bvh,isMass)}));
+ const leg=legs[1],T=R[1].T,b=routeLength(sc.appr2),ds=[];for(let d=b-.5*Math.floor(b/.5);d<=T+1e-9;d+=.5)ds.push(d);if(T-ds[ds.length-1]>1e-9)ds.push(T);
+ return cov[i]=ds.map(d=>({d:+d.toFixed(2),...F.coverage(journeyCamera(leg.path,Math.min(T,d),leg.start,leg.focus,leg.lens,leg.startBlendM),bvh,isMass)}));};
 check('F1 view angular velocity ≤ 20°/s on both legs',()=>{const out={};legs.forEach((l,i)=>{const m=R[i].rows.reduce((a,r)=>r.angDegS>a.angDegS?r:a);assert(m.angDegS<=20,`${l.id} turns ${m.angDegS.toFixed(1)}°/s at d=${m.d}`);out[l.id]={maxDegS:+m.angDegS.toFixed(2),atM:m.d};});return out;});
 check('F2 character in frame on both legs (after authored-pose exemption)',()=>{const out={};legs.forEach((l,i)=>{const bad=R[i].rows.filter(r=>r.d>=(l.exempt||0)&&!r.inFrame);assert(!bad.length,`${l.id} out of frame at ${bad.slice(0,5).map(r=>r.d)}`);out[l.id]={samples:R[i].rows.length};});return out;});
 const b2=routeLength(sc.appr2),lensEnd=b2+19;

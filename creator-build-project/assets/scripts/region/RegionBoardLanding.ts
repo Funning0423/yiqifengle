@@ -3,6 +3,9 @@ import type {AuthoredPose} from '../world-r1/CameraPose';
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {meadowScenePose} from './MeadowSceneData';
 import {skycityVisitPose} from './SkycityVisitPose';
+import {MEADOW_STAND_LOCAL} from './RegionJourneyLayout';
+import {boardLayout,toolSlots,type SafeArea} from '../ui/BoardLayout';
+import {REGION_CAMERA} from '../world-r1/RegionCameraData';
 /** 运镜bot: LANDING → BOARD for 04→05 (meadow) and 08→09 (skycity), same approach as 风铃湖畔 (LakesideLandingHook). Pure
  *  (no engine imports): RegionJourneyAdapter gives the map between the journey copy of the region model and the board copy,
  *  WorldNativeComposition injects the camera and the frame clock.
@@ -85,3 +88,52 @@ export async function regionLandingToBoard(context:Readonly<{region:BoardLanding
   return done(true,'blended',{gap,seconds,frames,frame:{width:v.width,height:v.height}});
  }catch(error){return done(false,'error',{stage,error:String((error as any)?.message||error)});}
 }
+/** 运镜bot (r4): WHERE SHE STOPS on the board. Her frozen board copy (GGbot, LakesideBoardGuest.mountRegionBoardGuest) is put
+ *  exactly where she stands when the journey ends, and the board camera is fixed (meadowScenePose / skycityVisitPose per aspect),
+ *  so the walk end decides whether the board UI covers her. Her box (REGION_CAMERA.islandCharacter: 1.7253 m tall, ±0.3 m,
+ *  model axes) is projected through that board camera for this screen (vertical FOV, aspect = layout width/height) and tested
+ *  against the board UI of this screen: boardLayout(width, height, safe, 4 goals) tray, goal plate, the tool row with THREE
+ *  tools (toolSlots(layout, 3), icon squares), the pause hit box, the capsule, the safe-area bands and the screen edges.
+ *  Stops are tried every 0.1 m along her stand line; a stop is clear when her box overlaps none of them; its score is
+ *  min(gap to the nearest of them, 16 pt) + 8 if inside REGION_CAMERA.frameLimits; the best score wins, ties go to the later
+ *  stop. No clear stop (an unknown screen): the stop that leaves the least of her covered, logged by the caller. */
+export const GIRL_STAND={stepM:.1,capPt:16,framingBonus:8,goals:4,tools:3} as const;
+export type GirlStand=Readonly<{region:BoardLandingRegion;distanceM:number;local:Vec;yawDeg:number;path:ReadonlyArray<Vec>;clear:boolean;gapPt:number;inFrameLimits:boolean;boxPt:Readonly<{l:number;t:number;r:number;b:number}>}>;
+type Rect=Readonly<{l:number;t:number;r:number;b:number}>;
+/** The board UI rectangles (pt) her copy must stay clear of. */
+export function girlStandUi(width:number,height:number,safe:SafeArea):Rect[]{
+ const g=boardLayout(width,height,safe,GIRL_STAND.goals),c=(o:{x:number;y:number;width:number;height:number}):Rect=>({l:o.x-o.width/2,t:o.y-o.height/2,r:o.x+o.width/2,b:o.y+o.height/2});
+ const out:Rect[]=[c(g.tray),c(g.plate),...toolSlots(g,GIRL_STAND.tools).map(x=>c({x,y:g.tools.y,width:g.tools.size,height:g.tools.size})),c({x:g.pause.x,y:g.pause.y,width:g.pause.hit,height:g.pause.hit}),
+  {l:0,t:0,r:width,b:Math.max(0,safe.top)},{l:0,t:height-Math.max(0,safe.bottom),r:width,b:height}];
+ if(safe.capsule&&safe.capsule.bottom>safe.capsule.top)out.push({l:safe.capsule.left,t:safe.capsule.top,r:safe.capsule.right,b:safe.capsule.bottom});
+ return out;}
+/** Her box on screen (pt) through a camera (model coordinates), or null if any corner is behind it. */
+export function girlBoxPt(camera:AuthoredPose,foot:Vec,width:number,height:number):Rect|null{
+ const C=REGION_CAMERA.islandCharacter,P=camera.position,f=unit(sub(camera.target,P)),r0=[-f[2],0,f[0]],rl=Math.hypot(r0[0],r0[2])||1,r=[r0[0]/rl,0,r0[2]/rl],u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+ const t=Math.tan(camera.fovVerticalDeg*Math.PI/360),asp=width/height;let l=Infinity,R=-Infinity,T=Infinity,B=-Infinity;
+ for(const dx of [-C.halfWidthM,C.halfWidthM])for(const dz of [-C.halfWidthM,C.halfWidthM])for(const y of [0,C.heightM]){
+  const q=[foot[0]+dx-P[0],foot[1]+y-P[1],foot[2]+dz-P[2]],z=q[0]*f[0]+q[1]*f[1]+q[2]*f[2];if(!(z>1e-6))return null;
+  const x=(q[0]*r[0]+q[1]*r[1]+q[2]*r[2])/(z*t*asp),yy=(q[0]*u[0]+q[1]*u[1]+q[2]*u[2])/(z*t),px=(x+1)/2*width,py=(1-yy)/2*height;
+  l=Math.min(l,px);R=Math.max(R,px);T=Math.min(T,py);B=Math.max(B,py);}
+ return {l,t:T,r:R,b:B};}
+const at=(pts:ReadonlyArray<Vec>,d:number):{p:Vec;i:number}=>{let acc=0;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],l=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);if(acc+l>=d-1e-9){const k=l>0?Math.max(0,Math.min(1,(d-acc)/l)):0;return {p:[a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k],i};}acc+=l;}return {p:[...pts[pts.length-1]] as Vec,i:pts.length-1};};
+const len=(pts:ReadonlyArray<Vec>)=>{let s=0;for(let i=1;i<pts.length;i++)s+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1],pts[i][2]-pts[i-1][2]);return s;};
+/** Her stand line for a region, model coordinates, starting where the old route leaves off (meadow: player_spawn). */
+export function girlStandLine(region:BoardLandingRegion,start:Vec):Vec[]|null{return region==='meadow'?[[start[0],start[1],start[2]],...MEADOW_STAND_LOCAL.map(p=>[p[0],p[1],p[2]] as Vec)]:null;}
+/** Pure: the stop for one screen. `camera` = that screen's board camera, `line` = her stand line (both model coordinates). */
+export function girlStandStop(region:BoardLandingRegion,line:ReadonlyArray<Vec>,camera:AuthoredPose,width:number,height:number,safe:SafeArea):GirlStand{
+ const ui=girlStandUi(width,height,safe),L=len(line),FL=REGION_CAMERA.frameLimits,G=GIRL_STAND;let best:any=null,least:any=null;
+ for(let k=0,n=Math.floor(L/G.stepM+1e-9);k<=n+1;k++){const d=Math.min(L,k*G.stepM),{p,i}=at(line,d),box=girlBoxPt(camera,p,width,height);if(!box){if(d>=L)break;continue;}
+  const edge:Rect[]=[{l:-1e9,t:-1e9,r:0,b:1e9},{l:width,t:-1e9,r:1e9,b:1e9},{l:-1e9,t:-1e9,r:1e9,b:0},{l:-1e9,t:height,r:1e9,b:1e9}];let gap=Infinity,cover=0;const area=Math.max(1e-9,(box.r-box.l)*(box.b-box.t));
+  for(const q of [...ui,...edge]){const ox=Math.min(box.r,q.r)-Math.max(box.l,q.l),oy=Math.min(box.b,q.b)-Math.max(box.t,q.t);if(ox>0&&oy>0){cover+=ox*oy/area;gap=-1;}else if(gap>=0)gap=Math.min(gap,Math.hypot(Math.max(q.l-box.r,box.l-q.r,0),Math.max(q.t-box.b,box.t-q.b,0)));}
+  const nx=[box.l/width*2-1,box.r/width*2-1],ny=[1-box.b/height*2,1-box.t/height*2],inFL=nx[0]>=-FL.maxAbsX&&nx[1]<=FL.maxAbsX&&ny[0]>=FL.minY&&ny[1]<=FL.maxY;
+  const row={d,p,i,box,gap,inFL,cover};
+  if(gap>=0){const s=Math.min(gap,G.capPt)+(inFL?G.framingBonus:0);if(!best||s>best.s+1e-9||(Math.abs(s-best.s)<=1e-9&&d>best.d))best={...row,s};}
+  else if(!least||cover<least.cover-1e-9||(Math.abs(cover-least.cover)<=1e-9&&d>least.d))least=row;
+  if(d>=L)break;}
+ const w=best||least;if(!w)throw Error('girl-stand-unprojectable');
+ const path=[...line.slice(0,w.i).map(p=>[p[0],p[1],p[2]] as Vec),w.p as Vec],a=path.length>1?path[path.length-2]:line[0],b=w.p as Vec;
+ return {region,distanceM:w.d,local:b,yawDeg:Math.atan2(b[0]-a[0],b[2]-a[2])*180/Math.PI,path,clear:!!best,gapPt:best?w.gap:0,inFrameLimits:w.inFL,boxPt:w.box};}
+/** The stop for this screen from a journey copy's map (model coordinates in, model coordinates out; the adapter maps the path). */
+export function regionGirlStand(src:RegionBoardSource,start:Vec,width:number,height:number,safe:SafeArea):GirlStand|null{
+ const line=girlStandLine(src.region,start);if(!line)return null;return girlStandStop(src.region,line,regionBoardCamera(src,width/height),width,height,safe);}
