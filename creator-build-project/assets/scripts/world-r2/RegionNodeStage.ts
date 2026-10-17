@@ -151,8 +151,21 @@ export class RegionNodeStage extends Component{
   this.lens='FollowWalk';setExploreEnabled(true);
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
-  await this.blend(0.6,this.readPose(),()=>finalePose(this.girl(),this.yaw(),w,h));
+  await this.blend(0.6,this.readPose(),()=>this.starPose(this.girl(),w,h));
   this.openExplore('skycity');
+ }
+ private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
+ private starPose(g:Vec,w:number,h:number):Pose{
+  const base=finalePose(g,this.yaw(),w,h);
+  const ring=this.named('env_sky_starring');if(!ring)return base;
+  const p=ring.worldPosition;
+  return {position:[g[0],g[1]+2.2,g[2]+6.5],target:[p.x,p.y,p.z],fovVerticalDeg:base.fovVerticalDeg};
+ }
+ private propPose(id:string,g:Vec,w:number,h:number):Pose{
+  const base=followPose(g,this.yaw(),w,h,0);
+  const node=this.named(PROP_NODES[id]||'');if(!node)return base;
+  const p=node.worldPosition;
+  return {position:[p.x,p.y+1.6,p.z+4.2],target:[p.x,p.y+0.6,p.z],fovVerticalDeg:base.fovVerticalDeg};
  }
  openExplore(region:RegionId){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
@@ -184,7 +197,8 @@ export class RegionNodeStage extends Component{
   const follow=followPose(g,this.yaw(),w,h,region==='skycity'?8:0);
   let pose:Pose=follow;
   if(spec.lens==='map'||spec.lens==='tap')pose=mapPose(g,1.6,w,h);
-  else if(spec.lens==='finale'||spec.lens==='look')pose=finalePose(g,0,w,h);
+  else if(spec.lens==='finale'||spec.lens==='look')pose=this.starPose(g,w,h);
+  else if(spec.lens==='prop')pose=this.propPose(spec.prop||SCENE_PROPS[region][0],g,w,h);
   else if(spec.lens==='blend'){
    const board:Pose={position:[follow.position[0],follow.position[1]+5,follow.position[2]+7],target:[g[0],g[1]+1,g[2]],fovVerticalDeg:48};
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);

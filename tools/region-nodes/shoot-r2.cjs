@@ -37,6 +37,7 @@ const SHOTS=[
  const errors=[];
  page.on('pageerror',e=>errors.push(String(e)));
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ page.setDefaultTimeout(180000);
  await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:180000});
  await page.waitForFunction(()=>{try{return typeof globalThis.__worldIntegration?.qaShot==='function'&&globalThis.__worldIntegration.snapshot().characterReady;}catch{return false;}},{timeout:180000});
  const log=[];
