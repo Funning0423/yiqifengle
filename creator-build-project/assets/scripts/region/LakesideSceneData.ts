@@ -103,6 +103,18 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
   landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
   landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
+  /** r4 prop fill (VB, Grok Bot): the SAME flat emissive fill on four more classes, each with its own per-mode value in
+   *  lakesideModeLighting (foliageFillLinear / wallFillLinear / rockFillLinear / cloudFillLinear). Still never filled: water
+   *  (waterGlbs), bridge (LK_bridge, LK_bridge_steps), small props (posts, lanterns, boats, barrels, ...), reeds/flowers/grass cards.
+   *  Day values fit to the engine-cam r5h3 reference (object pixels; stand-in); every value >= 0 (no negative emissive).
+   *  foliage = the tree-like vegetation; wall = the house bodies; rock = LK_rock (not visible from either board pose, so it gets a
+   *  neutral fill of the far-land luminance by day and the far-land night value); cloud = back to the reference's warm white. */
+  foliageFillGlbs: ['LK_tree_conifer.glb', 'LK_tree_round.glb', 'LK_bush.glb'] as const,
+  wallFillGlbs: ['LK_house_A.glb', 'LK_house_B.glb', 'LK_house_C.glb'] as const,
+  rockFillGlbs: ['LK_rock.glb'] as const,
+  cloudFillGlbs: ['LK_cloud.glb'] as const,
+  foliageFillLinear: [0.019, 0.065, 0] as const, wallFillLinear: [0.023, 0.02, 0.017] as const,
+  rockFillLinear: [0.079, 0.079, 0.079] as const, cloudFillLinear: [0.33, 0.24, 0.218] as const,
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
@@ -155,6 +167,9 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
   /** r4 land fill, night: cool (blue) and small - night land ~80% of the Mac r3 night land luma, no brown. */
   landFillNearLinear: [0, 0, 0.0014] as const, landFillFarLinear: [0.0049, 0.0116, 0.0356] as const,
+  /** r4 prop fill, night: ~80% of the Mac r3 night luma of each class with r3's cool hue (blue >= red); rock = the far-land night value. */
+  foliageFillLinear: [0.0006, 0.0058, 0.0029] as const, wallFillLinear: [0.0085, 0.013, 0.0232] as const,
+  rockFillLinear: [0.0049, 0.0116, 0.0356] as const, cloudFillLinear: [0.0078, 0.0091, 0.0145] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
@@ -164,6 +179,8 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
   waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
   /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
   landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[];
+  /** r4 prop fill (emissive, linear) per class - see LAKESIDE_DIR_LIGHT_PARAMS.foliage/wall/rock/cloudFillGlbs. */
+  foliageFillLinear: readonly number[]; wallFillLinear: readonly number[]; rockFillLinear: readonly number[]; cloudFillLinear: readonly number[];
   /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
    *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
    *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
@@ -176,17 +193,28 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
-    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear, skyDomeColor: lakesideDayClearColor() };
+    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear,
+    foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear, skyDomeColor: lakesideDayClearColor() };
 }
 /** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
 const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
-export type LakesideLandFillClass = 'near' | 'far';
+export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud';
 /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
 export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   if ((P.landFillNearGlbs as readonly string[]).includes(glb)) return 'near';
   if ((P.landFillFarGlbs as readonly string[]).includes(glb)) return 'far';
+  if ((P.foliageFillGlbs as readonly string[]).includes(glb)) return 'foliage';
+  if ((P.wallFillGlbs as readonly string[]).includes(glb)) return 'wall';
+  if ((P.rockFillGlbs as readonly string[]).includes(glb)) return 'rock';
+  if ((P.cloudFillGlbs as readonly string[]).includes(glb)) return 'cloud';
   return null;
+}
+/** The fill (emissiveScale, linear) of a class in a mode - the only class -> value map (board and journey writers read it). */
+export function lakesideFillLinear(mode: LakesideDayNight, cls: LakesideLandFillClass): readonly number[] {
+  const M = lakesideModeLighting(mode);
+  return cls === 'near' ? M.landFillNearLinear : cls === 'far' ? M.landFillFarLinear : cls === 'foliage' ? M.foliageFillLinear
+    : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : M.cloudFillLinear;
 }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the

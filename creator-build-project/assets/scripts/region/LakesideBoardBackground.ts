@@ -9,7 +9,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -33,9 +33,10 @@ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'Lake
 export function enableLakesideInstancing(root:Node):Material[]{
  // r4 land fill (VB): landform GLBs (lakesideLandFillClass) get their OWN instanced copy per class carrying the fill, so water,
  // bridge and every other GLB keep the plain copy, and the static merge (keyed by material content) keeps land in its own chunks.
- const plain=new Map<Material,Material>(),near=new Map<Material,Material>(),far=new Map<Material,Material>(),out:Material[]=[],mode=lakesideDayNightMode();
+ // r4 prop fill: the same for foliage / house walls / rocks / clouds - one copy cache per fill class.
+ const plain=new Map<Material,Material>(),byCls=new Map<string,Map<Material,Material>>(),out:Material[]=[],mode=lakesideDayNightMode();
  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
-  const cache=cls==='near'?near:cls==='far'?far:plain;
+  let cache=plain;if(cls){const c=byCls.get(cls);if(c)cache=c;else{cache=new Map<Material,Material>();byCls.set(cls,cache);}}
   for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
    if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
  return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
@@ -51,7 +52,7 @@ function initLakesideLandFill(m:Material,cls:LakesideLandFillClass,glb:string,mo
  // builtin-standard: emissive (tagged linear: true -> squared on upload, white stays 1) x emissiveScale (untagged) = the fill, linear.
  m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);writeLakesideLandFill(m,cls,mode);}
 function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight){
- const M=lakesideModeLighting(mode),c=cls==='near'?M.landFillNearLinear:M.landFillFarLinear;m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
+ const c=lakesideFillLinear(mode,cls);m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
 /** r4 land fill, day/night part: re-writes every land material under root from lakesideModeLighting(mode) (board applyDir and the
  *  journey's day/night listener - the one writer). Returns how many land materials were written. */
 export function applyLakesideLandFill(root:Node,mode:LakesideDayNight):number{const seen=new Set<Material>();let n=0;
