@@ -82,40 +82,46 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
    *  0.2 -> 0.49 of base. Emulator (Mac-calibrated, board camera) vs r5h3 luma: near water 0.99, bridge deck 1.11, grass_L 1.29,
    *  far trees 1.00, roof 1.12 - grass stays bright at sun >= 0.7 (see the r2 README). History: v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
    *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
-  sunIlluminanceScale: 0.7,
+  /** r4 (VB): refit on the engine-camera r5h3 reference (ENGINE_COLOR_REFERENCE/engine_cam_r5h3, Mac-calibrated HDR+ACES stand-in). */
+  sunIlluminanceScale: 0.95,
   /** r2 warm hemisphere fill (linear; r5h3 sky 0.0116/0.2747/0.4793, ground 1/0.5457/0.1441). Up faces get the sky, the
    *  camera-facing backlit faces about half sky / half ground. */
-  ambientSkyColorLinear: [0.0107, 0.0656, 0.1106] as readonly number[],
+  ambientSkyColorLinear: [0.0107, 0.0656, 0.082] as readonly number[], // r4 refit (B was 0.1106)
   /** r2b (Grok Bot: warm fill too strong, rails yellow): ground warm saturation halved toward its own luminance (c60ac55 1/0.841/0.0687,
    *  luminance 0.819 kept, so the night ratios are unchanged). */
-  ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
-  ambientSkyIllumToSun: 0.49,
+  ambientGroundColorLinear: [0.97, 0.533, 0.296] as readonly number[], // r4 refit (was 0.9095/0.83/0.4439)
+  ambientSkyIllumToSun: 0.236, // r4 refit (was 0.49): the engine-camera reference bridge/water is darker than the r3 Mac shot
+
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',
-  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+  waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
   /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
    *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
-  waterSkyStrength: 0.35, // r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
+  waterSkyStrength: 0.387, // r4 refit (r3 0.35). r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
   /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
    *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
    *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
   /** v3.4 (VB): with the v3.4 linear light colours (sun 0.5, ambient 0.2) the v3.3 scales left the near water too dark (emulator
    *  52/98/88); refit on the Mac-calibrated emulator (handoff camera, layered fog, wave fade on): main 1.67, ambient 1.27, sky 0.8,
    *  floor 0.30 -> near water 58/152/148 vs r5h3 66/152/146 (R is capped by the lake vertex colour). */
-  waterMainLightScale: 1.37, waterAmbientScale: 1.85, // r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
+  waterMainLightScale: 2.51, waterAmbientScale: 2.87, // r4 refit (r3 1.37 / 1.85). r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
   /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
   waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
-  waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
-  waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
-  waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
+  /** r4 refit. r3 used the r5h3 world ramp (zenith sky blue, low beige 0.92/0.58/0.27, horizon orange 1/0.55/0.14): the low
+   *  engine camera sees reflection elevations 0.07-0.16 at the lake centre, i.e. mostly low/horizon, and Cocos squared them
+   *  (`linear: true`, now dropped) -> the beige/orange "sand" centre. Now: horizon = the reflected far shore (olive),
+   *  low = blue, zenith = dusk lavender. */
+  waterSkyZenithLinear: [0.3, 0.15, 0.465] as const,
+  waterSkyLowLinear: [0.173, 0.221, 0.481] as const,
+  waterSkyHorizonLinear: [0.204, 0.297, 0.003] as const,
   waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
   /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
    *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
-  waterSkyReflectFloor: 0.31, // r2 refit (v3.4 0.30, v3.2 0.25)
+  waterSkyReflectFloor: 0.323, // r4 refit (r3 0.31). r2 refit (v3.4 0.30, v3.2 0.25)
   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
-  fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+  fogEnabled: true, fogColorSrgb: [231, 165, 125] as const /* r4 refit (was 215/170/150) */, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
 /** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
  *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
@@ -126,10 +132,10 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
  *  the r2 balance per term (luminance): moon/sun 0.857, hemisphere ambient night/day 0.219, against the CURRENT day values. */
 export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   sunColorLinear: [0.36, 0.46, 0.78] as const,
-  sunIlluminanceScale: 0.864, // r2: keeps moon/sun 0.857 (luminance) vs the r2 day (sun 0.7)
+  sunIlluminanceScale: 1.173, // r4: keeps moon/sun 0.857 (luminance) vs the r4 day (sun 0.95); r2 0.864
   ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
   ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
-  ambientSkyIllumToSun: 1.76, // r2: keeps hemisphere ambient night/day 0.219 vs the r2 day (warm fill 0.49)
+  ambientSkyIllumToSun: 0.643, // r4: keeps hemisphere ambient night/day 0.219 vs the r4 day (fill 0.236, ground 0.97/0.533/0.296); r2 1.76
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
   waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
@@ -155,7 +161,9 @@ export const LAKESIDE_FOG_MODE: LakesideFogMode = 'layered';
 /** LAYERED: Cocos 3.8.8 LayeredFog(): camera (y 13.2) above fogTop -> density ~ (2D/fogAtten)*(fogTop-y)/fogRange for low slabs, so it grows
  *  with horizontal distance D and with depth below fogTop. top 1.5 m = just above water/far shore (0..0.3 m), range 30 / atten 17:
  *  water at the far shore (~77 m) 0.36, lake end (100 m) 0.44, anything above 1.5 m none; board water (18-24 m) ~0.10-0.13. */
-export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 1.5, fogRange: 30, fogAtten: 17 });
+/** r4 (VB) refit (was top 1.5 / range 30 / atten 17): a thicker, much softer golden slab - far shore water ~14%, board water ~4%,
+ *  nothing above 4.16 m (hills, tree crowns). */
+export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 4.16, fogRange: 74, fogAtten: 59.2 });
 export function lakesideFogMode(search?: string | null, fallback: LakesideFogMode = LAKESIDE_FOG_MODE): LakesideFogMode {
   const m = /[?&]lakefog=([a-z0-9]+)/.exec(search || '');
   return m && (m[1] === 'layered' || m[1] === 'linear60' || m[1] === 'off') ? m[1] : fallback;
