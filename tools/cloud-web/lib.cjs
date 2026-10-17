@@ -9,7 +9,7 @@ const SCENE_UUID = '260c2ebc-0660-4be6-8c4b-7885436222ea';
 const SCENE_URL = 'db://assets/scenes/WorldR5Integration.scene';
 const CONFIG_REL = 'tools/cloud-web/world-r5-build-options.json';
 const GENERATED_PROJECT_DIRS = new Set(['library','temp','local','profiles','build','node_modules','.git']);
-const REQUIRED_BUNDLES = ['internal','resources','main','audio_bgm_island','board_art','region_island','region_meadow','region_skycity'];
+const REQUIRED_BUNDLES = ['internal','resources','main','audio_bgm_island','board_art','region_island','region_meadow','region_skycity','region_lakeside','shared_effects'];
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const write = (file, value) => { fs.mkdirSync(path.dirname(file), {recursive:true}); fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); };
