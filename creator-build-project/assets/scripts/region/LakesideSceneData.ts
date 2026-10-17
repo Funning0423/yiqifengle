@@ -143,7 +143,7 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
-    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: LAKESIDE_CLEAR_COLOR, fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
+    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
 }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
@@ -172,6 +172,13 @@ const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= 
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
 /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
 export const LAKESIDE_CLEAR_COLOR = '#f2b98a';
+/** Day clear colour, sRGB bytes as '#rrggbb' (clear colour is never light-encoded). dir mode: the r5h3 sky clear
+ *  linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear) (~28/143/184); points mode: LAKESIDE_CLEAR_COLOR. One source for the board
+ *  init clear, the day pack (board toggle) and the journey's day end target, so they cannot drift. */
+export function lakesideDayClearColor(mode: 'dir' | 'points' = LAKESIDE_LIGHT_MODE): string {
+  if (mode !== 'dir') return LAKESIDE_CLEAR_COLOR;
+  return '#' + linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear).map(v => ('0' + v.toString(16)).slice(-2)).join('');
+}
 export type LakesideInstance = Readonly<{ name: string; glb: string; group: string; pos: readonly number[]; rot_quat_xyzw: readonly number[]; scale: readonly number[]; animated?: boolean }>;
 /** The 2D board UI draws pieces, cells and selection. The live scene keeps the background and the static water dressing
  *  (lily pads, rope floats, buoy lanterns, white-balance lines, chime rafts), and drops what the 2D board already shows:
