@@ -1,4 +1,4 @@
-import { Graphics, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
+import { Sprite, SpriteFrame, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
 
 /**
  * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
@@ -13,7 +13,7 @@ export const GLASS_SIGN = Object.freeze({
   centre: [0.05, 1.02, -4.70] as const, widthM: 0.80, heightM: 0.28, bobAmp: 0.012, bobPeriod: 3.2,
   px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
   rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
-  caption: '出发去看海', leaf: { size: 42, fill: [178, 226, 142, 255], vein: [255, 255, 255, 210], shade: [0, 40, 60, 60] } as const, leaveAtFrame: 27,
+  caption: '出发去看海', leaf: { size: 44, png: 'world/glass-sign-leaf/spriteFrame', bbox: [7, 41, 48] as const, gap: 6 } as const, leaveAtFrame: 27,
 });
 
 export class GlassSign {
@@ -62,14 +62,16 @@ export class GlassSign {
       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
     };
-    // G2: leaf (Graphics, 42 px, 0 B, same look on every platform instead of the system leaf emoji) + 12 px + caption,
-    // centred as ONE group on the caption's measured width (the old fixed 198 px box left the text off-centre with a gap).
+    // G2b: leaf = 48x48 PNG (two leaves #6DBA3C/#A6DB6A, stem, thin dark outline; 8x supersampled then downscaled) drawn at
+    // 44 px, visible leaf ~37 px = 1.1x the 34 px caption. Gap 6 px between the VISIBLE leaf edge (PNG bbox x 7..41 of 48) and
+    // the measured caption; that group is centred on the card.
     const cap = add('Caption', S.caption, 34, 0, 0); cap.overflow = Label.Overflow.NONE; cap.horizontalAlign = Label.HorizontalAlign.LEFT;
     cap.updateRenderData(true); const measured = cap.node.getComponent(UITransform)!.width;
-    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, gap = 12, total = glassSignGroupWidth(capW, gap);
-    cap.node.setPosition(-total / 2 + S.leaf.size + gap + capW / 2, 1, 0);
+    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, g = glassSignGroup(capW);
+    cap.node.setPosition(g.captionX, 1, 0);
     const leaf = new Node('Leaf'); leaf.layer = this.root.layer; this.text.addChild(leaf); leaf.addComponent(UITransform).setContentSize(S.leaf.size, S.leaf.size);
-    leaf.setPosition(-total / 2 + S.leaf.size / 2, 1, 0); drawGlassLeaf(leaf.addComponent(Graphics), S.leaf.size);
+    leaf.setPosition(g.leafX, 1, 0); const sp = leaf.addComponent(Sprite); sp.sizeMode = Sprite.SizeMode.CUSTOM;
+    resources.load(S.leaf.png, SpriteFrame, (err: Error | null, f: SpriteFrame | null) => { if (err || !f || !isValid(sp, true)) { if (err) console.warn('[GlassSign] leaf png unavailable', String(err)); return; } sp.spriteFrame = f; });
   }
   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
   private feedback() {
@@ -124,18 +126,9 @@ export class GlassSign {
   dispose() { if (this.disposed) return; this.disposed = true; if (isValid(this.root, true)) this.root.destroy(); this.material?.destroy(); this.material = null; }
 }
 
-/** G2: total width of leaf + gap + caption, which is centred on the card. */
-export function glassSignGroupWidth(captionW: number, gap = 12): number { return GLASS_SIGN.leaf.size + gap + captionW; }
-/** G2: small tilted leaf in the card's local px (centre 0,0, fits size x size): soft drop shade, body, white midrib. */
-export function drawGlassLeaf(g: Graphics, size: number) {
-  const L = GLASS_SIGN.leaf, h = size * .46, w = size * .3, c = Math.cos(-.6), sn = Math.sin(-.6);
-  const P = (x: number, y: number, dx = 0, dy = 0): [number, number] => [x * c - y * sn + dx, x * sn + y * c + dy];
-  const body = (dx: number, dy: number) => {
-    g.moveTo(...P(0, -h, dx, dy)); g.bezierCurveTo(...P(w * 1.6, -h * .45, dx, dy), ...P(w * 1.4, h * .55, dx, dy), ...P(0, h, dx, dy));
-    g.bezierCurveTo(...P(-w * 1.4, h * .55, dx, dy), ...P(-w * 1.6, -h * .45, dx, dy), ...P(0, -h, dx, dy)); g.close();
-  };
-  g.fillColor = new Color(L.shade[0], L.shade[1], L.shade[2], L.shade[3]); body(0, -1.5); g.fill();
-  g.fillColor = new Color(L.fill[0], L.fill[1], L.fill[2], L.fill[3]); body(0, 0); g.fill();
-  g.lineWidth = Math.max(1.5, size / 18); g.lineCap = Graphics.LineCap.ROUND; g.strokeColor = new Color(L.vein[0], L.vein[1], L.vein[2], L.vein[3]);
-  g.moveTo(...P(0, -h * .7)); g.lineTo(...P(0, h * 1.15)); g.stroke();
+/** G2b: centred group geometry (card-local px, centre 0): visible leaf width + gap + caption. */
+export function glassSignGroup(captionW: number) {
+  const L = GLASS_SIGN.leaf, k = L.size / L.bbox[2], visL = L.bbox[0] * k, visW = (L.bbox[1] - L.bbox[0]) * k;
+  const total = visW + L.gap + captionW, left = -total / 2;
+  return { total, visW, gap: L.gap, leafX: left - visL + L.size / 2, captionX: left + visW + L.gap + captionW / 2 };
 }
