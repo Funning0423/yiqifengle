@@ -131,25 +131,24 @@ export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number
  return {x:sx/(denom*half*aspect),y:sy/(denom*half),z};
 }
 /**
- * S6 finale. The ring sits ~20 m above the terrace and only a few metres north of her, so a
- * world-axis offset (+Z) lands inside the island once the city is yawed. This stands back
- * along the girl→ring ground direction, a little to the side, and bisects her head and the ring
- * so both stay inside a 48° portrait frame.
+ * S6 finale. The ring is a ~40 m horizontal loop, so a portrait lens only shows a sliver unless
+ * it stands well above the loop, on her side of it. The great tree is hidden for this pose;
+ * the offset is in the girl/ring ground frame so the city yaw does not aim it into the island.
  */
 export function finaleLook(girl:Vec,ring:Vec):Pose{
- const dx=ring[0]-girl[0],dz=ring[2]-girl[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,sx=fz,sz=-fx;
- // Far enough that the great-tree trunk does not sit on the ring, and high enough that both stay in a portrait frame.
- const back=24,side=9,up=6;
- const position:Vec=[girl[0]-fx*back+sx*side,girl[1]+up,girl[2]-fz*back+sz*side];
+ const dx=girl[0]-ring[0],dz=girl[2]-ring[2],L=Math.hypot(dx,dz)||1,sx=dx/L,sz=dz/L,rx=sz,rz=-sx;
+ const back=32,side=0,up=46;
+ const position:Vec=[ring[0]+sx*back+rx*side,ring[1]+up,ring[2]+sz*back+rz*side];
  const head:Vec=[girl[0],girl[1]+BODY_M*0.9,girl[2]];
- const target:Vec=[(head[0]+ring[0])/2,(head[1]+ring[1])/2,(head[2]+ring[2])/2];
- return {position,target,fovVerticalDeg:60};
+ const target:Vec=[(head[0]+ring[0])/2,head[1]*0.4+ring[1]*0.6,(head[2]+ring[2])/2];
+ return {position,target,fovVerticalDeg:66};
 }
-/** Object tap: stand off the prop, on the side toward her, looking at its middle. */
-export function propLook(prop:Vec,girl:Vec):Pose{
- const dx=girl[0]-prop[0],dz=girl[2]-prop[2],L=Math.hypot(dx,dz)||1,sx=dz/L,sz=-dx/L;
- const position:Vec=[prop[0]+sx*2.8,prop[1]+1.9,prop[2]+sz*2.8];
- return {position,target:[prop[0],prop[1]+0.7,prop[2]],fovVerticalDeg:42};
+/** Object tap: stand on her side of the prop, far enough that a `span`-tall prop fits, looking at its middle. */
+export function propLook(prop:Vec,girl:Vec,span=3):Pose{
+ const dx=girl[0]-prop[0],dz=girl[2]-prop[2],L=Math.hypot(dx,dz)||1;
+ const back=Math.max(4.2,span*1.7);
+ const position:Vec=[prop[0]+dx/L*back,prop[1]+span*0.55,prop[2]+dz/L*back];
+ return {position,target:[prop[0],prop[1]+span*0.35,prop[2]],fovVerticalDeg:42};
 }
 /** Three node gems in one portrait frame. Pulls back until the narrow horizontal FOV holds all three. */
 export function markersLook(a:Vec,b:Vec,c:Vec,w=390,h=844):Pose{

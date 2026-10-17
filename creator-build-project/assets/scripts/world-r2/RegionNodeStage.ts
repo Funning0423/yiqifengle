@@ -46,6 +46,7 @@ export class RegionNodeStage extends Component{
  private markerWait=0;
  private markerClock=0;
  private holdPulse=0;
+ private hideTree=false;
  private dragHome:Vec|null=null;
  private completed:readonly string[]=[];
 
@@ -105,7 +106,25 @@ export class RegionNodeStage extends Component{
    next={position:[p[0]-dir[0]*push,p[1]-dir[1]*push,p[2]-dir[2]*push],target:[0,0,0],fovVerticalDeg:next.fovVerticalDeg};
    next.target=[next.position[0]+dir[0]*10,next.position[1]+dir[1]*10,next.position[2]+dir[2]*10];
   }
+  // A lens still aimed into a mesh (sky stairs, island lip) climbs instead of sliding under it.
+  for(let up=0;up<8;up++){
+   if(this.clearAhead(next,2))break;
+   const p=next.position,t=next.target;
+   next=retreatClear({position:[p[0],p[1]+1.6,p[2]],target:t,fovVerticalDeg:next.fovVerticalDeg},boxes,LENS_CLEAR_M);
+  }
   return next;
+ }
+ private clearAhead(pose:Pose,distance:number):boolean{
+  const scene=director.getScene();if(!scene)return true;
+  const dir=this.viewDir(pose),ray=new geometry.Ray();
+  ray.o.set(pose.position[0],pose.position[1],pose.position[2]);ray.d.set(dir[0],dir[1],dir[2]);
+  for(const r of scene.getComponentsInChildren(MeshRenderer)){
+   if(!r.enabled||!r.node.activeInHierarchy||!r.model||r.node===this.markerNode)continue;
+   if(/greattree/.test(r.node.name))continue;
+   const t=geometry.intersect.rayModel(ray,r.model,{mode:geometry.ERaycastMode.CLOSEST,distance,doubleSided:true});
+   if(t>0&&t<distance)return false;
+  }
+  return true;
  }
  private viewDir(pose:Pose):Vec{
   const d=[pose.target[0]-pose.position[0],pose.target[1]-pose.position[1],pose.target[2]-pose.position[2]];
@@ -188,19 +207,21 @@ export class RegionNodeStage extends Component{
   this.lens='FollowWalk';setExploreEnabled(true);
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
-  this.treeVisible(false);
+  this.hideTree=true;this.treeVisible(false);
   const star=this.guardLens(this.starPose(this.girl(),w,h));
   await this.blend(0.6,this.readPose(),()=>star);
-  this.treeVisible(true);
+  this.hideTree=false;this.treeVisible(true);
   this.openExplore('skycity');
  }
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
+ /** Great-tree canopy sits on the finale sightline. Hide every node of that name, and keep the renderer off. */
  private treeVisible(on:boolean){
   const scene=director.getScene();if(!scene)return;
-  for(const name of ['env_sky_greattree_canopy','env_sky_greattree_canopy_cards']){
-   const nodes:Node[]=[];findAll(scene,name,nodes);
-   for(const n of nodes)n.active=on;
-  }
+  const visit=(n:Node)=>{
+   if(n.name==='env_sky_greattree_canopy'||n.name==='env_sky_greattree_canopy_cards'||/greattree/.test(n.name)){n.active=on;const r=n.getComponent(MeshRenderer);if(r)r.enabled=on;}
+   for(const c of n.children)visit(c);
+  };
+  visit(scene);
  }
  private starPose(g:Vec,w:number,h:number):Pose{
   const base=finalePose(g,this.yaw(),w,h);
@@ -208,13 +229,22 @@ export class RegionNodeStage extends Component{
   const p=ring.worldPosition;
   return finaleLook(g,[p.x,p.y,p.z]);
  }
+ /** Local metres inside the region GLB. Skinned bounds are not the prop (the robot mesh is authored in model space). */
+ private propLocal(id:string):Vec|null{
+  if(id==='robot')return [3.6,0.2,28.2];
+  if(id==='bell')return [7,6.57,-22.5];
+  if(id==='windchime')return [-22.41,11.73,30.52];
+  return null;
+ }
+ private propSpan(id:string):number{return id==='robot'?6.5:id==='palm'?5.5:id==='bell'?3.2:2.6;}
  private propPose(id:string,g:Vec,w:number,h:number):Pose{
   const base=followPose(g,this.yaw(),w,h,0);
-  const node=this.named(PROP_NODES[id]||'');if(!node)return base;
-  const origin=node.worldPosition;
-  const bounds=node.getComponent(MeshRenderer)?.model?.worldBounds?.center;
-  const p=bounds&&Math.hypot(bounds.x-origin.x,bounds.y-origin.y,bounds.z-origin.z)>1.5?bounds:origin;
-  return propLook([p.x,p.y,p.z],g);
+  const local=this.propLocal(id);
+  const baked=local?this.toWorld(this.region,[local])[0]:null;
+  const node=this.named(PROP_NODES[id]||'');
+  const p=baked||(node?[node.worldPosition.x,node.worldPosition.y+this.propSpan(id)*0.35,node.worldPosition.z]:null);
+  if(!p)return base;
+  return propLook(p,g,this.propSpan(id));
  }
  openExplore(region:RegionId){
   this.region=region;this.exploring=true;this.lens='MapExplore';this.focus=this.girl();this.zoom=1.6;
@@ -228,9 +258,10 @@ export class RegionNodeStage extends Component{
  async frame(spec:{region?:RegionId;lens?:string;prop?:string}){
   if(MINIGAME)return;
   const region:RegionId=spec.region==='meadow'||spec.region==='skycity'?spec.region:'island';
-  if(spec.lens==='board'){this.treeVisible(true);this.restoreBoard();return;}
+  if(spec.lens==='board'){this.hideTree=false;this.treeVisible(true);this.restoreBoard();return;}
   this.showWorld(region);
-  this.treeVisible(spec.lens!=='finale'&&spec.lens!=='look');
+  this.hideTree=spec.lens==='finale'||spec.lens==='look';
+  this.treeVisible(!this.hideTree);
   const nav=this.cover?.nav;if(nav)nav.active=false;
   const key=spec.lens==='finale'||spec.lens==='look'? (region==='skycity'?'S6':region==='meadow'?'M6':'I6') : (region==='meadow'?'M2':region==='skycity'?'S4':'I2');
   const nodes=REGION_NODES[region].nodes;
@@ -256,8 +287,9 @@ export class RegionNodeStage extends Component{
    const board:Pose={position:[follow.position[0],follow.position[1]+5,follow.position[2]+7],target:[g[0],g[1]+1,g[2]],fovVerticalDeg:48};
    pose=blendPose(board,follow,0.3,BLEND_S.boardToFollow);
   }
-  const guarded=lens==='map'||lens==='tap'||lens==='finale'||lens==='look'||lens==='prop'||lens==='markers';
+  const guarded=lens==='map'||lens==='tap'||lens==='finale'||lens==='look'||lens==='markers';
   this.writePose(pose,guarded);
+  if(this.hideTree)this.treeVisible(false);
   this.lens=spec.lens==='map'||spec.lens==='tap'?'MapExplore':'FollowWalk';
   this.shotPhases={};
   const forced:Record<string,NodePhase>={};
@@ -311,14 +343,15 @@ export class RegionNodeStage extends Component{
  }
 
  pulse(id:string,region:RegionId,hold=false){
-  const name=PROP_NODES[id];if(!name)return;
+  const name=id==='robot'?'anchor_robot_root':PROP_NODES[id];if(!name)return;
   const nodes:Node[]=[];findAll(director.getScene(),name,nodes);
+  const live=nodes.filter(n=>n.activeInHierarchy);
   const fb=propFeedback(id);
-  for(const node of nodes){
+  for(const node of (live.length?live:nodes)){
    const s=node.scale,e=node.eulerAngles;
    this.pulses.push({node,sx:s.x,sy:s.y,sz:s.z,ey:e.y,left:fb.seconds,motion:fb.motion});
   }
-  if(id==='robot'){const rig=director.getScene()?.getComponentInChildren(SkycityRobotInteract);try{rig?.playGesture?.('robot_give_flower');}catch{/* clip optional */}}
+  if(id==='robot'&&!hold){const rig=director.getScene()?.getComponentInChildren(SkycityRobotInteract);try{rig?.playGesture?.('robot_give_flower');}catch{/* clip optional */}}
   if(hold)this.holdPulse=0.85;
   emitTransitCue('scene-tap',{t:0,region,id});
   const hook=(globalThis as any).__worldIntegration;if(typeof hook?.onSceneTap==='function')hook.onSceneTap(id);
@@ -375,16 +408,17 @@ export class RegionNodeStage extends Component{
  }
  update(dt:number){
   if(this.anim){this.anim.t+=dt;this.anim.sample(Math.min(this.anim.seconds,this.anim.t));if(this.anim.t>=this.anim.seconds){const d=this.anim.done;this.anim=null;d();}}
+  if(this.hideTree)this.treeVisible(false);
   this.markerClock+=dt;
   if(this.holdPulse>0)this.holdPulse=Math.max(0,this.holdPulse-dt);
   for(let i=this.pulses.length-1;i>=0;i--){
    const p=this.pulses[i];if(!p.node.isValid){this.pulses.splice(i,1);continue;}
    if(this.holdPulse<=0)p.left-=dt;
    const u=this.holdPulse>0?0.5:1-Math.max(0,p.left)/0.45;const wave=Math.sin(Math.max(0,Math.min(1,u))*Math.PI);
-   const grow=1+0.45*wave;
+   const grow=1+0.7*wave;
    p.node.setScale(p.sx*grow,p.sy*grow,p.sz*grow);
    if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*50,0);
-   else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*32,p.ey,0);
+   else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*28,p.ey+wave*36,0);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
