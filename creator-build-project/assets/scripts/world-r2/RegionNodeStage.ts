@@ -283,8 +283,8 @@ export class RegionNodeStage extends Component{
   const nodes=REGION_NODES[this.region].nodes;
   const pushGem=(at:Vec,phase:NodePhase,scale:number)=>{
    const c=hex(markerDraw(phase,this.anim?.t||0).fill),o=positions.length/3;
-   const s=0.42*scale;const pts=[[0,s,0],[s,0,0],[0,0,s],[-s,0,0],[0,0,-s],[0,-s*0.6,0]];
-   for(const p of pts){positions.push(at[0]+p[0],at[1]+0.9+p[1],at[2]+p[2]);normals.push(0,1,0);colors.push(c[0],c[1],c[2],255);}
+   const s=0.72*scale;const pts=[[0,s,0],[s,0,0],[0,0,s],[-s,0,0],[0,0,-s],[0,-s*0.55,0]];
+   for(const p of pts){positions.push(at[0]+p[0],at[1]+0.9+p[1],at[2]+p[2]);normals.push(0,1,0);colors.push(c[0]/255,c[1]/255,c[2]/255,1);}
    const faces=[[0,1,2],[0,2,3],[0,3,4],[0,4,1],[5,2,1],[5,3,2],[5,4,3],[5,1,4]];
    for(const f of faces)indices.push(o+f[0],o+f[1],o+f[2]);
   };

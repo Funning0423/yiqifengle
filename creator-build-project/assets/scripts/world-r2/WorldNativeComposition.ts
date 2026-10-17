@@ -264,15 +264,20 @@ export class WorldNativeComposition extends Component {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
     const region=spec?.region==='meadow'||spec?.region==='skycity'?spec.region:'island';
     const checkpoint=region==='meadow'?8:region==='skycity'?12:4;
-    const here=this.world.commands().snapshot();
-    if(region!=='island'&&here.journey?.region!==region){
+    try{
+     const diag=(this.boundCharacter as any)?.diagnostics?.();
+     const root=diag?.root||[0,0,0];
+     this.boundCharacter?.cancelAndReset({kind:'standing',controllerRoot:[root[0],root[1],root[2]],yawRad:0});
+    }catch{/* idle */}
+    let here=this.world.commands().snapshot();
+    const placed=here.state==='level'&&here.journey?.region===region;
+    if(!placed){
+     if(here.state==='level'){const exited=this.world.commands().exitLevel();if(!exited.ok)return exited;here=this.world.commands().snapshot();}
      const profile=createRegionFlowCheckpoint(checkpoint,{allowQa:true});
      if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
      this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;
      if(here.state==='home'){const left=await this.world.commands().leaveHome();if(!left.ok)return left;}
      const entered=await this.enterMainlineStage(profile.stageId,profile.seed);if(!entered.ok)return entered;
-    }else if(region==='island'&&here.state==='home'){
-     const left=await this.world.commands().leaveHome();if(!left.ok)return left;
     }
     if(spec?.night){try{const day=this.world.commands().dayNight?.();if(!String(day?.mode||day||'').includes('night'))this.world.commands().toggleDayNight();}catch{/* day stays */}}
     const stage=this.stage();if(stage){stage.bindCharacter(this.boundCharacter);await stage.frame({region,lens:spec?.lens,prop:spec?.prop});}
