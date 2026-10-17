@@ -11,7 +11,8 @@
  *  K4 final landing frame at 360×780 (0.46) and 390×520 (0.75): whole body in frame, feet ≥ 5% above the bottom edge,
  *     her centre 20–80% of the width, height 0.12–0.26 of the screen (0.26: close fallback-like end pose), board centre in frame.
  *  K5 view turn ≤ 20°/s on the timed walk (route.timing, 17 s); no crane-up: lens height above her never rises over the arrival (monotone).
- *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the walk action now gets), 60 Hz:
+ *  K7 time domain on route.timing (RegionJourneyCore.journeyDistanceAt, the distance curve the controller hands the walk action
+ *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
  *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): starts on the landing pose (lens at rest), ends exactly on
