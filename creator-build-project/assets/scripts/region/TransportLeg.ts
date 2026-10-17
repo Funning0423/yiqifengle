@@ -186,19 +186,24 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
   const fov=fovFor(screen),v=vehicle(Math.max(beats[1].t0,Math.min(beats[6].t1,time>=beats[1].t0?time:beats[1].t1)));
   const [hx,hz]=heading(v.yaw),rx=hz,rz=-hx,p=v.pos;
   const eye=(back:number,right:number,upM:number):Vec=>[p[0]-hx*back+rx*right,p[1]+upM,p[2]-hz*back+rz*right];
-  if(time<beats[2].t0){const e=eye(8,0.6,2.5);const pit=10*Math.PI/180;return camOf(e,[e[0]+hx*Math.cos(pit),e[1]+Math.sin(pit),e[2]+hz*Math.cos(pit)],fov);}
-  if(time<beats[2].t0+2){const hold=vehicle(beats[2].t0);const [h2,z2]=heading(hold.yaw);const e:Vec=[hold.pos[0]-h2*8,hold.pos[1]+2.2,hold.pos[2]-z2*8];
-   const look:Vec=[p[0],p[1]+4.2,p[2]];return camOf(e,look,fov);}
-  if(time<beats[4].t0){const crossing=Math.abs(p[1]-cloudY)<2.2;const back=crossing?2.4:backFor(screen),right=crossing?1.1:4,upM=crossing?0.4:1;
-   return camOf(eye(back,right,upM),[p[0],p[1]+3.2,p[2]],fov);}
-  if(time<beats[5].t0){const e=eye(16,9,14);return camOf(e,[court[0],court[1]+24,court[2]],fov);}
+  // B-b: back 8 m, up ~2.6 m, look at the envelope waist so the basket and the bag both sit in a 48° portrait frame.
+  if(time<beats[2].t0)return camOf(eye(8,0.35,2.6),[p[0]+hx*0.4,p[1]+2.7,p[2]+hz*0.4],fov);
+  // B-c first 2 s: lens stays at the pad and tilts up as she rises (design: do not follow yet).
+  if(time<beats[2].t0+2){const hold=vehicle(beats[2].t0);const [h2,z2]=heading(hold.yaw);const e:Vec=[hold.pos[0]-h2*8,hold.pos[1]+1.8,hold.pos[2]-z2*8];
+   return camOf(e,[p[0],p[1]+2.2,p[2]],fov);}
+  // Rest of B-c (about 8–12 m up): from behind and above, look back at the pad so grass and the windmill stay under her.
+  if(time<beats[3].t0)return camOf(eye(11,1.6,6.2),[launch[0],launch[1]+0.8,launch[2]],fov);
+  // B-d: side-rear, lens above the cloud plane. Look slightly down so the meadow stays in the lower frame; the bag stays centered.
+  if(time<beats[4].t0){const back=backFor(screen);let upM=3.4;const eyeY=p[1]+upM;if(Math.abs(eyeY-cloudY)<1.35)upM=eyeY<cloudY?cloudY-p[1]-1.35:cloudY-p[1]+1.35;return camOf(eye(back,2.4,upM),[p[0]+hx*1.5,p[1]+1.4,p[2]+hz*1.5],fov);}
+  // B-e: high and to the side, looking down onto the court so the island reads as a whole above the cloud sea.
+  if(time<beats[5].t0)return camOf(eye(20,12,18),[court[0],court[1]+12,court[2]],fov);
   return camOf(eye(6.6,2.4,3.4),[p[0]+hx*1.2,p[1]+2.4,p[2]+hz*1.2],fov);
  };
  const samples=pieces;
  const accelPeak=accelOf(flightAt,flight0,flight1);
  const climbDeg=climbAngle(up,climbEnd);
  const total=beats[beats.length-1].t1;
- return {beats,total,build05S:total,yawDeg:placed.yawDeg,origin:placed.origin,s0,launch,court,cloudY,cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:beats.find(b=>b.id==='B-h')!.t0,cityActiveAt:beats[4].t0,grassOffAt:beats[3].t0,accelPeak,climbDeg,clearRadiusM:radius};
+ return {beats,total,build05S:total,yawDeg:placed.yawDeg,origin:placed.origin,s0,launch,court,cloudY,cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:beats.find(b=>b.id==='B-h')!.t0,cityActiveAt:beats[4].t0,grassOffAt:beats[2].t0+2,accelPeak,climbDeg,clearRadiusM:radius};
 }
 export function strataClearsGround(originY:number,strataLocalMinY:number,meadowGroundMaxY:number,margin=BALLOON_GROUND_CLEAR_M):{ymin:number;need:number;ok:boolean}{
  const ymin=originY+strataLocalMinY,need=meadowGroundMaxY+margin;return {ymin,need,ok:ymin>need};

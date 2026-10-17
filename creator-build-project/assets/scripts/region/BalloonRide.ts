@@ -7,7 +7,7 @@ import type {Cancellation, CharacterAdapter, Vec, WorldLease} from '../world-r1/
 import {BALLOON_CAP, balloonBeats, balloonRoutePoints, stepTransitClock, type BalloonPlan, type Screen} from './TransportLeg';
 import {domeVisible, transitBackdrop} from './TransitBackdrop';
 import {emitTransitCue} from './TransitAudioHooks';
-import {applyVehicleNight, basketFloor, loadBundlePrefab, mountVehicle} from './TransportVehicle';
+import {applyVehicleNight, attachBalloonVisuals, attachCloudVisuals, attachHorizonDisc, attachSkyCards, basketFloor, loadBundlePrefab, mountVehicle} from './TransportVehicle';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 /** Meadow-local M6 (windmill door) and sky-local S0 lawn. See maps/nodes.json. */
@@ -52,11 +52,15 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const route={from:'meadow' as const,to:'skycity' as const,path:points,bridgeStart:length*0.42,bridgeEnd:Math.min(length,length*0.42+Math.max(0.05,length*0.04)),speed:1.2,startBlendM:0,focus:plan.court};
   const balloonPrefab=await loadBundlePrefab('transport_balloon');if(balloonPrefab){balloonPrefab.addRef();owned.push({destroy(){balloonPrefab.decRef();}});}
   vehicle=mountVehicle(balloonPrefab,rig);vehicle.setWorldPosition(launch[0],launch[1],launch[2]);
+  const visuals=attachBalloonVisuals(vehicle);owned.push(visuals);
   const hold=(p:{addRef():void;decRef():void}|null)=>{if(p){p.addRef();owned.push({destroy(){p.decRef();}});}};
   const cloudPrefab=await loadBundlePrefab('transit_cloud_band');hold(cloudPrefab);
   cloud=cloudPrefab?instantiate(cloudPrefab):new Node('transit_cloud_band');if(!cloud.parent)rig.addChild(cloud);cloud.setWorldPosition(plan.cloudAt[0],plan.cloudY,plan.cloudAt[2]);
+  owned.push(attachCloudVisuals(cloud));
   const cardPrefab=await loadBundlePrefab('transit_sky_cards');hold(cardPrefab);
   cards=cardPrefab?instantiate(cardPrefab):new Node('transit_sky_cards');if(!cards.parent)rig.addChild(cards);
+  cards.setWorldPosition(launch[0],launch[1],launch[2]);owned.push(attachSkyCards(cards));
+  owned.push(attachHorizonDisc(rig,[launch[0],launch[1]-2.5,launch[2]]));
   const domes:Node[]=[];eachNamed(model,n=>{if(n.name==='env_sky_dome'||n.name==='meadow_sky_dome')domes.push(n);});
   eachNamed(opts.meadow,n=>{if(n.name==='meadow_sky_dome'||n.name==='env_sky_dome')domes.push(n);});
   let night=nightNow();
@@ -78,7 +82,10 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    try{await actor.perform({kind:'turn',controllerRoot:launch,fromYawRad:yaw,toYawRad:yaw,direction:'left'},rideToken);}catch{/* a zero turn is still a stand */}
    rideToken.check();
    const girl=(actor as any).node as Node|undefined;const prev=girl?.parent??null;const seat=basketFloor(vehicle!);
-   if(girl&&isValid(girl,true))girl.setParent(seat,true);
+   if(girl&&isValid(girl,true)){girl.setParent(seat,true);girl.setPosition(0,0.02,0);girl.setRotationFromEuler(0,0,0);}
+   const wisps=find(vehicle!,'ride_wisps');
+   const setWind=(actor as {setWindSource?:(fn:(()=>number|null)|null)=>void}).setWindSource;
+   if(setWind)setWind(()=>0.6);
    cue('B-b','balloon-burner');
    const clock={t:plan.beats.find(b=>b.id==='B-b')!.t0,hiddenFor:0,fade:0};
    const fired=new Set<string>();
@@ -90,19 +97,25 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
      const t=clock.t;const sample=plan.vehicle(t);
      vehicle!.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
      vehicle!.setRotationFromEuler(sample.roll*0.15,sample.yaw*180/Math.PI,sample.roll);
+     if(cloud){cloud.setWorldPosition(sample.pos[0],plan.cloudY,sample.pos[2]);cloud.setRotationFromEuler(0,sample.yaw*180/Math.PI,0);}
+     const bd=plan.beats.find(b=>b.id==='B-d')!,be=plan.beats.find(b=>b.id==='B-e')!;
+     if(wisps)wisps.active=t>=bd.t0&&t<be.t1;
      const pose=plan.camera(t,screenNow());world.setCamera(pose);
      paintBackdrop(t);
      for(const b of plan.beats){if(fired.has(b.id)||t<b.t0)continue;fired.add(b.id);
       const cue=b.id==='B-c'?'balloon-liftoff':b.id==='B-d'?'balloon-cloud-enter':b.id==='B-e'?'balloon-cloud-exit':b.id==='B-f'?'balloon-land':null;
       if(cue&&!hidden)emitTransitCue(cue,{t,region:'meadow-skycity',id:b.id});}
-     (globalThis as any).__QF_BALLOON={t,total:plan.total,beat:plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board'};
+     (globalThis as any).__QF_BALLOON={t,total:plan.total,beat:plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board',alt:sample.pos[1]-plan.launch[1],wind:0.6};
      if(t>=plan.beats.find(b=>b.id==='B-g')!.t1){off();driver.step=()=>{};ok();}
     };
    });
    rideToken.check();
+   if(setWind)setWind(()=>{try{const w=(globalThis as any).__worldDayNight?.windStrength?.();return typeof w==='number'?w:null;}catch{return null;}});
+   if(wisps)wisps.active=false;
    if(girl&&prev&&isValid(prev,true))girl.setParent(prev,true);
    actor.cancelAndReset({kind:'standing',controllerRoot:plan.s0,yawRad:yaw});
    const out=Math.hypot(plan.court[0]-plan.s0[0],plan.court[2]-plan.s0[2]);
+   (globalThis as any).__QF_BALLOON={t:plan.beats.find(b=>b.id==='B-h')!.t0,total:plan.total,beat:'B-h',alt:0,wind:0};
    if(out>0.4)await actor.perform({kind:'walk',path:[plan.s0,plan.court],duration:Math.min(BALLOON_CAP.h,Math.max(0.8,out/1.2))},rideToken);
    paintBackdrop(plan.total);
   };
