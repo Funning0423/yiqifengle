@@ -23,12 +23,35 @@ export const STEP_VARIANTS = 4;
 export const STEP_LEAD_S = 0.025;
 /** Same foot cannot step twice inside this window (guards clip switches). */
 export const STEP_DEDUPE_S = 0.25;
-/** In-game volume per surface (files are peak -6 dBFS). Measured in the offline mix (README): the step's momentary
- *  loudness (400 ms) sits ~7-13 dB under the bed (BGM in the room; BGM + wind + waves outside),
- *  and its sample peak ~8 dB under the bed's. */
-export const STEP_GAIN: Record<StepSurface, number> = { wood: 0.36, rug: 0.34, stone: 0.38, path: 0.34, grass: 0.32 };
-/** +-1.5 dB random volume per step on top of the 4 pitch-baked variants (no machine-gun repetition). */
+/** In-game volume per surface (files are peak -6 dBFS). Target: the step's momentary loudness (400 ms, K-weighted)
+ *  sits ~10-12 dB under the bed (BGM in the room; BGM + wind + waves outside).
+ *  Indoor (wood, rug) as in cfe6429. Outdoor recalibrated on 运镜bot's cfe6429 recording (Chromium web build, master tap):
+ *  stone/path/grass sat 10-20 dB under there, so stone +2.4 dB, path +0.5 dB, grass +1.0 dB plus STEP_WIND_LIFT. */
+export const STEP_GAIN: Record<StepSurface, number> = { wood: 0.36, rug: 0.34, stone: 0.50, path: 0.36, grass: 0.36 };
+/** Indoor surfaces: unchanged since cfe6429 (no wind lift, no variant trim, +-1.5 dB jitter). */
+export const STEP_INDOOR: StepSurface[] = ['wood', 'rug'];
+/** +-1.5 dB random volume per step indoors on top of the 4 pitch-baked variants (no machine-gun repetition). */
 export const STEP_JITTER_DB = 1.5;
+/** Outdoors +-0.75 dB: the variants are level-matched there, so neighbours stay within ~3 dB even while the wind lift
+ *  moves (worst case 1.5 dB jitter span + <= 1.5 dB lift change per step + 0.3 dB residual variant spread). */
+export const STEP_JITTER_OUT_DB = 0.75;
+/** Outdoor per-variant trim (dB, index = variant-1) so the 4 files of a surface have the same 400 ms loudness
+ *  (measured: path_1 was 3.1 dB under path_2). Mean 0 per surface. */
+export const STEP_VARIANT_TRIM_DB: Partial<Record<StepSurface, number[]>> = {
+  stone: [0.2, 0.1, 0.0, -0.3], path: [1.8, -1.4, -0.9, 0.6], grass: [0.2, -0.2, 0.2, -0.1] };
+/** Outdoors the bed rises with the wind (strong wind loop): +db x smoothstep(from, to, wind) so the late exit steps
+ *  stay ~11 dB under instead of 14-20 dB (recording). Max slope 1.5 dB per 0.1 wind. wind = WorldFlow.getWindStrength(), 0 indoors. */
+export const STEP_WIND_LIFT = { from: 0.3, to: 0.9, db: 6.0 };
+export function stepWindLiftDb(surface: StepSurface, wind: number): number {
+  if (STEP_INDOOR.indexOf(surface) >= 0 || !(wind > 0)) return 0;
+  const u = Math.min(1, Math.max(0, (wind - STEP_WIND_LIFT.from) / (STEP_WIND_LIFT.to - STEP_WIND_LIFT.from)));
+  return STEP_WIND_LIFT.db * u * u * (3 - 2 * u);
+}
+/** Volume for one step before jitter: surface gain x variant trim x wind lift (variant 0-based). */
+export function stepBaseVolume(surface: StepSurface, variant: number, wind: number): number {
+  const trim = (STEP_VARIANT_TRIM_DB[surface] || [])[variant] || 0;
+  return STEP_GAIN[surface] * Math.pow(10, (trim + stepWindLiftDb(surface, wind)) / 20);
+}
 /** Flow states in which steps may sound: the exit (home -> island) and the return (island -> seat). Not region journeys. */
 export const STEP_STATES = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out', 'island',
   'walking-home', 'crossing-in', 'closing-door', 'walking-to-seat', 'sitting'];
@@ -135,16 +158,18 @@ export function footPoint(x: number, z: number, yaw: number, hit: { x: number; z
   return [x + hit.x * c + hit.z * s, z - hit.x * s + hit.z * c];
 }
 
-/** Variant + volume: never the same file twice in a row on one surface, +-STEP_JITTER_DB volume. rnd() in [0,1). */
+/** Variant + volume: never the same file twice in a row on one surface; volume = stepBaseVolume x jitter
+ *  (+-STEP_JITTER_DB indoors, +-STEP_JITTER_OUT_DB outdoors). rnd() in [0,1). */
 export class StepVariantPicker {
   private last: Record<string, number> = {};
   constructor(private rnd: () => number = Math.random) { }
-  pick(surface: StepSurface): { name: StepClipName; volume: number } {
+  pick(surface: StepSurface, wind = 0): { name: StepClipName; volume: number } {
     const prev = this.last[surface];
     let i = Math.floor(this.rnd() * (prev === undefined ? STEP_VARIANTS : STEP_VARIANTS - 1));
     if (prev !== undefined && i >= prev) i++;
     this.last[surface] = i;
-    const db = (this.rnd() * 2 - 1) * STEP_JITTER_DB;
-    return { name: ('step_' + surface + '_' + (i + 1)) as StepClipName, volume: Math.min(1, STEP_GAIN[surface] * Math.pow(10, db / 20)) };
+    const j = STEP_INDOOR.indexOf(surface) >= 0 ? STEP_JITTER_DB : STEP_JITTER_OUT_DB;
+    const db = (this.rnd() * 2 - 1) * j;
+    return { name: ('step_' + surface + '_' + (i + 1)) as StepClipName, volume: Math.min(1, stepBaseVolume(surface, i, wind) * Math.pow(10, db / 20)) };
   }
 }
