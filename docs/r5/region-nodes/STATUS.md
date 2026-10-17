@@ -10,4 +10,4 @@
 - 2026-10-18 01:04 本地：Node 22 套件 103/104，唯一非 PASS 是 `navigation-guard: BLOCKED_BROWSER`。Node 20 套件 101/104，另外两项是 `legacy-board-ui-pure` 与 `reward-background-return` 的 `BLOCKED_NODE`。新增 9 项测试全部 PASS。
 - 2026-10-18 01:08 本地：提交 `6f47e4748e`。冒烟 wechat/web 完成，工作区干净。build-guard both：wechat-release 19,413,434 B（比 r4 多 77,679 B），web-test 20,201,068 B。
 - 2026-10-18 01:27 本地：截图在 `docs/r5/region-nodes/shots/`。实机只有海岛世界、海岛棋盘、昼夜和多分辨率。FollowWalk、MapExplore、标记三态、草地 M2、天空 S4 没有接到画面上。headless 海岛帧间隔中位数 99.8 ms。棋盘 DC 45。清理后剩余约 7.0 GiB。
-- 下一步：提交报告和截图。不 push。
+- 2026-10-18 01:30 本地：报告和截图提交 `09a6176858`，tree `36eae1f71a`。代码提交 `6f47e4748e`，tree `a4b071e285`。没有 push。
