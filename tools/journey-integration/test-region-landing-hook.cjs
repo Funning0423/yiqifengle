@@ -9,7 +9,9 @@
 //    anchors = the GLB): angle ≤ 0.1°, FOV ≤ 0.1°, position ≤ 1 cm. The hook then finds the camera ON the pose (one exact write,
 //    hold the push-in).
 //  * Landing: lens clearance ≥ 1.1 m from all GLB geometry over the blend (every 0.05 m); before the blend the lens is
-//    byte-for-byte the old journey lens; FOV and view angle to the board pose never grow (monotonic, no overshoot); turn ≤ 20°/s;
+//    byte-for-byte the old journey lens; FOV and view angle to the board pose never grow over the whole blend (monotonic, no overshoot; the view slerps from its blend-start
+//    direction); position may drift away from the board ≤ 1 m (C1 hand-off: meadow's follow lens is heading away from the board pose when
+//    the blend starts and is turned smoothly, never backing up: velocity 0.5 s apart never reverses); turn-rate jump at the blend start ≤ 2°/s; turn ≤ 20°/s;
 //    at rest where she stops.
 //  * Hook (fakes): exact → 1 write + ok; viewport changed (390x844 → 375x667, skycity 4.8 m dolly) → 1.2 s blend (first = landing pose, last = board pose); far / no pose /
 //    no camera / rejected / throwing deps → ok:false, never rejects (call site keeps the old push-in path).
@@ -53,19 +55,21 @@ for(const region of ['meadow','skycity']){const leg=LEG[region],L=routeLength(le
   await T('landing '+key,async()=>{
    const board=RB.regionBoardEnd(SRC[region],w/h),B=board.blendM,cam=d=>Core.journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM,undefined,board),base=d=>Core.journeyCamera(leg.path,d,leg.start,leg.focus,leg.lens,leg.startBlendM);
    for(let d=0;d<=L-B;d+=.25){const a=cam(d),b=base(d);ok(JSON.stringify(a)===JSON.stringify(b),'lens changed before the blend at d '+d);}
-   let minC=9,minWho=null,prev=null,prevG=null,maxTurn=0,maxFovRate=0,maxPosGrow=0,maxAngGrow=0,maxFovGrow=0,inFrame=0,n=0;const dt=1/60,v=1.2;
+   let VH=[],minVelCos=1,posMin=9e9,posCum=0,minC=9,minWho=null,prev=null,prevG=null,maxTurn=0,maxFovRate=0,maxPosGrow=0,maxAngGrow=0,maxFovGrow=0,inFrame=0,n=0;const dt=1/60,v=1.2;
    for(let i=0;;i++){const d=Math.min(L,L-B+i*v*dt),c=cam(d);
     const g={p:Math.hypot(...sub(c.position,board.position)),a:ang(c,board),f:Math.abs(c.fovVerticalDeg-board.fovVerticalDeg)};
-    if(prevG){maxPosGrow=Math.max(maxPosGrow,g.p-prevG.p);maxAngGrow=Math.max(maxAngGrow,g.a-prevG.a);maxFovGrow=Math.max(maxFovGrow,g.f-prevG.f);}
+    posMin=Math.min(posMin,g.p);posCum=Math.max(posCum,g.p-posMin);if(prevG){maxPosGrow=Math.max(maxPosGrow,g.p-prevG.p);maxAngGrow=Math.max(maxAngGrow,g.a-prevG.a);maxFovGrow=Math.max(maxFovGrow,g.f-prevG.f);}
     if(prev){maxTurn=Math.max(maxTurn,ang(prev,c)/dt);maxFovRate=Math.max(maxFovRate,Math.abs(c.fovVerticalDeg-prev.fovVerticalDeg)/dt);}
     if(i%3===0){const [cl,who]=clearance(c.position,leg.objs,3);if(cl<minC){minC=cl;minWho=who+' at '+(L-d).toFixed(2)+' m before the stop';}}
     // her chest (0.9 m) inside the view frustum (reported)
     const her=sampleRoute(leg.path,d),f=dir(c),q=sub([her[0],her[1]+.9,her[2]],c.position),z=q[0]*f[0]+q[1]*f[1]+q[2]*f[2];if(z>0){const r=[f[2],0,-f[0]],rl=Math.hypot(...r)||1,u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];const x=(q[0]*r[0]+q[2]*r[2])/rl,y=-(q[0]*u[0]+q[1]*u[1]+q[2]*u[2])/rl,t=Math.tan(c.fovVerticalDeg*Math.PI/360);if(Math.abs(y/z)<=t&&Math.abs(x/z)<=t*w/h)inFrame++;}
+    if(prev){const vv=sub(c.position,prev.position);VH.push(vv);if(VH.length>30){const a=VH[VH.length-31],sa=Math.hypot(...a),sc=Math.hypot(...vv);if(sa>2e-4&&sc>2e-4)minVelCos=Math.min(minVelCos,(a[0]*vv[0]+a[1]*vv[1]+a[2]*vv[2])/(sa*sc));}}
     n++;prev=c;prevG=g;if(d>=L)break;}
+   const hd=.01,vel=(p,q)=>{const a=dir(p),b=dir(q);return a.map((x,k)=>(b[k]-x)/(hd/1.2)*180/Math.PI);},wb=vel(base(L-B-hd),base(L-B)),wc=vel(cam(L-B),cam(L-B+hd)),handoff=Math.hypot(...wb.map((x,k)=>wc[k]-x));
    const end=cam(L),endStep=ang(cam(L-.002),end)/(.002/1.2);
-   ok(minC>=1.1,'clearance '+minC+' '+minWho);ok(maxFovGrow<=1e-9,'FOV not monotonic '+maxFovGrow);ok(maxAngGrow<=.15,'view not monotonic '+maxAngGrow);ok(maxTurn<=20,'turn '+maxTurn);ok(endStep<.05,'not at rest at the stop: '+endStep+' deg/s');
+   ok(minC>=1.1,'clearance '+minC+' '+minWho);ok(maxFovGrow<=1e-9,'FOV not monotonic '+maxFovGrow);ok(maxAngGrow<=1e-9,'view angle to the board grew '+maxAngGrow);ok(posCum<=1,'position drifted away from the board '+posCum);ok(minVelCos>=0,'camera backs up (velocity reversal) '+minVelCos);ok(handoff<=2,'turn-rate jump at the blend start '+handoff+' deg/s');ok(maxTurn<=20,'turn '+maxTurn);ok(endStep<.05,'not at rest at the stop: '+endStep+' deg/s');
    const row={region,screen:`${w}x${h}`,blendM:B,blendS:+(B/1.2).toFixed(2),gapAtBlendStart:{positionM:Math.hypot(...sub(cam(L-B).position,board.position)),viewDeg:ang(cam(L-B),board),fovDeg:board.fovVerticalDeg-cam(L-B).fovVerticalDeg},minClearanceM:+minC.toFixed(3),minClearanceAt:minWho,maxTurnDps:+maxTurn.toFixed(2),maxFovRateDps:+maxFovRate.toFixed(3),
-    monotonic:{fovGrowDeg:maxFovGrow,viewGrowDeg:+maxAngGrow.toFixed(4),positionGrowM:+maxPosGrow.toFixed(4)},turnRateAtStopDps:+endStep.toFixed(5),herChestInFrameShare:+(inFrame/n).toFixed(3)};
+    monotonic:{fovGrowDeg:maxFovGrow,viewGrowDeg:+maxAngGrow.toFixed(4),positionGrowM:+maxPosGrow.toFixed(4),positionDriftAwayCumM:+posCum.toFixed(4),minVelocityCos0p5s:+minVelCos.toFixed(3)},turnRateJumpAtBlendStartDps:+handoff.toFixed(3),turnRateAtStopDps:+endStep.toFixed(5),herChestInFrameShare:+(inFrame/n).toFixed(3)};
    report.landing.push(row);return row;});
  }}
 await T('hook residual / failure paths',async()=>{const src=SRC.skycity,a=RB.regionBoardPose(src,390/844),b=RB.regionBoardPose(src,375/667),out={};
