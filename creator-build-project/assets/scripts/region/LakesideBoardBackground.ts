@@ -2,7 +2,7 @@ import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {applyCameraPose} from '../world-r1/CameraPose';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
@@ -38,12 +38,17 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
- let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number}|null=null;
+ let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
+ const fogMode=lakesideFogModeFromEnv();/* read once per lakeside load */
  const applyFog=()=>{const P=LAKESIDE_DIR_LIGHT_PARAMS,fog=(director.getScene() as any)?.globals?.fog;if(!P.fogEnabled||!fog)return;
-  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd};
-  const c=P.fogColorSrgb;fog.enabled=true;fog.type=0/* FogType.LINEAR (3.8.8 render-scene/scene/fog.ts) */;fog.fogColor=new Color(c[0],c[1],c[2],255);fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);};
+  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd,top:fog.fogTop,range:fog.fogRange,atten:fog.fogAtten};
+  if(fogMode==='off'){fog.enabled=false;return;}
+  const c=P.fogColorSrgb;fog.fogColor=new Color(c[0],c[1],c[2],255);
+  if(fogMode==='layered'){const L=LAKESIDE_LAYERED_FOG;fog.type=3/* FogType.LAYERED (3.8.8 render-scene/scene/fog.ts: LINEAR 0, EXP 1, EXP_SQUARED 2, LAYERED 3) */;fog.fogTop=L.fogTop;fog.fogRange=L.fogRange;fog.fogAtten=L.fogAtten;}
+  else{fog.type=0/* FogType.LINEAR */;fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);}
+  fog.enabled=true;};
  const restoreFog=()=>{const f0=savedFog;savedFog=null;const fog=(director.getScene() as any)?.globals?.fog;if(!f0||!fog)return;
-  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.enabled=f0.enabled;};
+  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.fogTop=f0.top;fog.fogRange=f0.range;fog.fogAtten=f0.atten;fog.enabled=f0.enabled;};
  const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
   if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
@@ -89,7 +94,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
    dispose,
   };
  }catch(error){dispose();throw error;}

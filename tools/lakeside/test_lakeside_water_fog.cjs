@@ -9,8 +9,8 @@ assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
 assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
 assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
 assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise>0);
-assert.deepEqual([...P.fogColorSrgb],[255,206,166]);assert.equal(P.fogStart,45);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
-const end=D.lakesideFogEnd();assert.equal(end,257.5);
+assert.deepEqual([...P.fogColorSrgb],[215,170,150]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
+const end=D.lakesideFogEnd();assert.equal(end,235);
 const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
 // board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
 const cam=[0,13.2,26.5],B=D.LAKESIDE_BOARD_BOUNDS,dist=p=>Math.hypot(p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]);
@@ -35,6 +35,22 @@ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTAN
 const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
 assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
 assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
-assert(/fog\.enabled=true;fog\.type=0/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
-assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.enabled=f0\.enabled;/.test(bg));
+assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
+// v3.1 tint = linear sRGB 79/172/176 in params and effect default; fallback uses the same param
+const lin=c=>+(((c/255+.055)/1.055)**2.4).toFixed(4);assert.deepEqual([...P.waterTintLinear],[79,172,176].map(lin));
+assert(/waterTint:\s+\{ value: \[0\.0782, 0\.4125, 0\.4342, 1\.0\]/.test(fx));assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));
+// fog modes + URL override (guarded for WeChat)
+assert.equal(D.LAKESIDE_FOG_MODE,'layered');
+assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
+assert.equal(D.lakesideFogMode('?lakefog=bogus'),'layered');assert.equal(D.lakesideFogMode(null),'layered');assert.equal(D.lakesideFogMode(''),'layered');
+assert.equal(typeof window,'undefined');assert.equal(D.lakesideFogModeFromEnv(),'layered','no window (WeChat) -> constant');
+global.window={location:{search:'?lakefog=linear60'}};assert.equal(D.lakesideFogModeFromEnv(),'linear60');
+global.window={get location(){throw new Error('x');}};assert.equal(D.lakesideFogModeFromEnv(),'layered','throwing location tolerated');delete global.window;
+assert(/const fogMode=lakesideFogModeFromEnv\(\);/.test(bg)&&/if\(fogMode==='off'\)\{fog\.enabled=false;return;\}/.test(bg));
+// layered: slab above water, below mountains/trees; fog factor per 3.8.8 LayeredFog()
+const Lf=D.LAKESIDE_LAYERED_FOG;assert(Lf.fogTop>0.3&&Lf.fogTop<5.7&&Lf.fogTop<cam[1]);
+const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fogTop-y)/Lf.fogRange*2;return 1-Math.exp(-Math.sqrt(1+(dD/dY)**2)*dY*dY/2);};
+assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
+assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
 console.log('lakeside water+fog OK fogEnd='+end);

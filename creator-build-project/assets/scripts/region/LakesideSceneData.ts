@@ -54,8 +54,8 @@ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
  *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
  *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
  *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
- *  - fog*: VB #FFCEA6, 45 m -> 130 m at max 0.4. Cocos LINEAR fog has no max amount, so the end is stretched to 45 + 85/0.4 =
- *    257.5 m: identical amount up to 130 m (0.4 there), clouds beyond (to 163 m) reach ~0.55. Board 16–24 m, near shore <30 m: clear. */
+ *  - fog*: v3.1 sRGB 215/170/150; mode in LAKESIDE_FOG_MODE. linear60: 60 m -> 0.4 at 130 m; Cocos LINEAR has no max amount, so
+ *    the end is stretched to 60 + 70/0.4 = 235 m (clouds at ~163 m reach ~0.44). Board 16–24 m, near shore <30 m: clear. */
 export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   sunForward: [-0.4182, -0.3983, 0.8164] as const,
   sunColorLinear: [1.0, 0.6, 0.32] as const,
@@ -66,16 +66,36 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',
-  waterTintLinear: [0.06, 0.55, 1.0] as const,
+  waterTintLinear: [0.0782, 0.4125, 0.4342] as const, // v3.1: linear of sRGB 79/172/176 (r5h3 water vertex-colour mean); Fresnel gives the blue
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
   waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
   waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
   waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
-  fogEnabled: true, fogColorSrgb: [255, 206, 166] as const, fogStart: 45, fogMaxAt: 130, fogMaxAmount: 0.4,
+  fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+/** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+ *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from
+ *  60 m (same end logic: 0.4 at 130 m -> end 60+70/0.4 = 235 m); 'off' = no fog. Colour sRGB 215/170/150 for both.
+ *  Web builds can override once per lakeside load with ?lakefog=layered|linear60|off (no rebuild); WeChat has no location -> constant. */
+export type LakesideFogMode = 'layered' | 'linear60' | 'off';
+export const LAKESIDE_FOG_MODE: LakesideFogMode = 'layered';
+/** LAYERED: Cocos 3.8.8 LayeredFog(): camera (y 13.2) above fogTop -> density ~ (2D/fogAtten)*(fogTop-y)/fogRange for low slabs, so it grows
+ *  with horizontal distance D and with depth below fogTop. top 1.5 m = just above water/far shore (0..0.3 m), range 30 / atten 17:
+ *  water at the far shore (~77 m) 0.36, lake end (100 m) 0.44, anything above 1.5 m none; board water (18-24 m) ~0.10-0.13. */
+export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 1.5, fogRange: 30, fogAtten: 17 });
+export function lakesideFogMode(search?: string | null, fallback: LakesideFogMode = LAKESIDE_FOG_MODE): LakesideFogMode {
+  const m = /[?&]lakefog=([a-z0-9]+)/.exec(search || '');
+  return m && (m[1] === 'layered' || m[1] === 'linear60' || m[1] === 'off') ? m[1] : fallback;
+}
+/** Reads window.location.search only when it exists (web); WeChat mini-game -> null -> constant. Never throws. */
+export function lakesideFogModeFromEnv(): LakesideFogMode {
+  let q: string | null = null;
+  try { const w: any = typeof window !== 'undefined' ? window : null; q = w && w.location && typeof w.location.search === 'string' ? w.location.search : null; } catch { q = null; }
+  return lakesideFogMode(q);
+}
 export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAmount: number } = LAKESIDE_DIR_LIGHT_PARAMS): number { return p.fogStart + (p.fogMaxAt - p.fogStart) / p.fogMaxAmount; }
 export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));

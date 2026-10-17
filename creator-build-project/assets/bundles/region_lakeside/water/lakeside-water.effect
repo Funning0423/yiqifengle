@@ -8,7 +8,7 @@ CCEffect %{
     - vert: lk-water-vs:vert
       frag: lk-water-fs:frag
       properties:
-        waterTint:     { value: [0.06, 0.55, 1.0, 1.0], linear: true, editor: { type: color } }
+        waterTint:     { value: [0.0782, 0.4125, 0.4342, 1.0], linear: true, editor: { type: color } }
         skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
