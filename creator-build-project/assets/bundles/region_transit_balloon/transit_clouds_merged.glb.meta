@@ -4,7 +4,166 @@
   "imported": true,
   "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "56923": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@56923",
+      "displayName": "",
+      "id": "56923",
+      "name": "clouds_floor_merged.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 1232
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "72786": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@72786",
+      "displayName": "",
+      "id": "72786",
+      "name": "clouds_deck_merged.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 5360
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "74656": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@74656",
+      "displayName": "",
+      "id": "74656",
+      "name": "clouds_horizon_merged.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 792
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "741e2": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@741e2",
+      "displayName": "",
+      "id": "741e2",
+      "name": "clouds_city_sea_merged.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 4160
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "35c98": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@35c98",
+      "displayName": "",
+      "id": "35c98",
+      "name": "clouds_deck_loose_merged.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 960
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "6df79": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@6df79",
+      "displayName": "",
+      "id": "6df79",
+      "name": "clouds_far_merged.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 308
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "b1d45": {
+      "importer": "gltf-mesh",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@b1d45",
+      "displayName": "",
+      "id": "b1d45",
+      "name": "clouds_floor_puff_merged.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 2240
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f0c17": {
+      "importer": "gltf-material",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@f0c17",
+      "displayName": "",
+      "id": "f0c17",
+      "name": "M_transit_cloud.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5f7d7": {
+      "importer": "gltf-scene",
+      "uuid": "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@5f7d7",
+      "displayName": "",
+      "id": "5f7d7",
+      "name": "transit_clouds_merged.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "lods": {
       "enable": false,
@@ -29,6 +188,26 @@
       "compress": true,
       "quantize": true,
       "encode": true
+    },
+    "imageMetas": [],
+    "assetFinder": {
+      "meshes": [
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@741e2",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@72786",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@35c98",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@6df79",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@56923",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@b1d45",
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@74656"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@f0c17"
+      ],
+      "scenes": [
+        "3c4a866f-f91f-4b32-84a4-96e90a02ad6f@5f7d7"
+      ]
     }
   }
 }
