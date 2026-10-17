@@ -37,3 +37,9 @@ export function writeNightBlend(material: { setProperty?: (n: string, v: number)
   material.setProperty('nightBlend', value);
   return true;
 }
+/** build05-next r2: day/night change listeners (lakeside lighting re-applies its own day/night look on top of the island's).
+ *  WorldFlowComponent.applyDayNight emits after it has written the island main light and the rigs' views. Listener errors are
+ *  swallowed; a listener must never throw into the world. */
+const dayNightListeners = new Set<(mode: DayNightMode) => void>();
+export function onDayNightChange(fn: (mode: DayNightMode) => void): () => void { dayNightListeners.add(fn); return () => { dayNightListeners.delete(fn); }; }
+export function emitDayNightChange(mode: DayNightMode): void { for (const fn of Array.from(dayNightListeners)) { try { fn(mode); } catch (e) { void e; } } }

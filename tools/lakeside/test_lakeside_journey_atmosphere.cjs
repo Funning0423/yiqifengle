@@ -38,13 +38,13 @@ assert.equal(A.lakesideAtmosphereAt(nb,1,'off').fog,null);const lf=A.lakesideAtm
 // base-illum registry (board scales from the island base, not the blended value)
 assert.equal(A.lakesideJourneyBaseIllum(),null);A.setLakesideJourneyBaseIllum(123);assert.equal(A.lakesideJourneyBaseIllum(),123);A.setLakesideJourneyBaseIllum(null);assert.equal(A.lakesideJourneyBaseIllum(),null);
 // wiring
-const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourneyCore.ts'),ad=rd('region/RegionJourneyAdapter.ts'),bg=rd('region/LakesideBoardBackground.ts');
+const rd=f=>fs.readFileSync(path.join(S,f),'utf8'),core=rd('world-r1/RegionJourneyCore.ts'),ad=rd('region/RegionJourneyAdapter.ts'),lt=rd('region/LakesideJourneyLighting.ts'),bg=rd('region/LakesideBoardBackground.ts');
 assert(/progress\?\(distance:number\):void;/.test(core));
 assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
 assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
 assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)atmosphere\.prime\(\);\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
 assert(/const release=\(\)=>\{if\(dead\)return;dead=true;atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
 assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
-assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(ad)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(ad),'sun direction slerps to sunForward');
-assert(/const bi=lakesideJourneyBaseIllum\(\)\?\?saved\.illum/.test(bg)&&/l\.illuminance=bi\*P\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*P\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey');
+assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');
+assert(/const bi=\(lakesideJourneyBaseIllum\(\)\?\?saved\.illum\/lakesideIslandLightScale\(saved\.mode\)\)\*lakesideIslandLightScale\(mode\)/.test(bg)&&/l\.illuminance=bi\*M\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*M\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey (r2: day base x mode scale)');
 console.log('lakeside journey atmosphere OK');

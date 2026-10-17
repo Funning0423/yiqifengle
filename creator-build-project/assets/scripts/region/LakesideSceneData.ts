@@ -87,6 +87,31 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
+/** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
+ *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
+ *  carries over. Moonlight from the same direction (shadows do not jump), cool blue ambient, dark blue clear and fog; water: more
+ *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide. */
+export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+  sunColorLinear: [0.36, 0.46, 0.78] as const,
+  sunIlluminanceScale: 1.0,
+  ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
+  ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
+  ambientSkyIllumToSun: 0.6,
+  clearColor: '#1c2740',
+  fogColorSrgb: [44, 54, 84] as const,
+  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
+});
+export type LakesideDayNight = 'day' | 'night';
+export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
+  ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
+  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number }>;
+/** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
+export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
+  if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
+  const P = LAKESIDE_DIR_LIGHT_PARAMS;
+  return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: LAKESIDE_CLEAR_COLOR, fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
+}
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
  *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from
