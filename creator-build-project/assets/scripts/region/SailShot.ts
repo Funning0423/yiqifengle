@@ -67,10 +67,9 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
    if(pier){rider.setParent(pier);rider.setPosition(-0.2,0.42,1.8);rider.setRotationFromEuler(0,90,0);}
    else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
-   const fx=Math.sin(v.yaw),fz=Math.cos(v.yaw);
-   rider.setParent(scene);
-   rider.setWorldPosition(v.pos[0]+fx*3.4+0.6,v.pos[1]+0.15,v.pos[2]+fz*3.4);
-   rider.setRotationFromEuler(0,v.yaw*180/Math.PI,0);
+   const pier=findNode(scene,'transit_pier_land');
+   if(pier){rider.setParent(pier);rider.setPosition(0,0.42,3.1);rider.setRotationFromEuler(0,0,0);}
+   else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,0.2,v.pos[2]);rider.setRotationFromEuler(0,-90,0);}
   }else if(art?.seat){
    rider.setParent(art.seat,false);
    rider.setPosition(0,0,0);
@@ -88,16 +87,27 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  cam.priority=1000;cam.near=0.1;cam.far=900;cam.fov=pose.fovVerticalDeg||48;cam.clearFlags=Camera.ClearFlag.SOLID_COLOR;
  cam.clearColor=night?new Color(12,18,48,255):new Color(120,196,235,255);
  cam.visibility=0xffffffff;
- camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
- camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
+ const above=k===6&&qparam('view')==='above';
+ if(above){
+  cam.fov=42;
+  camNode.setWorldPosition(v.pos[0]+6,v.pos[1]+9,v.pos[2]+4);
+  camNode.lookAt(new Vec3(v.pos[0]-0.4,v.pos[1],v.pos[2]));
+ }else{
+  camNode.setWorldPosition(pose.position[0],pose.position[1],pose.position[2]);
+  camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
+ }
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?9000:90000;
- if(night)sun.color=new Color(190,210,235,255);
+ sun.illuminance=night?1400:90000;
+ if(night)sun.color=new Color(150,176,220,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
- if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,12000);
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,800);
  const globals=(scene as any).globals;
- if(globals?.ambient){globals.ambient.skyIllum=night?2800:28000;if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(24,40,80,255);}
+ if(globals?.ambient){
+  globals.ambient.skyIllum=night?280:28000;
+  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(16,28,64,255);
+  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(10,16,32,255);
+ }
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
 }

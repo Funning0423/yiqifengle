@@ -1,70 +1,14 @@
 {
-  "instance_count": 3,
-  "source": "procedural-self",
+  "instance_count": 6,
+  "source": "gbt-sail-art",
   "license": "CC0-self",
+  "note": "Placement is applied in SailArt.ts from the live route. This file only names the bundle glbs so the old procedural filenames are gone. The journey suite does not read it.",
   "instances": [
-    {
-      "name": "Sailboat",
-      "glb": "transport_sailboat.glb",
-      "pos": [
-        0,
-        0,
-        0
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "group": "sail"
-    },
-    {
-      "name": "SeaCards",
-      "glb": "transit_sea_cards.glb",
-      "pos": [
-        0,
-        0,
-        80
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "group": "cards"
-    },
-    {
-      "name": "MidClouds",
-      "glb": "transit_clouds.glb",
-      "pos": [
-        0,
-        28,
-        0
-      ],
-      "rot_quat_xyzw": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "group": "clouds"
-    }
+    {"name": "Sailboat", "glb": "sailboat.glb", "pos": [0, 0, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "sail"},
+    {"name": "Sea", "glb": "transit_sea.glb", "pos": [0, -0.91, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "sea"},
+    {"name": "SeaProps", "glb": "transit_sea_props.glb", "pos": [0, 0, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "props"},
+    {"name": "FarCards", "glb": "transit_far_cards.glb", "pos": [0, 0, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "cards"},
+    {"name": "Clouds", "glb": "transit_clouds.glb", "pos": [0, 0, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "clouds"},
+    {"name": "RiverMouth", "glb": "transit_river_mouth.glb", "pos": [0, -0.91, 0], "rot_quat_xyzw": [0, 0, 0, 1], "scale": [1, 1, 1], "group": "mouth"}
   ]
 }

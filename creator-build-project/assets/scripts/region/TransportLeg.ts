@@ -35,9 +35,9 @@ export function sailRoute(i6:Vec=SAIL_I6,m0:Vec=sailM0World(i6)):{samples:Vec[];
   const riverU=1-river/Math.max(1,Math.abs(span));
   const env=u>=riverU?0:u>riverU-0.4?smoother((riverU-u)/0.4):1;
   const sway=Math.sin(u*Math.PI)*1.15*env;
-  const ramp=z>=z1-river?smoother((z-(z1-river))/river):0;
-  const y=lerp(SAIL_WATER_Y,m0[1],ramp);
-  raw.push([x0+sway,y,z]);
+  // Stay on the waterline through M0. The estuary is cut in the sail meadow (SailChannel);
+  // climbing to m0[1] planted the hull in the grass.
+  raw.push([x0+sway,SAIL_WATER_Y,z]);
  }
  const samples:Vec[]=[raw[0]];
  for(let i=1;i<raw.length;i++)if(dist(samples[samples.length-1],raw[i])>=0.49)samples.push(raw[i]);
@@ -133,7 +133,8 @@ export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
 export type SailScreen={w:number;h:number};
 type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
 const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
-const K2:SailOff={back:-9.6,side:2.8,up:3.3,fov:52,look:-8,orb:0};
+/** Starboard and ahead, looking back at the lighthouse, so the port sail does not hide her. */
+const K2:SailOff={back:-7.4,side:-5.2,up:2.8,fov:52,look:-6.5,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
