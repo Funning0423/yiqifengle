@@ -56,6 +56,11 @@ export type LakesideInstance = Readonly<{ name: string; glb: string; group: stri
 export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
 export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
   if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
-  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb));
+  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb) && !isLakesideAssetTemplate(i));
 }
+/** The r5h3 export also wrote the 34 source meshes of the Blender ASSETS collection (hide_render, never visible in the
+ *  reference) as instances named exactly after their GLB, all at the origin with identity transform. At the origin they stack a
+ *  house A/B/C + pavilion + trees + clouds on the bridge and double the lake/terrain/bridge (z-fighting). Real placements are
+ *  always suffixed (`_i`, `_i.001`, `LK_tree_mid_*`…), so an instance whose name equals its GLB basename is a template. */
+export function isLakesideAssetTemplate(i: LakesideInstance): boolean { return !!i && i.name === lakesidePrefabName(i.glb); }
 export function lakesidePrefabName(glb: string): string { return String(glb).replace(/\.glb$/i, ''); }
