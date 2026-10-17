@@ -55,6 +55,7 @@ const tests=[
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
+ ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;

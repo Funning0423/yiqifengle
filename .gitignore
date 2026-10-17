@@ -53,3 +53,4 @@ audio-preview/
 
 # Per-run Web build logs, resolved configs, manifests, and generated packages.
 /output/cloud-web-build/
+tools/build-guard/logs/
