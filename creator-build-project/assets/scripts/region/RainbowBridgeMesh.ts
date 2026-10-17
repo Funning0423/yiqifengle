@@ -10,7 +10,7 @@
  *  - Motes: 20 glow dots + 12 falling petals per capped end + 24 curb sparkles = 88 GPU-animated quads (no ParticleSystem: the
  *    particle engine module is off in this project and would cost far more than the 35 KB budget).
  *  Coordinates: Cocos world, Y up; nodes stay at identity (like the old RainbowBridgeStrip*). */
-export type Vec=[number,number,number];
+export type Vec=readonly [number,number,number];
 export type GroundFn=(x:number,z:number)=>number|null;
 /** 'g' grass, 'p' path, 's' other walkable (sand/rock/bank), '' nothing there. */
 export type SurfaceFn=(x:number,z:number)=>string;
@@ -52,7 +52,7 @@ export const RAINBOW_BANDS:ReadonlyArray<Vec>=[[.95,.30,.38],[1,.56,.22],[1,.84,
 const ss=(e0:number,e1:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
 export function bandColor(u:number):Vec{const x=Math.max(0,Math.min(1,u))*6,i=Math.min(5,Math.floor(x));let f=x-i;f=f*f*(3-2*f);const a=RAINBOW_BANDS[i],b=RAINBOW_BANDS[i+1];return [lerp(a[0],b[0],f),lerp(a[1],b[1],f),lerp(a[2],b[2],f)];}
 /** Pale version for ground petals / flowers / halo (same desaturation as the deck). */
-export function paleBand(u:number,sat:number=RAINBOW_LOOK.day.saturation):Vec{const c=bandColor(u),l=.299*c[0]+.587*c[1]+.114*c[2];return c.map(v=>lerp(lerp(l,v,sat),1,.18)) as Vec;}
+export function paleBand(u:number,sat:number=RAINBOW_LOOK.day.saturation):Vec{const c=bandColor(u),l=.299*c[0]+.587*c[1]+.114*c[2];const f=(v:number)=>lerp(lerp(l,v,sat),1,.18);return [f(c[0]),f(c[1]),f(c[2])];}
 /** Plan (xz) polyline sampler over the controller path, extended straight (level) past both ends for tongues. */
 export function pathSampler(path:readonly Vec[]){
  if(path.length<2)throw Error('rainbow-bridge-path');
