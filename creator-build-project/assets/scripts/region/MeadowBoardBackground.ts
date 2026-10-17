@@ -49,6 +49,22 @@ export async function preflightMeadowScene():Promise<void> {
 /** Same sRGB tint WorldFlowComponent.bindUnlitBackdrop gives env_cloud_layer at night. */
 export const MEADOW_CLOUD_NIGHT_TINT:readonly number[]=[.22,.28,.43];
 export function meadowCloudColor(w:number):number[]{const t=Math.max(0,Math.min(1,w));return MEADOW_CLOUD_NIGHT_TINT.map(k=>1+(k-1)*t);}
+/** N2b: lit ground (meadow_terrain, meadow_river_bank) uses builtin-standard and is lit mostly by ambient, so the dimmed
+ *  main light barely moves it. Grade its albedo with the grass journey-night constant (linear 0.16/0.20/0.28, the world
+ *  lightScale x moon colour); mainColor is an sRGB colour property, so the sRGB equivalent is written. */
+export const MEADOW_NIGHT_LINEAR:readonly number[]=[.16,.20,.28];
+const linToSrgb=(c:number)=>c<=.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-.055;
+export function meadowGroundFactor(w:number):number[]{const t=Math.max(0,Math.min(1,w));return MEADOW_NIGHT_LINEAR.map(k=>1+(linToSrgb(k)-1)*t);}
+export function meadowGroundMaterials(nodes:Array<Node|null>):Array<{m:Material,base:number[]}>{
+ const out:Array<{m:Material,base:number[]}>=[];
+ for(const node of nodes)if(node)for(const r of node.getComponentsInChildren(MeshRenderer))for(let i=0;i<r.sharedMaterials.length;i++){
+  const m=r.getMaterialInstance(i),h=m?.passes[0]?.getHandle('mainColor');if(!m||!h)continue;
+  const v=new Vec4();m.passes[0].getUniform(h,v);const base=[v.x,v.y,v.z,v.w].map(x=>Number.isFinite(x)?x:1);
+  // uniform readback is linear; store sRGB so writing it back is lossless.
+  out.push({m,base:[linToSrgb(base[0]),linToSrgb(base[1]),linToSrgb(base[2]),base[3]]});
+ }
+ return out;
+}
 /** Collect builtin-unlit cloud material instances under `node` (instances, the shared glTF material stays untouched). */
 export function meadowCloudMaterials(node:Node|null):Material[]{
  const out:Material[]=[];if(!node)return out;
@@ -59,7 +75,7 @@ export function meadowCloudMaterials(node:Node|null):Material[]{
 export class MeadowSceneMotion extends Component {
  /** N2: journey mode (93-120 s night journey). Grass gets the world's lit-night grade (windParams.w=1) and the unlit
   *  meadow_clouds_near gets the env_cloud_layer night tint, both following uiNightWeight(). Board background keeps w=0. */
- journeyNight=false;clouds:Material[]=[];
+ journeyNight=false;clouds:Material[]=[];grounds:Array<{m:Material,base:number[]}>=[];
  material:Material|null=null;sail:Node|null=null;light:SphereLight|null=null;hostPaused=true;visible=false;
  private seconds=0;private hidden=false;
  onLoad(){game.on(Game.EVENT_HIDE,this.hide,this);game.on(Game.EVENT_SHOW,this.show,this);}
@@ -69,6 +85,7 @@ export class MeadowSceneMotion extends Component {
   const night=uiNightWeight();
   if(this.sail&&isValid(this.sail,true))this.sail.setRotationFromEuler(0,0,(this.seconds%MEADOW_SCENE_SOURCE.windmillSeconds)*360/MEADOW_SCENE_SOURCE.windmillSeconds);
   this.material?.setProperty('windParams',new Vec4(this.seconds,1,night,this.journeyNight?1:0));
+  if(this.journeyNight)for(const g of this.grounds){const k=meadowGroundFactor(night);g.m.setProperty('mainColor',new Vec4(g.base[0]*k[0],g.base[1]*k[1],g.base[2]*k[2],g.base[3]));}
   if(this.journeyNight)for(const m of this.clouds){const c=meadowCloudColor(night);m.setProperty('mainColor',new Vec4(c[0],c[1],c[2],1));}
  }
  diagnostics(){return {seconds:this.seconds,paused:this.hostPaused||this.hidden||!this.visible,windmillLoopSeconds:8,grassWaveSeconds:4};}

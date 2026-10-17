@@ -3,7 +3,7 @@ import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isVal
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
-import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials} from './MeadowBoardBackground';
+import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
@@ -58,6 +58,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      motion=rig.addComponent(MeadowSceneMotion);motion.material=material;motion.sail=find(model,'windmill_sail_hub');
      // N2: grass + topmost cloud follow the journey's night grade.
      motion.journeyNight=true;motion.clouds=meadowCloudMaterials(find(model,'meadow_clouds_near'));
+     motion.grounds=meadowGroundMaterials([find(model,'meadow_terrain'),find(model,'meadow_river_bank')]);
     }else{const ambient=model.getComponent(RegionAmbientAnimation);if(!ambient)throw Error('journey-skycity-ambient-missing');await waitRegionAsset(ambient.prepare(),token);token.check();}
     progress(.86);
     let approach:Vec[];
