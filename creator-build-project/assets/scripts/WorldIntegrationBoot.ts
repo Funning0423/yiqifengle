@@ -34,6 +34,7 @@ import {REGIONS,loadRegionPrefab,mountRegion} from './region/RegionLoader';
 import {validateSkycity} from './region/RegionValidation';
 import {runHomeTransition,HOME_FADE,coverAlphaByte} from './world-r2/HomeTransition';
 import {GameAudio} from './audio/GameAudio';
+import {FootstepAudio} from './audio/FootstepAudio';
 import {SCENE_TRACKS} from './audio/SceneMusic';
 const {ccclass,property}=_decorator;
 /** Claims fired in one turn share a single invoke. The busy gate would otherwise drop every call after the first. */
@@ -400,7 +401,7 @@ export class WorldIntegrationBoot extends Component {
  @property initialSeatedClip='sit_hold';
  private startup=new StartupReadyGate();private startupOwner:Node|null=null;private startupReference:Node|null=null;private loadingMask:Node|null=null;private startupGirl:Node|null=null;private characterAnimations:SkeletalAnimation[]=[];private selectedSeatedClip='';
  private loadingBackdrop:Node|null=null;private loadingLayer:StartupLoadingLayer|null=null;private transitionChairPrefab:Prefab|null=null;private transitionChairVisual:Node|null=null;private homeSeatedPrefab:Prefab|null=null;private homeSeatedVisual:Node|null=null;private characterPrefab:Prefab|null=null;private animMeta:any=null;private loadPhase='start';private loadProgress=0;private model:Prefab|null=null;private loading=false;private markerRenderer:MeshRenderer|null=null;@property(JsonAsset)smokeFixture:JsonAsset|null=null;
- private islandProps:IslandProps|null=null;private propSign=false;
+ private islandProps:IslandProps|null=null;private propSign=false;private footsteps:FootstepAudio|null=null;
  private islandHome:IslandHomeInteraction|null=null;private roomExplore:RoomExploreOverlay|null=null;private glassSign:GlassSign|null=null;private islandJourney:IslandJourneyOverlay|null=null;private cabinHint:CabinHint|null=null;private sawLevel=false;
  private composition!:WorldNativeComposition;private canvas!:Node;private controls=new Map<string,Node>();private resultActions:Record<string,()=>void>={};private enqueueResult:(fn:()=>any)=>void=()=>{};private status!:Label;private devMark:DevPreviewMark|null=null;
  /** Back from the background during a journey cutscene: resume it by itself (no 「继续」 tap). Set while the cutscene runs. */
@@ -495,6 +496,9 @@ export class WorldIntegrationBoot extends Component {
  (this as any)._referenceAdapter.setWindSource(()=>{const w=(composition as any).world;return w&&typeof w.getWindStrength==='function'?w.getWindStrength():null;});
  // locomotion-v1: which walks end at rest (stop clip inside the walk). Same route data WorldFlowComponent builds (pure function).
  try{(this as any)._referenceAdapter.setWalkRestAhead(restAheadFromRoutes(createFirstsliceRoutes(FIRSTSLICE,REF)));}catch(e){console.warn('walk stop predicate unavailable',String(e));}
+ // r4 exit footsteps (Voice Bot): steps on the stand-in's real foot plants. Read-only view of its motion clock + controller root;
+ // the frozen stand-in is unchanged. Fed every world state below, ticked in lateUpdate (after the flow advanced her).
+ try{const adapter=(this as any)._referenceAdapter;this.footsteps?.dispose();this.footsteps=null;this.footsteps=new FootstepAudio(()=>{if((this as any)._referenceAdapter!==adapter||!adapter.node||!isValid(adapter.node))return null;const p=adapter.node.worldPosition;return {clock:adapter.clock??null,x:p.x,z:p.z,yaw:typeof adapter.yawRad==='number'?adapter.yawRad:adapter.node.eulerAngles.y*Math.PI/180};});}catch(error){this.footsteps=null;console.warn('footsteps unavailable (world unaffected)',String(error));}
  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
  this.ready=true;girl.active=true;this.syncHomeSeated('home',false);this.error='';console.info('HOME_SEATED_VISUAL',{stationary:false,dynamicAdapter:'layer-clearance-task21-keeps-waist14-ankle13',visualAcceptance:false});
@@ -550,6 +554,7 @@ export class WorldIntegrationBoot extends Component {
   * T2 island button entrance. */
  private trackTransitionHud(state:string){const prev=this.hudState;if(state===prev)return;this.hudState=state;
   try{(GameAudio.instance as any)?.onWorldState?.(state);}catch(error){console.warn('exit audio state feed failed',String(error));}   // B5.5 出门音轨
+  try{this.footsteps?.onWorldState(state);}catch(error){console.warn('footstep state feed failed',String(error));}   // r4 exit footsteps
   if(state==='island'&&prev==='crossing-out')this.islandEntrance=0;
  }
  /** Status bar removed: its text is console-only. Logs once per change, errors and the skycity hint only. */
@@ -671,5 +676,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
  private tickCover(){if(this.homeWaits.length){const now=Date.now(),due=this.homeWaits.filter(w=>w.at<=now);this.homeWaits=this.homeWaits.filter(w=>w.at>now);for(const w of due)w.r();}const c=this.homeCover;if(!c||!c.done)return;const t=c.s>0?Math.min(1,(Date.now()/1000-c.at)/c.s):1;this.paintCover(c,c.from+(c.to-c.from)*t);
   if(t>=1){if(c.to<=0)c.node.active=false;const d=c.done;c.done=null;d();}}
  update(dt:number){this.tickCover();this.tickLoading(dt);if(this.loadPhase!=='ready'||!this.composition)return;this.paintNavigation(dt);}
- onDestroy(){setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
+ /** r4 exit footsteps: after every update() of the frame (WorldFlowComponent has advanced the character). */
+ lateUpdate(dt:number){try{this.footsteps?.tick(dt);}catch(error){console.warn('footsteps tick failed',String(error));}}
+ onDestroy(){this.footsteps?.dispose();this.footsteps=null;setScreenCover(null);this.islandToast?.dispose();this.islandToast=null;this.devMark?.dispose();this.devMark=null;this.glassSign?.dispose();this.glassSign=null;this.loadingLayer?.dispose();this.cabinHint?.dispose();this.cabinHint=null;this.islandProps?.dispose();this.islandProps=null;this.islandHome?.dispose();this.islandHome=null;this.islandJourney?.dispose();this.islandJourney=null;this.roomExplore?.dispose();this.roomExplore=null;this.startup.dispose();this.releaseStartupMount();delete (globalThis as any).__worldLoading;delete (globalThis as any).__regionDebug;view.off('canvas-resize',this.resize,this);if(typeof window!=='undefined')window.removeEventListener('resize',this.resize);delete(globalThis as any).__worldIntegration;}
 }
