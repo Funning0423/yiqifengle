@@ -1,0 +1,1 @@
+2026-10-18 05:47:33 接入 v2.1 路径与分包 region_transit_balloon，删掉程序化气球。Node 22 套件 98/99，仅 navigation-guard BLOCKED_BROWSER。frame-background 5054 帧 PASS，seamLeak=0，时长 36s。下一步：Creator 导入 meta 后 build-guard。提交 5702182b21
