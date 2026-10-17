@@ -15,7 +15,8 @@
  *     as distanceAt; NOTE the frozen FlowReferenceStandin does not follow it until its reviewed patch lands), 60 Hz:
  *     16–18 s; her peak ≤ 4.5 m/s, |a| ≤ 3 m/s²; lens |a| ≤ 3 m/s², |jerk| ≤ 8 m/s³ after the 0.6 s set-off fade; at rest
  *     at the stop. Reported for comparison: the same lens at 1.2 m/s (c375304) and the default follow lens at 1.2 m/s.
- *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): starts on the landing pose (lens at rest), ends exactly on
+ *  K8 landing→board blend (lakesideLandingBlend, 1 s, 60 Hz frames): landing END = board camera at the 360×780 reference
+ *     (gap ≤ 1e-6 m / 0.01° / 0.01° FOV; residual per portrait layout reported); starts on the landing pose (lens at rest), ends exactly on
  *     the board camera; one smootherstep for position/view (slerp)/FOV: monotonic, no overshoot, single-peak rates ≈ 0 at both ends;
  *     lens ≥ 1.1 m on every 60 Hz frame, her face/head/chest never hidden, lens on her right while it is behind her; per-frame
  *     displacement / speed / turn rate / FOV rate written to the report (perFrame) for the blend plots.
@@ -129,7 +130,7 @@ check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact; 
  return {layouts:out};});
 // K8 landing → board blend (lakesideLandingBlend): exact ends, one S-curve for position / view (slerp) / FOV, 60 Hz frames
 check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, landing lens at rest, zero velocity at both ends, monotonic (no overshoot) distance/view/FOV, single-peak speed and turn rate (no spikes), lens ≥ ${CLEAR} m, her face/head/chest never hidden, lens on her right while behind her`,()=>{const out={};
- const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T),ang=(a,b)=>{const u=sub(a.target,a.position),v=sub(b.target,b.position);return Math.acos(Math.max(-1,Math.min(1,(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/Math.hypot(...u)/Math.hypot(...v))));};
+ const BL8=H.load(S+'ui/BoardLayout.ts'),p=path.at(-1),[hx,hz]=heading(T),ang=(a,b)=>{const u=sub(a.target,a.position),v=sub(b.target,b.position),c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return Math.atan2(Math.hypot(...c),u[0]*v[0]+u[1]*v[1]+u[2]*v[2]);};
  // the landing lens itself is at rest when the blend starts (her last 1/60 s)
  const cl=cam(sAt(DUR-1/60)),cT=cam(T),landV=Math.hypot(...sub(cT.position,cl.position))*60,landW=ang(cl,cT)*180/Math.PI*60;assert(landV<.01&&landW<.1,`landing lens moving at the stop: ${landV} m/s, ${landW}°/s`);
  for(const [W,Hh] of [[360,780],[390,520]]){const g=BL8.boardLayout(W,Hh,{top:0,bottom:0,left:0,right:0,capsule:null},2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
@@ -145,18 +146,23 @@ check(`K8 landing→board blend ${C.landingBlend.seconds} s @60 Hz: exact ends, 
    F.push({t:+t.toFixed(4),dispM:Math.hypot(...sub(c.position,from.position)),angFromStartDeg:ang(from,c)*180/Math.PI,angToEndDeg:ang(c,e1)*180/Math.PI,fov:c.fovVerticalDeg,
     speedMps:pc?Math.hypot(...sub(c.position,pc.position))*60:0,angVelDegS:pc?ang(pc,c)*180/Math.PI*60:0,fovRateDegS:pc?(c.fovVerticalDeg-pc.fovVerticalDeg)*60:0});}
   assert(minLens>=CLEAR,`blend lens ${minLens} from ${minObj}`);assert.deepEqual(hiddenAt,[],'her hidden '+JSON.stringify(hiddenAt.slice(0,5)));assert(minSide>0,'lens left of her while behind: '+minSide);
-  const eps=1e-9,mono=(k,s=1)=>F.every((f,i)=>!i||s*(f[k]-F[i-1][k])>=-eps);
+  // tolerances: acos/float noise (the gap can be a few hundredths of a degree when the landing ends on the board pose)
+  const eps=1e-6,mono=(k,s=1)=>F.every((f,i)=>!i||s*(f[k]-F[i-1][k])>=-eps);
   assert(mono('dispM')&&mono('angFromStartDeg')&&mono('angToEndDeg',-1)&&mono('fov',Math.sign(totF)||1),'blend not monotonic (overshoot)');
   assert(F.every(f=>f.dispM<=totD+1e-9&&f.angFromStartDeg<=totA*180/Math.PI+1e-6&&(f.fov-from.fovVerticalDeg)*(Math.sign(totF)||1)<=Math.abs(totF)+1e-9),'blend overshoots its end');
   // single peak: rate rises to its maximum then falls (no second hump / spike), ends ≈ 0
-  const peak=(k)=>{const r=F.slice(1).map(f=>Math.abs(f[k])),m=Math.max(...r),im=r.indexOf(m);return {m,im,ok:r.every((x,i)=>i===0||(i<=im?x>=r[i-1]-1e-9:x<=r[i-1]+1e-9)),first:r[0],last:r.at(-1)};};
+  const peak=(k)=>{const r=F.slice(1).map(f=>Math.abs(f[k])),m=Math.max(...r),im=r.indexOf(m),tol=Math.max(1e-6,1e-3*m);return {m,im,ok:r.every((x,i)=>i===0||(i<=im?x>=r[i-1]-tol:x<=r[i-1]+tol)),first:r[0],last:r.at(-1)};};
   const pv=peak('speedMps'),pw=peak('angVelDegS'),pf=peak('fovRateDegS');
-  for(const [nm,q] of [['speed',pv],['turn',pw],['fov',pf]]){assert(q.ok,`${nm} rate not single-peaked`);if(q.m>1e-9)assert(q.first<=.02*q.m&&q.last<=.02*q.m,`${nm} rate not ≈ 0 at the ends (${q.first}, ${q.last} of peak ${q.m})`);}
+  for(const [nm,q] of [['speed',pv],['turn',pw],['fov',pf]]){assert(q.ok,`${nm} rate not single-peaked`);if(q.m>1e-4)assert(q.first<=.02*q.m&&q.last<=.02*q.m,`${nm} rate not ≈ 0 at the ends (${q.first}, ${q.last} of peak ${q.m})`);}
   const acc=F.slice(2).map((f,i)=>Math.abs(f.angVelDegS-F[i+1].angVelDegS)*60),r3=x=>+x.toFixed(3);
   out[W+'x'+Hh]={seconds:b.seconds,frames:n+1,from:{position:from.position.map(r3),fov:r3(from.fovVerticalDeg)},to:{position:bw[0].map(r3),fov:r3(loc.fovVerticalDeg)},moveM:r3(totD),turnDeg:r3(totA*180/Math.PI),fovChangeDeg:r3(totF),
    minLensM:r3(minLens),minLensObj:minObj,minRightWhileBehindM:r3(minSide),passesHerAtS:ahead,peakSpeedMps:r3(pv.m),peakTurnDegS:r3(pw.m),peakTurnAtS:r3((pw.im+1)/60),peakTurnAccelDegS2:r3(Math.max(...acc)),peakFovRateDegS:r3(pf.m),
    endRates:{firstFrameTurnDegS:r3(pw.first),lastFrameTurnDegS:r3(pw.last),firstFrameFovDegS:r3(pf.first),lastFrameFovDegS:r3(pf.last)},perFrame:F.map(f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,+v.toFixed(5)])))};}
- return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},blends:out};});
+ // landing END = board camera (reviewer): no gap at the 360×780 reference, residual reported on every portrait layout
+ const gaps={};for(const [name,W,Hh,safe] of K6_LAYOUTS){if(W>Hh)continue;const g=BL8.boardLayout(W,Hh,safe,2),b=LK.lakesideLandingBlend(cT,{width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}},j);
+  assert(b.done(b.seconds)&&!b.done(b.seconds-1e-3)&&b.at(b.seconds)===b.boardWorld,'done()/at() swap frame');gaps[name]={positionM:+b.gap.positionM.toExponential(2),viewDeg:+b.gap.viewDeg.toFixed(4),fovDeg:+b.gap.fovDeg.toFixed(4)};}
+ const ref=gaps['360x780 (0.46)'];assert(ref.positionM<=1e-6&&ref.viewDeg<=.01&&Math.abs(ref.fovDeg)<=.01,'landing end != board camera at 360x780: '+JSON.stringify(ref));
+ return {landingLensAtStop:{speedMps:+landV.toFixed(5),turnDegS:+landW.toFixed(5)},landingToBoardGap:gaps,blends:out};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
 if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));

@@ -24,11 +24,15 @@ export const LAKESIDE_CAMERA_LAYOUT={
  focusLocal:[0,.3,12] as Vec,
  /** Landing A overrides (all other arrival numbers = JOURNEY_CAMERA, i.e. the 08→09 Landing A values). Close end pose
   * (Funning on the c375304 video: the fallback's final frame reads the board and bridge better): the arrival pose is the
-  * default follow lens's final pose (6.8 m behind / 1.76 m right; 3.0 m up, 0.4 m under the 3.4 m follow height), view ≈ 8°
-  * down, aim turned 60% of the way from the board centre toward her (her ≈ 34% across, board centre ≈ 74% at 360×780, as in
-  * the fallback frame). Over the 14.3 m arrival blend the lens height above her eases 3.4 → 3.0 m, so the lens never climbs
-  * in the world (it settles; no crane-up). */
- landing:{arrivalBackM:6.8,arrivalSideM:1.76,arrivalUpM:3.0,arrivalPitchDeg:3.7,arrivalYawToHer:.6,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
+  * fallback's close neighbourhood (6.8 m behind / 1.1 m right of her; 3.0 m up, 0.4 m under the 3.4 m follow height) and it
+  * ENDS ON THE BOARD CAMERA (reviewer): aim, pitch and FOV are those of lakesideAlignedLookAt at the 360×780 reference
+  * (board centre on the 2D grid centre: horizontal aim at the focus, arrivalPitchDeg below the focus pitch, arrivalFovDeg),
+  * so the landing→board hook closes no gap there and only a small one on other screens (≤ ~2.5° view, a few ° FOV; the
+  * test reports it per layout). If BoardLayout or the landing position changes, re-derive the two numbers (the test fails
+  * when the 360×780 gap exceeds 0.01° / 0.01° FOV). Over the 14.3 m arrival blend the lens height above her eases
+  * 3.4 → 3.0 m and the FOV 48 → arrivalFovDeg with the same smoother as the view, so the lens never climbs in the world
+  * (no crane-up). Her ≈ 29% across at 360×780, 37% at 390×520. */
+ landing:{arrivalBackM:6.8,arrivalSideM:1.1,arrivalUpM:3.0,arrivalPitchDeg:-2.80422,arrivalFovDeg:55.2171,arrivalLiftM:0,arrivalHermite:0,anchorSmoothM:1.5} as JourneyLanding,
  /** Time profile (reviewer on c375304): the 39.2 m leg in 17 s, smootherstep ramps 4 s up from rest and 4 s down into
   * the landing stop. Cruise 3.02 m/s (≤ 4.5), |a| ≤ 1.41 m/s² (≤ 3), |jerk| ≤ 1.09 m/s³ for her; the lens follows distance
   * (K7: lens |a| ≤ 1.95 m/s², |jerk| ≤ 4.9 m/s³). */
@@ -91,7 +95,7 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
   const width=(fov:number)=>{const a=aimAt(fov),p=pose(a.yaw,a.pitch,fov),l=projectPoint(p,aspect,[c[0]-G.halfX,c[1],c[2]]),r=projectPoint(p,aspect,[c[0]+G.halfX,c[1],c[2]]);return r.x-l.x;};
   let lo=10,hi=120;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(width(m)>wn)lo=m;else hi=m;}
   const fov=(lo+hi)/2,a=aimAt(fov),d=dir(a.yaw,a.pitch),D=Math.hypot(...v);
-  return {position:[q(pos[0]),q(pos[1]),q(pos[2])],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
+  return {position:[pos[0],pos[1],pos[2]],target:[pos[0]+d[0]*D,pos[1]+d[1]*D,pos[2]+d[2]*D],fovVerticalDeg:fov};}
  const fov=B.landscape.fovVerticalDeg,t=Math.tan(fov*Math.PI/360),p=B.landscape.pitchDeg*Math.PI/180;
  const f:V3=[0,-Math.sin(p),-Math.cos(p)],r:V3=[1,0,0],up:V3=[0,Math.cos(p),-Math.sin(p)];
  const D=2*G.halfX/(t*aspect*(rect.size/w*2)),X=(rect.x/w*2-1)*t*aspect*D,Y=(1-rect.y/h*2)*t*D;
@@ -102,12 +106,17 @@ export function lakesideAlignedLookAt(frame:LakesideBoardFrame):AuthoredPose{
 export function lakesideAlignedBoardPose(frame:LakesideBoardFrame):CameraPose{const p=lakesideAlignedLookAt(frame);return fromLookAt(p,p.fovVerticalDeg);}
 const smooth5=(x:number)=>{const u=Math.max(0,Math.min(1,x));return u*u*u*(10+u*(-15+6*u));};
 export type LakesideLandingBlend=Readonly<{seconds:number;from:Pose;boardLocal:AuthoredPose;boardWorld:Pose;
+ gap:Readonly<{positionM:number;viewDeg:number;fovDeg:number}>;
  /** World camera pose t seconds after she stopped (clamped to 0…seconds): pass to WorldLease.setCamera each frame. */
- at(t:number):Pose}>;
-/** Landing → board hook for the region wiring (Voice Bot). Call once when the lakeside journey is 'arrived':
+ at(t:number):Pose;
+ /** true once at(t) returns boardWorld exactly (t ≥ seconds): the frame on which to swap to the board. */
+ done(t:number):boolean}>;
+/** Landing → board hook for the region wiring (Voice Bot). Preload the board scene (lakeside lease + board UI, hidden) BEFORE
+ * the journey arrives; call once when the lakeside journey is 'arrived':
  *   const b=lakesideLandingBlend(world.readCamera() /* = the final journey pose *\/, boardFrame, journey);
- *   each frame: world.setCamera(b.at(elapsed)); when elapsed ≥ b.seconds: show the board (lease.frame → its camera is
- *   lakesideAlignedBoardPose(boardFrame) = b.boardWorld seen from the lease's own origin, so the hand-off has no jump).
+ *   each frame: world.setCamera(b.at(elapsed)); when b.done(elapsed) the pose IS b.boardWorld: swap to the board on that
+ *   frame (lease.frame → its camera is lakesideAlignedBoardPose(boardFrame) = b.boardWorld seen from the lease's own origin,
+ *   identical pose, so the frame is continuous). b.gap = residual landing→board difference (m / ° view / ° FOV).
  * `journey` is lakesideJourney(start) (yawDeg + root). One smootherstep e(t/seconds) drives position (lerp), view direction
  * (slerp on the unit sphere; the pose is a look-at, so no roll) and FOV (lerp): zero velocity/acceleration at both ends. */
 export function lakesideLandingBlend(from:Pose,frame:LakesideBoardFrame,journey:Readonly<{yawDeg:number;root:Vec}>,seconds:number=LAKESIDE_CAMERA_LAYOUT.landingBlend.seconds):LakesideLandingBlend{
@@ -121,5 +130,5 @@ export function lakesideLandingBlend(from:Pose,frame:LakesideBoardFrame,journey:
   const p:Vec=[A[0]+(B[0]-A[0])*e,A[1]+(B[1]-A[1])*e,A[2]+(B[2]-A[2])*e],k0=th>1e-9?Math.sin((1-e)*th)/sn:1-e,k1=th>1e-9?Math.sin(e*th)/sn:e;
   const d=[d0[0]*k0+d1[0]*k1,d0[1]*k0+d1[1]*k1,d0[2]*k0+d1[2]*k1],l=Math.hypot(d[0],d[1],d[2]);
   return {position:p,target:[p[0]+d[0]/l*10,p[1]+d[1]/l*10,p[2]+d[2]/l*10],fovVerticalDeg:f0+(f1-f0)*e};};
- return {seconds,from,boardLocal:local,boardWorld,at};
+ return {seconds,from,boardLocal:local,boardWorld,gap:{positionM:Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2]),viewDeg:th*180/Math.PI,fovDeg:f1-f0},at,done:(t:number)=>t>=seconds};
 }
