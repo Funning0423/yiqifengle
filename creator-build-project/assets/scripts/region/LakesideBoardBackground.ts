@@ -1,6 +1,7 @@
 import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
 import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
 import {waitRegionAsset} from './RegionAssetDeadline';
+import {DEBUG} from 'cc/env';
 import {applyCameraPose} from '../world-r1/CameraPose';
 import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
 import type {LevelBackgroundFactory,LevelBackgroundLease} from '../world-r2/LevelBackground';
@@ -11,6 +12,18 @@ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
 import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
+/** water-ref candidate (VB) diagnostic, scene design asked: is tone mapping on? ONE console.log at the first board light apply,
+ *  only when BOTH cc/env DEBUG (false in release builds: never runs or prints there) AND ?lakediag=1. Failures log, no fallback. */
+export function lakesideDiagEnabled(debug:boolean,search:string|null|undefined):boolean{return !!debug&&/[?&]lakediag=1(&|$)/.test(String(search||''));}
+let lakeDiagDone=false;
+function lakesideDiagOnce(camera:Camera|null,l:DirectionalLight,amb:any){if(lakeDiagDone)return;let q:string|null=null;try{q=(globalThis as any).location?.search??null;}catch{q=null;}
+ if(!lakesideDiagEnabled(DEBUG,q))return;lakeDiagDone=true;
+ try{const root:any=director.root,psd:any=root?.pipeline?.pipelineSceneData,rc:any=camera&&isValid(camera,true)?(camera as any).camera:null;
+  const v={isHDR:psd?.isHDR,toneMappingType:psd?.postSettings?.toneMappingType,pipeline:root?.pipeline?.constructor?.name,usePostProcess:camera?camera.usePostProcess:undefined,
+   exposure:rc?.exposure,aperture:camera?.aperture,shutter:camera?.shutter,iso:camera?.iso,mainLightIlluminance:l.illuminance,skyIllum:amb?.skyIllum};
+  const missing=Object.keys(v).filter(k=>(v as any)[k]===undefined);
+  console.log('[QF_LAKE_DIAG] '+JSON.stringify(Object.assign({},v,{missing})));}
+ catch(error){console.error('[QF_LAKE_DIAG] '+JSON.stringify({event:'diag-failed',error:String((error as any)?.message||error)}));}}
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
 export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'LakesideScenery',camera:'LakesideBackgroundCamera',lights:'LakesideLights'});
 /** B1 (GGbot): 465 instances of 42 GLBs, each GLB with its own palette material -> ~465 draw calls unbatched. One shared copy
@@ -190,6 +203,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
   if(waterMat)applyLakesideWaterMode(waterMat,mode);
+  lakesideDiagOnce(camera,l,amb);
   applyFog();};
  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
