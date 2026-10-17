@@ -1,0 +1,29 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": false,
+  "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "lods": {
+      "maxSize": 0,
+      "screenRatio": 1,
+      "faceCount": 1,
+      "levels": []
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    },
+    "imageMetas": [],
+    "assetFinder": {
+      "meshes": [],
+      "materials": [],
+      "textures": [],
+      "skeletons": []
+    }
+  }
+}

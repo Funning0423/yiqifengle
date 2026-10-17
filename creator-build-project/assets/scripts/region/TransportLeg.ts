@@ -1,6 +1,6 @@
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
-import {ART_SKY, CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, sampleFlight, type Rigid} from './BalloonFlight';
+import {CITY_ON_T, FLIGHT_DURATION, GRASS_OFF_T, LAND_T, MEADOW_OFF_T, S0_GAME, SEAM_T, applyRigid, artCityInMeadow, flightDocument, mapFlightPoint, meadowFrameFromM6, postSeamFrame, sampleFlight, type Rigid} from './BalloonFlight';
 /** Balloon meadow → sky city (§10). Pure: no engine imports. Sail beats live on the sail branch;
  * this file still exports the shared return shape so a later merge can add sailBeats beside balloonBeats. */
 export type Pose={position:Vec;target:Vec;fovVerticalDeg:number};
@@ -112,23 +112,29 @@ export function balloonBeats(m6:Vec,s0Local:Vec,courtLocal:Vec,opts?:{launch?:Ve
  const doc=flightDocument();
  const meadow=opts?.meadowFrame??meadowFrameFromM6(m6);
  const game:Rigid=opts?.cityFrame??artCityInMeadow(meadow);
- const map=(p:Vec,t:number)=>mapFlightPoint(p,t,meadow,game);
+ const map=(p:Vec,t:number,frame?:'meadow'|'world')=>mapFlightPoint(p,t,meadow,game,frame);
  const art=doc.beats.map(b=>({id:b.id.slice(0,3),t0:b.t0,t1:b.t1}));
  const beats:Beat[]=[{id:'B-a',t0:0,t1:0},...art,{id:'B-h',t0:FLIGHT_DURATION,t1:FLIGHT_DURATION},{id:'board',t0:FLIGHT_DURATION,t1:FLIGHT_DURATION}];
  const local=(time:number)=>sampleFlight(doc,time);
- const worldAt=(time:number):Vec=>map(local(time).pos,time);
- const launch=map(doc.layout.takeoff,0);
- const s0=map(applyRigid(ART_SKY,s0Local),LAND_T);
+ const worldAt=(time:number):Vec=>{const s=local(time);return map(s.pos,time,s.frame);};
+ const launch=map(doc.layout.takeoff,0,'meadow');
+ const s0:Vec=doc.seam?.landing?.S0_game_world?([doc.seam.landing.S0_game_world[0],doc.seam.landing.S0_game_world[1],doc.seam.landing.S0_game_world[2]] as Vec):S0_GAME;
  const court=applyRigid(game,courtLocal);
- const vehicle=(time:number):VehicleSample=>{const s=local(time);return {pos:map(s.pos,time),yaw:s.yawDeg*Math.PI/180,roll:s.rollDeg};};
- const camera=(time:number,_screen?:Screen):Pose=>{const s=local(time);return {position:map(s.cam,time),target:map(s.camLook,time),fovVerticalDeg:48};};
+ const vehicle=(time:number):VehicleSample=>{
+  const s=local(time);const world=s.frame==='world'||time+1e-9>=SEAM_T;
+  // Meadow keys are meadow-local; world yaw = Mw.yaw + key.yaw so the seam relative pose matches world keys.
+  const yawDeg=world?s.yawDeg:meadow.yawDeg+s.yawDeg;
+  return {pos:map(s.pos,time,s.frame),yaw:yawDeg*Math.PI/180,roll:s.rollDeg};
+ };
+ const camera=(time:number,_screen?:Screen):Pose=>{const s=local(time);return {position:map(s.cam,time,s.frame),target:map(s.camLook,time,s.frame),fovVerticalDeg:48};};
  const routeAt=(time:number)=>worldAt(Math.max(0,Math.min(FLIGHT_DURATION,time)));
  const deck=doc.layout.cloudDeckY,deckMid=(deck[0]+deck[1])/2;
- const cloudAt=map(local(4.3).pos,4.3);
+ const cloudAt=map(local(4.3).pos,4.3,local(4.3).frame);
  const climbDeg=doc.layout.climbDeg;
- const accelPeak=accelOf(t=>sampleFlight(doc,t).pos,1.8,LAND_T);
- const samples=[launch,map(doc.layout.liftoffTop,5.8),map(doc.layout.climbEnd,27),s0];
- return {beats,total:FLIGHT_DURATION,build05S:FLIGHT_DURATION,yawDeg:game.yawDeg,origin:game.origin,s0,launch,court,cloudY:map([0,deckMid,0],0)[1],cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:FLIGHT_DURATION,cityActiveAt:CITY_ON_T,meadowOffAt:MEADOW_OFF_T,grassOffAt:GRASS_OFF_T,accelPeak,climbDeg,clearRadiusM:opts?.clearRadiusM??18};
+ // Accel on continuous segments only — never across the coordinate seam.
+ const accelPeak=Math.max(accelOf(t=>sampleFlight(doc,t).pos,1.8,SEAM_T-0.05),accelOf(t=>sampleFlight(doc,t).pos,SEAM_T,LAND_T));
+ const samples=[launch,map(doc.layout.liftoffTop,5.8,'meadow'),applyRigid(postSeamFrame(doc),doc.layout.climbEnd),s0];
+ return {beats,total:FLIGHT_DURATION,build05S:FLIGHT_DURATION,yawDeg:game.yawDeg,origin:game.origin,s0,launch,court,cloudY:map([0,deckMid,0],0,'meadow')[1],cloudAt,samples,camera,vehicle,routeAt,strataHideUntil:FLIGHT_DURATION,cityActiveAt:CITY_ON_T,meadowOffAt:MEADOW_OFF_T,grassOffAt:GRASS_OFF_T,accelPeak,climbDeg,clearRadiusM:opts?.clearRadiusM??18};
 }
 export function strataClearsGround(originY:number,strataLocalMinY:number,meadowGroundMaxY:number,margin=BALLOON_GROUND_CLEAR_M):{ymin:number;need:number;ok:boolean}{
  const ymin=originY+strataLocalMinY,need=meadowGroundMaxY+margin;return {ymin,need,ok:ymin>need};
