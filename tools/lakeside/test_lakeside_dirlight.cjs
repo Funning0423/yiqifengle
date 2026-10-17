@@ -30,6 +30,6 @@ assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the 
 assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
 assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
 assert(/m\.setProperty\('mainColor',new Color\(wc\[0\],wc\[1\],wc\[2\],255\)\)/.test(bg)&&/instanced\.includes\(m\)/.test(bg),'water tint only on the lease-owned instanced copy');
-assert(/camera\.clearColor=LAKESIDE_LIGHT_MODE==='dir'\?/.test(bg),'dir mode clear colour from params');
+assert(/camera\.clearColor=new Color\(lakesideDayClearColor\(\)\)/.test(bg),'dir mode clear colour from params (shared helper lakesideDayClearColor)');assert.deepEqual(D.lakesideDayClearColor(),'#1c8fb8','dir clear = linearToSrgb8(clearColorLinear) = 28/143/184');
 assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
 console.log('lakeside dirlight OK');

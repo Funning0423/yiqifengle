@@ -40,8 +40,17 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
  if(primed){assert.equal(globals.fog.enabled,true);assert(globals.fog.fogRange>=D.LAKESIDE_LAYERED_FOG.fogRange*999,label+' primed fog ~invisible');}else{assert.equal(globals.fog.enabled,false,label+' island fog off');assert.equal(globals.fog.type,0);}}
 const run=(name,f)=>{f();console.log('PASS',name);};
 const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
-run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
+run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.lakesideDayClearColor());
  assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
+run('day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR',()=>{
+ assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');const init=D.linearToSrgb8(D.LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);
+ assert.deepEqual(rgb(new Color(Dy.clearColor)),init,'day pack clear bytes = board init bytes');assert.deepEqual(init,[28,143,184]);assert.notEqual(Dy.clearColor.toLowerCase(),'#f2b98a');
+ assert.equal(D.lakesideDayClearColor('points'),D.LAKESIDE_CLEAR_COLOR);assert.match(D.lakesideDayClearColor(),/^#[0-9a-f]{6}$/);
+ const end=A.lakesideAtmosphereTarget({illum:60000,color:[255,255,255],sky:[1,1,1],ground:[1,1,1],skyIllum:1,clear:[51,51,51]},'day');assert.deepEqual([...end.clear],init,'journey day end clear = board init');
+ const endW1=A.lakesideAtmosphereAt({illum:60000,color:[255,255,255],sky:[1,1,1],ground:[1,1,1],skyIllum:1,clear:[51,51,51]},1,'layered',0,'day');assert.deepEqual([...endW1.clear],init,'journey at w=1 (day) = board init');
+ const bb=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
+ assert.match(bb,/camera\.clearColor=new Color\(lakesideDayClearColor\(\)\)/,'board init clear comes from the shared helper');assert.match(bb,/camera\.clearColor=new Color\(M\.clearColor\)/,'board toggle clear comes from the day/night pack');
+ assert.doesNotMatch(bb,/linearToSrgb8\(LAKESIDE_DIR_LIGHT_PARAMS\.clearColorLinear\)/,'no second copy of the init conversion');});
 // journey 1: day -> lake -> night -> day -> night -> leave -> toggle back on the island
 let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();
 run('before the blend (w=0) a toggle stays the island look',()=>{globalThis.__worldDayNight.toggle();expectIsland('night','pre-blend night',true);globalThis.__worldDayNight.toggle();expectIsland('day','pre-blend day',true);});

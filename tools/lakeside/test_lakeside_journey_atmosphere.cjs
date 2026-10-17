@@ -16,7 +16,7 @@ for(const [label,base] of [['day',{illum:65000,color:[255,244,214],sky:[200,220,
  const t=A.lakesideAtmosphereTarget(base),f1=A.lakesideAtmosphereAt(base,W(T),'layered',j.root[1]);
  assert.equal(f1.illum,base.illum*P0.sunIlluminanceScale);assert.equal(f1.skyIllum,base.illum*P0.ambientSkyIllumToSun,'board: skyIllum = base illum × ambientSkyIllumToSun');
  assert.deepEqual([...f1.color],D.lakesideCocosLightColor(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.lakesideCocosLightColor(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.lakesideCocosLightColor(P0.ambientGroundColorLinear));
- assert.deepEqual([...f1.clear],[0xf2,0xb9,0x8a],'clear = LAKESIDE_CLEAR_COLOR');
+ assert.deepEqual([...f1.clear],D.linearToSrgb8(P0.clearColorLinear),'day end clear = board init clear (dir: linearToSrgb8(clearColorLinear), not the old hemi #f2b98a)');assert.deepEqual([...f1.clear],[28,143,184]);
  assert.equal(f1.fog.type,3);assert.equal(f1.fog.range,D.LAKESIDE_LAYERED_FOG.fogRange);assert.equal(f1.fog.atten,D.LAKESIDE_LAYERED_FOG.fogAtten);
  const f0=A.lakesideAtmosphereAt(base,0,'layered');assert.equal(f0.illum,base.illum);assert.deepEqual([...f0.color],base.color);assert(f0.fog.range>=D.LAKESIDE_LAYERED_FOG.fogRange*999,'primed fog ≈ invisible');
  // time domain: the timed walk (journeyDistanceAt, route.timing) at 60 Hz -> per-frame steps (no pop)
