@@ -4,7 +4,7 @@ var API=require('./index'),Store=require('./durable-store'),copy=Store.clone,PAC
 // no persistence/reward authority; a changed proof must be replayed again.
 var verifiedProofs=new Map();
 // 风铃湖畔 opens after the last current mainline stage (mainline-12, journey record 11) and has 6 stages.
-var LAKE_GATE_RECORD=11,LAKE_STAGE_COUNT=6;
+var LAKE_GATE_RECORD=0,LAKE_STAGE_COUNT=6;
 function need(ok,message){if(!ok)throw Error(message);}
 function metric(x){return Number.isSafeInteger(x)&&x>=0;}
 function attemptId(sequence){return 'r5a-'+String(sequence).padStart(12,'0');}

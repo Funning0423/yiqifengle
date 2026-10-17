@@ -11,7 +11,7 @@ export const CHAPTERS: ReadonlyArray<{ id: 'tide' | 'meadow' | 'sky' | 'lake'; n
 ];
 /** 风铃湖畔 has no mainline stages of its own: it opens after mainline 12 (journey record 11, same as the provider's
  *  progress-journal LAKE_GATE_RECORD) and has 6 challenge stages. */
-export const LAKE_GATE_RECORD = 11, LAKE_STAGES = 6;
+export const LAKE_GATE_RECORD = 0, LAKE_STAGES = 6;
 export function chapterMilestone(region: number): number { return CHAPTERS[region]?.id === 'lake' ? LAKE_GATE_RECORD + 1 : (region + 1) * 4; }
 export interface ChapterSummary { stars: number; challenges: number; locked: boolean }
 /** Mainline stars only (x/12 per region, levels region*4..+3); challenge marks x/4; a region is locked until the mainline reaches it. */
