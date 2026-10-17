@@ -10,8 +10,9 @@
 | `9210b99b43c70d9673a4d5e1f83ede005fd2a33d` | `aa779ff5d024c06df5cf6839ccaba0f12b8fbc4e` | STATUS |
 | `d1228cd6243a958049fa95adea4019d042d5c6af` | `9ad0478619c510ad440ea0101eea33e4bb90aa1a` | Creator 导入后的 GLB meta |
 | `2b7c09ef0a7b4e62a81662647d0e90ce26804d71` | `e9bc49a0a591f45aa3b08ef108aaba94e688d314` | 截图相机用 Vec3 `lookAt` 对准船 |
+| `bfa9bd49ae7ca99c80c107bff052db9ccc9aa2cb` | `28a394236b2807e8eb181acc2eb2155ee18645a2` | REPORT 与帆船静帧 |
 
-截图与本报告在最后一次提交里。
+截图与报告在 `bfa9bd49`。本文件随后只改了磁盘余量这一句。
 
 和 region-nodes 合并时会冲突的文件（本次没有合并）：
 
@@ -105,5 +106,5 @@ PNG，`sips -Z 900`，都小于 400 KB。目录 `docs/r5/sail/shots/`，并复�
 - 巡航速度高于设计稿的 3.6 m/s，原因见上。门限（时长、加速度、转向）没有放宽。
 - 截图是 QA 静帧，不是从 mainline-04 棋盘走完的实机过程。公开的 `__worldIntegration` 没有现成的 04→05 入口。
 - mainline-04 时把草地预热成 inactive 节点。6 s 超时会把下一次海岛→草地退回 `bridge`。没有改 `isInTransit`。
-- 磁盘清理后约 6.4 GB 可用（`/dev/disk3s5` 228 Gi，97%）。构建没有降到 4 GB 以下。
+- 磁盘清理后约 6.3 GB 可用（`/dev/disk3s5` 228 Gi，已用 190 Gi，97%）。构建没有降到 4 GB 以下。
 - 没有 push。
