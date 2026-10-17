@@ -188,11 +188,20 @@ export class RegionNodeStage extends Component{
   this.lens='FollowWalk';setExploreEnabled(true);
   try{await runSkyFinale(character,this.place('skycity'));}finally{setExploreEnabled(false);}
   this.lens='FollowWalk';
+  this.treeVisible(false);
   const star=this.guardLens(this.starPose(this.girl(),w,h));
   await this.blend(0.6,this.readPose(),()=>star);
+  this.treeVisible(true);
   this.openExplore('skycity');
  }
  private named(name:string):Node|null{const nodes:Node[]=[];findAll(director.getScene(),name,nodes);return nodes.find(n=>n.activeInHierarchy)||nodes[0]||null;}
+ private treeVisible(on:boolean){
+  const scene=director.getScene();if(!scene)return;
+  for(const name of ['env_sky_greattree_canopy','env_sky_greattree_canopy_cards']){
+   const nodes:Node[]=[];findAll(scene,name,nodes);
+   for(const n of nodes)n.active=on;
+  }
+ }
  private starPose(g:Vec,w:number,h:number):Pose{
   const base=finalePose(g,this.yaw(),w,h);
   const ring=this.named('env_sky_starring');if(!ring)return base;
@@ -219,8 +228,9 @@ export class RegionNodeStage extends Component{
  async frame(spec:{region?:RegionId;lens?:string;prop?:string}){
   if(MINIGAME)return;
   const region:RegionId=spec.region==='meadow'||spec.region==='skycity'?spec.region:'island';
-  if(spec.lens==='board'){this.restoreBoard();return;}
+  if(spec.lens==='board'){this.treeVisible(true);this.restoreBoard();return;}
   this.showWorld(region);
+  this.treeVisible(spec.lens!=='finale'&&spec.lens!=='look');
   const nav=this.cover?.nav;if(nav)nav.active=false;
   const key=spec.lens==='finale'||spec.lens==='look'? (region==='skycity'?'S6':region==='meadow'?'M6':'I6') : (region==='meadow'?'M2':region==='skycity'?'S4':'I2');
   const nodes=REGION_NODES[region].nodes;
@@ -371,10 +381,10 @@ export class RegionNodeStage extends Component{
    const p=this.pulses[i];if(!p.node.isValid){this.pulses.splice(i,1);continue;}
    if(this.holdPulse<=0)p.left-=dt;
    const u=this.holdPulse>0?0.5:1-Math.max(0,p.left)/0.45;const wave=Math.sin(Math.max(0,Math.min(1,u))*Math.PI);
-   const grow=1+0.28*wave;
+   const grow=1+0.45*wave;
    p.node.setScale(p.sx*grow,p.sy*grow,p.sz*grow);
-   if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*40,0);
-   else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*18,p.ey,wave*6);
+   if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*50,0);
+   else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*32,p.ey,0);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}

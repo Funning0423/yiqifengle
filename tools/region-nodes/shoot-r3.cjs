@@ -23,7 +23,7 @@ const SHOTS=[
  {file:'meadow-markers.png',spec:{region:'meadow',lens:'markers'}},
  {file:'meadow-map.png',spec:{region:'meadow',lens:'map'}},
  {file:'meadow-tap.png',spec:{region:'meadow',lens:'tap'},wait:700},
- {file:'meadow-prop.png',spec:{region:'meadow',lens:'prop',prop:'fence'},wait:220},
+ {file:'meadow-prop.png',spec:{region:'meadow',lens:'prop',prop:'bell'},wait:220},
  {file:'meadow-night.png',spec:{region:'meadow',lens:'markers',night:true}},
  {file:'sky-blend.png',spec:{region:'skycity',lens:'blend'}},
  {file:'sky-walk.png',spec:{region:'skycity',lens:'walk'}},
@@ -31,7 +31,7 @@ const SHOTS=[
  {file:'sky-markers.png',spec:{region:'skycity',lens:'markers'}},
  {file:'sky-map.png',spec:{region:'skycity',lens:'map'}},
  {file:'sky-tap.png',spec:{region:'skycity',lens:'tap'},wait:700},
- {file:'sky-prop.png',spec:{region:'skycity',lens:'prop',prop:'windchime'},wait:220},
+ {file:'sky-prop.png',spec:{region:'skycity',lens:'prop',prop:'robot'},wait:220},
  {file:'sky-finale.png',spec:{region:'skycity',lens:'finale'},wait:600},
 ];
 function md5(file){return crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex');}

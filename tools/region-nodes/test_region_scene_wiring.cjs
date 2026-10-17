@@ -69,6 +69,7 @@ assert.ok(stage.includes('applyCameraPose'));
 assert.ok(stage.includes('presentNodeWalkWorld'));
 assert.ok(stage.includes('builtin-unlit'));
 assert.ok(stage.includes('finaleLook'));
+assert.ok(stage.includes('env_sky_greattree_canopy'));
 assert.ok(stage.includes('guardLens'));
 assert.ok(stage.includes('MINIGAME'));
 assert.equal(stage.split('addComponent(MeshRenderer)').length,2);

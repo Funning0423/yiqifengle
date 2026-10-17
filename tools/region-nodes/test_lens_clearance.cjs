@@ -74,7 +74,7 @@ function rayTri(o,d,a,b,c){
  const meshes=[];
  for(let i=0;i<doc.nodes.length;i++){
   const node=doc.nodes[i];if(node.mesh===undefined)continue;
-  if(/cloud|cumulus|cloudsea|birds/.test(node.name||''))continue;
+  if(/cloud|cumulus|cloudsea|birds|greattree/.test(node.name||''))continue;
   const M=glob(i),tris=[];
   for(const pr of doc.meshes[node.mesh].primitives){
    const ext=pr.extensions&&pr.extensions.KHR_draco_mesh_compression;if(!ext)continue;
