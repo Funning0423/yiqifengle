@@ -4,6 +4,126 @@
   "imported": true,
   "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be",
   "files": [],
-  "subMetas": {},
-  "userData": {}
+  "subMetas": {
+    "82371": {
+      "importer": "gltf-mesh",
+      "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be@82371",
+      "displayName": "",
+      "id": "82371",
+      "name": "UnnamedMesh-1.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 3
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "057cb": {
+      "importer": "gltf-mesh",
+      "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be@057cb",
+      "displayName": "",
+      "id": "057cb",
+      "name": "UnnamedMesh-0.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 26
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1766a": {
+      "importer": "gltf-material",
+      "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be@1766a",
+      "displayName": "",
+      "id": "1766a",
+      "name": "hull.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3d5ce": {
+      "importer": "gltf-material",
+      "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be@3d5ce",
+      "displayName": "",
+      "id": "3d5ce",
+      "name": "sail.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ed903": {
+      "importer": "gltf-scene",
+      "uuid": "8b940b64-d297-4a23-a68a-e0755e4047be@ed903",
+      "displayName": "",
+      "id": "ed903",
+      "name": "transport_sailboat.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "8b940b64-d297-4a23-a68a-e0755e4047be@057cb",
+        "8b940b64-d297-4a23-a68a-e0755e4047be@82371"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "8b940b64-d297-4a23-a68a-e0755e4047be@1766a",
+        "8b940b64-d297-4a23-a68a-e0755e4047be@3d5ce"
+      ],
+      "scenes": [
+        "8b940b64-d297-4a23-a68a-e0755e4047be@ed903"
+      ]
+    }
+  }
 }

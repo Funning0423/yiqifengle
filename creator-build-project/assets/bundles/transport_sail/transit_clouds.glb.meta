@@ -4,6 +4,90 @@
   "imported": true,
   "uuid": "c58213db-7629-447f-beeb-5ff75e9cb4a8",
   "files": [],
-  "subMetas": {},
-  "userData": {}
+  "subMetas": {
+    "bcca5": {
+      "importer": "gltf-mesh",
+      "uuid": "c58213db-7629-447f-beeb-5ff75e9cb4a8@bcca5",
+      "displayName": "",
+      "id": "bcca5",
+      "name": "UnnamedMesh.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 32
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "bfa6a": {
+      "importer": "gltf-material",
+      "uuid": "c58213db-7629-447f-beeb-5ff75e9cb4a8@bfa6a",
+      "displayName": "",
+      "id": "bfa6a",
+      "name": "clouds.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4321d": {
+      "importer": "gltf-scene",
+      "uuid": "c58213db-7629-447f-beeb-5ff75e9cb4a8@4321d",
+      "displayName": "",
+      "id": "4321d",
+      "name": "transit_clouds.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "c58213db-7629-447f-beeb-5ff75e9cb4a8@bcca5"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "c58213db-7629-447f-beeb-5ff75e9cb4a8@bfa6a"
+      ],
+      "scenes": [
+        "c58213db-7629-447f-beeb-5ff75e9cb4a8@4321d"
+      ]
+    }
+  }
 }
