@@ -18,7 +18,7 @@ assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.dee
 const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
 const gr=R.ambientGround;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
 assert.equal(P.ambientSkyIllumToSun,0.49,'r2: warm hemisphere fill 0.49 of base (v3.4 0.2; v3.3 0.75 compensated sRGB-as-linear bytes)');
-const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
+const wt=D.LAKESIDE_WATER_SKY.day.tintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...D.LAKESIDE_WATER_SKY.shared.glbs],['LK_lake.glb']);
 assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
 assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
 assert.deepEqual(D.lakesideCocosLightColor(P.sunColorLinear),[255,153,82]);

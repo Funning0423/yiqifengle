@@ -30,7 +30,7 @@ assert.equal(M.lakesideStaticMergeEnabled(''),true);assert.equal(M.lakesideStati
 // expected background draw calls from the REAL bundle: group the placed instances by glTF material content + vertex layout
 const tr=JSON.parse(fs.readFileSync(path.join(R,'scene_r5h_slim_transforms.json'),'utf8')),list=D.lakesideSceneInstances(tr.instances);
 const glb=f=>{const b=fs.readFileSync(path.join(R,'models',f));const l=b.readUInt32LE(12);return JSON.parse(b.slice(20,20+l));};
-const water=new Set(D.LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs),pieces=[],info={};let singles=0;
+const water=new Set(D.LAKESIDE_WATER_SKY.shared.glbs),pieces=[],info={};let singles=0;
 for(const i of list){if(water.has(i.glb))continue;const j=info[i.glb]||(info[i.glb]=glb(i.glb));const p=j.meshes[0].primitives[0],mat=j.materials[p.material];
  const key=JSON.stringify({...mat,name:undefined})+'#'+Object.keys(p.attributes).sort().join('+');
  if(mat.alphaMode==='BLEND'){singles++;continue;}pieces.push({group:key,vertices:j.accessors[p.attributes.POSITION].count,indices:j.accessors[p.indices].count});}
@@ -41,7 +41,7 @@ console.log('merge plan: '+pieces.length+' pieces -> '+merged.length+' merged ch
 assert(bgDraws<=8,'background draws '+bgDraws);assert(bgDraws+43<=55,'total under 55 with margin');
 // lease wiring
 const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
-assert(/instanced=enableLakesideInstancing\(scenery\);[\s\S]*waterTinted=tinted\.size;\}\n  step='static-merge';if\(lakesideStaticMergeFromEnv\(\)\)\{[^\n]*merged=mergeLakesideStatic\(scenery,n=>water\.has\(n\.name\)\);\}\n  setLayer\(scenery\);/.test(bg),'after instancing + water, before layers');
+assert(/instanced=enableLakesideInstancing\(scenery\);[\s\S]*waterTinted=tinted\.size;\}\}\n  step='static-merge';if\(lakesideStaticMergeFromEnv\(\)\)merged=mergeLakesideStatic\(scenery,isLakesideWaterNode\);\n  setLayer\(scenery\);/.test(bg),'after instancing + water, before layers');
 assert(/if\(merged\)\{for\(const m of merged\.meshes\.splice\(0\)\)m\.destroy\(\);merged=null;\}/.test(bg),'merged meshes destroyed with the lease');
 assert(/for\(const r of out\.disabled\.splice\(0\)\)if\(isValid\(r,true\)\)r\.enabled=true;/.test(bg)&&/static-merge-skipped/.test(bg),'failure reverts to the instanced scene');
 assert(/key\.includes\('\|blend\|'\)/.test(bg)&&/c=>c\.pieces\.length>1/.test(bg),'no blended merges, no 1-piece chunks');

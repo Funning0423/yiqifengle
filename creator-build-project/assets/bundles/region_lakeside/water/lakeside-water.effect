@@ -15,7 +15,7 @@ CCEffect %{
         skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], editor: { type: color } }
         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], editor: { type: color } }
         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], editor: { type: color } }
-        fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
+        fresnelParams: { value: [5.0, 0.02, 0.85, 0.35], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
         specParams:    { value: [300.0, 1.6, 0.0, 0.31], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
         lightParams:   { value: [1.37, 1.85, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }

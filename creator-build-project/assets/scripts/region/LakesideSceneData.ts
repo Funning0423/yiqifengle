@@ -91,32 +91,45 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
   ambientSkyIllumToSun: 0.49,
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
-  waterGlbs: ['LK_lake.glb'] as const,
-  waterMaterialPath: 'water/lakeside-water',
-  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
-  waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
-  /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
-   *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
-  waterSkyStrength: 0.35, // r2 (VB): refit under the r2 lights (v3.4 0.8, v3.3 0.4)
-  /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
-   *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
-   *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
-  /** v3.4 (VB): with the v3.4 linear light colours (sun 0.5, ambient 0.2) the v3.3 scales left the near water too dark (emulator
-   *  52/98/88); refit on the Mac-calibrated emulator (handoff camera, layered fog, wave fade on): main 1.67, ambient 1.27, sky 0.8,
-   *  floor 0.30 -> near water 58/152/148 vs r5h3 66/152/146 (R is capped by the lake vertex colour). */
-  waterMainLightScale: 1.37, waterAmbientScale: 1.85, // r2 (VB) refit under sun 0.7 + warm hemisphere: emulator near water 59/153/146 vs r5h3 66/152/146 (v3.4 1.67 / 1.27)
-  /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
-  waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
-  waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
-  waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
-  waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
-  waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
-  /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
-   *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
-  waterSkyReflectFloor: 0.31, // r2 refit (v3.4 0.30, v3.2 0.25)
-  waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
+/** r4 (VB): THE one source of every lakeside water + reflected-sky value (lakeside-water.effect uniforms), day and night. Read by
+ *  the board background (LakesideBoardBackground) AND the island->lakeside journey lake (RegionJourneyAdapter), both only through
+ *  applyLakesideWaterUniforms (LakesideWaterUniforms.ts) -> lakesideWaterUniforms(mode); no other file holds a water number
+ *  (test lakeside-water-shared). All colours are LINEAR and reach the shader unchanged (the effect has no `linear: true`).
+ *  sky.zenith/low/horizon = what the water reflects at reflection elevation >= 0.38 / 0.16 / <= 0 (effect smoothstep stops); the sky
+ *  sphere (GGbot) can read LAKESIDE_WATER_SKY[mode].sky for the same colours (linear; x255 for Cocos light bytes, linearToSrgb8 for
+ *  an unlit/sRGB colour). Mode values: tint x vertex colour, water-only light scales (lightParams.xy), reflection strength (x ambient
+ *  illuminance, fresnelParams.w) and the reflection-mix floor (specParams.w). */
+export type LakesideWaterSkyMode = Readonly<{ tintLinear: readonly number[]; mainLightScale: number; ambientScale: number; skyStrength: number; skyReflectFloor: number;
+  sky: Readonly<{ zenithLinear: readonly number[]; lowLinear: readonly number[]; horizonLinear: readonly number[] }> }>;
+export const LAKESIDE_WATER_SKY = Object.freeze({
+  shared: Object.freeze({
+    glbs: Object.freeze(['LK_lake.glb']) as readonly string[], materialPath: 'water/lakeside-water',
+    fresnelF0: 0.02, fresnelPower: 5, fresnelMax: 0.85,
+    specExponent: 300, specIntensity: 1.6, specNoise: 0, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
+    waveTilt: 0.06, waveFreq: 0.9, waveSpeed: 0.7,
+    waveFadeStart: 12, waveFadeEnd: 35, // v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m
+  }),
+  day: Object.freeze({
+    tintLinear: Object.freeze([0.9, 1.0, 1.0]), mainLightScale: 1.37, ambientScale: 1.85, skyStrength: 0.35, skyReflectFloor: 0.31,
+    sky: Object.freeze({ zenithLinear: Object.freeze([0.0116, 0.2747, 0.4793]), lowLinear: Object.freeze([0.9216, 0.5776, 0.2705]), horizonLinear: Object.freeze([1.0, 0.5457, 0.1441]) }),
+  }) as LakesideWaterSkyMode,
+  night: Object.freeze({
+    tintLinear: Object.freeze([0.9, 1.0, 1.0]), mainLightScale: 0.8, ambientScale: 0.6, skyStrength: 0.12, skyReflectFloor: 0.31,
+    sky: Object.freeze({ zenithLinear: Object.freeze([0.0116, 0.2747, 0.4793]), lowLinear: Object.freeze([0.9216, 0.5776, 0.2705]), horizonLinear: Object.freeze([1.0, 0.5457, 0.1441]) }),
+  }) as LakesideWaterSkyMode,
+});
+export type LakesideWaterUniformName = 'waterTint' | 'skyZenith' | 'skyLow' | 'skyHorizon' | 'fresnelParams' | 'specParams' | 'waveParams' | 'lightParams';
+export const LAKESIDE_WATER_UNIFORM_NAMES: readonly LakesideWaterUniformName[] = Object.freeze(['waterTint', 'skyZenith', 'skyLow', 'skyHorizon', 'fresnelParams', 'specParams', 'waveParams', 'lightParams'] as LakesideWaterUniformName[]);
+/** The 8 lakeside-water.effect vec4 uniforms for a mode, straight from LAKESIDE_WATER_SKY (pure; board and journey both use it). */
+export function lakesideWaterUniforms(mode: LakesideDayNight): Record<LakesideWaterUniformName, [number, number, number, number]> {
+  const S = LAKESIDE_WATER_SKY.shared, M: LakesideWaterSkyMode = mode === 'night' ? LAKESIDE_WATER_SKY.night : LAKESIDE_WATER_SKY.day;
+  const c = (v: readonly number[]): [number, number, number, number] => [v[0], v[1], v[2], 1];
+  return { waterTint: c(M.tintLinear), skyZenith: c(M.sky.zenithLinear), skyLow: c(M.sky.lowLinear), skyHorizon: c(M.sky.horizonLinear),
+    fresnelParams: [S.fresnelPower, S.fresnelF0, S.fresnelMax, M.skyStrength], specParams: [S.specExponent, S.specIntensity, S.specNoise, M.skyReflectFloor],
+    waveParams: [S.waveTilt, S.waveFreq, S.waveSpeed, 0], lightParams: [M.mainLightScale, M.ambientScale, S.waveFadeStart, S.waveFadeEnd] };
+}
 /** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
  *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
  *  carries over. Moonlight from the same direction (shadows do not jump), cool blue ambient, dark blue clear and fog; water: more
@@ -132,18 +145,16 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   ambientSkyIllumToSun: 1.76, // r2: keeps hemisphere ambient night/day 0.219 vs the r2 day (warm fill 0.49)
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
-  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
-  ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
-  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number }>;
+  ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number] }>;
 /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
 export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
-    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
+    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb };
 }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the

@@ -41,7 +41,7 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
 const run=(name,f)=>{f();console.log('PASS',name);};
 const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
 run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.lakesideDayClearColor());
- assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
+ const Wd=D.lakesideWaterUniforms('day'),Wn=D.lakesideWaterUniforms('night');assert.notDeepEqual(Wn,Wd,'r4: night water/reflection differs from day (LAKESIDE_WATER_SKY)');assert(Wn.fresnelParams[3]>0&&Wd.fresnelParams[3]>0,'sky reflection on in both modes');});
 run('day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR',()=>{
  assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');const init=D.linearToSrgb8(D.LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);
  assert.deepEqual(rgb(new Color(Dy.clearColor)),init,'day pack clear bytes = board init bytes');assert.deepEqual(init,[28,143,184]);assert.notEqual(Dy.clearColor.toLowerCase(),'#f2b98a');
@@ -77,7 +77,7 @@ run('board applyDir = journey target in both modes; board re-applies on toggle a
  assert(/const offDayNight=onDayNightChange\(\(\)=>\{if\(visible&&!dead\)applyDir\(\);\}\);/.test(bg),'board re-applies on toggle');
  assert(/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);/.test(bg),'unsubscribed on dispose');
  assert(/M=lakesideModeLighting\(mode\)/.test(bg)&&/camera\.clearColor=new Color\(M\.clearColor\)/.test(bg),'board colours + clear per mode');
- assert(/waterMat\.setProperty\('lightParams',new Vec4\(M\.waterMainLightScale,M\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\);waterMat\.setProperty\('fresnelParams',new Vec4\(P\.waterFresnelPower,P\.waterFresnelF0,P\.waterFresnelMax,M\.waterSkyStrength\)\);/.test(bg),'water-only light scales per mode');
+ assert(/if\(waterMat\)applyLakesideWaterUniforms\(waterMat,mode\);/.test(bg),'r4: water uniforms per mode through the shared writer (LAKESIDE_WATER_SKY)');
  assert(/const c=lakesideModeLighting\(lakesideDayNightMode\(\)\)\.fogColorSrgb;/.test(bg),'fog colour per mode');
  assert(/restoreDir=\(\)=>\{restoreFog\(\);setLakesideBoardHolding\(false\);/.test(bg)&&/if\(!reapplyLakesideJourney\(\)&&s0\.mode!==lakesideDayNightMode\(\)\)\(globalThis as any\)\.__worldDayNight\?\.reapply\?\.\(\);/.test(bg),'restore-on-leave chain');
  const wf=fs.readFileSync(S+'world-r1/WorldFlowComponent.ts','utf8');assert(/emitDayNightChange\(this\.dayNightMode\);/.test(wf)&&/reapply:\(\)=>self\.applyDayNight\(\)/.test(wf),'world emits + non-locking reapply');});

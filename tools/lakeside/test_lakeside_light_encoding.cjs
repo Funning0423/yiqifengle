@@ -29,7 +29,7 @@ for(const mode of ['day','night']){const M=D.lakesideModeLighting(mode),f=A.lake
 const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),at=fs.readFileSync(S+'region/LakesideJourneyAtmosphere.ts','utf8');
 assert(/c=lakesideCocosLightColor\(M\.sunColorLinear\),sk=lakesideCocosLightColor\(M\.ambientSkyColorLinear\),gr=lakesideCocosLightColor\(M\.ambientGroundColorLinear\)/.test(bg),'board applyDir');
 assert(/color:lakesideCocosLightColor\(M\.sunColorLinear\),sky:lakesideCocosLightColor\(M\.ambientSkyColorLinear\),ground:lakesideCocosLightColor\(M\.ambientGroundColorLinear\)/.test(at),'journey targets');
-assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg),'water fallback mainColor (linear uniform)');
+assert(/wc=lakesideCocosLightColor\(LAKESIDE_WATER_SKY\.day\.tintLinear\)/.test(bg),'water fallback mainColor (linear uniform)');
 for(const [n,src] of [['board',bg],['journey',at]]){
  assert(!/linearToSrgb8\(\s*[MP]\.(sun|ambient|waterTint)/.test(src),n+': no sRGB encode on a light colour');
  assert(!/(linearToSrgb8|lakesideCocosLightColor)\(\s*(linearToSrgb8|lakesideCocosLightColor)\(/.test(src),n+': no stacked conversion');}
