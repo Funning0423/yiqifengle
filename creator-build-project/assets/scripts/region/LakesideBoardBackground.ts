@@ -9,7 +9,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -31,12 +31,32 @@ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'Lake
  *  of every source material with USE_INSTANCING lets Cocos draw each GLB's instances as one GPU-instanced batch (~42).
  *  Returns the copies so dispose() can destroy them. Free: no assets, no re-import. */
 export function enableLakesideInstancing(root:Node):Material[]{
- const shared=new Map<Material,Material>();
- for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
-  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=shared.get(src);
-   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
- return Array.from(shared.values()); // not [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
+ // r4 land fill (VB): landform GLBs (lakesideLandFillClass) get their OWN instanced copy per class carrying the fill, so water,
+ // bridge and every other GLB keep the plain copy, and the static merge (keyed by material content) keeps land in its own chunks.
+ const plain=new Map<Material,Material>(),near=new Map<Material,Material>(),far=new Map<Material,Material>(),out:Material[]=[],mode=lakesideDayNightMode();
+ for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
+  const cache=cls==='near'?near:cls==='far'?far:plain;
+  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
+   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
+ return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
 }
+/** r4 land fill: the landform class of each land material copy (only enableLakesideInstancing registers; nothing else is ever filled). */
+const lakesideLandFillOf=new WeakMap<Material,LakesideLandFillClass>();
+export function lakesideLandFillMaterialClass(m:Material):LakesideLandFillClass|null{return lakesideLandFillOf.get(m)??null;}
+/** GLB of the mounted top-level instance a renderer belongs to (mountLakesideScenery records it), or null. */
+function lakesideTopGlb(root:Node,n:Node):string|null{let c:Node|null=n;while(c){const g=lakesideGlbOf.get(c);if(g)return g;if(c===root)return null;c=c.parent;}return null;}
+function initLakesideLandFill(m:Material,cls:LakesideLandFillClass,glb:string,mode:LakesideDayNight){
+ const pass:any=m.passes[0];
+ if(!pass||!pass.getHandle('emissiveScale')||!pass.getHandle('emissive')){console.error('[QF_LAKE] '+JSON.stringify({event:'land-fill-unsupported',glb,effect:String((m as any).effectName||'')}));return;}
+ // builtin-standard: emissive (tagged linear: true -> squared on upload, white stays 1) x emissiveScale (untagged) = the fill, linear.
+ m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);writeLakesideLandFill(m,cls,mode);}
+function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight){
+ const M=lakesideModeLighting(mode),c=cls==='near'?M.landFillNearLinear:M.landFillFarLinear;m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
+/** r4 land fill, day/night part: re-writes every land material under root from lakesideModeLighting(mode) (board applyDir and the
+ *  journey's day/night listener - the one writer). Returns how many land materials were written. */
+export function applyLakesideLandFill(root:Node,mode:LakesideDayNight):number{const seen=new Set<Material>();let n=0;
+ for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const cls=lakesideLandFillOf.get(m);if(cls){writeLakesideLandFill(m,cls,mode);n++;}}
+ return n;}
 /** v3.3 static merge (see LakesideStaticMerge.ts): after instancing, every static renderer whose materials match by CONTENT and whose
  *  vertex layout matches is baked into one world-space mesh per <=65,535 vertices; originals are disabled (kept for names/diagnostics).
  *  Mac v3.2: background 36 draw calls (one instanced batch per GLB kind). Expected after: palette chunk(s) + 2 rope materials + water.
@@ -210,6 +230,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
   if(waterMat)applyLakesideWaterMode(waterMat,mode);
+  if(scenery&&isValid(scenery,true))applyLakesideLandFill(scenery,mode);
   lakesideDiagOnce(camera,l,amb);
   applyFog();};
  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
