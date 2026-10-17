@@ -6,7 +6,7 @@ import {SkyNightTexture} from '../render/SkyNightTexture';
 import {configureMeadowVertexColors, loadWindEffect, validateModel, MeadowSceneMotion, meadowCloudMaterials, meadowGroundMaterials, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
 import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
-import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom} from './RegionJourneyLayout';
+import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg,meadowExitFrom,meadowExitExtraM,MEADOW_EXIT_BUDGET_M} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
 import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
@@ -98,10 +98,12 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
      model.setWorldPosition(...plus([model.worldPosition.x,model.worldPosition.y,model.worldPosition.z],[landing[0]-incoming[0],landing[1]-incoming[1],landing[2]-incoming[2]]));
      bridge=bridgePath(edge,anchor(model,'player_spawn'),REGION_JOURNEY_LAYOUT.meadowBridgeArchM);arrival=[];
      // 运镜bot (r4): from the bridge end she walks her stand line and stops where THIS screen's meadow board UI (tray, goal plate,
-     // 3-tool row, safe area, capsule) leaves her most room in the board camera (RegionBoardLanding.regionGirlStand); her frozen
+     // 3-tool row + ring/badge, widest hint toast, safe area, capsule) leaves her most room, among stops inside the O5 08→09 budget, in the board camera (RegionBoardLanding.regionGirlStand); her frozen
      // board copy is mounted exactly there. If the screen or the map cannot be read: the old walk_path_01 → 02.
      try{boardSrc=journeyBoardSource('meadow',model,boardLocal!);const v=lakesideViewport(view.getFrameSize()),spawn=anchor(model,'player_spawn');
-      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height));
+      const exit:Vec[]=[];for(let i=2;i<=REGION_JOURNEY_LAYOUT.meadowExitPathIndex;i++)exit.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));
+      const src=boardSrc,o5=(p:Vec)=>meadowExitExtraM(src.map.toJourney(p) as Vec,exit)<=MEADOW_EXIT_BUDGET_M;// r4.1: only stops whose 08→09 walk keeps O5
+      stand=regionGirlStand(boardSrc,boardSrc.map.toBoard(spawn),v.width,v.height,boardSafeInsets(v.width,v.height),o5);
       if(stand){arrival=stand.path.slice(1).map(p=>boardSrc!.map.toJourney(p));if(!stand.clear)console.warn('[QF_REGION] meadow stand: no clear stop for '+v.width+'x'+v.height+', least covered '+JSON.stringify(stand.boxPt));}}
      catch(error){stand=null;arrival=[];try{console.error('[QF_REGION] meadow stand unavailable: '+String(error));}catch{}}
      if(!arrival.length)for(let i=1;i<=2;i++)arrival.push(anchor(model,'walk_path_'+String(i).padStart(2,'0')));

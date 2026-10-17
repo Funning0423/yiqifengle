@@ -31,7 +31,8 @@ const meadow=place(local.meadow,'meadow',180,1,mOff),mA=n=>add(rotY(180,mp(n)),m
 // (RegionBoardLanding.regionGirlStand, exactly as RegionJourneyAdapter); the shared fixture uses 390x844, standFor(w,h) any screen.
 const RBL=H.load(S+'region/RegionBoardLanding.ts'),BLy=H.load(S+'ui/BoardLayout.ts');
 const meadowSrc={region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}};
-const standFor=(w,h)=>RBL.regionGirlStand(meadowSrc,meadowSrc.map.toBoard(mA('player_spawn')),w,h,BLy.boardSafeInsets(w,h));
+const exitFor=()=>{const e=[];for(let i=2;i<=L.meadowExitPathIndex;i++)e.push(mA('walk_path_'+String(i).padStart(2,'0')));return e;};
+const standFor=(w,h)=>{const ex=exitFor();return RBL.regionGirlStand(meadowSrc,meadowSrc.map.toBoard(mA('player_spawn')),w,h,BLy.boardSafeInsets(w,h),p=>Lay.meadowExitExtraM(meadowSrc.map.toJourney(p),ex)<=Lay.MEADOW_EXIT_BUDGET_M);};
 const bridge1=Lay.bridgePath(edge1,mA('player_spawn'),L.meadowBridgeArchM),leg1For=(w,h)=>[...appr1,...bridge1.slice(1),...standFor(w,h).path.slice(1).map(meadowSrc.map.toJourney)],leg1=leg1For(390,844);
 const exit02to08=[];for(let i=2;i<=L.meadowExitPathIndex;i++)exit02to08.push(mA('walk_path_'+String(i).padStart(2,'0')));
 const appr2=[leg1.at(-1),...Lay.meadowExitFrom(leg1.at(-1),exit02to08)];const edge2=appr2.at(-1);
