@@ -137,9 +137,9 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(lamp)lamp.active=night;
    if(lampLight)lampLight.enabled=night;
    if(stars)stars.active=night;
-   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.55,0.68,0.86,1):new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.62,0.72,0.88,1):new Vec4(1,1,1,1));
-   if(seaMat)seaMat.setProperty('mainColor',night?new Color(170,205,225,255):new Color(255,255,255,255));
+   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.16,0.24,0.48,1):new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.2,0.28,0.5,1):new Vec4(1,1,1,1));
+   if(seaMat)seaMat.setProperty('mainColor',night?new Color(55,90,140,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.42:0;
    paint(wakeMat,alpha);paint(foamMat,alpha*0.85);
    if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);

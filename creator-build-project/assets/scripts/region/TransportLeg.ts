@@ -148,9 +148,9 @@ function sailOffset(b:SailBeat,t:number):SailOff{
  if(b.id==='S-d'){
   if(u<0.18)return mixOff(K2,K3,u/0.18);
   if(u<0.42)return K3;
-  if(u<0.55)return mixOff(K3,K4,(u-0.42)/0.13);
-  if(u<0.68)return K4;
-  if(u<0.8)return mixOff(K4,K5,(u-0.68)/0.12);
+  if(u<0.52)return mixOff(K3,K4,(u-0.42)/0.10);
+  if(u<0.60)return K4;
+  if(u<0.66)return mixOff(K4,K5,(u-0.60)/0.06);
   return K5;
  }
  if(b.id==='S-e')return K5;
