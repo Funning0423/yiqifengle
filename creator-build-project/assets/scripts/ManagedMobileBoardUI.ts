@@ -862,11 +862,13 @@ export class ManagedMobileBoardUI extends Component {
   /** QA board frames: the checkpoint is paused, so the recovery sheet would cover the playfield. */
   revealPlayfield() {
     this.returnPause = false;
-    const panel = this.popups?.find('PausePanel');
-    if (panel) panel.destroy();
+    this.introQueue.length = 0;
+    this.popups?.clear();
     if (this.snapshot?.state === 'run.paused') {
       try { this.managed?.intercept?.('resume') ?? this.host?.command?.('resume'); } catch { /* panel is already gone */ }
     }
+    this.introQueue.length = 0;
+    this.popups?.clear();
   }
   private openPausePanel() {
     const s = this.snapshot; if (!s?.active || this.modalOpen() || (s.state !== 'run.ready' && s.state !== 'run.paused')) return;

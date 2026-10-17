@@ -39,20 +39,36 @@ function shade(fill:string,k:number):[number,number,number,number]{
  */
 export function gemLocal(phase:NodePhase,seconds:number,foot=false):{positions:number[];normals:number[];colors:number[];indices:number[]}{
  const look=markerDraw(phase,seconds);
- const h=foot?0.045:MARKER_GEM_H*look.scale,r=foot?0.07:MARKER_GEM_R*look.scale;
- const y0=foot?0.02:MARKER_LIFT_M+(phase==='playable'?0.05*Math.sin((seconds%1.6)/1.6*Math.PI*2):0);
  const fill=look.fill;
- const top=shade(fill,1),side=shade(fill,phase==='playable'?0.78:0.62),bot=shade(fill,0.42);
  const positions:number[]=[],normals:number[]=[],colors:number[]=[],indices:number[]=[];
  const push=(x:number,y:number,z:number,ny:number,c:[number,number,number,number])=>{positions.push(x,y,z);normals.push(0,ny,0);colors.push(c[0],c[1],c[2],c[3]);};
- const sides=6,eq:number[]=[];
- push(0,y0+h,0,1,top);
- for(let i=0;i<sides;i++){const a=i/sides*Math.PI*2;eq.push(positions.length/3);push(Math.cos(a)*r,y0+h*0.42,Math.sin(a)*r,0.2,side);}
- const botI=positions.length/3;push(0,y0,0,-1,bot);
- for(let i=0;i<sides;i++){
-  const n=eq[(i+1)%sides];
-  indices.push(0,eq[i],n,botI,n,eq[i]);
+ const tri=(a:number,b:number,c:number)=>{indices.push(a,b,c);};
+ if(foot){
+  const y=0.02,r=0.07,col=shade(fill,0.7),n=positions.length/3;
+  push(0,y,0,1,col);
+  for(let i=0;i<6;i++){const a=i/6*Math.PI*2;push(Math.cos(a)*r,y,Math.sin(a)*r,1,shade(fill,0.45));}
+  for(let i=0;i<6;i++)tri(n,n+1+i,n+1+(i+1)%6);
+  return {positions,normals,colors,indices};
  }
+ const h=MARKER_GEM_H*look.scale;
+ const y0=MARKER_LIFT_M+(phase==='playable'?0.05*Math.sin((seconds%1.6)/1.6*Math.PI*2):0);
+ const pole=shade(fill,0.48),front=shade(fill,1),back=shade(fill,0.58),base=shade(fill,0.35);
+ const box=(x0:number,y0b:number,z0:number,x1:number,y1:number,z1:number,c:[number,number,number,number])=>{
+  const n=positions.length/3;
+  const v=[[x0,y0b,z0],[x1,y0b,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0b,z1],[x1,y0b,z1],[x1,y1,z1],[x0,y1,z1]];
+  for(const p of v)push(p[0],p[1],p[2],1,c);
+  const f=[[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]];
+  for(const q of f){tri(n+q[0],n+q[1],n+q[2]);tri(n+q[0],n+q[2],n+q[3]);}
+ };
+ box(-0.015,y0,-0.015,0.015,y0+h,0.015,pole);
+ const top=y0+h*0.92,bot=y0+h*0.52,tip=y0+h*0.72;
+ const a=positions.length/3;push(0.02,top,0.012,0,front);push(0.02,bot,0.012,0,front);push(0.26*look.scale,tip,0.012,0,shade(fill,0.82));
+ tri(a,a+1,a+2);
+ const b=positions.length/3;push(0.02,top,-0.012,0,back);push(0.26*look.scale,tip,-0.012,0,back);push(0.02,bot,-0.012,0,back);
+ tri(b,b+1,b+2);
+ const disc=positions.length/3;push(0,y0,0,1,base);
+ for(let i=0;i<6;i++){const t=i/6*Math.PI*2;push(Math.cos(t)*0.09,y0+0.01,Math.sin(t)*0.09,1,shade(fill,0.5));}
+ for(let i=0;i<6;i++)tri(disc,disc+1+i,disc+1+(i+1)%6);
  return {positions,normals,colors,indices};
 }
 export function footprints(from:Vec,to:Vec,spacing=ROUTE_SPACING_M,max=ROUTE_MAX):Vec[]{

@@ -138,34 +138,35 @@ export function projectNdc(pose:Pose,p:Vec,w:number,h:number):{x:number;y:number
  */
 export function finaleLook(girl:Vec,ring:Vec):Pose{
  const dx=ring[0]-girl[0],dz=ring[2]-girl[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,sx=fz,sz=-fx;
- const back=22,side=-3.4,up=2.6;
+ // Far enough that the great-tree trunk does not sit on the ring, and high enough that both stay in a portrait frame.
+ const back=24,side=9,up=6;
  const position:Vec=[girl[0]-fx*back+sx*side,girl[1]+up,girl[2]-fz*back+sz*side];
  const head:Vec=[girl[0],girl[1]+BODY_M*0.9,girl[2]];
- const ag=unit(sub(head,position)),ar=unit(sub(ring,position));
- const F=unit([ag[0]+ar[0],ag[1]+ar[1],ag[2]+ar[2]]);
- return {position,target:[position[0]+F[0]*10,position[1]+F[1]*10,position[2]+F[2]*10],fovVerticalDeg:FOLLOW.fovDeg};
+ const target:Vec=[(head[0]+ring[0])/2,(head[1]+ring[1])/2,(head[2]+ring[2])/2];
+ return {position,target,fovVerticalDeg:60};
 }
 /** Object tap: stand off the prop, on the side toward her, looking at its middle. */
 export function propLook(prop:Vec,girl:Vec):Pose{
- const dx=prop[0]-girl[0],dz=prop[2]-girl[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L;
- const position:Vec=[prop[0]-fx*3.4,prop[1]+1.35,prop[2]-fz*3.4];
- return {position,target:[prop[0],prop[1]+0.65,prop[2]],fovVerticalDeg:42};
+ const dx=girl[0]-prop[0],dz=girl[2]-prop[2],L=Math.hypot(dx,dz)||1,sx=dz/L,sz=-dx/L;
+ const position:Vec=[prop[0]+sx*2.8,prop[1]+1.9,prop[2]+sz*2.8];
+ return {position,target:[prop[0],prop[1]+0.7,prop[2]],fovVerticalDeg:42};
 }
 /** Three node gems in one portrait frame. Pulls back until the narrow horizontal FOV holds all three. */
 export function markersLook(a:Vec,b:Vec,c:Vec,w=390,h=844):Pose{
  const mid:Vec=[(a[0]+b[0]+c[0])/3,(a[1]+b[1]+c[1])/3+0.45,(a[2]+b[2]+c[2])/3];
  const dx=c[0]-a[0],dz=c[2]-a[2],L=Math.hypot(dx,dz)||1,fx=dx/L,fz=dz/L,sx=fz,sz=-fx;
- let back=6;
+ let back=9;
  const pts=[a,b,c];
- for(let i=0;i<8;i++){
-  const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.4+back*0.08,mid[2]-fz*back+sz*1.8];
+ for(let i=0;i<10;i++){
+  const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.6+back*0.06,mid[2]-fz*back+sz*1.8];
   const pose:Pose={position,target:mid,fovVerticalDeg:FOLLOW.fovDeg};
   const xs=pts.map(p=>Math.abs(projectNdc(pose,p,w,h).x));
   const ys=pts.map(p=>Math.abs(projectNdc(pose,p,w,h).y));
-  if(Math.max(...xs)<0.82&&Math.max(...ys)<0.9)return pose;
+  const near=Math.min(...pts.map(p=>Math.hypot(p[0]-position[0],p[1]-position[1],p[2]-position[2])));
+  if(Math.max(...xs)<0.82&&Math.max(...ys)<0.9&&near>4.5)return pose;
   back+=2.5;
  }
- const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.4+back*0.08,mid[2]-fz*back+sz*1.8];
+ const position:Vec=[mid[0]-fx*back+sx*1.8,mid[1]+1.6+back*0.06,mid[2]-fz*back+sz*1.8];
  return {position,target:mid,fovVerticalDeg:FOLLOW.fovDeg};
 }
 function boxSpan(b:Aabb):number{return Math.max(b.max[0]-b.min[0],b.max[1]-b.min[1],b.max[2]-b.min[2]);}
@@ -173,7 +174,7 @@ function boxSpan(b:Aabb):number{return Math.max(b.max[0]-b.min[0],b.max[1]-b.min
 export function boxGap(p:Vec,b:Aabb):number{
  let inside=true;const c=[0,0,0];
  for(let k=0;k<3;k++){if(p[k]<b.min[k]||p[k]>b.max[k])inside=false;c[k]=Math.max(b.min[k],Math.min(b.max[k],p[k]));}
- if(inside&&boxSpan(b)>25)return 1e9;
+ if(inside&&boxSpan(b)>8)return 1e9;
  if(inside)return 0;
  return Math.hypot(p[0]-c[0],p[1]-c[1],p[2]-c[2]);
 }

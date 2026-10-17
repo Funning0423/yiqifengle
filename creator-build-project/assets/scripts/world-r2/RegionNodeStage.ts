@@ -202,7 +202,9 @@ export class RegionNodeStage extends Component{
  private propPose(id:string,g:Vec,w:number,h:number):Pose{
   const base=followPose(g,this.yaw(),w,h,0);
   const node=this.named(PROP_NODES[id]||'');if(!node)return base;
-  const p=node.worldPosition;
+  const origin=node.worldPosition;
+  const bounds=node.getComponent(MeshRenderer)?.model?.worldBounds?.center;
+  const p=bounds&&Math.hypot(bounds.x-origin.x,bounds.y-origin.y,bounds.z-origin.z)>1.5?bounds:origin;
   return propLook([p.x,p.y,p.z],g);
  }
  openExplore(region:RegionId){
@@ -369,9 +371,10 @@ export class RegionNodeStage extends Component{
    const p=this.pulses[i];if(!p.node.isValid){this.pulses.splice(i,1);continue;}
    if(this.holdPulse<=0)p.left-=dt;
    const u=this.holdPulse>0?0.5:1-Math.max(0,p.left)/0.45;const wave=Math.sin(Math.max(0,Math.min(1,u))*Math.PI);
+   const grow=1+0.28*wave;
+   p.node.setScale(p.sx*grow,p.sy*grow,p.sz*grow);
    if(p.motion==='spin')p.node.setRotationFromEuler(0,p.ey+wave*40,0);
-   else if(p.motion==='pulse')p.node.setScale(p.sx*(1+0.12*wave),p.sy*(1+0.12*wave),p.sz*(1+0.12*wave));
-   else p.node.setRotationFromEuler(wave*12,p.ey,0);
+   else if(p.motion!=='pulse')p.node.setRotationFromEuler(wave*18,p.ey,wave*6);
    if(p.left<=0){p.node.setScale(p.sx,p.sy,p.sz);p.node.setRotationFromEuler(0,p.ey,0);this.pulses.splice(i,1);}
   }
   if(this.lens==='MapExplore'||this.lens==='FollowWalk'){this.markerWait+=dt;if(this.markerWait>=0.25){this.markerWait=0;this.rebuildMarkers();}}
