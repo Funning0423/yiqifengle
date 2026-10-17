@@ -164,8 +164,29 @@ export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){con
  water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
 /** The lakeside-water.mtl asset (dir light mode only; null otherwise). r4 journey fix 1: a failed bundle/material load REJECTS with
  *  the reason (and path) instead of resolving null, so the caller can log it ([QF_LAKE] journey-water-fallback) and keep its old look. */
+/** r4.2 item 4 (Mac r4 fault injection: the water pack blocked → B-class +2 deduplicated / +6 raw instead of exactly +1). Every
+ *  bundle.load of lakeside-water.mtl whose pack fails makes the engine's pack manager console.error 'download failed: …' (journey,
+ *  chapter prewarm, board preload, board build: 5 lines on the Mac), next to our one [QF_LAKE] journey-water-fallback. This probe
+ *  fetches the material's pack through assetManager.downloader.download (same handlers, retries and cache as the engine; the
+ *  downloader itself never logs) and nobody calls bundle.load for the water once it failed, so the fallback line is the only error.
+ *  'unknown' (not packed / no downloader API) keeps the normal load. A result is reused for LAKESIDE_WATER_PROBE_TTL_MS. Never rejects. */
+export type LakesideWaterProbe={state:'ok'|'failed'|'unknown';reason:string};
+export const LAKESIDE_WATER_PROBE_TTL_MS=60000;
+let waterProbe:{at:number;promise:Promise<LakesideWaterProbe>}|null=null;
+export function probeLakesideWaterPack(bundle:AssetManager.Bundle):Promise<LakesideWaterProbe>{
+ if(waterProbe&&(waterProbe.at<0||Date.now()-waterProbe.at<LAKESIDE_WATER_PROBE_TTL_MS))return waterProbe.promise;
+ const st:{at:number;promise:Promise<LakesideWaterProbe>}={at:-1,promise:Promise.resolve({state:'unknown',reason:''})};waterProbe=st;
+ st.promise=new Promise<LakesideWaterProbe>(resolve=>{const done=(r:LakesideWaterProbe)=>{st.at=Date.now();resolve(r);};
+  try{const path=LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath,b:any=bundle,info:any=b?.getInfoWithPath?.(path,Material),asset:any=info?.uuid?b.getAssetInfo?.(info.uuid):null,pack=asset?.packs?.[0];
+   const dl:any=(assetManager as any).downloader,tf:any=(assetManager as any).utils?.transform;
+   if(!pack||pack.ext!=='.json'||!dl||typeof dl.download!=='function'||typeof tf!=='function'){done({state:'unknown',reason:''});return;}
+   const url=String(tf(pack.uuid,{ext:pack.ext,bundle:b.name}));
+   dl.download(pack.uuid,url,pack.ext,{},(err:any)=>done(err?{state:'failed',reason:'lakeside-water-pack-unavailable: '+path+': '+String(err?.message??err)}:{state:'ok',reason:''}));}
+  catch{done({state:'unknown',reason:''});}});
+ return st.promise;}
 export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{
  if(LAKESIDE_LIGHT_MODE!=='dir')return null;const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+ const probe=await waitRegionAsset(probeLakesideWaterPack(bundle),token);token.check();if(probe.state==='failed')throw Error(probe.reason)/* r4.2 item 4: the journey logs this as its one journey-water-fallback */;
  const a=await waitRegionAsset(loadMaterialOrReason(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token);token.check();return take(a);}
 /** Puts `water` on every renderer of the lakeside water instances under `root` (direct children, as mounted). Returns slots set. */
 export function useLakesideWater(root:Node,water:Material):number{let n=0;
@@ -197,7 +218,7 @@ export function prewarmLakesideAssets():Promise<void>{
  const st:{promise:Promise<void>;held:Array<{decRef(auto?:boolean):unknown}>;timer:any}={promise:Promise.resolve(),held:[],timer:null};prewarm=st;
  const keep=<T extends {addRef():unknown;decRef(auto?:boolean):unknown}>(a:T|null)=>{if(a&&prewarm===st){a.addRef();st.held.push(a);}return a;};
  st.promise=(async()=>{try{const t0=Date.now(),b=await loadBundle(LAKESIDE_BUNDLE);keep(await loadJson(b,LAKESIDE_TRANSFORMS));
-   for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
+   for(const p of await loadPrefabs(b))keep(p);if(LAKESIDE_LIGHT_MODE==='dir'&&(await probeLakesideWaterPack(b)).state!=='failed')keep(await loadMaterial(b,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath));
    try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm',ms:Date.now()-t0,assets:st.held.length}));}catch{}
   }catch(error){try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'prewarm-failed',error:String((error as any)?.message??error)}));}catch{}}
   if(prewarm===st)st.timer=setTimeout(releaseLakesidePrewarm,120000);})();
@@ -270,7 +291,8 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // Voice Bot 4728814: the shared mountLakesideScenery (bundle, transforms, prefabs, Array.from missing-check, instantiate) also feeds the journey.
   step='scenery';if(pre)instances=await mountLakesideScenery(scenery,token,take,pre.yieldFrame);else instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
   step='water-material';const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
-  const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+  const wp=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(probeLakesideWaterPack(bundle),token):null;token.check();/* r4.2 item 4: a failed water pack is not loaded again (no engine error); the board keeps its v2 tint like before */
+  const waterAsset=wp&&wp.state!=='failed'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
   const list=lakesideSceneInstances((((bundle.get(LAKESIDE_TRANSFORMS,JsonAsset) as JsonAsset|null)?.json as any)?.instances||[]) as LakesideInstance[]);
   instanced=enableLakesideInstancing(scenery);
   if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
