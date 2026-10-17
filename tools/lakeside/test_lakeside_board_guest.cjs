@@ -54,5 +54,27 @@ run('wiring: board lease mounts her after the layer pass, frees her in dispose (
  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
  assert.match(bg,/setLayer\(scenery\);\n[^\n]*\n  if\(!pre\)\{step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);\}/);assert.match(bg,/adopt:\(owner,next\)=>\{[^\n]*guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/,'preloaded lease: her copy on adopt (after the landing hook)');assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
  assert.match(bg,/guest:guest\?guest\.renderers:0/);
- // other regions: their board cameras only see their own layer (by design no girl there)
- for(const f of ['region/MeadowBoardBackground.ts','region/SkycityBoardBackground.ts']){const t=fs.readFileSync(S+f,'utf8');assert.doesNotMatch(t,/mountLakesideGuest/);}});
+});
+run('other regions (meadow / sky city): same mapping from the journey copy of the region model (same name under RegionJourney-<region>), scale honoured',()=>{
+ for(const [region,layer] of [['meadow',1<<20],['skycity',1<<20]]){const w=world();const jr=new Node('RegionJourney-'+region);scene.addChild(jr);const jm=new Node('region_'+region);jr.addChild(jm);jr.addChild(new Node('RainbowBridgeStrip0'));
+  jm.position=new Vec3(-20,4,90);jm.rotation=Quat.yaw(90);jm.scale=new Vec3(2,2,2);
+  const lp=new Vec3(3,0,-4),wp=new Vec3();Vec3.transformQuat(wp,new Vec3(6,0,-8),jm.rotation);w.ref.position=new Vec3(wp.x-20,wp.y+4,wp.z+90);w.ref.rotation=Quat.multiply(new Quat(),jm.rotation,Quat.yaw(-45));
+  const bm=new Node('region_'+region);w.scenery.addChild(bm);const g=G.mountRegionBoardGuest(region,bm,layer);assert(g,region);const c=bm.getChildByName(G.LAKESIDE_GUEST_NODE);
+  assert(near(c.position.x,lp.x)&&near(c.position.y,lp.y)&&near(c.position.z,lp.z),region+' '+JSON.stringify(c.position));assert(near(c.scale.x,.5),'her size kept in world units');
+  assert.equal(g.renderers,2);destroyed=0;g.dispose();g.dispose();assert.equal(destroyed,1);
+  const w2=world();const bm2=new Node('region_'+region);w2.scenery.addChild(bm2);assert.equal(G.mountRegionBoardGuest(region,bm2,layer),null,'no journey copy → no copy');}
+ // wrapper (lease files untouched; the 09 plaza file is SHA-frozen): her copy under the rig's region model, freed once
+ {const w=world();const jr=new Node('RegionJourney-meadow');scene.addChild(jr);const jm=new Node('env_meadow');jr.addChild(jm);let inner=0,innerDispose=0;
+  const parent=new Node('ManagedNativeBoardHost');scene.addChild(parent);
+  const factory=async({parent})=>{const rig=new Node('MeadowLiveScene');parent.addChild(rig);rig.addChild(new Node('env_meadow'));rig.addChild(new Node('MeadowKeyLight'));inner++;
+   return {frame(){},setVisible(){},setPaused(){},diagnostics:()=>({region:'meadow'}),dispose(){innerDispose++;rig.destroy();}};};
+  const wrapped=G.withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,factory);let lease;wrapped({parent,selection:{},token:{}}).then(l=>{lease=l;});
+  return Promise.resolve().then(()=>Promise.resolve()).then(()=>{assert(lease);const model=parent.getChildByName('MeadowLiveScene').getChildByName('env_meadow');assert(model.getChildByName(G.LAKESIDE_GUEST_NODE),'copy under the board region model');
+   assert.equal(lease.diagnostics().guest,2);assert.equal(lease.diagnostics().region,'meadow');destroyed=0;lease.dispose();assert.equal(innerDispose,1);assert.equal(destroyed,2,'her copy once + the rig once');console.log('PASS wrapper: meadow lease gets her copy, freed once');});}
+});
+run('wiring: composition wraps the meadow / sky-city factories; their lease files are unchanged; island board is a 2D painting',()=>{
+ const wn=fs.readFileSync(S+'world-r2/WorldNativeComposition.ts','utf8');
+ assert.match(wn,/const meadowBoardWithGuest=\(context:any\)=>withRegionBoardGuest\('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground\)\(context\),skycityBoardWithGuest=\(context:any\)=>withRegionBoardGuest\('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground\)\(context\);/,'wrapped per entry, nothing runs at module load');
+ assert.match(wn,/requiresMeadowScene\(context\.selection\)\?meadowBoardWithGuest\(context\)/);assert.match(wn,/requiresSkycityScene\(context\.selection\)\?skycityBoardWithGuest\(context\)/);
+ for(const f of ['region/MeadowBoardBackground.ts','region/SkycityBoardBackground.ts'])assert.doesNotMatch(fs.readFileSync(S+f,'utf8'),/Guest/);
+ const ib=fs.readFileSync(S+'world-r2/IslandBoardBackground.ts','utf8');assert.match(ib,/one painted picture/,'island/tide board: 2D painting, no 3D space for her');});
