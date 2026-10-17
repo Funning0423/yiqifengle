@@ -219,6 +219,12 @@ export class WorldFlowComponent extends Component {
   private clock={updates:0,rawSeconds:0,appliedSeconds:0,maxDt:0,lastTickUtc:'',hideEvents:0,showEvents:0};
   /** Frames the flow has stayed hidden while the director is still ticking. Two frames, then revealReturn(). */
   private hiddenTicks=0;
+  /** Region-node walks turn the island exterior back on while the board camera is hidden. */
+  private nodeWalkLayers:((layers:Layers)=>void)|null=null;
+  presentNodeWalkWorld(on:boolean):void{
+    const layers:Layers=on?{interior:false,exterior:true,door:true,backdrop:true,doorwayInterior:true}:{interior:false,exterior:false,door:false,backdrop:false};
+    this.nodeWalkLayers?.(layers);
+  }
   /** One-shot return. Not cleared on hide: a same-turn hide after show must still reveal. */
   private returnTimer:any=null;
   private wxOff:[string,()=>void][]=[];
@@ -394,10 +400,12 @@ export class WorldFlowComponent extends Component {
       const assertStaticWorld=()=>{if(!alive)return;identity(this.node);identity(model);identity(sceneRoot);};
       const setDoor=(angle:number)=>{if(angle<0||angle>FIRSTSLICE.door.maxDeg)throw Error('Door angle outside contract');door.setRotationFromEuler(0,angle,0);};
       token.check();
+      const writeLayers=(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);};
+      this.nodeWalkLayers=writeLayers;
       return {
         // The source tower mesh also owns the doorway lintel, jamb backing and threshold.
         // Keep the existing building envelope at home; the rear arch is cut through both shells.
-        setLayers:(layers:Layers)=>{for(const entry of FIRSTSLICE.renderers)for(const r of renderers.get(entry.path)!)r.enabled=entry.name==='env_lighthouse_ext'?(layers.interior||layers.exterior):layers[entry.layer]||(entry.layer==='interior'&&!!layers.doorwayInterior&&DOORWAY_INTERIOR.has(entry.name));for(const r of v22Day)r.enabled=layers.exterior;this.exteriorVisible=layers.exterior;this.interiorVisible=layers.interior;this.backdropVisible=layers.backdrop;const paused=!layers.interior&&!layers.exterior&&!layers.backdrop;ambient.setHostPaused(paused);this.roomLighting?.setPaused(paused);this.applyDayNight();if(layers.interior)this.roomLighting?.setRoomLightWeight(1);},
+        setLayers:writeLayers,
         // T5 room-light API (contract: render/RoomLightingRig.ts header). setLayers(interior) lands on w=1, setLayers(!interior) on w=0;
         // only these calls produce intermediate w. blendRoomLight is a cancellable job like animateDoor/animateCamera.
         setRoomLightWeight:(w:number)=>this.setRoomLightWeight(w),

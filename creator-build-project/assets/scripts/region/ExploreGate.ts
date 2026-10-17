@@ -8,3 +8,5 @@ try{(globalThis as any).__qfSetExplore=setExploreEnabled;}catch{}
 export function exploreEnabled():boolean{return enabled;}
 export function noteSwallowedSkip():void{if(!enabled)swallowed={kind:'skip'};}
 export function takeSwallowedSkip():boolean{const had=!!swallowed;swallowed=null;return had;}
+/** Screenshot / QA entry. Absent from the player UI; the query is the only switch. */
+export function qaUnlocked(search:string):boolean{return /(?:^|[?&])qa=1(?:&|$)/.test(search||'');}

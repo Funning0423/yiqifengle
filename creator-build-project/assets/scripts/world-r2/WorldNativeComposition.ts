@@ -26,6 +26,9 @@ import {boardSafeInsets} from '../ui/BoardLayout';
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
 import { runRewardWalk } from '../region/RegionNodePlay';
+import { qaUnlocked } from '../region/ExploreGate';
+import { RegionNodeStage } from './RegionNodeStage';
+import { ExploreInput } from './ExploreInput';
 import '../region/ExploreGate';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
 // r4-prep B (extended): she stays where she landed in the meadow / sky-city live boards (their lease files untouched; wrapped per entry).
@@ -61,6 +64,12 @@ export class WorldNativeComposition extends Component {
     });
     try {const result=await world.initialize(levels,undefined,'motion');if(!result.ok)throw Error(result.reason);}
     catch(error){this.releaseOwned();throw error;}
+    if(typeof RegionNodeStage==='function'&&typeof ExploreInput==='function'){
+     const stage=this.node.getComponent(RegionNodeStage)||this.node.addComponent(RegionNodeStage);
+     stage.attach(this.worldCamera);
+     const input=this.node.getComponent(ExploreInput)||this.node.addComponent(ExploreInput);
+     input.sink=(g,x,y)=>stage.onGesture(g,x,y);
+    }
   }
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
@@ -224,11 +233,51 @@ export class WorldNativeComposition extends Component {
   attachCalibratedCharacter(adapter:CharacterAdapter){if(!this.world)throw Error('World not ready');this.boundCharacter=adapter;return this.world.bindCharacter(adapter);}
   /** Reward / next-level: follow the girl to the next node, then the existing board or bridge opens. No character bound (tests, headless) keeps today's order. */
   private markExplore(on:boolean){const set=(globalThis as any).__qfSetExplore;if(typeof set==='function')set(on);}
+  private stage():RegionNodeStage|null{return this.node?.getComponent(RegionNodeStage)||null;}
   private async presentNodeWalk(snapshot:any){
     if(!this.boundCharacter||!snapshot?.active?.stageId||!snapshot?.nextStageId)return;
+    const stage=this.stage();
+    if(stage&&this.worldCamera){
+     stage.bindCharacter(this.boundCharacter);
+     try{await stage.playReward(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId);}
+     catch(error){console.error('region-node-walk',error);}
+     return;
+    }
     this.markExplore(true);
     try{await runRewardWalk(this.boundCharacter,snapshot.active.stageId,snapshot.nextStageId);}
     catch(error){console.error('region-node-walk',error);}
+  }
+  /** Sky-city clear: leave the stair top, look up at the star ring, then free explore. */
+  async claimRegionAndWalk(index:number){
+    const snap=this.activeSession?.snapshot();
+    const stage=this.stage();
+    if(snap?.active?.stageId==='mainline-12'&&this.boundCharacter&&stage){
+     stage.bindCharacter(this.boundCharacter);
+     try{await stage.playFinale(this.boundCharacter);}catch(error){console.error('region-node-finale',error);}
+    }
+    return this.mainlineReward('claimRegion',index);
+  }
+  /** URL `qa=1` only. No banner, and the release build does not attach this unless that query is present. */
+  async qaShot(spec:{region?:'island'|'meadow'|'skycity';lens?:string;prop?:string;night?:boolean}){
+    const search=(()=>{try{const s=(globalThis as any).location?.search;return typeof s==='string'?s:'';}catch{return '';}})();
+    if(!qaUnlocked(search))return {ok:false,reason:'qa-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const region=spec?.region==='meadow'||spec?.region==='skycity'?spec.region:'island';
+    const checkpoint=region==='meadow'?8:region==='skycity'?12:4;
+    const here=this.world.commands().snapshot();
+    if(region!=='island'&&here.journey?.region!==region){
+     const profile=createRegionFlowCheckpoint(checkpoint,{allowQa:true});
+     if(!this.normalPorts)this.normalPorts={mainline:this.mainline,r4:this.r4,persistence:this.persistence,selection:this.selection};
+     this.mainline=profile.mainline;this.r4=profile.r4;this.persistence=profile.r5;this.testProfile=profile;this.activeSession=null;
+     if(here.state==='home'){const left=await this.world.commands().leaveHome();if(!left.ok)return left;}
+     const entered=await this.enterMainlineStage(profile.stageId,profile.seed);if(!entered.ok)return entered;
+    }else if(region==='island'&&here.state==='home'){
+     const left=await this.world.commands().leaveHome();if(!left.ok)return left;
+    }
+    if(spec?.night){try{const day=this.world.commands().dayNight?.();if(!String(day?.mode||day||'').includes('night'))this.world.commands().toggleDayNight();}catch{/* day stays */}}
+    const stage=this.stage();if(stage){stage.bindCharacter(this.boundCharacter);await stage.frame({region,lens:spec?.lens,prop:spec?.prop});}
+    (globalThis as any).__qaFrame=spec?.lens||'world';
+    return {ok:true};
   }
   worldCommands(){if(!this.world)throw Error('World not ready');return this.world.commands();}
   private releaseOwned(){if(this.worldCamera&&this.previousCameraVisibility!==null)this.worldCamera.visibility=this.previousCameraVisibility;this.owner?.destroy();this.uiParent?.destroy();this.owner=null;this.uiParent=null;this.world=null;this.previousCameraVisibility=null;}

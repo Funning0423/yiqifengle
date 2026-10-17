@@ -116,3 +116,6 @@ export function transition(state:LensState,event:string,explore=false):LensState
  return state;
 }
 export const BLEND_S={boardToFollow:0.6,followToBoard:0.8} as const;
+/** S6 terrace: look up at the star ring (y≈20), steeper than the 8° approach lift. */
+export const FINALE_LOOK_DEG=34;
+export function finalePose(girl:Vec,yawRad:number,w:number,h:number):Pose{return followPose(girl,yawRad,w,h,FINALE_LOOK_DEG);}

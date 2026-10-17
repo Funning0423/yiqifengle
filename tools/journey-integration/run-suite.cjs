@@ -91,6 +91,10 @@ const tests=[
  ['frame-background','tools/transitions/test_frame_background.cjs'],
  ['transport-flag','tools/region-nodes/test_transport_flag.cjs'],
  ['transit-background-resume','tools/region-nodes/test_transit_background_resume.cjs'],
+ ['region-nodes-scene-wiring','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['node-markers','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['explore-props','tools/region-nodes/test_region_scene_wiring.cjs'],
+ ['advance-walk-timeout','tools/region-nodes/test_region_scene_wiring.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

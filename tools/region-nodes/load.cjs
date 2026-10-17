@@ -20,7 +20,7 @@ function load(rel){
   if(fs.existsSync(abs))return require(abs);
   throw Error('Cannot resolve '+spec+' from '+file);
  };
- vm.runInNewContext(out,{module:m,exports:m.exports,require:req,console,Math,Date,JSON,Set,Map,Array,Object,Error,Promise,isFinite,Number,String,RegExp},{filename:file});
+ vm.runInNewContext(out,{module:m,exports:m.exports,require:req,console,Math,Date,JSON,Set,Map,Array,Object,Error,Promise,isFinite,Number,String,RegExp,setTimeout,clearTimeout},{filename:file});
  return m.exports;
 }
 module.exports={load,ROOT,SCRIPTS};

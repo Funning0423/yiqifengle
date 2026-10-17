@@ -202,7 +202,7 @@ function ts(body){
  lines.push('export const REGION_NODE_GLB:Readonly<Record<RegionId,string>>=');
  const shas={};
  for(const id of Object.keys(body))shas[id]=body[id].sha256;
- lines.push(JSON.stringify(shas,null,1)+';');
+ lines.push(JSON.stringify(shas)+';');
  lines.push('export const REGION_NODES:Readonly<Record<RegionId,RegionGraph>>=');
  const pub={};
  for(const id of Object.keys(body)){
@@ -213,7 +213,7 @@ function ts(body){
    edges:g.edges,
   };
  }
- lines.push(JSON.stringify(pub,null,1).replace(/"([A-Za-z0-9_]+)":/g,'$1:')+';');
+ lines.push(JSON.stringify(pub).replace(/"([A-Za-z0-9_]+)":/g,'$1:')+';');
  lines.push('');
  return lines.join('\n');
 }

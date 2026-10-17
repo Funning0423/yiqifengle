@@ -6,8 +6,8 @@ import { R5_KEYS } from './PersistentR5Port';
 import { REGION_FLOW_WITNESSES } from './RegionFlowWitnesses';
 let serial=0;
 /** Test build only. All progress is derived by original engine/controller operations in a fresh root. */
-export function createRegionFlowCheckpoint(completed: number) {
- if(!DEBUG)throw Error('test-build-only');
+export function createRegionFlowCheckpoint(completed: number, opts?:{allowQa?:boolean}) {
+ if(!DEBUG && !opts?.allowQa)throw Error('test-build-only');
  if(![4,8,12].includes(completed))throw Error('unsupported-checkpoint');
  const namespace='dot-region-flow-test-'+Date.now().toString(36)+'-'+(++serial)+'-'+Math.random().toString(36).slice(2)+':';
  const storage=(lane:string)=>({getItem:(key:string)=>sys.localStorage.getItem(namespace+lane+':'+key),setItem:(key:string,value:string)=>sys.localStorage.setItem(namespace+lane+':'+key,value)});
