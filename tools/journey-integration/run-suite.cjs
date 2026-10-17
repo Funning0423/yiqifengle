@@ -66,7 +66,7 @@ const tests=[
  ['lakeside-journey-atmosphere','tools/lakeside/test_lakeside_journey_atmosphere.cjs'],
  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
- ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],
+ ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
