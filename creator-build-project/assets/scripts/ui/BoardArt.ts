@@ -1,4 +1,4 @@
-import { requiresMeadowScene, requiresSkycityScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
+import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
 import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset, Texture2D } from 'cc';
 /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
@@ -14,6 +14,7 @@ export function boardChapter(selection: { provider?: string; stageId?: string } 
   if (id.indexOf('r05-tide-') === 0) return 'tide';
   if (requiresMeadowScene(selection)) return 'meadow';
   if (requiresSkycityScene(selection)) return 'sky';
+  if (requiresLakesideScene(selection)) return 'lake';
   return '';
 }
 /** Exact supported picture; missing meadow scenery is an explicit entry failure. */
