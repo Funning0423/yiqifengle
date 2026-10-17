@@ -138,8 +138,8 @@ const K2:SailOff={back:-7.4,side:-5.2,up:2.8,fov:52,look:-6.5,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
-/** Port and aft of the hull so the landing pier and the walk onto the grass stay in frame. */
-const K6:SailOff={back:7.2,side:5.4,up:4.4,fov:48,look:4.2,orb:0};
+/** Starboard and aft: the landing pier sits on −X (toward M0), so the lens must be on that side. */
+const K6:SailOff={back:6.4,side:-4.8,up:4.2,fov:48,look:3.6,orb:0};
 const mixOff=(a:SailOff,b:SailOff,u:number):SailOff=>{const s=smoother(u);return {back:lerp(a.back,b.back,s),side:lerp(a.side,b.side,s),up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s),orb:lerp(a.orb,b.orb,s)};};
 /** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
 function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}

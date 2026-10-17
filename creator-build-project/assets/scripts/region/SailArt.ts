@@ -114,6 +114,25 @@ function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  renderer.setSharedMaterial(mat,0);
  return mat;
 }
+/** A few diamond billboards for K7 when the glb star field sits outside the tall phone FOV. */
+function mountStarDiamonds(parent:Node):Node{
+ const root=new Node('sail_star_diamonds');parent.addChild(root);root.active=false;
+ const mat=new Material();
+ mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
+ mat.setProperty('mainColor',new Color(255,255,255,255));
+ const diamond=(s:number)=>{
+  const positions=[-s,0,0, 0,s,0, s,0,0, 0,-s,0];
+  const normals=[0,0,1, 0,0,1, 0,0,1, 0,0,1];
+  const indices=[0,1,2, 0,2,3];
+  return utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true});
+ };
+ const mesh=diamond(0.55);
+ [[-1.2,2.4,3.2],[0.3,3.1,2.6],[1.4,2.2,3.5],[-0.6,3.6,2.1],[0.9,2.8,4.0]].forEach((p,i)=>{
+  const n=new Node('star_'+i);root.addChild(n);n.setPosition(p[0],p[1],p[2]);
+  const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
+ });
+ return root;
+}
 export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;sync:(v:SailPose,cam:Vec,dt:number,night:boolean)=>void;dispose:()=>void};
 /** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth. The orange procedural boat is not loaded. */
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
@@ -171,6 +190,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*150,38+(i%3)*12,mid[2]+Math.sin(a)*150);
  });
  if(stars){stars.setWorldPosition(mid[0],55,mid[2]);stars.setScale(2.4,2.4,2.4);}
+ const starDiamonds=mountStarDiamonds(root);
  let wakeMat:Material|null=null,foamMat:Material|null=null,seaMat:Material|null=null;
  const seaOff=new Vec4(SEA_SCALE,SEA_SCALE,0,0);
  walk(root,n=>{
@@ -190,7 +210,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }else{
    const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
    nearestPalette(tex);
-   if(n.name==='night_stars')unlit(r,new Color(255,252,245,255),null);
+   if(n.name==='night_stars')unlit(r,new Color(255,255,255,255),null);
    else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
    else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
   }
@@ -207,13 +227,13 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  let lampLight:PointLight|null=null;
  if(lamp){
   lampLight=lamp.getComponent(PointLight)||lamp.addComponent(PointLight);
-  // Keep the stern lamp as a tiny warm pool; a brighter point light washes the cockpit white.
-  lampLight.color=new Color(255,170,90,255);
-  lampLight.range=1.1;
-  lampLight.luminance=1.2;
+  // Mesh emissive alone is enough for a small warm pool; a point light still washes the cockpit.
+  lampLight.color=new Color(255,160,80,255);
+  lampLight.range=0.8;
+  lampLight.luminance=0.4;
  }
  const lampMat=lamp?.getComponent(MeshRenderer)?.getMaterialInstance(0)??null;
- if(lampMat){lampMat.setProperty('emissive',new Color(255,168,72,255));try{lampMat.setProperty('emissiveScale',0.18);}catch{/* shared gltf may omit the slot */}}
+ if(lampMat){lampMat.setProperty('emissive',new Color(255,150,60,255));try{lampMat.setProperty('emissiveScale',0.12);}catch{/* shared gltf may omit the slot */}}
  type Grade={m:Material;base:number[];wind:boolean;cloud:boolean;prop:boolean};
  const grades:Grade[]=[];
  const linToSrgb=(c:number)=>c<=0.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-0.055;
@@ -259,7 +279,14 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(lampLight)lampLight.enabled=night;
    if(stars){
     stars.active=night;
-    if(night)stars.setWorldPosition(cam[0],cam[1]+42,cam[2]+18);
+    if(night){stars.setWorldPosition(cam[0],cam[1]+28,cam[2]+8);stars.setScale(3.2,3.2,3.2);}
+   }
+   if(starDiamonds){
+    starDiamonds.active=night;
+    if(night){
+     starDiamonds.setWorldPosition(cam[0],cam[1]+1.2,cam[2]);
+     starDiamonds.lookAt(new Vec3(cam[0],cam[1]+1.2,cam[2]-1));
+    }
    }
    grade(night);
    if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.07,0.11,0.26,1):new Vec4(1,1,1,1));
