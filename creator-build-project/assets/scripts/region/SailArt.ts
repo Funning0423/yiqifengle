@@ -8,7 +8,7 @@ function walk(node:Node,fn:(n:Node)=>void){fn(node);for(const c of node.children
 function loadPrefab(name:string):Promise<Prefab>{
  return new Promise((ok,fail)=>assetManager.loadBundle('transport_sail',(e,b)=>{
   if(e||!b){fail(e||Error('transport_sail'));return;}
-  b.load(name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
+  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
  }));
 }
 function nearestPalette(tex:Texture2D|null){

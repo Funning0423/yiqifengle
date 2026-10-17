@@ -5,7 +5,7 @@ function find(node:Node,name:string):Node|null{if(node.name===name)return node;f
 export function loadTransportPrefab(name:string):Promise<Prefab>{
  return new Promise((ok,fail)=>assetManager.loadBundle('transport_sail',(e,b)=>{
   if(e||!b){fail(e||Error('transport_sail'));return;}
-  b.load(name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
+  b.load(name+'/'+name,Prefab,(e2,p)=>{if(e2||!p)fail(e2||Error(name));else ok(p as Prefab);});
  }));
 }
 export async function mountSailboat(parent:Node):Promise<{root:Node;seat:Node|null;sail:Node|null}>{
