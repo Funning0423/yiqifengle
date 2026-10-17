@@ -15,7 +15,7 @@ new Function(src+';logLakesideFailure("prefabs","r04-lake-01",new Error("lakesid
 assert.equal(lines.length,2);const j=JSON.parse(lines[0].replace('[QF_LAKESIDE] ',''));assert.deepEqual(j,{event:'load-failed',stageId:'r04-lake-01',step:'prefabs',error:'lakeside-prefab-missing: x'});
 // fallback stays the island: operate() restores the stable place on a non-cancel error
 assert(/token\.cancel\(\);this\.error=String\(err\);this\.restore\(\);this\.change\(this\.world\?this\.stable:'error'\);/.test(flow),'WorldFlow returns to the stable place');
-assert(/if\(result\.ok===false&&String\(result\.reason\)\.includes\(LAKESIDE_LOAD_FAILED\)\)\{this\.pendingJourneySelection=null;return \{ok:false,reason:LAKESIDE_LOAD_FAILED\};\}/.test(comp));
+assert(/if\(result\.ok===false&&String\(result\.reason\)\.includes\(LAKESIDE_LOAD_FAILED\)\)return this\.lakesideFallback\('board',result\.reason\);/.test(comp),'build05-next: board failure -> lakesideFallback (test_lakeside_fallback)');
 // HUD: approved copy only, toast (no error panel, no raw reason), and it does not block the island (this.error stays empty)
 const m={exports:{}};const out=ts.transpileModule(toast.replace(/^import[^\n]*\n/gm,''),{compilerOptions:{module:1,target:6}}).outputText;
 new Function('module','exports','require','TOAST_S','makeLabel','measure',out)(m,m.exports,require,2,null,null);

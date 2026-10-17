@@ -19,6 +19,8 @@ import { createPersistentMainlinePort } from './PersistentMainlinePort';
 import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
 import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
+/** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
+const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
 const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
@@ -71,13 +73,22 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
     const region=this.selectionRegion(selection);
-    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside')console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);return arrived;}
+    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside'){console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);if(!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);}return arrived;}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
     if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
-    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); WorldFlow put her back on the island. Hand the HUD one stable reason.
-    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED)){this.pendingJourneySelection=null;return {ok:false,reason:LAKESIDE_LOAD_FAILED};}
+    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
+    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
     return result;
+  }
+  /** build05-next: every lakeside journey / ensureRegion / board failure ends the same way: details to the log only
+   *  ([QF_LAKE] / [QF_LAKESIDE]), the lakeside journey is dropped, she stands on the island, and the HUD gets one stable
+   *  reason (WorldIntegrationBoot shows only the toast 「湖畔暂时没准备好，先回小岛吧」). */
+  private lakesideFallback(stage:'journey'|'board',reason:unknown):Result{
+    this.pendingJourneySelection=null;let back:Result={ok:false,reason:'no-world'};
+    try{back=(this.world?.commands() as any)?.abandonLakesideJourney?.()??back;}catch(error){back={ok:false,reason:String(error)};}
+    try{console.error('[QF_LAKE] '+JSON.stringify({event:'lakeside-fallback',stage,reason:String(reason),island:back.ok?'ok':String((back as any).reason)}));}catch{}
+    return {ok:false,reason:LAKESIDE_LOAD_FAILED};
   }
   private selectionRegion(selection:Selection):JourneyRegion {
     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';

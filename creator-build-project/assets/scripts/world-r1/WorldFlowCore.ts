@@ -539,6 +539,15 @@ export class WorldFlow {
     // her straight at home (seated pose, home camera/layers) instead of replaying the walk.
     this.stable='home';this.restore();this.change('home');this.cameraEvent({kind:'settled',place:'home'});return {ok:true};
   }
+  /** build05-next (风铃湖畔 fallback, toast 「湖畔暂时没准备好，先回小岛吧」): after a failed island→lakeside journey or a failed
+   *  lakeside board, drop the lakeside journey scenes and stand her on the island (no retry state; saves untouched). */
+  abandonLakesideJourney():Result {
+    const j=this.journey;if(!j||this.state==='disposed')return {ok:false,reason:'journey-unavailable'};
+    if(this.current)return {ok:false,reason:'busy'};
+    const s=j.snapshot();if(s.target!=='lakeside'&&s.region!=='lakeside')return {ok:true};
+    try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+    this.error=null;this.stable='island';this.restore();this.change('island');return {ok:true};
+  }
   async returnHome():Promise<Result> {
     const left=this.leaveJourneyForIsland();if(left)return left;
     if(this.journey?.isInTransit())return {ok:false,reason:'finish-region-journey-first'};
