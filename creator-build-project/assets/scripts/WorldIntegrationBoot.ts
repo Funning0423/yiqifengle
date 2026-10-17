@@ -216,7 +216,7 @@ class FlowReferenceStandin implements CharacterAdapter {
    if(j.elapsed+1e-6>=j.duration)j.elapsed=j.duration;let p=j.elapsed/j.duration;
    if(j.action.kind==='walk'){
     // root travel: plan distance (walk_start / stop forward curves, cruise ramps) or the old linear L*t/D
-    const plan:WalkPlan|null=j.plan,sPrev=j.s,curve=j.action.distanceAt;const s=curve?Math.max(sPrev,Math.min(j.length,curve(j.elapsed))):plan?walkDistanceAt(plan,j.elapsed):j.length*p;j.s=s;if(j.length>0)p=s/j.length;
+    const plan:WalkPlan|null=j.plan,sPrev=j.s;const s=plan?walkDistanceAt(plan,j.elapsed):j.length*p;j.s=s;if(j.length>0)p=s/j.length;
     const st=plan&&plan.stop;if(st&&!j.stopEntered&&j.elapsed>=st.tEntry-1e-9){j.stopEntered=true;entry={dt1:Math.max(0,Math.min(step,st.tEntry-before)),ds1:Math.max(0,st.sEntry-sPrev)};
      const e=j.action.path[j.action.path.length-1];this.stopRoot={clip:st.clip,end:[e[0],e[1],e[2]],yaw:this.yawRad,S:st.S,scale:st.scale,forward:st.forward,lateral:st.lateral};}
     const q=pointOnPath(j.action.path,p),at=[q[0],q[1],q[2]];
@@ -287,7 +287,7 @@ class FlowReferenceStandin implements CharacterAdapter {
    if(action.kind==='stand')duration=this.playNamed(CLIP_ROLES.standUp,false)!;
    else if(action.kind==='sit')duration=this.playNamed(CLIP_ROLES.sitDown,false)!;
    else if(action.kind==='walk'){this.requireClip(CLIP_ROLES.walk);duration=action.duration;let L=0;for(let i=1;i<action.path.length;i++){const a=action.path[i-1],b=action.path[i];L+=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}extra.length=L;
-    extra.plan=Number.isFinite(duration)&&duration>0&&!action.distanceAt?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
+    extra.plan=Number.isFinite(duration)&&duration>0?this.planFor(action,L):null;extra.fromRest=this.beginWalk(extra.plan||{L,D:duration,start:null,stop:null,cruise:null,linear:true,rate:1,notes:[]});}
    else{// Start from where she actually faces (the walk's damped yaw may still trail the path end by a few degrees).
     const turn=action as Extract<Action,{kind:'turn'}>;extra.fromYaw=this.yawRad;extra.deltaYaw=wrapAngle(turn.toYawRad-this.yawRad);
     // the walk ended without a planned stop: the stop plays before the turn (r5: it was skipped whenever a task followed)
