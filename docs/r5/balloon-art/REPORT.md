@@ -7,6 +7,7 @@
 | `5702182b21237965422d60f446115cd6b2826b9c` | `de7d5190c6f1f139a993ca60aae68b3902a41000` | 用 GGbot v2.1 替换程序化气球，接缝不搬城 |
 | `634d305bf04a24563a4c3380691aac2ec1a733fb` | `b6ce6be101c9f4c24a2b975d57a508d3e699df17` | 截图脚本与 STATUS |
 | `be8c566a71b412659faaec1abcd5d0cf99a70dc6` | `255ae135308a2286d30daf1e06a9e92d3c6ad414` | Creator 导入后的 glTF meta（meshopt + quantize + encode） |
+| `a9fb03fba6fe10fefe9216e1e3fc73e49f46f612` | `3f4ec15a65572f885ed4a91428378542e1a0a3ed` | 绘制前重写镜头，并放入 7 张截图 |
 
 基线仍是 balloon-fix `1de44e68bb0ba5ba446bb454692c2f9e21c141a3`。没有 push。
 
