@@ -1,7 +1,7 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
-export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming }>;
+export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
 /** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
 export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; }
 export interface JourneySceneAdapter {
@@ -22,6 +22,7 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
  if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');
+ if(route.board!==undefined&&!journeyBoardEndOk(route.board,routeLength(route.path)))throw Error('journey-invalid-board-end');
  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
@@ -121,6 +122,22 @@ const unit=(v:Vec):Vec=>{const l=Math.hypot(v[0],v[1],v[2])||1;return [v[0]/l,v[
 const lerp=(a:Vec,b:Vec,t:number):Vec=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
 /** Great-circle interpolation of two unit directions (constant angular rate in t). */
 export function slerpDir(a:Vec,b:Vec,t:number):Vec{const d=Math.max(-1,Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])),w=Math.acos(d);if(w<1e-5)return unit(lerp(a,b,t));const s=Math.sin(w),k0=Math.sin((1-t)*w)/s,k1=Math.sin(t*w)/s;return unit([a[0]*k0+b[0]*k1,a[1]*k0+b[1]*k1,a[2]*k0+b[2]*k1]);}
+/** 运镜bot (region hooks, cine/region-hooks-meadow-skycity): the board camera a route ENDS on (route.board, journey world).
+ * Over the last blendM metres of the walk the lens leaves its own pose (follow / Landing A) for this pose on ONE smootherstep
+ * e = smoother(1 - left/blendM) that drives position (lerp), view direction (slerp, a look-at: no roll) and FOV (lerp)
+ * together, so all three start with zero velocity/acceleration relative to the lens they leave, move monotonically toward the
+ * board pose (no overshoot) and come to rest exactly where she stops (de/dd = 0 at left = 0), even though her walk stops at
+ * full speed. At left = 0 the pose IS route.board, so the board background's camera takes over at the identical pose.
+ * Routes without `board` are byte-for-byte unchanged. Set per screen at runtime by RegionJourneyAdapter (RegionBoardLanding). */
+export type JourneyBoardEnd = Readonly<{position:Vec;target:Vec;fovVerticalDeg:number;blendM:number}>;
+export function journeyBoardEndOk(b:JourneyBoardEnd,length:number):boolean{return !!b&&[...(b.position||[]),...(b.target||[]),b.fovVerticalDeg,b.blendM].every(Number.isFinite)&&b.position.length===3&&b.target.length===3&&b.fovVerticalDeg>1&&b.fovVerticalDeg<170&&b.blendM>0&&b.blendM<=length&&Math.hypot(b.target[0]-b.position[0],b.target[1]-b.position[1],b.target[2]-b.position[2])>1e-6;}
+export function boardEndBlend(pose:Pose,length:number,distance:number,board:JourneyBoardEnd):Pose{
+ const left=length-distance;if(!(left<board.blendM))return pose;
+ if(left<=0)return {position:[board.position[0],board.position[1],board.position[2]],target:[board.target[0],board.target[1],board.target[2]],fovVerticalDeg:board.fovVerticalDeg};
+ const e=smoother(1-left/board.blendM),p=lerp(pose.position,board.position,e),d=slerpDir(unit(rel3(pose.target,pose.position)),unit(rel3(board.target,board.position)),e),f0=pose.fovVerticalDeg??JOURNEY_CAMERA.fovDeg;
+ return {position:p,target:[p[0]+d[0]*8,p[1]+d[1]*8,p[2]+d[2]*8],fovVerticalDeg:f0+(board.fovVerticalDeg-f0)*e};
+}
+const rel3=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]];
 /** Lens offsets at a route distance: defaults, smoothly blended (smoothstep) between the route's keys. */
 export function lensAt(keys:readonly LensKey[]|undefined,distance:number){
  const C=JOURNEY_CAMERA,base={upM:C.upM as number,backM:C.backM as number,sideM:C.sideM as number,lookM:C.lookM as number};if(!keys||!keys.length)return base;
@@ -153,7 +170,7 @@ export function orbitOffset(a:Vec,b:Vec,t:number,turn=0):Vec{
  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;if(Math.abs(d)>Math.PI*.75){if(turn>0&&d<0)d+=2*Math.PI;if(turn<0&&d>0)d-=2*Math.PI;}
  const ang=aa+d*t,r=ra>1e-3&&rb>1e-3?ra*Math.pow(rb/ra,t):ra+(rb-ra)*t;return [Math.sin(ang)*r,a[1]+(b[1]-a[1])*t,Math.cos(ang)*r];
 }
-export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM,landing?:JourneyLanding):Pose {
+export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM,landing?:JourneyLanding,board?:JourneyBoardEnd):Pose {
  const C=landingCamera(landing),T=routeLength(path);
  const raw=sampleRoute(path,distance),p=C.anchorSmoothM>0?smoothRoutePoint(path,distance,C.anchorSmoothM):raw,f0=followPose(path,distance,keys,C.anchorSmoothM),dp:Vec=[p[0]-raw[0],p[1]-raw[1],p[2]-raw[2]];
  const f={position:[f0.position[0]+dp[0],f0.position[1]+dp[1],f0.position[2]+dp[2]] as Vec,target:[f0.target[0]+dp[0],f0.target[1]+dp[1],f0.target[2]+dp[2]] as Vec};
@@ -178,7 +195,8 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov0=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;const fov=focus&&C.arrivalFovDeg>0&&wArr>0?fov0+(C.arrivalFovDeg-fov0)*Math.min(1,wArr):fov0;
- return {position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
+ const out:Pose={position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
+ return board?boardEndBlend(out,T,distance,board):out;
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.
  * The flow owns the sole clock. Assets become ready only after real prefab/anchor/material validation succeeds. */
@@ -212,7 +230,7 @@ export class RegionJourneyController {
   this.distance=Math.min(routeLength(this.lease.route.path),this.startDistance+routeLength(this.activePath)*Math.max(0,Math.min(1,f)));
   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
-  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);
+  this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);
   this.leaseProgress();
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
@@ -226,7 +244,7 @@ export class RegionJourneyController {
    // full black, then fade in (inS) while she walks. Audio is untouched. Leases without fadeCover keep the old path.
    const fade=this.distance===0&&this.lease.route.startBlendM===0&&this.lease.route.from==='island'&&typeof world.fadeCover==='function';
    if(fade){this.fadeState='out';await world.fadeCover!(1,SETOFF_FADE.outS);token.check();this.fadeState='black';
-    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing);world.setCamera(this.camera);}
+    this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);}
    this.show(true);token.check();
    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
    if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
@@ -234,7 +252,7 @@ export class RegionJourneyController {
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);this.leaseProgress();
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
