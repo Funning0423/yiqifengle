@@ -267,6 +267,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   let floatNodes: { node: Node; x: number; y: number; phase: number; fromY: number }[] = [];
   let chestPose: { node: Node; flat: Node | null; y: number; rigY: number; w: number; h: number } | null = null;
   let guideT = 0, riseT = 0, flatScale = { x: 1, y: 1 };
+  const builtAt = Date.now();
+  /** Badges rise out of the chest's mouth only when this panel is the one shown as the chest opens (tap within the hand-off window). */
+  const riseLive = !m.rewards.some(r => (r.iconKind === 'chest' || r.id === 'chest') && r.state === 'claimed') || Date.now() - chestTappedAt < CHEST_HANDOFF_MS;
   let liveScoreY: number | null = null; // R1a: where the score is on screen now (eased), carried through every repaint in the window
   let adoptedScoreY: number | null = null, scoreEase: { node: Node; base: number; delta: number; t: number } | null = null;
   // delta holds the score's previous WORLD y; the offset is re-derived each frame because the panel scale can still change.
@@ -277,7 +280,7 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   // Pulsing light guide on a ready chest; floating rewards rise out of the open chest, then bob gently.
   const baseUpdate = p.update.bind(p);
   p.update = (dt: number) => {
-    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT += d; chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); } else if (Date.now() - chestTappedAt < CHEST_HANDOFF_MS) liveScoreY = scoreWorldY(p.root);
+    baseUpdate(dt); const d = Math.max(0, Math.min(dt, 0.1)); guideT += d; riseT = Math.max(riseT + d, (Date.now() - builtAt) / 1000); chestRig?.update(d); if (scoreEase) { scoreEase.t += d; applyScoreEase(); } else if (Date.now() - chestTappedAt < CHEST_HANDOFF_MS) liveScoreY = scoreWorldY(p.root);
     const still = reducedMotion(), wave = Math.sin(guideT * 2 * Math.PI / GUIDE_PERIOD);
     if (guideDiag.pulsing && !still) {
       const sine = 0.5 - 0.5 * Math.cos(guideT * 2 * Math.PI / GUIDE_PERIOD); // sineInOut 0→1→0
@@ -295,7 +298,9 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
     if (raysNode && isValid(raysNode, true) && raysNode.active && !still) raysNode.setRotationFromEuler(0, 0, -riseT * 18); // 20 s per turn
     for (const f of floatNodes) {
       if (!isValid(f.node, true)) continue;
-      const k = still ? 1 : Math.max(0, Math.min(1, (riseT - f.phase) / 0.42)), e = backOut(k, 1.4), bob = still || k < 1 ? 0 : 3 * Math.sin((riseT - f.phase - 0.42) * Math.PI);
+      // Rise out of the chest only on the panel shown right after the tap; any later panel of an open chest (restore,
+      // re-entry) shows them settled. Wall clock too: back from the background mid-rise they are already in place.
+      const k = still || !riseLive ? 1 : Math.max(0, Math.min(1, (riseT - f.phase) / 0.42)), e = backOut(k, 1.4), bob = still || k < 1 ? 0 : 3 * Math.sin((riseT - f.phase - 0.42) * Math.PI);
       const sc = 0.3 + 0.7 * e;
       // The plate + icon scale 0.3 → 1; the name keeps its readable 16-unit size throughout.
       for (const c of f.node.children) { if (c.getComponent(Label)) continue; const b = (c as any).__floatBase || ((c as any).__floatBase = { x: c.scale.x, y: c.scale.y }); c.setScale(b.x * sc, b.y * sc, 1); }
@@ -341,13 +346,15 @@ function configureResultLayout(p: PopupPanel, _originalHeight: number, m: Result
   // Bottom row keeps clear of the panel edge (28 inside a 12-unit panel inset = 40 from a 390-wide screen) and the bottom.
   // SPEC: buttons (drop shadow included) keep 16 pt from the panel's inner edge (the ≈ 23 pt 9-slice border) on the sides and bottom, every size.
   const ACTION_INNER_PAD = 16, ACTION_PAD = PANEL_EDGE_PT + ACTION_INNER_PAD, ACTION_SIDE = ACTION_PAD, ACTION_GAP = 16, ACTION_BOTTOM = ACTION_PAD, ACTION_H_C = 52;
-  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, guide: guideDiag });
+  (p as any).resultDiagnostics = () => ({ floatLift: specCompact ? FLOAT_COMPACT_LIFT : 0, chestOpen: m.rewards.some(r => isChest(r) && r.state === 'claimed'), chest: chestRig ? chestRig.diagnostics() : null, action: { height: specCompact ? ACTION_H_C : ACTION_H, artScale: ACTION_ART, shadow: ACTION_SHADOW, side: ACTION_SIDE, gap: ACTION_GAP, bottom: ACTION_BOTTOM }, float: floatDiag, floatRise: riseLive, guide: guideDiag });
   let floatDiag: { name: string; x: number; y: number; icon: number }[] = []; const guideDiag: any = { pulsing: false, period: GUIDE_PERIOD };
   let hintLabel: Label | null = null;
   const anyReady = () => m.rewards.some(r => r.state === 'ready' && r.claim);
   const hasChest = () => m.rewards.some(isChest);
-  /** Items float over the chest once it is open (or on their own when there is no chest). */
-  const floating = () => sideRewards().filter(r => !hasChest() || m.rewards.some(c => isChest(c) && c.state === 'claimed') || r.state === 'claimed');
+  /** Items float over the chest once it is open (or on their own when there is no chest).
+   *  Funning (Mac, 09a1b8e): a closed chest shows NO reward of any kind above it, not even one already claimed earlier
+   *  (a replayed level whose region tool was taken before). They only come out of the chest when it opens. */
+  const floating = () => sideRewards().filter(() => !hasChest() || chestOpened());
   const floatBand = (dense: boolean) => floating().length ? (dense ? FLOAT_ICON_DENSE : FLOAT_ICON) + FLOAT_NAME + 12 : 0;
   const chestOpened = () => m.rewards.some(c => isChest(c) && c.state === 'claimed');
   const chestReady = () => m.rewards.some(c => isChest(c) && c.state === 'ready' && !!c.claim);
