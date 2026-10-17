@@ -86,7 +86,9 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   /** r2 warm hemisphere fill (linear; r5h3 sky 0.0116/0.2747/0.4793, ground 1/0.5457/0.1441). Up faces get the sky, the
    *  camera-facing backlit faces about half sky / half ground. */
   ambientSkyColorLinear: [0.0107, 0.0656, 0.1106] as readonly number[],
-  ambientGroundColorLinear: [1.0, 0.841, 0.0687] as readonly number[],
+  /** r2b (Grok Bot: warm fill too strong, rails yellow): ground warm saturation halved toward its own luminance (c60ac55 1/0.841/0.0687,
+   *  luminance 0.819 kept, so the night ratios are unchanged). */
+  ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
   ambientSkyIllumToSun: 0.49,
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,

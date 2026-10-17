@@ -13,7 +13,7 @@ assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');asser
 assert.deepEqual(D.lakesideCocosLightColor(R.ambientSky),b8(R.ambientSky));assert.deepEqual(D.lakesideCocosLightColor(R.ambientGround),b8(R.ambientGround));
 for(let i=0;i<101;i++){const x=i/100;assert.equal(D.lakesideCocosLightColor([x,x,x])[0],Math.round(x*255),'linear -> byte '+x);}
 assert.equal(P.sunIlluminanceScale,0.7,'r2 sun 0.7 x base (Grok Bot 0.7-0.8; emulator fit, device check)');
-assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.841,0.0687]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
+assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.deepEqual([...P.ambientGroundColorLinear],[0.9095,0.83,0.4439]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
 // v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
 const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
 const gr=R.ambientGround;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
