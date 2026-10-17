@@ -1,4 +1,4 @@
-// 风铃湖畔 water (GGbot D1 v3). Cheap mobile water for WeChat WebGL1/2: lit like builtin-standard's diffuse terms
+// 风铃湖畔 water (GGbot D1 v3, v3.3). Cheap mobile water for WeChat WebGL1/2: lit like builtin-standard's diffuse terms
 // (vertex colour x waterTint), Fresnel blend to the r5h3 sky colour at grazing angles, a Blinn-Phong sunset streak from the
 // main DirectionalLight, optional sin-wave normal (cc_time). No textures, no render targets, scene fog applied. Instancing via local-batch.
 CCEffect %{
@@ -13,8 +13,9 @@ CCEffect %{
         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
         fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
-        specParams:    { value: [300.0, 1.6, 0.4, 0.25], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise, w sky-reflection floor (v3.2)' } }
+        specParams:    { value: [300.0, 1.6, 0.0, 0.25], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
+        lightParams:   { value: [0.8, 0.35, 12.0, 35.0], editor: { tooltip: 'v3.3 water only: x main-light (diffuse) scale, y ambient scale, z/w wave fade start/end distance (m)' } }
 }%
 
 CCProgram lk-water-vs %{
@@ -67,15 +68,19 @@ CCProgram lk-water-fs %{
     vec4 fresnelParams;
     vec4 specParams;
     vec4 waveParams;
+    vec4 lightParams;
   };
 
   vec4 frag () {
     vec3 N = normalize(v_worldNormal);
     #if USE_WAVES
+      // v3.3: waves fade out with distance. Past ~35 m the 7 m sin pattern is sub-pixel and only swung the reflection vector across
+      // the orange->blue sky ramp (R.y ~0.2 there), i.e. the slowly moving orange/cyan bands in mid-lake (Mac v3.2: std 14 in linear60/off).
+      float wf = 1.0 - smoothstep(lightParams.z, lightParams.w, length(cc_cameraPos.xyz - v_worldPos));
       float t = cc_time.x * waveParams.z, f = waveParams.y;
       vec2 p = v_worldPos.xz * f;
       vec2 d = vec2(sin(p.x + t) + 0.5 * sin(1.7 * p.y - 1.3 * t), cos(p.y + 0.8 * t) + 0.5 * cos(1.3 * p.x + 1.1 * t));
-      N = normalize(N + vec3(d.x, 0.0, d.y) * waveParams.x);
+      N = normalize(N + vec3(d.x, 0.0, d.y) * (waveParams.x * wf));
     #endif
     vec3 V = normalize(cc_cameraPos.xyz - v_worldPos);
     vec3 L = normalize(-cc_mainLitDir.xyz);
@@ -88,7 +93,9 @@ CCProgram lk-water-fs %{
     vec3 lit = cc_mainLitColor.rgb * cc_mainLitColor.w;
     float fAmb = max(0.0001, 0.5 - N.y * 0.5);
     vec3 amb = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-    vec3 col = albedo * (lit * NL / 3.14159265 + amb);
+    // v3.3: water-only light scales (diffuse main light x, ambient y). Mac v3.2 near water 64/218/216 vs r5h3 66/152/146: the excess is
+    // green/blue, i.e. ambient sky + sky reflection, not the warm sun (README v3.3 for the split); the streak keeps the full main light.
+    vec3 col = albedo * (lit * NL / 3.14159265 * lightParams.x + amb * lightParams.y);
     // Fresnel sky reflection (Schlick): water colour at normal incidence -> sky blue / horizon at grazing angles.
     float NV = clamp(dot(N, V), 0.0, 1.0);
     float F = fresnelParams.y + (1.0 - fresnelParams.y) * pow(1.0 - NV, fresnelParams.x);

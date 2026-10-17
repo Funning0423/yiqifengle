@@ -114,7 +114,8 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
    if(waterAsset){water=new Material();water.copy(waterAsset);const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
     water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
     water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
-    water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));instanced.push(water);}
+    water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
+    water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));instanced.push(water);}
    const tinted=new Set<Material>();
    for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
