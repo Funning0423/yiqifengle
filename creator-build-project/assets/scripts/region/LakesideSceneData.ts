@@ -67,11 +67,20 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',
   waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
-  waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
+  waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
+  /** v3.3: reflected-sky brightness 1.0 -> 0.4 (the floor 0.25 stays; this dims what the floor mixes in). Cocos multiplies the r5h3 sky
+   *  colour by the ambient illuminance (x exposure), so at 1.0 the reflection alone gave the near water more blue than r5h3 shows. */
+  waterSkyStrength: 0.4,
+  /** v3.3 water-only light scales (lakeside-water lightParams.xy). Fit to the Mac v3.2 pixel (near water 64/218/216, layered) toward
+   *  r5h3 66/152/146 with the shader's own terms: predicted ~61/153/145 (tools/lakeside/water_tune_v33.cjs). Main light alone cannot get
+   *  there - it only lights ~5-16% of the green/blue - so ambient (0.35) and sky strength (0.4) carry most of it; main light 0.8. */
+  waterMainLightScale: 0.8, waterAmbientScale: 0.35,
+  /** v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m (kills the moving mid-lake bands). */
+  waterWaveFadeStart: 12, waterWaveFadeEnd: 35,
   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
   waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
   waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
-  waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
+  waterSpecExponent: 300, waterSpecNoise: 0, waterSpecIntensity: 1.6, // v3.3 noise 0.4 -> 0: its sin(x*3.1) striped the streak into moving bands
   /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
    *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
   waterSkyReflectFloor: 0.25,

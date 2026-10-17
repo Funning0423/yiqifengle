@@ -8,7 +8,7 @@ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
 assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
 assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
 assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
-assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise>0);
+assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
 assert.deepEqual([...P.fogColorSrgb],[215,170,150]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
 const end=D.lakesideFogEnd();assert.equal(end,235);
 const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
@@ -25,7 +25,7 @@ assert(/CC_TRANSFER_FOG\(pos\)/.test(fx)&&/CC_APPLY_FOG\(o, v_worldPos\)/.test(f
 assert(/CCGetWorldMatrixFull\(matWorld, matWorldIT\)/.test(fx),'instancing-aware world matrix');
 assert(!/sampler2D|texture\(/.test(fx),'no textures');
 const ub=fx.match(/uniform LakesideWater \{([\s\S]*?)\};/)[1].trim().split(/\n/).map(s=>s.trim());assert(ub.every(l=>/^vec4 \w+;$/.test(l)),'std140-safe vec4 block');
-for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
+for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams','lightParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
 // metas / material
 const em=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.effect.meta'))),mt=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl'))),mm=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl.meta')));
 JSON.parse(fs.readFileSync(path.join(W,'..','water.meta')));
@@ -41,7 +41,7 @@ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.
 assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
 assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
 assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
-assert.equal(P.waterSkyReflectFloor,0.25);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.4, 0\.25\]/.test(fx));
+assert.equal(P.waterSkyReflectFloor,0.25);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.25\]/.test(fx));
 assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
 assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
 assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
@@ -58,4 +58,16 @@ const Lf=D.LAKESIDE_LAYERED_FOG;assert(Lf.fogTop>0.3&&Lf.fogTop<5.7&&Lf.fogTop<c
 const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fogTop-y)/Lf.fogRange*2;return 1-Math.exp(-Math.sqrt(1+(dD/dY)**2)*dY*dY/2);};
 assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
 assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
+// v3.3 near water: water-only light scales + dimmer reflected sky (floor and tint unchanged); default fog layered; waves fade with distance
+assert.equal(P.waterMainLightScale,0.8);assert.equal(P.waterAmbientScale,0.35);assert.equal(P.waterSkyStrength,0.4);
+assert(/lightParams:\s+\{ value: \[0\.8, 0\.35, 12\.0, 35\.0\]/.test(fx),'effect defaults = params (fallback if setProperty fails)');
+assert(/water\.setProperty\('lightParams',new Vec4\(P\.waterMainLightScale,P\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\)/.test(bg));
+assert(/vec3 col = albedo \* \(lit \* NL \/ 3\.14159265 \* lightParams\.x \+ amb \* lightParams\.y\);/.test(fx),'diffuse main x, ambient y');
+assert(/col \+= lit \* pow\(max\(dot\(N, H\), 0\.0\), ex\) \* specParams\.y \* F;/.test(fx),'streak keeps the full main light');
+assert(/float wf = 1\.0 - smoothstep\(lightParams\.z, lightParams\.w, length\(cc_cameraPos\.xyz - v_worldPos\)\);/.test(fx)&&/\* \(waveParams\.x \* wf\)\);/.test(fx),'wave fade');
+const bd=dist([0,0,B.max[2]]),mid=dist([0,0,-40]);assert(bd<P.waterWaveFadeEnd&&mid>P.waterWaveFadeEnd,'waves on the board water, none mid-lake');
+const T=require('./water_tune_v33.cjs'),tgt=[66,152,146];
+for(const vc of T.VCS){const p=T.predict({main:P.waterMainLightScale,amb:P.waterAmbientScale,sky:P.waterSkyStrength},vc);assert(p.every((c,i)=>Math.abs(c-tgt[i])<=8),'near water fit '+p);}
+assert.deepEqual(T.predict(T.P0,T.VCS[0]),[63,216,214],'model reproduces the Mac v3.2 pixel 64/218/216');
+assert.equal(D.LAKESIDE_FOG_MODE,'layered','v3.3 default fog');
 console.log('lakeside water+fog OK fogEnd='+end);
