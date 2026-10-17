@@ -15,7 +15,7 @@
 - Base: the v2g animation (pass2b character).
 - 72 per-frame corrective shape keys `m1_cNN` per garment, each solved *independently per frame* to clear penetration.
 - Schedule: f0–5 `sit_corrective`, then one-hot knots with a few 2-key blend frames; f86–90 basis.
-- Result: clean penetration-wise. But fold topology jumps between frames. Peak acceleration is 94.8 mm/frame² for the dress (f78) and 71.2 for the apron (f80); v2g was 7.5. The shimmer is visible at the game camera at f36–41 and f76–82.
+- Result: legs clear at the midsurface (legs×dress −0.34/−0.41 mm, legs×apron −2.78/−4.17 mm), but **not fully clean on the visible surface: right leg × dress has a visible triangle crossing of up to 29.58 mm (6 triangle pairs, f35–42)**; v2g was ~120 mm. Apron×dress has 4 visible triangle pairs at f37. Fold topology also jumps between frames. Peak acceleration is 94.8 mm/frame² for the dress (f78) and 71.2 for the apron (f80); v2g was 7.5. The shimmer is visible at the game camera at f36–41 and f76–82.
 - SRC is what ships for now. In v4, the apron's f3–6 is eased into `sit_corrective` (accel ≤3.1 there).
 
 **Metrics and thresholds** (scripts in `scripts/` and `pipe/scripts/`):
