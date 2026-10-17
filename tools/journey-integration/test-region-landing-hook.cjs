@@ -25,7 +25,7 @@ const results=[];let fail=0;const T=async(id,f)=>{try{const r=await f();results.
 const ok=(c,m)=>{if(!c)throw Error(m);};
 const dir=p=>{const d=sub(p.target,p.position),l=Math.hypot(...d);return d.map(x=>x/l);};
 const ang=(a,b)=>{const u=dir(a),v=dir(b),c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];return Math.atan2(Math.hypot(...c),u[0]*v[0]+u[1]*v[1]+u[2]*v[2])*180/Math.PI;};
-const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520]];
+const SCREENS=[[390,844],[414,896],[360,780],[375,667],[390,520],[320,568],[768,1024]],GIRL_SCREENS=SCREENS;
 // journey copy placement exactly as journey-scene / the adapter: meadow yaw 180 + mOff, skycity yaw + sOff (prefab root identity)
 const SRC={meadow:{region:'meadow',map:{toJourney:p=>add(rotY(180,p),mOff),toBoard:p=>rotY(-180,sub(p,mOff))}},
  skycity:{region:'skycity',map:{toJourney:p=>add(rotY(yaw,p),sOff),toBoard:p=>rotY(-yaw,sub(p,sOff))},anchors:{spawn:sA('anchor_spawn_girl'),court:sA('anchor_starcourt_center')}}};
@@ -93,16 +93,23 @@ await T('routes without board unchanged; invalid board rejected',async()=>{const
 await T('her board copy at the board camera (r4: walk end, 3 tools)',async()=>{const g=require('./girl-frame.cjs');
   // meadow: on every screen her box (independent projection) is fully on screen and clear of tray, goal plate, the 3-tool row,
   // pause, capsule and safe bands, ≥ 8 pt gap, ≤ 80% width, and it is the TS stop (RegionBoardLanding.regionGirlStand).
-  for(const r of g.filter(r=>r.region==='meadow')){const [w,h]=r.screen.split('x').map(Number),st=Jn.standFor(w,h);
-   ok(r.visible&&r.clearOf3ToolUi,'meadow covered/cropped '+r.screen+' '+r.coveredBy3ToolUi);ok(r.gapPt>=8,'meadow gap '+r.screen+' '+r.gapPt);ok(r.widthFrac<=.8,'too wide '+r.screen);
-   ok(st.clear&&Math.abs(st.gapPt-r.gapPt)<.2&&Math.abs(st.boxPt.l-r.boxPt.l)<.2&&Math.abs(st.boxPt.b-r.boxPt.b)<.2,'TS stop vs independent box '+r.screen+' '+JSON.stringify([st.gapPt,r.gapPt,st.boxPt,r.boxPt]));}
+  // 7 portrait screens: the 5 reference ones + 320x568 and 768x1024. 1024x768 landscape is SKIPPED: out of scope, the WeChat
+  // mini-game is portrait only (Grok Bot 2026-10-17). r4.1: the hint banner sits above the tray (GGbot 260ea02). The independent
+  // check also holds her clear of GGbot's toolbar keep-outs (badge + ring), his banner + tray footprints (footprint.json) and the
+  // banner at the widest hint the board can say (game strings, PopupKit.measure, sizeToast cap). Gap ≥ 13 pt on every screen.
+  const GAP_MIN={};ok(g.filter(r=>r.region==='meadow').length===7,'meadow screens');
+  ok(g.hint.widestTextPt>=330&&g.hint.count>=20,'widest hint fills the banner at its max width '+JSON.stringify(g.hint));
+  for(const r of g.filter(r=>r.region==='meadow')){const [w,h]=r.screen.split('x').map(Number),st=Jn.standFor(w,h),min=GAP_MIN[r.screen]??13;
+   ok(r.visible&&r.clearOf3ToolUi,'meadow covered/cropped '+r.screen+' '+r.coveredBy3ToolUi);ok(r.gapPt>=min,'meadow gap '+r.screen+' '+r.gapPt);ok(r.widthFrac<=.8,'too wide '+r.screen);
+   ok(st.clear&&st.gapPt>=min&&Math.abs(st.boxPt.l-r.boxPt.l)<.2&&Math.abs(st.boxPt.r-r.boxPt.r)<.2&&Math.abs(st.boxPt.t-r.boxPt.t)<.2&&Math.abs(st.boxPt.b-r.boxPt.b)<.2,'TS stop vs independent box '+r.screen+' '+JSON.stringify([st.gapPt,r.gapPt,st.boxPt,r.boxPt]));
+   const ex=Jn.exit02to08,extra=Jn.Lay.meadowExitExtraM(Jn.meadowSrc.map.toJourney(st.local),ex);ok(extra<=Jn.Lay.MEADOW_EXIT_BUDGET_M+1e-9,'O5 budget '+r.screen+' '+extra);r.exitExtraM=+extra.toFixed(3);}
   // skycity: PENDING the 08→09 end decision (the walk end has not moved): recorded as not in frame so a change shows up here.
-  for(const r of g.filter(r=>r.region==='skycity'))ok(!r.visible,'skycity state changed: '+r.screen+' now visible — update the r4 report');
-  report.girlAtBoard=g;return {meadowClear3Tools:g.filter(r=>r.region==='meadow'&&r.clearOf3ToolUi).map(r=>r.screen+' gap '+r.gapPt+' pt'),skycityNotInFramePending:g.filter(r=>r.region==='skycity'&&!r.visible).map(r=>r.screen)};});
-await T('meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (5 screens)',async()=>{
+  for(const r of g.filter(r=>r.region==='skycity'))ok(!r.visible||r.behindCamera,'skycity state changed: '+r.screen+' now visible — update the r4 report');
+  report.girlAtBoard=g;return {landscapeSkipped:'1024x768: out of scope (portrait-only WeChat mini-game)',hint:g.hint,meadowClear3Tools:g.filter(r=>r.region==='meadow'&&r.clearOf3ToolUi).map(r=>r.screen+' gap '+r.gapPt+' pt'),skycityNotInFramePending:g.filter(r=>r.region==='skycity'&&!r.visible).map(r=>r.screen)};});
+await T('meadow stand: walk on the ground, no clipping, she is seen by the board camera, 08→09 leaves cleanly (7 portrait screens)',async()=>{
   const solid=Jn.meadow.filter(o=>!/grass|flower/.test(o.name)),ground=Jn.meadow.filter(o=>/meadow_terrain|meadow_path|meadow_river_bank/.test(o.name)),soft=/grass|flower/;
   const groundY=p=>{let top=-1e9;for(const o of ground){o.bb??=Jn.bbox(o.tris);if(p[0]<o.bb[0][0]||p[0]>o.bb[1][0]||p[2]<o.bb[0][2]||p[2]>o.bb[1][2])continue;const t=Jn.rayHit([p[0],p[1]+5,p[2]],[0,-1,0],20,o.tris);if(t!==null)top=Math.max(top,p[1]+5-t);}return top;};
-  const rows=[];for(const [w,h] of SCREENS){const st=Jn.standFor(w,h),line=st.path.map(Jn.meadowSrc.map.toJourney),Ls=routeLength(line);let worstFoot=0,minBody=9,who=null;
+  const rows=[];for(const [w,h] of GIRL_SCREENS){const st=Jn.standFor(w,h),line=st.path.map(Jn.meadowSrc.map.toJourney),Ls=routeLength(line);let worstFoot=0,minBody=9,who=null;
    for(let d=0;d<=Ls+1e-9;d+=.1){const p=sampleRoute(line,Math.min(d,Ls)),gy=groundY(p);ok(gy>-1e8,'no ground under her at '+d);worstFoot=Math.max(worstFoot,Math.abs(p[1]-gy));
     for(const hh of [.35,.9,1.5]){const q=[p[0],gy+hh,p[2]];const [c,o]=Jn.clearance(q,solid.filter(x=>!/meadow_terrain|meadow_path|meadow_river_bank/.test(x.name)),2);if(c<minBody){minBody=c;who=o;}}
     // the river surface must not be above her feet (she never wades)
@@ -127,7 +134,7 @@ await T('meadow stand: walk on the ground, no clipping, she is seen by the board
  ok(/const pose=meadowScenePose\(layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(mb),'meadow background still writes meadowScenePose(aspect)');
  ok(/pose=skycityVisitPose\(\[av\.x,av\.y,av\.z\],\[bv\.x,bv\.y,bv\.z\],layout\.width\/layout\.height\);if\(!applyCameraPose\(camera!,fromLookAt\(pose\)/.test(sb)&&/find\(model,'anchor_spawn_girl'\),b=find\(model,'anchor_starcourt_center'\)/.test(sb),'skycity background still writes skycityVisitPose(spawn, court, aspect)');
  ok((core.match(/this\.lease\.route\.board\)/g)||[]).length===3,'controller passes route.board on every journeyCamera write');
- ok(/stand=regionGirlStand\(boardSrc,boardSrc\.map\.toBoard\(spawn\),v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\)\);/.test(ad)&&/arrival=stand\.path\.slice\(1\)\.map\(p=>boardSrc!\.map\.toJourney\(p\)\)/.test(ad),'adapter: 04→05 arrival = her stand stop for this screen (board UI viewport)');
+ ok(/stand=regionGirlStand\(boardSrc,boardSrc\.map\.toBoard\(spawn\),v\.width,v\.height,boardSafeInsets\(v\.width,v\.height\),o5\);/.test(ad)&&/o5=\(p:Vec\)=>meadowExitExtraM\(src\.map\.toJourney\(p\) as Vec,exit\)<=MEADOW_EXIT_BUDGET_M;/.test(ad)&&/arrival=stand\.path\.slice\(1\)\.map\(p=>boardSrc!\.map\.toJourney\(p\)\)/.test(ad),'adapter: 04→05 arrival = her stand stop for this screen (board UI viewport)');
  ok(/if\(!arrival\.length\)for\(let i=1;i<=2;i\+\+\)arrival\.push\(anchor\(model,'walk_path_'/.test(ad),'adapter: old walk_path_01→02 kept as the fallback');
  ok(/approach=\[start,\.\.\.meadowExitFrom\(start,exit\)\];/.test(ad),'adapter: 08→09 leaves through the exit anchors ahead of her');
  {const ex=[];for(let i=2;i<=8;i++)ex.push(Jn.mA('walk_path_'+String(i).padStart(2,'0')));const o=Jn.Lay.meadowExitFrom(ex[0],ex);ok(JSON.stringify(o)===JSON.stringify(ex.slice(1)),'standing on walk_path_02 keeps 03..08 exactly');}});

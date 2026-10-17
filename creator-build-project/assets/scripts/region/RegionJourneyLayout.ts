@@ -58,15 +58,17 @@ export function skyDeckRoute(end:Vec,gate:Vec):{rim:Vec;deck:Vec[];arrival:Vec}{
 }
 /** Route lens keys from bridge-relative metres to route metres. */
 export function lensKeys(keys:ReadonlyArray<Readonly<{at:number;upM?:number;backM?:number;sideM?:number;lookM?:number}>>,bridgeStart:number){return keys.map(k=>({...k,at:k.at+bridgeStart}));}
-/** 运镜bot (r4, Grok Bot: "she stays visible on the meadow board with up to 3 tools, on every screen"): her last walk on 04→05,
- *  in the MEADOW MODEL's own metres (GLB / board copy coordinates; the adapter maps it onto the journey copy). It replaces the
- *  old arrival walk_path_01 → walk_path_02 (that spot sat under the left tool icon with 3 tools on 390x844 / 414x896 / 360x780
- *  and 63% under it on 375x667). From player_spawn (the rainbow bridge end) she steps left off the trodden path onto the grass
- *  and walks up the left side of it; y is the meadow_terrain top under each point (≤ 1 m apart, so her feet follow the
- *  ground). There is no single spot that is clear of the tray and the 3-tool row on all five reference screens (375x667 has
- *  20 pt between tray and tools), so she STOPS on this line where the board UI of THIS screen leaves her most room
- *  (RegionBoardLanding.regionGirlStand): 390x844 / 414x896 at the end, 375x667 / 360x780 at ~6.6 m, 390x520 at ~3.2 m. */
-export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.15,1.298,19.333],[-0.3,1.338,18.667],[-0.45,1.419,18],[-0.617,1.504,17.333],[-0.783,1.587,16.667],[-0.95,1.66,16],[-1.05,1.726,15.45],[-1.15,1.788,14.9],[-1.05,1.86,14.2],[-0.825,1.915,13.7],[-0.6,1.972,13.2],[-0.317,2.046,12.55],[-0.033,2.119,11.9],[0.25,2.193,11.25]];
+/** 04→05 landing (r4.1, 3 tools, hint banner above the tray per GGbot 260ea02): her stand line after the rainbow bridge,
+ *  meadow model coordinates (= board copy local), y = meadow_terrain top (≤ 0.8 m apart, feet within 3 cm). The old arrival
+ *  walk_path_01 → 02 sat under the left tool icon. From player_spawn she walks 6.5 m up the left of the trodden path into the
+ *  lower-left of the board view, between the tray and the tool row (left of the icons). She STOPS where THIS screen's board UI
+ *  leaves her most room (RegionBoardLanding.regionGirlStand: tray, goal plate, 3 tool icons + ring/badge, hint banner at its
+ *  max width, pause, capsule, safe bands) among the stops whose 08→09 walk keeps O5 (meadowExitExtraM ≤ MEADOW_EXIT_BUDGET_M).
+ *  The line keeps to the strip where the 08→09 follow lens stays on her right (F7b) when she sets off from it. */
+export const MEADOW_STAND_LOCAL:ReadonlyArray<Vec>=[[-0.267,1.304,19.333],[-0.533,1.347,18.667],[-0.8,1.429,18.0],[-1.033,1.505,17.417],[-1.267,1.575,16.833],[-1.5,1.641,16.25],[-1.5,1.667,16.0],[-1.25,1.722,15.5],[-1.0,1.778,15.0],[-0.8,1.829,14.5],[-0.8,1.88,14.0]];
+/** O5 (lead: 08→09 ≤ Build05 + 3 s at 1.2 m/s). Leaving from walk_path_02 the r4 route is already +2.64 s, so a stand may add at
+ *  most (3 - 2.64) s x 1.2 m/s = 0.432 m to the 08→09 walk; test-journey-occlusion O5 checks the total. */
+export const MEADOW_EXIT_BUDGET_M=0.432;
 /** 08→09 leaves the meadow from wherever she stands: the meadow exit anchors (walk_path_03..08, world) still ahead of her.
  *  Her spot is projected (x/z) onto the polyline walk_path_02..08; anchors less than 1 m past that point are behind her. She
  *  then heads for the first anchor ahead whose onward path turns ≤ meadowRejoinTurnDeg from her heading to it, so the follow
@@ -82,3 +84,8 @@ export function meadowExitFrom(start:Vec,path02to08:ReadonlyArray<Vec>):Vec[]{
  const head=(a:Vec,b:Vec)=>Math.atan2(b[0]-a[0],b[2]-a[2]),turn=(x:number,y:number)=>{let d=Math.abs(x-y)%(2*Math.PI);return (d>Math.PI?2*Math.PI-d:d)*180/Math.PI;};
  let k=-1;for(let i=1;i<P.length;i++)if(arc[i]>s0+MEADOW_REJOIN.aheadM){if(k<0)k=i;if(i===P.length-1||turn(head(start,P[i]),head(P[i],P[i+1]))<=MEADOW_REJOIN.turnDeg){k=i;break;}}
  return k<0?[cp(P[P.length-1])]:P.slice(k).map(cp);}
+
+/** Extra 08→09 walk (m, x/z) when she leaves from `start` instead of walk_path_02 (path02to08[0]). */
+export function meadowExitExtraM(start:Vec,path02to08:ReadonlyArray<Vec>):number{
+ const L=(p:ReadonlyArray<Vec>)=>{let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot(p[i][0]-p[i-1][0],p[i][2]-p[i-1][2]);return s;};
+ return L([start,...meadowExitFrom(start,path02to08)])-L(path02to08);}
