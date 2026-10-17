@@ -1,4 +1,4 @@
-import { Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
+import { Graphics, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
 
 /**
  * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
@@ -13,7 +13,7 @@ export const GLASS_SIGN = Object.freeze({
   centre: [0.05, 1.02, -4.70] as const, widthM: 0.80, heightM: 0.28, bobAmp: 0.012, bobPeriod: 3.2,
   px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
   rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
-  caption: '出发去看海', leaf: '🍃', leaveAtFrame: 27,
+  caption: '出发去看海', leaf: { size: 42, fill: [178, 226, 142, 255], vein: [255, 255, 255, 210], shade: [0, 40, 60, 60] } as const, leaveAtFrame: 27,
 });
 
 export class GlassSign {
@@ -62,9 +62,14 @@ export class GlassSign {
       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
       l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
     };
-    // CSS: leaf (30px) + 12px margin + caption (34px, letter-spacing 4px), centred as one line
-    const capW = 5 * 34 + 5 * 4, leafW = 44, total = leafW + 12 + capW;
-    add('Leaf', S.leaf, 42, -total / 2 + leafW / 2, leafW + 8); add('Caption', S.caption, 34, -total / 2 + leafW + 12 + capW / 2, capW + 8);
+    // G2: leaf (Graphics, 42 px, 0 B, same look on every platform instead of the system leaf emoji) + 12 px + caption,
+    // centred as ONE group on the caption's measured width (the old fixed 198 px box left the text off-centre with a gap).
+    const cap = add('Caption', S.caption, 34, 0, 0); cap.overflow = Label.Overflow.NONE; cap.horizontalAlign = Label.HorizontalAlign.LEFT;
+    cap.updateRenderData(true); const measured = cap.node.getComponent(UITransform)!.width;
+    const capW = Number.isFinite(measured) && measured > 0 ? measured : 5 * 34 + 4 * 4, gap = 12, total = glassSignGroupWidth(capW, gap);
+    cap.node.setPosition(-total / 2 + S.leaf.size + gap + capW / 2, 1, 0);
+    const leaf = new Node('Leaf'); leaf.layer = this.root.layer; this.text.addChild(leaf); leaf.addComponent(UITransform).setContentSize(S.leaf.size, S.leaf.size);
+    leaf.setPosition(-total / 2 + S.leaf.size / 2, 1, 0); drawGlassLeaf(leaf.addComponent(Graphics), S.leaf.size);
   }
   /** Prototype tap feedback timeline (frames at 30 fps after the tap). */
   private feedback() {
@@ -117,4 +122,20 @@ export class GlassSign {
   reset() { this.tapT = null; this.left = false; }
   diagnostics() { return { ...this.stats, visible: this.root.active, box: this.box ? { ...this.box } : null, corners: this.box ? this.corners.map(c => [c.x, c.y]) : null, tapped: this.tapT !== null, left: this.left, layer: this.root.layer }; }
   dispose() { if (this.disposed) return; this.disposed = true; if (isValid(this.root, true)) this.root.destroy(); this.material?.destroy(); this.material = null; }
+}
+
+/** G2: total width of leaf + gap + caption, which is centred on the card. */
+export function glassSignGroupWidth(captionW: number, gap = 12): number { return GLASS_SIGN.leaf.size + gap + captionW; }
+/** G2: small tilted leaf in the card's local px (centre 0,0, fits size x size): soft drop shade, body, white midrib. */
+export function drawGlassLeaf(g: Graphics, size: number) {
+  const L = GLASS_SIGN.leaf, h = size * .46, w = size * .3, c = Math.cos(-.6), sn = Math.sin(-.6);
+  const P = (x: number, y: number, dx = 0, dy = 0): [number, number] => [x * c - y * sn + dx, x * sn + y * c + dy];
+  const body = (dx: number, dy: number) => {
+    g.moveTo(...P(0, -h, dx, dy)); g.bezierCurveTo(...P(w * 1.6, -h * .45, dx, dy), ...P(w * 1.4, h * .55, dx, dy), ...P(0, h, dx, dy));
+    g.bezierCurveTo(...P(-w * 1.4, h * .55, dx, dy), ...P(-w * 1.6, -h * .45, dx, dy), ...P(0, -h, dx, dy)); g.close();
+  };
+  g.fillColor = new Color(L.shade[0], L.shade[1], L.shade[2], L.shade[3]); body(0, -1.5); g.fill();
+  g.fillColor = new Color(L.fill[0], L.fill[1], L.fill[2], L.fill[3]); body(0, 0); g.fill();
+  g.lineWidth = Math.max(1.5, size / 18); g.lineCap = Graphics.LineCap.ROUND; g.strokeColor = new Color(L.vein[0], L.vein[1], L.vein[2], L.vein[3]);
+  g.moveTo(...P(0, -h * .7)); g.lineTo(...P(0, h * 1.15)); g.stroke();
 }
