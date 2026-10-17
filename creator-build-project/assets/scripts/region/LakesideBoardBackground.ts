@@ -1,8 +1,8 @@
-import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
+import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {applyCameraPose} from '../world-r1/CameraPose';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
@@ -20,11 +20,12 @@ export function enableLakesideInstancing(root:Node):Material[]{
 function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
+function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Material|null>(ok=>b.load(path,Material,(e,a)=>ok(e||!a?null:a)));}
 function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
 /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
 export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
- let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,instanced:Material[]=[];
+ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
  const held:Array<{decRef():unknown}>=[];
  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
   *  everything is saved first and restored on hide/dispose (other writers re-apply on their next change). Shadows untouched. */
@@ -35,8 +36,15 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
   l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);l.illuminance=saved.illum*P.sunIlluminanceScale;
   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
-  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;};
- const restoreDir=()=>{const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
+  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
+ /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+ let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number}|null=null;
+ const applyFog=()=>{const P=LAKESIDE_DIR_LIGHT_PARAMS,fog=(director.getScene() as any)?.globals?.fog;if(!P.fogEnabled||!fog)return;
+  if(!savedFog)savedFog={enabled:fog.enabled,type:fog.type,color:fog.fogColor.clone(),start:fog.fogStart,end:fog.fogEnd};
+  const c=P.fogColorSrgb;fog.enabled=true;fog.type=0/* FogType.LINEAR (3.8.8 render-scene/scene/fog.ts) */;fog.fogColor=new Color(c[0],c[1],c[2],255);fog.fogStart=P.fogStart;fog.fogEnd=lakesideFogEnd(P);};
+ const restoreFog=()=>{const f0=savedFog;savedFog=null;const fog=(director.getScene() as any)?.globals?.fog;if(!f0||!fog)return;
+  fog.type=f0.type;fog.fogColor=f0.color;fog.fogStart=f0.start;fog.fogEnd=f0.end;fog.enabled=f0.enabled;};
+ const restoreDir=()=>{restoreFog();const s0=saved;saved=null;if(!s0||!isValid(s0.light,true))return;const amb=(director.getScene() as any)?.globals?.ambient;
   s0.light.node.setRotation(s0.rot);s0.light.color=s0.color;s0.light.illuminance=s0.illum;if(typeof s0.vis==='number')(s0.light as any).visibility=s0.vis;
   if(amb){amb.skyLightingColor=s0.sky;amb.groundLightingColor=s0.ground;amb.skyIllum=s0.skyIllum;}};
  const dispose=()=>{if(dead)return;restoreDir();dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();for(const a of held.splice(0))a.decRef();};
@@ -48,6 +56,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
   const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
   const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
+  const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
   if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
   const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
   const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
@@ -57,9 +66,17 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
   for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
   instanced=enableLakesideInstancing(scenery);
-  if(LAKESIDE_LIGHT_MODE==='dir'){/* v2: water tint on the lease's own instanced copy of the lake material (asset untouched; destroyed with the lease). */
-   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),tinted=new Set<Material>(),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
-   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials)if(m&&!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}
+  if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
+   * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
+   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+   let water:Material|null=null;
+   if(waterAsset){water=new Material();water.copy(waterAsset);const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+    water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
+    water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,0));
+    water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));instanced.push(water);}
+   const tinted=new Set<Material>();
+   for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+    for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
    waterTinted=tinted.size;}
   setLayer(scenery);
   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
@@ -72,7 +89,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
    dispose,
   };
  }catch(error){dispose();throw error;}

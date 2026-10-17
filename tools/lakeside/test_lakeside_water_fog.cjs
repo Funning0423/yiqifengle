@@ -1,0 +1,40 @@
+// v3: lakeside water shader (Fresnel sky ramp + sun streak + fog) and LINEAR scene fog; VB values; structure checks for 3.8.8.
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
+const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,'bundles/region_lakeside/water');
+const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
+const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
+// Voice Bot verified values
+assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.5457,0.1441]);
+assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
+assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
+assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise>0);
+assert.deepEqual([...P.fogColorSrgb],[255,206,166]);assert.equal(P.fogStart,45);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
+const end=D.lakesideFogEnd();assert.equal(end,257.5);
+const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
+// board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
+const cam=[0,13.2,26.5],B=D.LAKESIDE_BOARD_BOUNDS,dist=p=>Math.hypot(p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]);
+for(const x of [B.min[0],B.max[0]])for(const z of [B.min[2],B.max[2]])assert(amount(dist([x,0,z]))===0,'board corner fog-free');
+// effect structure (3.8.8 builtin-unlit layout); chunks that exist in 3.8.8
+const fx=fs.readFileSync(path.join(W,'lakeside-water.effect'),'utf8');
+assert(/^CCEffect %\{[\s\S]*?\n\}%/m.test(fx)&&/CCProgram lk-water-vs %\{[\s\S]*?\n\}%/.test(fx)&&/CCProgram lk-water-fs %\{[\s\S]*?\n\}%/.test(fx));
+const inc=[...fx.matchAll(/#include <([^>]+)>/g)].map(x=>x[1]);
+const ok=['legacy/input-standard','builtin/uniforms/cc-global','legacy/local-batch','legacy/fog-vs','legacy/fog-fs','legacy/output-standard'];
+assert(inc.length&&inc.every(i=>ok.includes(i)),'only 3.8.8 chunks: '+inc);
+assert(/CC_TRANSFER_FOG\(pos\)/.test(fx)&&/CC_APPLY_FOG\(o, v_worldPos\)/.test(fx),'fog chunk used');
+assert(/CCGetWorldMatrixFull\(matWorld, matWorldIT\)/.test(fx),'instancing-aware world matrix');
+assert(!/sampler2D|texture\(/.test(fx),'no textures');
+const ub=fx.match(/uniform LakesideWater \{([\s\S]*?)\};/)[1].trim().split(/\n/).map(s=>s.trim());assert(ub.every(l=>/^vec4 \w+;$/.test(l)),'std140-safe vec4 block');
+for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
+// metas / material
+const em=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.effect.meta'))),mt=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl'))),mm=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl.meta')));
+JSON.parse(fs.readFileSync(path.join(W,'..','water.meta')));
+assert.equal(em.importer,'effect');assert.equal(mm.importer,'material');assert.equal(mt._effectAsset.__uuid__,em.uuid);assert.notEqual(em.uuid,mm.uuid);
+assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+// lease wiring
+const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
+assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
+assert(/fog\.enabled=true;fog\.type=0/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.enabled=f0\.enabled;/.test(bg));
+console.log('lakeside water+fog OK fogEnd='+end);

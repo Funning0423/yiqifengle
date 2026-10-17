@@ -49,25 +49,34 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
  *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
  *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
 export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
-/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). v2 (GGbot), derived from r5h3:
- *  - sunForward / sunColorLinear: scene_r5h3_lighting.json Sun exactly; sunIlluminanceScale x the scene's main-light illuminance.
- *  - ambientSkyColorLinear: the blue top stop of the r5h3 world sky ramp (lakeside_r5h3.blend, z>=0.38) - not the dusk light's yellow.
- *  - ambientGroundColorLinear: warm (half of SUN_dusk_side [1,0.55,0.28]); the dusk light is otherwise dropped, like Sun.001.
- *  - ambientSkyIllumToSun 0.75: tuned in the Blender proxy so the frame's mean colour matches the r5h3 render (74/115/101 sRGB).
- *  - waterTintLinear: multiplies the lake material (vertex colour x palette) so the warm sun no longer turns it green; tuned in the
- *    proxy against the r5h3 water (81/160/151 sRGB near the board). Runtime-only on the lease's own instanced copy (no asset edit).
- *  - clearColorLinear: same blue sky stop, behind the mountains (was peach #f2b98a). */
+/** ALL lakeside 'dir' lighting / water / fog values (one block; v3 = Voice Bot's verified r5h3 values where given, 20261017T051017Z):
+ *  - sun*: scene_r5h3_lighting.json Sun exactly. ambientSky = r5h3 world zenith; ambientGround = r5h3 below-horizon clamp (VB).
+ *  - ambientSkyIllumToSun: proxy-tuned (VB: physical 0.139, v2 0.75) - device check.
+ *  - water*: lakeside-water.effect. Tint (VB/v2), Schlick F0 0.02 / power 5 (VB), reflection colour by reflect-vector elevation
+ *    across zenith / low sky / horizon = the r5h3 sky ramp stops (VB), Blinn exponent 300 +-40% sin noise for a streak (VB 200–500).
+ *  - fog*: VB #FFCEA6, 45 m -> 130 m at max 0.4. Cocos LINEAR fog has no max amount, so the end is stretched to 45 + 85/0.4 =
+ *    257.5 m: identical amount up to 130 m (0.4 there), clouds beyond (to 163 m) reach ~0.55. Board 16–24 m, near shore <30 m: clear. */
 export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   sunForward: [-0.4182, -0.3983, 0.8164] as const,
   sunColorLinear: [1.0, 0.6, 0.32] as const,
   sunIlluminanceScale: 1.0,
   ambientSkyColorLinear: [0.0116, 0.2747, 0.4793] as const,
-  ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
+  ambientGroundColorLinear: [1.0, 0.5457, 0.1441] as const,
   ambientSkyIllumToSun: 0.75,
-  waterTintLinear: [0.06, 0.55, 1.0] as const,
-  waterGlbs: ['LK_lake.glb'] as const,
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+  waterGlbs: ['LK_lake.glb'] as const,
+  waterMaterialPath: 'water/lakeside-water',
+  waterTintLinear: [0.06, 0.55, 1.0] as const,
+  waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
+  waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
+  waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
+  waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
+  waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
+  waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
+  fogEnabled: true, fogColorSrgb: [255, 206, 166] as const, fogStart: 45, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
+/** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+export function lakesideFogEnd(p: { fogStart: number; fogMaxAt: number; fogMaxAmount: number } = LAKESIDE_DIR_LIGHT_PARAMS): number { return p.fogStart + (p.fogMaxAt - p.fogStart) / p.fogMaxAmount; }
 export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }

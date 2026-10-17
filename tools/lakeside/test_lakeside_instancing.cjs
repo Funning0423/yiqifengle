@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const s=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
 assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);shared\.set\(src,m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy');
-assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,1200}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
+assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,4000}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
 assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
 assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
 // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
