@@ -82,6 +82,7 @@ const tests=[
  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
  ['lakeside-merge-share','tools/lakeside/test_lakeside_merge_share.cjs'],
+ ['lakeside-sun-continuity','tools/lakeside/test_lakeside_sun_continuity.cjs'],/* r4.2 item 7 */
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

@@ -253,7 +253,12 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
   // mode; with no journey (island) and a toggle since, the island re-writes its own look (no override lock).
   try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
  /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
- const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
+ const offDayNight=onDayNightChange(()=>{if(!dead&&drawing())applyDir();});
+ /** r4.2 item 7: the board takes the scene sun/ambient/fog ONLY while its camera actually draws (visible + camera enabled under an
+  *  active host). The level adapter marks the lease visible while its host is still hidden (level-loading: the island/journey camera
+  *  draws), which used to rotate the shared sun to the board yaw on the first level-loading frame - the x/z flip the Mac caught. */
+ const drawing=()=>visible&&!dead&&!!camera&&isValid(camera,true)&&camera.enabled&&!!camera.node&&camera.node.activeInHierarchy;
+ const syncDir=()=>{if(drawing())applyDir();else if(saved||savedFog)restoreDir();};
  const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
@@ -295,9 +300,9 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
    for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
   const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&(!pre||(isValid(host,true)&&host.activeInHierarchy));};
   return {
-   adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();},
-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();showCamera();},
-   setVisible:value=>{if(dead)return;visible=value;if(!pre)rig!.active=value;if(pre)showCamera();else camera!.enabled=value;if(value)applyDir();else restoreDir();},
+   adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();syncDir();},
+   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');showCamera();syncDir();},
+   setVisible:value=>{if(dead)return;visible=value;if(!pre)rig!.active=value;if(pre)showCamera();else camera!.enabled=value;if(value)syncDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0,preloaded:!!pre,cameraOn:!!camera&&camera.enabled}),
    dispose,
