@@ -8,4 +8,6 @@
 - 2026-10-18 02:23 CST · 航线时长 · 弦长保持 52 m，河口最后 12 m 走河道中心线。巡航速度按 2 s 加速 / 9 s 巡航 / 2.2 s 减速解出，约 4.52 m/s（不是文案里的 3.6 m/s：3.6 m/s 盖不住 52 m 且会超过 30.5 s）。加速度 2.26 / 2.06 m/s²，转向 6.95 °/s，半径 46.6 m。Build05 口径 30.069 s（≤ 30.5）。上岸点上移到草地局部 z=17，岸上步行 5.96 m。逻辑桥长 1 cm，只为通过 `bridgeEnd > bridgeStart`，不画彩虹条。· `39ec45b042`
 - 2026-10-18 02:23 CST · 预加载 · mainline-04 进关后对 inactive 的 `SailWarm-meadow` 预热草地，不调用 `journey.prepare`（那会让 `isInTransit` 挡住棋盘）。6 s 超时记下一次 bridge 回退。· `39ec45b042`
 - 2026-10-18 02:23 CST · 测试 · Node 22：100/101 PASS，唯一非 PASS 仍是 `navigation-guard: BLOCKED_BROWSER`。Node 20：98/101 PASS，非 PASS 为上述两项 `BLOCKED_NODE` 加 `navigation-guard`。新增 `rider-parenting`、`transport-sail`、`frame-background`、`asset-budget`、`transport-flag`、`transit-background-resume` 均为 PASS。frame-background：4214 帧，nearHit=false，clearM≥0.6，back≤1%，void=0，domes=1，horizonGap=0。· `39ec45b042`
-- 下一步 · Creator 冒烟与 `build-wechat-guarded.sh both`，然后截帆船转场（`?sailshot=1`）。磁盘约 6.5 GB，低于 4 GB 则停止构建。
+- 2026-10-18 02:35 CST · 构建 · 冒烟两份配置 Creator 退出码都是 36。`build-wechat-guarded.sh wechat`（HEAD `2b7c09ef`）wechat-release 19,417,147 B（相对 r4 +81,392 B）。`transport_sail` 11,853 B。web-test 20,205,180 B。磁盘约 6.3 GB。· `2b7c09ef0a`
+- 2026-10-18 02:35 CST · 截图 · `?sailshot=1` 拍到 S-b / S-d / S-e / S-g / 夜间 S-d，以及最差帧所在的 S-d（第 2000 帧）。相机必须用 Vec3 `lookAt`，否则镜头背对船。DC 13，fps 60，boardMs ≤ 0.1。· `2b7c09ef0a`
+- 2026-10-18 02:43 CST · 终检 · Node 22 仍是 100/101（仅 `navigation-guard: BLOCKED_BROWSER`）。Node 20 仍是 98/101（另两项 `BLOCKED_NODE`）。构建缓存已删，剩余约 6.3 GB。REPORT 与截图随本条提交。不 push。
