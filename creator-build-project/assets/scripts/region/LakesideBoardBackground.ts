@@ -116,6 +116,8 @@ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLa
 function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
 function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
 function loadMaterial(b:AssetManager.Bundle,path:string){return new Promise<Material|null>(ok=>b.load(path,Material,(e,a)=>ok(e||!a?null:a)));}
+/** r4 journey fix 1: like loadMaterial, but a failed load rejects with the engine's reason and the path (the journey logs it). */
+function loadMaterialOrReason(b:AssetManager.Bundle,path:string){return new Promise<Material>((ok,fail)=>b.load(path,Material,(e,a)=>e||!a?fail(Error('lakeside-water-material-load-failed: '+path+': '+String((e as any)?.message??e??'no asset'))):ok(a)));}
 function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
 /** Loads region_lakeside and instantiates the real scene (lakesideSceneInstances) under scenery: rigid placement only, embedded
  *  cameras/animations off. Shared by the board background and the island→lakeside journey (RegionJourneyAdapter). take()
@@ -138,10 +140,11 @@ export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){con
  water.setProperty('waterTint',v(M.waterTintLinear));water.setProperty('skyZenith',v(M.waterSkyZenithLinear));water.setProperty('skyLow',v(M.waterSkyLowLinear));water.setProperty('skyHorizon',v(M.waterSkyHorizonLinear));
  water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor));
  water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
-/** The lakeside-water.mtl asset (dir light mode only; null otherwise or when it fails to load: callers keep their old look). */
+/** The lakeside-water.mtl asset (dir light mode only; null otherwise). r4 journey fix 1: a failed bundle/material load REJECTS with
+ *  the reason (and path) instead of resolving null, so the caller can log it ([QF_LAKE] journey-water-fallback) and keep its old look. */
 export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{
  if(LAKESIDE_LIGHT_MODE!=='dir')return null;const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
- const a=await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token);token.check();return a?take(a):null;}
+ const a=await waitRegionAsset(loadMaterialOrReason(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token);token.check();return take(a);}
 /** Puts `water` on every renderer of the lakeside water instances under `root` (direct children, as mounted). Returns slots set. */
 export function useLakesideWater(root:Node,water:Material):number{let n=0;
  for(const child of root.children)if(isLakesideWaterNode(child))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;for(let k=0;k<mats.length;k++)if(mats[k]){r.setSharedMaterial(water,k);n++;}}

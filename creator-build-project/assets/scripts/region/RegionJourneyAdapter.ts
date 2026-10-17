@@ -18,6 +18,7 @@ import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+import {logLakesideJourneyWaterFallback} from './LakesideJourneyWater';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
@@ -133,8 +134,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
   // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
-  // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look.
-  let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;waterAsset=null;}token.check();
+  // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look,
+  // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback warn with the reason + asset path (no throw, the walk goes on).
+  let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;logLakesideJourneyWaterFallback(error);waterAsset=null;}token.check();
   if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
    offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});}
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
