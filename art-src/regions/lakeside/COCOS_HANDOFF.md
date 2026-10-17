@@ -5,7 +5,7 @@
 
 ## 1. 进分包的 GLB 清单（models/，55 个）
 共享调色板贴图 `models/T_LK_palette_256.png`（256×256，所有 GLB 外部引用同一张）。`LK_board_frame.glb` 不进分包，已移到 `models/_excluded/`。
-实例数为 r5h3 最终渲染中可见的实例（不含 ASSETS 模板）；`LK_boardwalk`、`LK_boardwalk_rail`、`LK_fishnet`、`LK_signpost` 以前只在原点的模板里出现，场景里实际是 0 个实例，可以考虑移出分包（共 25,724 B）；实例数 0 的是动态生成（水花）或备用资产。
+实例数为 r5h3 最终渲染中可见的实例（不含 ASSETS 模板）；`LK_boardwalk`、`LK_boardwalk_rail`、`LK_fishnet`、`LK_signpost` 以前只在原点的模板里出现，场景里实际是 0 个实例，已于 2026-10-17 从游戏分包 `creator-build-project/assets/bundles/region_lakeside/models/` 移除（GLB 25,724 B + .meta 11,793 B；源模型仍在 blend 里，下表保留其原始数据作记录；若以后要摆放，需先把 GLB 放回 models/，否则导出脚本会按 no_glb 丢掉该物体、检查脚本会报 GLB not in models）；实例数 0 的是动态生成（水花）或备用资产。
 
 | 文件 | 归属 | 三角面/个 | 字节 | 实例数 | 合计三角面 |
 |---|---|---|---|---|---|
