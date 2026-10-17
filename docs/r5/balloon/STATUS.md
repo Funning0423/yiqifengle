@@ -10,4 +10,4 @@
 - 2026-10-18 03:18 第一次 build-guard：wechat-release 19,419,450。`transport_balloon` 578,575，因为优先级 8 抢走了 standard effect，web-test 报 “Please load bundle transport_balloon first”。
 - 2026-10-18 03:21 优先级改为 1，提交 `1c0c9c2630`。重建：wechat-release 19,419,459，`transport_balloon` 16,189。web-test 能进转场。
 - 2026-10-18 03:50 截图完成。世界默认夜间；`night=1` 拨到白天。B-e 抽卡 26，frameRate 60，总时长 38.37 s。
-- 2026-10-18 04:05 截图与报告提交 `4a740ea75d`（tree `6a5720404c`）。随后把该 tree 写进 REPORT。不 push。
+- 2026-10-18 04:05 截图与报告提交 `4a740ea75d`（tree `6a5720404c`）。tree 补记 `809b382f4d`。不 push。磁盘约 4.4 GB。
