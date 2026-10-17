@@ -1,5 +1,6 @@
 import {Camera,Color,DirectionalLight,Quat,Vec3,director,isValid} from 'cc';
-import {LAKESIDE_DIR_LIGHT_PARAMS,lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
+import {lakesideFogModeFromEnv,type LakesideDayNight} from './LakesideSceneData';
+import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
 import {onDayNightChange} from '../world-r1/DayNightContract';
 import {islandSkyFade} from '../world-r1/SkyFollowCore';
 import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereTarget,lakesideBoardHolding,lakesideDayNightMode,lakesideIslandBaseFor,lakesideIslandLightScale,setLakesideJourneyBaseIllum,setLakesideJourneyReapply,type LakesideAtmosphereBase,type Rgb} from './LakesideJourneyAtmosphere';
@@ -12,7 +13,9 @@ import {LAKESIDE_JOURNEY_ATMOSPHERE_ON,lakesideAtmosphereAt,lakesideAtmosphereTa
  *  world's own applyDayNight has just put the island light back); before the blend the island owns the light. While the board
  *  shows, the board owns it (its fog slab/water) and calls reapply() when it hides. On restore, if the mode changed since the
  *  capture, the island look is re-written for the current mode (__worldDayNight.reapply, no override lock). */
-export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
+/** r4 journey fix 2: lakeYaw = the journey lake root's Y turn (lakesideJourney().yawDeg); the sun target is lakesideSunForward(lakeYaw), i.e.
+ *  the board's sun in the lake's frame (it was the unturned sunForward = mirrored against the 180° lake). */
+export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number,lakeYaw:()=>number=()=>LAKESIDE_BOARD_YAW_DEG){
  type Saved={light:DirectionalLight|null;rot:Quat|null;wrot:Quat|null;color:Color|null;illum:number;sky:Color|null;ground:Color|null;skyIllum:number;clear:Color|null;
   fog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null;base:LakesideAtmosphereBase;mode:LakesideDayNight};
  let saved:Saved|null=null,lastW=0,offDayNight:(()=>void)|null=null,skyKey='';
@@ -23,7 +26,7 @@ export function lakesideJourneyAtmosphere(camera:Camera|null,waterY:()=>number){
  const mainLight=():DirectionalLight|null=>{const sc=director.getScene();const n=sc?.getChildByName('Main Light');return (n&&n.getComponent(DirectionalLight))||sc?.getComponentInChildren(DirectionalLight)||null;};
  const write=(w:number)=>{const s=saved;if(!s)return;lastW=w;const mode=lakesideDayNightMode(),base=lakesideIslandBaseFor(s.base,s.mode,mode);
   const f=lakesideAtmosphereAt(base,w,fogMode,waterY(),mode),g=(director.getScene() as any)?.globals;
-  if(s.light&&isValid(s.light,true)&&s.wrot){const v=LAKESIDE_DIR_LIGHT_PARAMS.sunForward;Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
+  if(s.light&&isValid(s.light,true)&&s.wrot){const v=lakesideSunForward(lakeYaw());Quat.fromViewUp(target,new Vec3(-v[0],-v[1],-v[2]).normalize(),Vec3.UP);Quat.slerp(q,s.wrot,target,f.weight);s.light.node.setWorldRotation(q);
    s.light.color=col(f.color);s.light.illuminance=f.illum;}
   const amb=g?.ambient;if(amb){amb.skyLightingColor=col(f.sky);amb.groundLightingColor=col(f.ground);amb.skyIllum=f.skyIllum;}
   if(camera&&isValid(camera,true))camera.clearColor=col(f.clear);
