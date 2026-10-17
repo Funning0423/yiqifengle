@@ -61,6 +61,8 @@ export const REGION_CAMERA = {
     { id: 'tide', pose: 'island' },
     { id: 'meadow', pose: null },
     { id: 'sky', pose: null },
+    /** 风铃湖畔: physical journey island→lakeside (LakesideCameraLayout); no drag-stop pose yet. */
+    { id: 'lake', pose: null },
   ],
 } as const;
 

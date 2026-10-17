@@ -57,7 +57,7 @@ const tests=[
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
- ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],
+ ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
