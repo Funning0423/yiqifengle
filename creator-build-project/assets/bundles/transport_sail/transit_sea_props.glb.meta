@@ -1,0 +1,364 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378",
+  "files": [],
+  "subMetas": {
+    "57906": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@57906",
+      "displayName": "",
+      "id": "57906",
+      "name": "buoy_green.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 102
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4159f": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@4159f",
+      "displayName": "",
+      "id": "4159f",
+      "name": "buoy_red.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 108
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3bdeb": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@3bdeb",
+      "displayName": "",
+      "id": "3bdeb",
+      "name": "foam_ring.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 28
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "481ed": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@481ed",
+      "displayName": "",
+      "id": "481ed",
+      "name": "foam_strip_a.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 40
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9e251": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@9e251",
+      "displayName": "",
+      "id": "9e251",
+      "name": "foam_strip_b.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 24
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9f1c5": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@9f1c5",
+      "displayName": "",
+      "id": "9f1c5",
+      "name": "hull_foam_ring.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 40
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "cfb64": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@cfb64",
+      "displayName": "",
+      "id": "cfb64",
+      "name": "sea_rock_a.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8d5c4": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@8d5c4",
+      "displayName": "",
+      "id": "8d5c4",
+      "name": "sea_rock_b.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 80
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "107b9": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@107b9",
+      "displayName": "",
+      "id": "107b9",
+      "name": "sea_rock_c.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 160
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e8354": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@e8354",
+      "displayName": "",
+      "id": "e8354",
+      "name": "transit_pier.mesh",
+      "userData": {
+        "gltfIndex": 9,
+        "triangleCount": 324
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "5bbd0": {
+      "importer": "gltf-mesh",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@5bbd0",
+      "displayName": "",
+      "id": "5bbd0",
+      "name": "wake_strips.mesh",
+      "userData": {
+        "gltfIndex": 10,
+        "triangleCount": 60
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/foam_strip_512x128.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "dd225": {
+      "importer": "gltf-material",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@dd225",
+      "displayName": "",
+      "id": "dd225",
+      "name": "M_transit_palette.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "87c5a": {
+      "importer": "gltf-material",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@87c5a",
+      "displayName": "",
+      "id": "87c5a",
+      "name": "M_transit_foam.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9d48a": {
+      "importer": "gltf-scene",
+      "uuid": "e5a5b894-be16-425f-b690-ee16ea6d8378@9d48a",
+      "displayName": "",
+      "id": "9d48a",
+      "name": "transit_sea_props.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      {
+        "name": "foam_strip_512x128",
+        "uri": "db://assets/bundles/transport_sail/textures/foam_strip_512x128.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@57906",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@4159f",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@3bdeb",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@481ed",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@9e251",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@9f1c5",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@cfb64",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@8d5c4",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@107b9",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@e8354",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@5bbd0"
+      ],
+      "skeletons": [],
+      "textures": [
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@3effa",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@221a5"
+      ],
+      "materials": [
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@dd225",
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@87c5a"
+      ],
+      "scenes": [
+        "e5a5b894-be16-425f-b690-ee16ea6d8378@9d48a"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

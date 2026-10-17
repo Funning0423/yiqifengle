@@ -1,0 +1,362 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "049e8173-0b6e-455b-8478-881533bdeefd",
+  "files": [],
+  "subMetas": {
+    "89490": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@89490",
+      "displayName": "",
+      "id": "89490",
+      "name": "sail_main.mesh",
+      "userData": {
+        "gltfIndex": 8,
+        "triangleCount": 107
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9df44": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@9df44",
+      "displayName": "",
+      "id": "9df44",
+      "name": "boom.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 20
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3478b": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3478b",
+      "displayName": "",
+      "id": "3478b",
+      "name": "sail_furled.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 20
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1dee9": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@1dee9",
+      "displayName": "",
+      "id": "1dee9",
+      "name": "hull.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 925
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ea533": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@ea533",
+      "displayName": "",
+      "id": "ea533",
+      "name": "sail_jib.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 54
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d8b43": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@d8b43",
+      "displayName": "",
+      "id": "d8b43",
+      "name": "lantern_glow.mesh",
+      "userData": {
+        "gltfIndex": 4,
+        "triangleCount": 20
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3679b": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3679b",
+      "displayName": "",
+      "id": "3679b",
+      "name": "pennant_flag.mesh",
+      "userData": {
+        "gltfIndex": 5,
+        "triangleCount": 20
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3125b": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3125b",
+      "displayName": "",
+      "id": "3125b",
+      "name": "pennant_staff.mesh",
+      "userData": {
+        "gltfIndex": 6,
+        "triangleCount": 12
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "23b7c": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@23b7c",
+      "displayName": "",
+      "id": "23b7c",
+      "name": "rig.mesh",
+      "userData": {
+        "gltfIndex": 7,
+        "triangleCount": 296
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3cf97": {
+      "importer": "gltf-mesh",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3cf97",
+      "displayName": "",
+      "id": "3cf97",
+      "name": "seat_bench.mesh",
+      "userData": {
+        "gltfIndex": 9,
+        "triangleCount": 36
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3effa": {
+      "importer": "texture",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@3effa",
+      "displayName": "",
+      "id": "3effa",
+      "name": "UnnamedTexture-0.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "221a5": {
+      "importer": "texture",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@221a5",
+      "displayName": "",
+      "id": "221a5",
+      "name": "UnnamedTexture-1.texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/sail_cloth_256.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "52b9b": {
+      "importer": "gltf-material",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@52b9b",
+      "displayName": "",
+      "id": "52b9b",
+      "name": "M_sailboat_hull.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "853dd": {
+      "importer": "gltf-material",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@853dd",
+      "displayName": "",
+      "id": "853dd",
+      "name": "M_sailboat_sail.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "abb79": {
+      "importer": "gltf-material",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@abb79",
+      "displayName": "",
+      "id": "abb79",
+      "name": "M_sailboat_lamp.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8eeef": {
+      "importer": "gltf-scene",
+      "uuid": "049e8173-0b6e-455b-8478-881533bdeefd@8eeef",
+      "displayName": "",
+      "id": "8eeef",
+      "name": "sailboat.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      },
+      {
+        "name": "sail_cloth_256",
+        "uri": "db://assets/bundles/transport_sail/textures/sail_cloth_256.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "049e8173-0b6e-455b-8478-881533bdeefd@9df44",
+        "049e8173-0b6e-455b-8478-881533bdeefd@3478b",
+        "049e8173-0b6e-455b-8478-881533bdeefd@1dee9",
+        "049e8173-0b6e-455b-8478-881533bdeefd@ea533",
+        "049e8173-0b6e-455b-8478-881533bdeefd@d8b43",
+        "049e8173-0b6e-455b-8478-881533bdeefd@3679b",
+        "049e8173-0b6e-455b-8478-881533bdeefd@3125b",
+        "049e8173-0b6e-455b-8478-881533bdeefd@23b7c",
+        "049e8173-0b6e-455b-8478-881533bdeefd@89490",
+        "049e8173-0b6e-455b-8478-881533bdeefd@3cf97"
+      ],
+      "skeletons": [],
+      "textures": [
+        "049e8173-0b6e-455b-8478-881533bdeefd@3effa",
+        "049e8173-0b6e-455b-8478-881533bdeefd@221a5"
+      ],
+      "materials": [
+        "049e8173-0b6e-455b-8478-881533bdeefd@52b9b",
+        "049e8173-0b6e-455b-8478-881533bdeefd@853dd",
+        "049e8173-0b6e-455b-8478-881533bdeefd@abb79"
+      ],
+      "scenes": [
+        "049e8173-0b6e-455b-8478-881533bdeefd@8eeef"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

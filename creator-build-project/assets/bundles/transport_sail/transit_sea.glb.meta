@@ -1,0 +1,148 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": true,
+  "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330",
+  "files": [],
+  "subMetas": {
+    "b13ca": {
+      "importer": "gltf-mesh",
+      "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330@b13ca",
+      "displayName": "",
+      "id": "b13ca",
+      "name": "sea_plane.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 512
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c0b8a": {
+      "importer": "gltf-mesh",
+      "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330@c0b8a",
+      "displayName": "",
+      "id": "c0b8a",
+      "name": "sea_tile_39m.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 32
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": false,
+        "imageUuidOrDatabaseUri": "db://assets/bundles/transport_sail/textures/sea_waves_512.png"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a829c": {
+      "importer": "gltf-material",
+      "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330@a829c",
+      "displayName": "",
+      "id": "a829c",
+      "name": "M_transit_sea.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ccc09": {
+      "importer": "gltf-scene",
+      "uuid": "bf5dd89f-ce88-418e-85e5-9612b8236330@ccc09",
+      "displayName": "",
+      "id": "ccc09",
+      "name": "transit_sea.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "sea_waves_512",
+        "uri": "db://assets/bundles/transport_sail/textures/sea_waves_512.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "bf5dd89f-ce88-418e-85e5-9612b8236330@b13ca",
+        "bf5dd89f-ce88-418e-85e5-9612b8236330@c0b8a"
+      ],
+      "skeletons": [],
+      "textures": [
+        "bf5dd89f-ce88-418e-85e5-9612b8236330@e39f7"
+      ],
+      "materials": [
+        "bf5dd89f-ce88-418e-85e5-9612b8236330@a829c"
+      ],
+      "scenes": [
+        "bf5dd89f-ce88-418e-85e5-9612b8236330@ccc09"
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}
