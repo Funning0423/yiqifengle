@@ -61,6 +61,10 @@ function updateSettings(change){const s=lib.json(path.join(root,'src/settings.js
  test('startup assertion logic accepts synthetic complete record only',()=>assertStartup(startup));
  for(const [name,change]of [['WebGL missing',s=>s.webglContext=false],['no dynamic character',s=>s.candidate.staticHomeInstantiated=true],['gate not ready',s=>s.loading.gate.phase='loading'],['missing materials',s=>s.renderers.missingMaterials=1],['board leakage',s=>s.layout.managedBoards=1]])test('startup rejects '+name,()=>{const s=structuredClone(startup);change(s);assert.throws(()=>assertStartup(s));});
  const sourceRoot=path.resolve(__dirname,'../..'),provenanceFile=path.join(temp,'provenance.json');
+ const sourceBundles=lib.sourceIdentity(sourceRoot).expectedBundles;
+ const settings=lib.json(path.join(root,'src/settings.json'));
+ for(const name of sourceBundles)if(!settings.assets.projectBundles.includes(name)){settings.assets.projectBundles.push(name);put(`assets/${name}/config.json`,{name,debug:true,scenes:{},uuids:[],packs:{},deps:[]});put(`assets/${name}/index.js`,'/* synthetic bundle entry */');}
+ put('src/settings.json',settings);
  lib.write(provenanceFile,{creatorExitCode:36,engine:lib.ENGINE,sceneUuid:lib.SCENE_UUID,sceneUrl:lib.SCENE_URL,sourceSha256:lib.sourceIdentity(sourceRoot).sha256,artifactSha256:lib.verifyArtifact(root).sha256});
  const options={url:'https://example.invalid/',artifactDir:root,provenanceFile,sourceRoot,evidenceDir:path.join(temp,'blocked-evidence')};
  const page={url:()=> 'about:blank',context:()=>({storageState:async()=>({cookies:[],origins:[]})}),on(){},off(){},evaluate:async()=>({webgl:false,version:null}),goto:async()=>{throw Error('Must not navigate');},request:{get:async()=>{throw Error('Must not fetch');}}};

@@ -1,0 +1,222 @@
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 5.42 - 8.96 s  d 6.5 - 10.75 m  sky-island-under-meadow  worst 11%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 9.38 - 13.75 s  d 11.25 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 6.48 meadow:meadow_terrain
+  t 13.96 - 13.96 s  d 16.75 - 16.75 m  underside+sky-island-under-meadow  worst 11%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.17 - 15.83 s  d 17 - 19 m  sky-island-under-meadow  worst 9%  minClear 9.48 meadow:meadow_grass_instances.1
+  t 16.04 - 16.46 s  d 19.25 - 19.75 m  underside+sky-island-under-meadow  worst 10%  minClear 10.86 meadow:meadow_grass_instances.1
+  t 16.67 - 16.67 s  d 20 - 20 m  sky-island-under-meadow  worst 7%  minClear 11.36 meadow:meadow_grass_instances.1
+  t 16.88 - 19.58 s  d 20.25 - 23.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.53 meadow:meadow_grass_instances.1
+  t 19.79 - 19.79 s  d 23.75 - 23.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 20 - 20.83 s  d 24 - 25 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 12 
+  t 21.04 - 21.25 s  d 25.25 - 25.5 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 21.46 - 23.96 s  d 25.75 - 28.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.01 
+  t 24.17 - 24.79 s  d 29 - 29.75 m  sky-island-under-meadow  worst 9%  minClear 9.76 skycity:env_sky_static_palette
+  t 27.5 - 29.17 s  d 33 - 35 m  two-sky-domes-seam  worst 1%  minClear 7.19 skycity:env_sky_static_palette
+  t 31.04 - 32.08 s  d 37.25 - 38.5 m  sky-island-under-meadow  worst 9%  minClear 4.65 skycity:env_sky_static_foliage_cards
+  t 32.29 - 32.29 s  d 38.75 - 38.75 m  underside+sky-island-under-meadow  worst 11%  minClear 4.66 skycity:env_sky_static_foliage_cards
+  t 32.5 - 34.38 s  d 39 - 41.25 m  sky-island-under-meadow  worst 9%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.79 - 35.42 s  d 41.75 - 42.5 m  underside  worst 14%  minClear 4.44 skycity:env_sky_static_foliage_cards
+  t 36.04 - 36.04 s  d 43.25 - 43.25 m  underside  worst 10%  minClear 3.29 skycity:env_sky_static_foliage_cards
+#### screen 414x896
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 5.42 - 8.96 s  d 6.5 - 10.75 m  sky-island-under-meadow  worst 11%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 9.38 - 13.75 s  d 11.25 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 6.48 meadow:meadow_terrain
+  t 13.96 - 13.96 s  d 16.75 - 16.75 m  underside+sky-island-under-meadow  worst 11%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.17 - 15.83 s  d 17 - 19 m  sky-island-under-meadow  worst 9%  minClear 9.48 meadow:meadow_grass_instances.1
+  t 16.04 - 16.46 s  d 19.25 - 19.75 m  underside+sky-island-under-meadow  worst 10%  minClear 10.86 meadow:meadow_grass_instances.1
+  t 16.67 - 16.67 s  d 20 - 20 m  sky-island-under-meadow  worst 7%  minClear 11.36 meadow:meadow_grass_instances.1
+  t 16.88 - 19.58 s  d 20.25 - 23.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.53 meadow:meadow_grass_instances.1
+  t 19.79 - 19.79 s  d 23.75 - 23.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 20 - 20.83 s  d 24 - 25 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 12 
+  t 21.04 - 21.04 s  d 25.25 - 25.25 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 21.25 - 23.96 s  d 25.5 - 28.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.01 
+  t 24.17 - 24.79 s  d 29 - 29.75 m  sky-island-under-meadow  worst 9%  minClear 9.76 skycity:env_sky_static_palette
+  t 27.5 - 29.17 s  d 33 - 35 m  two-sky-domes-seam  worst 1%  minClear 7.19 skycity:env_sky_static_palette
+  t 31.04 - 32.08 s  d 37.25 - 38.5 m  sky-island-under-meadow  worst 9%  minClear 4.65 skycity:env_sky_static_foliage_cards
+  t 32.29 - 32.29 s  d 38.75 - 38.75 m  underside+sky-island-under-meadow  worst 11%  minClear 4.66 skycity:env_sky_static_foliage_cards
+  t 32.5 - 34.38 s  d 39 - 41.25 m  sky-island-under-meadow  worst 9%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.79 - 35.42 s  d 41.75 - 42.5 m  underside  worst 14%  minClear 4.44 skycity:env_sky_static_foliage_cards
+  t 36.04 - 36.04 s  d 43.25 - 43.25 m  underside  worst 10%  minClear 3.29 skycity:env_sky_static_foliage_cards
+#### screen 360x780
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 5.42 - 8.96 s  d 6.5 - 10.75 m  sky-island-under-meadow  worst 11%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 9.38 - 13.75 s  d 11.25 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 6.48 meadow:meadow_terrain
+  t 13.96 - 13.96 s  d 16.75 - 16.75 m  underside+sky-island-under-meadow  worst 11%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.17 - 15.83 s  d 17 - 19 m  sky-island-under-meadow  worst 9%  minClear 9.48 meadow:meadow_grass_instances.1
+  t 16.04 - 16.46 s  d 19.25 - 19.75 m  underside+sky-island-under-meadow  worst 10%  minClear 10.86 meadow:meadow_grass_instances.1
+  t 16.67 - 16.88 s  d 20 - 20.25 m  sky-island-under-meadow  worst 7%  minClear 11.36 meadow:meadow_grass_instances.1
+  t 17.08 - 19.58 s  d 20.5 - 23.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.7 meadow:meadow_grass_instances.1
+  t 19.79 - 19.79 s  d 23.75 - 23.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 20 - 20.83 s  d 24 - 25 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 12 
+  t 21.04 - 21.04 s  d 25.25 - 25.25 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 21.25 - 23.96 s  d 25.5 - 28.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.01 
+  t 24.17 - 24.79 s  d 29 - 29.75 m  sky-island-under-meadow  worst 9%  minClear 9.76 skycity:env_sky_static_palette
+  t 27.5 - 29.17 s  d 33 - 35 m  two-sky-domes-seam  worst 1%  minClear 7.19 skycity:env_sky_static_palette
+  t 31.04 - 31.67 s  d 37.25 - 38 m  sky-island-under-meadow  worst 7%  minClear 4.73 skycity:env_sky_static_foliage_cards
+  t 31.88 - 31.88 s  d 38.25 - 38.25 m  underside+sky-island-under-meadow  worst 10%  minClear 4.71 skycity:env_sky_static_foliage_cards
+  t 32.08 - 32.08 s  d 38.5 - 38.5 m  sky-island-under-meadow  worst 6%  minClear 4.65 skycity:env_sky_static_foliage_cards
+  t 32.29 - 32.29 s  d 38.75 - 38.75 m  underside+sky-island-under-meadow  worst 11%  minClear 4.66 skycity:env_sky_static_foliage_cards
+  t 32.5 - 34.38 s  d 39 - 41.25 m  sky-island-under-meadow  worst 9%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.79 - 35.42 s  d 41.75 - 42.5 m  underside  worst 14%  minClear 4.44 skycity:env_sky_static_foliage_cards
+  t 36.04 - 36.04 s  d 43.25 - 43.25 m  underside  worst 10%  minClear 3.29 skycity:env_sky_static_foliage_cards
+#### screen 375x667
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 5.21 - 13.75 s  d 6.25 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 13.96 - 13.96 s  d 16.75 - 16.75 m  underside+sky-island-under-meadow  worst 10%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.17 - 15.21 s  d 17 - 18.25 m  sky-island-under-meadow  worst 9%  minClear 9.48 meadow:meadow_grass_instances.1
+  t 15.42 - 15.63 s  d 18.5 - 18.75 m  underside+sky-island-under-meadow  worst 11%  minClear 10.41 meadow:meadow_grass_instances.1
+  t 15.83 - 16.25 s  d 19 - 19.5 m  sky-island-under-meadow  worst 9%  minClear 10.7 meadow:meadow_grass_instances.1
+  t 16.46 - 22.92 s  d 19.75 - 27.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.2 meadow:meadow_grass_instances.1
+  t 23.13 - 23.13 s  d 27.75 - 27.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 23.33 - 23.54 s  d 28 - 28.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.75 
+  t 23.75 - 23.75 s  d 28.5 - 28.5 m  two-sky-domes-seam  worst 8%  minClear 11.38 skycity:env_sky_static_palette
+  t 23.96 - 24.38 s  d 28.75 - 29.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 10.33 skycity:env_sky_static_palette
+  t 24.58 - 24.58 s  d 29.5 - 29.5 m  sky-island-under-meadow  worst 7%  minClear 10.03 skycity:env_sky_static_palette
+  t 27.08 - 27.08 s  d 32.5 - 32.5 m  two-sky-domes-seam  worst 0%  minClear 8.56 skycity:env_sky_static_palette
+  t 27.29 - 27.29 s  d 32.75 - 32.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 1%  minClear 8.51 skycity:env_sky_static_palette
+  t 27.5 - 27.5 s  d 33 - 33 m  two-sky-domes-seam  worst 1%  minClear 8.46 skycity:env_sky_static_palette
+  t 27.71 - 27.71 s  d 33.25 - 33.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 1%  minClear 8.4 skycity:env_sky_static_palette
+  t 27.92 - 29.38 s  d 33.5 - 35.25 m  two-sky-domes-seam  worst 2%  minClear 6.92 skycity:env_sky_static_palette
+  t 30 - 30.21 s  d 36 - 36.25 m  sky-island-under-meadow  worst 2%  minClear 5.92 skycity:env_sky_static_palette
+  t 30.63 - 30.83 s  d 36.75 - 37 m  sky-island-under-meadow  worst 3%  minClear 5.4 skycity:env_sky_static_foliage_cards
+  t 31.25 - 31.88 s  d 37.5 - 38.25 m  sky-island-under-meadow  worst 6%  minClear 4.71 skycity:env_sky_static_foliage_cards
+  t 32.08 - 32.08 s  d 38.5 - 38.5 m  underside+sky-island-under-meadow  worst 12%  minClear 4.65 skycity:env_sky_static_foliage_cards
+  t 32.29 - 32.5 s  d 38.75 - 39 m  sky-island-under-meadow  worst 9%  minClear 4.55 skycity:env_sky_static_foliage_cards
+  t 32.71 - 32.71 s  d 39.25 - 39.25 m  underside+sky-island-under-meadow  worst 10%  minClear 4.42 skycity:env_sky_static_foliage_cards
+  t 32.92 - 32.92 s  d 39.5 - 39.5 m  sky-island-under-meadow  worst 9%  minClear 4.33 skycity:env_sky_static_foliage_cards
+  t 33.13 - 33.13 s  d 39.75 - 39.75 m  underside+sky-island-under-meadow  worst 10%  minClear 4.31 skycity:env_sky_static_foliage_cards
+  t 33.33 - 34.17 s  d 40 - 41 m  sky-island-under-meadow  worst 9%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.38 - 34.38 s  d 41.25 - 41.25 m  underside+sky-island-under-meadow  worst 10%  minClear 4.39 skycity:env_sky_static_foliage_cards
+  t 34.58 - 34.58 s  d 41.5 - 41.5 m  underside  worst 10%  minClear 4.47 skycity:env_sky_static_foliage_cards
+  t 34.79 - 34.79 s  d 41.75 - 41.75 m  sky-island-under-meadow  worst 9%  minClear 4.53 skycity:env_sky_static_foliage_cards
+  t 35 - 35.42 s  d 42 - 42.5 m  underside+sky-island-under-meadow  worst 10%  minClear 4.44 skycity:env_sky_static_foliage_cards
+  t 35.63 - 36.67 s  d 42.75 - 44 m  sky-island-under-meadow  worst 8%  minClear 2.05 skycity:env_sky_static_foliage_cards
+#### screen 390x520
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 4.79 - 5 s  d 5.75 - 6 m  sky-island-under-meadow  worst 2%  minClear 7.1 meadow:meadow_grass_instances.1
+  t 5.42 - 5.42 s  d 6.5 - 6.5 m  sky-island-under-meadow  worst 2%  minClear 6.81 meadow:meadow_grass_instances.1
+  t 5.83 - 12.5 s  d 7 - 15 m  sky-island-under-meadow  worst 9%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 12.71 - 13.13 s  d 15.25 - 15.75 m  underside+sky-island-under-meadow  worst 10%  minClear 8.6 meadow:meadow_grass_instances.1
+  t 13.33 - 13.75 s  d 16 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 9.08 meadow:meadow_grass_instances.1
+  t 13.96 - 14.38 s  d 16.75 - 17.25 m  underside+sky-island-under-meadow  worst 10%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.58 - 14.58 s  d 17.5 - 17.5 m  sky-island-under-meadow  worst 9%  minClear 9.79 meadow:meadow_grass_instances.1
+  t 15 - 16.25 s  d 18 - 19.5 m  sky-island-under-meadow  worst 9%  minClear 10.1 meadow:meadow_grass_instances.1
+  t 16.46 - 16.46 s  d 19.75 - 19.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.2 meadow:meadow_grass_instances.1
+  t 16.67 - 16.67 s  d 20 - 20 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 11.36 meadow:meadow_grass_instances.1
+  t 16.88 - 17.92 s  d 20.25 - 21.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.53 meadow:meadow_grass_instances.1
+  t 18.13 - 18.13 s  d 21.75 - 21.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 18.33 - 20 s  d 22 - 24 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 12 
+  t 20.21 - 20.21 s  d 24.25 - 24.25 m  two-sky-domes-seam  worst 4%  minClear 12 
+  t 20.42 - 20.63 s  d 24.5 - 24.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 6%  minClear 12 
+  t 20.83 - 21.46 s  d 25 - 25.75 m  two-sky-domes-seam  worst 7%  minClear 12 
+  t 21.67 - 21.67 s  d 26 - 26 m  two-sky-domes-seam+sky-island-under-meadow  worst 5%  minClear 12 
+  t 21.88 - 22.5 s  d 26.25 - 27 m  two-sky-domes-seam  worst 8%  minClear 12 
+  t 22.71 - 22.71 s  d 27.25 - 27.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 4%  minClear 12 
+  t 22.92 - 22.92 s  d 27.5 - 27.5 m  two-sky-domes-seam  worst 6%  minClear 12 
+  t 23.13 - 23.96 s  d 27.75 - 28.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.01 
+  t 24.17 - 24.38 s  d 29 - 29.25 m  two-sky-domes-seam  worst 6%  minClear 10.33 skycity:env_sky_static_palette
+  t 24.58 - 26.88 s  d 29.5 - 32.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 7%  minClear 8.6 skycity:env_sky_static_palette
+  t 27.08 - 29.17 s  d 32.5 - 35 m  two-sky-domes-seam  worst 0%  minClear 7.19 skycity:env_sky_static_palette
+  t 29.38 - 29.58 s  d 35.25 - 35.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 3%  minClear 6.66 skycity:env_sky_static_palette
+  t 29.79 - 29.79 s  d 35.75 - 35.75 m  sky-island-under-meadow  worst 2%  minClear 6.4 skycity:env_sky_static_palette
+  t 30.21 - 32.08 s  d 36.25 - 38.5 m  sky-island-under-meadow  worst 6%  minClear 4.65 skycity:env_sky_static_palette
+  t 32.29 - 32.29 s  d 38.75 - 38.75 m  underside+sky-island-under-meadow  worst 12%  minClear 4.66 skycity:env_sky_static_foliage_cards
+  t 32.5 - 33.33 s  d 39 - 40 m  sky-island-under-meadow  worst 9%  minClear 4.31 skycity:env_sky_static_foliage_cards
+  t 33.54 - 33.75 s  d 40.25 - 40.5 m  underside+sky-island-under-meadow  worst 10%  minClear 4.3 skycity:env_sky_static_foliage_cards
+  t 33.96 - 34.38 s  d 40.75 - 41.25 m  sky-island-under-meadow  worst 7%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.58 - 34.79 s  d 41.5 - 41.75 m  underside+sky-island-under-meadow  worst 12%  minClear 4.47 skycity:env_sky_static_foliage_cards
+  t 35 - 35.21 s  d 42 - 42.25 m  sky-island-under-meadow  worst 8%  minClear 4.56 skycity:env_sky_static_foliage_cards
+  t 35.42 - 35.63 s  d 42.5 - 42.75 m  underside+sky-island-under-meadow  worst 13%  minClear 4.15 skycity:env_sky_static_foliage_cards
+  t 35.83 - 36.25 s  d 43 - 43.5 m  sky-island-under-meadow  worst 9%  minClear 2.82 skycity:env_sky_static_foliage_cards
+  t 36.46 - 36.46 s  d 43.75 - 43.75 m  underside  worst 12%  minClear 2.38 skycity:env_sky_static_foliage_cards
+#### screen 320x568
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 5.21 - 13.75 s  d 6.25 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 13.96 - 13.96 s  d 16.75 - 16.75 m  underside+sky-island-under-meadow  worst 10%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.17 - 15.21 s  d 17 - 18.25 m  sky-island-under-meadow  worst 9%  minClear 9.48 meadow:meadow_grass_instances.1
+  t 15.42 - 15.63 s  d 18.5 - 18.75 m  underside+sky-island-under-meadow  worst 11%  minClear 10.41 meadow:meadow_grass_instances.1
+  t 15.83 - 16.25 s  d 19 - 19.5 m  sky-island-under-meadow  worst 9%  minClear 10.7 meadow:meadow_grass_instances.1
+  t 16.46 - 22.92 s  d 19.75 - 27.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.2 meadow:meadow_grass_instances.1
+  t 23.13 - 23.13 s  d 27.75 - 27.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 23.33 - 23.54 s  d 28 - 28.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 9%  minClear 11.75 
+  t 23.75 - 23.75 s  d 28.5 - 28.5 m  two-sky-domes-seam  worst 8%  minClear 11.38 skycity:env_sky_static_palette
+  t 23.96 - 24.38 s  d 28.75 - 29.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 10.33 skycity:env_sky_static_palette
+  t 24.58 - 24.58 s  d 29.5 - 29.5 m  sky-island-under-meadow  worst 7%  minClear 10.03 skycity:env_sky_static_palette
+  t 27.08 - 27.08 s  d 32.5 - 32.5 m  two-sky-domes-seam  worst 1%  minClear 8.56 skycity:env_sky_static_palette
+  t 27.29 - 27.29 s  d 32.75 - 32.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 1%  minClear 8.51 skycity:env_sky_static_palette
+  t 27.5 - 27.5 s  d 33 - 33 m  two-sky-domes-seam  worst 1%  minClear 8.46 skycity:env_sky_static_palette
+  t 27.71 - 27.71 s  d 33.25 - 33.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 1%  minClear 8.4 skycity:env_sky_static_palette
+  t 27.92 - 29.38 s  d 33.5 - 35.25 m  two-sky-domes-seam  worst 2%  minClear 6.92 skycity:env_sky_static_palette
+  t 30 - 30.21 s  d 36 - 36.25 m  sky-island-under-meadow  worst 2%  minClear 5.92 skycity:env_sky_static_palette
+  t 30.63 - 30.83 s  d 36.75 - 37 m  sky-island-under-meadow  worst 3%  minClear 5.4 skycity:env_sky_static_foliage_cards
+  t 31.25 - 31.88 s  d 37.5 - 38.25 m  sky-island-under-meadow  worst 5%  minClear 4.71 skycity:env_sky_static_foliage_cards
+  t 32.08 - 32.08 s  d 38.5 - 38.5 m  underside+sky-island-under-meadow  worst 12%  minClear 4.65 skycity:env_sky_static_foliage_cards
+  t 32.29 - 32.5 s  d 38.75 - 39 m  sky-island-under-meadow  worst 9%  minClear 4.55 skycity:env_sky_static_foliage_cards
+  t 32.71 - 32.71 s  d 39.25 - 39.25 m  underside+sky-island-under-meadow  worst 10%  minClear 4.42 skycity:env_sky_static_foliage_cards
+  t 32.92 - 32.92 s  d 39.5 - 39.5 m  sky-island-under-meadow  worst 9%  minClear 4.33 skycity:env_sky_static_foliage_cards
+  t 33.13 - 33.13 s  d 39.75 - 39.75 m  underside+sky-island-under-meadow  worst 10%  minClear 4.31 skycity:env_sky_static_foliage_cards
+  t 33.33 - 34.17 s  d 40 - 41 m  sky-island-under-meadow  worst 9%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.38 - 34.38 s  d 41.25 - 41.25 m  underside+sky-island-under-meadow  worst 10%  minClear 4.39 skycity:env_sky_static_foliage_cards
+  t 34.58 - 34.58 s  d 41.5 - 41.5 m  underside  worst 10%  minClear 4.47 skycity:env_sky_static_foliage_cards
+  t 34.79 - 34.79 s  d 41.75 - 41.75 m  sky-island-under-meadow  worst 9%  minClear 4.53 skycity:env_sky_static_foliage_cards
+  t 35 - 35.42 s  d 42 - 42.5 m  underside+sky-island-under-meadow  worst 10%  minClear 4.44 skycity:env_sky_static_foliage_cards
+  t 35.63 - 36.67 s  d 42.75 - 44 m  sky-island-under-meadow  worst 8%  minClear 2.05 skycity:env_sky_static_foliage_cards
+#### screen 768x1024
+== 04-05 34.2 m 28.5 s
+  min clearance 1.38 m at t 11.46 s island:env_prop_palm_lean_01
+== 08-09 44.3 m 36.9 s
+  min clearance 1.9 m at t 36.88 s skycity:env_sky_static_foliage_cards
+  t 4.79 - 5 s  d 5.75 - 6 m  sky-island-under-meadow  worst 2%  minClear 7.1 meadow:meadow_grass_instances.1
+  t 5.42 - 5.42 s  d 6.5 - 6.5 m  sky-island-under-meadow  worst 2%  minClear 6.81 meadow:meadow_grass_instances.1
+  t 5.83 - 12.5 s  d 7 - 15 m  sky-island-under-meadow  worst 9%  minClear 6.44 meadow:meadow_grass_instances.1
+  t 12.71 - 13.13 s  d 15.25 - 15.75 m  underside+sky-island-under-meadow  worst 10%  minClear 8.6 meadow:meadow_grass_instances.1
+  t 13.33 - 13.75 s  d 16 - 16.5 m  sky-island-under-meadow  worst 9%  minClear 9.08 meadow:meadow_grass_instances.1
+  t 13.96 - 14.38 s  d 16.75 - 17.25 m  underside+sky-island-under-meadow  worst 10%  minClear 9.32 meadow:meadow_grass_instances.1
+  t 14.58 - 14.58 s  d 17.5 - 17.5 m  sky-island-under-meadow  worst 9%  minClear 9.79 meadow:meadow_grass_instances.1
+  t 15 - 16.25 s  d 18 - 19.5 m  sky-island-under-meadow  worst 9%  minClear 10.1 meadow:meadow_grass_instances.1
+  t 16.46 - 16.46 s  d 19.75 - 19.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.2 meadow:meadow_grass_instances.1
+  t 16.67 - 16.67 s  d 20 - 20 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 11.36 meadow:meadow_grass_instances.1
+  t 16.88 - 17.92 s  d 20.25 - 21.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.53 meadow:meadow_grass_instances.1
+  t 18.13 - 18.13 s  d 21.75 - 21.75 m  underside+two-sky-domes-seam+sky-island-under-meadow  worst 10%  minClear 12 
+  t 18.33 - 20 s  d 22 - 24 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 12 
+  t 20.21 - 20.21 s  d 24.25 - 24.25 m  two-sky-domes-seam  worst 4%  minClear 12 
+  t 20.42 - 20.63 s  d 24.5 - 24.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 6%  minClear 12 
+  t 20.83 - 21.46 s  d 25 - 25.75 m  two-sky-domes-seam  worst 7%  minClear 12 
+  t 21.67 - 21.67 s  d 26 - 26 m  two-sky-domes-seam+sky-island-under-meadow  worst 5%  minClear 12 
+  t 21.88 - 22.5 s  d 26.25 - 27 m  two-sky-domes-seam  worst 8%  minClear 12 
+  t 22.71 - 22.71 s  d 27.25 - 27.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 4%  minClear 12 
+  t 22.92 - 22.92 s  d 27.5 - 27.5 m  two-sky-domes-seam  worst 6%  minClear 12 
+  t 23.13 - 23.96 s  d 27.75 - 28.75 m  two-sky-domes-seam+sky-island-under-meadow  worst 8%  minClear 11.01 
+  t 24.17 - 24.38 s  d 29 - 29.25 m  two-sky-domes-seam  worst 6%  minClear 10.33 skycity:env_sky_static_palette
+  t 24.58 - 26.88 s  d 29.5 - 32.25 m  two-sky-domes-seam+sky-island-under-meadow  worst 7%  minClear 8.6 skycity:env_sky_static_palette
+  t 27.08 - 29.17 s  d 32.5 - 35 m  two-sky-domes-seam  worst 0%  minClear 7.19 skycity:env_sky_static_palette
+  t 29.38 - 29.58 s  d 35.25 - 35.5 m  two-sky-domes-seam+sky-island-under-meadow  worst 3%  minClear 6.66 skycity:env_sky_static_palette
+  t 29.79 - 29.79 s  d 35.75 - 35.75 m  sky-island-under-meadow  worst 2%  minClear 6.4 skycity:env_sky_static_palette
+  t 30.21 - 32.08 s  d 36.25 - 38.5 m  sky-island-under-meadow  worst 6%  minClear 4.65 skycity:env_sky_static_palette
+  t 32.29 - 32.29 s  d 38.75 - 38.75 m  underside+sky-island-under-meadow  worst 12%  minClear 4.66 skycity:env_sky_static_foliage_cards
+  t 32.5 - 33.33 s  d 39 - 40 m  sky-island-under-meadow  worst 9%  minClear 4.31 skycity:env_sky_static_foliage_cards
+  t 33.54 - 33.75 s  d 40.25 - 40.5 m  underside+sky-island-under-meadow  worst 10%  minClear 4.3 skycity:env_sky_static_foliage_cards
+  t 33.96 - 34.38 s  d 40.75 - 41.25 m  sky-island-under-meadow  worst 7%  minClear 4.26 skycity:env_sky_static_foliage_cards
+  t 34.58 - 34.79 s  d 41.5 - 41.75 m  underside+sky-island-under-meadow  worst 12%  minClear 4.47 skycity:env_sky_static_foliage_cards
+  t 35 - 35.21 s  d 42 - 42.25 m  sky-island-under-meadow  worst 8%  minClear 4.56 skycity:env_sky_static_foliage_cards
+  t 35.42 - 35.63 s  d 42.5 - 42.75 m  underside+sky-island-under-meadow  worst 13%  minClear 4.15 skycity:env_sky_static_foliage_cards
+  t 35.83 - 36.25 s  d 43 - 43.5 m  sky-island-under-meadow  worst 9%  minClear 2.82 skycity:env_sky_static_foliage_cards
+  t 36.46 - 36.46 s  d 43.75 - 43.75 m  underside  worst 12%  minClear 2.38 skycity:env_sky_static_foliage_cards

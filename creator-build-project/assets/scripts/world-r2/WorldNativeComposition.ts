@@ -1,4 +1,4 @@
-import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
+import { createSkycityBoardBackground as mountSkycityBoard } from '../region/SkycityBoardBackground';
 import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
@@ -7,6 +7,7 @@ import { DEBUG } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
 import { createRegionFlowCheckpoint } from './RegionFlowTest';
+import { qaTransportEnabled } from '../region/JourneyTransport';
 import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
 import type { CharacterAdapter, Result } from '../world-r1/WorldFlowCore';
 import { createNativeWorldLevelAdapter } from './NativeWorldLevelAdapter';
@@ -27,6 +28,8 @@ const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
 import { withRegionBoardGuest } from '../region/LakesideBoardGuest';
 // r4-prep B (extended): she stays where she landed in the meadow / sky-city live boards (their lease files untouched; wrapped per entry).
+function hideOtherBoardStates(root:Node|null){if(!root)return;const walk=(n:Node)=>{if(n.name.startsWith('state_')&&n.name!=='state_bridge_after')n.active=false;for(const c of n.children)walk(c);};walk(root);}
+async function createSkycityBoardBackground(ctx:any){const lease=await mountSkycityBoard(ctx);hideOtherBoardStates(ctx.parent?.getChildByName?.('SkycityLiveBackground')??null);return lease;}
 const meadowBoardWithGuest=(context:any)=>withRegionBoardGuest('meadow','MeadowLiveScene',1<<20,createMeadowBoardBackground)(context),skycityBoardWithGuest=(context:any)=>withRegionBoardGuest('skycity','SkycityLiveBackground',1<<20,createSkycityBoardBackground)(context);
 const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
@@ -204,6 +207,16 @@ export class WorldNativeComposition extends Component {
     this.persistence=createIsolatedTestPort(namespace,journeyNamespace);return {ok:true};
   }
   regionFlowTestStatus(){return DEBUG&&this.testProfile?{namespace:this.testProfile.namespace,checkpoint:this.testProfile.completed,lastAction:this.testProfile.lastAction}:null;}
+  /** Web / QA only (`?balloonPreview=1`). WeChat release ignores it. No on-screen test banner. */
+  async previewBalloonTransit():Promise<Result>{
+    if(!qaTransportEnabled())return {ok:false,reason:'qa-only'};
+    if(!this.world)return {ok:false,reason:'world-not-ready'};
+    const commands=this.world.commands();
+    if(commands.snapshot().state==='home'){const left=await commands.leaveHome();if(!left.ok)return left;}
+    if(commands.snapshot().state==='island'){const meadow=await commands.travelRegion('meadow');if(!meadow.ok)return meadow;}
+    try{const q=typeof location!=='undefined'?String(location.search||''):'';if(q.includes('night=1'))await commands.toggleDayNight();}catch{}
+    return commands.travelRegion('skycity');
+  }
   async startRegionFlowTest(checkpoint:number):Promise<Result>{
     if(!DEBUG)return {ok:false,reason:'test-build-only'};
     if(!this.world||!['home','island'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'test-only-outside-level'};

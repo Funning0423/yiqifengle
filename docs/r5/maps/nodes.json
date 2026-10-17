@@ -1,0 +1,358 @@
+{
+ "island": {
+  "nodes": [
+   {
+    "k": "I1",
+    "name": "门前小径尽头 path end — mainline-01",
+    "at": [
+     -2.1,
+     0,
+     5.3
+    ]
+   },
+   {
+    "k": "I2",
+    "name": "潮池 tide pools — mainline-02",
+    "at": [
+     2.5,
+     -0.01,
+     8.1
+    ]
+   },
+   {
+    "k": "I3",
+    "name": "东滩 east beach (crab) — mainline-03",
+    "at": [
+     8.1,
+     -0.36,
+     6.1
+    ]
+   },
+   {
+    "k": "I4",
+    "name": "灯塔脚 lighthouse foot — mainline-04",
+    "at": [
+     4.5,
+     0.23,
+     -4.9
+    ]
+   },
+   {
+    "k": "I5",
+    "name": "西岬 west cape (palm) — 挑战/探索",
+    "at": [
+     -4.5,
+     0.13,
+     -0.9
+    ]
+   },
+   {
+    "k": "I6",
+    "name": "南码头 south dock — 帆船出发",
+    "at": [
+     -1.9,
+     -0.6,
+     10.1
+    ]
+   }
+  ],
+  "legs": [
+   {
+    "from": "I1",
+    "to": "I2",
+    "walkM": 5.8,
+    "walkS": 4.8,
+    "climbM": -0.01
+   },
+   {
+    "from": "I2",
+    "to": "I3",
+    "walkM": 6.5,
+    "walkS": 5.5,
+    "climbM": -0.35
+   },
+   {
+    "from": "I3",
+    "to": "I4",
+    "walkM": 13.2,
+    "walkS": 11,
+    "climbM": 0.59
+   },
+   {
+    "from": "I4",
+    "to": "I5",
+    "walkM": 19.5,
+    "walkS": 16.3,
+    "climbM": -0.1
+   },
+   {
+    "from": "I5",
+    "to": "I6",
+    "walkM": 12.6,
+    "walkS": 10.5,
+    "climbM": -0.73
+   }
+  ],
+  "totalWalkM": 57.6,
+  "reachableAreaM2": 147,
+  "heightRange": [
+   -0.6,
+   1
+  ],
+  "gridM": 0.2,
+  "box": [
+   -12,
+   -14,
+   16,
+   18
+  ]
+ },
+ "meadow": {
+  "nodes": [
+   {
+    "k": "M0",
+    "name": "河岸登陆 river landing — 帆船到达",
+    "at": [
+     0.2,
+     1.22,
+     20
+    ]
+   },
+   {
+    "k": "M1",
+    "name": "小路 path — mainline-05",
+    "at": [
+     2.6,
+     2.2,
+     11.6
+    ]
+   },
+   {
+    "k": "M2",
+    "name": "坡腰 hillside — mainline-06",
+    "at": [
+     -1.4,
+     3.19,
+     1.2
+    ]
+   },
+   {
+    "k": "M3",
+    "name": "弯道 bend — mainline-07",
+    "at": [
+     -3,
+     4,
+     -8.4
+    ]
+   },
+   {
+    "k": "M4",
+    "name": "高坡 upper slope — mainline-08",
+    "at": [
+     3,
+     5.84,
+     -16.4
+    ]
+   },
+   {
+    "k": "M5",
+    "name": "风铃 wind bells — r05-meadow 挑战",
+    "at": [
+     6.6,
+     6.47,
+     -21.2
+    ]
+   },
+   {
+    "k": "M6",
+    "name": "风车门前 windmill — 热气球出发",
+    "at": [
+     0.2,
+     6.5,
+     -25.6
+    ]
+   }
+  ],
+  "legs": [
+   {
+    "from": "M0",
+    "to": "M1",
+    "walkM": 9.4,
+    "walkS": 7.8,
+    "climbM": 0.98
+   },
+   {
+    "from": "M1",
+    "to": "M2",
+    "walkM": 12.1,
+    "walkS": 10,
+    "climbM": 0.99
+   },
+   {
+    "from": "M2",
+    "to": "M3",
+    "walkM": 10.3,
+    "walkS": 8.6,
+    "climbM": 0.81
+   },
+   {
+    "from": "M3",
+    "to": "M4",
+    "walkM": 10.5,
+    "walkS": 8.7,
+    "climbM": 1.84
+   },
+   {
+    "from": "M4",
+    "to": "M5",
+    "walkM": 6.3,
+    "walkS": 5.2,
+    "climbM": 0.63
+   },
+   {
+    "from": "M5",
+    "to": "M6",
+    "walkM": 9.2,
+    "walkS": 7.6,
+    "climbM": 0.03
+   }
+  ],
+  "totalWalkM": 57.8,
+  "reachableAreaM2": 7096,
+  "heightRange": [
+   -6.4,
+   8.6
+  ],
+  "gridM": 0.4,
+  "box": [
+   -40,
+   -45,
+   40,
+   45
+  ]
+ },
+ "sky": {
+  "nodes": [
+   {
+    "k": "S0",
+    "name": "前沿草坪 lawn edge — 热气球降落",
+    "at": [
+     5.4,
+     -0.11,
+     43.8
+    ]
+   },
+   {
+    "k": "S1",
+    "name": "星庭 star court — mainline-09",
+    "at": [
+     0.2,
+     0.04,
+     30.2
+    ]
+   },
+   {
+    "k": "S2",
+    "name": "西花园 west garden — mainline-10",
+    "at": [
+     -6.6,
+     -0.05,
+     19
+    ]
+   },
+   {
+    "k": "S3",
+    "name": "东台地 east terrace — mainline-11",
+    "at": [
+     6.2,
+     -0.01,
+     8.2
+    ]
+   },
+   {
+    "k": "S4",
+    "name": "台阶顶 stair plinth — mainline-12",
+    "at": [
+     0.2,
+     3.31,
+     -5.8
+    ]
+   },
+   {
+    "k": "S5",
+    "name": "巨树下 great-tree base — r05-sky 挑战",
+    "at": [
+     0.2,
+     0.08,
+     -17
+    ]
+   },
+   {
+    "k": "S6",
+    "name": "星环观景 star-ring view — 终点/自由探索",
+    "at": [
+     0.2,
+     0.03,
+     -27.8
+    ]
+   }
+  ],
+  "legs": [
+   {
+    "from": "S0",
+    "to": "S1",
+    "walkM": 16.1,
+    "walkS": 13.4,
+    "climbM": 0.15
+   },
+   {
+    "from": "S1",
+    "to": "S2",
+    "walkM": 14,
+    "walkS": 11.7,
+    "climbM": -0.1
+   },
+   {
+    "from": "S2",
+    "to": "S3",
+    "walkM": 19,
+    "walkS": 15.8,
+    "climbM": 0.04
+   },
+   {
+    "from": "S3",
+    "to": "S4",
+    "walkM": 16.8,
+    "walkS": 14,
+    "climbM": 3.32
+   },
+   {
+    "from": "S4",
+    "to": "S5",
+    "walkM": 20.7,
+    "walkS": 17.3,
+    "climbM": -3.23
+   },
+   {
+    "from": "S5",
+    "to": "S6",
+    "walkM": 10.8,
+    "walkS": 9,
+    "climbM": -0.05
+   }
+  ],
+  "totalWalkM": 97.4,
+  "reachableAreaM2": 4493,
+  "heightRange": [
+   -3.4,
+   3.3
+  ],
+  "gridM": 0.4,
+  "box": [
+   -60,
+   -50,
+   45,
+   80
+  ]
+ }
+}

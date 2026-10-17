@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "name": "transport_balloon.glb",
+      "tris": 125,
+      "materials": 2,
+      "bytes": 7116,
+      "holeM": 0
+    },
+    {
+      "name": "transit_cloud_band.glb",
+      "tris": 56,
+      "materials": 1,
+      "bytes": 3920,
+      "holeM": 9
+    },
+    {
+      "name": "transit_sky_cards.glb",
+      "tris": 8,
+      "materials": 1,
+      "bytes": 1904,
+      "holeM": 0
+    }
+  ],
+  "totalTris": 189,
+  "bytes": 12940,
+  "license": "original procedural (this script)",
+  "holeM": 9
+}

@@ -3,7 +3,7 @@ export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming; board?:JourneyBoardEnd }>;
 /** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
-export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; }
+export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; ride?(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>; }
 export interface JourneySceneAdapter {
  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
  readCamera():Pose;
@@ -248,7 +248,13 @@ export class RegionJourneyController {
     this.camera=journeyCamera(this.lease.route.path,0,this.startCamera,this.lease.route.focus,this.lease.route.lens,0,this.lease.route.landing,this.lease.route.board);world.setCamera(this.camera);}
    this.show(true);token.check();
    if(fade){this.fadeState='in';void Promise.resolve(world.fadeCover!(0,SETOFF_FADE.inS)).then(()=>{if(this.fadeState==='in')this.fadeState='clear';},()=>{});}
-   if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
+   if(this.lease.ride){
+    await token.wait(this.lease.ride(actor,world,token));token.check();
+    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
+    const beforeRide=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-beforeRide[0],this.root[2]-beforeRide[2]);
+    if(this.camera)world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
+   }else if(path.length>1){this.activePath=path;this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
     const L=routeLength(path),tm=this.lease.route.timing,timing=tm?(this.distance>0?remainingTiming(routeLength(this.lease.route.path),L,tm):tm):null;
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);

@@ -21,6 +21,8 @@ import {regionBoardEnd,regionBoardSource,regionGirlStand,setRegionBoardSource,ty
 import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
+import {transportFor} from './JourneyTransport';
+import {mountBalloonLease} from './BalloonRide';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
@@ -57,6 +59,13 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
   readCamera():Pose{const c=options.camera,p=c.node.worldPosition,q=c.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:c.fov};},
   async prepare(from,to,start,token,progress){
    if(to==='lakeside')return prepareLakesideJourney(options.parent,options.camera,from,start,token,progress);
+   if(to==='skycity'&&transportFor(from,to)==='balloon'){
+    let dropped=false;
+    const work=mountBalloonLease({parent:options.parent,meadow:mounted.get('meadow')??null,start,token,progress}).then(lease=>{if(dropped){lease.dispose();throw Error('balloon-dropped');}if(lease.model)mounted.set('skycity',lease.model);return lease;});
+    const timeout=new Promise<never>((_,reject)=>{const id=setTimeout(()=>reject(Error('balloon-timeout')),6000);token.onCancel(()=>clearTimeout(id));});
+    try{return await Promise.race([work,timeout]);}
+    catch(error){dropped=true;if(token.cancelled)throw error;}
+   }
    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
