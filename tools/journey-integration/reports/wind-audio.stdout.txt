@@ -1,0 +1,84 @@
+PASS soft_gain 0.15/0.5/1.0 = 0.41/0.55/0.75 [[0.15,0.41,0],[0.5,0.55,0.1983],[1,0.75,1]]
+PASS strong_gain 0.15/0.5/1.0 = 0/0.1983/1 [[0.15,0.41,0],[0.5,0.55,0.1983],[1,0.75,1]]
+PASS soft_gain ramps from 0 below s=0.08
+PASS s=0 for 10 s -> no AudioSource created, nothing played {"n":0}
+PASS s stays exactly 0
+PASS onApronLift hook found by typeof on WorldFlowComponent and subscribed once
+PASS globalThis.__voiceWind.notifyApronLift exposed
+PASS one-pole: after tau=0.25 s, s ~ 63% 0.6321205588285574
+PASS wind=1 -> soft 0.75 + strong 1.0, both looping {"s":0.9998765901959134,"soft":0.7499506360783653,"strong":0.9999999067661854,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":1}
+PASS wind=0.5 -> soft 0.55 / strong 0.198 {"s":0.5000030713479207,"soft":0.5500012285391682,"strong":0.19825610150799478,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":1}
+PASS wind=0.15 -> soft 0.41, strong muted (vol 0) {"s":0.15000003938765682,"soft":0.41000001575506273,"strong":0,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":1}
+PASS two looping sources
+PASS wind back to 0 -> loops paused after idle {"s":0,"soft":0,"strong":0,"softPlaying":false,"strongPlaying":false,"gust":-1,"hooks":1}
+PASS canPlayAmbience false + wind 1 -> silent, nothing created
+PASS gate opens -> plays
+PASS gate closes (mute/suspend) -> paused at once {"s":0,"soft":0.7498658149488391,"strong":0.9999993112292589,"softPlaying":false,"strongPlaying":false,"gust":-1,"hooks":1}
+PASS isWorldVisible false -> silent
+PASS flap dropped while world invisible
+PASS 'full' via hook -> flap at 0.7 0.7
+PASS 'full' does not start the idle-gust envelope
+PASS canPlayAmbience false -> flap not played
+PASS 'soft' -> flap at event, 0.28 (0.7 x -8 dB) 0.27999999999999997
+PASS envelope peak s ~0.5 (after 0.25 s smoothing) 0.48
+PASS envelope peak ~45% of 4 s (+smoothing lag) 2.05
+PASS envelope finished, back to ~0 {"s":0,"soft":0,"strong":0,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":1}
+PASS loops paused after gust
+PASS durationSec default 4
+PASS unknown strength ignored (no throw)
+PASS global __voiceWind entry works
+PASS no onApronLift anywhere -> no subscription, no error
+PASS destroy -> onApronLift unsubscribed
+PASS destroy -> sources stopped + destroyed
+PASS destroy -> static/global cleared
+PASS notify after destroy is a no-op
+PASS setWindDuck(s) every frame with the smoothed wind (s -> 1) {"n":120,"last":0.9996645373720976}
+PASS not allowed (muted / hidden) -> setWindDuck(0)
+PASS destroy -> setWindDuck(0)
+PASS GameAudio without setWindDuck (older build / stub): no-op
+PASS v6 constants: gap 2.5 s, distant 0.30/0.38, near 0.5, crane 0.6 (GULL_VOL), wave duck 0.25 {"waveWindFloor":0.35,"waveFloorFrom":0.1,"waveFloorTo":0.6,"waveWindDuck":0.25,"exitOn":0.1,"distant":[{"at":0.4,"clip":"sfx_amb_gull_2","vol":0.3,"maxLateS":4},{"at":0.7,"clip":"sfx_amb_gull_3","vol":0.38,"maxLateS":0}],"nearDelayS":0.4,"nearClip":"sfx_amb_gull_1","nearVol":0.5,"nearMaxLateS":4,"craneDelayS":1.5,"craneClip":"sfx_amb_gull_1","craneVol":0.6,"craneMaxLateS":0,"gullMinGapS":2.5,"gullCrossGapS":1.2}
+PASS indoors (w=1, rig, wind 0): waves silent, no gulls (T5 contract)
+PASS wind 0.15 at the door (w still 1): waves start fading in (0.35*smoothstep(.1,.6,.15)=0.0098) 0.0097
+PASS no gull below 0.4
+PASS slow rise: distant gulls at 0.4 and 0.7 (gap >= 2.5 s), different clips, quiet {"g":[{"t":8.7,"n":"sfx_amb_gull_2","v":0.3},{"t":11.867,"n":"sfx_amb_gull_3","v":0.38}],"gaps":[3.167]}
+PASS w=1 + wind 1 -> waves at floor 0.35, ducked 25% = 0.2625 0.264
+PASS onApronLift('full') (gap free) -> near gull 0.4 s later at 0.5 [{"t":17.717,"n":"sfx_amb_gull_1","v":0.5}]
+PASS dip to 0.3 and back up: no repeat distant gulls (once per exit)
+PASS outdoor + exit wind still on: random island gulls suppressed for 25 s
+PASS wind below 0.1 resets -> next exit plays the distant gull again [{"t":56.417,"n":"sfx_amb_gull_2","v":0.3}]
+PASS real exit138 lift 14.82: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s {"at11":0.0073,"at13_5":0.1701}
+PASS real exit138 lift 14.82: exactly two gulls (distant 0.4 + near; 0.7 merged, crane gull dropped by the same-distance gap) [{"t":13.983,"n":"sfx_amb_gull_2","v":0.3},{"t":15.25,"n":"sfx_amb_gull_1","v":0.5}]
+PASS real exit138 lift 14.82: distant gull 0.5 s after the 0.4 crossing (~14.0 s) {"t":13.983,"n":"sfx_amb_gull_2","v":0.3}
+PASS real exit138 lift 14.82: 0.7 crossing merged into the first (far-far 2.5 s)
+PASS real exit138 lift 14.82: near gull at onApronLift + 0.4 s (within a frame) {"near":{"t":15.25,"n":"sfx_amb_gull_1","v":0.5},"fromLift":0.43}
+PASS real exit138 lift 14.82: near gull starts before onCraneStart (inside the frontal hold) {"near":15.25,"crane":15.483,"margin":0.233}
+PASS real exit138 lift 14.82: near-far gap >= 1.2 s [1.267]
+PASS real exit50c lift 14.87: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s {"at11":0.0073,"at13_5":0.1622}
+PASS real exit50c lift 14.87: exactly two gulls (distant 0.4 + near; 0.7 merged, crane gull dropped by the same-distance gap) [{"t":14.033,"n":"sfx_amb_gull_2","v":0.3},{"t":15.3,"n":"sfx_amb_gull_1","v":0.5}]
+PASS real exit50c lift 14.87: distant gull 0.5 s after the 0.4 crossing (~14.0 s) {"t":14.033,"n":"sfx_amb_gull_2","v":0.3}
+PASS real exit50c lift 14.87: 0.7 crossing merged into the first (far-far 2.5 s)
+PASS real exit50c lift 14.87: near gull at onApronLift + 0.4 s (within a frame) {"near":{"t":15.3,"n":"sfx_amb_gull_1","v":0.5},"fromLift":0.43}
+PASS real exit50c lift 14.87: near gull starts before onCraneStart (inside the frontal hold) {"near":15.3,"crane":15.567,"margin":0.267}
+PASS real exit50c lift 14.87: near-far gap >= 1.2 s [1.267]
+PASS real exit50c lift 14.93: waves start (very quiet, wind floor) right after the sill, clearly up by 13.5 s {"at11":0.0073,"at13_5":0.1622}
+PASS real exit50c lift 14.93: exactly two gulls (distant 0.4 + near; 0.7 merged, crane gull dropped by the same-distance gap) [{"t":14.033,"n":"sfx_amb_gull_2","v":0.3},{"t":15.35,"n":"sfx_amb_gull_1","v":0.5}]
+PASS real exit50c lift 14.93: distant gull 0.5 s after the 0.4 crossing (~14.0 s) {"t":14.033,"n":"sfx_amb_gull_2","v":0.3}
+PASS real exit50c lift 14.93: 0.7 crossing merged into the first (far-far 2.5 s)
+PASS real exit50c lift 14.93: near gull at onApronLift + 0.4 s (within a frame) {"near":{"t":15.35,"n":"sfx_amb_gull_1","v":0.5},"fromLift":0.42}
+PASS real exit50c lift 14.93: near gull starts before onCraneStart (inside the frontal hold) {"near":15.35,"crane":15.567,"margin":0.217}
+PASS real exit50c lift 14.93: near-far gap >= 1.2 s [1.317]
+PASS crane gull 1.5 s after onCraneStart (gap free) at 0.6 [{"t":2.7,"n":"sfx_amb_gull_1","v":0.6}]
+PASS crane gull due 2.2 s after the previous one -> skipped, not delayed [{"t":2.7,"n":"sfx_amb_gull_1","v":0.6}]
+PASS near gull waits until 2.5 s after the previous gull [2.5]
+PASS near gull dropped when the wait exceeds nearMaxLateS {"before":3,"after":3}
+PASS 'soft' -> no near gull, no distant gulls []
+PASS random gull due 1.1 s after the last gull -> postponed past the 2.5 s gap, vol 0.6 {"since":2.5}
+PASS crane gull re-arms the random timer (8..20 s) 9.15
+PASS canPlayAmbience false -> no exit gulls, no waves
+PASS world invisible -> no waves floor, no exit gulls
+PASS music 1: wind and waves at the design full level {"soft":0.7499975423150587,"strong":0.9999999997688707,"waves":0.41250023440986805}
+PASS music 0: wind and waves inaudible on the next frame {"wind":{"s":0.9999942520464259,"soft":0,"strong":0,"softPlaying":false,"strongPlaying":false,"gust":-1,"hooks":1},"waves":0,"playing":false}
+PASS music back to 1 restores the design full level {"wind":{"s":0.9999946227492817,"soft":0.7499978490997127,"strong":0.9999999998229713,"softPlaying":true,"strongPlaying":true,"gust":-1,"hooks":1},"waves":0.412500204200394,"full":{"soft":0.7499975423150587,"strong":0.9999999997688707,"waves":0.41250023440986805}}
+PASS music 0.4 (default): design full level {"strong":0.9999999998450692,"waves":0.4125001905884546,"full":{"soft":0.7499975423150587,"strong":0.9999999997688707,"waves":0.41250023440986805}}
+PASS music 0.2: half the design level, wind-duck ratio stays inside it {"strong":0.49999999993220434,"waves":0.20625008894190028,"full":{"soft":0.7499975423150587,"strong":0.9999999997688707,"waves":0.41250023440986805}}
+ALL PASS wind-audio

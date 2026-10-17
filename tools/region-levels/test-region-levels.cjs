@@ -71,7 +71,7 @@ check('36 shipped mainline openings win without tools; every action prefix cold-
 });
 check('24 meadow/sky challenge seeds replay all goals and cold-recover every prefix', () => {
   let openings = 0, actions = 0, toolActions = 0;
-  for (const stage of API.catalog.filter(x => x.region !== 'tide')) for (const seed of stage.seedBank) {
+  for (const stage of API.catalog.filter(x => x.region === 'meadow' || x.region === 'sky')) for (const seed of stage.seedBank) {
     const w = RW[stage.id].find(x => x.seed === seed); assert(w, stage.id + ':' + seed);
     let run = API.createSession(stage.id, seed);
     for (const a of w.actions) { assert(run.act(a)); actions++; if (a[0] === 'tool') toolActions++;

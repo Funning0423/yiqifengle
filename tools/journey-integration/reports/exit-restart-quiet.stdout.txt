@@ -1,0 +1,2 @@
+exit restart quiet OK
+hide quiet OK

@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "timeUTC": "2026-10-15T17:32:27.868Z",
-  "sourceRoot": "/workspace/shared/game-integration-20261015",
+  "timeUTC": "2026-10-17T04:22:37.365Z",
+  "sourceRoot": "/tmp/wt-lake",
   "scope": "Real RegionJourneyController and Cancellation TypeScript, deterministic deferred actor/scene adapters. No Cocos engine/rendering/visual acceptance.",
   "checks": [
     {

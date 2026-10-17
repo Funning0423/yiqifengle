@@ -1,0 +1,1 @@
+{"status":"PASS","390x844":{"scoreFrom":83,"scoreMid":135.1,"scoreTo":149.5,"forced":{"from":17,"at0":17,"at100ms":120.9,"to":149.5}},"320x568":{"scoreFrom":48,"scoreMid":48,"scoreTo":48,"forced":{"from":-18,"at0":-18,"at100ms":33.7,"to":48}},"doubleRepaint":{"from":83,"frame1":101,"to":149.5,"stars":3}}

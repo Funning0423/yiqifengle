@@ -1,0 +1,1 @@
+{"status":"PASS","320x568":{"lift":14,"badgeY":63},"375x667":{"lift":14,"badgeY":76},"390x844":{"lift":0,"badgeY":125.5}}
