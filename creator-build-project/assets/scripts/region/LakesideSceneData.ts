@@ -82,16 +82,18 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
    *  0.2 -> 0.49 of base. Emulator (Mac-calibrated, board camera) vs r5h3 luma: near water 0.99, bridge deck 1.11, grass_L 1.29,
    *  far trees 1.00, roof 1.12 - grass stays bright at sun >= 0.7 (see the r2 README). History: v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
    *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
-  sunIlluminanceScale: 0.7,
+  /** r4 (VB): refit on the engine-camera r5h3 reference (ENGINE_COLOR_REFERENCE/engine_cam_r5h3, Mac-calibrated HDR+ACES stand-in). */
+  sunIlluminanceScale: 0.95,
   /** r2 warm hemisphere fill (linear; r5h3 sky 0.0116/0.2747/0.4793, ground 1/0.5457/0.1441). Up faces get the sky, the
    *  camera-facing backlit faces about half sky / half ground. */
-  ambientSkyColorLinear: [0.0107, 0.0656, 0.1106] as readonly number[],
+  ambientSkyColorLinear: [0.0107, 0.0656, 0.082] as readonly number[], // r4 refit (B was 0.1106)
   /** r2b (Grok Bot: warm fill too strong, rails yellow): ground warm saturation halved toward its own luminance (c60ac55 1/0.841/0.0687,
    *  luminance 0.819 kept, so the night ratios are unchanged). */
-  ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
-  ambientSkyIllumToSun: 0.49,
+  ambientGroundColorLinear: [0.97, 0.533, 0.296] as readonly number[], // r4 refit (was 0.9095/0.83/0.4439)
+  ambientSkyIllumToSun: 0.236, // r4 refit (was 0.49): the engine-camera reference bridge/water is darker than the r3 Mac shot
+
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
-  fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
+  fogEnabled: true, fogColorSrgb: [231, 165, 125] as const /* r4 refit (was 215/170/150) */, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });
 /** r4 (VB): THE one source of every lakeside water + reflected-sky value (lakeside-water.effect uniforms), day and night. Read by
  *  the board background (LakesideBoardBackground) AND the island->lakeside journey lake (RegionJourneyAdapter), both only through
@@ -112,8 +114,10 @@ export const LAKESIDE_WATER_SKY = Object.freeze({
     waveFadeStart: 12, waveFadeEnd: 35, // v3.3 wave normal fade (m from the camera): full on the board water, none past 35 m
   }),
   day: Object.freeze({
-    tintLinear: Object.freeze([0.9, 1.0, 1.0]), mainLightScale: 1.37, ambientScale: 1.85, skyStrength: 0.35, skyReflectFloor: 0.31,
-    sky: Object.freeze({ zenithLinear: Object.freeze([0.0116, 0.2747, 0.4793]), lowLinear: Object.freeze([0.9216, 0.5776, 0.2705]), horizonLinear: Object.freeze([1.0, 0.5457, 0.1441]) }),
+    // r4 refit (r3: tint 0.9/1/1, main 1.37, amb 1.85, sky 0.35, floor 0.31, zenith r5h3 sky blue, low/horizon r5h3 dusk beige/orange =
+    // the sand look once Cocos squared them). Horizon = the reflected far shore (olive), low = blue, zenith = dusk lavender.
+    tintLinear: Object.freeze([0.714, 0.858, 1.0]), mainLightScale: 2.51, ambientScale: 2.87, skyStrength: 0.387, skyReflectFloor: 0.323,
+    sky: Object.freeze({ zenithLinear: Object.freeze([0.3, 0.15, 0.465]), lowLinear: Object.freeze([0.173, 0.221, 0.481]), horizonLinear: Object.freeze([0.204, 0.297, 0.003]) }),
   }) as LakesideWaterSkyMode,
   night: Object.freeze({
     tintLinear: Object.freeze([0.9, 1.0, 1.0]), mainLightScale: 0.8, ambientScale: 0.6, skyStrength: 0.12, skyReflectFloor: 0.31,
@@ -139,10 +143,10 @@ export function lakesideWaterUniforms(mode: LakesideDayNight): Record<LakesideWa
  *  the r2 balance per term (luminance): moon/sun 0.857, hemisphere ambient night/day 0.219, against the CURRENT day values. */
 export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   sunColorLinear: [0.36, 0.46, 0.78] as const,
-  sunIlluminanceScale: 0.864, // r2: keeps moon/sun 0.857 (luminance) vs the r2 day (sun 0.7)
+  sunIlluminanceScale: 1.173, // r4: keeps moon/sun 0.857 (luminance) vs the r4 day (sun 0.95); r2 0.864
   ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
   ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
-  ambientSkyIllumToSun: 1.76, // r2: keeps hemisphere ambient night/day 0.219 vs the r2 day (warm fill 0.49)
+  ambientSkyIllumToSun: 0.643, // r4: keeps hemisphere ambient night/day 0.219 vs the r4 day (fill 0.236, ground 0.97/0.533/0.296); r2 1.76
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
 });
@@ -166,7 +170,8 @@ export const LAKESIDE_FOG_MODE: LakesideFogMode = 'layered';
 /** LAYERED: Cocos 3.8.8 LayeredFog(): camera (y 13.2) above fogTop -> density ~ (2D/fogAtten)*(fogTop-y)/fogRange for low slabs, so it grows
  *  with horizontal distance D and with depth below fogTop. top 1.5 m = just above water/far shore (0..0.3 m), range 30 / atten 17:
  *  water at the far shore (~77 m) 0.36, lake end (100 m) 0.44, anything above 1.5 m none; board water (18-24 m) ~0.10-0.13. */
-export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 1.5, fogRange: 30, fogAtten: 17 });
+/** r4 (VB) refit (was top 1.5 / range 30 / atten 17): a thicker, softer golden slab; still below the hills and tree crowns. */
+export const LAKESIDE_LAYERED_FOG = Object.freeze({ fogTop: 4.16, fogRange: 74, fogAtten: 59.2 });
 export function lakesideFogMode(search?: string | null, fallback: LakesideFogMode = LAKESIDE_FOG_MODE): LakesideFogMode {
   const m = /[?&]lakefog=([a-z0-9]+)/.exec(search || '');
   return m && (m[1] === 'layered' || m[1] === 'linear60' || m[1] === 'off') ? m[1] : fallback;

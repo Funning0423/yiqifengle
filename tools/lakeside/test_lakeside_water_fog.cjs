@@ -7,9 +7,11 @@ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,WS=D.LAKESIDE_WATER_SKY,WD=WS.da
 // Voice Bot verified values
 assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.lakesideCocosLightColor(D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround),[255,139,37],"v3.4 Cocos bytes = linear x 255");
 assert.equal(SH.fresnelF0,0.02);assert.equal(SH.fresnelPower,5);
-assert.deepEqual([...WD.sky.zenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...WD.sky.lowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...WD.sky.horizonLinear],[1.0,0.5457,0.1441]);
+// r4 refit: reflected sky is no longer the r5h3 dusk beige/orange (squared by Cocos = the sand look): olive shore horizon, blue low, lavender zenith
+assert.deepEqual([...WD.sky.zenithLinear],[0.3,0.15,0.465]);assert.deepEqual([...WD.sky.lowLinear],[0.173,0.221,0.481]);assert.deepEqual([...WD.sky.horizonLinear],[0.204,0.297,0.003]);
+assert(WD.sky.lowLinear[2]>WD.sky.lowLinear[0]&&WD.sky.zenithLinear[2]>WD.sky.zenithLinear[0],'no warm (sand) reflection above the horizon band');
 assert(SH.specExponent>=200&&SH.specExponent<=500&&SH.specNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
-assert.deepEqual([...P.fogColorSrgb],[215,170,150]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
+assert.deepEqual([...P.fogColorSrgb],[231,165,125]);assert.equal(P.fogStart,60);assert.equal(P.fogMaxAt,130);assert.equal(P.fogMaxAmount,0.4);
 const end=D.lakesideFogEnd();assert.equal(end,235);
 const amount=d=>Math.min(1,Math.max(0,(d-P.fogStart)/(end-P.fogStart)));assert(Math.abs(amount(130)-0.4)<1e-9);
 // board / near shore clear: farthest board corner and near-shore props are < fogStart from the board camera
@@ -43,13 +45,14 @@ assert(/console\.error\('\[QF_LAKE\] '\+JSON\.stringify\(\{event:'water-material
 assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
 assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
 // v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
-assert.deepEqual([...WD.tintLinear],[0.9,1.0,1.0]);assert(Math.min(...WD.tintLinear)>=0.9,'no flattening of vertex colours');
+// r4: tint saturation fitted on the engine-camera reference (0.714/0.858/1); still a multiply on the r5h3 vertex colours (shallow shore / deep middle kept)
+assert.deepEqual([...WD.tintLinear],[0.714,0.858,1.0]);assert(Math.min(...WD.tintLinear)>=0.6,'no flattening of vertex colours');
 // effect defaults = lakesideWaterUniforms('day') for all 8 uniforms (what the shader shows if a setProperty were missed)
 {const num=v=>+v;for(const k of D.LAKESIDE_WATER_UNIFORM_NAMES){const mm=fx.match(new RegExp('\\n\\s+'+k+':\\s+\\{ value: \\[([^\\]]*)\\]'));assert(mm,k);assert.deepEqual(mm[1].split(',').map(num),U[k],k+' effect default = shared day value');}}assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: no second decode in the shader');
 assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
-assert.equal(WD.skyReflectFloor,0.31);
+assert.equal(WD.skyReflectFloor,0.323);
 assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
-assert(/wc=lakesideCocosLightColor\(LAKESIDE_WATER_SKY\.day\.tintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(WD.tintLinear),[230,255,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
+assert(/wc=lakesideCocosLightColor\(LAKESIDE_WATER_SKY\.day\.tintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(WD.tintLinear),[182,219,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255 (r4 tint 0.714/0.858/1)');
 // fog modes + URL override (guarded for WeChat)
 assert.equal(D.LAKESIDE_FOG_MODE,'layered');
 assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
@@ -61,11 +64,13 @@ assert(/const fogMode=lakesideFogModeFromEnv\(\);/.test(bg)&&/if\(fogMode==='off
 // layered: slab above water, below mountains/trees; fog factor per 3.8.8 LayeredFog()
 const Lf=D.LAKESIDE_LAYERED_FOG;assert(Lf.fogTop>0.3&&Lf.fogTop<5.7&&Lf.fogTop<cam[1]);
 const lay=(Dh,y)=>{if(y>=Lf.fogTop)return 0;const dD=Dh/Lf.fogAtten*2,dY=(Lf.fogTop-y)/Lf.fogRange*2;return 1-Math.exp(-Math.sqrt(1+(dD/dY)**2)*dY*dY/2);};
-assert(lay(77,0)>0.3&&lay(77,0)<0.45&&lay(20,0)<0.15&&lay(85,2)===0);
+// r4 refit: thicker (top 4.16) but much softer slab (range 74, atten 59.2): ~14% at the far shore, ~4% at 20 m, none above the top
+assert(lay(77,0)>0.1&&lay(77,0)<0.2&&lay(20,0)<0.05&&lay(85,Lf.fogTop)===0&&lay(85,6)===0);
 assert(/fog\.fogTop=L\.fogTop;fog\.fogRange=L\.fogRange;fog\.fogAtten=L\.fogAtten;/.test(bg));
 // v3.3 near water: water-only light scales + dimmer reflected sky (floor and tint unchanged); default fog layered; waves fade with distance
 // v3.4 (VB): refit under the linear lights (dirlight test) on the Mac-calibrated emulator: near water 58/152/148 vs r5h3 66/152/146
-assert.equal(WD.mainLightScale,1.37);assert.equal(WD.ambientScale,1.85);assert.equal(WD.skyStrength,0.35);
+// r4 refit (r3 1.37 / 1.85 / 0.35)
+assert.equal(WD.mainLightScale,2.51);assert.equal(WD.ambientScale,2.87);assert.equal(WD.skyStrength,0.387);
 assert.deepEqual(U.lightParams,[WD.mainLightScale,WD.ambientScale,SH.waveFadeStart,SH.waveFadeEnd]);
 assert(/vec3 col = albedo \* \(lit \* NL \/ 3\.14159265 \* lightParams\.x \+ amb \* lightParams\.y\);/.test(fx),'diffuse main x, ambient y');
 assert(/col \+= lit \* pow\(max\(dot\(N, H\), 0\.0\), ex\) \* specParams\.y \* F;/.test(fx),'streak keeps the full main light');
