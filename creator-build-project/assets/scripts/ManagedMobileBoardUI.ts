@@ -581,7 +581,7 @@ export class ManagedMobileBoardUI extends Component {
     this.cells.forEach((n, i) => { const c = cellCenter(g, i); n.setPosition(c.x - g.grid.x, g.grid.y - c.y, 0); n.getComponent(UITransform)!.setContentSize(P, P); });
     this.place(this.pause, X(g.pause.x), Y(g.pause.y), g.pause.hit); this.place(this.pause.getChildByName('Face')!.getChildByName('Art')!, 0, 0, g.pause.size * 126 / 128, g.pause.size);
     this.layoutPlate();
-    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0);
+    this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0); this.sizeToast();
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
     this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
@@ -826,10 +826,16 @@ export class ManagedMobileBoardUI extends Component {
   }
   private box(name: string, parent: Node, x: number, y: number, w: number, h: number) { const n = new Node(name); n.layer = Layers.Enum.UI_2D; parent.addChild(n); n.setPosition(x, y); n.addComponent(UITransform).setContentSize(w, h); return n; }
   // ---------------- toast / input / hint ----------------
-  /** Transient strip above the tool bar: tool prompts and errors only, fades after 2 s. */
+  /** Transient strip above the board tray (BoardLayout.toast, every region alike): tool prompts and errors only, fades after 2 s. */
   private say(text: string) {
     if (!text || !this.toastLabel) return; this.toastLabel.string = text; this.toastT = 0;
-    const w = Math.min(330, measure(text, 15) + 40), h = 32; this.toast.getComponent(UITransform)!.setContentSize(w, h); this.paintToast(w, h); this.toast.setSiblingIndex(this.root.children.length - 1);
+    this.sizeToast(); this.toast.setSiblingIndex(this.root.children.length - 1);
+  }
+  /** Pill = text + 40, capped by the layout's max width (≤ 330, inset from the edges); a longer line scales down to stay inside the caps. */
+  private sizeToast() {
+    const text = this.toastLabel?.string; if (!text) return;
+    const tw = measure(text, 15), w = Math.min(this.geo?.toast.maxWidth ?? 330, tw + 40), h = this.geo?.toast.height ?? 32, fit = Math.min(1, (w - 28) / tw);
+    this.toast.getComponent(UITransform)!.setContentSize(w, h); this.toastLabel.node.setScale(fit, fit, 1); this.paintToast(w, h);
   }
   private paintToast(w: number, h: number) { const g = this.toastBg, k = 1 - 0.38 * this.tint.weight(); g.clear(); g.fillColor = new Color(40, 30, 20, 40); g.roundRect(-w / 2 + 1, -h / 2 - 2, w, h, h / 2); g.fill(); g.fillColor = new Color(Math.round(248 * k), Math.round(242 * k), Math.round(226 * k), 240); g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.fill(); g.strokeColor = new Color(201, 177, 133, 255); g.lineWidth = 1.5; g.roundRect(-w / 2, -h / 2, w, h, h / 2); g.stroke(); }
   private input() { this.hintClock.reset(); if (this.hintCells.length) { this.hintCells = []; this.paintMarks(); } }
