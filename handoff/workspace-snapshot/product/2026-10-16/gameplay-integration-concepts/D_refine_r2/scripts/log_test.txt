@@ -1,0 +1,14 @@
+00:00.079  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r2/scripts/d_r2.py:50: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; N=nt.nodes; L=nt.links
+<string>:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+01:57.292  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r2/raw_test.png'
+CELL_PX D_refine_r2 row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.98/1.13
+SECTIONS [('slope+valleyfloor', 220), ('fields', 1992), ('valley props', 830), ('hills', 2040), ('balloons', 1968), ('clouds', 1560), ('tree+story', 3962), ('cloth', 1637), ('pieces', 12104), ('midground', 2768), ('edge', 1050), ('foreground', 4038)]
+TRIS_EVAL 34169
+COVER_FG []
+BOARD_PX bottom_edge_from_bottom=128.0 top_edge_from_top=518.4
+DONE_MODE test
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

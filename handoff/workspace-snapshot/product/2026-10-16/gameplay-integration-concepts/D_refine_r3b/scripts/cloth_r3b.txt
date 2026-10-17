@@ -1,0 +1,96 @@
+# ---------- 野餐布 r3b：左右边贴画面边缘（外留窄草边）；布边格纹与棋盘同尺寸同相位；起伏只在格外布边 ----------
+MX=0.36; MB=0.5; HF=0.014
+def hcl(a,b):
+    h=HF; dx=max(-a,a-7,0.0); dy=max(-b,b-7,0.0)
+    if dy>0:
+        f=min(dy/MB,1.0)**1.6; ph=0.0 if b<0 else 2.1
+        h+=f*(0.06+0.16*(0.5+0.5*math.sin(a*2*math.pi/1.1+ph))+0.03*math.sin(a*2*math.pi/0.5+ph*2))
+    if dx>0:
+        f=min(dx/MX,1.0)**1.6; ph=1.0 if a<0 else 3.3
+        h+=f*(0.04+0.07*(0.5+0.5*math.sin(b*2*math.pi/1.15+ph)))
+    return h
+CC=Vector((7+MX,7+MB)); FA=Vector((5.4,7+MB)); FB=Vector((7+MX,7.12))
+_d=(FB-FA).normalized(); FN=Vector((-_d.y,_d.x))
+if FN.dot(CC-FA)<0: FN=-FN
+_foot=FA+_d*(CC-FA).dot(_d); FF=_foot*2-CC
+def cside(a,b): return FN.dot(Vector((a,b))-FA)
+def clamp_fold(a,b):
+    s=cside(a,b)
+    if s>0: p=Vector((a,b))-FN*s; return p.x,p.y
+    return a,b
+Ax=[-MX+k*MX/5 for k in range(5)]+[k/4 for k in range(29)]+[7+MX*k/5 for k in range(1,6)]
+Bx=[-MB+k*MB/6 for k in range(6)]+[k/4 for k in range(29)]+[7+MB*k/6 for k in range(1,7)]
+vs=[];fs=[];idx=[]; NA=len(Ax); NB=len(Bx)
+for j,b in enumerate(Bx):
+    for i,a in enumerate(Ax):
+        aa,bb=clamp_fold(a,b)
+        if j in (0,NB-1): bb+=(-1 if j==0 else 1)*0.035*math.sin(aa*3.7+j)
+        vs.append(P(aa,bb)+n*hcl(aa,bb))
+for j in range(NB-1):
+    for i in range(NA-1):
+        cs=[(Ax[i],Bx[j]),(Ax[i+1],Bx[j]),(Ax[i+1],Bx[j+1]),(Ax[i],Bx[j+1])]
+        if all(cside(*c)>-1e-6 for c in cs): continue
+        fs.append([j*NA+i,j*NA+i+1,(j+1)*NA+i+1,(j+1)*NA+i])
+        a=(Ax[i]+Ax[i+1])/2; b=(Bx[j]+Bx[j+1])/2
+        dy=max(-b,b-7,0); dx=max(-a,a-7,0)
+        if dy>MB-0.07 or dx>MX-0.06: idx.append(2)          # 窄包边
+        else: idx.append((math.floor(a)+math.floor(b))%2)    # 格纹延续：同尺寸、同相位
+CLOTH=mesh_obj(vs,fs,[(0.94,0.87,0.74),(0.74,0.66,0.80),(0.58,0.44,0.66)],idx,sm=True,name='cloth')
+# 柔软弯角：折痕处圆弧隆起、自由边是圆弧、背面奶白、有厚度、下投柔影
+Fp=FF*2-(FA+FB)/2
+def bez(s): return FA*(1-s)**2+Fp*2*s*(1-s)+FB*s*s
+def crs(s): return FA.lerp(FB,s)
+def flap_h(v): return 0.032+0.12*math.exp(-((v-0.12)/0.2)**2)
+NS_,NV_=16,7; fv=[];ff=[]
+for i in range(NS_+1):
+    s_=i/NS_
+    for k in range(NV_+1):
+        v=k/NV_; p=crs(s_).lerp(bez(s_),v); fv.append(P(p.x,p.y)+n*(hcl(p.x,p.y)+flap_h(v)))
+for i in range(NS_):
+    for k in range(NV_): a0=i*(NV_+1)+k; b0=(i+1)*(NV_+1)+k; ff.append([a0,b0,b0+1,a0+1])
+FLAP=mesh_obj(fv,ff,[(0.98,0.95,0.87)],sm=True,name='flap')
+# 厚度：沿圆弧自由边向下的一圈边墙（布色略深）
+ev=[];ef=[]
+for i in range(NS_+1):
+    p=bez(i/NS_); ev+=[P(p.x,p.y)+n*(hcl(p.x,p.y)+flap_h(1.0)),P(p.x,p.y)+n*(hcl(p.x,p.y)+0.004)]
+    if i: ef.append([2*i-2,2*i,2*i+1,2*i-1])
+FLAP2=mesh_obj(ev,ef,[(0.82,0.76,0.66)],sm=True,name='flapedge')
+# 折痕卷边：沿折痕的圆弧（与弯角相接）
+rv=[];rf=[]; RS=6
+for i in range(NS_+1):
+    s_=i/NS_; c=crs(s_); base=P(c.x,c.y)+n*hcl(c.x,c.y)
+    for k in range(RS+1):
+        t=math.pi*k/RS; off=Vector((FN.x,FN.y))*(-0.07*math.cos(t)+0.0)
+        q=P(c.x-off.x*0+FN.x*0.07*math.cos(t)*-1+0, c.y+FN.y*0.07*math.cos(t)*-1)
+        rv.append(P(c.x-FN.x*0.07*math.cos(t)*-1*0+(-FN.x)*0.07*(1-math.cos(t))*0.5, c.y+(-FN.y)*0.07*(1-math.cos(t))*0.5)+n*(hcl(c.x,c.y)+0.01+0.06*math.sin(t)+flap_h(0)*0.6*math.sin(t)))
+    if i:
+        for k in range(RS): a0=(i-1)*(RS+1)+k; b0=i*(RS+1)+k; rf.append([a0,b0,b0+1,a0+1])
+mesh_obj(rv,rf,[(0.95,0.90,0.80)],sm=True,name='crease')
+# 柔和阴影：两层，沿自由边外侧
+for wd,al in ((0.10,0.20),(0.22,0.10)):
+    sv=[];sf=[]
+    for i in range(NS_+1):
+        s_=i/NS_; p=bez(s_); o=(bez(min(s_+.01,1))-bez(max(s_-.01,0))); o=Vector((o.y,-o.x)).normalized()
+        if o.dot(p-(FA+FB)/2)<0: o=-o
+        q=p+o*wd; sv+=[P(p.x,p.y)+n*(hcl(p.x,p.y)+0.006),P(q.x,q.y)+n*(hcl(q.x,q.y)+0.006)]
+        if i: sf.append([2*i-2,2*i,2*i+1,2*i-1])
+    noshadow(mesh_obj(sv,sf,[dict(c=(0.12,0.08,0.06),a=al)],name='flapshadow'))
+# 流苏：上下两边（避开翻折角和篮子）
+fv=[];ff=[]
+for bb,sgn in ((-MB,-1),(7+MB,1)):
+    a=-MX+.08
+    while a<7+MX-.05:
+        if not (bb>7 and a>FA.x-.05) and not (bb<0 and a>6.15):
+            L0=len(fv); ln=random.uniform(.14,.2); dx=random.uniform(-.035,.035); hb=hcl(a,bb)
+            fv+=[P(a-.024,bb)+n*hb,P(a+.024,bb)+n*hb,P(a+.014+dx,bb+sgn*ln)+n*(0.006),P(a-.014+dx,bb+sgn*ln)+n*(0.006)]; ff.append([L0,L0+1,L0+2,L0+3])
+        a+=.15
+mesh_obj(fv,ff,[(0.58,0.44,0.66)],name='fringe')
+# 布左右外侧的窄草边：草叶和小花贴着布边
+for side in (-1,1):
+    for _ in range(26):
+        a=(-MX-random.uniform(.02,.11)) if side<0 else (7+MX+random.uniform(.02,.11)); b=random.uniform(-0.5,7.5)
+        blade(P(a,b),random.uniform(.18,.3),random.choice([G2,(0.42,0.68,0.18),G3]),lean=.25) if 'blade' in globals() else None
+def infold(a,b): return cside(a,b)>-0.05
+# 校验：格内平整
+_dev=max(abs(hcl(a/10,b/10)-HF) for a in range(0,71) for b in range(0,71)); print('GRID_FLAT_MAXDEV',_dev)
+sec('cloth')

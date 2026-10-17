@@ -1,0 +1,66 @@
+# ---------- 野餐布 r3：格子区绝对平整；布边低频褶皱+起伏（只在格子外）；右上大翻折角；左右伸出画面 ----------
+MX=0.56; MB=0.5; HF=0.014
+def hcl(a,b):
+    h=HF; dx=max(-a,a-7,0.0); dy=max(-b,b-7,0.0)
+    if dy>0:
+        f=min(dy/MB,1.0)**1.3; ph=0.0 if b<0 else 2.1
+        h+=f*(0.07+0.085*(0.5+0.5*math.sin(a*2*math.pi/1.25+ph))+0.03*math.sin(a*2*math.pi/0.55+ph*2))
+    if dx>0:
+        f=min(dx/MX,1.0)**1.3; ph=1.0 if a<0 else 3.3
+        h+=f*(0.07+0.085*(0.5+0.5*math.sin(b*2*math.pi/1.3+ph))+0.03*math.sin(b*2*math.pi/0.6+ph))
+    return h
+CC=Vector((7+MX,7+MB)); FA=Vector((7+MX-1.45,7+MB)); FB=Vector((7+MX,7.0))
+_d=(FB-FA).normalized(); FN=Vector((-_d.y,_d.x));
+if FN.dot(CC-FA)<0: FN=-FN
+_foot=FA+_d*(CC-FA).dot(_d); FF=_foot*2-CC
+def cside(a,b): return FN.dot(Vector((a,b))-FA)
+def clamp_fold(a,b):
+    s=cside(a,b)
+    if s>0: p=Vector((a,b))-FN*s; return p.x,p.y
+    return a,b
+Ax=[-MX+k*MX/7 for k in range(7)]+[k/4 for k in range(29)]+[7+MX*k/7 for k in range(1,8)]
+Bx=[-MB+k*MB/6 for k in range(6)]+[k/4 for k in range(29)]+[7+MB*k/6 for k in range(1,7)]
+vs=[];fs=[];idx=[]; NA=len(Ax); NB=len(Bx)
+for j,b in enumerate(Bx):
+    for i,a in enumerate(Ax):
+        aa,bb=clamp_fold(a,b)
+        if j in (0,NB-1): bb+=(-1 if j==0 else 1)*0.04*math.sin(aa*3.7+j)
+        vs.append(P(aa,bb)+n*hcl(aa,bb))
+for j in range(NB-1):
+    for i in range(NA-1):
+        cs=[(Ax[i],Bx[j]),(Ax[i+1],Bx[j]),(Ax[i+1],Bx[j+1]),(Ax[i],Bx[j+1])]
+        if all(cside(*c)>-1e-6 for c in cs): continue
+        fs.append([j*NA+i,j*NA+i+1,(j+1)*NA+i+1,(j+1)*NA+i])
+        a=(Ax[i]+Ax[i+1])/2; b=(Bx[j]+Bx[j+1])/2
+        if 0<=a<=7 and 0<=b<=7: idx.append((int(a)+int(b))%2)
+        else:
+            dy=max(-b,b-7,0); dx=max(-a,a-7,0)
+            idx.append(3 if (dy>MB-0.12 or dx>MX-0.12) else 2)
+CLOTH=mesh_obj(vs,fs,[(0.94,0.87,0.74),(0.74,0.66,0.80),(0.95,0.89,0.78),(0.58,0.44,0.66)],idx,sm=True,name='cloth')
+# 翻折的布角：背面朝上，折痕处隆起成卷边
+K=8; fv=[];ff=[]; ids={}
+for u in range(K+1):
+    for v in range(K+1-u):
+        w_=1-(u+v)/K; p=FA*(w_)+FB*(u/K)+FF*(v/K) if False else FA*((K-u-v)/K)+FB*(u/K)+FF*(v/K)
+        crease=1-v/K
+        ids[(u,v)]=len(fv); fv.append(P(p.x,p.y)+n*(hcl(p.x,p.y)+0.035+0.075*crease**2))
+for u in range(K):
+    for v in range(K-u):
+        ff.append([ids[(u,v)],ids[(u+1,v)],ids[(u,v+1)]])
+        if (u+1,v+1) in ids: ff.append([ids[(u+1,v)],ids[(u+1,v+1)],ids[(u,v+1)]])
+FLAP=mesh_obj(fv,ff,[(0.86,0.78,0.66)],sm=True,name='flap')
+FLAP2=mesh_obj([P(FF.x+(FA.x-FF.x)*t,FF.y+(FA.y-FF.y)*t)+n*(hcl(FF.x+(FA.x-FF.x)*t,FF.y+(FA.y-FF.y)*t)+0.036+0.075*t**2) for t in (0,1)]+[P(FF.x+(FA.x-FF.x)*t,FF.y+(FA.y-FF.y)*t)+n*(hcl(FF.x+(FA.x-FF.x)*t,FF.y+(FA.y-FF.y)*t)+0.03+0.075*t**2) for t in (1,0)],[[0,1,2,3]],[(0.58,0.44,0.66)],name='flapedge')
+seg_cyl(P(FA.x,FA.y)+n*(hcl(FA.x,FA.y)+0.09),P(FB.x,FB.y)+n*(hcl(FB.x,FB.y)+0.09),.055,.055,(0.9,0.83,0.72),v=8)
+# 流苏：上下两边（避开翻折角和篮子）
+fv=[];ff=[]
+for bb,sgn in ((-MB,-1),(7+MB,1)):
+    a=-MX+.08
+    while a<7+MX-.05:
+        if not (bb>7 and a>FA.x-.05) and not (bb<0 and a>6.15):
+            L0=len(fv); ln=random.uniform(.14,.2); dx=random.uniform(-.035,.035); hb=hcl(a,bb)
+            fv+=[P(a-.024,bb)+n*hb,P(a+.024,bb)+n*hb,P(a+.014+dx,bb+sgn*ln)+n*(0.006),P(a-.014+dx,bb+sgn*ln)+n*(0.006)]; ff.append([L0,L0+1,L0+2,L0+3])
+            L0=len(fv); fv+=[P(a-.03,bb+sgn*.01)+n*(hb+.004),P(a+.03,bb+sgn*.01)+n*(hb+.004),P(a+.03,bb+sgn*.05)+n*(hb*.7+.004),P(a-.03,bb+sgn*.05)+n*(hb*.7+.004)]; ff.append([L0,L0+1,L0+2,L0+3])
+        a+=.15
+mesh_obj(fv,ff,[(0.58,0.44,0.66)],name='fringe')
+def infold(a,b): return cside(a,b)>-0.05
+sec('cloth')

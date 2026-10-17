@@ -1,0 +1,1685 @@
+{
+ "note": "Axis-aligned boxes of connected triangle groups of the skycity GLB (before-states hidden) near the bridge head, in model-local and journey-world (AABB of the rotated local box). The rainbow bridge itself has no railing: only 0.10 m emissive curbs. Corridor test (1.1 m right-rear, 0.35/1.0/1.7 m high) along the bridge and head walkway: clear",
+ "corridorClear": true,
+ "corridorFails": [],
+ "last5mClimbCamera": [
+  {
+   "s": 20.85,
+   "cam": [
+    2.802,
+    16.536,
+    61.37
+   ],
+   "cityTopUnderCamY": null,
+   "camAboveRockM": null,
+   "lineOfSight": "clear"
+  },
+  {
+   "s": 21.94,
+   "cam": [
+    3.431,
+    16.837,
+    62.253
+   ],
+   "cityTopUnderCamY": null,
+   "camAboveRockM": null,
+   "lineOfSight": "clear"
+  },
+  {
+   "s": 23,
+   "cam": [
+    4.074,
+    17.053,
+    63.125
+   ],
+   "cityTopUnderCamY": null,
+   "camAboveRockM": null,
+   "lineOfSight": "clear"
+  },
+  {
+   "s": 24.05,
+   "cam": [
+    4.732,
+    17.189,
+    63.987
+   ],
+   "cityTopUnderCamY": null,
+   "camAboveRockM": null,
+   "lineOfSight": "clear"
+  },
+  {
+   "s": 25.09,
+   "cam": [
+    5.403,
+    17.245,
+    64.838
+   ],
+   "cityTopUnderCamY": null,
+   "camAboveRockM": null,
+   "lineOfSight": "clear"
+  }
+ ],
+ "strataTopWorldY": 14.299,
+ "boxes": [
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "static_foliage_cards",
+   "tris": 2,
+   "localMin": [
+    5.049,
+    -3.466,
+    46.722
+   ],
+   "localMax": [
+    8.299,
+    -0.317,
+    47.191
+   ],
+   "worldMin": [
+    10.491,
+    10.633,
+    67.596
+   ],
+   "worldMax": [
+    13.575,
+    13.781,
+    69.549
+   ],
+   "planDistToPathM": 0,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "static_foliage_cards",
+   "tris": 2,
+   "localMin": [
+    4.046,
+    -3.604,
+    47.201
+   ],
+   "localMax": [
+    7.145,
+    -0.316,
+    47.568
+   ],
+   "worldMin": [
+    11.328,
+    10.494,
+    66.788
+   ],
+   "worldMax": [
+    14.231,
+    13.783,
+    68.581
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "court floor/rim slab",
+   "tris": 32,
+   "localMin": [
+    -7.002,
+    -0.308,
+    23.237
+   ],
+   "localMax": [
+    6.997,
+    0.032,
+    36.999
+   ],
+   "worldMin": [
+    16.47,
+    13.79,
+    70.856
+   ],
+   "worldMax": [
+    35.32,
+    14.131,
+    89.61
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "court floor/rim slab",
+   "tris": 98,
+   "localMin": [
+    -8.955,
+    -0.283,
+    27.769
+   ],
+   "localMax": [
+    15.016,
+    0.061,
+    48.296
+   ],
+   "worldMin": [
+    4.053,
+    13.816,
+    59.984
+   ],
+   "worldMax": [
+    34.891,
+    14.16,
+    89.422
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "court floor/rim slab",
+   "tris": 46,
+   "localMin": [
+    -9.397,
+    -4.124,
+    40.001
+   ],
+   "localMax": [
+    14.437,
+    -0.183,
+    49.36
+   ],
+   "worldMin": [
+    4.058,
+    9.974,
+    58.837
+   ],
+   "worldMax": [
+    29.481,
+    13.915,
+    78.377
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_rock_strata",
+   "kind": "rock_strata",
+   "tris": 22,
+   "localMin": [
+    5.223,
+    -3.31,
+    45.447
+   ],
+   "localMax": [
+    7.907,
+    -2.839,
+    48.286
+   ],
+   "worldMin": [
+    10.317,
+    10.788,
+    66.714
+   ],
+   "worldMax": [
+    14.026,
+    11.259,
+    70.486
+   ],
+   "planDistToPathM": 0,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_rock_strata",
+   "kind": "rock_strata",
+   "tris": 39,
+   "localMin": [
+    5.806,
+    -5.955,
+    37.952
+   ],
+   "localMax": [
+    15.821,
+    -1.088,
+    47.818
+   ],
+   "worldMin": [
+    3.571,
+    8.144,
+    67.403
+   ],
+   "worldMax": [
+    17.066,
+    13.011,
+    80.838
+   ],
+   "planDistToPathM": 0,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_rock_strata",
+   "kind": "rock_strata",
+   "tris": 46,
+   "localMin": [
+    -0.482,
+    -8.548,
+    38.694
+   ],
+   "localMax": [
+    10.754,
+    -0.912,
+    48.259
+   ],
+   "worldMin": [
+    7.823,
+    5.551,
+    64.034
+   ],
+   "worldMax": [
+    22.251,
+    13.186,
+    77.782
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_rock_strata",
+   "kind": "rock_strata",
+   "tris": 49,
+   "localMin": [
+    -8.794,
+    -8.494,
+    41.816
+   ],
+   "localMax": [
+    2.5,
+    -0.841,
+    51.263
+   ],
+   "worldMin": [
+    13.666,
+    5.605,
+    57.447
+   ],
+   "worldMax": [
+    28.09,
+    13.258,
+    71.12
+   ],
+   "planDistToPathM": 0,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    2.406,
+    -0.139,
+    39.474
+   ],
+   "localMax": [
+    3.573,
+    0.804,
+    39.622
+   ],
+   "worldMin": [
+    18.24,
+    13.96,
+    73.007
+   ],
+   "worldMax": [
+    19.339,
+    14.903,
+    73.691
+   ],
+   "planDistToPathM": 0.51,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    2.912,
+    -0.139,
+    38.967
+   ],
+   "localMax": [
+    3.061,
+    0.804,
+    40.129
+   ],
+   "worldMin": [
+    18.451,
+    13.96,
+    72.801
+   ],
+   "worldMax": [
+    19.133,
+    14.903,
+    73.894
+   ],
+   "planDistToPathM": 0.51,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "static_palette",
+   "tris": 34,
+   "localMin": [
+    1.668,
+    1.066,
+    37.189
+   ],
+   "localMax": [
+    3.779,
+    1.25,
+    38.176
+   ],
+   "worldMin": [
+    18.745,
+    15.164,
+    73.931
+   ],
+   "worldMax": [
+    21.071,
+    15.348,
+    75.8
+   ],
+   "planDistToPathM": 0.58,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 82,
+   "localMin": [
+    3.365,
+    -0.095,
+    37.143
+   ],
+   "localMax": [
+    3.826,
+    1.11,
+    37.598
+   ],
+   "worldMin": [
+    18.977,
+    14.004,
+    75.244
+   ],
+   "worldMax": [
+    19.599,
+    15.209,
+    75.863
+   ],
+   "planDistToPathM": 1.24,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    1.843,
+    -0.144,
+    37.774
+   ],
+   "localMax": [
+    2.819,
+    0.646,
+    37.815
+   ],
+   "worldMin": [
+    19.762,
+    13.955,
+    74.331
+   ],
+   "worldMax": [
+    20.64,
+    14.745,
+    74.83
+   ],
+   "planDistToPathM": 1.6,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    3.317,
+    -0.258,
+    44.422
+   ],
+   "localMax": [
+    3.539,
+    0.593,
+    45.465
+   ],
+   "worldMin": [
+    15.5,
+    13.84,
+    68.295
+   ],
+   "worldMax": [
+    16.19,
+    14.692,
+    69.318
+   ],
+   "planDistToPathM": 1.65,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    2.907,
+    -0.259,
+    44.833
+   ],
+   "localMax": [
+    3.95,
+    0.594,
+    45.054
+   ],
+   "worldMin": [
+    15.333,
+    13.84,
+    68.462
+   ],
+   "worldMax": [
+    16.357,
+    14.693,
+    69.151
+   ],
+   "planDistToPathM": 1.65,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 20,
+   "localMin": [
+    2.054,
+    -0.249,
+    36.149
+   ],
+   "localMax": [
+    3.257,
+    0.168,
+    37.057
+   ],
+   "worldMin": [
+    19.735,
+    13.85,
+    75.099
+   ],
+   "worldMax": [
+    21.225,
+    14.267,
+    76.469
+   ],
+   "planDistToPathM": 1.76,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_rock_strata",
+   "kind": "rock_strata",
+   "tris": 16,
+   "localMin": [
+    9.194,
+    -3.789,
+    46.787
+   ],
+   "localMax": [
+    12.827,
+    -3.037,
+    48.372
+   ],
+   "worldMin": [
+    5.945,
+    10.31,
+    68.522
+   ],
+   "worldMax": [
+    9.895,
+    11.062,
+    71.639
+   ],
+   "planDistToPathM": 1.77,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    1.77,
+    -0.142,
+    37.369
+   ],
+   "localMax": [
+    2.52,
+    0.635,
+    37.99
+   ],
+   "worldMin": [
+    19.942,
+    13.956,
+    74.143
+   ],
+   "worldMax": [
+    20.897,
+    14.734,
+    75.046
+   ],
+   "planDistToPathM": 1.78,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    2.31,
+    -0.144,
+    37.307
+   ],
+   "localMax": [
+    2.352,
+    0.646,
+    38.288
+   ],
+   "worldMin": [
+    19.949,
+    13.955,
+    74.136
+   ],
+   "worldMax": [
+    20.451,
+    14.745,
+    75.02
+   ],
+   "planDistToPathM": 1.79,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    1.837,
+    -0.144,
+    37.307
+   ],
+   "localMax": [
+    2.453,
+    0.636,
+    38.051
+   ],
+   "worldMin": [
+    19.972,
+    13.955,
+    74.12
+   ],
+   "worldMax": [
+    20.867,
+    14.735,
+    75.068
+   ],
+   "planDistToPathM": 1.81,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "static_foliage_cards",
+   "tris": 2,
+   "localMin": [
+    8.251,
+    -3.875,
+    44.954
+   ],
+   "localMax": [
+    11.564,
+    -0.322,
+    45.683
+   ],
+   "worldMin": [
+    8.332,
+    10.223,
+    70.442
+   ],
+   "worldMax": [
+    11.594,
+    13.776,
+    72.654
+   ],
+   "planDistToPathM": 1.91,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 27,
+   "localMin": [
+    3.012,
+    -0.236,
+    35.58
+   ],
+   "localMax": [
+    4.122,
+    0.162,
+    36.602
+   ],
+   "worldMin": [
+    19.189,
+    13.862,
+    75.953
+   ],
+   "worldMax": [
+    20.651,
+    14.261,
+    77.38
+   ],
+   "planDistToPathM": 1.94,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "static_palette",
+   "tris": 35,
+   "localMin": [
+    -0.162,
+    1.054,
+    37.823
+   ],
+   "localMax": [
+    2.035,
+    1.254,
+    38.371
+   ],
+   "worldMin": [
+    20.188,
+    15.153,
+    72.891
+   ],
+   "worldMax": [
+    22.382,
+    15.353,
+    74.416
+   ],
+   "planDistToPathM": 2.03,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 84,
+   "localMin": [
+    1.615,
+    -0.092,
+    37.763
+   ],
+   "localMax": [
+    2.077,
+    1.113,
+    38.217
+   ],
+   "worldMin": [
+    20.224,
+    14.007,
+    73.869
+   ],
+   "worldMax": [
+    20.847,
+    15.212,
+    74.488
+   ],
+   "planDistToPathM": 2.06,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 22,
+   "localMin": [
+    1.269,
+    -0.104,
+    36.48
+   ],
+   "localMax": [
+    2.393,
+    0.17,
+    37.251
+   ],
+   "worldMin": [
+    20.404,
+    13.994,
+    74.556
+   ],
+   "worldMax": [
+    21.759,
+    14.269,
+    75.767
+   ],
+   "planDistToPathM": 2.26,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    4.798,
+    -0.13,
+    35.747
+   ],
+   "localMax": [
+    5.279,
+    0.823,
+    36.808
+   ],
+   "worldMin": [
+    18.073,
+    13.969,
+    76.619
+   ],
+   "worldMax": [
+    18.999,
+    14.921,
+    77.781
+   ],
+   "planDistToPathM": 2.31,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    0.83,
+    -0.142,
+    37.594
+   ],
+   "localMax": [
+    1.89,
+    0.74,
+    37.883
+   ],
+   "worldMin": [
+    20.547,
+    13.957,
+    73.791
+   ],
+   "worldMax": [
+    21.618,
+    14.838,
+    74.548
+   ],
+   "planDistToPathM": 2.39,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    4.708,
+    -0.131,
+    35.967
+   ],
+   "localMax": [
+    5.155,
+    0.536,
+    36.65
+   ],
+   "worldMin": [
+    18.258,
+    13.968,
+    76.716
+   ],
+   "worldMax": [
+    18.974,
+    14.635,
+    77.528
+   ],
+   "planDistToPathM": 2.41,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    4.506,
+    -0.131,
+    36.04
+   ],
+   "localMax": [
+    5.572,
+    0.824,
+    36.521
+   ],
+   "worldMin": [
+    17.951,
+    13.967,
+    76.733
+   ],
+   "worldMax": [
+    19.118,
+    14.922,
+    77.662
+   ],
+   "planDistToPathM": 2.42,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.536,
+    -0.133,
+    35.781
+   ],
+   "localMax": [
+    5.91,
+    0.946,
+    37.045
+   ],
+   "worldMin": [
+    17.405,
+    13.965,
+    76.76
+   ],
+   "worldMax": [
+    18.334,
+    15.044,
+    78.05
+   ],
+   "planDistToPathM": 2.45,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    4.59,
+    -0.13,
+    36.08
+   ],
+   "localMax": [
+    5.273,
+    0.535,
+    36.531
+   ],
+   "worldMin": [
+    18.21,
+    13.969,
+    76.764
+   ],
+   "worldMax": [
+    19.025,
+    14.634,
+    77.485
+   ],
+   "planDistToPathM": 2.45,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.705,
+    -0.133,
+    36.164
+   ],
+   "localMax": [
+    6.332,
+    0.768,
+    37.072
+   ],
+   "worldMin": [
+    17.021,
+    13.966,
+    76.816
+   ],
+   "worldMax": [
+    18.004,
+    14.867,
+    77.913
+   ],
+   "planDistToPathM": 2.51,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    1.218,
+    -0.141,
+    37.205
+   ],
+   "localMax": [
+    1.507,
+    0.739,
+    38.271
+   ],
+   "worldMin": [
+    20.7,
+    13.957,
+    73.633
+   ],
+   "worldMax": [
+    21.46,
+    14.837,
+    74.709
+   ],
+   "planDistToPathM": 2.54,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 72,
+   "localMin": [
+    4.929,
+    -0.196,
+    36.141
+   ],
+   "localMax": [
+    5.391,
+    0.719,
+    36.603
+   ],
+   "worldMin": [
+    18.071,
+    13.902,
+    76.861
+   ],
+   "worldMax": [
+    18.697,
+    14.817,
+    77.487
+   ],
+   "planDistToPathM": 2.55,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.564,
+    -0.135,
+    36.305
+   ],
+   "localMax": [
+    6.472,
+    0.77,
+    36.932
+   ],
+   "worldMin": [
+    16.964,
+    13.964,
+    76.873
+   ],
+   "worldMax": [
+    18.061,
+    14.868,
+    77.856
+   ],
+   "planDistToPathM": 2.56,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.091,
+    -0.133,
+    36.226
+   ],
+   "localMax": [
+    6.355,
+    0.945,
+    36.594
+   ],
+   "worldMin": [
+    17.227,
+    13.966,
+    76.946
+   ],
+   "worldMax": [
+    18.514,
+    15.043,
+    77.869
+   ],
+   "planDistToPathM": 2.64,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    7.872,
+    -0.039,
+    41.309
+   ],
+   "localMax": [
+    8.848,
+    0.86,
+    41.857
+   ],
+   "worldMin": [
+    12.536,
+    14.059,
+    73.631
+   ],
+   "worldMax": [
+    13.656,
+    14.958,
+    74.576
+   ],
+   "planDistToPathM": 2.7,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    8.086,
+    -0.038,
+    41.095
+   ],
+   "localMax": [
+    8.634,
+    0.858,
+    42.071
+   ],
+   "worldMin": [
+    12.623,
+    14.061,
+    73.544
+   ],
+   "worldMax": [
+    13.569,
+    14.957,
+    74.663
+   ],
+   "planDistToPathM": 2.71,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    0.689,
+    -0.153,
+    40.555
+   ],
+   "localMax": [
+    1.484,
+    0.547,
+    40.917
+   ],
+   "worldMin": [
+    19.466,
+    13.946,
+    71.053
+   ],
+   "worldMax": [
+    20.338,
+    14.645,
+    71.749
+   ],
+   "planDistToPathM": 2.74,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    0.903,
+    -0.153,
+    40.335
+   ],
+   "localMax": [
+    1.265,
+    0.547,
+    41.136
+   ],
+   "worldMin": [
+    19.555,
+    13.945,
+    70.961
+   ],
+   "worldMax": [
+    20.254,
+    14.646,
+    71.838
+   ],
+   "planDistToPathM": 2.74,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.474,
+    -0.131,
+    35.545
+   ],
+   "localMax": [
+    6.028,
+    0.866,
+    36.633
+   ],
+   "worldMin": [
+    17.496,
+    13.967,
+    77.093
+   ],
+   "worldMax": [
+    18.5,
+    14.965,
+    78.314
+   ],
+   "planDistToPathM": 2.78,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    6.712,
+    -0.111,
+    37.2
+   ],
+   "localMax": [
+    7.345,
+    0.607,
+    37.809
+   ],
+   "worldMin": [
+    15.78,
+    13.988,
+    76.645
+   ],
+   "worldMax": [
+    16.625,
+    14.706,
+    77.481
+   ],
+   "planDistToPathM": 2.79,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    6.724,
+    -0.109,
+    37.189
+   ],
+   "localMax": [
+    7.333,
+    0.606,
+    37.821
+   ],
+   "worldMin": [
+    15.784,
+    13.989,
+    76.64
+   ],
+   "worldMax": [
+    16.621,
+    14.704,
+    77.486
+   ],
+   "planDistToPathM": 2.79,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.204,
+    -0.133,
+    35.809
+   ],
+   "localMax": [
+    6.293,
+    0.868,
+    36.363
+   ],
+   "worldMin": [
+    17.391,
+    13.966,
+    77.203
+   ],
+   "worldMax": [
+    18.613,
+    14.966,
+    78.207
+   ],
+   "planDistToPathM": 2.89,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 23,
+   "localMin": [
+    0.397,
+    -0.196,
+    36.711
+   ],
+   "localMax": [
+    1.456,
+    0.182,
+    37.374
+   ],
+   "worldMin": [
+    21.17,
+    13.903,
+    74.034
+   ],
+   "worldMax": [
+    22.417,
+    14.28,
+    75.12
+   ],
+   "planDistToPathM": 3.01,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "court floor/rim slab",
+   "tris": 8,
+   "localMin": [
+    1.665,
+    0.014,
+    35.522
+   ],
+   "localMax": [
+    2.242,
+    0.015,
+    36.243
+   ],
+   "worldMin": [
+    21.015,
+    14.112,
+    75.632
+   ],
+   "worldMax": [
+    21.864,
+    14.114,
+    76.539
+   ],
+   "planDistToPathM": 3.15,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 30,
+   "localMin": [
+    4.396,
+    -0.206,
+    34.521
+   ],
+   "localMax": [
+    5.52,
+    0.154,
+    35.601
+   ],
+   "worldMin": [
+    18.433,
+    13.892,
+    77.491
+   ],
+   "worldMax": [
+    19.935,
+    14.252,
+    78.975
+   ],
+   "planDistToPathM": 3.19,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    6.954,
+    -0.121,
+    36.395
+   ],
+   "localMax": [
+    7.531,
+    0.715,
+    37.235
+   ],
+   "worldMin": [
+    15.888,
+    13.978,
+    77.265
+   ],
+   "worldMax": [
+    16.794,
+    14.814,
+    78.278
+   ],
+   "planDistToPathM": 3.25,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    6.825,
+    -0.12,
+    36.524
+   ],
+   "localMax": [
+    7.66,
+    0.714,
+    37.106
+   ],
+   "worldMin": [
+    15.835,
+    13.979,
+    77.317
+   ],
+   "worldMax": [
+    16.846,
+    14.813,
+    78.226
+   ],
+   "planDistToPathM": 3.28,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    7.061,
+    -0.116,
+    36.631
+   ],
+   "localMax": [
+    7.761,
+    0.72,
+    37.371
+   ],
+   "worldMin": [
+    15.621,
+    13.982,
+    77.197
+   ],
+   "worldMax": [
+    16.587,
+    14.819,
+    78.179
+   ],
+   "planDistToPathM": 3.29,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    7.039,
+    -0.115,
+    36.648
+   ],
+   "localMax": [
+    7.784,
+    0.719,
+    37.348
+   ],
+   "worldMin": [
+    15.611,
+    13.984,
+    77.206
+   ],
+   "worldMax": [
+    16.599,
+    14.817,
+    78.175
+   ],
+   "planDistToPathM": 3.29,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    0.683,
+    -0.214,
+    42.395
+   ],
+   "localMax": [
+    1.22,
+    0.6,
+    43.258
+   ],
+   "worldMin": [
+    18.589,
+    13.884,
+    68.989
+   ],
+   "worldMax": [
+    19.471,
+    14.698,
+    70.003
+   ],
+   "planDistToPathM": 3.35,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    0.514,
+    -0.213,
+    42.559
+   ],
+   "localMax": [
+    1.383,
+    0.599,
+    43.095
+   ],
+   "worldMin": [
+    18.522,
+    13.885,
+    69.052
+   ],
+   "worldMax": [
+    19.542,
+    14.697,
+    69.937
+   ],
+   "planDistToPathM": 3.35,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.311,
+    -0.13,
+    34.689
+   ],
+   "localMax": [
+    5.966,
+    0.836,
+    35.671
+   ],
+   "worldMin": [
+    18.007,
+    13.968,
+    77.863
+   ],
+   "worldMax": [
+    19.05,
+    14.935,
+    79.038
+   ],
+   "planDistToPathM": 3.55,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "static_foliage_cards",
+   "tris": 2,
+   "localMin": [
+    9.754,
+    -3.691,
+    44.054
+   ],
+   "localMax": [
+    12.848,
+    -0.324,
+    44.844
+   ],
+   "worldMin": [
+    7.599,
+    10.408,
+    71.893
+   ],
+   "worldMax": [
+    10.697,
+    13.775,
+    74.056
+   ],
+   "planDistToPathM": 3.57,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "static_foliage_cards",
+   "tris": 2,
+   "localMin": [
+    0.256,
+    -4.43,
+    48.347
+   ],
+   "localMax": [
+    3.002,
+    -0.308,
+    48.446
+   ],
+   "worldMin": [
+    14.56,
+    9.669,
+    64.218
+   ],
+   "worldMax": [
+    17.025,
+    13.791,
+    65.608
+   ],
+   "planDistToPathM": 3.61,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_foliage_cards",
+   "kind": "railing/post/rim-ornament",
+   "tris": 2,
+   "localMin": [
+    5.147,
+    -0.129,
+    34.852
+   ],
+   "localMax": [
+    6.129,
+    0.835,
+    35.508
+   ],
+   "worldMin": [
+    17.941,
+    13.97,
+    77.93
+   ],
+   "worldMax": [
+    19.116,
+    14.933,
+    78.972
+   ],
+   "planDistToPathM": 3.62,
+   "side": "her right (camera side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 84,
+   "localMin": [
+    -0.23,
+    -0.087,
+    37.972
+   ],
+   "localMax": [
+    0.232,
+    1.117,
+    38.433
+   ],
+   "worldMin": [
+    21.746,
+    14.011,
+    72.804
+   ],
+   "worldMax": [
+    22.372,
+    15.216,
+    73.43
+   ],
+   "planDistToPathM": 3.69,
+   "side": "her left (court side)"
+  },
+  {
+   "node": "env_sky_static_palette",
+   "kind": "railing/post/rim-ornament",
+   "tris": 25,
+   "localMin": [
+    -0.503,
+    -0.222,
+    36.74
+   ],
+   "localMax": [
+    0.519,
+    0.196,
+    37.431
+   ],
+   "worldMin": [
+    21.968,
+    13.877,
+    73.557
+   ],
+   "worldMax": [
+    23.197,
+    14.294,
+    74.651
+   ],
+   "planDistToPathM": 3.81,
+   "side": "her left (court side)"
+  }
+ ]
+}

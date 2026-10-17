@@ -1,0 +1,10 @@
+CELL_PX A_rail_crates row0 91x91 row3 92x92 row6 92x93 nearEdgeX 0.057-0.943 boardY 0.12-0.62 CY 1.001
+TRIS 38750
+CELL_PX B_snow_starmap row0 98x101 row3 96x96 row6 93x91 nearEdgeX 0.022-0.978 boardY 0.11-0.63 CY 1.040
+TRIS 16772
+CELL_PX C_cloud_terrace row0 100x103 row3 97x97 row6 94x91 nearEdgeX 0.015-0.985 boardY 0.05-0.57 CY 1.041
+TRIS 31744
+CELL_PX D_hill_picnic row0 100x104 row3 96x96 row6 92x88 nearEdgeX 0.015-0.985 boardY 0.06-0.58 CY 1.187
+TRIS 8058
+CELL_PX E_sky_kite row0 91x91 row3 91x91 row6 91x90 nearEdgeX 0.057-0.943 boardY 0.11-0.61 CY 1.001
+TRIS 27991

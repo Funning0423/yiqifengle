@@ -1,0 +1,4 @@
+00:00.077  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/scripts/d_r3b.py:50: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; N=nt.nodes; L=nt.links
+<string>:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0

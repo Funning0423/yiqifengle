@@ -1,0 +1,9 @@
+CELL_PX [91, 77]
+TRIS 10460
+CELL_PX [91, 76]
+TRIS 12094
+CELL_PX [91, 76]
+TRIS 23819
+TypeError: cyl() got multiple values for argument 'r'
+CELL_PX [90, 92]
+TRIS 4148

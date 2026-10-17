@@ -1,0 +1,448 @@
+{
+ "frame_px": [
+  720,
+  1280
+ ],
+ "boxes_x0y0x1y1": {
+  "far_water": [
+   250,
+   342,
+   470,
+   362
+  ],
+  "mid_water": [
+   260,
+   400,
+   460,
+   450
+  ],
+  "mid_water_R": [
+   500,
+   410,
+   700,
+   460
+  ],
+  "under_bridge": [
+   430,
+   670,
+   540,
+   700
+  ],
+  "near_mid_water": [
+   322,
+   788,
+   450,
+   810
+  ],
+  "near_water_bottom": [
+   160,
+   1215,
+   560,
+   1270
+  ],
+  "near_water_L": [
+   14,
+   1190,
+   72,
+   1267
+  ],
+  "bridge_stone_deck": [
+   335,
+   563,
+   385,
+   588
+  ],
+  "bridge_stone_left": [
+   190,
+   610,
+   250,
+   640
+  ]
+ },
+ "values": {
+  "r5h3_pre_f61": {
+   "far_water": [
+    90,
+    88,
+    83
+   ],
+   "mid_water": [
+    82,
+    110,
+    115
+   ],
+   "mid_water_R": [
+    114,
+    142,
+    135
+   ],
+   "under_bridge": [
+    53,
+    92,
+    106
+   ],
+   "near_mid_water": [
+    56,
+    109,
+    118
+   ],
+   "near_water_bottom": [
+    73,
+    135,
+    136
+   ],
+   "near_water_L": [
+    118,
+    162,
+    149
+   ],
+   "bridge_stone_deck": [
+    136,
+    128,
+    100
+   ],
+   "bridge_stone_left": [
+    135,
+    115,
+    88
+   ],
+   "_midlake_rowmean_std": 6.4
+  },
+  "r5h3_graded_g61": {
+   "far_water": [
+    89,
+    87,
+    79
+   ],
+   "mid_water": [
+    73,
+    114,
+    122
+   ],
+   "mid_water_R": [
+    108,
+    150,
+    140
+   ],
+   "under_bridge": [
+    36,
+    95,
+    117
+   ],
+   "near_mid_water": [
+    35,
+    116,
+    130
+   ],
+   "near_water_bottom": [
+    52,
+    147,
+    147
+   ],
+   "near_water_L": [
+    106,
+    171,
+    152
+   ],
+   "bridge_stone_deck": [
+    141,
+    130,
+    95
+   ],
+   "bridge_stone_left": [
+    146,
+    115,
+    74
+   ],
+   "_midlake_rowmean_std": 7.3
+  },
+  "r5h3_pre_timemedian": {
+   "far_water": [
+    92,
+    90,
+    84
+   ],
+   "mid_water": [
+    86,
+    115,
+    118
+   ],
+   "mid_water_R": [
+    113,
+    142,
+    135
+   ],
+   "under_bridge": [
+    52,
+    92,
+    106
+   ],
+   "near_mid_water": [
+    55,
+    109,
+    118
+   ],
+   "near_water_bottom": [
+    76,
+    136,
+    136
+   ],
+   "near_water_L": [
+    86,
+    144,
+    139
+   ],
+   "bridge_stone_deck": [
+    134,
+    128,
+    99
+   ],
+   "bridge_stone_left": [
+    135,
+    115,
+    88
+   ],
+   "_midlake_rowmean_std": 6.8
+  },
+  "r5h3_graded_timemedian": {
+   "far_water": [
+    92,
+    88,
+    80
+   ],
+   "mid_water": [
+    77,
+    120,
+    126
+   ],
+   "mid_water_R": [
+    107,
+    150,
+    140
+   ],
+   "under_bridge": [
+    34,
+    95,
+    117
+   ],
+   "near_mid_water": [
+    34,
+    116,
+    130
+   ],
+   "near_water_bottom": [
+    56,
+    148,
+    148
+   ],
+   "near_water_L": [
+    68,
+    152,
+    146
+   ],
+   "bridge_stone_deck": [
+    138,
+    130,
+    95
+   ],
+   "bridge_stone_left": [
+    146,
+    115,
+    74
+   ],
+   "_midlake_rowmean_std": 7.7
+  },
+  "r5h3_lastframe(audit ref)": {
+   "far_water": [
+    107,
+    93,
+    84
+   ],
+   "mid_water": [
+    90,
+    132,
+    136
+   ],
+   "mid_water_R": [
+    106,
+    150,
+    140
+   ],
+   "under_bridge": [
+    26,
+    94,
+    117
+   ],
+   "near_mid_water": [
+    30,
+    117,
+    130
+   ],
+   "near_water_bottom": [
+    87,
+    162,
+    151
+   ],
+   "near_water_L": [
+    66,
+    152,
+    146
+   ],
+   "bridge_stone_deck": [
+    126,
+    127,
+    99
+   ],
+   "bridge_stone_left": [
+    144,
+    108,
+    80
+   ],
+   "_midlake_rowmean_std": 10.2
+  },
+  "engine_v32_layered": {
+   "far_water": [
+    218,
+    185,
+    154
+   ],
+   "mid_water": [
+    180,
+    176,
+    177
+   ],
+   "mid_water_R": [
+    201,
+    190,
+    188
+   ],
+   "under_bridge": [
+    90,
+    151,
+    185
+   ],
+   "near_mid_water": [
+    77,
+    171,
+    193
+   ],
+   "near_water_bottom": [
+    59,
+    217,
+    216
+   ],
+   "near_water_L": [
+    64,
+    218,
+    216
+   ],
+   "bridge_stone_deck": [
+    209,
+    229,
+    218
+   ],
+   "bridge_stone_left": [
+    215,
+    219,
+    204
+   ],
+   "_midlake_rowmean_std": 16.9
+  },
+  "engine_v32_linear60": {
+   "far_water": [
+    219,
+    181,
+    138
+   ],
+   "mid_water": [
+    164,
+    172,
+    176
+   ],
+   "mid_water_R": [
+    197,
+    191,
+    190
+   ],
+   "under_bridge": [
+    3,
+    139,
+    186
+   ],
+   "near_mid_water": [
+    7,
+    167,
+    195
+   ],
+   "near_water_bottom": [
+    24,
+    218,
+    217
+   ],
+   "near_water_L": [
+    25,
+    219,
+    217
+   ],
+   "bridge_stone_deck": [
+    209,
+    229,
+    218
+   ],
+   "bridge_stone_left": [
+    215,
+    219,
+    204
+   ],
+   "_midlake_rowmean_std": 32.4
+  },
+  "engine_v32_off": {
+   "far_water": [
+    219,
+    180,
+    135
+   ],
+   "mid_water": [
+    155,
+    170,
+    176
+   ],
+   "mid_water_R": [
+    196,
+    190,
+    190
+   ],
+   "under_bridge": [
+    3,
+    139,
+    186
+   ],
+   "near_mid_water": [
+    7,
+    167,
+    195
+   ],
+   "near_water_bottom": [
+    24,
+    218,
+    217
+   ],
+   "near_water_L": [
+    25,
+    219,
+    218
+   ],
+   "bridge_stone_deck": [
+    209,
+    229,
+    218
+   ],
+   "bridge_stone_left": [
+    215,
+    219,
+    204
+   ],
+   "_midlake_rowmean_std": 32.3
+  }
+ }
+}

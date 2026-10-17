@@ -1,0 +1,30 @@
+20:01:08 第5条立体棋子改动后：停掉自己的 runD main 等待循环，改为先跑 test 预览
+saw rainbow DONE 20:56:38
+test start 20:58:40
+test 21:01:24
+21:07:13 test2：棋子放大到格子 1.2、罐/围巾/信封重做、花束移出格心
+saw rainbow DONE 21:07:13
+test start 21:09:16
+test 21:12:46
+21:13:43 test3：主光改右前侧光 rotZ58、围巾改红色针织+横纹、罐子去盖
+saw rainbow DONE 21:13:43
+test start 21:15:46
+test 21:18:23
+21:20:00 test4：减面（罐子环改低面、围巾倒角 seg1）
+saw rainbow DONE 21:20:00
+test start 21:22:03
+test 21:24:39
+21:26:26 main：罐子玻璃更透、芯更亮更大；加 PIECE_DIM 实测
+saw rainbow DONE 21:26:26
+main start 21:28:58
+main 21:32:57
+21:37:20 main2：罐子去顶盖（开口）、围巾折边改细+布料粗糙度；main1 原图存 _m1/
+saw rainbow DONE 21:37:20
+21:40:11 停掉排队中的 main2（未开 Blender），按新的 3 条（围巾软化/萤火虫罐/翻折角连布）一起改
+21:41:49 test5：三条修改后预览
+saw rainbow DONE 21:41:49
+test start 21:43:51
+test 21:46:19
+21:48:24 test6：罐身改暖黄发光玻璃、围巾减面
+saw rainbow DONE 21:48:24
+test start 21:50:26

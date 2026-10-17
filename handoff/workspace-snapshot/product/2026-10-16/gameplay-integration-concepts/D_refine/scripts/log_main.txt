@@ -1,0 +1,12 @@
+00:00.083  system.path      | WARNING Could not get a list of mounted file-systems
+<string>:53: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+<string>:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+01:56.463  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine/raw_D_refine.png'
+02:52.737  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine/raw_closeup_basket.png'
+03:41.492  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine/raw_closeup_topleft.png'
+CELL_PX D_hill_picnic row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.97/1.12
+TRIS_EVAL 41992
+DONE_MODE main
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

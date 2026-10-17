@@ -1,0 +1,43 @@
+
+### 2.4 Blender 实读（work/inspect_r5h3.json，自动生成）
+- 色彩管理：view_transform **AgX**，look **AgX - Punchy**，exposure **0.3199999928474426**，gamma 1.0，引擎 BLENDER_EEVEE。
+- 灯光：Sun SUN energy 7.2 color [1.0, 0.6, 0.32]；Sun.001 SUN energy 0.55 color [0.212, 0.631, 0.745]；SUN_mtn_sky SUN energy 1.6 color [1.0, 0.72, 0.48]；SUN_dusk_side SUN energy 2.2 color [1.0, 0.55, 0.28]；pl POINT energy 60.0 color [1.0, 0.434, 0.117]；pl.001 POINT energy 60.0 color [1.0, 0.434, 0.117]；pl.002 POINT energy 60.0 color [1.0, 0.434, 0.117]；pl.003 POINT energy 60.0 color [1.0, 0.434, 0.117]；pl.004 POINT energy 60.0 color [1.0, 0.434, 0.117]；pl.005 POINT energy 60.0 color [1.0, 0.434, 0.117]
+- 世界 Background: {'Color': '<-Mix.Result', 'Strength': 1.0, 'Weight': 0.0}
+- 世界 Color Ramp: [[0.0, [1.0, 0.5457, 0.1441, 1.0]], [0.06, [1.0, 0.3231, 0.0908, 1.0]], [0.16, [0.9216, 0.5776, 0.2705, 1.0]], [0.38, [0.0116, 0.2747, 0.4793, 1.0]]]
+- 物体 `LK_bridge`（LK_bridge，集合 ['ASSETS']，可见 False，hide_render False，位置 [0.0, 0.0, 0.0]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.93, 0.93, 0.93], 204], [0, [0.896, 0.896, 0.896], 136], [0, [0.855, 0.855, 0.855], 124], [0, [0.638, 0.638, 0.638], 104], [0, [0.947, 0.947, 0.947], 96], [0, [0.982, 0.982, 0.982], 92]]
+- 物体 `LK_bridge_i`（LK_bridge，集合 ['SCENE']，可见 True，hide_render False，位置 [0.0, 0.0, 0.0]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.93, 0.93, 0.93], 204], [0, [0.896, 0.896, 0.896], 136], [0, [0.855, 0.855, 0.855], 124], [0, [0.638, 0.638, 0.638], 104], [0, [0.947, 0.947, 0.947], 96], [0, [0.982, 0.982, 0.982], 92]]
+- 物体 `LK_bridge_steps`（LK_bridge_steps，集合 ['ASSETS']，可见 False，hide_render False，位置 [0.0, 0.0, 0.0]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.939, 0.939, 0.939], 64], [0, [0.947, 0.947, 0.947], 48], [0, [0.956, 0.956, 0.956], 48], [0, [0.658, 0.658, 0.658], 40], [0, [1.0, 1.0, 1.0], 36], [0, [0.434, 0.434, 0.434], 32]]
+- 物体 `LK_bridge_steps_i`（LK_bridge_steps，集合 ['SCENE']，可见 True，hide_render False，位置 [-6.75, 0.0, 0.08]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.939, 0.939, 0.939], 64], [0, [0.947, 0.947, 0.947], 48], [0, [0.956, 0.956, 0.956], 48], [0, [0.658, 0.658, 0.658], 40], [0, [1.0, 1.0, 1.0], 36], [0, [0.434, 0.434, 0.434], 32]]
+- 物体 `LK_bridge_steps_i.001`（LK_bridge_steps，集合 ['SCENE']，可见 True，hide_render False，位置 [6.75, 0.0, 0.08]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.939, 0.939, 0.939], 64], [0, [0.947, 0.947, 0.947], 48], [0, [0.956, 0.956, 0.956], 48], [0, [0.658, 0.658, 0.658], 40], [0, [1.0, 1.0, 1.0], 36], [0, [0.434, 0.434, 0.434], 32]]
+- 物体 `LK_lake`（LK_lake，集合 ['ASSETS']，可见 False，hide_render False，位置 [0.0, 0.0, 0.0]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.212, 0.745, 0.624], 192], [0, [0.012, 0.275, 0.366], 158], [0, [0.011, 0.254, 0.347], 28], [0, [0.006, 0.144, 0.238], 28], [0, [0.009, 0.22, 0.314], 20], [0, [0.009, 0.209, 0.301], 18]]
+- 物体 `LK_lake_i`（LK_lake.001，集合 ['SCENE']，可见 True，hide_render False，位置 [0.0, 8.0, 0.0]，材质 ['M_LK_water_preview']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.212, 0.745, 0.624], 192], [0, [0.012, 0.275, 0.366], 158], [0, [0.011, 0.254, 0.347], 28], [0, [0.006, 0.144, 0.238], 28], [0, [0.009, 0.22, 0.314], 20], [0, [0.009, 0.209, 0.301], 18]]
+- 物体 `LK_pavilion`（LK_pavilion，集合 ['ASSETS']，可见 False，hide_render False，位置 [0.0, 0.0, 0.0]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.896, 0.896, 0.896], 126], [0, [0.716, 0.716, 0.716], 120], [0, [0.973, 0.973, 0.973], 66], [0, [0.776, 0.776, 0.776], 60], [0, [0.745, 0.745, 0.745], 60], [0, [0.497, 0.497, 0.497], 44]]
+- 物体 `LK_pavilion_i`（LK_pavilion，集合 ['SCENE']，可见 True，hide_render False，位置 [13.6, 4.6, 0.55]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.896, 0.896, 0.896], 126], [0, [0.716, 0.716, 0.716], 120], [0, [0.973, 0.973, 0.973], 66], [0, [0.776, 0.776, 0.776], 60], [0, [0.745, 0.745, 0.745], 60], [0, [0.497, 0.497, 0.497], 44]]
+- 物体 `PC_4_6`（LK_piece_lake_light，集合 ['WATER_BOARD']，可见 True，hide_render False，位置 [1.1, -8.7, -0.063]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.863, 0.863, 0.863], 25], [0, [0.956, 0.956, 0.956], 25], [0, [0.701, 0.701, 0.701], 24], [0, [0.791, 0.791, 0.791], 24], [0, [0.784, 0.784, 0.784], 23], [0, [0.831, 0.831, 0.831], 18]]
+- 物体 `PC_5_4`（LK_piece_lake_light，集合 ['WATER_BOARD']，可见 True，hide_render False，位置 [2.2, -10.9, 0.014]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.863, 0.863, 0.863], 25], [0, [0.956, 0.956, 0.956], 25], [0, [0.701, 0.701, 0.701], 24], [0, [0.791, 0.791, 0.791], 24], [0, [0.784, 0.784, 0.784], 23], [0, [0.831, 0.831, 0.831], 18]]
+- 物体 `PC_6_2`（LK_piece_lake_light，集合 ['WATER_BOARD']，可见 True，hide_render False，位置 [3.3, -13.1, -0.048]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.863, 0.863, 0.863], 25], [0, [0.956, 0.956, 0.956], 25], [0, [0.701, 0.701, 0.701], 24], [0, [0.791, 0.791, 0.791], 24], [0, [0.784, 0.784, 0.784], 23], [0, [0.831, 0.831, 0.831], 18]]
+- 物体 `PC_6_6`（LK_piece_lake_light，集合 ['WATER_BOARD']，可见 True，hide_render False，位置 [3.3, -8.7, -0.006]，材质 ['M_LK_palette']，色属性 [['Col', 'CORNER', 'BYTE_COLOR']]）
+  - 顶点色（线性）前几位：[[0, [0.863, 0.863, 0.863], 25], [0, [0.956, 0.956, 0.956], 25], [0, [0.701, 0.701, 0.701], 24], [0, [0.791, 0.791, 0.791], 24], [0, [0.784, 0.784, 0.784], 23], [0, [0.831, 0.831, 0.831], 18]]
+- 材质 `M_LK_water_preview`（blend HASHED）：
+  - Principled：{'Base Color': '<-Color Attribute.Color', 'Metallic': 0.0, 'Roughness': 0.01, 'IOR': 1.33, 'Alpha': 1.0, 'Normal': '<-Bump.Normal', 'Specular IOR Level': 0.85, 'Transmission Weight': 0.0, 'Coat Weight': 0.0, 'Emission Strength': 0.0}
+  - VertexColor Color Attribute {'layer': 'Col'} {}
+  - TexNoise Noise Texture {} {'Vector': '<-Mapping.Vector', 'W': 0.0, 'Scale': 0.9, 'Detail': 3.0}
+  - Bump Bump {} {'Strength': 0.3, 'Distance': 0.3, 'Filter Width': 0.1, 'Height': '<-Math.Value'}
+  - TexNoise Noise Texture.001 {} {'Vector': '<-Mapping.001.Vector', 'W': 0.0, 'Scale': 7.0, 'Detail': 2.0}
+- 材质 `M_LK_palette`（blend HASHED）：
+  - Principled：{'Base Color': '<-Mix.Result', 'Metallic': 0.0, 'Roughness': 0.8, 'IOR': 1.5, 'Alpha': 1.0, 'Normal': [0.0, 0.0, 0.0], 'Specular IOR Level': 0.5, 'Transmission Weight': 0.0, 'Coat Weight': 0.0, 'Emission Strength': 0.0}
+  - TexImage Image Texture {'image': '/workspace/wechat-game/art/regions/lakeside/models/T_LK_palette_256.png', 'colorspace': 'sRGB'} {'Vector': [0.0, 0.0, 0.0]}
+  - VertexColor Color Attribute {'layer': 'Col'} {}
+  - Mix Mix {'blend_type': 'MULTIPLY'} {'Factor': [0.5, 0.5, 0.5], 'A': [0.0, 0.0, 0.0], 'B': [0.0, 0.0, 0.0]}

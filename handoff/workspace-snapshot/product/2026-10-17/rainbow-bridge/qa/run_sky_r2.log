@@ -1,0 +1,168 @@
+00:00.080  system.path      | WARNING Could not get a list of mounted file-systems
+21:35:48 | INFO: Data are loaded, start creating Blender stuff
+21:35:48 | INFO: Blender create Mesh node env_sky_cloud_small
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_cloud_small
+21:35:48 | INFO: Blender create Mesh node env_sky_cloudsea
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_cloudsea
+21:35:48 | INFO: Blender create Mesh node env_sky_cumulus_far
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_cumulus_far
+21:35:48 | INFO: Blender create Mesh node env_sky_islets_far
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_islets_far
+21:35:48 | INFO: Blender create Mesh node chr_robot_gardener_mesh
+21:35:48 | INFO: Draco Decoder: Decode primitive chr_robot_gardener_mesh
+21:35:48 | INFO: Draco Decoder: Decode primitive chr_robot_gardener_mesh
+21:35:48 | INFO: Draco Decoder: Decode primitive chr_robot_gardener_mesh
+21:35:48 | INFO: Blender create Mesh node env_sky_birds
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_birds
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks.001
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks.001
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks.002
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks.002
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks.003
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks.003
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks_cards.001
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks_cards.001
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks_cards.002
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks_cards.002
+21:35:48 | INFO: Blender create Mesh node env_sky_floatingrocks_cards.003
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_floatingrocks_cards.003
+21:35:48 | INFO: Blender create Mesh node env_sky_greattree_canopy
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_greattree_canopy
+21:35:48 | INFO: Blender create Mesh node env_sky_greattree_canopy_cards
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_greattree_canopy_cards
+21:35:48 | INFO: Blender create Mesh node env_sky_island_vine_cards
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_island_vine_cards
+21:35:48 | INFO: Blender create Mesh node env_sky_island_vines
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_island_vines
+21:35:48 | INFO: Blender create Mesh node env_sky_island_windcore
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_island_windcore
+21:35:48 | INFO: Blender create Mesh node env_sky_pennant_01
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_pennant_01
+21:35:48 | INFO: Blender create Mesh node env_sky_pennant_02
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_pennant_02
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_01
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_01
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_02
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_02
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_03
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_03
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_04
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_04
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_05
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_05
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_06
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_06
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_07
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_07
+21:35:48 | INFO: Blender create Mesh node env_sky_rope_root_08
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_rope_root_08
+21:35:48 | INFO: Blender create Mesh node env_sky_ruins
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_ruins
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_ruins
+21:35:48 | INFO: Blender create Mesh node env_sky_starring
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_starring
+21:35:48 | INFO: Blender create Mesh node state_ring_after_stars
+21:35:48 | INFO: Draco Decoder: Decode primitive state_ring_after_stars
+21:35:48 | INFO: Blender create Mesh node env_sky_static_foliage_cards
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_static_foliage_cards
+21:35:48 | INFO: Blender create Mesh node env_sky_static_palette
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_static_palette
+21:35:48 | INFO: Blender create Mesh node env_sky_static_rock_strata
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_static_rock_strata
+21:35:48 | INFO: Blender create Mesh node env_sky_waterfall_mist
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_waterfall_mist
+21:35:48 | INFO: Blender create Mesh node env_sky_windchime_01
+21:35:48 | INFO: Draco Decoder: Decode primitive env_sky_windchime_01
+21:35:48 | INFO: Blender create Mesh node state_bridge_after
+21:35:48 | INFO: Draco Decoder: Decode primitive state_bridge_after
+21:35:48 | INFO: Draco Decoder: Decode primitive state_bridge_after
+21:35:48 | INFO: Blender create Mesh node state_bridge_before
+21:35:48 | INFO: Draco Decoder: Decode primitive state_bridge_before
+21:35:48 | INFO: Blender create Mesh node state_court_after
+21:35:48 | INFO: Draco Decoder: Decode primitive state_court_after
+21:35:48 | INFO: Blender create Mesh node state_court_after_flowers
+21:35:48 | INFO: Draco Decoder: Decode primitive state_court_after_flowers
+21:35:48 | INFO: Blender create Mesh node state_court_before
+21:35:48 | INFO: Draco Decoder: Decode primitive state_court_before
+21:35:48 | INFO: Blender create Mesh node state_gate_after
+21:35:48 | INFO: Draco Decoder: Decode primitive state_gate_after
+21:35:48 | INFO: Blender create Mesh node state_gate_after_flowers
+21:35:48 | INFO: Draco Decoder: Decode primitive state_gate_after_flowers
+21:35:48 | INFO: Blender create Mesh node state_gate_before
+21:35:48 | INFO: Draco Decoder: Decode primitive state_gate_before
+21:35:48 | INFO: Blender create Mesh node state_ring_before
+21:35:48 | INFO: Draco Decoder: Decode primitive state_ring_before
+21:35:48 | INFO: Blender create Mesh node state_ring_before_stars
+21:35:48 | INFO: Draco Decoder: Decode primitive state_ring_before_stars
+21:35:48 | INFO: glTF import finished in 0.37s
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/sky_verify_r2.py:15: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True; N=m.node_tree.nodes; N.clear(); o=N.new('ShaderNodeOutputMaterial'); e=N.new('ShaderNodeEmission'); e.inputs[0].default_value=(*c,1); m.node_tree.links.new(e.outputs[0],o.inputs[0]); return m
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/sky_verify_r2.py:42: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; w.node_tree.nodes['Background'].inputs[0].default_value=(0.35,0.62,0.85,1)
+00:17.256  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_390x844.png'
+RENDERED 390x844
+00:36.260  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_414x896.png'
+RENDERED 414x896
+00:52.072  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_360x780.png'
+RENDERED 360x780
+01:15.734  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_375x667.png'
+RENDERED 375x667
+01:36.256  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_390x520.png'
+RENDERED 390x520
+01:56.293  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_320x568.png'
+RENDERED 320x568
+02:25.121  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/skyB2_board_768x1024.png'
+RENDERED 768x1024
+ALLDONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+DracoDecoder | Decoded 1492 vertices, 1752 indices
+DracoDecoder | Decoded 7908 vertices, 9111 indices
+DracoDecoder | Decoded 2387 vertices, 3108 indices
+DracoDecoder | Decoded 645 vertices, 3120 indices
+DracoDecoder | Decoded 11512 vertices, 46890 indices
+DracoDecoder | Decoded 328 vertices, 1944 indices
+DracoDecoder | Decoded 60 vertices, 90 indices
+DracoDecoder | Decoded 84 vertices, 84 indices
+DracoDecoder | Decoded 347 vertices, 810 indices
+DracoDecoder | Decoded 376 vertices, 810 indices
+DracoDecoder | Decoded 347 vertices, 810 indices
+DracoDecoder | Decoded 200 vertices, 300 indices
+DracoDecoder | Decoded 256 vertices, 384 indices
+DracoDecoder | Decoded 248 vertices, 372 indices
+DracoDecoder | Decoded 17107 vertices, 31440 indices
+DracoDecoder | Decoded 880 vertices, 1320 indices
+DracoDecoder | Decoded 368 vertices, 552 indices
+DracoDecoder | Decoded 4380 vertices, 20976 indices
+DracoDecoder | Decoded 120 vertices, 150 indices
+DracoDecoder | Decoded 56 vertices, 84 indices
+DracoDecoder | Decoded 56 vertices, 84 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 402 vertices, 594 indices
+DracoDecoder | Decoded 11520 vertices, 19377 indices
+DracoDecoder | Decoded 248 vertices, 534 indices
+DracoDecoder | Decoded 2372 vertices, 3564 indices
+DracoDecoder | Decoded 224 vertices, 252 indices
+DracoDecoder | Decoded 17580 vertices, 26370 indices
+DracoDecoder | Decoded 23252 vertices, 74088 indices
+DracoDecoder | Decoded 2006 vertices, 5619 indices
+DracoDecoder | Decoded 772 vertices, 960 indices
+DracoDecoder | Decoded 120 vertices, 180 indices
+DracoDecoder | Decoded 432 vertices, 612 indices
+DracoDecoder | Decoded 104 vertices, 600 indices
+DracoDecoder | Decoded 98 vertices, 132 indices
+DracoDecoder | Decoded 41 vertices, 114 indices
+DracoDecoder | Decoded 288 vertices, 432 indices
+DracoDecoder | Decoded 41 vertices, 114 indices
+DracoDecoder | Decoded 74 vertices, 276 indices
+DracoDecoder | Decoded 48 vertices, 72 indices
+DracoDecoder | Decoded 32 vertices, 36 indices
+DracoDecoder | Decoded 2372 vertices, 3564 indices
+DracoDecoder | Decoded 224 vertices, 252 indices
+
+Blender quit

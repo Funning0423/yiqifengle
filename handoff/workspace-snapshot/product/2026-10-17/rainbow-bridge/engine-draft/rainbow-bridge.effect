@@ -1,0 +1,103 @@
+// 彩虹桥 deck — DRAFT for GGbot (场景设计部 2026-10-17). Not compiled in Creator yet.
+// Unlit, translucent, self-lit rainbow deck. Output is premultiplied sRGB like glass-sign / meadow-grass-wind
+// (the forward RT here is sRGB-ready; palette below is authored in sRGB).
+// Vertex layout (see RainbowBridgeMesh.ts):
+//   a_position  world-space deck vertex (node at identity, like today's RainbowBridgeStrip*)
+//   a_texCoord  x = band coordinate 0..1 (top: left->right across the walk surface; sides: top->bottom), y = arc metres from the bridge start
+//   a_color     r = part (0 top, 0.33 curb, 0.66 side, 1 underside), g = baked shade, b = end fade (0 at the tips -> 1 on the span), a = 1
+// No normal attribute: flat low-poly facets come from screen-space derivatives (same extension glass-sign already uses).
+CCEffect %{
+  techniques:
+  - name: transparent
+    passes:
+    - vert: rb-vs:vert
+      frag: rb-fs:frag
+      priority: max - 10
+      properties:
+        rbParams0: { value: [1.0, 0.88, 0.32, 0.0], editor: { tooltip: "emit, alpha, seam, night(0..1)" } }
+        rbParams1: { value: [0.6, 7.0, 1.2, 0.55], editor: { tooltip: "flow speed m/s, flow period m, seam period m, sparkle" } }
+      rasterizerState: { cullMode: back }
+      depthStencilState: { depthTest: true, depthWrite: false }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+}%
+CCProgram rb-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+  out vec2 v_uv;
+  out vec4 v_attr;
+  out vec3 v_wpos;
+  vec4 vert () {
+    vec4 wp = cc_matWorld * vec4(a_position, 1.0);
+    v_uv = a_texCoord; v_attr = a_color; v_wpos = wp.xyz;
+    return cc_matViewProj * wp;
+  }
+}%
+CCProgram rb-fs %{
+  precision highp float;
+  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
+  #include <builtin/uniforms/cc-global>
+  in vec2 v_uv;
+  in vec4 v_attr;
+  in vec3 v_wpos;
+  uniform RainbowBridge { vec4 rbParams0; vec4 rbParams1; };
+  // 7 bands, sRGB, more saturated than the old pastel strips (Funning: saturated, not washed out)
+  vec3 band (float u) {
+    u = clamp(u, 0.0, 1.0) * 6.0;
+    vec3 c0 = vec3(0.95,0.30,0.38), c1 = vec3(1.00,0.56,0.22), c2 = vec3(1.00,0.84,0.30), c3 = vec3(0.42,0.84,0.45),
+         c4 = vec3(0.26,0.78,0.90), c5 = vec3(0.38,0.52,0.98), c6 = vec3(0.70,0.42,0.92);
+    float f = fract(u); f = f * f * (3.0 - 2.0 * f);           // ease between band centres = soft but distinct bands
+    if (u < 1.0) return mix(c0, c1, f); if (u < 2.0) return mix(c1, c2, f); if (u < 3.0) return mix(c2, c3, f);
+    if (u < 4.0) return mix(c3, c4, f); if (u < 5.0) return mix(c4, c5, f); return mix(c5, c6, f);
+  }
+  vec2 hash2 (vec2 p) { p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
+  vec4 frag () {
+    float part = v_attr.r, shade = v_attr.g, fade = v_attr.b;
+    float isCurb = step(0.2, part) * (1.0 - step(0.6, part));
+    float isBottom = step(0.85, part);
+    float isTop = 1.0 - step(0.15, part);
+    vec3 c = band(v_uv.x);
+    c = mix(c, mix(c, vec3(1.0, 0.93, 0.75), 0.62), isCurb);      // white-gold rim curbs
+    c = mix(c, c * vec3(0.72, 0.68, 0.92), isBottom);              // deeper violet underside
+    // flat facet light (fake sun, same direction as the scene key) — no normal attribute needed
+    vec3 n = normalize(cross(dFdx(v_wpos), dFdy(v_wpos)));
+    float lit = (0.8 + 0.28 * max(dot(n, normalize(vec3(-0.35, 0.82, 0.45))), 0.0)) * shade;
+    c *= lit;
+    // top details: hairline light seams (scale / structure), one slow flowing streak (UV scroll), sparkle grains
+    float s = v_uv.y;
+    float fr = fract(s / rbParams1.z), dS = min(fr, 1.0 - fr);
+    float seam = (1.0 - smoothstep(0.012, 0.035, dS)) * isTop * smoothstep(0.04, 0.1, v_uv.x) * (1.0 - smoothstep(0.9, 0.96, v_uv.x));
+    float ff = fract((s - cc_time.x * rbParams1.x) / rbParams1.y);
+    float streak = smoothstep(0.0, 0.12, ff) * (1.0 - smoothstep(0.12, 0.42, ff)) * (0.22 + 0.25 * rbParams0.w);
+    vec2 g = vec2(v_uv.x * 2.1, s) * 9.0, gi = floor(g);
+    vec2 o = 0.2 + 0.6 * hash2(gi);                                  // one jittered point per cell (no neighbour search)
+    float tw = 0.5 + 0.5 * sin(cc_time.x * 2.3 + hash2(gi + 7.0).x * 6.28);
+    float spark = (1.0 - smoothstep(0.035 * 9.0, 0.07 * 9.0, length(g - gi - o))) * step(0.55, hash2(gi + 3.0).y) * isTop * rbParams1.w * tw;
+    c += vec3(1.0, 0.97, 0.9) * (seam * rbParams0.z + streak + spark);
+    c *= mix(rbParams0.x, rbParams0.x * 1.25, rbParams0.w);
+    c = min(c, vec3(1.0));
+    // alpha: part alpha x end dissolve (petal-sized cells drop out by their own random value as fade -> 0)
+    float a = rbParams0.y + 0.08 * isCurb - 0.18 * isBottom;
+    if (fade < 0.999) {
+      vec2 q = vec2(v_uv.x * 2.1, s) * 3.6, qi = floor(q);
+      float best = 9.0, rnd = 0.0;
+      for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+        vec2 cell = qi + vec2(float(x), float(y)), pnt = cell + hash2(cell);
+        float d = length(q - pnt); if (d < best) { best = d; rnd = hash2(cell + 19.0).x; }
+      }
+      float keep = smoothstep(0.0, 0.08, fade * 1.35 - rnd);
+      float petal = max(1.0 - smoothstep(0.36, 0.5, best + (1.0 - fade) * 0.3), smoothstep(0.85, 1.0, fade));   // best is in cell units
+      a *= keep * petal * smoothstep(0.0, 0.12, fade);
+    }
+    return vec4(c * a, a);
+  }
+}%

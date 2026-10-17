@@ -1,0 +1,42 @@
+// 彩虹桥 ground halo (two ends) — DRAFT. Additive, vertex colour rgb x alpha (alpha = radial falloff, baked in the end-cap GLB).
+// Halo sits 2.5 cm above the ground mesh; depthBias keeps it from z-fighting the grass at journey distances.
+CCEffect %{
+  techniques:
+  - name: transparent
+    passes:
+    - vert: rbh-vs:vert
+      frag: rbh-fs:frag
+      priority: max - 11
+      properties:
+        haloParams: { value: [0.32, 0.0, 0.0, 0.0], editor: { tooltip: "strength (day 0.32, night 1.1)" } }
+      rasterizerState: { cullMode: none, depthBias: -1, depthBiasSlop: -1 }
+      depthStencilState: { depthTest: true, depthWrite: false }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+}%
+CCProgram rbh-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+  in vec3 a_position;
+  in vec4 a_color;
+  out vec4 v_color;
+  vec4 vert () { v_color = a_color; return cc_matViewProj * cc_matWorld * vec4(a_position, 1.0); }
+}%
+CCProgram rbh-fs %{
+  precision highp float;
+  in vec4 v_color;
+  uniform RainbowHalo { vec4 haloParams; };
+  vec4 frag () {
+    // a_color is linear in the GLB (Cocos imports COLOR_0 linear); convert to the sRGB-ready target like meadow-grass-wind
+    vec3 c = v_color.rgb;
+    vec3 lo = c * 12.92, hi = 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
+    c = mix(lo, hi, step(vec3(0.0031308), c));
+    return vec4(c * v_color.a * haloParams.x, 0.0);
+  }
+}%

@@ -1,0 +1,11 @@
+00:00.094  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic2.py:53: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; N=nt.nodes
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic2.py:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('m%d'%len(MATS)); m.use_nodes=True
+00:52.481  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/raw_B_snow_starmap.png'
+CELL_PX B_snow_starmap row0 98x101 row3 96x96 row6 93x91 nearEdgeX 0.022-0.978 boardY 0.11-0.63 CY 1.040
+TRIS 16772
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

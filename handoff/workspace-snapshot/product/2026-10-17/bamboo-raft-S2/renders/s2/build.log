@@ -1,0 +1,15 @@
+00:00.090  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/build_s2.py:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True; nt=m.node_tree; b=nt.nodes['Principled BSDF']
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/build_s2.py:270: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; w.node_tree.nodes['Background'].inputs[0].default_value=(*hx('#8FD0F0'),1); w.node_tree.nodes['Background'].inputs[1].default_value=0.8
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/build_s2.py:273: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('M_FX_sky'); m.use_nodes=True; nt=m.node_tree; nt.nodes.clear(); out=nt.nodes.new('ShaderNodeOutputMaterial'); em=nt.nodes.new('ShaderNodeEmission')
+00:00.959  system.path      | WARNING Could not get a list of mounted file-systems
+00:35.393  render           | Saved: '/workspace/wechat-game/art/regions/bamboo-raft/renders/s2/s2_preview_720x1280.png'
+S2_SCENE_TRIS 25948 INSTANCES 239 TEMPLATES 35
+Info: Saved as "bamboo_s2.blend"
+PREVIEW_DONE /workspace/wechat-game/art/regions/bamboo-raft/renders/s2/s2_preview_720x1280.png
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

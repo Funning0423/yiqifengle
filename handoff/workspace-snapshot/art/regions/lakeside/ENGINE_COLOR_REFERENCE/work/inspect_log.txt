@@ -1,0 +1,12 @@
+00:00.083  system.path      | WARNING Could not get a list of mounted file-systems
+00:00.371  blend            | Read blend: "/workspace/wechat-game/art/regions/lakeside/blend/lakeside_r5h3.blend"
+/workspace/wechat-game/art/regions/lakeside/ENGINE_COLOR_REFERENCE/work/inspect_r5h3.py:32: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  if w and w.use_nodes: out['world']=mat_info(w)
+/workspace/wechat-game/art/regions/lakeside/ENGINE_COLOR_REFERENCE/work/inspect_r5h3.py:11: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  if m.use_nodes:
+/workspace/wechat-game/art/regions/lakeside/ENGINE_COLOR_REFERENCE/work/inspect_r5h3.py:11: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  if m.use_nodes:
+INSPECT_OK 13 2
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

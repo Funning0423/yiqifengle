@@ -1,0 +1,6 @@
+ANNOT /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v4/C_palm/C_palm_cells_720x1280.png 90.5 90.5 90.5 90.5
+SHEET /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v4/C_palm/C_palm_closeups.jpg
+Warning: position data has significant error (11%); consider using floating-point quantization (-vpf) or more bits (-vp N)
+-rw-r--r-- 1 box box 1479836 Oct 17 18:55 /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v4/C_palm/_pkg_estimate.glb
+-rw-r--r-- 1 box box  452992 Oct 17 18:56 /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v4/C_palm/_pkg_estimate_cc.glb
+-rw-r--r-- 1 box box  238784 Oct 17 18:56 /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v4/C_palm/_pkg_estimate_ccq.glb

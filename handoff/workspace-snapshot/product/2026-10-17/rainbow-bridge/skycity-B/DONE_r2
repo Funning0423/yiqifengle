@@ -1,0 +1,7 @@
+skycity-B r2 done (Sat Oct 17 2026)
+recommended A: node scripts/sky_b2.cjs 12 15 30 45 full  -> skycity-B/r2/_eval_12_15_30_45.json
+alternative B: node scripts/sky_b2.cjs 12 15 28 45 full  -> skycity-B/r2/_eval_12_15_28_45.json
+verify image: skycity-B/skycity_B_board_camera_verify_r2.jpg (renders/skyB2_board_*.png)
+for 运镜bot: skycity-B/r2/centerline_world.json, slope_profile.json, slope_profile.png, obstacles_bbox.json
+doc: IMPLEMENTATION.md §8 (r1 marked obsolete as §8.R1)
+geometry: full decoded skycity (scripts/sky_full.cjs); r4 fixture is clipped at local x≈5

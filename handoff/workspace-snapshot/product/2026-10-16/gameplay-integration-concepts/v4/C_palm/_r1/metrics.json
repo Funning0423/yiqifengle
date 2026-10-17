@@ -1,0 +1,15 @@
+{
+ "cell_w_min_max": [
+  90.5,
+  90.5
+ ],
+ "cell_h_min_max": [
+  90.5,
+  90.5
+ ],
+ "tris_total": 31610,
+ "tris_pieces_fx": 5540,
+ "tris_scene": 26070,
+ "occluded_samples": [],
+ "glb_raw_bytes": 1479836
+}

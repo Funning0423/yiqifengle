@@ -1,0 +1,23 @@
+#!/bin/bash
+# S2 queue: wait gameplay v3 DONE + 2 quiet minutes without blender, then build -> export templates -> slim -> export transforms -> check
+B=/home/box/apps/blender-5.2.2-linux-x64/blender
+R=/workspace/wechat-game/art/regions/bamboo-raft; T=/workspace/wechat-game/work/scene-design-export-fix/tools/region-export
+LOG=$R/renders/s2/pipeline.log; cd $R
+quiet(){ q=0; while [ $q -lt 120 ]; do if pgrep -x blender >/dev/null || pgrep -f "^(/[^ ]*/)?blender " >/dev/null; then q=0; else q=$((q+10)); fi; sleep 10; done; }
+echo "start $(date)" >> $LOG
+while [ ! -f /workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/v3/DONE ]; do sleep 30; done
+echo "v3 DONE seen $(date)" >> $LOG
+quiet; echo "build $(date)" >> $LOG
+$B -b -P scripts/build_s2.py -- $R/blend/bamboo_s2.blend $R/renders/s2/s2_preview_720x1280.png > renders/s2/build.log 2>&1 || { echo BUILD_FAIL >> $LOG; exit 1; }
+grep -E "S2_SCENE_TRIS|PREVIEW_DONE|Error" renders/s2/build.log >> $LOG
+quiet; echo "export templates $(date)" >> $LOG
+rm -f models/*.glb
+$B -b blend/bamboo_s2.blend --python $T/export_region.py -- --models ../models --out ../renders/s2/_pass1.json --template-collections ASSETS --board-collections RAFT_BOARD --skip-name-prefix FX_ --camera CAM_board --export-glb-dir ../models > renders/s2/export1.log 2>&1
+python3 scripts/slim_glb.py models/*.glb >> $LOG 2>&1
+quiet; echo "export transforms $(date)" >> $LOG
+$B -b blend/bamboo_s2.blend --python $T/export_region.py -- --models ../models --out ../scene_s2_transforms.json --meta ../scene_s2_export_meta.json --template-collections ASSETS --board-collections RAFT_BOARD --skip-name-prefix FX_ --camera CAM_board --note "S2 bamboo raft v1" > renders/s2/export2.log 2>&1
+grep EXPORT_OK renders/s2/export2.log >> $LOG
+python3 $T/check_region_export.py scene_s2_transforms.json models --runtime-skip '^(BR_piece_.*|BR_ripple_arc|BR_contact_shadow)\.glb$' --unique BR_river.glb,BR_raft.glb,BR_bank_L.glb,BR_bank_R.glb > renders/s2/check.log 2>&1; echo "check exit $?" >> $LOG
+cat renders/s2/check.log >> $LOG
+du -cb models/*.glb | tail -1 >> $LOG
+echo PIPELINE_DONE >> $LOG

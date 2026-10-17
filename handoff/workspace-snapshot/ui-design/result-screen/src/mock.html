@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}body{width:390px;height:844px;overflow:hidden;font-family:"PingFang SC","Noto Sans CJK SC","Noto Sans SC",sans-serif;position:relative}
+.bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(6px)}
+.scrim{position:absolute;inset:0}
+.panel{position:absolute;left:20px;top:116px;width:350px;height:628px;border-radius:28px;background:#B98A55;box-shadow:0 10px 0 #7E5530,0 18px 30px rgba(0,0,0,.35)}
+.inner{position:absolute;left:10px;top:10px;right:10px;bottom:10px;border-radius:20px;background:linear-gradient(#FBF2DC,#F1E2C0);overflow:hidden}
+.title{position:absolute;left:115px;top:96px;width:160px;height:44px;border-radius:14px;background:linear-gradient(#C99A62,#A87842);box-shadow:0 4px 0 #6E4A28;color:#FFF6E2;font:700 22px/44px "Noto Sans CJK SC",sans-serif;text-align:center;letter-spacing:4px;z-index:3}
+.stars{position:absolute;top:156px;line-height:70px;left:0;width:390px;text-align:center;z-index:2}
+.star{display:inline-block;color:#F6C548;text-shadow:0 3px 0 #C88A1E;margin:0 4px;vertical-align:bottom}
+.score{position:absolute;top:226px;width:390px;text-align:center;color:#4A3220;font:800 40px/48px "Noto Sans CJK SC",sans-serif;z-index:2}
+.score small{font-size:20px;font-weight:700}
+.sub{position:absolute;top:278px;width:390px;text-align:center;color:#8A6E50;font:500 15px/20px "Noto Sans CJK SC",sans-serif;z-index:2}
+.halo{position:absolute;left:85px;top:364px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,231,160,.95) 0,rgba(255,214,120,.45) 40%,rgba(255,214,120,0) 70%);z-index:2}
+.rays{position:absolute;left:55px;top:324px;width:280px;height:280px;border-radius:50%;background:repeating-conic-gradient(rgba(255,226,140,.55) 0 8deg,rgba(255,226,140,0) 8deg 24deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);z-index:2}
+.shadow{position:absolute;left:125px;top:544px;width:140px;height:20px;border-radius:50%;background:rgba(90,58,30,.25);z-index:2}
+.chest{position:absolute;left:111px;top:420px;width:168px;height:130px;z-index:3}
+.body{position:absolute;left:0;bottom:0;width:168px;height:84px;border-radius:10px 10px 14px 14px;background:linear-gradient(#E9A35C,#C5763A);box-shadow:inset 0 -8px 0 #A85F2A,inset 0 3px 0 #FFD08F}
+.lid{position:absolute;left:-4px;top:0;width:176px;height:56px;border-radius:40px 40px 8px 8px;background:linear-gradient(#F2B56C,#D4864A);box-shadow:inset 0 4px 0 #FFDDA6,0 3px 0 #A85F2A;transform-origin:10% 100%}
+.band{position:absolute;top:0;width:18px;height:100%;background:linear-gradient(#FFE08A,#E3A930)}
+.lock{position:absolute;left:70px;top:44px;width:28px;height:34px;border-radius:8px;background:linear-gradient(#FFE79A,#E0A52C);box-shadow:0 2px 0 #9C6A1A;z-index:4}
+.open .lid{transform:rotate(-14deg) translate(-6px,-8px)}
+.open .lock{top:58px}
+.glowin{position:absolute;left:20px;top:46px;width:128px;height:20px;border-radius:50%;background:#FFF1B8;box-shadow:0 0 30px 14px #FFE48A;opacity:0;z-index:1}
+.open .glowin{opacity:1}
+.hint{position:absolute;top:580px;width:390px;text-align:center;color:#B07A2A;font:600 15px/20px "Noto Sans CJK SC",sans-serif;z-index:3}
+.reward{position:absolute;top:326px;width:76px;text-align:center;z-index:5}
+.reward .ic{width:64px;height:64px;margin:0 auto;border-radius:20px;background:#FFF8E6;box-shadow:0 4px 0 #E2C58C,0 0 18px rgba(255,220,120,.9);display:flex;align-items:center;justify-content:center;font:800 18px "Noto Sans CJK SC",sans-serif;color:#7A4E1E}
+.reward .nm{margin-top:8px;font:600 13px/18px "Noto Sans CJK SC",sans-serif;color:#5A3A1E}
+.unlock{position:absolute;top:612px;width:390px;text-align:center;font:600 14px/20px "Noto Sans CJK SC",sans-serif;color:#4E7A43;z-index:3}
+.btn{position:absolute;top:664px;width:141px;height:56px;border-radius:18px;font:700 20px/52px "Noto Sans CJK SC",sans-serif;text-align:center;z-index:3}
+.p{left:46px;background:linear-gradient(#56A870,#3F8C5A);color:#fff;box-shadow:0 6px 0 #2A5E3C,0 8px 10px rgba(0,0,0,.18)}
+.s{left:203px;background:linear-gradient(#FFF6E2,#F0E0BE);color:#5A3A1E;box-shadow:0 6px 0 #C9A774,0 8px 10px rgba(0,0,0,.14)}
+.night .inner{background:linear-gradient(#EADBB9,#D8C49C)}
+.night .panel{background:#8E6A44;box-shadow:0 10px 0 #5A3D22,0 18px 30px rgba(0,0,0,.5)}
+.night .halo{background:radial-gradient(circle,rgba(255,214,130,1) 0,rgba(255,190,90,.5) 40%,rgba(255,190,90,0) 70%)}
+.ann{position:absolute;z-index:9;font:600 10px/12px monospace;color:#E0207A}
+.box{position:absolute;z-index:9;border:1px dashed #E0207A}
+.tag{position:absolute;left:8px;top:54px;z-index:9;background:#E0207A;color:#fff;font:700 11px/16px monospace;padding:0 6px;border-radius:4px}
+</style></head><body><div id=app></div><script>
+const q=new URLSearchParams(location.search),night=q.get('m')=='night',open=q.get('s')=='open';
+document.body.className=(night?'night ':'')+(open?'open':'');
+const star=s=>`<span class=star style="font-size:${s}px">★</span>`;
+let h=`<div class=bg style="background-image:url(iphone15pro-${night?'night':'day'}-07-board.png)"></div>
+<div class=scrim style="background:${night?'rgba(5,14,26,.62)':'rgba(14,42,46,.42)'}"></div>
+<div class=panel><div class=inner></div></div><div class=title>过关啦</div>
+<div class=stars>${star(52)}${star(66)}${star(52)}</div>
+<div class=score>1130 <small>分</small></div><div class=sub>用了 6 步 · 剩余 22 步</div>
+${open?'<div class=rays></div>':''}<div class=halo style="opacity:${open?1:.85}"></div><div class=shadow></div>
+<div class=chest><div class=glowin></div><div class=body><div class=band style="left:30px"></div><div class=band style="right:30px"></div></div><div class=lid><div class=band style="left:34px"></div><div class=band style="right:34px"></div></div><div class=lock></div></div>`;
+if(!open)h+=`<div class=hint>✦ 点宝箱领取 ✦</div>`;
+else h+=`<div class=reward style="left:111px"><div class=ic>✿×3</div><div class=nm>风铃花</div></div><div class=reward style="left:203px"><div class=ic>网</div><div class=nm>潮汐网</div></div><div class=unlock>主线 05 · 潮汐挑战已开放</div>`;
+h+=`<div class="btn p">下一关</div><div class="btn s">回小岛</div>`;
+if(q.get('a')){h+=`<div class=tag>${night?'夜间':'白天'} · ${open?'打开后':'点击前'} · 390×844</div>
+<div class=box style="left:20px;top:116px;width:350px;height:628px"></div><div class=ann style="left:24px;top:746px">Panel 350×628 @(20,116) r28 边框10 #B98A55</div>
+<div class=box style="left:111px;top:420px;width:168px;height:130px"></div><div class=ann style="left:282px;top:444px">Chest<br>168×130<br>中心(195,485)<br>热区 220×220</div>
+<div class=box style="left:46px;top:664px;width:141px;height:56px"></div><div class=box style="left:203px;top:664px;width:141px;height:56px"></div>
+<div class=ann style="left:46px;top:724px">141×56 · 间距16 · 内边距16 · y664</div>
+<div class=ann style="left:4px;top:236px">Score 40/800<br>#4A3220</div><div class=ann style="left:4px;top:176px">Stars 52/66/52</div>
+${open?'<div class=ann style="left:4px;top:334px">Reward 64×64<br>r20 浮于 y326</div>':'<div class=ann style="left:4px;top:580px">Hint 15/600<br>#B07A2A</div>'}
+<div class=box style="left:0;top:0;width:390px;height:47px;border-color:#20A0E0"></div><div class=box style="left:0;top:810px;width:390px;height:34px;border-color:#20A0E0"></div>`}
+document.getElementById('app').innerHTML=h;
+</script></body></html>

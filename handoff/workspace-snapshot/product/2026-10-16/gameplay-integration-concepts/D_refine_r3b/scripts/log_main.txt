@@ -1,0 +1,21 @@
+00:00.085  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/scripts/d_r3b.py:50: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; N=nt.nodes; L=nt.links
+<string>:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+02:53.836  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/raw_main.png'
+03:27.229  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/raw_mask.png'
+03:42.297  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/raw_close_fold.png'
+03:58.036  render           | Saved: '/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/D_refine_r3b/raw_close_scarf.png'
+CELL_PX D_refine_r2 row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.98/1.13
+GRID_FLAT_MAXDEV 0.0
+SECTIONS [('slope+valleyfloor', 220), ('fields', 1992), ('valley props', 830), ('hills', 1840), ('balloons', 1968), ('clouds', 1560), ('tree+story', 4242), ('cloth', 3728), ('pieces', 17700), ('midground', 3166), ('edge', 1374), ('foreground', 4726)]
+TRIS_EVAL 43346
+PIECE_DIM {'jar': (0.68, 65, 61, (1, 1)), 'dand': (0.86, 64, 58, (1, 2)), 'scarf': (0.3, 75, 89, (1, 3)), 'env': (0.54, 78, 37, (1, 4)), 'kite': (0.82, 75, 116, (1, 5)), 'strawb': (0.78, 64, 63, (3, 4))}
+COVER_FG []
+BOARD_PX bottom_edge_from_bottom=128.0 top_edge_from_top=518.4
+JAR_CLOSE 3 1
+SCARF_CLOSE 1 3
+DONE_MODE main
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

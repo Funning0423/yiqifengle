@@ -1,0 +1,15 @@
+00:00.071  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/concept.py:92: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/concept.py:26: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True
+/workspace/wechat-game/art/regions/bamboo-raft/scripts/concept.py:102: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('sky'); m.use_nodes=True; nt=m.node_tree; nt.nodes.clear()
+01:30.269  render           | Saved: '/workspace/wechat-game/art/regions/bamboo-raft/renders/v9.png'
+PIECE_COUNTS Counter({'melon': 9, 'hat': 8, 'peb': 8, 'dfly': 8, 'lotus': 8, 'pod': 8})
+TRIS_SCENE 55570 OBJS 1321 MATS 66
+DONE /workspace/wechat-game/art/regions/bamboo-raft/renders/v9.png
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit
+RUN_DONE

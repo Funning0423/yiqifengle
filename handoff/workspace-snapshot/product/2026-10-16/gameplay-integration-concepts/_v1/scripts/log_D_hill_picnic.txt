@@ -1,0 +1,19 @@
+00:00.095  system.path      | WARNING Could not get a list of mounted file-systems
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic.py:54: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; N=nt.nodes
+/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic.py:18: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('m%d'%len(MATS)); m.use_nodes=True
+Traceback (most recent call last):
+  File "/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic.py", line 260, in <module>
+    board_grid(['jar','dand','kite','env','scarf','paper'],C,.44,clear={(5,2),(5,3),(5,4)})
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic.py", line 108, in board_grid
+    else: piece(k,loc,s,up)
+          ~~~~~^^^^^^^^^^^^
+  File "/workspace/wechat-game/product/2026-10-16/gameplay-integration-concepts/scripts/gic.py", line 90, in piece
+    elif kind=='jar': cyl((x,y,z+.2*s),.18*s,.4*s,(0.8,0.95,0.9),v=10,a=.45,r=.1); ico((x,y,z+.2*s),.09*s,(1.0,0.9,0.35),e=6)
+                      ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cyl() got multiple values for argument 'r'
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

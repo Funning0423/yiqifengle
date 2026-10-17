@@ -1,0 +1,56 @@
+00:00.087  system.path      | WARNING Could not get a list of mounted file-systems
+20:52:37 | INFO: Data are loaded, start creating Blender stuff
+20:52:37 | INFO: Blender create Mesh node meadow_clouds_near
+20:52:37 | INFO: Blender create Mesh node meadow_far_hills
+20:52:37 | INFO: Blender create Mesh node meadow_fence_merged
+20:52:37 | INFO: Blender create Mesh node meadow_flower_instances.0_merged
+20:52:37 | INFO: Blender create Mesh node meadow_flower_instances.1_merged
+20:52:37 | INFO: Blender create Mesh node meadow_flower_instances.2_merged
+20:52:37 | INFO: Blender create Mesh node meadow_grass_instances.0_merged
+20:52:37 | INFO: Blender create Mesh node meadow_grass_instances.1_merged
+20:52:37 | INFO: Blender create Mesh node meadow_grass_instances.2_merged
+20:52:37 | INFO: Blender create Mesh node meadow_grass_instances.3_merged
+20:52:37 | INFO: Blender create Mesh node meadow_grass_instances.4_merged
+20:52:37 | INFO: Blender create Mesh node meadow_path
+20:52:37 | INFO: Blender create Mesh node meadow_river
+20:52:37 | INFO: Blender create Mesh node meadow_river_bank
+20:52:37 | INFO: Blender create Mesh node meadow_sky_dome
+20:52:37 | INFO: Blender create Mesh node meadow_terrain
+20:52:37 | INFO: Blender create Mesh node meadow_trees_merged
+20:52:37 | INFO: Blender create Mesh node wind_bell_00
+20:52:37 | INFO: Blender create Mesh node wind_bell_01
+20:52:37 | INFO: Blender create Mesh node wind_bell_02
+20:52:37 | INFO: Blender create Mesh node wind_bell_frame
+20:52:37 | INFO: Blender create Mesh node windmill_sails
+20:52:37 | INFO: Blender create Mesh node windmill_static_merged
+20:52:37 | INFO: glTF import finished in 0.23s
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:38: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True; nt=m.node_tree; N=nt.nodes; N.clear()
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:171: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True; m.surface_render_method='BLENDED'; m.use_backface_culling=True
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:238: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True; m.surface_render_method='BLENDED'; nt=m.node_tree; N=nt.nodes; N.clear(); Lk=nt.links.new
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:302: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('M_rb_petal'); m.use_nodes=True; nt=m.node_tree; N=nt.nodes; N.clear()
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:312: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  PF=bpy.data.materials.new('M_rb_fall'); PF.use_nodes=True
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:344: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new('cur%d'%band); m.use_nodes=True; b=m.node_tree.nodes['Principled BSDF']; b.inputs['Base Color'].default_value=(*c,1); b.inputs['Roughness'].default_value=.9
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:361: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w=bpy.data.worlds.new('w'); sc.world=w; w.use_nodes=True; nt=w.node_tree; Nw=nt.nodes
+/workspace/wechat-game/product/2026-10-17/rainbow-bridge/scripts/rb.py:100: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  if not m.use_nodes or m.get('tinted') or m.name.startswith(('M_rainbow','M_rb_')): continue
+00:09.756  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/close_end_day.png'
+RENDERED close_end_day
+00:19.183  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/close_end_night.png'
+RENDERED close_end_night
+00:27.006  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/cur_close_end.png'
+RENDERED cur_close_end
+00:36.962  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/close_start_day.png'
+RENDERED close_start_day
+00:46.385  render           | Saved: '/workspace/wechat-game/product/2026-10-17/rainbow-bridge/renders/close_start_night.png'
+RENDERED close_start_night
+ALLDONE {"bridge_tris": 2600, "bridge_verts": 1320, "bridge_rings": 66, "halo_z": {"rb_end": [0.854, 1.48, 1.163], "rb_start": [-1.18, 1.204, 1.163]}, "endcap": {"halo_tris": 96, "petal_mesh_tris": 336, "ground_petals": 34, "flowers": 8}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit

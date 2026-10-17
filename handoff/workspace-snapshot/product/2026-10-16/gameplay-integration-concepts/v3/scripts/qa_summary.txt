@@ -1,0 +1,10 @@
+CELL_PX A_rail_crates row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.81/1.10
+TRIS 27320
+CELL_PX B_snow_starmap row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.85/0.97
+TRIS 21467
+CELL_PX C_cloud_terrace row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.93/1.27
+TRIS 111425
+CELL_PX D_hill_picnic row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 0.97/1.12
+TRIS 12203
+CELL_PX E_sky_kite row0 w[91, 91, 91] h[91, 91, 91] | row3 w[91, 91, 91] h[91, 91, 91] | row6 w[91, 91, 91] h[91, 91, 91] | world near/far cell width 1.09/1.09
+TRIS 63314
