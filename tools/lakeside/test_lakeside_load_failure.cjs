@@ -7,7 +7,7 @@ const bg=rd('region/LakesideBoardBackground.ts'),comp=rd('world-r2/WorldNativeCo
 assert(/export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';/.test(bg));
 assert(/console\.error\('\[QF_LAKESIDE\] '\+JSON\.stringify\(\{event:'load-failed',stageId,step,error:/.test(bg),'always-on log with step + cause');
 assert(/\}catch\(error\)\{dispose\(\);[\s\S]{0,400}if\(token\.cancelled\)throw error;logLakesideFailure\(step,String\(selection\?\.stageId\?\?''\),error\);throw Error\(LAKESIDE_LOAD_FAILED\);\}/.test(bg),'dispose, skip cancellations, log, stable reason');
-for(const st of ['bundle','transforms','prefabs','water-material','instantiate'])assert(bg.includes("step='"+st+"'"),'step '+st);
+for(const st of ['scenery','water-material','lights-camera'])assert(bg.includes("step='"+st+"'"),'step '+st);
 // behaviour of the log helper (no cc needed)
 const src=bg.match(/export function logLakesideFailure[^\n]*\n/)[0].replace('export ','').replace(/:string|:unknown|as any/g,'');
 const lines=[];const orig=console.error;console.error=(...a)=>lines.push(a.join(' '));

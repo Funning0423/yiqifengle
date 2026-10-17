@@ -4,7 +4,7 @@
  * LakesideCameraLayout.lakesideJourney() places it (real TS through the board-ui harness) against the real geometry: the
  * Build05 island fixture + palms (journey-scene.cjs, as 04→05) and every instance of region_lakeside
  * scene_r5h_slim_transforms.json (lakeside/lakeside-scene.cjs), plus the rainbow bridge strip itself. Samples every 0.05 m.
- *  K1 route: continuity passes validateJourneyRoute (region order is Voice Bot's wiring, still rejected here); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
+ *  K1 route: continuity passes validateJourneyRoute (island→lakeside order accepted since Voice Bot's wiring); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
  *  K2 her face (1.5 m), head (1.6) and chest (0.9) never hidden, at most one low graze; lens clearance ≥ 1.1 m everywhere.
  *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
  *  K3 lens on her RIGHT for the whole leg (never left of behind).
@@ -45,7 +45,7 @@ function ndc(c,p,aspect){const f=sub(c.target,c.position),fl=Math.hypot(...f),fw
 check('K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged',()=>{
  // Region order + 'lakeside' JourneyRegion/Place/State are Voice Bot's wiring (README); the continuity and landing checks run on
  // the same route with the order label of the Build05 island leg.
- const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);assert.throws(()=>Core.validateJourneyRoute(route,start),/journey-region-order/);
+ const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);Core.validateJourneyRoute(route,start); // island→lakeside wired (Voice Bot)
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,focus:undefined},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{arrivalSideM:NaN}},start),/journey-invalid-landing/);
  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{fovDeg:30}},start),/journey-invalid-landing/);

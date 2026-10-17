@@ -18,6 +18,7 @@ import { createPersistentR5Port } from './PersistentR5Port';
 import { createPersistentMainlinePort } from './PersistentMainlinePort';
 import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
+import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
 const {ccclass,property}=_decorator;
 /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
@@ -53,7 +54,7 @@ export class WorldNativeComposition extends Component {
   }
   selectProvider(selection:Selection):Result {
     if(!this.world)return {ok:false,reason:'world-not-ready'};
-    if(!['home','island','meadow','skycity'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
+    if(!['home','island','meadow','skycity','lakeside'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
     if(selection.provider==='r5'){
       const stage=(RegionalAPI as any).getStage(selection.stageId);
       if(!stage||!stage.seedBank.includes(selection.seed))return {ok:false,reason:'unverified-r5-stage-or-seed'};
@@ -69,7 +70,10 @@ export class WorldNativeComposition extends Component {
   async enterSelectedLevel(){
     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
-    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(this.selectionRegion(selection));if(!arrived.ok)return arrived;
+    const region=this.selectionRegion(selection);
+    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside')console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);return arrived;}
+    // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
+    if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); WorldFlow put her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED)){this.pendingJourneySelection=null;return {ok:false,reason:LAKESIDE_LOAD_FAILED};}
@@ -77,17 +81,19 @@ export class WorldNativeComposition extends Component {
   }
   private selectionRegion(selection:Selection):JourneyRegion {
     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
-    // 风铃湖畔 (r04-lake-*) is played from the island stop like tide: no physical lakeside journey route exists yet
-    // (运镜bot's travel/landing camera is the hook, see LakesideBoardBackground LAKESIDE_NODES).
-    return /^r05-meadow-/.test(selection.stageId)?'meadow':/^r05-sky-/.test(selection.stageId)?'skycity':'island';
+    // r05-meadow-* meadow, r05-sky-* skycity, 风铃湖畔 r04-lake-* (r05 renumbering too) lakeside, else island (tide).
+    const id=selection.stageId;return /^r05-meadow-/.test(id)?'meadow':/^r05-sky-/.test(id)?'skycity':/^r0[45]-lake-\d+$/.test(id)?'lakeside':'island';
   }
   /** Cold progress opens the same physical route in order. Unlocks are read from verified records, never counters. */
   private async ensureRegion(target:JourneyRegion):Promise<Result>{
-    const commands=this.world!.commands(),order:JourneyRegion[]=['island','meadow','skycity'];
+    const commands=this.world!.commands();
     let current=commands.snapshot().journey?.region||'island';
     if(current===target&&!commands.snapshot().journey?.target)return {ok:true};
-    const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;
-    if(order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
+    // 风铃湖畔 is a side branch off the island (island→lakeside, LakesideCameraLayout.lakesideJourney). It is not a mainline
+    // campaign region (its r04-lake-* stages are gated by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel).
+    if(target!=='lakeside'){const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;}
+    const order:JourneyRegion[]=target==='lakeside'?['island','lakeside']:['island','meadow','skycity'];
+    if(!order.includes(current)||order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
     return {ok:true};
   }

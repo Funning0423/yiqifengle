@@ -1,5 +1,5 @@
 import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
-export type JourneyRegion = 'island'|'meadow'|'skycity';
+export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming }>;
 export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
@@ -19,7 +19,7 @@ export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
 export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
- if(!((route.from==='island'&&route.to==='meadow')||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
+ if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');
  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
 }

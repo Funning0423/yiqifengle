@@ -4,10 +4,10 @@ import type { TrackOptions, WeightRamp } from './CameraPose';
 /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
 export type Vec = readonly [number, number, number];
 export type Mode = 'fixed' | 'motion';
-export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity';
+export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity' | 'lakeside';
 export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
-  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
+  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'lakeside' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
 /** V1: home-exit states (seat to island) that a background/foreground round trip restarts. */
 export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
 /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
@@ -446,7 +446,7 @@ export class WorldFlow {
     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
     const expected=this.stable,fail=this.blocked(expected,true);if(fail)return fail;
-    if(!['island','meadow','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
+    if(!['island','meadow','lakeside','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
     if(expected==='level'&&!this.level?.isSettledResult?.())return {ok:false,reason:'journey-requires-settled-result'};
     return this.operate('region-loading',async token=>{
       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
@@ -531,7 +531,7 @@ export class WorldFlow {
    *  walks home as usual. A journey that is actively running stays busy; the region-visit skycity keeps exitSkycity. */
   private leaveJourneyForIsland():Result|null {
     const j=this.journey;if(!j||this.current||this.visit||this.hidden||this.needsResume)return null;
-    if(!['island','meadow','skycity'].includes(this.state))return null;
+    if(!['island','meadow','skycity','lakeside'].includes(this.state))return null;
     if(j.snapshot().region==='island'&&!j.isInTransit())return null;
     try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
     // Mac re-check 2607de6: walking island→home from a region took 44-48 s (day) / >127 s (night, frame-dt

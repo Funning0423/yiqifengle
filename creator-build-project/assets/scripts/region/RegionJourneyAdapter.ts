@@ -8,7 +8,9 @@ import {rotate} from '../world-r1/CameraPose';
 import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
-import type {Pose, Vec} from '../world-r1/WorldFlowCore';
+import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+import {mountLakesideScenery} from './LakesideBoardBackground';
+import {lakesideJourney} from './LakesideCameraLayout';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
 /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
@@ -35,6 +37,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
  return new RegionJourneyController({
   readCamera():Pose{const c=options.camera,p=c.node.worldPosition,q=c.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:c.fov};},
   async prepare(from,to,start,token,progress){
+   if(to==='lakeside')return prepareLakesideJourney(options.parent,from,start,token,progress);
    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
@@ -102,3 +105,22 @@ export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):S
  return sky;
 }
 function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
+/** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
+ *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
+ *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
+async function prepareLakesideJourney(parent:Node,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+ if(from!=='island')throw Error('journey-region-order');
+ const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+ const release=()=>{if(dead)return;dead=true;rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+ try{
+  progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
+  await mountLakesideScenery(model,token,take);token.check();progress(.86);
+  if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);
+  const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+  const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing};
+  rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+  return {route,show(visible){if(!dead)rig.active=visible;},dispose:release};
+ }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+}
