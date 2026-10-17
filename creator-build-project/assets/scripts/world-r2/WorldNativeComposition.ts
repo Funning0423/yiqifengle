@@ -1,8 +1,8 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
-import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED } from '../region/LakesideBoardBackground';
+import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
-import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
+import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
 import { DEBUG } from 'cc/env';
 import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
 import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
@@ -18,7 +18,9 @@ import { createPersistentR5Port } from './PersistentR5Port';
 import { createPersistentMainlinePort } from './PersistentMainlinePort';
 import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
 import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
-import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
+import {lakesideLandingToBoard,lakesideViewport,type LakesideLandingDeps} from '../region/LakesideLandingHook';
+import {applyCameraPose,fromLookAt} from '../world-r1/CameraPose';
+import {boardSafeInsets} from '../ui/BoardLayout';
 /** Not failures: the player paused/cancelled or tapped twice; the normal journey pause/resume UI handles them. */
 const LAKESIDE_SOFT_REASONS=['cancelled','paused','busy'];
 import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
@@ -75,7 +77,8 @@ export class WorldNativeComposition extends Component {
     const region=this.selectionRegion(selection);
     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside'){console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);if(!LAKESIDE_SOFT_REASONS.includes(String(arrived.reason)))return this.lakesideFallback('journey',arrived.reason);}return arrived;}
     // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
-    if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
+    // 运镜bot: lakeside assets still not ready after the hook's 3 s wait → the existing lakeside fallback (toast + island), never an empty board.
+    if(region==='lakeside'){const landed=await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null,deps:this.lakesideLandingDeps()});if(landed?.ok===false)return this.lakesideFallback('board',landed.reason);}
     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
     // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); lakesideFallback puts her back on the island. Hand the HUD one stable reason.
     if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED))return this.lakesideFallback('board',result.reason);
@@ -89,6 +92,20 @@ export class WorldNativeComposition extends Component {
     try{back=(this.world?.commands() as any)?.abandonLakesideJourney?.()??back;}catch(error){back={ok:false,reason:String(error)};}
     try{console.error('[QF_LAKE] '+JSON.stringify({event:'lakeside-fallback',stage,reason:String(reason),island:back.ok?'ok':String((back as any).reason)}));}catch{}
     return {ok:false,reason:LAKESIDE_LOAD_FAILED};
+  }
+  /** 运镜bot: what the landing→board hook needs (world camera read/write through applyCameraPose, frame clock, the board UI's
+   *  viewport + safe area, the lakeside preload). The hook is pure and never rejects. */
+  private lakesideLandingDeps():LakesideLandingDeps|undefined{
+    const camera=this.worldCamera;if(!camera||!camera.node?.isValid)return undefined;
+    return {
+      readCamera:()=>{const n=camera.node;if(!n.isValid)return null;const p=n.worldPosition,f=n.forward;return {position:[p.x,p.y,p.z],target:[p.x+f.x*10,p.y+f.y*10,p.z+f.z*10],fovVerticalDeg:camera.fov};},
+      setCamera:pose=>camera.node.isValid&&applyCameraPose(camera,fromLookAt(pose,pose.fovVerticalDeg??camera.fov),'lakeside.landing-board'),
+      nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
+      viewport:()=>lakesideViewport(view.getFrameSize()),
+      safe:(w,h)=>boardSafeInsets(w,h),
+      preload:()=>prewarmLakesideAssets(),
+      log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_LAKESIDE] '+JSON.stringify(entry));}catch{}},
+    };
   }
   private selectionRegion(selection:Selection):JourneyRegion {
     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';

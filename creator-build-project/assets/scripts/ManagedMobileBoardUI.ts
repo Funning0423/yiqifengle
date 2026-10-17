@@ -4,7 +4,7 @@ import { _decorator, Component, Node, Canvas, Camera, Layers, UITransform, UIOpa
 import type { LevelBackgroundStatus, LevelBackgroundFrame } from './world-r2/LevelBackground';
 import { GameAudio } from './audio/GameAudio';
 import { BoardArt, PIECE_KEYS, TOOL_KEYS, toolDisplaySize } from './ui/BoardArt';
-import { boardLayout, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
+import { boardLayout, boardSafeInsets, cellCenter, pickToolBar, toolSlots, CELL, IdleHintClock, TOAST_S, type BoardLayout, type SafeArea } from './ui/BoardLayout';
 import { PopupStack, TintSet, artButton, makeLabel, measure, playSound, pressable as bindPressable, resetPresses, type PressHandle } from './ui/PopupKit';
 import { INTRO_TEXT, SEEN_ID, openBag, openReward, openSettings, openToolIntro, type RewardItem } from './ui/CommonPanels';
 import { openPause, openRestartConfirm, openResult, type ResultModel, type ResultReward } from './ui/BoardPanels';
@@ -559,21 +559,7 @@ export class ManagedMobileBoardUI extends Component {
     }
   }
   // ---------------- layout ----------------
-  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } {
-    const portrait = w < h * 1.1; let top = portrait ? 47 : 12, bottom = portrait ? 34 : 21, left = portrait ? 0 : 44, right = left;
-    if (typeof document !== 'undefined' && document.documentElement && typeof getComputedStyle === 'function') { const css = getComputedStyle(document.documentElement); const read = (name: string) => parseFloat(css.getPropertyValue(name)) || 0; top = Math.max(top, read('--safe-top')); bottom = Math.max(bottom, read('--safe-bottom')); left = Math.max(left, read('--safe-left')); right = Math.max(right, read('--safe-right')); }
-    const wx = (globalThis as any).wx; let info: any = null, capsule: any = null;
-    try { info = wx?.getWindowInfo?.(); } catch { } if (!info) try { info = wx?.getSystemInfoSync?.(); } catch { }
-    const ww = Number(info?.windowWidth) || w, hh = Number(info?.windowHeight) || h, sx = w / ww, sy = h / hh;
-    const finite = (x: any) => typeof x === 'number' && Number.isFinite(x);
-    if (ww > 0 && hh > 0 && Number.isFinite(sx) && Number.isFinite(sy)) {
-      const a = info?.safeArea;
-      if (a && [a.top, a.bottom, a.left, a.right].every(finite) && a.top >= 0 && a.bottom >= a.top && a.bottom <= hh && a.left >= 0 && a.right >= a.left && a.right <= ww) { top = Math.max(top, a.top * sy); bottom = Math.max(bottom, (hh - a.bottom) * sy); left = Math.max(left, a.left * sx); right = Math.max(right, (ww - a.right) * sx); }
-      try { const r = wx?.getMenuButtonBoundingClientRect?.(); if (r && [r.top, r.bottom, r.left, r.right].every(finite) && r.top >= 0 && r.bottom > r.top && r.bottom < hh * .35 && r.left >= 0 && r.right > r.left && r.right <= ww) capsule = { top: r.top * sy, bottom: r.bottom * sy, left: r.left * sx, right: r.right * sx }; } catch { }
-    }
-    if (!capsule && portrait) capsule = { top: top + 4, bottom: top + 36, left: w - 93, right: w - 6 };
-    return { top, bottom, left, right, portrait, capsule };
-  }
+  private safeInsets(w: number, h: number): SafeArea & { portrait: boolean } { return boardSafeInsets(w, h); }
   private layout() {
     const frame = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : view.getFrameSize(); const w = Math.max(240, frame.width), h = Math.max(320, frame.height);
     if (!this.managed) view.setDesignResolutionSize(w, h, ResolutionPolicy.EXACT_FIT); if (game.canvas) director.root?.resize(game.canvas.width, game.canvas.height); this.camera.orthoHeight = h / 2; this.root.getComponent(UITransform)!.setContentSize(w, h);
