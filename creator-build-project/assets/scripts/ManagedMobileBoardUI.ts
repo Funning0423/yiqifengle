@@ -590,7 +590,7 @@ export class ManagedMobileBoardUI extends Component {
     this.layoutPlate();
     this.toast.setPosition(X(g.toast.x), Y(g.toast.y), 0);
     this.layoutInfo = { width: w, height: h, safe, board: g.grid.size, cell: P, boardCenter: { x: this.boardCenter.x, y: this.boardCenter.y }, toolY: Y(g.tools.y), pitch: P, geometry: g, skyReserved: g.tray.y - g.tray.height / 2 };
-    this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2 });
+    this.backgroundFrame?.(safe.portrait, { width: w, height: h, boardTop: g.tray.y - g.tray.height / 2, board: { x: g.grid.x, y: g.grid.y, size: g.grid.size } });
     this.popups.layout(); this.paint(); this.paintToolTray(); if (this.snapshot) this.render(this.snapshot);
   }
   /** Info plate: row 1 level title (the only place the name appears), row 2 goal pieces + counts | hourglass + moves.

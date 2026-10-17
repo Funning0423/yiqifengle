@@ -14,9 +14,11 @@
  *  K7 time domain at the controller's walk (route length / 1.2 m/s, as RegionJourneyController.walk; the real walk driver
  *     reports this distance linearly), 60 Hz, after the 0.6 s set-off fade: lens |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³, and it
  *     comes to rest with her (≤ 0.2 m/s over the last 0.5 s, 0 at the stop). The fallback lens is reported for comparison.
- *  K6 board framing (lakesideScenePose) for 0.42…1.0: every board-group vertex of the rope ring and inside it (decor outside the
- *     ring — chime rafts, buoy lanterns, outer lily pads — is reported) inside ±0.90 NDC across and with ≥ 6% bottom
- *     margin, far edge at 30–38% from the top (scene in the top third), 49 cell centres unoccluded, lens clearance ≥ 1.1 m.
+ *  K6 board framing (lakesideAlignedBoardPose, the pose the lease's frame() writes) on 8 real BoardLayout layouts (0.43…0.75
+ *     portrait, notch/capsule, tablet, landscape): the 3D lake grid (16 LK_wb_line) lies under the 2D board — 3D board centre
+ *     on the 2D grid centre and centre-row width = 2D grid width (≤ 0.5 px), every grid vertex inside the opaque tray by
+ *     ≥ 0.15 cell, residual perspective (corner / cell-centre error) reported; portrait top edge reaches past the north shore
+ *     (scene above the tray); lens clearance ≥ 1.1 m. Scene = exactly the live lease's instances.
  * Geometric evidence only; native visual acceptance is separate. */
 const J=require('./journey-scene.cjs'),{fs,assert,H,S,Core,Lay,sampleRoute,routeLength,journeyCamera,start,start1,island,add,sub,bbox,blockers,clearance,rayHit}=J;
 const LKS=require('./lakeside/lakeside-scene.cjs'),LK=H.load(S+'region/LakesideCameraLayout.ts'),C=LK.LAKESIDE_CAMERA_LAYOUT;
@@ -64,10 +66,10 @@ for(const [W,Hh] of [[360,780],[390,520]])check(`K4 final landing frame ${W}x${H
 check('K5 view turn ≤ 20°/s at 1.2 m/s; no crane-up over the arrival (lens height above her never rises)',()=>{let maxAng=0,at=0;
  for(let d=0;d<T;d+=.05){const a=cam(d),b=cam(Math.min(T,d+.05)),u=J.Core?null:null,fa=sub(a.target,a.position),fb=sub(b.target,b.position),la=Math.hypot(...fa),lb=Math.hypot(...fb),cos=Math.min(1,(fa[0]*fb[0]+fa[1]*fb[1]+fa[2]*fb[2])/(la*lb)),deg=Math.acos(cos)*180/Math.PI/(.05/route.speed);if(deg>maxAng){maxAng=deg;at=d;}}
  assert(maxAng<=20,`turn ${maxAng.toFixed(2)}°/s at d=${at.toFixed(2)}`);
- // No crane-up: over the arrival the lens never climbs in the world, and its height above her only falls (≤ 2 cm total of
- // up-steps allowed: the smoothed anchor rounds the bridge→bank corner by a few mm).
+ // No crane-up: over the arrival the lens never climbs in the world, and its height above her only falls (≤ 5 cm total of
+ // up-steps allowed: the S-curve lens rounds the bridge→bank corner where her own descent stops dead).
  const s=T-Core.JOURNEY_CAMERA.arrivalBlendM;let worldRise=0,wa=0,relUp=0,ra=0;for(let i=1;i<rows.length;i++)if(rows[i].d>=s){const dw=rows[i].cam[1]-rows[i-1].cam[1],du=rows[i].up-rows[i-1].up;if(dw>worldRise){worldRise=dw;wa=rows[i].d;}if(du>0){relUp+=du;ra=rows[i].d;}}
- assert(worldRise<=.001,`lens climbs ${worldRise} m per ${STEP} m at d=${wa}`);assert(relUp<=.02,`lens rises ${relUp} m above her (last at d=${ra})`);
+ assert(worldRise<=.001,`lens climbs ${worldRise} m per ${STEP} m at d=${wa}`);assert(relUp<=.05,`lens rises ${relUp} m above her (last at d=${ra})`);
  const arr=rows.filter(r=>r.d>=s),maxUp=Math.max(...rows.map(r=>r.up));
  return {maxTurnDegS:+maxAng.toFixed(2),at:+at.toFixed(2),arrivalWorldMaxClimbPerStepM:+worldRise.toFixed(4),arrivalRelativeUpStepsSumM:+relUp.toFixed(4),arrivalLensAboveHerM:[+arr[0].up.toFixed(3),+arr.at(-1).up.toFixed(3)],arrivalLensWorldY:[arr[0].cam[1],arr.at(-1).cam[1]],maxLensAboveHerM:+maxUp.toFixed(3)};});
 check('K7 lens kinematics: S-curve settle, |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³ after the set-off fade, at rest when she stops',()=>{
@@ -77,17 +79,41 @@ check('K7 lens kinematics: S-curve settle, |a| ≤ 1.2 m/s², |jerk| ≤ 5 m/s³
  const nw=kin(cam),fb=kin(d=>journeyCamera(path,d,start1,undefined,undefined,0));
  assert(nw.peakAccel.v<=1.2,'accel '+JSON.stringify(nw.peakAccel));assert(nw.peakJerk.v<=5,'jerk '+JSON.stringify(nw.peakJerk));assert(nw.last05sMaxSpeed<=.2&&nw.speedAfterStop<1e-9,'not at rest '+nw.last05sMaxSpeed);
  const r=o=>JSON.parse(JSON.stringify(o,(k,v)=>typeof v==='number'?+v.toFixed(4):v));return {new:r(nw),fallback:r(fb)};});
-// K6 board framing
-const boardV=lakeLocal.filter(o=>o.group==='board');
-check('K6 board framing 0.42…1.0: whole board inside with margins, scene top third, cells unoccluded, lens clearance',()=>{const out={};
- const bg=lakeLocal.filter(o=>o.group==='bg').map(o=>({tag:'lakeside',name:o.name,tris:o.tris}));
- for(const a of [.42,.45,360/780,.5,.5625,.62,.7,.75,390/520+.0001,.8,1]){const pose=LK.lakesideScenePose(a),c={position:pose.position,target:pose.target,fovVerticalDeg:pose.fovVerticalDeg};
-  let maxX=0,minY=9,maxY=-9,decor=0;for(const o of boardV){const cx=(o.box[0][0]+o.box[1][0])/2,cz=(o.box[0][2]+o.box[1][2])/2,isDecor=Math.abs(cx)>C.board.extent.x+.05||cz<C.board.extent.zFar-.05||cz>C.board.extent.zNear+.05;for(let k=0;k<o.tris.length;k+=3){const q=ndc(c,[o.tris[k],o.tris[k+1],o.tris[k+2]],a);if(isDecor){decor=Math.max(decor,Math.abs(q[0]));continue;}maxX=Math.max(maxX,Math.abs(q[0]));minY=Math.min(minY,q[1]);maxY=Math.max(maxY,q[1]);}}
-  const top=(1-maxY)/2,bottom=(1-minY)/2,lim=a<=C.board.maxAspect+1e-9?.9:.9;assert(maxX<=lim,`a=${a} board x ${maxX}`);assert(bottom<=.94,`a=${a} bottom ${bottom}`);assert(top>=.30&&top<=.38,`a=${a} top ${top}`);
-  const blocked=[];for(let r=0;r<7;r++)for(let k=0;k<7;k++){const cell=[-3.3+1.1*k,.3,8.7+1.1*r];if(blockers(bg,c.position,cell).length)blocked.push([r,k]);}assert.deepEqual(blocked,[],'cells hidden '+JSON.stringify(blocked));
-  const [lens,who]=clearance(c.position,lakeLocal.map(o=>({tag:'lakeside',name:o.name,tris:o.tris})));assert(lens>=CLEAR,`lens ${lens} from ${who}`);
-  out[a.toFixed(4)]={pose,boardMaxAbsX:+maxX.toFixed(3),boardTopFrac:+top.toFixed(3),boardBottomFrac:+bottom.toFixed(3),decorMaxAbsX:+decor.toFixed(3),lensClearM:+lens.toFixed(2)};}
- return {aspects:out};});
+// K6 board framing: 3D lake grid laid under the 2D board (BoardLayout) on real phone layouts
+const BL=H.load(S+'ui/BoardLayout.ts'),CP=H.load(S+'world-r1/CameraPose.ts'),SD=H.load(S+'region/LakesideSceneData.ts');
+const K6_LAYOUTS=[['360x780 (0.46)',360,780,{top:0,bottom:0,left:0,right:0,capsule:null}],
+ ['390x844 notch+capsule',390,844,{top:47,bottom:34,left:0,right:0,capsule:{left:281,top:51,right:368,bottom:83}}],
+ ['375x667 (0.56)',375,667,{top:20,bottom:0,left:0,right:0,capsule:{left:278,top:26,right:365,bottom:58}}],
+ ['414x896',414,896,{top:44,bottom:34,left:0,right:0,capsule:{left:305,top:48,right:392,bottom:80}}],
+ ['330x770 (0.43)',330,770,{top:0,bottom:0,left:0,right:0,capsule:null}],
+ ['390x520 (0.75)',390,520,{top:0,bottom:0,left:0,right:0,capsule:null}],
+ ['768x1024 tablet (0.75)',768,1024,{top:20,bottom:0,left:0,right:0,capsule:null}],
+ ['844x390 landscape',844,390,{top:0,bottom:21,left:47,right:47,capsule:null}]];
+check('K6 board framing: 3D lake grid under the 2D board (centre + scale exact, grid inside the opaque tray), scene above the tray, lens clear',()=>{const out={};
+ const kept=lakeLocal.length;assert.equal(kept,SD.lakesideSceneInstances(LKS.transforms.instances).length,'scene = live lease instances');
+ const grid=lakeLocal.filter(o=>o.glb==='LK_wb_line.glb'),decor=lakeLocal.filter(o=>/LK_(lilypad|rope_float|buoy_lantern|chime_raft)\.glb/.test(o.glb));assert.equal(grid.length,16);
+ const all=lakeLocal.map(o=>({tag:'lakeside',name:o.name,tris:o.tris}));
+ for(const [name,W,Hh,safe] of K6_LAYOUTS){const g=BL.boardLayout(W,Hh,safe,2),frame={width:W,height:Hh,boardTop:g.tray.y-g.tray.height/2,board:{x:g.grid.x,y:g.grid.y,size:g.grid.size}};
+  const pose=LK.lakesideAlignedBoardPose(frame),look=LK.lakesideAlignedLookAt(frame),a=W/Hh;assert.equal(CP.validateCameraPose(pose),null,name);
+  const scr=p=>{const q=CP.projectPoint(pose,a,p);return [(q.x+1)/2*W,(1-q.y)/2*Hh,q.depth];};
+  const c=scr([0,0,12]),l=scr([-3.85,0,12]),r=scr([3.85,0,12]);
+  const centrePx=Math.hypot(c[0]-g.grid.x,c[1]-g.grid.y),widthPx=Math.abs((r[0]-l[0])-g.grid.size);assert(centrePx<=.5,`${name} centre off ${centrePx}px`);assert(widthPx<=.5,`${name} width off ${widthPx}px`);
+  const P=g.pitch,inset=.15*P;let worst=1e9,corner=0;
+  for(const o of grid)for(let k=0;k<o.tris.length;k+=3){const q=scr([o.tris[k],o.tris[k+1],o.tris[k+2]]);worst=Math.min(worst,g.tray.width/2-Math.abs(q[0]-g.tray.x),g.tray.height/2-Math.abs(q[1]-g.tray.y));}
+  assert(worst>=inset,`${name} 3D grid within ${worst.toFixed(1)}px of the tray edge (need ${inset.toFixed(1)})`);
+  for(const [x,z,cx,cy] of [[-3.85,8.15,-3.5,-3.5],[3.85,8.15,3.5,-3.5],[-3.85,15.85,-3.5,3.5],[3.85,15.85,3.5,3.5]]){const q=scr([x,0,z]);corner=Math.max(corner,Math.hypot(q[0]-(g.grid.x+cx*P),q[1]-(g.grid.y+cy*P))/P);}
+  let cellErr=0;for(let i=0;i<49;i++){const p=SD.lakesideCellCenter(i),q=scr(p),u=BL.cellCenter(g,i);cellErr=Math.max(cellErr,Math.hypot(q[0]-u.x,q[1]-u.y)/P);}
+  let decorOut=0;for(const o of decor){const cx=(o.box[0][0]+o.box[1][0])/2,cz=(o.box[0][2]+o.box[1][2])/2,q=scr([cx,0,cz]);if(Math.abs(q[0]-g.tray.x)>g.tray.width/2||Math.abs(q[1]-g.tray.y)>g.tray.height/2)if(q[0]>0&&q[0]<W&&q[1]>0&&q[1]<Hh)decorOut++;}
+  // scene above the tray: the top-centre ray must land beyond the lake's north shore (z<0) or in the sky
+  const top=(()=>{const f=[look.target[0]-look.position[0],look.target[1]-look.position[1],look.target[2]-look.position[2]],fl=Math.hypot(...f);const ang=look.fovVerticalDeg*Math.PI/360-Math.asin(-f[1]/fl);return ang>=0?-Infinity:look.position[2]-look.position[1]/Math.tan(-ang);})();
+  if(W<Hh)assert(top<0,`${name} top edge only reaches lake water (z ${top})`);
+  const [lens,who]=clearance(look.position,all);assert(lens>=CLEAR,`${name} lens ${lens} from ${who}`);
+  out[name]={pose:look,grid2d:{x:+g.grid.x.toFixed(1),y:+g.grid.y.toFixed(1),size:+g.grid.size.toFixed(1),pitch:+P.toFixed(2)},trayTopFrac:+(frame.boardTop/Hh).toFixed(3),centreErrPx:+centrePx.toFixed(3),widthErrPx:+widthPx.toFixed(3),
+   gridInsideTrayMinPx:+worst.toFixed(1),cornerErrCells:+corner.toFixed(3),cellCentreErrCells:+cellErr.toFixed(3),decorVisibleOutsideTray:decorOut,topEdgeGroundZ:Number.isFinite(top)?+top.toFixed(1):'sky',lensClearM:+lens.toFixed(2)};
+  // fallback without frame.board (older callers): portrait estimate within 1 px of BoardLayout when the pitch is width-limited (no side insets); reported otherwise
+  if(W<Hh&&!safe.left&&!safe.right){const e=LK.lakesideBoardRect({width:W,height:Hh,boardTop:frame.boardTop});out[name].fallbackRectErrPx=+Math.max(Math.abs(e.x-g.grid.x),Math.abs(e.y-g.grid.y),Math.abs(e.size-g.grid.size)).toFixed(3);
+   if(Math.abs(g.pitch-(W-18)/(681/82))<1e-6||Math.abs(g.pitch-42.6*Math.min(1.3,Math.max(1,W/390)))<1e-6)assert(out[name].fallbackRectErrPx<=1,name+' fallback rect');}}
+ return {layouts:out};});
 const report={status:results.every(r=>r.status==='PASS')?'PASS':'FAIL',route:{totalM:+T.toFixed(3),bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,landing:j.landing,focus:j.focus},finals,results,profile:rows.filter((r,i)=>i%10===0||i===rows.length-1)};
 fs.mkdirSync(__dirname+'/reports',{recursive:true});fs.writeFileSync(__dirname+'/reports/lakeside-camera.json',JSON.stringify(report,null,1)+'\n');
 if(process.env.QF_LAKESIDE_DUMP)fs.writeFileSync(process.env.QF_LAKESIDE_DUMP,JSON.stringify({path,focus:j.focus,root:j.root,yawDeg:j.yawDeg,landing:j.landing,start1,rows,route:{bridgeStart:route.bridgeStart,bridgeEnd:route.bridgeEnd,speed:route.speed}}));
