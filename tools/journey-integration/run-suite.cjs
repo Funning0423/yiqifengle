@@ -71,6 +71,7 @@ const tests=[
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+ ['lakeside-merge-share','tools/lakeside/test_lakeside_merge_share.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

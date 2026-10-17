@@ -37,12 +37,22 @@ function lakesideMaterialFacts(m:Material){
  const t=p?.blendState?.targets?.[0];
  return {effect:String((m as any).effectName||(m as any).effectAsset?.name||''),technique:Number((m as any).technique||0),defines:{...(p?.defines||{})},props,cull:Number(p?.rasterizerState?.cullMode??-1),blend:!!t?.blend,priority:Number(p?.priority??0)};
 }
-type MergeOut={meshes:Mesh[];nodes:Node[];disabled:MeshRenderer[];stats:{chunks:number;pieces:number;vertices:number;ms:number;skipped?:string}};
+type MergeOut={meshes:Array<{destroy():unknown}>;nodes:Node[];disabled:MeshRenderer[];stats:{chunks:number;pieces:number;vertices:number;ms:number;skipped?:string;reused?:boolean}};
+/** r4-prep (first-entry frame): the journey copy and the board mount the SAME r5h3 scene, so their merge plans and merged geometry
+ *  (baked relative to the scenery root) are identical. The first merge publishes its meshes here; a later merge with the same
+ *  signature (instance name + source mesh + primitive + vertex count + local placement, per chunk) reuses them instead of rebuilding
+ *  ~58k vertices in one frame (also saves the second ~1.6 MB copy). Each merge gets ONE handle in out.meshes; destroy() drops its
+ *  reference and the last one destroys the meshes. Any mismatch → a fresh merge (old behaviour). */
+type LakesideMergeShare={sig:string;meshes:Mesh[];refs:number};
+let lakesideMergeShare:LakesideMergeShare|null=null;
+function lakesideMergeHandle(share:LakesideMergeShare){let done=false;return {destroy(){if(done)return;done=true;share.refs--;if(share.refs<=0){for(const m of share.meshes)if(isValid(m,true))m.destroy();share.meshes=[];if(lakesideMergeShare===share)lakesideMergeShare=null;}}};}
+/** Test/diagnostic view of the shared merged geometry (refs, mesh count). */
+export function lakesideMergeShareInfo(){const s=lakesideMergeShare;return s?{refs:s.refs,meshes:s.meshes.length,sigLength:s.sig.length}:null;}
 export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOut{
  const t0=Date.now(),out:MergeOut={meshes:[],nodes:[],disabled:[],stats:{chunks:0,pieces:0,vertices:0,ms:0}};
  const A=gfx.AttributeName,NAMES:Record<LakesideAttr,string>={position:A.ATTR_POSITION,normal:A.ATTR_NORMAL,uv:A.ATTR_TEX_COORD,color:A.ATTR_COLOR};
  type Piece={r:MeshRenderer;mesh:Mesh;k:number;group:string;vertices:number;indices:number;layout:Record<LakesideAttr,boolean>;mat:Material};
- const pieces:Piece[]=[],keys=new Map<Material,string>();
+ const pieces:Piece[]=[],keys=new Map<Material,string>(),built:Mesh[]=[];
  try{
   for(const child of scenery.children){if(skip(child))continue;
    for(const r of child.getComponentsInChildren(MeshRenderer)){const mesh=r.mesh;if(!r.enabled||!mesh||!mesh.struct)continue;
@@ -57,6 +67,14 @@ export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOu
      own.push({r,mesh,k,group:key+'#'+(Object.keys(layout) as LakesideAttr[]).filter(a=>layout[a]).join('+'),vertices:vb.view.count,indices:prim.indexView.count,layout,mat});}
     if(ok)pieces.push(...own);}}
   const plan=lakesideMergePlan(pieces).filter(c=>c.pieces.length>1),cache=new Map<Mesh,Map<number,any>>();
+  const top=(n:Node)=>{let c:Node|null=n;while(c&&c.parent&&c.parent!==scenery)c=c.parent;return c||n;},r3=(v:number)=>Math.round(v*1000);
+  const sig=plan.map(c=>c.group+'#'+c.pieces.map(pi=>{const p=pieces[pi],t=top(p.r.node),q=t.position;return t.name+'/'+String((p.mesh as any)._uuid||p.mesh.name)+'/'+p.k+'/'+p.vertices+'/'+r3(q.x)+','+r3(q.y)+','+r3(q.z);}).join(';')).join('|');
+  const shared=lakesideMergeShare;
+  if(shared&&shared.sig===sig&&shared.meshes.length===plan.length&&shared.meshes.every(m=>isValid(m,true))){
+   plan.forEach((chunk,ci)=>{const first=pieces[chunk.pieces[0]];const n=new Node('LakesideMerged_'+ci);n.layer=scenery.layer;scenery.addChild(n);out.nodes.push(n);
+    const mr=n.addComponent(MeshRenderer);mr.shadowCastingMode=first.r.shadowCastingMode;mr.receiveShadow=first.r.receiveShadow;mr.mesh=shared.meshes[ci];mr.setSharedMaterial(first.mat,0);
+    for(const pi of chunk.pieces){const r=pieces[pi].r;if(r.enabled){r.enabled=false;out.disabled.push(r);}}out.stats.chunks++;out.stats.pieces+=chunk.pieces.length;out.stats.vertices+=chunk.vertices;});
+   shared.refs++;out.meshes.push(lakesideMergeHandle(shared));out.stats.reused=true;out.stats.ms=Date.now()-t0;return out;}
   const read=(p:Piece)=>{let m=cache.get(p.mesh);if(!m){m=new Map();cache.set(p.mesh,m);}let d=m.get(p.k);if(d)return d;
    const attr=(a:LakesideAttr)=>{if(!p.layout[a])return null;const raw=p.mesh.readAttribute(p.k,NAMES[a] as any),f=p.mesh.readAttributeFormat(p.k,NAMES[a] as any);if(!raw||!f)throw Error('lakeside-merge-unreadable '+a);return lakesideAttrToFloat(raw as any,f as any,a==='color');};
    const idx=p.mesh.readIndices(p.k);if(!idx)throw Error('lakeside-merge-no-indices');
@@ -67,13 +85,14 @@ export function mergeLakesideStatic(scenery:Node,skip:(n:Node)=>boolean):MergeOu
    const geo:any={positions:dst.positions,indices:dst.indices};
    if(layout.normal)geo.normals=dst.normals;if(layout.uv)geo.uvs=dst.uvs;
    if(layout.color){geo.colors=dst.colors.map(c=>Math.round(Math.max(0,Math.min(1,c))*255));geo.attributes=[new gfx.Attribute(A.ATTR_COLOR,gfx.Format.RGBA8,true)];}
-   const mesh=utils.createMesh(geo,undefined,{calculateBounds:true});out.meshes.push(mesh);
+   const mesh=utils.createMesh(geo,undefined,{calculateBounds:true});built.push(mesh);
    const n=new Node('LakesideMerged_'+ci);n.layer=scenery.layer;scenery.addChild(n);out.nodes.push(n);
    const mr=n.addComponent(MeshRenderer);mr.shadowCastingMode=first.r.shadowCastingMode;mr.receiveShadow=first.r.receiveShadow;mr.mesh=mesh;mr.setSharedMaterial(first.mat,0);
    for(const pi of chunk.pieces){const r=pieces[pi].r;if(r.enabled){r.enabled=false;out.disabled.push(r);}}
    out.stats.chunks++;out.stats.pieces+=chunk.pieces.length;out.stats.vertices+=dst.vertices;});
+  if(built.length){const share:LakesideMergeShare={sig,meshes:built.splice(0),refs:1};lakesideMergeShare=share;out.meshes.push(lakesideMergeHandle(share));}
  }catch(error){
-  for(const r of out.disabled.splice(0))if(isValid(r,true))r.enabled=true;for(const n of out.nodes.splice(0))if(isValid(n,true))n.destroy();for(const m of out.meshes.splice(0))m.destroy();
+  for(const r of out.disabled.splice(0))if(isValid(r,true))r.enabled=true;for(const n of out.nodes.splice(0))if(isValid(n,true))n.destroy();for(const m of built.splice(0))m.destroy();out.meshes.length=0;
   out.stats={chunks:0,pieces:0,vertices:0,ms:0,skipped:String((error as any)?.message??error)};
   try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'static-merge-skipped',error:out.stats.skipped}));}catch{}
  }
