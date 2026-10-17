@@ -3,18 +3,23 @@
 写给接手的 Cursor agent。旧的出门/回屋交接见 `HANDOFF-CINEMATIC-v1.md`（任务背景、穿模验收，仍然有效）。
 项目：微信小游戏《咦 起风了》，Cocos Creator 3.8.8；仓库 `/workspace/wechat-game`。验收方：Grok Bot；最终挑选：Funning。
 
-## 1. 分支 / SHA / 状态（全部只在本地，没有 push）
+## 1. 分支 / SHA / 状态（全部只在本地，没有 push；由 GGbot 统一推送）— 更新于 2026-10-17 09:50 (EDT)
 
-| 内容 | 分支 | SHA | 状态 |
-|---|---|---|---|
-| 湖畔 lakeside 落地钩子 v3 | `cine/lakeside-hook-v3-on-r3` | c3cbf89（进关遮罩保持落地板面机位）+ a8ba19a（swap 帧测试） | 已交付。suite 69/74（已知 5 个失败）；Mac GPU 5 屏 swap 0/0/0。outbox `20261017T0940Z-lakeside-hook-v3-on-r3` |
-| 地区钩子 meadow/skycity r4 | `cine/region-hooks-meadow-skycity-r4` | **95d3eee**（基于 5b1f41d ← GGbot r4-prep 97b761d） | **r4 现在合并它**。suite 77/82（已知 5 个失败）；Mac GPU 10 次运行 swap 0/0/0。草地停点在 390x844/414x896 上会碰到提示条（toast），由 r4.1 解决 |
-| 草地 r4.1（提示条移到托盘上方后） | `cine/region-hooks-meadow-r4.1-on-260ea02` | **0ea1564**（← abeb1fa = 95d3eee cherry-pick ← GGbot 260ea02 提示条上移，基于 6f42df4） | **完成，等合并**。7 个竖屏间距 16.3–32.5 pt（独立 fixture 375x667 13.4 pt），O5 ≤ +2.98 s，F7b 全过，swap 0。suite 90/93（只剩已知的 3 个 BLOCKED）。Mac GPU 没测（Mac 连不上）。资料：`outbox/20261017T1255Z-meadow-r41-on-260ea02/`。旧分支 `cine/region-hooks-meadow-r4.1`（=95d3eee）作废 |
-| 作废 | `cine/region-hooks-meadow-r4-ggkeepout` | 2665429 | Grok Bot 决定不用（左下角停点，O5 +4.40 s） |
-| 夜间玻璃 | `cine/night-glass-r4` | 9c8fb36 | 只改夜间玻璃组（白天 refine 3.2 不变）。outbox `20261017T112348Z-night-glass` |
-| m1v2 穿模修复（出门动画：腿 × 裙/围裙/椅背） | 没有游戏分支（只有证据） | — | **进行中**：`team/cinematic/work/m1v2-clipfix/`（STATUS.md / STATUS.log）。v3 constrained-smooth：cs2 通过 QP，下一步是 cs/solve3.py（加三角形对三角形约束）。渲染任务在 run_render.sh（可续跑） |
-| 出门镜头 exit camera B5.5 | `cine/exit-cam-B5` | 274ac39 | 约 20 s，S 曲线重新定时。work `exit-cam-B5.5-20261016T1712Z` |
-| GGbot 相关（不归我们） | r4-prep 97b761d；bfdcf19（星庭机器人园丁跨 swap 的动画时间连续） | — | 只读参考 |
+| 分支 | SHA | 状态 |
+|---|---|---|
+| `cine/region-hooks-meadow-skycity-r4` | 95d3eeed53e6c67a85ac05e47b9105672976fde7 | 已验收：**r4 合并的就是它**（suite 77/82，Mac GPU swap 0/0/0） |
+| `cine/region-hooks-meadow-skycity-r4-head` | 5b1f41dc96733891e38fd5bdabf1bca6cb0d5667 | 已验收：r4 基底（代码 = cc2a6d4，基于 GGbot 97b761d），95d3eee 的父链 |
+| `cine/region-hooks-meadow-r4.1-on-260ea02` | 0ea1564cc3d8263a1a855b7bade7658619da050f | 已交付，等 GGbot 合并（还差 Mac GPU swap 复核） |
+| `cine/region-hooks-meadow-r4.1` | 95d3eeed53e6c67a85ac05e47b9105672976fde7 | 被取代（由 0ea1564 取代） |
+| `cine/region-hooks-meadow-r4-ggkeepout` | 2665429bcc6c6229faad2d2f08368731fb588e7d | 作废（左下停点，O5 +4.40 s） |
+| `cine/night-glass-r4` | 9c8fb36656abb4aae4a6db81176df8969535f02e | 已验收（只改夜间玻璃组）；真实夜景还要在 Mac 上录 |
+| `cine/m1v2-src-apron-ease` | 023a47c9a97cc2fcbb21bceba66cc21daaa7403d | 已验收的是 508b87b34d5f07ea3a302a6ba288c67abcc6c448（SRC + 围裙 ease）；023a47c 只更新 PROBLEM_BRIEF。**和主仓库没有共同历史（独立根分支）**，来自 team/cinematic/work/m1v2-clipfix |
+| `cine/skycity-bridge-r2-cam` | e4a05b982aaa5b98053ef71eeacff91f37cb8f56 | 进行中（r5 彩虹桥镜头，另一个工作者在 /workspace/tmp-skyb2/wt 做，目前还没有自己的提交） |
+| `cine/cinematic-handoff-20261017` | （本提交） | 交接文档 |
+| `cine/lakeside-hook-v3-on-r3` | a8ba19a301b1867d68fbe8a9ea9eaab8fc9d3570 | 已交付（湖畔 v3，Mac GPU 5 屏 swap 0）；已并入 r4 链 |
+| `cine/lakeside-enter-hold-r3` | c3cbf8932f1631692715397ff41c5facbe04442d | 已并入 r4 链 |
+| `cine/exit-cam-B5` | 274ac39fb3d261b5fbf9d0ece3cb38695e08dc83 | 未验收（出门镜头 B5.5） |
+| 其余旧分支：lakeside-cam、lakeside-hook-*（on-be1cd5a/on-r2/r2-v2/v2-on-*）、meadow-early-preload(-r2, -r2-f2adb78)、sail-start-gate-r3、glass-v4r32(-on-e2a03ec)、pr56-r4-instantiate-split、region-hooks-meadow-skycity（768b272）、cinematic/window-tap-exit-proto | 见 `git branch` | 历史 / 被取代，留作参考 |
 
 ## 2. 工具和测量方法
 
@@ -40,15 +45,17 @@
   - Mac 有时连不上，CopyToBox 大文件会超时，可以先拆成小文件再拷。
 - **音频采集流程**：页面内 AudioWorklet tap（tap.js，rec.cjs 输出 audio_wl*.pcm）+ 闪光/蜂鸣标记 + mux3.py（分段时钟映射）合成。实测标记误差 3.9–14.8 ms。说明见 outbox `20261017T0950Z-audio-capture-test/README.md`。ScriptProcessor 版本会丢块，不要用。
 
-## 3. 团队规则
+## 3. 规则
 
-- 只在自己的分支上工作；**不准 push，不准 force**；不改 `.git/config`；每条 git 命令都带 `git -c user.name=运镜bot -c user.email=cine-bot@local`。
-- 盒子是共用的：**只杀自己启动的 PID**，禁止 `pkill -f` 这种按名字批量杀进程。
-- Mac 用完马上清理，临时文件越少越好。
-- 视觉改动一律交 before/after（条带图 / 截图 / 视频），由 **Funning 挑选**；每次交付都附 SHA 和预览。
-- 只用免费素材；不发布到微信。
-- 时间统一写 America/New_York（EDT）。
-- 每个任务在 work/ 下维护 STATUS 检查点，交付放 outbox/<UTC时间戳>-<名字>/，附 SHA256SUMS。
+**团队规则（原话）**：所有人只在自己的新分支上提交，不许 force push、不许直接改主线，交付附 SHA + 预览视频/截图，我验收。只用免费素材，不付费。
+- 视觉/音频改动一律先出 before/after，由 Funning 挑；不上传、不发布到微信；和 Funning 用中文沟通。
+- 不在群里讨论，需要合作直接 1:1 找对应的人（Funning 10-17）。
+- 我们不 push，GGbot 负责集成和推送。不改共享仓库 .git/config，身份按命令设：`git -c user.name=运镜bot -c user.email=yunjing-bot@local`。
+- 盒子是共用的：不准用 pkill -f 按名字批量杀进程，只杀自己启动的 PID。
+
+**镜头规则**：绝不穿模，间距 ≥1.1 m；不挡她的脸、头、胸；镜头在她右侧（她在画面中线偏左）；不突然加速、不跳切、不突然变焦；她占画面宽度 ≤80%；swap 差 ≤0.1°、≤1 cm。
+
+**Mac 规则**：磁盘快满了，用完立刻清理。永远不要删 `~/Library/Caches/ms-playwright`、`~/cursor-tasks/`、`~/Desktop/QIFENGLE-test-build05`。`~/.local/share/cursor-agent/versions/` 的旧版本要等 Grok Bot 测试结束并且 Funning 同意后才清。~/Downloads、~/.cache/codex-runtimes 由 Funning 决定。
 
 ## 4. 验收标准（镜头）
 
@@ -61,16 +68,14 @@
 
 ## 5. 未完成事项
 
-1. **草地 r4.1（已完成，等合并）**：GGbot 把提示条移到托盘上方（260ea02）后，7 个竖屏都能同时满足间距 ≥13、O5、F7b。
-   - 做法：在草地出生点左侧、08→09 镜头保持在她右后方的那条窄带（模型 x≈-0.8..-1.5，z 14–18）上放一条 6.5 m 的站位线；regionGirlStand 每个屏幕自己挑停点，adapter 只接受 08→09 多走不超过 MEADOW_EXIT_BUDGET_M（0.432 m）的点。
-   - 结果：390x844/414x896/360x780/375x667/768x1024 停在线末端 (-0.8,14.0)，O5 +1.19 s；390x520 停 4.3 m，+2.98 s；320x568 停 5.0 m，+2.40 s。F7b 最差 -0.22°（负值 = 通过）。
-   - 还要做：合并后在 Mac 上跑 GPU 复核（Mac 这次连不上）；她在多数屏幕上比较小（屏宽 4–6%），只在 390x520 和 768x1024 上落在取景框内，Funning 要看截图决定接不接受。
-2. **skycity**：方案 B 放到 r5，前提是场景设计先完成（彩虹桥落在星庭前沿，平顶 y -0.25，z≈48.5，x≈-1，步行 5–10 m，会改 O4 “真实入口” 的决定，镜头和遮挡要重调）。现在什么都不做。阻塞的原因：云桥甲板在 12.5–15.1 m 有缺口；state_bridge_before 木板浮在甲板上方 1.7–2.5 m；绕行要多约 50 s。
-3. **m1v2 穿模修复**：继续做 cs/solve3.py，见 work/m1v2-clipfix/STATUS.md。
-4. **r4 录制**：白天、夜间、390x520，都要带音频（用 AudioWorklet 流程），在 r4（95d3eee + GGbot 的 r4）上录。
-5. **在 r4 上复查草地卡顿（meadow hitch）**。
-6. **F3 隐藏峰值**：08→09 的城底覆盖率在 bridge +6.87 m 处有 0.1016 的峰值（这个问题之前就有：13×28 射线网格量化，相当于一条射线）。95d3eee 把采样网格对齐到 bridge 起点，峰值落在采样点之间被掩盖了；测试注释里已经写明。真要修得调 08→09 的镜头。
-7. 提示 toast（toolsY-62）会在高屏上和她重叠 2 s；会话里如何处理也取决于第 1 项的决定。
+1. **r4.1 Mac GPU swap 复核**（0ea1564，7 屏草地落地，Mac 连上后做）。
+2. **夜间玻璃真实夜景录制**：r4 合并后在 Mac 上录。
+3. **天空之城彩虹桥 r2 镜头（r5）**：场景设计部数据在 `product/2026-10-17/rainbow-bridge/skycity-B/r2/`（centerline_world.json、slope_profile.json/png、obstacles_bbox.json；推荐方案 A，备选 B 在 _eval_12_15_28_45.json）。重调 skyLens，boardEndBlend 可从 30° 段开始；F7b 和间距复测必须用完整的 `work/b05an/dec/skycity.glb`——r4 的 occlusion fixture 裁掉了星庭右半边。分支 `cine/skycity-bridge-r2-cam`。
+4. **r4 后续录制**：白天 / 夜晚 / 390x520 带音频（棋盘停留约 30 s）；浪→湖交接；每个地区的落地→棋盘片段；复查草地卡顿。
+5. **出门回弹 bug（GGbot 负责）**：出门中途切后台，她会弹回椅子重放整段出门，BGM 重启。已报 Grok Bot，等决定是否转 GGbot。
+6. **出门脚步录音**（cfe6429）：`team/voice-bot/outbox/20261017T121502Z-r4-exit-footsteps/recording-yunjing/`（A_exit/B_return/C_gating），等 Grok Bot 审。脚步比环境音低 4–20 dB（已告知 Voice Bot）。
+7. **m1v2 布料重做（带自碰撞）推迟到 r5**，按 `work/m1v2-clipfix/PROBLEM_BRIEF.md` 走；m1v2 线暂停。
+8. 录制完后清理盒子 `/workspace/tmp-lkcam`（约 1.3 GB）。
 
 ## 6. 关键文件
 
