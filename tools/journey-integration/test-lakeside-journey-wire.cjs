@@ -51,7 +51,7 @@ t('landing→board hook call site',()=>{
  const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
  const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
  assert.match(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);});
-t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,64);});
+t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{/* build05-next: 运镜bot b0c21d2 dropped the portrait board.pitchDeg (pitch 58 void; portrait is solved from the landing pose). The wiring still must not override the layout: landscape stays 75, and the adapter only reads lakesideJourney. */assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,undefined);assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.landscape.pitchDeg,75);assert.doesNotMatch(src('region/RegionJourneyAdapter.ts'),/pitchDeg\s*[:=]/);});
 (async()=>{
  const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
  await T('ensureRegion (real class method): island→lakeside one travel, lakeside→lakeside none, meadow→lakeside refused',async()=>{
