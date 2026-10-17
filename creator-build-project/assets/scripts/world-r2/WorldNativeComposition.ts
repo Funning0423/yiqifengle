@@ -1,5 +1,5 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
-import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets } from '../region/LakesideBoardBackground';
+import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
@@ -103,7 +103,7 @@ export class WorldNativeComposition extends Component {
       nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
       viewport:()=>lakesideViewport(view.getFrameSize()),
       safe:(w,h)=>boardSafeInsets(w,h),
-      preload:()=>prewarmLakesideAssets(),
+      preload:()=>prewarmLakesideAssets().then(r=>{void preloadLakesideBoard()/* r4-prep A: board preloaded during the landing (not awaited) */;return r;}),
       log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_LAKESIDE] '+JSON.stringify(entry));}catch{}},
     };
   }

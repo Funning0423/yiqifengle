@@ -52,7 +52,7 @@ run('free once: dispose destroys the copy exactly once; missing her / journey sc
  const w3=world();scene.children[0].children=[];assert.equal(G.mountLakesideGuest(w3.scenery,1<<20),null);});
 run('wiring: board lease mounts her after the layer pass, frees her in dispose (once), reports her renderer count',()=>{
  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
- assert.match(bg,/setLayer\(scenery\);\n  step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/);assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
+ assert.match(bg,/setLayer\(scenery\);\n[^\n]*\n  if\(!pre\)\{step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);\}/);assert.match(bg,/adopt:\(owner,next\)=>\{[^\n]*guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/,'preloaded lease: her copy on adopt (after the landing hook)');assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
  assert.match(bg,/guest:guest\?guest\.renderers:0/);
  // other regions: their board cameras only see their own layer (by design no girl there)
  for(const f of ['region/MeadowBoardBackground.ts','region/SkycityBoardBackground.ts']){const t=fs.readFileSync(S+f,'utf8');assert.doesNotMatch(t,/mountLakesideGuest/);}});

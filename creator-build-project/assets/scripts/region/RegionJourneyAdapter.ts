@@ -9,7 +9,7 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
-import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,useLakesideWater} from './LakesideBoardBackground';
+import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
@@ -119,11 +119,13 @@ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNigh
  *  base landing is kept if anything about the screen cannot be read. */
 function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
  try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)));}catch{return L.landing;}}
+/** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
+export const LAKESIDE_BOARD_PRELOAD_W=.9;
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='island')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
  let waterY=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
- const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
@@ -140,6 +142,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
-  return {route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
+  const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
+  return lease;
  }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
 }
