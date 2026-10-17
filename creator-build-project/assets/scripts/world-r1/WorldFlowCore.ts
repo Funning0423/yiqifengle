@@ -17,7 +17,7 @@ export type Layers = Readonly<{interior:boolean; exterior:boolean; door:boolean;
 export type Pose = Readonly<{position:Vec; target:Vec; progress?:number; fovVerticalDeg?:number}>;
 export type Seat = Readonly<{position:Vec; back:Vec; yawRad:number; seatedFoot:Vec; standingFoot:Vec; seatedControllerRoot:Vec; standingControllerRoot:Vec}>;
 export type StablePose = {kind:'seated'; seat:Seat} | {kind:'standing'; controllerRoot:Vec; yawRad:number};
-export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number};
+export type Action = {kind:'stand'|'sit'; seat:Seat} | {kind:'turn'; controllerRoot:Vec; fromYawRad:number; toYawRad:number; direction:'left'} | {kind:'walk'; path:readonly Vec[]; duration:number; /** optional distance-vs-time curve (0…duration → 0…path length); replaces the start/stop walk plan */ distanceAt?:(time:number)=>number};
 export class Cancelled extends Error { constructor() { super('World operation cancelled'); this.name='Cancelled'; } }
 export class Cancellation {
   cancelled=false;
