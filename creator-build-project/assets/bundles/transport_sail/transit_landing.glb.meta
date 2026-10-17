@@ -1,0 +1,40 @@
+{
+  "ver": "2.3.14",
+  "importer": "gltf",
+  "imported": false,
+  "uuid": "a7c4e91b-3f52-4d8e-9b1a-6e0d8f2c45a1",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "transit_palette_256",
+        "uri": "db://assets/bundles/transport_sail/textures/transit_palette_256.png"
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "meshCompress": {
+      "enable": true,
+      "compress": true,
+      "quantize": true,
+      "encode": true
+    }
+  }
+}

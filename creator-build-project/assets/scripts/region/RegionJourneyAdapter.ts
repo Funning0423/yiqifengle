@@ -22,7 +22,8 @@ import type {JourneyBoardEnd} from '../world-r1/RegionJourneyCore';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 import {lakesideWaterSourceRenderer,logLakesideJourneyWaterFallback,prewarmLakesideWaterDraw,type LakesideWaterPrewarm} from './LakesideJourneyWater';
 import {transportFor} from './JourneyTransport';
-import {SAIL_I6,sailBeats,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
+import {SAIL_I6,sailBeats,sailBerthWorld,sailDockSeat,sailJourneyPath,sailM0World,sailM1World,sailMeadowRoot,sailRoute,seatFromBench} from './TransportLeg';
+import {meadowLocalToWorld,SAIL_LANDING_STEP_LOCAL,SAIL_LANDING_WALK_LOCAL,SAIL_PORT_STEP_LOCAL} from './SailLanding';
 import {createSailDriver,playSailBeats} from './SailRide';
 import {mountSailArt,type SailArt} from './SailArt';
 import {takeSailWarm} from './SailPreload';
@@ -140,17 +141,25 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
     let sailDriver:ReturnType<typeof createSailDriver>|null=null;
     let sailPlan:Parameters<typeof playSailBeats>[4]|null=null;
     if(sail){
-     const sr=sailRoute(),m0=sailM0World(),m1=sailM1World(),built=sailJourneyPath(start,m0,m1,sr.samples);
+     const sr=sailRoute(),m0=sailM0World(),m1=sailM1World(),berth=sailBerthWorld(),root=sailMeadowRoot();
+     const step=meadowLocalToWorld(SAIL_LANDING_STEP_LOCAL,root);
+     const walk=SAIL_LANDING_WALK_LOCAL.map(p=>meadowLocalToWorld(p,root));
+     const built=sailJourneyPath(start,m0,m1,[...sr.samples,...walk]);
      const sailPath=built.path;if(board&&!(board.blendM<routeLength(sailPath)))board=undefined;
      route={from,to,path:sailPath,bridgeStart:built.bridgeStart,bridgeEnd:built.bridgeEnd,speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(board?{board}:{})};
      let boat:Node|null=null,seat:Node|null=null,sailNode:Node|null=null;
      try{sailArt=await mountSailArt(rig,model);boat=sailArt.boat;seat=sailArt.seat;sailNode=sailArt.sail;}catch(error){try{console.info('[QF_SAIL] '+String((error as Error)?.message||error));}catch{}}
      const tl=sailBeats(sr.length);
      const rider=find(options.parent,'FLOW_REFERENCE_PLACEHOLDER_NOT_B');
-     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:[m0,m1],boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
+     const boardPose=board?{position:board.position as Vec,target:board.target as Vec,fovVerticalDeg:board.fovVerticalDeg}:null;
+     sailDriver=createSailDriver({timeline:tl,route:sr.samples,shore:walk,boat,sail:sailNode,seat,rider,riderHome:rider?.parent??null,art:sailArt,boardPose,screen:()=>{const v=view.getFrameSize();return {w:v.width,h:v.height};}});
      const dock=sr.samples[0];
      const deck:Vec=[SAIL_I6[0]+0.75,-0.18,dock[2]];
-     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,shore:[m0,m1],sit:sailDockSeat(sr.samples),stand:seatFromBench(m0,0),boardS:0.8,shoreS:tl.shoreS};
+     // Port rail (mirror of board_step) → landing_step ends the sail clock.
+     const port:Vec=[berth[0]+SAIL_PORT_STEP_LOCAL[0],berth[1]+SAIL_PORT_STEP_LOCAL[1],berth[2]+SAIL_PORT_STEP_LOCAL[2]];
+     const standAt=seatFromBench([berth[0],berth[1]+0.06,berth[2]-0.07],0);
+     const arrival=[step,...walk.slice(1),m0,m1];
+     sailPlan={total:tl.build05S,approach:[start,[SAIL_I6[0],start[1],SAIL_I6[2]]],deck,disembark:[standAt.position as Vec,port,step],arrival,sit:sailDockSeat(sr.samples),stand:standAt,boardS:tl.beats.find(b=>b.id==='S-g')!.t1-tl.beats.find(b=>b.id==='S-g')!.t0,arrivalS:tl.arrivalS,boardPose};
     }else{
      const path=[...approach,...bridge.slice(1),...arrival];if(board&&!(board.blendM<routeLength(path)))board=undefined;
      route={from,to,path,bridgeStart:routeLength(approach),bridgeEnd:routeLength([...approach,...bridge.slice(1)]),speed:REGION_JOURNEY_LAYOUT.speedMps,startBlendM:0,...(focus?{focus,lens:lensKeys(REGION_JOURNEY_LAYOUT.skyLens,routeLength(approach))}:{}),...(board?{board}:{})};

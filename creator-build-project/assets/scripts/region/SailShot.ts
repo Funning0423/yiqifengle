@@ -27,7 +27,7 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  if(k===2)return {t:at('S-c',0.98),night:false};
  if(k===4)return {t:at('S-d',0.56),night:false};
  if(k===5)return {t:at('S-d',0.68),night:false};
- if(k===6)return {t:at('S-g',0.08),night:false};
+ if(k===6)return {t:at('S-g',0.85),night:false};
  return {t:at('S-d',0.4),night:k===7||/^(1|night)$/i.test(qparam('night'))};
 }
 /**
@@ -67,10 +67,14 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
    if(pier){rider.setParent(pier);rider.setPosition(-0.2,0.42,1.8);rider.setRotationFromEuler(0,90,0);}
    else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
-   // Stand on the grass just past the pier end (local pier Z is scaled; parenting there left her in the air).
-   rider.setParent(scene);
-   rider.setWorldPosition(v.pos[0]-2.55,0.28,v.pos[2]+0.15);
-   rider.setRotationFromEuler(0,v.yaw*180/Math.PI-40,0);
+   // On the jetty shore end / path seam (landing_walk near land).
+   const step=findNode(meadow,'landing_walk_02')||findNode(meadow,'landing_step')||findNode(scene,'landing_walk_02');
+   if(step){rider.setParent(step);rider.setPosition(0,0,0);rider.setRotationFromEuler(0,180,0);}
+   else{
+    rider.setParent(scene);
+    rider.setWorldPosition(v.pos[0]+1.35,v.pos[1]+0.84,v.pos[2]+7.1);
+    rider.setRotationFromEuler(0,0,0);
+   }
   }else if(art?.seat){
    rider.setParent(art.seat,false);
    rider.setPosition(0,0,0);
@@ -99,27 +103,30 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  }
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?2200:90000;
+ sun.illuminance=night?4800:90000;
  if(night)sun.color=new Color(160,185,230,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
- if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,800);
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,1600);
  const globals=(scene as any).globals;
  if(globals?.ambient){
-  globals.ambient.skyIllum=night?280:28000;
-  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(16,28,64,255);
-  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(10,16,32,255);
+  globals.ambient.skyIllum=night?900:28000;
+  if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(28,42,88,255);
+  if(night&&globals.ambient.groundLightingColor)globals.ambient.groundLightingColor=new Color(14,22,48,255);
  }
  if(night){
-  const stars=new Node('SailShotStars');camNode.addChild(stars);
+  // Tiny sky pinpoints (a few pixels), not near-field diamonds.
+  const stars=new Node('SailShotStars');scene.addChild(stars);
+  stars.setWorldPosition(v.pos[0],v.pos[1]+14,v.pos[2]);
   const mat=new Material();
   mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
-  mat.setProperty('mainColor',new Color(255,255,255,255));
-  const s=0.08,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
-  [[-0.35,0.55,-2.2],[0.05,0.72,-2.0],[0.42,0.48,-2.4],[-0.18,0.88,-1.8],[0.28,0.65,-2.6]].forEach((p,i)=>{
-   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(p[0],p[1],p[2]);
+  mat.setProperty('mainColor',new Color(210,220,255,255));
+  const s=0.05,mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
+  for(let i=0;i<24;i++){
+   const a=i/24*Math.PI*2,rr=10+((i*5)%9),y=((i*3)%7);
+   const n=new Node('star_'+i);stars.addChild(n);n.setPosition(Math.cos(a)*rr,y,Math.sin(a)*rr*0.6);
    const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
-  });
+  }
  }
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
 }

@@ -13,7 +13,8 @@ function load(rel,req){
  return m.exports;
 }
 const layout=load('region/RegionJourneyLayout.ts',()=>({}));
-const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:{});
+const landing=load('region/SailLanding.ts',()=>({}));
+const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:spec.includes('SailLanding')?landing:{});
 const channel=load('region/SailChannel.ts',spec=>spec.includes('TransportLeg')?leg:{});
 const root=leg.sailMeadowRoot();
 const worldOf=p=>[root[0]-p[0],root[1]+p[1],root[2]-p[2]];

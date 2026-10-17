@@ -12,7 +12,8 @@ function load(rel,sandboxRequire){
  return m.exports;
 }
 const layout=load('region/RegionJourneyLayout.ts',()=>({}));
-const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:{});
+const landing=load('region/SailLanding.ts',()=>({}));
+const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:spec.includes('SailLanding')?landing:{});
 const shot=load('region/SailShot.ts',spec=>spec.includes('TransportLeg')?leg:{});
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length);
 assert(tl.speed.v<=4.5,'cruise m/s '+tl.speed.v);

@@ -1,5 +1,6 @@
 import type {Pose, Vec} from '../world-r1/WorldFlowCore';
 import {REGION_JOURNEY_LAYOUT} from './RegionJourneyLayout';
+import {meadowLocalToWorld, SAIL_LANDING_BERTH_LOCAL, sailArrivalWalkM} from './SailLanding';
 /** Island south dock and the meadow bank, in each region's own coordinates (maps/nodes.json).
  * M0 is 3 m upstream of the published river node so the shore walk stays inside the 30.5 s budget. */
 export const SAIL_I6:Vec=[-1.9,-0.6,10.1];
@@ -7,11 +8,12 @@ export const SAIL_M0_LOCAL:Vec=[0.2,1.4,17];
 export const SAIL_M1_LOCAL:Vec=[2.6,2.2,11.6];
 /** Drops the sail copy of the meadow so the sea covers its southern lowland. Bridge mode still uses meadowOffset. */
 export const SAIL_MEADOW_SINK=1.35;
-export const SAIL_WATER_Y=-0.9;
+/** Boat waterline (= transit sea_plane). Kept at −0.91 to match art berth / sea_plane. */
+export const SAIL_WATER_Y=-0.91;
 export const SAIL_SEA_Y=-0.91;
 /** Boat parks on the port side of the I6 pier so the hull does not sit inside the deck. */
 export const SAIL_BERTH_X=1.85;
-export const SAIL_LIMITS={totalS:30.5,accel:2.7,decel:2.5,yawDegS:20,cruiseMinS:6,clearM:0.6,chordM:52,riverM:12,dockClearM:2,walkMps:1.2,boardBlendS:0.8,saS:7.6} as const;
+export const SAIL_LIMITS={totalS:30.5,accel:2.7,decel:2.5,yawDegS:20,cruiseMinS:6,clearM:0.6,chordM:52,riverM:12,dockClearM:2,walkMps:1.2,boardBlendS:0.8,saS:7.6,sfS:1.0,sbS:2.0} as const;
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
 const dist=(a:Vec,b:Vec)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 const smoother=(u:number)=>{const t=Math.min(1,Math.max(0,u));return t*t*t*(t*(t*6-15)+10);};
@@ -23,22 +25,36 @@ export function sailMeadowRoot(i6:Vec=SAIL_I6,m0:Vec=SAIL_M0_LOCAL,offset:Vec=RE
 export function rotY180(p:Vec,root:Vec):Vec{return [root[0]-p[0],root[1]+p[1],root[2]-p[2]];}
 export function sailM0World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M0_LOCAL,sailMeadowRoot(i6));}
 export function sailM1World(i6:Vec=SAIL_I6):Vec{return rotY180(SAIL_M1_LOCAL,sailMeadowRoot(i6));}
+/** `landing_berth` in world space (boat waterline root). */
+export function sailBerthWorld(i6:Vec=SAIL_I6):Vec{
+ const p=meadowLocalToWorld(SAIL_LANDING_BERTH_LOCAL,sailMeadowRoot(i6));
+ return [p[0],SAIL_WATER_Y,p[2]];
+}
+/** Legacy M0→M1 chord (board nodes). Arrival walk on the jetty is `sailArrivalWalkM`. */
 export function shoreWalkM():number{return dist(SAIL_M0_LOCAL,SAIL_M1_LOCAL);}
-/** Gentle S (radius ≥ 25 m) then 12 m straight up the river centreline. Samples about every 0.5 m. */
-export function sailRoute(i6:Vec=SAIL_I6,m0:Vec=sailM0World(i6)):{samples:Vec[];length:number;minRadius:number}{
- const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=m0[2],x0=i6[0]+SAIL_BERTH_X,span=z1-z0;
- const river=REGION_JOURNEY_LAYOUT.sailRiverEntryM;
+/**
+ * Gentle S (radius ≥ 25 m) then ~10 m straight into `landing_berth` on the waterline.
+ * No climb onto M0 grass — that was the hull-in-meadow bug.
+ */
+export function sailRoute(i6:Vec=SAIL_I6,_m0:Vec=sailM0World(i6)):{samples:Vec[];length:number;minRadius:number}{
+ const end=sailBerthWorld(i6);
+ const z0=i6[2]+SAIL_LIMITS.dockClearM,z1=end[2],x0=i6[0]+SAIL_BERTH_X,span=Math.max(1e-3,z1-z0);
+ // Last 10 m: straight into the berth. Lateral offset (~4.3 m) is taken over `align` m beforehand
+ // so the turn radius stays ≥ 25 m (sagitta rule: L ≳ √(8·R·d)).
+ const straight=10,align=30;
  const raw:Vec[]=[];
- const steps=Math.max(8,Math.ceil(Math.abs(span)/0.5));
+ const steps=Math.max(16,Math.ceil(Math.abs(span)/0.5));
  for(let i=0;i<=steps;i++){
-  const u=i/steps,z=lerp(z0,z1,u);
-  const riverU=1-river/Math.max(1,Math.abs(span));
-  const env=u>=riverU?0:u>riverU-0.4?smoother((riverU-u)/0.4):1;
-  const sway=Math.sin(u*Math.PI)*1.15*env;
-  // Stay on the waterline through M0. The estuary is cut in the sail meadow (SailChannel);
-  // climbing to m0[1] planted the hull in the grass.
-  raw.push([x0+sway,SAIL_WATER_Y,z]);
+  const u=i/steps,z=lerp(z0,z1,u),remain=z1-z;
+  const swayEnv=remain<=straight+4?0:remain<straight+4+12?smoother((remain-(straight+4))/12):1;
+  // Mild sway only: lateral berth offset already spends the curvature budget.
+  const sway=Math.sin(u*Math.PI)*0.3*swayEnv;
+  let center=x0;
+  if(remain<=straight)center=end[0];
+  else if(remain<straight+align)center=lerp(x0,end[0],smoother(1-(remain-straight)/align));
+  raw.push([center+sway,SAIL_WATER_Y,z]);
  }
+ raw[raw.length-1]=[end[0],SAIL_WATER_Y,end[2]];
  const samples:Vec[]=[raw[0]];
  for(let i=1;i<raw.length;i++)if(dist(samples[samples.length-1],raw[i])>=0.49)samples.push(raw[i]);
  if(dist(samples[samples.length-1],raw[raw.length-1])>1e-3)samples.push(raw[raw.length-1]);
@@ -77,12 +93,18 @@ export function sailSpeedAt(sp:SailSpeed,t:number):number{
  return sp.v*((sp.motionS-t)/sp.decelS);
 }
 export type SailBeat={id:string;t0:number;t1:number;cue?:string};
-export type SailTimeline={beats:SailBeat[];totalS:number;build05S:number;speed:SailSpeed;routeM:number;shoreM:number;shoreS:number};
+export type SailTimeline={beats:SailBeat[];totalS:number;build05S:number;speed:SailSpeed;routeM:number;shoreM:number;shoreS:number;arrivalM:number;arrivalS:number};
+/**
+ * Sail clock ends when she steps onto the jetty deck (GBT §6).
+ * Jetty→meadow path walk is `arrivalS` (≤ 12 s) and is not part of build05S.
+ */
 export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline{
  const speed=sailSpeed(routeM);
- const shoreS=shoreM/SAIL_LIMITS.walkMps;
- const sb=2.2,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=1.3,sg=shoreS,blend=SAIL_LIMITS.boardBlendS;
- const rest=sb+speed.motionS+sf+sg+blend;
+ const arrivalM=sailArrivalWalkM(),arrivalS=arrivalM/SAIL_LIMITS.walkMps;
+ const sb=SAIL_LIMITS.sbS,sc=speed.accelS,sd=speed.cruiseS,se=speed.decelS,sf=SAIL_LIMITS.sfS;
+ // S-g: stand → port rail → landing_step (counted in the sail budget).
+ const sg=SAIL_LIMITS.boardBlendS;
+ const rest=sb+speed.motionS+sf+sg;
  const sa=Math.min(SAIL_LIMITS.saS,Math.max(5.9,30.5-rest));
  let t=0;const beats:SailBeat[]=[];
  const push=(id:string,dur:number,cue?:string)=>{beats.push({id,t0:t,t1:t+dur,cue});t+=dur;};
@@ -93,8 +115,7 @@ export function sailBeats(routeM:number,shoreM:number=shoreWalkM()):SailTimeline
  push('S-e',se,'sail-dock');
  push('S-f',sf);
  push('S-g',sg,'node-arrive');
- push('board',blend);
- return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS};
+ return {beats,totalS:speed.motionS+sb+sf,build05S:t,speed,routeM,shoreM,shoreS:shoreM/SAIL_LIMITS.walkMps,arrivalM,arrivalS};
 }
 export function beatAt(tl:SailTimeline,t:number):SailBeat{return tl.beats.find(b=>t>=b.t0&&t<b.t1)||tl.beats[tl.beats.length-1];}
 function samplePoly(samples:readonly Vec[],distance:number):Vec{
@@ -133,13 +154,13 @@ export function sailMaxYawRateDeg(tl:SailTimeline,route:readonly Vec[]):number{
 export type SailScreen={w:number;h:number};
 type SailOff={back:number;side:number;up:number;fov:number;look:number;orb:number};
 const K1:SailOff={back:6.15,side:-4.76,up:4.3,fov:48,look:0.8,orb:0};
-/** Starboard and ahead, looking back at the lighthouse, so the port sail does not hide her. */
-const K2:SailOff={back:-7.4,side:-5.2,up:2.8,fov:52,look:-6.5,orb:0};
+/** Starboard and ahead, looking back: hull + seated girl in frame with a readable wake. */
+const K2:SailOff={back:-8.6,side:-4.4,up:3.0,fov:52,look:-7.2,orb:0};
 const K3:SailOff={back:10,side:2.4,up:4.5,fov:52,look:0,orb:15};
 const K4:SailOff={back:8.8,side:-1.15,up:3.6,fov:50,look:6.2,orb:0};
 const K5:SailOff={back:6.6,side:-2.4,up:3.4,fov:48,look:4.2,orb:0};
-/** Starboard and aft: the landing pier sits on −X (toward M0), so the lens must be on that side. */
-const K6:SailOff={back:6.4,side:-4.8,up:4.2,fov:48,look:3.6,orb:0};
+/** Art K6: berth +(3.15,4.5,−6.4) look +(1.15,0.9,4.5). Jetty is port (+X); boat on the right of frame. */
+const K6:SailOff={back:6.4,side:3.15,up:4.5,fov:48,look:4.5,orb:0};
 const mixOff=(a:SailOff,b:SailOff,u:number):SailOff=>{const s=smoother(u);return {back:lerp(a.back,b.back,s),side:lerp(a.side,b.side,s),up:lerp(a.up,b.up,s),fov:lerp(a.fov,b.fov,s),look:lerp(a.look,b.look,s),orb:lerp(a.orb,b.orb,s)};};
 /** Keep the lens outside the 4.2 m hull. A straight blend from astern to ahead would cross the mast. */
 function guardOff(o:SailOff):SailOff{const r=Math.hypot(o.back,o.side);if(r>=7.2)return o;const k=7.2/Math.max(1e-3,r);return {...o,back:o.back*k,side:o.side*k};}

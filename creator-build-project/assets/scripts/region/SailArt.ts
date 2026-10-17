@@ -1,8 +1,9 @@
 import {Color, Mat4, Material, Mesh, MeshRenderer, Node, PointLight, Prefab, Texture2D, Vec3, Vec4, assetManager, director, gfx, instantiate, utils} from 'cc';
 import type {Vec} from '../world-r1/WorldFlowCore';
 import {meadowCloudColor, meadowGroundFactor, MEADOW_PROP_NIGHT} from './MeadowBoardBackground';
-import {SAIL_CHANNEL_FLOOR_Y, carveTriangle, sailChannelContains, sailChannelWorldY, sailLandingRect} from './SailChannel';
-import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailRoute, type SailPose} from './TransportLeg';
+import {sailChannelWorldY} from './SailChannel';
+import {inGrassClearLocal} from './SailLanding';
+import {SAIL_BERTH_X, SAIL_I6, SAIL_SEA_Y, sailBerthWorld, sailRoute, type SailPose} from './TransportLeg';
 const SEA_SCALE=3.2;
 const ISLAND_SEA=['env_sea_surface','env_sea_foam','env_sea_surf_foam_v22','env_sea_wave_line_01_v22','env_sea_wave_line_02_v22'];
 export function findNode(node:Node|null,name:string):Node|null{if(!node)return null;if(node.name===name)return node;for(const c of node.children){const h=findNode(c,name);if(h)return h;}return null;}
@@ -40,7 +41,8 @@ function copyMat(renderer:MeshRenderer,patch:{cull?:number;alphaTest?:number;ble
 }
 function place(node:Node|null,x:number,y:number,z:number){if(node)node.setWorldPosition(x,y,z);}
 const CHANNEL_MESH=/^(meadow_terrain|meadow_river|meadow_river_bank|meadow_grass_instances(?:\.\d+)?)$/;
-/** Copy the mesh and drop the estuary so the sail meadow asset itself is unchanged. */
+const GRASS_MESH=/^meadow_grass_instances(?:\.\d+)?$|^meadow_flower/;
+/** Lower underwater verts only — no triangle rebuild (that made the grey K6 plate). */
 function digChannel(renderer:MeshRenderer,samples:readonly Vec[]){
  const mesh=renderer.mesh;if(!mesh)return;
  const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
@@ -49,60 +51,93 @@ function digChannel(renderer:MeshRenderer,samples:readonly Vec[]){
  if(!Mat4.invert(inv,wm))return;
  const toW=(x:number,y:number,z:number)=>{const w=new Vec3();Vec3.transformMat4(w,new Vec3(x,y,z),wm);return [w.x,w.y,w.z] as [number,number,number];};
  const toL=(p:[number,number,number])=>{const l=new Vec3();Vec3.transformMat4(l,new Vec3(p[0],p[1],p[2]),inv);return l;};
- const grass=/^meadow_grass_instances/.test(renderer.node.name);
- if(grass){
-  const pos=new Float32Array(src);let changed=false;
-  for(let i=0;i<pos.length;i+=3){
-   const w=toW(pos[i],pos[i+1],pos[i+2]);
-   const y=sailChannelWorldY(w[0],w[2],w[1],samples);
-   if(y===w[1])continue;
-   const l=toL([w[0],y,w[2]]);pos[i]=l.x;pos[i+1]=l.y;pos[i+2]=l.z;changed=true;
-  }
-  if(!changed)return;
-  const struct=mesh.struct;
-  const bundles=struct.vertexBundles.map(b=>({...b,view:{...b.view},attributes:b.attributes.map(a=>({...a}))}));
-  const data=mesh.data.slice();
-  for(const bundle of bundles){
-   let offset=0;
-   for(const attr of bundle.attributes){
-    const info=gfx.FormatInfos[attr.format];
-    if(attr.name===gfx.AttributeName.ATTR_POSITION&&info&&info.count===3&&info.size===12){
-     const view=bundle.view,dv=new DataView(data.buffer,data.byteOffset+view.offset,view.length);
-     for(let v=0;v<view.count&&v*3+2<pos.length;v++)for(let c=0;c<3;c++)dv.setFloat32(v*view.stride+offset+c*4,pos[v*3+c],true);
-    }
-    offset+=info?.size||0;
+ const pos=new Float32Array(src);let changed=false;
+ for(let i=0;i<pos.length;i+=3){
+  const w=toW(pos[i],pos[i+1],pos[i+2]);
+  const y=sailChannelWorldY(w[0],w[2],w[1],samples);
+  if(y===w[1])continue;
+  const l=toL([w[0],y,w[2]]);pos[i]=l.x;pos[i+1]=l.y;pos[i+2]=l.z;changed=true;
+ }
+ if(!changed)return;
+ writeMeshPositions(mesh,renderer,pos);
+}
+function writeMeshPositions(mesh:Mesh,renderer:MeshRenderer,pos:Float32Array){
+ const struct=mesh.struct;
+ const bundles=struct.vertexBundles.map(b=>({...b,view:{...b.view},attributes:b.attributes.map(a=>({...a}))}));
+ const data=mesh.data.slice();
+ for(const bundle of bundles){
+  let offset=0;
+  for(const attr of bundle.attributes){
+   const info=gfx.FormatInfos[attr.format];
+   if(attr.name===gfx.AttributeName.ATTR_POSITION&&info&&info.count===3&&info.size===12){
+    const view=bundle.view,dv=new DataView(data.buffer,data.byteOffset+view.offset,view.length);
+    for(let v=0;v<view.count&&v*3+2<pos.length;v++)for(let c=0;c<3;c++)dv.setFloat32(v*view.stride+offset+c*4,pos[v*3+c],true);
    }
+   offset+=info?.size||0;
   }
-  const copy=new Mesh();copy.reset({struct:{...struct,vertexBundles:bundles},data});renderer.mesh=copy;return;
  }
- const idx=mesh.readIndices(0);if(!idx)return;
- const uv=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD) as Float32Array|null;
- const nrm=mesh.readAttribute(0,gfx.AttributeName.ATTR_NORMAL) as Float32Array|null;
- const rect=sailLandingRect(samples);
- const positions:number[]=[],normals:number[]=[],uvs:number[]=[],indices:number[]=[];
- const push=(p:[number,number,number],corner:number)=>{
-  const l=toL(p);positions.push(l.x,l.y,l.z);
-  const cut=sailChannelContains(p[0],p[2],samples)&&p[1]<=SAIL_CHANNEL_FLOOR_Y+1e-3;
-  if(cut||!nrm)normals.push(0,1,0);
-  else normals.push(nrm[corner*3],nrm[corner*3+1],nrm[corner*3+2]);
-  uvs.push(uv?uv[corner*2]:0,uv?uv[corner*2+1]:0);
-  return positions.length/3-1;
+ const copy=new Mesh();copy.reset({struct:{...struct,vertexBundles:bundles},data});renderer.mesh=copy;
+}
+/**
+ * Drop grass/flower blades whose root sits in the landing clear polygons (meadow-local xz).
+ * Copies the mesh so env_meadow.glb stays frozen. Returns how many blade components were removed.
+ */
+export function clearLandingGrass(renderer:MeshRenderer,meadowRoot:Node):number{
+ const mesh=renderer.mesh;if(!mesh)return 0;
+ const src=mesh.readAttribute(0,gfx.AttributeName.ATTR_POSITION);
+ const idx=mesh.readIndices(0);
+ if(!(src instanceof Float32Array)||!idx||src.length<3)return 0;
+ const wm=renderer.node.worldMatrix,invRoot=new Mat4();
+ if(!Mat4.invert(invRoot,meadowRoot.worldMatrix))return 0;
+ const toMeadow=(i:number)=>{
+  const w=new Vec3();Vec3.transformMat4(w,new Vec3(src[i*3],src[i*3+1],src[i*3+2]),wm);
+  const l=new Vec3();Vec3.transformMat4(l,w,invRoot);return l;
  };
- for(let t=0;t+2<idx.length;t+=3){
-  const id=[idx[t],idx[t+1],idx[t+2]];
-  const corners=id.map(i=>toW(src[i*3],src[i*3+1],src[i*3+2]));
-  for(const tri of carveTriangle(corners[0],corners[1],corners[2],rect,samples)){
-   const ids=tri.map(p=>{
-    let best=0,bd=1e9;
-    for(let c=0;c<3;c++){const d=Math.hypot(p[0]-corners[c][0],p[2]-corners[c][2]);if(d<bd){bd=d;best=c;}}
-    return push(p,id[best]);
-   });
-   indices.push(ids[0],ids[1],ids[2]);
-  }
+ const parent=new Int32Array(src.length/3);for(let i=0;i<parent.length;i++)parent[i]=i;
+ const find=(a:number):number=>{while(parent[a]!==a){parent[a]=parent[parent[a]];a=parent[a];}return a;};
+ const unite=(a:number,b:number)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a;};
+ for(let t=0;t+2<idx.length;t+=3){unite(idx[t],idx[t+1]);unite(idx[t],idx[t+2]);}
+ const rootAt=new Map<number,{y:number;x:number;z:number}>();
+ for(let i=0;i<src.length/3;i++){
+  const r=find(i),p=toMeadow(i),cur=rootAt.get(r);
+  if(!cur||p.y<cur.y)rootAt.set(r,{y:p.y,x:p.x,z:p.z});
  }
- if(!indices.length)return;
- const built=utils.createMesh({positions,normals,uvs,indices},undefined,{calculateBounds:true});
- renderer.mesh=built;
+ const kill=new Set<number>();
+ for(const [r,info] of rootAt)if(inGrassClearLocal(info.x,info.z))kill.add(r);
+ if(!kill.size)return 0;
+ const normals=mesh.readAttribute(0,gfx.AttributeName.ATTR_NORMAL) as Float32Array|null;
+ const uvs=mesh.readAttribute(0,gfx.AttributeName.ATTR_TEX_COORD) as Float32Array|null;
+ const colors=mesh.readAttribute(0,gfx.AttributeName.ATTR_COLOR) as Float32Array|null;
+ const colorStride=colors?colors.length/(src.length/3):0;
+ const map=new Int32Array(src.length/3).fill(-1);
+ const pos2:number[]=[],nrm2:number[]=[],uv2:number[]=[],col2:number[]=[],outIdx:number[]=[];
+ let nv=0;
+ for(let t=0;t+2<idx.length;t+=3){
+  const ids=[idx[t],idx[t+1],idx[t+2]];
+  if(ids.some(i=>kill.has(find(i))))continue;
+  const remapped=ids.map(old=>{
+   if(map[old]>=0)return map[old];
+   map[old]=nv++;
+   pos2.push(src[old*3],src[old*3+1],src[old*3+2]);
+   if(normals)nrm2.push(normals[old*3],normals[old*3+1],normals[old*3+2]);
+   if(uvs)uv2.push(uvs[old*2],uvs[old*2+1]);
+   if(colors)for(let c=0;c<colorStride;c++)col2.push(colors[old*colorStride+c]);
+   return map[old];
+  });
+  outIdx.push(remapped[0],remapped[1],remapped[2]);
+ }
+ if(!outIdx.length)return kill.size;
+ const geo:any={positions:pos2,indices:outIdx};
+ if(nrm2.length)geo.normals=nrm2;
+ if(uv2.length)geo.uvs=uv2;
+ if(col2.length)geo.colors=col2;
+ try{renderer.mesh=utils.createMesh(geo,undefined,{calculateBounds:true});}
+ catch{
+  const pos=new Float32Array(src);
+  for(let i=0;i<src.length/3;i++)if(kill.has(find(i)))pos[i*3+1]-=8;
+  writeMeshPositions(mesh,renderer,pos);
+ }
+ return kill.size;
 }
 function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  const mat=new Material();
@@ -114,29 +149,32 @@ function unlit(renderer:MeshRenderer,color:Color,texture:Texture2D|null){
  renderer.setSharedMaterial(mat,0);
  return mat;
 }
-/** A few diamond billboards for K7 when the glb star field sits outside the tall phone FOV. */
+/** Tiny sky pinpoints for K7 — a few pixels on 390×844, not near-field diamonds. */
 function mountStarDiamonds(parent:Node):Node{
  const root=new Node('sail_star_diamonds');parent.addChild(root);root.active=false;
  const mat=new Material();
  mat.initialize({effectName:'builtin-unlit',technique:0,defines:{},states:{rasterizerState:{cullMode:gfx.CullMode.NONE}}});
- mat.setProperty('mainColor',new Color(255,255,255,255));
- const diamond=(s:number)=>{
-  const positions=[-s,0,0, 0,s,0, s,0,0, 0,-s,0];
-  const normals=[0,0,1, 0,0,1, 0,0,1, 0,0,1];
-  const indices=[0,1,2, 0,2,3];
-  return utils.createMesh({positions,normals,indices},undefined,{calculateBounds:true});
- };
- const mesh=diamond(0.55);
- [[-1.2,2.4,3.2],[0.3,3.1,2.6],[1.4,2.2,3.5],[-0.6,3.6,2.1],[0.9,2.8,4.0]].forEach((p,i)=>{
+ mat.setProperty('mainColor',new Color(220,230,255,255));
+ const s=0.04;
+ const mesh=utils.createMesh({positions:[-s,0,0, 0,s,0, s,0,0, 0,-s,0],normals:[0,0,1,0,0,1,0,0,1,0,0,1],indices:[0,1,2,0,2,3]},undefined,{calculateBounds:true});
+ const spots:number[][]=[];
+ for(let i=0;i<28;i++){
+  const a=i/28*Math.PI*2,r=18+((i*7)%11),y=12+((i*5)%9);
+  spots.push([Math.cos(a)*r,y,Math.sin(a)*r*0.7-8]);
+ }
+ spots.forEach((p,i)=>{
   const n=new Node('star_'+i);root.addChild(n);n.setPosition(p[0],p[1],p[2]);
   const r=n.addComponent(MeshRenderer);r.mesh=mesh;r.setSharedMaterial(mat,0);
  });
  return root;
 }
-export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;sync:(v:SailPose,cam:Vec,dt:number,night:boolean)=>void;dispose:()=>void};
-/** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth. The orange procedural boat is not loaded. */
+export type SailArt={boat:Node;seat:Node|null;stand:Node|null;board:Node|null;sail:Node|null;landing:Node|null;grassCleared:number;sync:(v:SailPose,cam:Vec,dt:number,night:boolean)=>void;dispose:()=>void};
+/** GBT sail bundle: hull, sea sheet, props, far cards, clouds, river mouth, landing jetty. */
 export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt>{
- const [boatP,seaP,propsP,farP,cloudP,mouthP]=await Promise.all(['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth'].map(loadPrefab));
+ const names=['sailboat','transit_sea','transit_sea_props','transit_far_cards','transit_clouds','transit_river_mouth','transit_landing'];
+ const prefabs=await Promise.all(names.map(n=>loadPrefab(n).catch(()=>null)));
+ const [boatP,seaP,propsP,farP,cloudP,mouthP,landingP]=prefabs;
+ if(!boatP||!seaP||!propsP||!farP||!cloudP||!mouthP)throw Error('transport_sail missing core prefab');
  const root=new Node('SailArt');parent.addChild(root);
  const boat=instantiate(boatP);boat.name='sailboat';root.addChild(boat);
  const sea=instantiate(seaP);sea.name='transit_sea';root.addChild(sea);
@@ -144,32 +182,51 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const far=instantiate(farP);far.name='transit_far_cards';root.addChild(far);
  const clouds=instantiate(cloudP);clouds.name='transit_clouds';root.addChild(clouds);
  const mouth=instantiate(mouthP);mouth.name='transit_river_mouth';root.addChild(mouth);
+ let landing:Node|null=null;
+ let grassCleared=0;
+ if(landingP&&meadow){
+  landing=instantiate(landingP);landing.name='transit_landing';
+  // Meadow-local identity — survives SailArt.dispose because it is not under `root`.
+  meadow.addChild(landing);
+  landing.setPosition(0,0,0);landing.setRotationFromEuler(0,0,0);landing.setScale(1,1,1);
+  landing.active=true;
+ }
  const seat=findNode(boat,'seated_root_anchor'),stand=findNode(boat,'stand_anchor'),board=findNode(boat,'board_step_anchor');
  const sailRoot=findNode(boat,'sail_root'),jib=findNode(boat,'jib_root'),furled=findNode(boat,'sail_furled'),boom=findNode(boat,'boom_pivot');
  const lamp=findNode(boat,'lantern_glow'),stars=findNode(clouds,'night_stars');
  const wake=findNode(props,'wake_strips'),foam=findNode(props,'hull_foam_ring'),wakeAnchor=findNode(boat,'wake_root');
  if(wake&&wakeAnchor){wake.setParent(wakeAnchor);wake.setPosition(0,0.03,0);wake.setRotationFromEuler(0,0,0);}
  if(foam){foam.setParent(boat);foam.setPosition(0,0.02,0);foam.setRotationFromEuler(0,0,0);}
- const tile=findNode(sea,'sea_tile_39m');if(tile)tile.active=false;
+ const tile=findNode(sea,'sea_tile_39m');
  const plane=findNode(sea,'sea_plane');if(plane)plane.setScale(SEA_SCALE,1,SEA_SCALE);
- const route=sailRoute().samples,end=route[route.length-1],start=route[0];
- if(meadow)for(const r of meadow.getComponentsInChildren(MeshRenderer))if(CHANNEL_MESH.test(r.node.name))digChannel(r,route);
+ const route=sailRoute().samples,end=route[route.length-1],start=route[0],berth=sailBerthWorld();
+ if(meadow){
+  for(const r of meadow.getComponentsInChildren(MeshRenderer)){
+   if(CHANNEL_MESH.test(r.node.name))digChannel(r,route);
+   if(GRASS_MESH.test(r.node.name))grassCleared+=clearLandingGrass(r,meadow);
+  }
+  // Share meadow_path material with landing_path so the seam and night grade match.
+  const pathMat=findNode(meadow,'meadow_path')?.getComponent(MeshRenderer)?.getSharedMaterial(0)??null;
+  const landingPath=findNode(landing,'landing_path');
+  if(pathMat&&landingPath)for(const r of landingPath.getComponentsInChildren(MeshRenderer))r.setSharedMaterial(pathMat,0);
+  // Static water under the jetty so the shore still reads after transit_sea is disposed.
+  if(tile){
+   const keep=instantiate(tile);keep.name='landing_sea_tile';keep.active=true;
+   meadow.addChild(keep);
+   keep.setWorldPosition(berth[0]-0.9,SAIL_SEA_Y,berth[2]+2.5);
+   keep.setWorldScale(1.6,1,1.8);
+   keep.setRotationFromEuler(0,0,0);
+  }
+ }
+ if(tile)tile.active=false;
  const pier=findNode(props,'transit_pier');
  place(pier,SAIL_I6[0],-0.6,SAIL_I6[2]-0.7);
- if(pier){
-  const land=instantiate(pier);land.name='transit_pier_land';props.addChild(land);
-  // Local +Z runs to world −X (starboard, toward M0). Scale keeps the 5 m deck to about 2 m, across the cut onto the grass.
-  // Local +Z of the pier mesh runs along the deck; yaw −90 aims it to world −X (toward M0).
-  land.setWorldScale(1,1,0.55);
-  land.setRotationFromEuler(0,-90,0);
-  place(land,end[0]-0.35,-0.17,end[2]+0.2);
- }
- // Mouth banks sit upstream of the short landing cut so K3–K5 keep open water.
- place(mouth,end[0],SAIL_SEA_Y,end[2]-14);
- place(findNode(props,'buoy_red'),end[0]+5.3,SAIL_SEA_Y,end[2]-14);
- place(findNode(props,'buoy_green'),end[0]-5.4,SAIL_SEA_Y,end[2]-13.6);
+ // Mouth between boat and jetty (game ≈ x −3.55, origin z ≈ 37.5).
+ place(mouth,-3.55,SAIL_SEA_Y,37.5);
+ place(findNode(props,'buoy_red'),end[0]+5.0,SAIL_SEA_Y,end[2]-8);
+ place(findNode(props,'buoy_green'),end[0]-4.6,SAIL_SEA_Y,end[2]-7.5);
  const rocks:[[number,number,number],[number,number,number],[number,number,number]]=[
-  [start[0]-8.2,SAIL_SEA_Y,start[2]+4.2],[start[0]+7.4,SAIL_SEA_Y,start[2]+9.5],[end[0]+11.5,SAIL_SEA_Y,end[2]-13],
+  [start[0]-8.2,SAIL_SEA_Y,start[2]+4.2],[start[0]+7.4,SAIL_SEA_Y,start[2]+9.5],[end[0]+10.5,SAIL_SEA_Y,end[2]-9],
  ];
  place(findNode(props,'sea_rock_a'),...rocks[0]);
  place(findNode(props,'sea_rock_b'),...rocks[1]);
@@ -177,7 +234,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  const ring=findNode(props,'foam_ring');
  rocks.forEach((p,i)=>{const n=i===0?ring:ring?instantiate(ring):null;if(n&&i)props.addChild(n);place(n,p[0],SAIL_SEA_Y+0.02,p[2]);});
  place(findNode(props,'foam_strip_a'),start[0]-SAIL_BERTH_X,SAIL_SEA_Y,start[2]-1.2);
- place(findNode(props,'foam_strip_b'),end[0],SAIL_SEA_Y,end[2]-6);
+ place(findNode(props,'foam_strip_b'),berth[0]-1.2,SAIL_SEA_Y,berth[2]+4);
  const lighthouseCard=findNode(far,'far_island_lighthouse');
  if(lighthouseCard)lighthouseCard.active=false;
  place(findNode(far,'far_islet_a'),start[0]+70,SAIL_SEA_Y,start[2]-120);
@@ -189,32 +246,39 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  ['cloud_a','cloud_b','cloud_c','cloud_d','cloud_e','cloud_f'].forEach((name,i)=>{
   const a=i/6*Math.PI*2;place(findNode(clouds,name),mid[0]+Math.cos(a)*150,38+(i%3)*12,mid[2]+Math.sin(a)*150);
  });
- if(stars){stars.setWorldPosition(mid[0],55,mid[2]);stars.setScale(2.4,2.4,2.4);}
+ if(stars){stars.setWorldPosition(mid[0],55,mid[2]);stars.setScale(2.8,2.8,2.8);}
  const starDiamonds=mountStarDiamonds(root);
  let wakeMat:Material|null=null,foamMat:Material|null=null,seaMat:Material|null=null;
+ const sailMats:Material[]=[];
  const seaOff=new Vec4(SEA_SCALE,SEA_SCALE,0,0);
- walk(root,n=>{
-  const r=n.getComponent(MeshRenderer);if(!r)return;
-  if(n.name==='sail_main'||n.name==='sail_jib'||n.name==='sail_furled'||n.name==='pennant_flag'){
-   const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
-   unlit(r,new Color(255,246,228,255),tex);
-  }
-  else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
-  else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
-  else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
-  else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
-  else if(n.name==='sea_plane'){
-   seaMat=copyMat(r,{cull:gfx.CullMode.NONE});
-   const tex=seaMat?.getProperty('mainTexture') as Texture2D|null;
-   if(tex)tex.setWrapMode(Texture2D.WrapMode.REPEAT,Texture2D.WrapMode.REPEAT);
-  }else{
-   const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
-   nearestPalette(tex);
-   if(n.name==='night_stars')unlit(r,new Color(255,255,255,255),null);
-   else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
-   else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
-  }
- });
+ const style=(node:Node|null)=>{
+  if(!node)return;
+  walk(node,n=>{
+   const r=n.getComponent(MeshRenderer);if(!r)return;
+   if(n.name==='sail_main'||n.name==='sail_jib'||n.name==='sail_furled'||n.name==='pennant_flag'){
+    const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
+    sailMats.push(unlit(r,new Color(255,246,228,255),tex));
+   }
+   else if(n.name==='rm_reeds')copyMat(r,{cull:gfx.CullMode.NONE});
+   else if(n.name==='wake_strips')wakeMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
+   else if(n.name==='hull_foam_ring')foamMat=copyMat(r,{cull:gfx.CullMode.NONE,blend:true});
+   else if(n.name==='foam_strip_a'||n.name==='foam_strip_b'||n.name==='foam_ring'||n.name.startsWith('foam_ring'))copyMat(r,{cull:gfx.CullMode.NONE,alphaTest:0.4});
+   else if(n.name==='sea_plane'||n.name==='landing_sea_tile'||n.name==='sea_tile_39m'){
+    const m=copyMat(r,{cull:gfx.CullMode.NONE});
+    if(n.name==='sea_plane')seaMat=m;
+    const tex=m?.getProperty('mainTexture') as Texture2D|null;
+    if(tex)tex.setWrapMode(Texture2D.WrapMode.REPEAT,Texture2D.WrapMode.REPEAT);
+   }else{
+    const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
+    nearestPalette(tex);
+    if(n.name==='night_stars')unlit(r,new Color(210,220,255,255),null);
+    else if(/^cloud_/.test(n.name))copyMat(r,{cull:gfx.CullMode.NONE});
+    else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
+    else if(n.name==='landing_jetty')nearestPalette(tex);
+   }
+  });
+ };
+ style(root);style(landing);
  const hidden:MeshRenderer[]=[];
  const scene=director.getScene();
  if(scene)walk(scene,n=>{if(ISLAND_SEA.includes(n.name))for(const r of n.getComponents(MeshRenderer))if(r.enabled){r.enabled=false;hidden.push(r);}});
@@ -252,7 +316,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }
  };
  if(meadow)take(meadow);
- take(far,false,true);take(clouds,false,true);take(mouth);
+ take(far,false,true);take(clouds,false,true);take(mouth);if(landing)take(landing,true);
  const grade=(night:boolean)=>{
   const w=night?1:0;
   const ground=meadowGroundFactor(w),propK=meadowGroundFactor(w,MEADOW_PROP_NIGHT),cloudK=meadowCloudColor(w);
@@ -261,11 +325,14 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    const k=g.cloud?cloudK:g.prop?propK:ground;
    if(g.m.passes[0]?.getHandle('mainColor'))g.m.setProperty('mainColor',new Vec4(g.base[0]*k[0],g.base[1]*k[1],g.base[2]*k[2],g.base[3]??1));
   }
+  // Night: keep sail cream hue but dim so it is not a glowing sheet.
+  const sailC=night?new Color(168,175,198,255):new Color(255,246,228,255);
+  for(const m of sailMats)m.setProperty('mainColor',sailC);
  };
  let time=0,cruise=4.4;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
  return {
-  boat,seat,stand,board,sail:sailRoot,
+  boat,seat,stand,board,sail:sailRoot,landing,grassCleared,
   sync(v,cam,dt,night){
    time+=Math.max(0,dt);
    const open=v.sail;
@@ -279,21 +346,23 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(lampLight)lampLight.enabled=night;
    if(stars){
     stars.active=night;
-    if(night){stars.setWorldPosition(cam[0],cam[1]+28,cam[2]+8);stars.setScale(3.2,3.2,3.2);}
+    if(night){stars.setWorldPosition(cam[0],cam[1]+32,cam[2]);stars.setScale(3.6,3.6,3.6);}
    }
    if(starDiamonds){
     starDiamonds.active=night;
     if(night){
-     starDiamonds.setWorldPosition(cam[0],cam[1]+1.2,cam[2]);
-     starDiamonds.lookAt(new Vec3(cam[0],cam[1]+1.2,cam[2]-1));
+     // Anchor in sky around the boat, not glued as huge near-field diamonds.
+     starDiamonds.setWorldPosition(v.pos[0],v.pos[1]+8,v.pos[2]);
+     starDiamonds.lookAt(new Vec3(cam[0],cam[1],cam[2]));
     }
    }
    grade(night);
-   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.07,0.11,0.26,1):new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.12,0.16,0.32,1):new Vec4(1,1,1,1));
-   if(seaMat)seaMat.setProperty('mainColor',night?new Color(22,40,78,255):new Color(255,255,255,255));
-   const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.58:0;
-   paint(wakeMat,alpha);paint(foamMat,alpha*0.85);
+   // Readable deep-blue night (match art K7), not near-black.
+   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.10,0.16,0.34,1):new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.16,0.22,0.40,1):new Vec4(1,1,1,1));
+   if(seaMat)seaMat.setProperty('mainColor',night?new Color(36,58,110,255):new Color(255,255,255,255));
+   const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.72:0;
+   paint(wakeMat,alpha);paint(foamMat,alpha*0.9);
    if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
    seaOff.z=cam[0]/13+time*0.018;seaOff.w=cam[2]/13+time*0.011;
    if(seaMat)seaMat.setProperty('tilingOffset',seaOff);
@@ -307,6 +376,7 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    grade(false);
    if(domeMat)domeMat.setProperty('mainColor',new Vec4(1,1,1,1));
    if(layerMat)layerMat.setProperty('mainColor',new Vec4(1,1,1,1));
+   // Leave landing + landing_sea_tile on the meadow model.
    if(root.isValid)root.destroy();
   },
  };

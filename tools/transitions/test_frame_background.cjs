@@ -10,7 +10,8 @@ function load(rel,req){
  const m={exports:{}};vm.runInNewContext(js,{module:m,exports:m.exports,require:req,console},{filename:file});return m.exports;
 }
 const layout=load('region/RegionJourneyLayout.ts',()=>({}));
-const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:{});
+const landing=load('region/SailLanding.ts',()=>({}));
+const leg=load('region/TransportLeg.ts',spec=>spec.includes('RegionJourneyLayout')?layout:spec.includes('SailLanding')?landing:{});
 const bg=load('region/TransitBackdrop.ts',()=>({}));
 const route=leg.sailRoute(),tl=leg.sailBeats(route.length),m0=leg.sailM0World();
 const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
