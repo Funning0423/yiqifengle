@@ -55,6 +55,7 @@ const tests=[
  ['meadow-night-grade','tools/test_meadow_night_grade.cjs'],
  ['exit-background-resume','tools/journey-integration/test-exit-background-resume.cjs'],
  ['glass-sign-layout','tools/test_glass_sign_layout.cjs'],
+ ['glass-sign-night','tools/test_glass_sign_night.cjs'],
  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
  ['home-sea-fadein','tools/test_home_sea_fadein.cjs'],
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],

@@ -1,4 +1,5 @@
 // Glass sign v4-refined3.2 (运镜bot): capsule glass card + refined2 rim + top highlight with 15 % faded ends.
+// Night set (cine/night-glass-r4): params2.y = night weight w; at w = 0 every mix() below returns the day value exactly.
 // Edge anti-aliasing is analytic in this shader (SDF + screen-space derivatives); no MSAA/FXAA dependency.
 // Geometry is one quad; a_texCoord carries sign-local px (card = 280x100, y down, same space as the CSS prototype).
 // Output is premultiplied sRGB (the forward RT here is sRGB-ready, like meadow-grass-wind / warm-button-lit).
@@ -12,6 +13,9 @@ CCEffect %{
         params0: { value: [0.43, 2.4, 2.6, 1.0] }
         params1: { value: [1.0, 0.0, -1.0, 0.0] }
         params2: { value: [0.0, 0.0, 0.35, 2.0] }
+        params3: { value: [1.0, 1.0, 1.0, 0.0] }
+        params4: { value: [1.0, 1.0, 1.0, 0.0] }
+        params5: { value: [1.0, 1.0, 1.0, 0.0] }
       rasterizerState: { cullMode: none }
       depthStencilState: { depthTest: false, depthWrite: false } # prototype is an overlay: the card sits at the wall plane, never z-fight it
       blendState:
@@ -40,8 +44,10 @@ CCProgram glass-sign-fs %{
   in vec2 v_px;
   // params0: rim alpha (0.43 r^0.6), top-line width (device px), rim width (device px), group opacity
   // params1: card scale, ring glow g, ripple progress (<0 off), ring spread k
-  // params2: ripple opacity, unused, local px per device px (fallback without derivatives), dpr
-  uniform GlassSign { vec4 params0; vec4 params1; vec4 params2; };
+  // params2: ripple opacity, night weight w, local px per device px (fallback without derivatives), dpr
+  // params3: night multipliers already blended by w on the CPU: base alpha, rim alpha, top highlight alpha
+  // params4: base colour (sRGB, white at day), params5: rim colour (white at day)
+  uniform GlassSign { vec4 params0; vec4 params1; vec4 params2; vec4 params3; vec4 params4; vec4 params5; };
   const vec2 C = vec2(140.0, 50.0);
   float sdCapsule (vec2 p, vec2 halfSize, float r) {
     vec2 q = abs(p - C) - halfSize + vec2(r);
@@ -96,8 +102,8 @@ CCProgram glass-sign-fs %{
     float fa = t < 0.55 ? mix(0.34, 0.10, t / 0.55) : mix(0.10, 0.18, (t - 0.55) / 0.45);
     fa += 0.08; // round 2: denser base tint (no blur available) so wall seams read less, closer to the prototype
     float glow = 0.12 * (1.0 - phi(sdCapsule(q + vec2(0.0, 6.0), vec2(140.0, 50.0), 50.0) / 7.0));
-    float ca = (fa + glow * (1.0 - fa)) * cover;
-    col = over(vec4(ca, ca, ca, ca), col);
+    float ca = (fa + glow * (1.0 - fa)) * cover * params3.x;
+    col = over(vec4(params4.rgb * ca, ca), col);
     // ring (inset -4px, r54, 4px border rgba(255,248,220,g)) + glow 0 0 (24+16k)px (6+6k)px rgba(255,236,180,.85g)
     if (params1.y > 0.0) {
       float d4 = sdCapsule(p, vec2(144.0, 54.0), 54.0);
@@ -109,13 +115,13 @@ CCProgram glass-sign-fs %{
     }
     // refined2 rim: capsule inset 0.75 local px, params0.z device px wide, white params0.x
     float rd = abs(dq + 0.75) / g;
-    float rim = params0.x * clamp(params0.z * 0.5 + 0.5 - rd, 0.0, 1.0);
+    float rim = params0.x * clamp(params0.z * 0.5 + 0.5 - rd, 0.0, 1.0) * params3.y;
     // refined3.1/3.2 top highlight: inset 2.2, round caps, white .8, ends fade 0 -> .8 over 15 % of the chord
     float td = topLineDist(q) / g;
     float u = clamp((q.x - 2.79) / 274.42, 0.0, 1.0);
     float fade = min(min(u / 0.15, (1.0 - u) / 0.15), 1.0);
-    float top = 0.8 * fade * clamp(params0.y * 0.5 + 0.5 - td, 0.0, 1.0);
-    col = over(vec4(rim, rim, rim, rim), col);
+    float top = 0.8 * fade * clamp(params0.y * 0.5 + 0.5 - td, 0.0, 1.0) * params3.z;
+    col = over(vec4(params5.rgb * rim, rim), col);
     col = over(vec4(top, top, top, top), col);
     return col * params0.w;
   }
