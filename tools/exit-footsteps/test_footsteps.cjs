@@ -50,11 +50,44 @@ await test('tracker: loop wrap, no burst after reset / clip jump, same-foot dedu
   T.reset();tr.abs=100;assert.equal(T.observe(clock,1/60).length,0,'first observation after reset never fires a backlog');
   tr.abs=200;assert(T.observe(clock,1/60).length<=2,'a 100 s jump is deduped per foot');
 });
-await test('variant picker: never the same file twice in a row, volume = STEP_GAIN +-1.5 dB',()=>{
+await test('variant picker: never the same file twice in a row, volume = stepBaseVolume +-jitter (1.5 dB in, 0.75 dB out)',()=>{
   let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;const P=new C.StepVariantPicker(rnd);
-  for(const su of ['wood','rug','stone','path','grass']){let prev='';const seen=new Set();for(let i=0;i<500;i++){const v=P.pick(su);assert.notEqual(v.name,prev);prev=v.name;seen.add(v.name);
-    const db=20*Math.log10(v.volume/C.STEP_GAIN[su]);assert(Math.abs(db)<=C.STEP_JITTER_DB+1e-9);}assert.equal(seen.size,4);}
-  for(const su in C.STEP_GAIN)assert(C.STEP_GAIN[su]<=0.4,'steps stay soft: gain '+su+' '+C.STEP_GAIN[su]);
+  for(const wind of [0,0.5,1])for(const su of ['wood','rug','stone','path','grass']){let prev='';const seen=new Set();for(let i=0;i<500;i++){const v=P.pick(su,wind);assert.notEqual(v.name,prev);prev=v.name;seen.add(v.name);
+    const vi=+v.name.slice(-1)-1,db=20*Math.log10(v.volume/C.stepBaseVolume(su,vi,wind));assert(Math.abs(db)<=(C.STEP_INDOOR.includes(su)?C.STEP_JITTER_DB:C.STEP_JITTER_OUT_DB)+1e-9);}assert.equal(seen.size,4);}
+  assert.equal(P.pick('wood').volume>0,true,'wind defaults to 0');
+});
+// r4.1 outdoor levels (运镜bot's cfe6429 recording: outdoor steps 10-20 dB under the bed, late grass/path barely audible).
+// Per-file 400 ms K-weighted loudness at unity gain (LUFS, step_<surface>_1..4.mp3, measured by recording_levels.py).
+const J=x=>JSON.parse(JSON.stringify(x));// vm realm objects
+const FILE_LUFS={wood:[-30.3,-26.9,-28.2,-27.3],rug:[-27.3,-27.4,-28.1,-27.3],stone:[-29.6,-29.5,-29.4,-29.1],path:[-28.0,-24.8,-25.4,-26.8],grass:[-25.2,-24.7,-25.1,-24.8]};
+await test('levels locked: indoor = cfe6429, outdoor recalibrated (gain, variant trim, wind lift)',()=>{
+  assert.deepEqual(J(C.STEP_GAIN),{wood:0.36,rug:0.34,stone:0.50,path:0.36,grass:0.36});
+  assert.deepEqual(J(C.STEP_INDOOR),['wood','rug']);assert.equal(C.STEP_JITTER_DB,1.5);assert.equal(C.STEP_JITTER_OUT_DB,0.75);
+  assert.deepEqual(J(C.STEP_VARIANT_TRIM_DB),{stone:[0.2,0.1,0.0,-0.3],path:[1.8,-1.4,-0.9,0.6],grass:[0.2,-0.2,0.2,-0.1]});
+  assert.deepEqual(J(C.STEP_WIND_LIFT),{from:0.3,to:0.9,db:6.0});
+  // indoor: exactly the cfe6429 volume at any wind, every variant
+  for(const su of ['wood','rug'])for(let i=0;i<4;i++)for(const w of [0,0.5,1])assert.equal(C.stepBaseVolume(su,i,w),C.STEP_GAIN[su]);
+  // outdoor: trims level-match the variants (<= 0.3 dB spread) and have mean 0
+  for(const su of ['stone','path','grass']){const t=C.STEP_VARIANT_TRIM_DB[su],l=FILE_LUFS[su].map((x,i)=>x+t[i]);
+    assert(Math.max(...l)-Math.min(...l)<=0.3,su+' variants level-matched '+l);assert(Math.abs(t.reduce((a,b)=>a+b,0))<=0.11,su+" trims mean ~0 (0.1 dB rounding)");}
+  // wind lift: 0 at <= 0.3, smooth, 6 dB at >= 0.9, never > 1.5 dB per 0.1 wind (no jump between steps)
+  for(let w=0;w<=1.0001;w+=0.01){const d=C.stepWindLiftDb('grass',w+0.1)-C.stepWindLiftDb('grass',w);assert(d>=-1e-9&&d<=1.5+1e-9,'lift slope at '+w);}
+  assert.equal(C.stepWindLiftDb('path',0.3),0);assert.equal(C.stepWindLiftDb('path',0.9),6);assert.equal(C.stepWindLiftDb('wood',1),0);
+  // the 1.0 volume cap is never reached where a surface occurs: path/grass at any wind; the door slab at its wind (<= 0.5)
+  for(const su of ['path','grass'])for(let i=0;i<4;i++)assert(C.stepBaseVolume(su,i,1)*Math.pow(10,C.STEP_JITTER_OUT_DB/20)<1,su+i);
+  for(let i=0;i<4;i++)assert(C.stepBaseVolume('stone',i,0.5)*Math.pow(10,C.STEP_JITTER_OUT_DB/20)<1);
+});
+await test('no step louder than its neighbours by > ~3 dB outdoors (worst-case jitter draw 3.3), door wood<->stone <= 3 dB, real exit + return',async()=>{
+  const r=await AL.align({fps:60,returnHome:true}),ft=r.frames.map(f=>f.t);
+  const windAt=t=>{let i=ft.findIndex(x=>x>=t);if(i<0)i=ft.length-1;return r.frames[i].wind||0;};
+  const st=r.rows.filter(x=>x.stepT!==null).sort((a,b)=>a.stepT-b.stepT);assert(st.length>=50);
+  // worst case per step over variants (no repeat) and jitter; compare neighbour level ranges
+  const lvl=st.map(x=>{const su=x.surface,w=windAt(x.stepT),j=C.STEP_INDOOR.includes(su)?C.STEP_JITTER_DB:C.STEP_JITTER_OUT_DB;
+    const v=FILE_LUFS[su].map((f,i)=>f+20*Math.log10(C.stepBaseVolume(su,i,w)));return {su,t:x.stepT,w,lo:Math.min(...v)-j,hi:Math.max(...v)+j,mid:(Math.min(...v)+Math.max(...v))/2};});
+  let doors=0;for(let i=1;i<lvl.length;i++){const a=lvl[i-1],b=lvl[i];if(b.t-a.t>5)continue;// not neighbours: island idle between exit and return (the door opening gap is ~2.7 s)
+    if(C.STEP_INDOOR.includes(a.su)!==C.STEP_INDOOR.includes(b.su)){doors++;assert(Math.abs(b.mid-a.mid)<=3,'door transition '+a.su+'->'+b.su+' at '+b.t.toFixed(2)+': '+(b.mid-a.mid).toFixed(1)+' dB');}
+    if(!C.STEP_INDOOR.includes(a.su)&&!C.STEP_INDOOR.includes(b.su))assert(b.hi-a.lo<=3.3&&a.hi-b.lo<=3.3,'outdoor neighbours '+a.t.toFixed(2)+'/'+b.t.toFixed(2)+' '+JSON.stringify([a,b]));}
+  assert(doors>=2,'exit and return both cross the door: '+doors);
 });
 await test('ground: rug / wood / slab / path / grass cells; off-map falls back by side of the door',()=>{
   const g=new C.StepGround();assert.equal(g.surfaceAt(0,-3),'rug');assert.equal(g.surfaceAt(1.6,-1),'wood');assert.equal(g.surfaceAt(0.2,0.4),'stone');
@@ -113,6 +146,8 @@ await test('Boot wiring: FootstepAudio fed every world state next to GameAudio, 
   assert(/onWorldState\?\.\(state\);[^\n]*\n\s*try\{this\.footsteps\?\.onWorldState\(state\);/.test(b));
   assert(/lateUpdate\(dt:number\)\{try\{this\.footsteps\?\.tick\(dt\);/.test(b));assert(/onDestroy\(\)\{this\.footsteps\?\.dispose\(\);/.test(b));
   assert(/new FootstepAudio\(\(\)=>\{[^\n]*clock:adapter\.clock\?\?null/.test(b));
+  assert(/new FootstepAudio\(\(\)=>\{[^\n]*getWindStrength\(\)[^\n]*wind:typeof wind==='number'/.test(b),'steps get the same wind as the walk driver');
+  assert(/this\.picker\.pick\(surface, typeof s\.wind === 'number'/.test(fs.readFileSync(AUD+'/FootstepAudio.ts','utf8')),'FootstepAudio passes the wind to the picker');
   const cp=require('node:child_process').spawnSync(process.execPath,['tools/legacy-test-repair/controller-integrity.cjs'],{encoding:'utf8'});assert.equal(cp.status,0,cp.stdout+cp.stderr);
   const g=fs.readFileSync(AUD+'/GameAudio.ts','utf8');assert(!/from '\.\/Footstep/.test(g),'GameAudio does not import the footstep modules');
 });

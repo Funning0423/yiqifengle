@@ -43,5 +43,5 @@ if(require.main===module){const a=process.argv,arg=k=>{const i=a.indexOf(k);retu
     console.log(JSON.stringify(res.stats));
     for(const x of res.rows)console.log([x.plantT.toFixed(3),x.bone,x.state,x.clip,x.truthSurface,x.stepT===null?'-':x.stepT.toFixed(3),x.stepClip||'-',x.surface||'-',x.errMs===null?'-':x.errMs.toFixed(1),x.ok?'ok':'FAIL',x.surfaceOk?'':'SURF'].join('\t'));
     for(const e of res.extra)console.log('EXTRA',e.t.toFixed(3),e.bone,e.state,e.clip,e.plantAbs.toFixed(3));
-    if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({stats:res.stats,gains:loadCore().STEP_GAIN,rows:res.rows,extra:res.extra,changes:res.changes,frames:res.frames.map(f=>({t:f.t,state:f.state,wind:f.wind,roomLight:f.roomLight,pos:f.pos}))}));
+    if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({stats:res.stats,gains:loadCore().STEP_GAIN,levels:(c=>({indoor:c.STEP_INDOOR,jitterIn:c.STEP_JITTER_DB,jitterOut:c.STEP_JITTER_OUT_DB,trim:c.STEP_VARIANT_TRIM_DB,windLift:c.STEP_WIND_LIFT}))(loadCore()),rows:res.rows,extra:res.extra,changes:res.changes,frames:res.frames.map(f=>({t:f.t,state:f.state,wind:f.wind,roomLight:f.roomLight,pos:f.pos}))}));
   }).catch(e=>{console.error(e);process.exit(1);});}

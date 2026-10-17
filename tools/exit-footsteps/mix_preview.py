@@ -6,7 +6,8 @@
 #   wind soft/strong loops x softGain(s) / strongGain(s) (bed = slider/0.4 = 1)
 #   waves loop x max(0.55*(1-roomLight), 0.35*smoothstep(0.1,0.6,s)) x (1-0.25*smoothstep(0.3,1,s)), smoothed (4/s)
 #   exit track sfx_exit_outbound (NEW, no baked steps) x 1 from 'crossing-out'
-#   steps: the files GameAudio plays (variant picker: no immediate repeat, +-1.5 dB), at STEP_GAIN, fired at the step times
+#   steps: the files GameAudio plays (variant picker: no immediate repeat), at stepBaseVolume = STEP_GAIN x outdoor variant
+#   trim x outdoor wind lift (align.json "levels"), jitter +-1.5 dB in / +-0.75 dB out, fired at the step times
 #   of the simulation. Not included: random/exit gulls (they sit above the bed anyway), UI clicks.
 # Writes exit_preview_mix.wav/.mp3, exit_preview_steps_only.wav, exit_preview_spectrogram.png, loudness.json/.md.
 import sys,os,json,subprocess,numpy as np
@@ -36,8 +37,11 @@ G=A['gains']; rng=np.random.default_rng(17); last={}; steps=np.zeros(N); placed=
 for r in A['rows']:
     if r['stepT'] is None: continue
     su=r['surface']; prev=last.get(su); i=int(rng.random()*(4 if prev is None else 3)); i+= 1 if prev is not None and i>=prev else 0; last[su]=i
-    g=G[su]*10**((rng.random()*2-1)*1.5/20); x=dec(os.path.join(AS,f'bundles/region_island/audio_steps/step_{su}_{i+1}.mp3'))*g
-    a=int(r['stepT']*SR); steps[a:a+len(x)]+=x[:max(0,N-a)]; placed.append({'t':r['stepT'],'surface':su,'file':f'step_{su}_{i+1}','gain':round(g,3),'state':r['state']})
+    LV=A.get('levels') or {'indoor':['wood','rug'],'jitterIn':1.5,'jitterOut':1.5,'trim':{},'windLift':{'from':0.4,'to':0.8,'db':0}}
+    indoor=su in LV['indoor']; wl=LV['windLift']; ws=float(np.interp(r['stepT'],ft,[f['wind'] for f in fr]))
+    lift=0 if indoor else wl['db']*ss(wl['from'],wl['to'],ws); trim=0 if indoor else (LV['trim'].get(su) or [0,0,0,0])[i]
+    g=G[su]*10**((trim+lift+(rng.random()*2-1)*(LV['jitterIn'] if indoor else LV['jitterOut']))/20); x=dec(os.path.join(AS,f'bundles/region_island/audio_steps/step_{su}_{i+1}.mp3'))*g
+    a=int(r['stepT']*SR); steps[a:a+len(x)]+=x[:max(0,N-a)]; placed.append({'t':r['stepT'],'surface':su,'file':f'step_{su}_{i+1}','gain':round(g,3),'wind':round(ws,2),'state':r['state']})
 bed=bgm+soft+strong+waves+exit_; mix=bed+steps
 # --- ITU-R BS.1770 K-weighting (pyloudnorm coefficients re-derived for SR) + momentary 400 ms
 def kw(x):

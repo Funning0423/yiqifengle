@@ -4,14 +4,15 @@
  *  - Which frame: FootstepCore.FootstepTracker observes the stand-in's motion clock (read-only) and fires each plant
  *    of FOOTSTEP_PLANTS (derived offline from the shipped character GLB) whose clip time was crossed (+ STEP_LEAD_S).
  *  - Which surface: FOOTSTEP_GROUND (0.1 m map of the shipped room/island GLB) under the planted sole.
- *  - How: GameAudio.play(step_<surface>_<n>, STEP_GAIN x +-1.5 dB). play() drops it when muted, sfx-muted, hidden or
+ *  - How: GameAudio.play(step_<surface>_<n>, stepBaseVolume (surface gain, outdoor variant trim + wind lift) x jitter). play() drops it when muted, sfx-muted, hidden or
  *    interrupted, so nothing is queued and nothing bursts on return; the tracker keeps following the clock meanwhile.
  *  Clips: region_island/audio_steps (20 x ~1.4 KB mono mp3), loaded on 'home' (before she stands up). */
 import { assetManager, AudioClip } from 'cc';
 import { GameAudio, qfAudioLog } from './GameAudio';
 import { FootstepTracker, StepGround, StepVariantPicker, STEP_ASSETS, STEP_STATES, footPoint, StepClock, StepSurface } from './FootstepCore';
 
-export type FootstepSourceSample = { clock: StepClock | null; x: number; z: number; yaw: number };
+/** wind: WorldFlow.getWindStrength() 0..1 this frame (outdoor steps follow the wind bed, STEP_WIND_LIFT); missing = 0. */
+export type FootstepSourceSample = { clock: StepClock | null; x: number; z: number; yaw: number; wind?: number };
 
 export class FootstepAudio {
   private tracker = new FootstepTracker();
@@ -41,7 +42,7 @@ export class FootstepAudio {
     for (let i = 0; i < hits.length; i++) {
       const h = hits[i], p = footPoint(s.x, s.z, s.yaw, h);
       if (!this.ground) this.ground = new StepGround();
-      const surface = this.ground.surfaceAt(p[0], p[1]), v = this.picker.pick(surface);
+      const surface = this.ground.surfaceAt(p[0], p[1]), v = this.picker.pick(surface, typeof s.wind === 'number' && isFinite(s.wind) ? s.wind : 0);
       const played = !!audio && audio.hasClip(v.name);
       try { audio?.play(v.name, v.volume); } catch (e) { console.warn('[FootstepAudio] play failed', String(e)); }
       this.log.push({ clip: h.clip, bone: h.bone, surface, name: v.name, volume: +v.volume.toFixed(3), played });
