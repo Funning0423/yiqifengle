@@ -16,9 +16,9 @@ const cl=wf.match(/name==='env_cloud_layer'\?\[([^\]]+)\]/)[1],ct=bg.match(/MEAD
 assert.deepStrictEqual(ct.split(',').map(Number),cl.split(',').map(Number),'cloud tint matches env_cloud_layer');
 const f=new Function('MEADOW_CLOUD_NIGHT_TINT','return '+bg.match(/export function meadowCloudColor\(w:number\):number\[\]\{([^\n]+)\}/)[1].replace(/^const t=/,'(w)=>{const t=').replace(/:number/g,'')+'}')(ct.split(',').map(Number));
 assert.deepStrictEqual(f(0),[1,1,1]);assert.deepStrictEqual(f(1).map(v=>+v.toFixed(2)),[.22,.28,.43]);assert.deepStrictEqual(f(2).map(v=>+v.toFixed(2)),[.22,.28,.43]);
-// Journey wiring (board background does not set journeyNight).
+// Journey wiring. r4.2 item 9 (Mac r4: daytime board behind a night journey): the board background now uses the same grade (tools/meadow/test_region_board_night.cjs).
 assert(/motion\.journeyNight=true;motion\.clouds=meadowCloudMaterials\(find\(model,'meadow_clouds_near'\)\)/.test(ad),'journey enables grade on meadow_clouds_near');
-assert(!/journeyNight=true/.test(bg),'board background stays on the old grade');
+assert(/motion\.journeyNight=true;motion\.clouds=meadowCloudMaterials\(find\(model,'meadow_clouds_near'\)\)/.test(bg),'r4.2 item 9: board background follows the same night grade as the journey');
 console.log('meadow night grade OK',want.map(v=>v.toFixed(3)).join(','));
 // N2b: the ground (terrain + river bank) follows the same journey night grade.
 {
