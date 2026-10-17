@@ -66,12 +66,15 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
   waterGlbs: ['LK_lake.glb'] as const,
   waterMaterialPath: 'water/lakeside-water',
-  waterTintLinear: [0.0782, 0.4125, 0.4342] as const, // v3.1: linear of sRGB 79/172/176 (r5h3 water vertex-colour mean); Fresnel gives the blue
+  waterTintLinear: [0.9, 1.0, 1.0] as const, // v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85, waterSkyStrength: 1.0,
   waterSkyZenithLinear: [0.0116, 0.2747, 0.4793] as const,
   waterSkyLowLinear: [0.9216, 0.5776, 0.2705] as const,
   waterSkyHorizonLinear: [1.0, 0.5457, 0.1441] as const,
   waterSpecExponent: 300, waterSpecNoise: 0.4, waterSpecIntensity: 1.6,
+  /** v3.2: tint white keeps the r5h3 vertex colours; the warm sun pushed near water to ~(145,173,130) vs r5h3 (81,160,151) in the proxy,
+   *  so a mild cool tint (0.9,1,1 - the cap VB allowed) and a 0.25 floor on the zenith-sky reflection mix (streak unaffected). */
+  waterSkyReflectFloor: 0.25,
   waterWaveTilt: 0.06, waterWaveFreq: 0.9, waterWaveSpeed: 0.7,
   fogEnabled: true, fogColorSrgb: [215, 170, 150] as const, fogStart: 60, fogMaxAt: 130, fogMaxAmount: 0.4,
 });

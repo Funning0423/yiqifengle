@@ -37,9 +37,14 @@ assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.tes
 assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
 assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
 assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
-// v3.1 tint = linear sRGB 79/172/176 in params and effect default; fallback uses the same param
-const lin=c=>+(((c/255+.055)/1.055)**2.4).toFixed(4);assert.deepEqual([...P.waterTintLinear],[79,172,176].map(lin));
-assert(/waterTint:\s+\{ value: \[0\.0782, 0\.4125, 0\.4342, 1\.0\]/.test(fx));assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));
+// v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
+assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
+assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
+assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+assert.equal(P.waterSkyReflectFloor,0.25);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.4, 0\.25\]/.test(fx));
+assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
+assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
+assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
 // fog modes + URL override (guarded for WeChat)
 assert.equal(D.LAKESIDE_FOG_MODE,'layered');
 assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');

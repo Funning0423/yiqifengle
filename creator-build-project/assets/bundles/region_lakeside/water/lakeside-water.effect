@@ -8,12 +8,12 @@ CCEffect %{
     - vert: lk-water-vs:vert
       frag: lk-water-fs:frag
       properties:
-        waterTint:     { value: [0.0782, 0.4125, 0.4342, 1.0], linear: true, editor: { type: color } }
+        waterTint:     { value: [0.9, 1.0, 1.0, 1.0], linear: true, editor: { type: color } }
         skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
         skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
         skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
         fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
-        specParams:    { value: [300.0, 1.6, 0.4, 0.0], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise' } }
+        specParams:    { value: [300.0, 1.6, 0.4, 0.25], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise, w sky-reflection floor (v3.2)' } }
         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
 }%
 
@@ -97,7 +97,8 @@ CCProgram lk-water-fs %{
     float e = R.y;
     vec3 sky = mix(skyHorizon.rgb, skyLow.rgb, smoothstep(0.0, 0.16, e));
     sky = mix(sky, skyZenith.rgb, smoothstep(0.16, 0.38, e)) * cc_ambientSky.w * fresnelParams.w;
-    col = mix(col, sky, clamp(F, 0.0, fresnelParams.z));
+    // v3.2: floor on the sky-reflection mix only (not the streak) - cools the near water under the warm sun without touching vertex colours.
+    col = mix(col, sky, clamp(max(F, specParams.w), 0.0, fresnelParams.z));
     // Sunset streak: Blinn-Phong from the main light, its colour and intensity.
     vec3 H = normalize(L + V);
     // Streak: exponent wobbles +-specParams.z along x so the highlight breaks into a sunset band (cheap sin noise, no texture).
