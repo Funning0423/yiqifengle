@@ -25,8 +25,8 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  const at=(id:string,u:number)=>beat(id).t0+(beat(id).t1-beat(id).t0)*u;
  if(k===1)return {t:at('S-b',0.55),night:false};
  if(k===2)return {t:at('S-c',0.98),night:false};
- if(k===4)return {t:at('S-d',0.48),night:false};
- if(k===5)return {t:at('S-e',0.82),night:false};
+ if(k===4)return {t:at('S-d',0.6),night:false};
+ if(k===5)return {t:at('S-d',0.88),night:false};
  if(k===6)return {t:at('S-g',0.35),night:false};
  return {t:at('S-d',0.4),night:k===7||/^(1|night)$/i.test(qparam('night'))};
 }
@@ -64,7 +64,7 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  if(rider&&rider.isValid){
   if(k===1){
    const pier=findNode(scene,'transit_pier');
-   if(pier){rider.setParent(pier);rider.setPosition(0.15,0.42,2.6);rider.setRotationFromEuler(0,90,0);}
+   if(pier){rider.setParent(pier);rider.setPosition(0,0.42,2.2);rider.setRotationFromEuler(0,90,0);}
    else{rider.setParent(scene);rider.setWorldPosition(v.pos[0]-1.6,-0.18,v.pos[2]);rider.setRotationFromEuler(0,90,0);}
   }else if(k===6){
    const fx=Math.sin(v.yaw),fz=Math.cos(v.yaw);
@@ -92,12 +92,12 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  camNode.lookAt(new Vec3(pose.target[0],pose.target[1],pose.target[2]));
  const sunNode=new Node('SailShotSun');scene.addChild(sunNode);
  const sun=sunNode.addComponent(DirectionalLight);
- sun.illuminance=night?6000:90000;
- if(night)sun.color=new Color(150,170,220,255);
+ sun.illuminance=night?22000:90000;
+ if(night)sun.color=new Color(190,210,235,255);
  sunNode.setWorldPosition(pose.position[0]-8,pose.position[1]+12,pose.position[2]-6);
  sunNode.lookAt(new Vec3(v.pos[0],v.pos[1]+1,v.pos[2]));
- if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,8000);
+ if(night)for(const light of scene.getComponentsInChildren(DirectionalLight))if(light!==sun)light.illuminance=Math.min(light.illuminance,12000);
  const globals=(scene as any).globals;
- if(globals?.ambient){globals.ambient.skyIllum=night?1200:28000;if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(18,28,64,255);}
+ if(globals?.ambient){globals.ambient.skyIllum=night?9000:28000;if(night&&globals.ambient.skyColor)globals.ambient.skyColor=new Color(70,100,150,255);}
  (globalThis as any).__sailShot={ready:true,beat:beatAt(tl,t).id,k,t,night,character,clip:character?clip:'',art:!!art};
 }

@@ -146,12 +146,14 @@ function sailOffset(b:SailBeat,t:number):SailOff{
  if(b.id==='S-a'||b.id==='S-b')return K1;
  if(b.id==='S-c')return mixOff(K1,K2,u);
  if(b.id==='S-d'){
-  if(u<0.2)return mixOff(K2,K3,u/0.2);
-  if(u<0.58)return K3;
-  if(u<0.78)return mixOff(K3,K4,(u-0.58)/0.2);
-  return K4;
+  if(u<0.18)return mixOff(K2,K3,u/0.18);
+  if(u<0.42)return K3;
+  if(u<0.55)return mixOff(K3,K4,(u-0.42)/0.13);
+  if(u<0.68)return K4;
+  if(u<0.8)return mixOff(K4,K5,(u-0.68)/0.12);
+  return K5;
  }
- if(b.id==='S-e')return mixOff(K4,K5,u);
+ if(b.id==='S-e')return K5;
  return K6;
 }
 /** K1–K7 in the boat frame (README §5), held outside the hull. Positive side is port (+X, her left). */

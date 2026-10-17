@@ -118,8 +118,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
  if(lamp){
   lampLight=lamp.getComponent(PointLight)||lamp.addComponent(PointLight);
   lampLight.color=new Color(255,186,96,255);
-  lampLight.range=8;
-  lampLight.luminance=1400;
+  lampLight.range=5;
+  lampLight.luminance=50;
  }
  let time=0,cruise=4.4;
  const paint=(mat:Material|null,a:number)=>{if(!mat)return;mat.setProperty('mainColor',new Color(255,255,255,Math.round(255*Math.max(0,Math.min(1,a)))));};
@@ -137,9 +137,9 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
    if(lamp)lamp.active=night;
    if(lampLight)lampLight.enabled=night;
    if(stars)stars.active=night;
-   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.18,0.24,0.46,1):new Vec4(1,1,1,1));
-   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.22,0.28,0.43,1):new Vec4(1,1,1,1));
-   if(seaMat)seaMat.setProperty('mainColor',night?new Color(90,130,170,255):new Color(255,255,255,255));
+   if(domeMat)domeMat.setProperty('mainColor',night?new Vec4(0.55,0.68,0.86,1):new Vec4(1,1,1,1));
+   if(layerMat)layerMat.setProperty('mainColor',night?new Vec4(0.62,0.72,0.88,1):new Vec4(1,1,1,1));
+   if(seaMat)seaMat.setProperty('mainColor',night?new Color(170,205,225,255):new Color(255,255,255,255));
    const alpha=cruise>0?Math.min(1,v.speed/cruise)*0.42:0;
    paint(wakeMat,alpha);paint(foamMat,alpha*0.85);
    if(plane)plane.setWorldPosition(cam[0],SAIL_SEA_Y,cam[2]);
