@@ -38,7 +38,8 @@ function skybox(node:Node|null):void{
   const r=n.getComponent(MeshRenderer);if(!r)return;
   (r as any).priority=-100;
   const m=r.getMaterialInstance(0);if(!m)return;
-  try{m.overridePipelineStates({depthStencilState:{depthTest:false,depthWrite:false,depthFunc:gfx.ComparisonFunc.ALWAYS}},0);}catch{/* material without a pass */}
+  // Draw first, no depth write; keep depth test so later opaques (clouds/balloon) can cover the dome.
+  try{m.overridePipelineStates({depthStencilState:{depthTest:true,depthWrite:false,depthFunc:gfx.ComparisonFunc.LEQUAL}},0);}catch{/* material without a pass */}
  });
 }
 function showBothSides(root:Node):void{
@@ -125,6 +126,7 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const points=balloonRoutePoints(opts.start,plan);
   const length=routeLength(points);
   const route={from:'meadow' as const,to:'skycity' as const,path:points,bridgeStart:length*0.42,bridgeEnd:Math.min(length,length*0.42+Math.max(0.05,length*0.04)),speed:1.2,startBlendM:0,focus:plan.court};
+  // transitFrame is bookkeeping; clouds/card/sea are placed with setWorld* each frame so mesh bounds stay valid.
   const transitFrame=new Node('transitFrame');rig.addChild(transitFrame);
   setRigid(transitFrame,meadowFrame);
   const balloonPrefab=await loadTransitPrefab('transport_balloon');
@@ -135,22 +137,20 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   const cloudsPrefab=await loadTransitPrefab('transit_clouds_merged');
   if(!cloudsPrefab)throw Error('balloon-clouds-missing');
   cloudsPrefab.addRef();owned.push({destroy(){cloudsPrefab.decRef();}});
-  const clouds=instantiate(cloudsPrefab);clouds.name='transit_clouds_merged';transitFrame.addChild(clouds);
-  clouds.setPosition(0,0,0);clouds.setRotationFromEuler(0,0,0);clouds.setScale(1,1,1);
+  const clouds=instantiate(cloudsPrefab);clouds.name='transit_clouds_merged';rig.addChild(clouds);
   showBothSides(clouds);
   const nightPrefab=await loadTransitPrefab('transit_night_dome');
   let nightDome:Node|null=null;
   if(nightPrefab){nightPrefab.addRef();owned.push({destroy(){nightPrefab.decRef();}});nightDome=instantiate(nightPrefab);nightDome.name='transit_night_dome';rig.addChild(nightDome);nightDome.active=false;skybox(nightDome);}
-  // Far card: preload under transitFrame, start inactive; enable at 11.2 with meadow unload.
-  const farRoot=new Node('far_meadow_card');transitFrame.addChild(farRoot);farRoot.active=false;
-  farRoot.setPosition(0,0,0);farRoot.setRotationFromEuler(0,0,0);
+  // Far card: preload, start inactive; enable at 11.2 with meadow unload.
+  const farRoot=new Node('far_meadow_card');rig.addChild(farRoot);farRoot.active=false;
   const farPrefab=await loadTransitPrefab('far_meadow_card');
   if(farPrefab){farPrefab.addRef();owned.push({destroy(){farPrefab.decRef();}});const card=instantiate(farPrefab);farRoot.addChild(card);showBothSides(card);}
-  // Plan B sea fallback under transitFrame (local identity).
+  // Plan B sea fallback (same world frame as clouds).
   let seaFallback:Node|null=null;
   if(SEA_PLAN==='B'){
    const seaPrefab=await loadTransitPrefab('transit_sea_fallback');
-   if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';transitFrame.addChild(seaFallback);seaFallback.setPosition(0,0,0);seaFallback.active=false;}
+   if(seaPrefab){seaPrefab.addRef();owned.push({destroy(){seaPrefab.decRef();}});seaFallback=instantiate(seaPrefab);seaFallback.name='transit_sea_fallback';rig.addChild(seaFallback);seaFallback.active=false;}
   }
   const sea=findSceneNamed('env_sea_surface');
   const seaHome=sea?{pos:sea.position.clone(),scale:sea.scale.clone(),euler:sea.eulerAngles.clone()}:null;
@@ -241,13 +241,16 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    }
    showNamed(clouds,CITY_CLOUD,cityOn);
    showNamed(clouds,ALWAYS_CLOUD,true);
-   // Liftoff (t≈5.2): keep deck clouds off so a puff does not sit on the envelope (v2.1 shot fix).
-   if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose'],false);}
+   // Liftoff (t≈5.2): hide near/mid clouds so none sit on the envelope (GBT defect 8).
+   if(t<7){showNamed(clouds,['clouds_deck','clouds_deck_loose','clouds_far'],false);}
    eachNamed(meadow,n=>{if(n.name.startsWith('meadow_grass'))n.active=meadowOn&&t<GRASS_OFF_T;});
    const farOn=t>=FAR_CARD_ON_T&&t<plan.total&&!handoff&&!meadowOn;
    if(farRoot&&isValid(farRoot,true)){farRoot.active=farOn;if(farOn)tintFarCard(farRoot,night);}
-   if(t+1e-9>=SEAM_T)setRigid(transitFrame,postFrame);
-   else setRigid(transitFrame,meadowFrame);
+   const frame=t+1e-9>=SEAM_T?postFrame:meadowFrame;
+   setRigid(transitFrame,frame);
+   setRigid(clouds,frame);
+   if(farRoot&&isValid(farRoot,true))setRigid(farRoot,frame);
+   if(seaFallback&&isValid(seaFallback,true))setRigid(seaFallback,frame);
    applyBackdrop(t,handoff);
    applySea(t,handoff);
    if(handoff){seaRestored=true;backdropRestored=true;}
