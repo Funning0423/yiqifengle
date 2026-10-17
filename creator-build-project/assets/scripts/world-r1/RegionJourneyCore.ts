@@ -23,7 +23,7 @@ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
  if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
  if(route.timing!==undefined&&!journeyTimingOk(routeLength(route.path),route.timing))throw Error('journey-invalid-timing');
  if(route.board!==undefined&&!journeyBoardEndOk(route.board,routeLength(route.path)))throw Error('journey-invalid-board-end');
- if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
+ if(route.landing!==undefined&&((!route.focus&&Object.keys(route.landing).some(k=>k!=='anchorSmoothM'))||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
 }
 /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
  * smoothed walking heading), so a bridge that turns keeps the lens behind her. Numbers are checked by
@@ -130,8 +130,12 @@ export function slerpDir(a:Vec,b:Vec,t:number):Vec{const d=Math.max(-1,Math.min(
  * by up to 70° in the last 17 m and would otherwise turn the camera away and back. All three come to rest exactly where she
  * stops (de/dd = 0 at left = 0), even though her walk stops at full speed. At left = 0 the pose IS route.board, so the board background's camera takes over at the identical pose.
  * Routes without `board` are byte-for-byte unchanged. Set per screen at runtime by RegionJourneyAdapter (RegionBoardLanding). */
-export type JourneyBoardEnd = Readonly<{position:Vec;target:Vec;fovVerticalDeg:number;blendM:number}>;
-export function journeyBoardEndOk(b:JourneyBoardEnd,length:number):boolean{return !!b&&[...(b.position||[]),...(b.target||[]),b.fovVerticalDeg,b.blendM].every(Number.isFinite)&&b.position.length===3&&b.target.length===3&&b.fovVerticalDeg>1&&b.fovVerticalDeg<170&&b.blendM>0&&b.blendM<=length&&Math.hypot(b.target[0]-b.position[0],b.target[1]-b.position[1],b.target[2]-b.position[2])>1e-6;}
+export type JourneyBoardEnd = Readonly<{position:Vec;target:Vec;fovVerticalDeg:number;blendM:number;
+ /** 运镜bot (skycity plan B r2, cine/skycity-bridge-r2-cam): CRANE mode, used when `crane` is set; without it the r4 blend above runs
+  *  byte-for-byte. For a long rise onto a board camera that sits ABOVE and BEHIND her stop but AHEAD of her when the blend starts
+  *  (a world-space lerp would put the lens in front of her / over her head for metres). See boardEndCrane. */
+ crane?:Readonly<{settleM:number;aimK:number;orbit:number}>}>;
+export function journeyBoardEndOk(b:JourneyBoardEnd,length:number):boolean{return !!b&&[...(b.position||[]),...(b.target||[]),b.fovVerticalDeg,b.blendM].every(Number.isFinite)&&b.position.length===3&&b.target.length===3&&b.fovVerticalDeg>1&&b.fovVerticalDeg<170&&b.blendM>0&&b.blendM<=length&&(b.crane===undefined||(!!b.crane&&[b.crane.settleM,b.crane.aimK,b.crane.orbit].every(Number.isFinite)&&b.crane.settleM>0&&b.crane.settleM<=b.blendM&&b.crane.aimK>=0&&b.crane.aimK<=8))&&Math.hypot(b.target[0]-b.position[0],b.target[1]-b.position[1],b.target[2]-b.position[2])>1e-6;}
 export function boardEndBlend(pose:Pose,length:number,distance:number,board:JourneyBoardEnd,from?:Pose):Pose{
  const left=length-distance;if(!(left<board.blendM))return pose;
  if(left<=0)return {position:[board.position[0],board.position[1],board.position[2]],target:[board.target[0],board.target[1],board.target[2]],fovVerticalDeg:board.fovVerticalDeg};
@@ -139,6 +143,24 @@ export function boardEndBlend(pose:Pose,length:number,distance:number,board:Jour
  return {position:p,target:[p[0]+d[0]*8,p[1]+d[1]*8,p[2]+d[2]*8],fovVerticalDeg:f0+(board.fovVerticalDeg-f0)*e};
 }
 const rel3=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]];
+/** 运镜bot (skycity plan B r2): the board end as a crane that stays relative to HER, then settles.
+ *  e = smoother(1 − left/blendM) (as boardEndBlend), w = smoother(1 − left/crane.settleM) (last settleM metres).
+ *  - Position = A + offset. offset goes from the follow lens's her-relative offset O_F (pose − her anchor p) to the board camera's
+ *    offset from her STOP O_B = board − stop: lerp(O_F, O_B, e), or with crane.orbit = 1 orbitOffset (horizontal angle, geometric radius and height
+ *    separately: the lens swings round behind her instead of cutting across). A = p − (p − stop)·w: the anchor follows her, then over the
+ *    last settleM metres slides onto her stop, so the lens decelerates to rest exactly where she stops (de/dd = dw/dd = 0 there) even
+ *    though her walk ends at full speed. At left = 0: A = stop, offset = O_B, so the pose IS the board pose.
+ *  - View: from the lens's own aim point (`aim`, the point the follow lens frames her by) seen from the blended position, slerped to the
+ *    board view with weight e^aimK: she stays framed while the lens rises; the board view takes over in the last metres.
+ *  - FOV: lerp with e. */
+export function boardEndCrane(pose:Pose,length:number,distance:number,board:JourneyBoardEnd,anchor:Vec,stop:Vec,aim:Vec):Pose{
+ const c=board.crane!,left=length-distance;if(!(left<board.blendM))return pose;
+ if(left<=0)return {position:[board.position[0],board.position[1],board.position[2]],target:[board.target[0],board.target[1],board.target[2]],fovVerticalDeg:board.fovVerticalDeg};
+ const e=smoother(1-left/board.blendM),w=smoother(1-left/c.settleM),oF=rel3(pose.position,anchor),oB=rel3(board.position,stop);
+ const o=c.orbit?orbitOffset(oF,oB,e,0):lerp(oF,oB,e),A=lerp(anchor,stop,w),p:Vec=[A[0]+o[0],A[1]+o[1],A[2]+o[2]];
+ const d=slerpDir(unit(rel3(aim,p)),unit(rel3(board.target,board.position)),Math.pow(e,c.aimK)),f0=pose.fovVerticalDeg??JOURNEY_CAMERA.fovDeg;
+ return {position:p,target:[p[0]+d[0]*8,p[1]+d[1]*8,p[2]+d[2]*8],fovVerticalDeg:f0+(board.fovVerticalDeg-f0)*e};
+}
 /** Lens offsets at a route distance: defaults, smoothly blended (smoothstep) between the route's keys. */
 export function lensAt(keys:readonly LensKey[]|undefined,distance:number){
  const C=JOURNEY_CAMERA,base={upM:C.upM as number,backM:C.backM as number,sideM:C.sideM as number,lookM:C.lookM as number};if(!keys||!keys.length)return base;
@@ -197,6 +219,7 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov0=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;const fov=focus&&C.arrivalFovDeg>0&&wArr>0?fov0+(C.arrivalFovDeg-fov0)*Math.min(1,wArr):fov0;
  const out:Pose={position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
+ if(board&&board.crane)return boardEndCrane(out,T,distance,board,p,path[path.length-1],aim);
  return board?boardEndBlend(out,T,distance,board,distance>T-board.blendM?journeyCamera(path,Math.max(0,T-board.blendM),start,focus,keys,startBlendM,landing):undefined):out;
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.

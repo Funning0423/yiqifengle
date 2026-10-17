@@ -1,0 +1,84 @@
+{
+ "note": "model-local triangles (float32 xyz×3) of the decoded skycity GLB kept by build-fixture.cjs",
+ "source": {
+  "file": "skycity.glb",
+  "sha256": "98a54b68c1e3b0a615cac03c8f6040b9751f0df818c18ac901c6b16a82e4a15d"
+ },
+ "keepWorldBox": {
+  "min": [
+   -15,
+   -10,
+   20
+  ],
+  "max": [
+   28,
+   36,
+   85
+  ]
+ },
+ "bytes": 656640,
+ "binSha256": "af9d49f96face61070f66317e2a213d345478c56b9dc248da36f4f20d1c54f03",
+ "triangles": 18240,
+ "objects": [
+  {
+   "name": "chr_robot_gardener_mesh",
+   "offset": 0,
+   "count": 14387
+  },
+  {
+   "name": "env_sky_floatingrocks_1",
+   "offset": 517932,
+   "count": 264
+  },
+  {
+   "name": "env_sky_floatingrocks_cards_1",
+   "offset": 527436,
+   "count": 100
+  },
+  {
+   "name": "env_sky_island_vine_cards",
+   "offset": 531036,
+   "count": 4
+  },
+  {
+   "name": "env_sky_island_vines",
+   "offset": 531180,
+   "count": 152
+  },
+  {
+   "name": "env_sky_rope_root_05",
+   "offset": 536652,
+   "count": 96
+  },
+  {
+   "name": "env_sky_static_foliage_cards",
+   "offset": 540108,
+   "count": 346
+  },
+  {
+   "name": "env_sky_static_palette",
+   "offset": 552564,
+   "count": 2299
+  },
+  {
+   "name": "env_sky_static_rock_strata",
+   "offset": 635328,
+   "count": 458
+  },
+  {
+   "name": "state_court_after",
+   "offset": 651816,
+   "count": 36
+  },
+  {
+   "name": "state_court_after_flowers",
+   "offset": 653112,
+   "count": 62
+  },
+  {
+   "name": "state_court_before",
+   "offset": 655344,
+   "count": 36
+  }
+ ]
+}
