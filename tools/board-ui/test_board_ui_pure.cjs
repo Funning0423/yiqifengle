@@ -4,6 +4,8 @@
 // board background cover fit, beaconRoute in the R4 / mainline snapshots, art inventory and removed assets.
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), assert = require('node:assert/strict');
 const { stripTypeScriptTypes } = require('node:module');
+// Needs node:module.stripTypeScriptTypes (Node >=22.6). Older Node: report the reason and exit 78 (run-suite: BLOCKED_NODE); never a pass.
+if (typeof stripTypeScriptTypes !== 'function') { console.error('BLOCKED_NODE: legacy-board-ui-pure requires Node >=22.6 (node:module.stripTypeScriptTypes), found ' + process.version); process.exit(78); }
 const { createHarness, pngSize, SCRIPTS, BUNDLES, ROOT } = require('./harness.cjs');
 const checks = []; const ok = (name, fn) => { fn(); checks.push(name); console.log('PASS', name); };
 const H = createHarness(), store = H.cc.sys.localStorage;
