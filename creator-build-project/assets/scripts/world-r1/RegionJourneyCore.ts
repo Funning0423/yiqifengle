@@ -59,9 +59,13 @@ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,
  // no longer kick the lens: its acceleration stays finite and continuous. On straight runs it is exactly her position.
  // The follow heading chord (headingWindowM) is taken between smoothed points as well.
  anchorSmoothM:0,
- // 0 = off (Build05 routes: aim horizontally at the focus). 0…1 (route.landing only): the horizontal aim of the arrival pose
- // turns from the focus toward her by this fraction of the angle between them (keeps her inside the frame on a close lens).
- arrivalYawToHer:0} as const;
+ // 0 = off (Build05 routes: fovDeg throughout). > 0 (route.landing only): the vertical FOV eases from fovDeg to this value with
+ // the arrival weight (same smoother as the view), so the arrival pose can end exactly on a board camera's FOV.
+ arrivalFovDeg:0,
+ // Horizontal turn of the arrival aim away from the focus (degrees, + = toward +X of the view's yaw convention atan2(x,z)).
+ // 0 = Build05 routes. The lakeside adapter sets arrivalYawDeg / arrivalPitchDeg / arrivalFovDeg per screen
+ // (LakesideCameraLayout.lakesideScreenLanding) so the arrival pose IS that screen's board camera.
+ arrivalYawDeg:0} as const;
 /** Per-route Landing A overrides (route.landing, needs route.focus). Same machinery as 08→09; any key left out keeps the
  * JOURNEY_CAMERA value, so routes without `landing` (04→05, 08→09) are byte-for-byte unchanged. Used by island→lakeside. */
 /** Optional time profile for a route (reviewer on c375304: island→lakeside in ~17 s instead of length/1.2 m/s). Her travel
@@ -87,8 +91,8 @@ export function journeyDistanceAt(L:number,t:JourneyTiming,time:number):number{c
  * remaining length, never shorter than the ramps need. */
 export function remainingTiming(L:number,remaining:number,t:JourneyTiming):JourneyTiming{const k=remaining/L;let a=t.easeInS,b=t.easeOutS;if(a+b>t.durationS*k){const f=t.durationS*k/(a+b+.5);a*=f;b*=f;}
  return {durationS:Math.max(a+b+.5*Math.min(1,k),t.durationS*k),easeInS:a,easeOutS:b};}
-export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalHermite'|'anchorSmoothM'|'arrivalYawToHer',number>>>;
-const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalHermite:1,anchorSmoothM:1,arrivalYawToHer:1} as const;
+export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalHermite'|'anchorSmoothM'|'arrivalFovDeg'|'arrivalYawDeg',number>>>;
+const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalHermite:1,anchorSmoothM:1,arrivalFovDeg:1,arrivalYawDeg:1} as const;
 const landingCamera=(landing?:JourneyLanding)=>landing?{...JOURNEY_CAMERA,...landing}:JOURNEY_CAMERA;
 /** Route point at d smoothed with a triangular kernel of half-width w=min(W, d, T−d), computed EXACTLY from the polyline's
  * second arc-length integral I2 (Tri(d)=(I2(d+w)−2·I2(d)+I2(d−w))/w²): piecewise cubic, so the result has continuous velocity
@@ -137,8 +141,7 @@ export function arrivalPose(path:readonly Vec[],focus:Vec,landing?:JourneyLandin
  const position:Vec=[p[0]-u[0]*C.arrivalBackM+n[0]*C.arrivalSideM,p[1]+C.arrivalUpM,p[2]-u[1]*C.arrivalBackM+n[1]*C.arrivalSideM];
  // Horizontally the view points straight at the focus (plaza centred); vertically it tilts from the focus toward her
  // chest by arrivalAim so she stays in the lower part of the portrait frame.
- const hx=focus[0]-position[0],hz=focus[2]-position[2],hl=Math.hypot(hx,hz)||1,yf=Math.atan2(hx,hz);let dyh=Math.atan2(p[0]-position[0],p[2]-position[2])-yf;while(dyh>Math.PI)dyh-=2*Math.PI;while(dyh<-Math.PI)dyh+=2*Math.PI;
- const yh=yf+dyh*C.arrivalYawToHer,fx2=C.arrivalYawToHer?Math.sin(yh)*hl:hx,fz2=C.arrivalYawToHer?Math.cos(yh)*hl:hz,fh=hl,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,aim:Vec=[fx2/fh*Math.cos(pitch),Math.sin(pitch),fz2/fh*Math.cos(pitch)];
+ const fx2=focus[0]-position[0],fz2=focus[2]-position[2],fh=Math.hypot(fx2,fz2)||1,pf=Math.atan2(focus[1]-position[1],fh),pc=Math.atan2(p[1]+.9-position[1],Math.hypot(p[0]-position[0],p[2]-position[2])||1),pitch=pf+(pc-pf)*C.arrivalAim+C.arrivalPitchDeg*Math.PI/180,yw=Math.atan2(fx2,fz2)+C.arrivalYawDeg*Math.PI/180,aim:Vec=[Math.sin(yw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yw)*Math.cos(pitch)];
  return {position,target:[position[0]+aim[0]*8,position[1]+aim[1]*8,position[2]+aim[2]*8]};
 }
 /** Her-relative lens offset moved on an orbit: horizontal angle, horizontal radius and height interpolate separately,
@@ -161,8 +164,9 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  // startBlendM 0 (v3.2, 04→05): no wide authored-pose blend; the lens is on her follow pose (right, behind) from set-off.
  const blend=startBlendM>0?smooth(distance/startBlendM):1;
  if(blend<1){const o=orbitOffset(rel(start.position,path[0]),offset,blend,C.startTurn);offset=[o[0],o[1]+C.blendLiftM*Math.sin(Math.PI*blend),o[2]];aim=lerp([p[0],p[1]+lensAt(keys,distance).lookM,p[2]],aim,blend);}
+ let wArr=0;
  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
-  if(w>0){const e=arrivalPose(path,focus,landing),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
+  wArr=Math.max(0,w);if(w>0){const e=arrivalPose(path,focus,landing),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
  let position=at(offset);
  if(focus&&C.arrivalHermite>0){const Lb=Math.min(C.arrivalBlendM,T),d0=T-Lb;if(distance>d0&&Lb>0){
@@ -173,7 +177,7 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  let dir=unit(rel(aim,position));
  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
- const fov=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;
+ const fov0=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;const fov=focus&&C.arrivalFovDeg>0&&wArr>0?fov0+(C.arrivalFovDeg-fov0)*Math.min(1,wArr):fov0;
  return {position,target:[position[0]+dir[0]*8,position[1]+dir[1]*8,position[2]+dir[2]*8],fovVerticalDeg:fov};
 }
 /** No timers, persistence, fake percentages or character assets. All movement is through the existing adapter.

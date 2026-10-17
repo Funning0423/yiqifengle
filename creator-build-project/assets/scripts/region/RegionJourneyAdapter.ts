@@ -1,5 +1,5 @@
 import {waitRegionAsset} from './RegionAssetDeadline';
-import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils} from 'cc';
+import {Animation, Camera, Color, Material, Mesh, MeshRenderer, Node, gfx, isValid, utils, view} from 'cc';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {RegionAmbientAnimation} from './RegionAmbientAnimation';
 import {SkyNightTexture} from '../render/SkyNightTexture';
@@ -12,7 +12,9 @@ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
 import {enableLakesideInstancing,isLakesideWaterNode,mergeLakesideStatic,mountLakesideScenery} from './LakesideBoardBackground';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
-import {lakesideJourney} from './LakesideCameraLayout';
+import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+import {lakesideViewport} from './LakesideLandingHook';
+import {boardSafeInsets} from '../ui/BoardLayout';
 import {lakesideAtmosphereWeight} from './LakesideJourneyAtmosphere';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
@@ -112,6 +114,10 @@ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNigh
 /** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
  *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
  *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
+/** 运镜bot: the lakeside route ends on THIS screen's board camera (the board UI's frame: viewport + boardSafeInsets); the
+ *  base landing is kept if anything about the screen cannot be read. */
+function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
+ try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)));}catch{return L.landing;}}
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='island')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
@@ -124,7 +130,7 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
-  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];
+  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);
   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
