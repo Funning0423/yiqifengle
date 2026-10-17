@@ -101,7 +101,8 @@ export async function mountSailArt(parent:Node,meadow:Node|null):Promise<SailArt
   }else{
    const tex=r.getSharedMaterial(0)?.getProperty('mainTexture') as Texture2D|null;
    nearestPalette(tex);
-   if(/^cloud_/.test(n.name)||n.name==='night_stars'||n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE,vertex:true});
+   if(/^cloud_/.test(n.name)||n.name==='night_stars')copyMat(r,{cull:gfx.CullMode.NONE,vertex:true});
+   else if(n.name.startsWith('far_'))copyMat(r,{cull:gfx.CullMode.NONE});
   }
  });
  const hidden:MeshRenderer[]=[];

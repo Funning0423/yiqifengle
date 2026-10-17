@@ -1,9 +1,10 @@
-import {Camera, Color, DirectionalLight, Node, SkeletalAnimation, Vec3} from 'cc';
+import {Camera, Color, DirectionalLight, MeshRenderer, Node, SkeletalAnimation, Vec3} from 'cc';
 import {transportQaEnabled} from './JourneyTransport';
 import {beatAt, sailBeats, sailCamera, sailMeadowRoot, sailRoute, sailVehicle} from './TransportLeg';
 import {mountSailArt, findNode, type SailArt} from './SailArt';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {mountMeadowNightSky} from './RegionJourneyAdapter';
+import {configureMeadowVertexColors} from './MeadowBoardBackground';
 /** QA / web-test only. `?sailshot=1&k=1` frames a real K still. Release WeChat ignores it. No on-screen text. */
 export function sailShotRequested(search?:string,host:any=(globalThis as any).wx):boolean{
  let q=search;if(q===undefined){try{q=String((globalThis as any).location?.search||'');}catch{q='';}}
@@ -24,7 +25,7 @@ export function sailShotTime(k:number):{t:number;night:boolean}{
  const at=(id:string,u:number)=>beat(id).t0+(beat(id).t1-beat(id).t0)*u;
  if(k===1)return {t:at('S-b',0.55),night:false};
  if(k===2)return {t:at('S-c',0.98),night:false};
- if(k===4)return {t:at('S-d',0.9),night:false};
+ if(k===4)return {t:at('S-d',0.48),night:false};
  if(k===5)return {t:at('S-e',0.82),night:false};
  if(k===6)return {t:at('S-g',0.35),night:false};
  return {t:at('S-d',0.4),night:k===7||/^(1|night)$/i.test(qparam('night'))};
@@ -46,8 +47,11 @@ export async function startSailShot(scene:Node,rider?:Node|null):Promise<void>{
  meadow.setRotationFromEuler(0,180,0);
  const root=sailMeadowRoot();
  meadow.setWorldPosition(root[0],root[1],root[2]);
+ configureMeadowVertexColors(meadow);
  const sky=mountMeadowNightSky(meadow,night);
  if(sky)sky.setNightBlend(night?1:0);
+ for(const name of ['meadow_far_hills']){const n=findNode(meadow,name);if(n)for(const r of n.getComponentsInChildren(MeshRenderer))r.enabled=false;}
+ if(!night){const n=findNode(meadow,'meadow_sky_dome');if(n)for(const r of n.getComponentsInChildren(MeshRenderer))r.enabled=false;}
  let art:SailArt|null=null;
  try{art=await mountSailArt(scene,meadow);}catch(error){console.error('Sail art failed',error);}
  if(art){
