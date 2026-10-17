@@ -67,15 +67,33 @@ export function mountBoardGuest(boardScene:Node,layer:number,journey:Node|null):
   return {node,renderers,morph,dispose(){if(dead)return;dead=true;if(isValid(node,true))node.destroy();}};
  }catch(error){try{if(copy&&isValid(copy,true))copy.destroy();}catch{}try{console.warn('[QF_LAKESIDE] '+JSON.stringify({event:'board-guest-skipped',error:String((error as any)?.message||error)}));}catch{}return null;}
 }
+/** r4 sky-city figure: the region model's own ambient animation (sky city: the court's robot gardener chr_robot_gardener on
+ *  robot_idle, and sky_ambient_loop's clouds / floating rocks / birds) runs on BOTH copies of the model, each from its own
+ *  start, so on the swap frame the robot (and the sky props) jumped to another phase. When the board copy first shows, every
+ *  clip that is playing on the journey copy is put on the same time on the board copy (and sampled), so the board frame
+ *  continues the pose the journey last drew. Clips missing on either side are skipped. Returns the number of clips synced. */
+export function syncRegionAmbient(journeyModel:Node|null,boardModel:Node|null):number{
+ if(!journeyModel||!boardModel||!isValid(journeyModel,true)||!isValid(boardModel,true))return 0;
+ const ja=journeyModel.getComponent(SkeletalAnimation),ba=boardModel.getComponent(SkeletalAnimation);if(!ja||!ba)return 0;let n=0;
+ for(const clip of ba.clips){if(!clip)continue;const js=ja.getState(clip.name),bs=ba.getState(clip.name);
+  if(!js||!bs||!js.isPlaying||!Number.isFinite(js.time))continue;if(!bs.isPlaying)bs.play();bs.setTime(js.time);bs.sample();n++;}
+ return n;
+}
 /** r4-prep B (extended) without touching the meadow / sky-city lease files (运镜bot's 04→05 / 08→09 work; the 09 plaza file is
  *  SHA-frozen): wraps their factory. Once the lease is built, her copy goes under its region model (the rig child that has the
- *  same name as the journey copy's model) and is freed once with the lease (or with the rig, whichever comes first). */
+ *  same name as the journey copy's model) and is freed once with the lease (or with the rig, whichever comes first).
+ *  r4 sky-city figure: on the first setVisible(true) the board model's ambient clips take the journey copy's times
+ *  (syncRegionAmbient), so the robot on 星庭 and the sky props carry straight over the swap. */
 export function withRegionBoardGuest(region:string,rigName:string,layer:number,factory:LevelBackgroundFactory):LevelBackgroundFactory{
- return async ctx=>{const lease=await factory(ctx);if(!lease)return lease;let guest:LakesideGuest|null=null;
+ return async ctx=>{const lease=await factory(ctx);if(!lease)return lease;let guest:LakesideGuest|null=null,model:Node|null=null,journey:Node|null=null;
   try{const scene=director.getScene(),jr=scene?findDeep(scene as any,'RegionJourney-'+region):null,rig=ctx.parent.getChildByName(rigName);
-   const names=new Set((jr?jr.children:[]).map(c=>c.name)),model=rig?rig.children.find(c=>names.has(c.name))||null:null;
+   const names=new Set((jr?jr.children:[]).map(c=>c.name));model=rig?rig.children.find(c=>names.has(c.name))||null:null;
+   journey=model&&jr?jr.children.find(c=>c.name===model!.name)||null:null;
    if(model)guest=mountRegionBoardGuest(region,model,layer);}catch{guest=null;}
-  if(!guest)return lease;const g=guest,dispose=lease.dispose;
-  return {frame:(p,l)=>lease.frame(p,l),setVisible:v=>lease.setVisible(v),setPaused:v=>lease.setPaused?.(v),
-   diagnostics:()=>({...(lease.diagnostics?lease.diagnostics():{}),guest:g.renderers}),dispose:()=>{g.dispose();dispose.call(lease);}};};
+  if(!guest&&!(model&&journey))return lease;const g=guest,dispose=lease.dispose,m=model,j=journey;let synced=false,ambient=0;
+  return {frame:(p,l)=>lease.frame(p,l),
+   setVisible:v=>{lease.setVisible(v);if(v&&!synced){synced=true;try{ambient=syncRegionAmbient(j,m);}catch{ambient=0;}
+    try{if((globalThis as any).__worldFlowLog)console.info('[QF_REGION] '+JSON.stringify({event:'board-ambient-sync',region,clips:ambient}));}catch{}}},
+   setPaused:v=>lease.setPaused?.(v),
+   diagnostics:()=>({...(lease.diagnostics?lease.diagnostics():{}),guest:g?g.renderers:0,ambientSynced:ambient}),dispose:()=>{g?.dispose();dispose.call(lease);}};};
 }
