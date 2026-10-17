@@ -2,7 +2,8 @@ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease 
 export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
 export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
 export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding; timing?:JourneyTiming }>;
-export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
+/** progress (optional, build05-next): walked distance along route.path, every observed frame and once at the stop. */
+export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; progress?(distance:number):void; }
 export interface JourneySceneAdapter {
  prepare(from:JourneyRegion,to:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>;
  readCamera():Pose;
@@ -208,6 +209,7 @@ export class RegionJourneyController {
   this.root=sampleRoute(this.lease.route.path,this.distance);const ahead=sampleRoute(this.lease.route.path,this.distance+.08);
   if(dist(this.root,ahead)>.001)this.yaw=Math.atan2(ahead[0]-this.root[0],ahead[2]-this.root[2]);
   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);
+  this.leaseProgress();
   this.phase=this.distance<this.lease.route.bridgeStart?'approach':this.distance<this.lease.route.bridgeEnd?'bridge':'arrival';
  }
  async walk(actor:CharacterAdapter,world:WorldLease,token:Cancellation):Promise<void>{
@@ -228,7 +230,7 @@ export class RegionJourneyController {
     await token.wait(actor.perform(timing?{kind:'walk',path,duration:timing.durationS,distanceAt:(time:number)=>journeyDistanceAt(L,timing,time)}:{kind:'walk',path,duration:L/this.lease.route.speed},token));token.check();}
    this.activePath=null;this.distance=routeLength(this.lease.route.path);this.root=sampleRoute(this.lease.route.path,this.distance);
    const before=sampleRoute(this.lease.route.path,Math.max(0,this.distance-.08));this.yaw=Math.atan2(this.root[0]-before[0],this.root[2]-before[2]);
-   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);
+   this.camera=journeyCamera(this.lease.route.path,this.distance,this.startCamera,this.lease.route.focus,this.lease.route.lens,this.lease.route.startBlendM,this.lease.route.landing);world.setCamera(this.camera);actor.cancelAndReset(this.position()!);this.leaseProgress();
    this.region=this.lease.route.to;this.phase='arrived';this.target=null;
   }catch(error){if(this.fadeState==='out'||this.fadeState==='black'){this.fadeState='clear';try{void Promise.resolve(world.fadeCover?.(0,.2)).catch(()=>{});}catch{}}
    if(serial===this.serial){this.observe(actor,world);this.activePath=null;this.error=token.cancelled?null:String(error);this.phase=token.cancelled?'paused':'failed';}throw error;}
@@ -238,6 +240,7 @@ export class RegionJourneyController {
  suspend(actor:CharacterAdapter,world:WorldLease):void{this.observe(actor,world);this.activePath=null;if(this.isInTransit())this.phase='paused';}
  restore(actor:CharacterAdapter,world:WorldLease,visible:boolean):void{if(this.root)actor.cancelAndReset(this.position()!);if(this.camera)world.setCamera(this.camera);actor.setVisible(visible);this.show(visible);}
  show(visible:boolean){for(const scene of this.scenes)scene.show(visible);}
+ private leaseProgress(){const l=this.lease;if(!l?.progress)return;try{l.progress(this.distance);}catch{}}
  /** 「主页」 from an arrived region (or a paused/failed journey): drop the journey scenes and stand her back on the island.
   * Not a completion: region unlocks/records live in the campaign save, not here; the next trip simply walks the route again. */
  returnToIsland():void{if(this.busy)throw Error('journey-busy');if(this.phase==='disposed')throw Error('journey-disposed');

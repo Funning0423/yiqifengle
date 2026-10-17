@@ -4,6 +4,7 @@ import {applyCameraPose} from '../world-r1/CameraPose';
 import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import type {Cancellation} from '../world-r1/WorldFlowCore';
+import {lakesideJourneyBaseIllum} from './LakesideJourneyAtmosphere';
 import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -74,9 +75,9 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
   if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum};
   const P=LAKESIDE_DIR_LIGHT_PARAMS,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(P.sunColorLinear),sk=linearToSrgb8(P.ambientSkyColorLinear),gr=linearToSrgb8(P.ambientGroundColorLinear);
-  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);l.illuminance=saved.illum*P.sunIlluminanceScale;
+  l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=lakesideJourneyBaseIllum()??saved.illum/* build05-next: after the lakeside journey the light is already blended; scale from the island base */;l.illuminance=bi*P.sunIlluminanceScale;
   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
-  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=saved.illum*P.ambientSkyIllumToSun;applyFog();};
+  amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*P.ambientSkyIllumToSun;applyFog();};
  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
  const fogMode=lakesideFogModeFromEnv();/* read once per lakeside load */
