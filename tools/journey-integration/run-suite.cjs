@@ -61,6 +61,7 @@ const tests=[
  ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
  ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
  ['es5-iterator-spread','tools/test_es5_iterator_spread.cjs'],
+ ['lakeside-load-failure','tools/lakeside/test_lakeside_load_failure.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

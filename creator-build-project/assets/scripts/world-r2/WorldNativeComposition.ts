@@ -1,5 +1,5 @@
 import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
-import { createLakesideBoardBackground } from '../region/LakesideBoardBackground';
+import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED } from '../region/LakesideBoardBackground';
 import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
 import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
 import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
@@ -70,7 +70,10 @@ export class WorldNativeComposition extends Component {
     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
     this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(this.selectionRegion(selection));if(!arrived.ok)return arrived;
-    const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;return result;
+    const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;
+    // v3.3: a failed lakeside scene already logged its cause ([QF_LAKESIDE]); WorldFlow put her back on the island. Hand the HUD one stable reason.
+    if(result.ok===false&&String(result.reason).includes(LAKESIDE_LOAD_FAILED)){this.pendingJourneySelection=null;return {ok:false,reason:LAKESIDE_LOAD_FAILED};}
+    return result;
   }
   private selectionRegion(selection:Selection):JourneyRegion {
     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
