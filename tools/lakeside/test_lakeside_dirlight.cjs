@@ -1,0 +1,24 @@
+// D1: lakeside 'dir' lighting - main DirectionalLight = json Sun (exact), dusk 0.31 -> ambient, 0.08 dropped, no point lights, saved/restored.
+const fs=require('fs'),path=require('path'),assert=require('assert');
+const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
+const A=path.join(__dirname,'../../creator-build-project/assets');
+const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2019}}).outputText)(m,m.exports,require);
+const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,J=JSON.parse(fs.readFileSync(path.join(A,'bundles/region_lakeside/scene_r5h3_lighting.json'),'utf8'));
+const L=n=>J.lights.find(l=>l.name===n);
+assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
+assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');assert.deepEqual([...P.sunColorLinear],L('Sun').colorLinear,'main = json Sun colour');
+assert.equal(P.sunIlluminanceScale,L('Sun').illuminanceRatio);
+assert.deepEqual([...P.ambientSkyColorLinear],L('SUN_dusk_side').colorLinear,'ambient sky = dusk colour');
+assert(P.ambientGroundColorLinear.every((c,i)=>c<P.ambientSkyColorLinear[i]),'biased to the sky side');
+assert.equal(P.ambientSkyIllumToSun,L('SUN_dusk_side').illuminanceRatio);
+assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
+assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,203,153]);
+const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+assert(/if\(LAKESIDE_LIGHT_MODE==='points'\)for\(const l of LAKESIDE_LIGHTS\)/.test(bg),'SphereLights only in points mode');
+assert(/getChildByName\('Main Light'\)/.test(bg)&&!/addComponent\(DirectionalLight\)/.test(bg),'reuses the scene main light, never adds one');
+assert(/l\.node\.lookAt\(new Vec3\(w\.x\+f\[0\],w\.y\+f\[1\],w\.z\+f\[2\]\)\)/.test(bg),'forward = sunForward');
+assert(/visibility=saved\.vis\|LAKESIDE_LAYER/.test(bg),'main light reaches the lake layer');
+assert(/setVisible:value=>\{[^}]*if\(value\)applyDir\(\);else restoreDir\(\);\}/.test(bg)&&/dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);/.test(bg),'apply on show, restore on hide/dispose');
+assert(/s0\.light\.node\.setRotation\(s0\.rot\);s0\.light\.color=s0\.color;s0\.light\.illuminance=s0\.illum;/.test(bg)&&/amb\.skyLightingColor=s0\.sky;amb\.groundLightingColor=s0\.ground;amb\.skyIllum=s0\.skyIllum;/.test(bg),'full restore');
+assert(!/shadowEnabled|shadowFixedArea|ShadowType/.test(bg),'shadows untouched');
+console.log('lakeside dirlight OK');

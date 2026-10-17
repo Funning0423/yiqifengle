@@ -45,6 +45,23 @@ export function lakesideLightPosition(l: LakesideLight): [number, number, number
   const c = LAKESIDE_BOARD_BOUNDS.center, d = LAKESIDE_SUN_DISTANCE;
   return [+(c[0] - l.forward[0] * d).toFixed(3), +(c[1] - l.forward[1] * d).toFixed(3), +(c[2] - l.forward[2] * d).toFixed(3)];
 }
+/** D1 lighting mode: 'dir' = the r5h3 suns as they were authored (parallel lights): main Sun 1.0 -> the scene's single main
+ *  DirectionalLight (reused while the lake shows, restored after), SUN_dusk_side 0.31 -> ambient sky/ground, Sun.001 0.08 dropped,
+ *  SUN_mtn_sky (MTN_RECV only) not placed, no point lights, shadows untouched. 'points' = the previous 3 SphereLights. */
+export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+/** ALL lakeside 'dir' lighting values (Voice Bot can replace this block in one edit). Derived by GGbot from scene_r5h3_lighting.json:
+ *  - sunForward / sunColorLinear: json Sun exactly; sunIlluminanceScale x the scene's current main-light illuminance (handoff §5: main = 1.0).
+ *  - ambient: SUN_dusk_side colour [1,0.55,0.28] (linear) as sky colour, ground = half of it (biased to the sky side; the dusk light
+ *    comes in low from the side, 13° below horizontal); skyIllum = 0.31 x main illuminance (its handoff ratio). */
+export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+  sunForward: [-0.4182, -0.3983, 0.8164] as const,
+  sunColorLinear: [1.0, 0.6, 0.32] as const,
+  sunIlluminanceScale: 1.0,
+  ambientSkyColorLinear: [1.0, 0.55, 0.28] as const,
+  ambientGroundColorLinear: [0.5, 0.275, 0.14] as const,
+  ambientSkyIllumToSun: 0.31,
+});
+export function linearToSrgb8(c: readonly number[]): [number, number, number] { return [linToSrgb8(c[0]), linToSrgb8(c[1]), linToSrgb8(c[2])]; }
 const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
 export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
 /** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
