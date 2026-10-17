@@ -9,8 +9,9 @@
 | `e45a64e48fb6737310524a759ea78faa8c55948b` | `1ac3272c9c6c8c5d9cbf42fbf54afb4811f878a1` | 热气球航线、运行时隐藏岩层、单天穹、程序化资产 |
 | `b7f608e9bb39899296588892991579ea9d02fa3b` | `9a0eb04416fa936d5f3b5d168d9ec82b1e7778ef` | Creator 导入生成的脚本和 glb meta |
 | `1c0c9c263013ea69a9824af1ce73cb97fbc98db3` | `8c1ffde3f0e3fbeae55c88d41cb4243fd324d07a` | 分包优先级改为 1，避免抢走 shared standard effect |
+| `4a740ea75dc61079e8981b86cfa183223c3cd5c3` | `6a5720404caf236b0081bb9a9709f86bbef9013a` | 白天 390×844 截图、夜间 B-d/B-e、桥接对比，以及当时的报告 |
 
-截图和本报告在其后的提交里。`JOURNEY_TRANSPORT['island-meadow']` 仍是 `bridge`。
+`JOURNEY_TRANSPORT['island-meadow']` 仍是 `bridge`。
 
 ## 和另外两个分支可能冲突的文件
 
