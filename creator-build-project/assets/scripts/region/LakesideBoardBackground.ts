@@ -7,6 +7,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
 import type {Cancellation} from '../world-r1/WorldFlowCore';
 import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
 import {onDayNightChange} from '../world-r1/DayNightContract';
+import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
 import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
@@ -167,7 +168,7 @@ export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
 /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
 export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
 export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
- let merged:MergeOut|null=null;
+ let merged:MergeOut|null=null,guest:LakesideGuest|null=null;
  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
  const held:Array<{decRef():unknown}>=[];
  /** D1: while visible, the scene's main DirectionalLight carries the r5h3 main sun and the ambient carries the dusk light;
@@ -204,7 +205,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
  /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
  const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
  off=token.onCancel(dispose);
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
  try{
@@ -228,7 +229,9 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
    waterTinted=tinted.size;}
   step='static-merge';if(lakesideStaticMergeFromEnv()){const water=new Set(list.filter(i=>(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));merged=mergeLakesideStatic(scenery,n=>water.has(n.name));}
-  setLayer(scenery);step='lights-camera';
+  setLayer(scenery);
+  step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);/* r4-prep B: she stays in frame after landing (frozen copy at her landed spot) */
+  step='lights-camera';
   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
    const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
@@ -240,7 +243,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
    frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null}),
+   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0}),
    dispose,
   };
  }catch(error){dispose();
