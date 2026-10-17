@@ -1,0 +1,9 @@
+PASS regional catalog = shipped 12 + 6 lakeside stages, ordinals 1..6, region lake, ids unique
+PASS lake unlock gate: locked until mainline 12 (record 11), then stage 1 opens and stage 2 waits for stage 1
+PASS real provider opens lake stage 1 (region lake listed); witness wins it; stage 2 stays locked without a record; memento needs all 6
+PASS stage → scene routing: lake ids use the lakeside lease and board chapter, others unchanged
+PASS journey book: 4th chapter 风铃湖畔, x/6 challenges, no mainline stars, milestone 12, chapter art present
+PASS board camera = handoff §4 at 720×1280; taller screens keep horizontal coverage; pose passes the camera contract
+PASS lights follow scene_r5h3_lighting.json (direction, colour, ratios); the MTN_RECV-only sun is not placed
+PASS scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces / shadows / ripples / frame dropped
+{"status":"PASS","cases":8,"scope":"Pure logic + Cocos doubles. Not rendering, Creator import, device or WeChat."}

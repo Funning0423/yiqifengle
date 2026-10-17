@@ -1,0 +1,306 @@
+From 17849b2bdaa098a2e563271e48c66b16f8d7ee69 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 12:32:20 +0800
+Subject: [PATCH 2/4] =?UTF-8?q?lakeside=20L2:=20live=20region=5Flakeside?=
+ =?UTF-8?q?=20board=20background=20(scene=5Fr5h=5Fslim=5Ftransforms=20minu?=
+ =?UTF-8?q?s=203D=20pieces/shadows/ripples/frame;=20handoff=20=C2=A74=20ca?=
+ =?UTF-8?q?mera,=20=C2=A75=20suns=20as=20layer=20SphereLights,=20priority?=
+ =?UTF-8?q?=2044,=20layer=20bit20);=20r04-lake-*=20routed=20to=20it,=20pla?=
+ =?UTF-8?q?yed=20from=20the=20island=20stop;=20region=5Flakeside=20loads?=
+ =?UTF-8?q?=20shared=5Feffects=20first;=20lake=20overlay=20tag=20+=20seal?=
+ =?UTF-8?q?=20label?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../assets/scripts/ManagedMobileBoardUI.ts    |  2 +-
+ .../assets/scripts/SharedBundles.ts           |  2 +-
+ .../scripts/region/LakesideBoardBackground.ts | 51 ++++++++++++++++
+ .../region/LakesideBoardBackground.ts.meta    |  9 +++
+ .../scripts/region/LakesideSceneData.ts       | 61 +++++++++++++++++++
+ .../scripts/region/LakesideSceneData.ts.meta  |  9 +++
+ .../assets/scripts/ui/BoardArt.ts             |  3 +-
+ .../assets/scripts/world-r2/LevelRegion.ts    |  5 ++
+ .../scripts/world-r2/RegionalOverlay.ts       |  1 +
+ .../world-r2/WorldNativeComposition.ts        | 11 ++--
+ 10 files changed, 147 insertions(+), 7 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideSceneData.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta
+
+diff --git a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+index f0e2c4e..ce5464a 100644
+--- a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
++++ b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+@@ -922,7 +922,7 @@ export class ManagedMobileBoardUI extends Component {
+     const items: RewardItem[] = [];
+     for (const kind of Object.keys(now.tools)) { const d = (Number(now.tools[kind]) || 0) - (Number(before.tools[kind]) || 0); if (d > 0) items.push({ kind, count: d, label: (TOOL_NAMES[kind] || kind) + ' ×' + d }); }
+     if (now.charms > before.charms) items.push({ kind: 'charm', count: now.charms - before.charms, label: '装扮 ×' + (now.charms - before.charms), seal: 'r2/icon_charm' });
+-    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
++    if (memento) { const r = a?.region || 'tide'; items.push({ kind: 'seal', count: 0, label: ({ tide: '潮汐', meadow: '草甸', sky: '天空城', lake: '湖畔' } as any)[r] + '印记', seal: 'popup/reward_seal_' + r }); }
+     if (!items.length) items.push({ kind: 'seal', count: 0, label: '一份海风的礼物', seal: 'popup/star_full' });
+     // SPEC v2.1: the result screen shows its rewards on the panel itself (badges over the chest); no separate 「获得」 popup there.
+     if (this.isResult(s) || this.popups.find('ResultPanel')) return;
+diff --git a/creator-build-project/assets/scripts/SharedBundles.ts b/creator-build-project/assets/scripts/SharedBundles.ts
+index 8b0470f..771a97d 100644
+--- a/creator-build-project/assets/scripts/SharedBundles.ts
++++ b/creator-build-project/assets/scripts/SharedBundles.ts
+@@ -4,7 +4,7 @@ import { assetManager } from 'cc';
+  * and the priority-1 bundles reference it instead of copying it. Cocos 3.8 does not load bundle deps on its own, so every
+  * loadBundle of a dependent bundle first loads shared_effects. Installed once at import; idempotent. */
+ export const SHARED_BUNDLE = 'shared_effects';
+-export const SHARED_DEPENDENTS: readonly string[] = ['region_island', 'region_meadow', 'region_skycity', 'static_seat_preview', 'board_art'];
++export const SHARED_DEPENDENTS: readonly string[] = ['region_island', 'region_meadow', 'region_skycity', 'region_lakeside', 'static_seat_preview', 'board_art'];
+ export function installSharedBundleDeps(am: any = assetManager): void {
+   if (!am || typeof am.loadBundle !== 'function' || am.__qfSharedDeps) return;
+   const orig = am.loadBundle.bind(am); am.__qfSharedDeps = true;
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+new file mode 100644
+index 0000000..c1334eb
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -0,0 +1,51 @@
++import {Animation,AssetManager,Camera,Color,JsonAsset,Node,Prefab,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
++import {waitRegionAsset} from './RegionAssetDeadline';
++import {applyCameraPose} from '../world-r1/CameraPose';
++import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
++/** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
++export const LAKESIDE_LAYER=1<<20;
++/** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
++export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'LakesideScenery',camera:'LakesideBackgroundCamera',lights:'LakesideLights'});
++function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLayer(c);}
++function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
++function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
++function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
++/** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
++ *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
++export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
++ let rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0;
++ const held:Array<{decRef():unknown}>=[];
++ const dispose=()=>{if(dead)return;dead=true;off();if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const a of held.splice(0))a.decRef();};
++ off=token.onCancel(dispose);
++ const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
++ try{
++  token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
++  if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&LAKESIDE_LAYER)!==0))throw Error('lakeside-background-layer-conflict');
++  const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
++  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
++  const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
++  if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
++  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
++  const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
++  rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
++  const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
++  for(const i of list){const n=instantiate(byName.get(lakesidePrefabName(i.glb))!);n.name=i.name;n.setPosition(i.pos[0],i.pos[1],i.pos[2]);n.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);n.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(n);instances++;}
++  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
++  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
++  setLayer(scenery);
++  const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
++  for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
++   const s=n.addComponent(SphereLight),c=lakesideLightSrgb(l);s.color=new Color(c[0],c[1],c[2],255);s.range=600;s.size=30;s.luminance*=12*l.ratio;s.visibility=LAKESIDE_LAYER;}
++  const cn=new Node(LAKESIDE_NODES.camera);cn.layer=LAKESIDE_LAYER;rig.addChild(cn);camera=cn.addComponent(Camera);
++  camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
++  camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
++  return {
++   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');},
++   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;},
++   setPaused:value=>{if(dead)return;paused=value;},
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
++   dispose,
++  };
++ }catch(error){dispose();throw error;}
++};
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta
+new file mode 100644
+index 0000000..5f79449
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "3b1948e8-4f7f-434c-a99f-7bedab1e55dd",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+new file mode 100644
+index 0000000..52542a9
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -0,0 +1,61 @@
++/**
++ * 风铃湖畔 (region_lakeside, r5h3) scene facts for the board background. Engine-independent (no 'cc'), unit-tested in Node.
++ * Source: art/regions/lakeside/COCOS_HANDOFF.md §3–§5 and bundles/region_lakeside/scene_r5h3_lighting.json.
++ * Units: metres, glTF/Cocos Y-up. The board is a 7×7 grid on the water: cell centre x=-3.3+1.1·col, z=8.7+1.1·row.
++ */
++export const LAKESIDE_BUNDLE = 'region_lakeside';
++export const LAKESIDE_TRANSFORMS = 'scene_r5h_slim_transforms';
++export const LAKESIDE_MODELS_DIR = 'models';
++/** Lakeside challenge ids from LEVELS_DRAFT_lakeside.json ('r04-lake-0N'); a future r05 renumbering also matches. */
++export function isLakesideStage(id: unknown): boolean { return /^r0[45]-lake-\d+$/.test(String(id || '')); }
++export const LAKESIDE_GRID = Object.freeze({ cols: 7, rows: 7, cell: 1.1, x0: -3.3, z0: 8.7, y: 0 });
++export function lakesideCellCenter(index: number): [number, number, number] {
++  if (!Number.isInteger(index) || index < 0 || index >= 49) throw Error('lakeside cell out of range: ' + index);
++  const col = index % 7, row = Math.floor(index / 7);
++  return [+(LAKESIDE_GRID.x0 + LAKESIDE_GRID.cell * col).toFixed(4), LAKESIDE_GRID.y, +(LAKESIDE_GRID.z0 + LAKESIDE_GRID.cell * row).toFixed(4)];
++}
++/** Outer edges of the 7×7 cells (half a cell beyond the outer centres). */
++export const LAKESIDE_BOARD_BOUNDS = Object.freeze({ min: [-3.85, 0, 8.15] as const, max: [3.85, 0, 15.85] as const, center: [0, 0, 12] as const });
++/** Handoff §4 board camera, authored for 720×1280 portrait. */
++export const LAKESIDE_BOARD_CAMERA = Object.freeze({
++  position: [0.0, 13.2, 26.5] as const, rotation: [-0.22109, 0, 0, 0.97525] as const, forward: [0.0, -0.4312, -0.9022] as const,
++  fovVerticalDeg: 61.928, near: 0.1, far: 1000, referenceAspect: 720 / 1280,
++});
++/** Same pose at any aspect: taller-than-reference screens keep the authored horizontal coverage (wider vertical FOV, capped at
++ *  the 75° camera limit); wider screens keep the authored vertical FOV. Position/rotation never change, so a later
++ *  travel/landing camera can end exactly on this pose. */
++export function lakesideBoardPose(aspect: number): { position: [number, number, number]; rotation: [number, number, number, number]; fovVerticalDeg: number } {
++  const c = LAKESIDE_BOARD_CAMERA, a = Number.isFinite(aspect) && aspect > 0 ? aspect : c.referenceAspect;
++  let fov = c.fovVerticalDeg;
++  if (a < c.referenceAspect) fov = 2 * Math.atan(Math.tan(c.fovVerticalDeg * Math.PI / 360) * c.referenceAspect / a) * 180 / Math.PI;
++  return { position: [...c.position] as [number, number, number], rotation: [...c.rotation] as [number, number, number, number], fovVerticalDeg: +Math.min(75, fov).toFixed(3) };
++}
++export type LakesideLight = Readonly<{ name: string; forward: readonly number[]; colorLinear: readonly number[]; ratio: number; onlyLayer?: string }>;
++/** Handoff §5 suns. Cocos has one main DirectionalLight (owned by the world scene), so the lease places each sun as a
++ *  far SphereLight on the layer, `LAKESIDE_SUN_DISTANCE` m up-light from the board centre (nearly parallel over the board),
++ *  with luminance scaled by the handoff ratios 1 / 0.08 / 0.22 / 0.31. SUN_mtn_sky only lights MTN_RECV → skipped. */
++export const LAKESIDE_LIGHTS: readonly LakesideLight[] = Object.freeze([
++  { name: 'Sun', forward: [-0.4182, -0.3983, 0.8164], colorLinear: [1.0, 0.6, 0.32], ratio: 1.0 },
++  { name: 'Sun.001', forward: [0.5014, -0.6217, -0.6017], colorLinear: [0.212, 0.631, 0.745], ratio: 0.08 },
++  { name: 'SUN_mtn_sky', forward: [-0.7318, -0.575, -0.3659], colorLinear: [1.0, 0.72, 0.48], ratio: 0.22, onlyLayer: 'MTN_RECV' },
++  { name: 'SUN_dusk_side', forward: [-0.9629, -0.223, 0.152], colorLinear: [1.0, 0.55, 0.28], ratio: 0.31 },
++]);
++export const LAKESIDE_SUN_DISTANCE = 220;
++export function lakesideLightPosition(l: LakesideLight): [number, number, number] {
++  const c = LAKESIDE_BOARD_BOUNDS.center, d = LAKESIDE_SUN_DISTANCE;
++  return [+(c[0] - l.forward[0] * d).toFixed(3), +(c[1] - l.forward[1] * d).toFixed(3), +(c[2] - l.forward[2] * d).toFixed(3)];
++}
++const linToSrgb8 = (c: number) => Math.round(255 * Math.max(0, Math.min(1, c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055)));
++export function lakesideLightSrgb(l: LakesideLight): [number, number, number] { return [linToSrgb8(l.colorLinear[0]), linToSrgb8(l.colorLinear[1]), linToSrgb8(l.colorLinear[2])]; }
++/** Warm dusk clear colour behind the far hills (no skybox in the bundle). */
++export const LAKESIDE_CLEAR_COLOR = '#f2b98a';
++export type LakesideInstance = Readonly<{ name: string; glb: string; group: string; pos: readonly number[]; rot_quat_xyzw: readonly number[]; scale: readonly number[]; animated?: boolean }>;
++/** The 2D board UI draws pieces, cells and selection. The live scene keeps the background and the static water dressing
++ *  (lily pads, rope floats, buoy lanterns, white-balance lines, chime rafts), and drops what the 2D board already shows:
++ *  3D match pieces, their contact shadows / ripple rings, and the board frame whose GLB is not in the subpackage. */
++export const LAKESIDE_SKIPPED_GLB: readonly string[] = Object.freeze(['LK_board_frame.glb', 'LK_contact_shadow.glb', 'LK_ripple_ring.glb']);
++export function lakesideSceneInstances(instances: readonly LakesideInstance[]): LakesideInstance[] {
++  if (!Array.isArray(instances) || !instances.length) throw Error('lakeside transforms empty');
++  return instances.filter(i => i && typeof i.glb === 'string' && !LAKESIDE_SKIPPED_GLB.includes(i.glb) && !/^LK_piece_/.test(i.glb));
++}
++export function lakesidePrefabName(glb: string): string { return String(glb).replace(/\.glb$/i, ''); }
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta b/creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta
+new file mode 100644
+index 0000000..694f4ce
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "f5c47506-c2c6-4329-9ea4-bc165fc618dc",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/ui/BoardArt.ts b/creator-build-project/assets/scripts/ui/BoardArt.ts
+index 46ba40e..d414c72 100644
+--- a/creator-build-project/assets/scripts/ui/BoardArt.ts
++++ b/creator-build-project/assets/scripts/ui/BoardArt.ts
+@@ -1,4 +1,4 @@
+-import { requiresMeadowScene, requiresSkycityScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
++import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene, MEADOW_UNAVAILABLE } from '../world-r2/LevelRegion';
+ import { assetManager, AssetManager, ImageAsset, Prefab, SpriteFrame, TextAsset, Texture2D } from 'cc';
+ /** Phase-1 board / popup art (bundle `board_art`, filled by tools/board_art_sync.py). Images are loaded as ImageAsset and
+  *  wrapped in runtime SpriteFrames, one directory at a time, on first use. Keys are 'dir/name' (e.g. 'board/piece_leaf'). */
+@@ -14,6 +14,7 @@ export function boardChapter(selection: { provider?: string; stageId?: string }
+   if (id.indexOf('r05-tide-') === 0) return 'tide';
+   if (requiresMeadowScene(selection)) return 'meadow';
+   if (requiresSkycityScene(selection)) return 'sky';
++  if (requiresLakesideScene(selection)) return 'lake';
+   return '';
+ }
+ /** Exact supported picture; missing meadow scenery is an explicit entry failure. */
+diff --git a/creator-build-project/assets/scripts/world-r2/LevelRegion.ts b/creator-build-project/assets/scripts/world-r2/LevelRegion.ts
+index ba67a2c..55e44d0 100644
+--- a/creator-build-project/assets/scripts/world-r2/LevelRegion.ts
++++ b/creator-build-project/assets/scripts/world-r2/LevelRegion.ts
+@@ -7,6 +7,11 @@ export function requiresMeadowScene(selection: RegionSelection): boolean {
+  return /^r05-meadow-/.test(id) || /^mainline-0[5-8]$/.test(id);
+ }
+ 
++/** 风铃湖畔 challenges (r04-lake-*) render the live region_lakeside scene. */
++export function requiresLakesideScene(selection:RegionSelection):boolean {
++ const id=String(selection?.stageId||'');return /^r0[45]-lake-\d+$/.test(id);
++}
++
+ export function requiresSkycityScene(selection:RegionSelection):boolean {
+  const id=String(selection?.stageId||'');return /^r05-sky-/.test(id)||/^mainline-(09|1[0-2])$/.test(id);
+ }
+diff --git a/creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts b/creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts
+index 1acb114..291ca0d 100644
+--- a/creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts
++++ b/creator-build-project/assets/scripts/world-r2/RegionalOverlay.ts
+@@ -23,6 +23,7 @@ export function paintRegionalOverlay(snapshot:any,cells:Node[]):void {
+   if(p.done)l.string='✓';
+   else if(region==='tide')l.string=p.progress>=p.layers?'待潮':'开壳';
+   else if(region==='meadow')l.string=icon.active?'→':'花粉';
++  else if(region==='lake')l.string='风铃';
+   else l.string=`${active?'':'待'}${p.polarity===0?'○':'●'}`;
+   // A segmented progress strip replaces fractional counters at 6–8px. Current relay
+   // is gold, completed segments teal; selected relay/partner is connected on the board.
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index 2505214..6489c50 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -1,9 +1,10 @@
+ import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
++import { createLakesideBoardBackground } from '../region/LakesideBoardBackground';
+ import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
+ import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
+ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys } from 'cc';
+ import { DEBUG } from 'cc/env';
+-import { requiresMeadowScene, requiresSkycityScene } from './LevelRegion';
++import { requiresMeadowScene, requiresSkycityScene, requiresLakesideScene } from './LevelRegion';
+ import { createMeadowBoardBackground, preflightMeadowScene } from '../region/MeadowBoardBackground';
+ import { createRegionFlowCheckpoint } from './RegionFlowTest';
+ import { WorldFlowComponent } from '../world-r1/WorldFlowComponent';
+@@ -43,7 +44,7 @@ export class WorldNativeComposition extends Component {
+     const fixture:any=this.smokeFixture.json;
+     this.selection={provider:'r4',stageId:fixture.stageId,seed:fixture.seed};
+     const composition=this;
+-    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?createMeadowBoardBackground(context):requiresSkycityScene(context.selection)?createSkycityBoardBackground(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
++    const levels=createNativeWorldLevelAdapter({uiParent:this.uiParent,fixture,background:context=>requiresMeadowScene(context.selection)?createMeadowBoardBackground(context):requiresLakesideScene(context.selection)?createLakesideBoardBackground(context):requiresSkycityScene(context.selection)?createSkycityBoardBackground(context):createIslandBoardBackground(context),get mainlinePort(){return composition.mainline;},get r4Persistence(){return composition.r4;},get r5Persistence(){return composition.persistence;},onSession:session=>{this.activeSession=session;},
+       select:id=>{if(!this.selection||id!==this.selection.stageId)throw Error('Select provider/stage explicitly first');return {...this.selection};},
+       navigation:{exit:()=>world.commands().exitLevel(),resume:()=>world.commands().snapshot().needsResume?world.commands().resume():undefined},
+     });
+@@ -73,6 +74,8 @@ export class WorldNativeComposition extends Component {
+   }
+   private selectionRegion(selection:Selection):JourneyRegion {
+     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
++    // 风铃湖畔 (r04-lake-*) is played from the island stop like tide: no physical lakeside journey route exists yet
++    // (运镜bot's travel/landing camera is the hook, see LakesideBoardBackground LAKESIDE_NODES).
+     return /^r05-meadow-/.test(selection.stageId)?'meadow':/^r05-sky-/.test(selection.stageId)?'skycity':'island';
+   }
+   /** Cold progress opens the same physical route in order. Unlocks are read from verified records, never counters. */
+@@ -109,8 +112,8 @@ export class WorldNativeComposition extends Component {
+     const r4=new (R4 as any)({platform:readOnly,journey:this.mainline.journey}).snapshot().stages;
+     const r5=(RegionalAPI as any).catalog.filter((x:any)=>x.ordinal===1).map((x:any)=>{const target=this.regionSelection(x.region);return target.ok?{id:target.selection.stageId,region:x.region,seed:target.selection.seed,...(CampaignHost as any).inspectSelection(this.persistence,target.selection)}:{id:x.id,region:x.region,ok:false,reason:target.reason};});
+     // Journal display only (x/4 per region): the provider still owns every gate and write.
+-    const challenges:Record<string,number>={tide:0,meadow:0,sky:0};
+-    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id);if(m)challenges[m[1]]++;}}catch{}
++    const challenges:Record<string,number>={tide:0,meadow:0,sky:0,lake:0};
++    try{const raw=this.persistence.platform.load('forest-regional-r05-progress'),d=raw?(typeof raw==='string'?JSON.parse(raw):raw):null;for(const id of Object.keys(d?.records||{})){const m=/^r05-(tide|meadow|sky)-/.exec(id)||/^r0[45]-(lake)-/.exec(id);if(m)challenges[m[1]]++;}}catch{}
+     return {r4,r5,challenges};
+   }
+ 
+-- 
+2.47.3
+

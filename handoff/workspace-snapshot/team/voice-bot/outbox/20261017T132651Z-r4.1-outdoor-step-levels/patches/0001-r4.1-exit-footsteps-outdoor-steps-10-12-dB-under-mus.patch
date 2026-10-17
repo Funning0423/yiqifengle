@@ -1,0 +1,297 @@
+From f125cd21d8c056ca1ec25072a4fc5855a40a4c60 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 21:27:46 +0800
+Subject: [PATCH] r4.1 exit footsteps: outdoor steps 10-12 dB under
+ music+ambience (recording-calibrated), indoor unchanged
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+运镜bot's cfe6429 recording (Chromium web build, master tap): outdoor steps sat 10-20 dB under the bed
+(400 ms K-weighted momentary), late grass/path barely audible as the wind bed rises.
+
+- STEP_GAIN: stone 0.38 -> 0.50 (+2.4 dB), path 0.34 -> 0.36 (+0.5), grass 0.32 -> 0.36 (+1.0); wood/rug unchanged.
+- STEP_WIND_LIFT outdoors: +6 dB x smoothstep(0.3, 0.9, wind) (WorldFlow.getWindStrength, same source as the walk
+  driver), <= 1.5 dB per 0.1 wind, so steps follow the wind bed without a jump.
+- STEP_VARIANT_TRIM_DB outdoors level-matches the 4 files per surface (path_1 was 3.1 dB under path_2);
+  outdoor jitter +-1.5 -> +-0.75 dB, so neighbours stay within ~3 dB. Indoor: gain, jitter, files exactly as cfe6429.
+- Recording re-scaled with the new volumes: outdoor 13.1 dB (6.4..19.6) -> 11.4 dB under (median 11.0);
+  door wood->stone +1.7 dB (exit), stone->wood -1.7 dB (return); outdoor neighbour max +1.3 dB.
+- Low-pass, assets, timing (STEP_LEAD_S, plants) untouched.
+- tools/exit-footsteps/recording_levels.py: per-step step/bed loudness from a master-tap recording (read-only).
+- test_footsteps: levels locked (indoor = cfe6429, outdoor gains/trims/lift), neighbour/door test on the real
+  exit + return, wind wiring; mix_preview uses the new levels.
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    |  2 +-
+ .../assets/scripts/audio/FootstepAudio.ts     |  7 +--
+ .../assets/scripts/audio/FootstepCore.ts      | 43 +++++++++++++++----
+ tools/exit-footsteps/footstep_align.cjs       |  2 +-
+ tools/exit-footsteps/mix_preview.py           | 10 +++--
+ tools/exit-footsteps/recording_levels.py      | 41 ++++++++++++++++++
+ tools/exit-footsteps/test_footsteps.cjs       | 43 +++++++++++++++++--
+ 7 files changed, 127 insertions(+), 21 deletions(-)
+ create mode 100644 tools/exit-footsteps/recording_levels.py
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 0fb815f..83a200b 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -498,7 +498,7 @@ export class WorldIntegrationBoot extends Component {
+  try{(this as any)._referenceAdapter.setWalkRestAhead(restAheadFromRoutes(createFirstsliceRoutes(FIRSTSLICE,REF)));}catch(e){console.warn('walk stop predicate unavailable',String(e));}
+  // r4 exit footsteps (Voice Bot): steps on the stand-in's real foot plants. Read-only view of its motion clock + controller root;
+  // the frozen stand-in is unchanged. Fed every world state below, ticked in lateUpdate (after the flow advanced her).
+- try{const adapter=(this as any)._referenceAdapter;this.footsteps?.dispose();this.footsteps=null;this.footsteps=new FootstepAudio(()=>{if((this as any)._referenceAdapter!==adapter||!adapter.node||!isValid(adapter.node))return null;const p=adapter.node.worldPosition;return {clock:adapter.clock??null,x:p.x,z:p.z,yaw:typeof adapter.yawRad==='number'?adapter.yawRad:adapter.node.eulerAngles.y*Math.PI/180};});}catch(error){this.footsteps=null;console.warn('footsteps unavailable (world unaffected)',String(error));}
++ try{const adapter=(this as any)._referenceAdapter;this.footsteps?.dispose();this.footsteps=null;this.footsteps=new FootstepAudio(()=>{if((this as any)._referenceAdapter!==adapter||!adapter.node||!isValid(adapter.node))return null;const p=adapter.node.worldPosition;const w=(composition as any).world,wind=w&&typeof w.getWindStrength==='function'?w.getWindStrength():0;return {clock:adapter.clock??null,x:p.x,z:p.z,yaw:typeof adapter.yawRad==='number'?adapter.yawRad:adapter.node.eulerAngles.y*Math.PI/180,wind:typeof wind==='number'&&isFinite(wind)?wind:0};});}catch(error){this.footsteps=null;console.warn('footsteps unavailable (world unaffected)',String(error));}
+  if(composition.worldCommands().snapshot().state!=='home')throw Error('Initial world is not at home');
+  for(const a of seated){const state=a.getState(this.selectedSeatedClip);if(!state)throw Error('Initial seated state lost');state.time=0;state.sample();}
+  this.ready=true;girl.active=true;this.syncHomeSeated('home',false);this.error='';console.info('HOME_SEATED_VISUAL',{stationary:false,dynamicAdapter:'layer-clearance-task21-keeps-waist14-ankle13',visualAcceptance:false});
+diff --git a/creator-build-project/assets/scripts/audio/FootstepAudio.ts b/creator-build-project/assets/scripts/audio/FootstepAudio.ts
+index 0e8c538..b455154 100644
+--- a/creator-build-project/assets/scripts/audio/FootstepAudio.ts
++++ b/creator-build-project/assets/scripts/audio/FootstepAudio.ts
+@@ -4,14 +4,15 @@
+  *  - Which frame: FootstepCore.FootstepTracker observes the stand-in's motion clock (read-only) and fires each plant
+  *    of FOOTSTEP_PLANTS (derived offline from the shipped character GLB) whose clip time was crossed (+ STEP_LEAD_S).
+  *  - Which surface: FOOTSTEP_GROUND (0.1 m map of the shipped room/island GLB) under the planted sole.
+- *  - How: GameAudio.play(step_<surface>_<n>, STEP_GAIN x +-1.5 dB). play() drops it when muted, sfx-muted, hidden or
++ *  - How: GameAudio.play(step_<surface>_<n>, stepBaseVolume (surface gain, outdoor variant trim + wind lift) x jitter). play() drops it when muted, sfx-muted, hidden or
+  *    interrupted, so nothing is queued and nothing bursts on return; the tracker keeps following the clock meanwhile.
+  *  Clips: region_island/audio_steps (20 x ~1.4 KB mono mp3), loaded on 'home' (before she stands up). */
+ import { assetManager, AudioClip } from 'cc';
+ import { GameAudio, qfAudioLog } from './GameAudio';
+ import { FootstepTracker, StepGround, StepVariantPicker, STEP_ASSETS, STEP_STATES, footPoint, StepClock, StepSurface } from './FootstepCore';
+ 
+-export type FootstepSourceSample = { clock: StepClock | null; x: number; z: number; yaw: number };
++/** wind: WorldFlow.getWindStrength() 0..1 this frame (outdoor steps follow the wind bed, STEP_WIND_LIFT); missing = 0. */
++export type FootstepSourceSample = { clock: StepClock | null; x: number; z: number; yaw: number; wind?: number };
+ 
+ export class FootstepAudio {
+   private tracker = new FootstepTracker();
+@@ -41,7 +42,7 @@ export class FootstepAudio {
+     for (let i = 0; i < hits.length; i++) {
+       const h = hits[i], p = footPoint(s.x, s.z, s.yaw, h);
+       if (!this.ground) this.ground = new StepGround();
+-      const surface = this.ground.surfaceAt(p[0], p[1]), v = this.picker.pick(surface);
++      const surface = this.ground.surfaceAt(p[0], p[1]), v = this.picker.pick(surface, typeof s.wind === 'number' && isFinite(s.wind) ? s.wind : 0);
+       const played = !!audio && audio.hasClip(v.name);
+       try { audio?.play(v.name, v.volume); } catch (e) { console.warn('[FootstepAudio] play failed', String(e)); }
+       this.log.push({ clip: h.clip, bone: h.bone, surface, name: v.name, volume: +v.volume.toFixed(3), played });
+diff --git a/creator-build-project/assets/scripts/audio/FootstepCore.ts b/creator-build-project/assets/scripts/audio/FootstepCore.ts
+index 5465b85..d14a8f7 100644
+--- a/creator-build-project/assets/scripts/audio/FootstepCore.ts
++++ b/creator-build-project/assets/scripts/audio/FootstepCore.ts
+@@ -23,12 +23,35 @@ export const STEP_VARIANTS = 4;
+ export const STEP_LEAD_S = 0.025;
+ /** Same foot cannot step twice inside this window (guards clip switches). */
+ export const STEP_DEDUPE_S = 0.25;
+-/** In-game volume per surface (files are peak -6 dBFS). Measured in the offline mix (README): the step's momentary
+- *  loudness (400 ms) sits ~7-13 dB under the bed (BGM in the room; BGM + wind + waves outside),
+- *  and its sample peak ~8 dB under the bed's. */
+-export const STEP_GAIN: Record<StepSurface, number> = { wood: 0.36, rug: 0.34, stone: 0.38, path: 0.34, grass: 0.32 };
+-/** +-1.5 dB random volume per step on top of the 4 pitch-baked variants (no machine-gun repetition). */
++/** In-game volume per surface (files are peak -6 dBFS). Target: the step's momentary loudness (400 ms, K-weighted)
++ *  sits ~10-12 dB under the bed (BGM in the room; BGM + wind + waves outside).
++ *  Indoor (wood, rug) as in cfe6429. Outdoor recalibrated on 运镜bot's cfe6429 recording (Chromium web build, master tap):
++ *  stone/path/grass sat 10-20 dB under there, so stone +2.4 dB, path +0.5 dB, grass +1.0 dB plus STEP_WIND_LIFT. */
++export const STEP_GAIN: Record<StepSurface, number> = { wood: 0.36, rug: 0.34, stone: 0.50, path: 0.36, grass: 0.36 };
++/** Indoor surfaces: unchanged since cfe6429 (no wind lift, no variant trim, +-1.5 dB jitter). */
++export const STEP_INDOOR: StepSurface[] = ['wood', 'rug'];
++/** +-1.5 dB random volume per step indoors on top of the 4 pitch-baked variants (no machine-gun repetition). */
+ export const STEP_JITTER_DB = 1.5;
++/** Outdoors +-0.75 dB: the variants are level-matched there, so neighbours stay within ~3 dB even while the wind lift
++ *  moves (worst case 1.5 dB jitter span + <= 1.5 dB lift change per step + 0.3 dB residual variant spread). */
++export const STEP_JITTER_OUT_DB = 0.75;
++/** Outdoor per-variant trim (dB, index = variant-1) so the 4 files of a surface have the same 400 ms loudness
++ *  (measured: path_1 was 3.1 dB under path_2). Mean 0 per surface. */
++export const STEP_VARIANT_TRIM_DB: Partial<Record<StepSurface, number[]>> = {
++  stone: [0.2, 0.1, 0.0, -0.3], path: [1.8, -1.4, -0.9, 0.6], grass: [0.2, -0.2, 0.2, -0.1] };
++/** Outdoors the bed rises with the wind (strong wind loop): +db x smoothstep(from, to, wind) so the late exit steps
++ *  stay ~11 dB under instead of 14-20 dB (recording). Max slope 1.5 dB per 0.1 wind. wind = WorldFlow.getWindStrength(), 0 indoors. */
++export const STEP_WIND_LIFT = { from: 0.3, to: 0.9, db: 6.0 };
++export function stepWindLiftDb(surface: StepSurface, wind: number): number {
++  if (STEP_INDOOR.indexOf(surface) >= 0 || !(wind > 0)) return 0;
++  const u = Math.min(1, Math.max(0, (wind - STEP_WIND_LIFT.from) / (STEP_WIND_LIFT.to - STEP_WIND_LIFT.from)));
++  return STEP_WIND_LIFT.db * u * u * (3 - 2 * u);
++}
++/** Volume for one step before jitter: surface gain x variant trim x wind lift (variant 0-based). */
++export function stepBaseVolume(surface: StepSurface, variant: number, wind: number): number {
++  const trim = (STEP_VARIANT_TRIM_DB[surface] || [])[variant] || 0;
++  return STEP_GAIN[surface] * Math.pow(10, (trim + stepWindLiftDb(surface, wind)) / 20);
++}
+ /** Flow states in which steps may sound: the exit (home -> island) and the return (island -> seat). Not region journeys. */
+ export const STEP_STATES = ['standing', 'turning-out', 'walking-out', 'opening-door', 'crossing-out', 'island',
+   'walking-home', 'crossing-in', 'closing-door', 'walking-to-seat', 'sitting'];
+@@ -135,16 +158,18 @@ export function footPoint(x: number, z: number, yaw: number, hit: { x: number; z
+   return [x + hit.x * c + hit.z * s, z - hit.x * s + hit.z * c];
+ }
+ 
+-/** Variant + volume: never the same file twice in a row on one surface, +-STEP_JITTER_DB volume. rnd() in [0,1). */
++/** Variant + volume: never the same file twice in a row on one surface; volume = stepBaseVolume x jitter
++ *  (+-STEP_JITTER_DB indoors, +-STEP_JITTER_OUT_DB outdoors). rnd() in [0,1). */
+ export class StepVariantPicker {
+   private last: Record<string, number> = {};
+   constructor(private rnd: () => number = Math.random) { }
+-  pick(surface: StepSurface): { name: StepClipName; volume: number } {
++  pick(surface: StepSurface, wind = 0): { name: StepClipName; volume: number } {
+     const prev = this.last[surface];
+     let i = Math.floor(this.rnd() * (prev === undefined ? STEP_VARIANTS : STEP_VARIANTS - 1));
+     if (prev !== undefined && i >= prev) i++;
+     this.last[surface] = i;
+-    const db = (this.rnd() * 2 - 1) * STEP_JITTER_DB;
+-    return { name: ('step_' + surface + '_' + (i + 1)) as StepClipName, volume: Math.min(1, STEP_GAIN[surface] * Math.pow(10, db / 20)) };
++    const j = STEP_INDOOR.indexOf(surface) >= 0 ? STEP_JITTER_DB : STEP_JITTER_OUT_DB;
++    const db = (this.rnd() * 2 - 1) * j;
++    return { name: ('step_' + surface + '_' + (i + 1)) as StepClipName, volume: Math.min(1, stepBaseVolume(surface, i, wind) * Math.pow(10, db / 20)) };
+   }
+ }
+diff --git a/tools/exit-footsteps/footstep_align.cjs b/tools/exit-footsteps/footstep_align.cjs
+index 2a0590d..fc9762b 100644
+--- a/tools/exit-footsteps/footstep_align.cjs
++++ b/tools/exit-footsteps/footstep_align.cjs
+@@ -43,5 +43,5 @@ if(require.main===module){const a=process.argv,arg=k=>{const i=a.indexOf(k);retu
+     console.log(JSON.stringify(res.stats));
+     for(const x of res.rows)console.log([x.plantT.toFixed(3),x.bone,x.state,x.clip,x.truthSurface,x.stepT===null?'-':x.stepT.toFixed(3),x.stepClip||'-',x.surface||'-',x.errMs===null?'-':x.errMs.toFixed(1),x.ok?'ok':'FAIL',x.surfaceOk?'':'SURF'].join('\t'));
+     for(const e of res.extra)console.log('EXTRA',e.t.toFixed(3),e.bone,e.state,e.clip,e.plantAbs.toFixed(3));
+-    if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({stats:res.stats,gains:loadCore().STEP_GAIN,rows:res.rows,extra:res.extra,changes:res.changes,frames:res.frames.map(f=>({t:f.t,state:f.state,wind:f.wind,roomLight:f.roomLight,pos:f.pos}))}));
++    if(arg('--json'))fs.writeFileSync(arg('--json'),JSON.stringify({stats:res.stats,gains:loadCore().STEP_GAIN,levels:(c=>({indoor:c.STEP_INDOOR,jitterIn:c.STEP_JITTER_DB,jitterOut:c.STEP_JITTER_OUT_DB,trim:c.STEP_VARIANT_TRIM_DB,windLift:c.STEP_WIND_LIFT}))(loadCore()),rows:res.rows,extra:res.extra,changes:res.changes,frames:res.frames.map(f=>({t:f.t,state:f.state,wind:f.wind,roomLight:f.roomLight,pos:f.pos}))}));
+   }).catch(e=>{console.error(e);process.exit(1);});}
+diff --git a/tools/exit-footsteps/mix_preview.py b/tools/exit-footsteps/mix_preview.py
+index 8a03824..f6a92fd 100644
+--- a/tools/exit-footsteps/mix_preview.py
++++ b/tools/exit-footsteps/mix_preview.py
+@@ -6,7 +6,8 @@
+ #   wind soft/strong loops x softGain(s) / strongGain(s) (bed = slider/0.4 = 1)
+ #   waves loop x max(0.55*(1-roomLight), 0.35*smoothstep(0.1,0.6,s)) x (1-0.25*smoothstep(0.3,1,s)), smoothed (4/s)
+ #   exit track sfx_exit_outbound (NEW, no baked steps) x 1 from 'crossing-out'
+-#   steps: the files GameAudio plays (variant picker: no immediate repeat, +-1.5 dB), at STEP_GAIN, fired at the step times
++#   steps: the files GameAudio plays (variant picker: no immediate repeat), at stepBaseVolume = STEP_GAIN x outdoor variant
++#   trim x outdoor wind lift (align.json "levels"), jitter +-1.5 dB in / +-0.75 dB out, fired at the step times
+ #   of the simulation. Not included: random/exit gulls (they sit above the bed anyway), UI clicks.
+ # Writes exit_preview_mix.wav/.mp3, exit_preview_steps_only.wav, exit_preview_spectrogram.png, loudness.json/.md.
+ import sys,os,json,subprocess,numpy as np
+@@ -36,8 +37,11 @@ G=A['gains']; rng=np.random.default_rng(17); last={}; steps=np.zeros(N); placed=
+ for r in A['rows']:
+     if r['stepT'] is None: continue
+     su=r['surface']; prev=last.get(su); i=int(rng.random()*(4 if prev is None else 3)); i+= 1 if prev is not None and i>=prev else 0; last[su]=i
+-    g=G[su]*10**((rng.random()*2-1)*1.5/20); x=dec(os.path.join(AS,f'bundles/region_island/audio_steps/step_{su}_{i+1}.mp3'))*g
+-    a=int(r['stepT']*SR); steps[a:a+len(x)]+=x[:max(0,N-a)]; placed.append({'t':r['stepT'],'surface':su,'file':f'step_{su}_{i+1}','gain':round(g,3),'state':r['state']})
++    LV=A.get('levels') or {'indoor':['wood','rug'],'jitterIn':1.5,'jitterOut':1.5,'trim':{},'windLift':{'from':0.4,'to':0.8,'db':0}}
++    indoor=su in LV['indoor']; wl=LV['windLift']; ws=float(np.interp(r['stepT'],ft,[f['wind'] for f in fr]))
++    lift=0 if indoor else wl['db']*ss(wl['from'],wl['to'],ws); trim=0 if indoor else (LV['trim'].get(su) or [0,0,0,0])[i]
++    g=G[su]*10**((trim+lift+(rng.random()*2-1)*(LV['jitterIn'] if indoor else LV['jitterOut']))/20); x=dec(os.path.join(AS,f'bundles/region_island/audio_steps/step_{su}_{i+1}.mp3'))*g
++    a=int(r['stepT']*SR); steps[a:a+len(x)]+=x[:max(0,N-a)]; placed.append({'t':r['stepT'],'surface':su,'file':f'step_{su}_{i+1}','gain':round(g,3),'wind':round(ws,2),'state':r['state']})
+ bed=bgm+soft+strong+waves+exit_; mix=bed+steps
+ # --- ITU-R BS.1770 K-weighting (pyloudnorm coefficients re-derived for SR) + momentary 400 ms
+ def kw(x):
+diff --git a/tools/exit-footsteps/recording_levels.py b/tools/exit-footsteps/recording_levels.py
+new file mode 100644
+index 0000000..0a615b6
+--- /dev/null
++++ b/tools/exit-footsteps/recording_levels.py
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python3
++# Voice Bot r4.1: per-step levels from a recording of the game's master output (运镜bot's in-page AudioWorklet tap).
++# Read-only on the recording. For every step in <rec>/<clip>/steps.csv (onset_video_t_s, name, vol from the game log):
++#   step  = decoded step_<surface>_<n>.mp3 x vol (the game's own play() volume; 运镜bot's fitted gain_in_mix ~= vol),
++#           placed at the onset refined by +-5 ms cross-correlation;
++#   bed   = mix - step;
++#   both measured as ITU-R BS.1770 K-weighted momentary loudness over one 400 ms window from onset-70 ms
++#   (the same window as mix_preview.py: centre = step + 0.13 s). underDb = bed - step.
++# usage: recording_levels.py <recording-yunjing dir> <A_exit|B_return> <out.json>
++import sys,csv,json,subprocess,math,os,numpy as np
++from scipy.signal import lfilter
++SR=44100
++STEPS=os.path.join(os.path.dirname(__file__),'..','..','creator-build-project/assets/bundles/region_island/audio_steps')
++def kw(x):
++    G_,Q,fc=3.99984385397,0.7071752369554193,1681.9744509555319; K=math.tan(math.pi*fc/SR); Vh=10**(G_/20); Vb=Vh**0.4996667741545416
++    a0=1+K/Q+K*K; b=[(Vh+Vb*K/Q+K*K)/a0,2*(K*K-Vh)/a0,(Vh-Vb*K/Q+K*K)/a0]; a=[1,2*(K*K-1)/a0,(1-K/Q+K*K)/a0]; y=lfilter(b,a,x)
++    Q2,fc2=0.5003270373253953,38.13547087613982; K=math.tan(math.pi*fc2/SR); a0=1+K/Q2+K*K
++    return lfilter([1,-2,1],[1,2*(K*K-1)/a0,(1-K/Q2+K*K)/a0],y)
++def M(x): y=kw(x)**2; return -0.691+10*np.log10(y.mean()+1e-20)
++def dec(p): return np.frombuffer(subprocess.run(['ffmpeg','-loglevel','error','-i',p,'-vn','-f','f32le','-ac','1','-ar',str(SR),'-'],capture_output=True,check=True).stdout,np.float32).astype(float)
++def file_lufs():
++    out={}
++    for su in ['wood','rug','stone','path','grass']:
++        v=[]
++        for i in range(1,5):
++            x=dec(os.path.join(STEPS,f'step_{su}_{i}.mp3')); z=np.zeros(int(0.4*SR)); o=int(0.07*SR); z[o:o+len(x)]=x[:len(z)-o]; v.append(round(M(z),1))
++        out[su]=v
++    return out
++if __name__=='__main__':
++    rec,clip,outp=sys.argv[1:4]; mix=dec(os.path.join(rec,clip,clip+'.mp4')); out=[]
++    for r in csv.DictReader(open(os.path.join(rec,clip,'steps.csv'))):
++        x=dec(os.path.join(STEPS,r['name']+'.mp3')); g=float(r['vol']); a=int(round(float(r['onset_video_t_s'])*SR)); best=(0,-1e9)
++        for d in range(-220,221,2):
++            seg=mix[a+d:a+d+len(x)]; c=np.dot(seg,x)/(np.linalg.norm(x)*np.linalg.norm(seg)+1e-12)
++            if c>best[1]: best=(d,c)
++        a+=best[0]; w0=a-int(0.07*SR); w1=w0+int(0.4*SR)
++        stp=np.zeros(w1-w0); stp[a-w0:a-w0+len(x)]=g*x[:w1-a]; bed=mix[w0:w1]-stp
++        out.append({'n':int(r['n']),'t':float(r['t_from_anchor_s']),'state':r['state'],'surface':r['surface'],'name':r['name'],'vol':g,'corr':round(best[1],3),
++                    'stepM':round(M(stp),1),'bedM':round(M(bed),1),'underDb':round(M(bed)-M(stp),1)})
++    json.dump({'clip':clip,'method':'400 ms K-weighted momentary, window onset-70ms..+330ms, step = file x game vol','fileLUFS':file_lufs(),'steps':out},open(outp,'w'),indent=1)
++    for o in out: print(o['n'],o['surface'],o['stepM'],o['bedM'],o['underDb'])
+diff --git a/tools/exit-footsteps/test_footsteps.cjs b/tools/exit-footsteps/test_footsteps.cjs
+index 8bba53c..5eff136 100644
+--- a/tools/exit-footsteps/test_footsteps.cjs
++++ b/tools/exit-footsteps/test_footsteps.cjs
+@@ -50,11 +50,44 @@ await test('tracker: loop wrap, no burst after reset / clip jump, same-foot dedu
+   T.reset();tr.abs=100;assert.equal(T.observe(clock,1/60).length,0,'first observation after reset never fires a backlog');
+   tr.abs=200;assert(T.observe(clock,1/60).length<=2,'a 100 s jump is deduped per foot');
+ });
+-await test('variant picker: never the same file twice in a row, volume = STEP_GAIN +-1.5 dB',()=>{
++await test('variant picker: never the same file twice in a row, volume = stepBaseVolume +-jitter (1.5 dB in, 0.75 dB out)',()=>{
+   let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;const P=new C.StepVariantPicker(rnd);
+-  for(const su of ['wood','rug','stone','path','grass']){let prev='';const seen=new Set();for(let i=0;i<500;i++){const v=P.pick(su);assert.notEqual(v.name,prev);prev=v.name;seen.add(v.name);
+-    const db=20*Math.log10(v.volume/C.STEP_GAIN[su]);assert(Math.abs(db)<=C.STEP_JITTER_DB+1e-9);}assert.equal(seen.size,4);}
+-  for(const su in C.STEP_GAIN)assert(C.STEP_GAIN[su]<=0.4,'steps stay soft: gain '+su+' '+C.STEP_GAIN[su]);
++  for(const wind of [0,0.5,1])for(const su of ['wood','rug','stone','path','grass']){let prev='';const seen=new Set();for(let i=0;i<500;i++){const v=P.pick(su,wind);assert.notEqual(v.name,prev);prev=v.name;seen.add(v.name);
++    const vi=+v.name.slice(-1)-1,db=20*Math.log10(v.volume/C.stepBaseVolume(su,vi,wind));assert(Math.abs(db)<=(C.STEP_INDOOR.includes(su)?C.STEP_JITTER_DB:C.STEP_JITTER_OUT_DB)+1e-9);}assert.equal(seen.size,4);}
++  assert.equal(P.pick('wood').volume>0,true,'wind defaults to 0');
++});
++// r4.1 outdoor levels (运镜bot's cfe6429 recording: outdoor steps 10-20 dB under the bed, late grass/path barely audible).
++// Per-file 400 ms K-weighted loudness at unity gain (LUFS, step_<surface>_1..4.mp3, measured by recording_levels.py).
++const J=x=>JSON.parse(JSON.stringify(x));// vm realm objects
++const FILE_LUFS={wood:[-30.3,-26.9,-28.2,-27.3],rug:[-27.3,-27.4,-28.1,-27.3],stone:[-29.6,-29.5,-29.4,-29.1],path:[-28.0,-24.8,-25.4,-26.8],grass:[-25.2,-24.7,-25.1,-24.8]};
++await test('levels locked: indoor = cfe6429, outdoor recalibrated (gain, variant trim, wind lift)',()=>{
++  assert.deepEqual(J(C.STEP_GAIN),{wood:0.36,rug:0.34,stone:0.50,path:0.36,grass:0.36});
++  assert.deepEqual(J(C.STEP_INDOOR),['wood','rug']);assert.equal(C.STEP_JITTER_DB,1.5);assert.equal(C.STEP_JITTER_OUT_DB,0.75);
++  assert.deepEqual(J(C.STEP_VARIANT_TRIM_DB),{stone:[0.2,0.1,0.0,-0.3],path:[1.8,-1.4,-0.9,0.6],grass:[0.2,-0.2,0.2,-0.1]});
++  assert.deepEqual(J(C.STEP_WIND_LIFT),{from:0.3,to:0.9,db:6.0});
++  // indoor: exactly the cfe6429 volume at any wind, every variant
++  for(const su of ['wood','rug'])for(let i=0;i<4;i++)for(const w of [0,0.5,1])assert.equal(C.stepBaseVolume(su,i,w),C.STEP_GAIN[su]);
++  // outdoor: trims level-match the variants (<= 0.3 dB spread) and have mean 0
++  for(const su of ['stone','path','grass']){const t=C.STEP_VARIANT_TRIM_DB[su],l=FILE_LUFS[su].map((x,i)=>x+t[i]);
++    assert(Math.max(...l)-Math.min(...l)<=0.3,su+' variants level-matched '+l);assert(Math.abs(t.reduce((a,b)=>a+b,0))<=0.11,su+" trims mean ~0 (0.1 dB rounding)");}
++  // wind lift: 0 at <= 0.3, smooth, 6 dB at >= 0.9, never > 1.5 dB per 0.1 wind (no jump between steps)
++  for(let w=0;w<=1.0001;w+=0.01){const d=C.stepWindLiftDb('grass',w+0.1)-C.stepWindLiftDb('grass',w);assert(d>=-1e-9&&d<=1.5+1e-9,'lift slope at '+w);}
++  assert.equal(C.stepWindLiftDb('path',0.3),0);assert.equal(C.stepWindLiftDb('path',0.9),6);assert.equal(C.stepWindLiftDb('wood',1),0);
++  // the 1.0 volume cap is never reached where a surface occurs: path/grass at any wind; the door slab at its wind (<= 0.5)
++  for(const su of ['path','grass'])for(let i=0;i<4;i++)assert(C.stepBaseVolume(su,i,1)*Math.pow(10,C.STEP_JITTER_OUT_DB/20)<1,su+i);
++  for(let i=0;i<4;i++)assert(C.stepBaseVolume('stone',i,0.5)*Math.pow(10,C.STEP_JITTER_OUT_DB/20)<1);
++});
++await test('no step louder than its neighbours by > ~3 dB outdoors (worst-case jitter draw 3.3), door wood<->stone <= 3 dB, real exit + return',async()=>{
++  const r=await AL.align({fps:60,returnHome:true}),ft=r.frames.map(f=>f.t);
++  const windAt=t=>{let i=ft.findIndex(x=>x>=t);if(i<0)i=ft.length-1;return r.frames[i].wind||0;};
++  const st=r.rows.filter(x=>x.stepT!==null).sort((a,b)=>a.stepT-b.stepT);assert(st.length>=50);
++  // worst case per step over variants (no repeat) and jitter; compare neighbour level ranges
++  const lvl=st.map(x=>{const su=x.surface,w=windAt(x.stepT),j=C.STEP_INDOOR.includes(su)?C.STEP_JITTER_DB:C.STEP_JITTER_OUT_DB;
++    const v=FILE_LUFS[su].map((f,i)=>f+20*Math.log10(C.stepBaseVolume(su,i,w)));return {su,t:x.stepT,w,lo:Math.min(...v)-j,hi:Math.max(...v)+j,mid:(Math.min(...v)+Math.max(...v))/2};});
++  let doors=0;for(let i=1;i<lvl.length;i++){const a=lvl[i-1],b=lvl[i];if(b.t-a.t>5)continue;// not neighbours: island idle between exit and return (the door opening gap is ~2.7 s)
++    if(C.STEP_INDOOR.includes(a.su)!==C.STEP_INDOOR.includes(b.su)){doors++;assert(Math.abs(b.mid-a.mid)<=3,'door transition '+a.su+'->'+b.su+' at '+b.t.toFixed(2)+': '+(b.mid-a.mid).toFixed(1)+' dB');}
++    if(!C.STEP_INDOOR.includes(a.su)&&!C.STEP_INDOOR.includes(b.su))assert(b.hi-a.lo<=3.3&&a.hi-b.lo<=3.3,'outdoor neighbours '+a.t.toFixed(2)+'/'+b.t.toFixed(2)+' '+JSON.stringify([a,b]));}
++  assert(doors>=2,'exit and return both cross the door: '+doors);
+ });
+ await test('ground: rug / wood / slab / path / grass cells; off-map falls back by side of the door',()=>{
+   const g=new C.StepGround();assert.equal(g.surfaceAt(0,-3),'rug');assert.equal(g.surfaceAt(1.6,-1),'wood');assert.equal(g.surfaceAt(0.2,0.4),'stone');
+@@ -113,6 +146,8 @@ await test('Boot wiring: FootstepAudio fed every world state next to GameAudio,
+   assert(/onWorldState\?\.\(state\);[^\n]*\n\s*try\{this\.footsteps\?\.onWorldState\(state\);/.test(b));
+   assert(/lateUpdate\(dt:number\)\{try\{this\.footsteps\?\.tick\(dt\);/.test(b));assert(/onDestroy\(\)\{this\.footsteps\?\.dispose\(\);/.test(b));
+   assert(/new FootstepAudio\(\(\)=>\{[^\n]*clock:adapter\.clock\?\?null/.test(b));
++  assert(/new FootstepAudio\(\(\)=>\{[^\n]*getWindStrength\(\)[^\n]*wind:typeof wind==='number'/.test(b),'steps get the same wind as the walk driver');
++  assert(/this\.picker\.pick\(surface, typeof s\.wind === 'number'/.test(fs.readFileSync(AUD+'/FootstepAudio.ts','utf8')),'FootstepAudio passes the wind to the picker');
+   const cp=require('node:child_process').spawnSync(process.execPath,['tools/legacy-test-repair/controller-integrity.cjs'],{encoding:'utf8'});assert.equal(cp.status,0,cp.stdout+cp.stderr);
+   const g=fs.readFileSync(AUD+'/GameAudio.ts','utf8');assert(!/from '\.\/Footstep/.test(g),'GameAudio does not import the footstep modules');
+ });
+-- 
+2.47.3
+

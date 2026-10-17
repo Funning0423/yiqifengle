@@ -1,0 +1,44 @@
+could not get a list of mounted file-systems
+23:13:15 | INFO: Data are loaded, start creating Blender stuff
+23:13:15 | INFO: Blender create Mesh node col_ext_tower_wall
+23:13:15 | INFO: Blender create Mesh node col_ext_cottage
+23:13:15 | INFO: Blender create Mesh node col_ext_trees
+23:13:15 | INFO: Blender create Mesh node col_ext_rocks
+23:13:15 | INFO: Blender create Mesh node col_ext_props_misc
+23:13:15 | INFO: Blender create Mesh node col_ext_ground_walkable
+23:13:15 | INFO: Blender create Mesh node col_ext_shore_barrier
+23:13:15 | INFO: glTF import finished in 0.01s
+23:13:15 | INFO: Data are loaded, start creating Blender stuff
+23:13:15 | INFO: Blender create Mesh node col_ext_palm_trunks
+23:13:15 | INFO: glTF import finished in 0.00s
+23:13:15 | INFO: Data are loaded, start creating Blender stuff
+23:13:15 | INFO: Blender create Mesh node col_ext_tower_wall
+23:13:15 | INFO: Blender create Mesh node col_ext_cottage
+23:13:15 | INFO: Blender create Mesh node col_ext_trees
+23:13:15 | INFO: Blender create Mesh node col_ext_rocks
+23:13:15 | INFO: Blender create Mesh node col_ext_props_misc
+23:13:15 | INFO: Blender create Mesh node col_ext_ground_walkable
+23:13:15 | INFO: Blender create Mesh node col_ext_shore_barrier
+23:13:15 | INFO: glTF import finished in 0.01s
+23:13:15 | INFO: Data are loaded, start creating Blender stuff
+23:13:15 | INFO: Blender create Mesh node col_ext_palm_trunks
+23:13:15 | INFO: glTF import finished in 0.00s
+CHECKS {
+ "fence_posts_on_ground": true,
+ "fence_clearance_ge_0_5": true,
+ "fence_no_interpenetration": true,
+ "fence_area_no_new_coplanar": true,
+ "tower_collision_ge_rendered": false,
+ "door_swing_free": true,
+ "routes_not_blocked": false,
+ "anchors_not_inside_blockers": true,
+ "anchor_ids_unchanged": true,
+ "glb_validates": true
+}
+CHECK_STATUS failed
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/art/island/v2.2a/scene/env_scene_island_v2_2a.blend"
+Read blend: "/workspace/wechat-game/team/voice-bot/m5-island/candidate/scene/env_scene_island_v2_2b_candidate.blend"
+
+Blender quit
+done

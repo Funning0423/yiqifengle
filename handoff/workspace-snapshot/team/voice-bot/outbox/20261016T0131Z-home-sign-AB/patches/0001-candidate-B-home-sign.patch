@@ -1,0 +1,145 @@
+From 50eceeaf5705b704ba711cc3901f003677891421 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Thu, 15 Oct 2026 21:18:28 -0400
+Subject: [PATCH] Candidate B (home sign): dark wood backing plate with cream
+ words on the journey sign; beach_palm_tall trimmed and moved out of the 0.46
+ close pull.
+
+Same sign transform as b14067c; Graphics plate + label colour only, 0 asset bytes. Palm: [-3.3,0.05,6.6], yaw 60, scale 0.75 (was [-0.5,-0.3,9.0], 200, 0.9).
+Not for merge: art candidate for Funning to choose (item 16 annotation).
+---
+ .../assets/scripts/world-r2/IslandProps.ts    | 26 ++++++++++++++-----
+ .../scripts/world-r2/IslandPropsLayout.ts     | 10 +++++--
+ docs/T9.md                                    |  4 +--
+ tools/camera-frame-test/t9_props.cjs          |  2 +-
+ 4 files changed, 31 insertions(+), 11 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandProps.ts b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+index 561fa04..2ae21f4 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandProps.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+@@ -1,4 +1,4 @@
+-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
++import { Node, Prefab, Material, MeshRenderer, Camera, Graphics, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
+ import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
+ import { islandPoseEntry } from '../world-r1/RegionCameraData';
+ import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+@@ -24,7 +24,7 @@ export class IslandProps {
+   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
+   private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
+   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
+-  private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
++  private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null; private signPlate: Graphics | null = null; private plateHex = '';
+   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
+   private lampNightMat: Material | null = null; private lampGlow: { node: Node; material: Material } | null = null; private sea: { material: Material; authored: number[]; applied: number } | null = null;
+   /** Signpost entrance (driven by the host from applyIslandEntrance): 1 = fully shown, 0 = hidden. */
+@@ -89,8 +89,13 @@ export class IslandProps {
+     try {
+       const T = ISLAND_PROPS.signpost.text, px = 300; // label pixels per local metre
+       const n = new Node('SignText'); n.layer = sign.layer; sign.addChild(n); n.setPosition(T.center[0], T.center[1], T.center[2]); n.setScale(1 / px, 1 / px, 1 / px);
+-      n.addComponent(RenderRoot2D); const t = n.addComponent(UITransform); t.setContentSize(T.widthM * px * 0.9, T.heightM * px * 0.8);
+-      const l = n.addComponent(Label); l.string = T.string; l.fontSize = 104; l.lineHeight = 112; l.isBold = true; l.color = new Color(T.color);
++      n.addComponent(RenderRoot2D); n.addComponent(UITransform).setContentSize(T.widthM * px, T.heightM * px);
++      // Candidate B: dark wood backing plate (Graphics, 0 asset bytes) drawn first, the label above it as a sibling.
++      const PL = ISLAND_PROPS.signpost.plate;
++      if (PL) { const pn = new Node('SignPlate'); pn.layer = sign.layer; n.addChild(pn); pn.addComponent(UITransform).setContentSize(PL.widthM * px, PL.heightM * px);
++        this.signPlate = pn.addComponent(Graphics); this.drawSignPlate(0); }
++      const ln = new Node('SignLabel'); ln.layer = sign.layer; n.addChild(ln); ln.addComponent(UITransform).setContentSize(T.widthM * px * 0.9, T.heightM * px * 0.8);
++      const l = ln.addComponent(Label); l.string = T.string; l.fontSize = 104; l.lineHeight = 112; l.isBold = true; l.color = new Color(PL ? PL.text : T.color);
+       l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER; l.overflow = Label.Overflow.SHRINK;
+       this.signText = n.addComponent(UIOpacity); this.signLabel = l; this.stats.label = 'render-root-2d';
+     } catch (e) { this.stats.label = 'failed:' + String(e); console.warn('[T9_PROPS] sign text unavailable', String(e)); }
+@@ -138,9 +143,18 @@ export class IslandProps {
+   private paintSignInk(w: number) {
+     const label = this.signLabel; if (!label || !isValid(label, true)) return;
+     const S = ISLAND_PROPS.signpost;
+-    const hex = mixHex(S.text.color, S.text.nightColor, w);
++    const hex = S.plate ? mixHex(S.plate.text, S.plate.nightText, w) : mixHex(S.text.color, S.text.nightColor, w);
+     const n = parseInt(hex.slice(1, 7), 16); if (!Number.isFinite(n)) return;
+     label.color = new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, 255);
++    this.drawSignPlate(w);
++  }
++  /** Candidate B plate: rounded rect, fill/edge follow the same night weight as the bottom tags; redrawn only when the colour changes. */
++  private drawSignPlate(w: number) {
++    const g = this.signPlate, PL = ISLAND_PROPS.signpost.plate; if (!g || !PL || !isValid(g, true)) return;
++    const fill = mixHex(PL.fill, PL.nightFill, w), edge = mixHex(PL.edge, PL.nightEdge, w), key = fill + edge; if (key === this.plateHex) return; this.plateHex = key;
++    const px = 300, W = PL.widthM * px, H = PL.heightM * px, r = PL.radiusM * px, e = PL.edgeM * px;
++    g.clear(); g.lineWidth = e; g.fillColor = new Color(fill); g.strokeColor = new Color(edge);
++    g.roundRect(-W / 2 + e / 2, -H / 2 + e / 2, W - e, H - e, r); g.fill(); g.stroke();
+   }
+   /** T9n-2 night sea: tint the sea renderer's EXISTING material instance (RoomLightingRig's tilingOffset instance) only. */
+   private bindSea() {
+@@ -367,5 +381,5 @@ export class IslandProps {
+     const r = signpostHitUi(pose, width, height); if (!r) return null;
+     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
+   }
+-  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
++  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; this.signPlate = null; this.plateHex = ''; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+ }
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+index eed18d2..7fedaff 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+@@ -9,7 +9,9 @@
+  *     grass (env_island_main, palette row 0), not in the sea. The face is turned about 15°
+  *     off both the wide shot and the closest pull, so the words stay readable and the board
+  *     still reads as a solid. Scale is small enough that the wide shot keeps it under 22%
+- *     of the frame and the close shot stays left of the lighthouse.
++ *     of the frame and the close shot stays left of the lighthouse. Candidate B (Voice Bot): same transform,
++ *     the words sit on a dark wood backing plate (cream letters) instead of a bigger board; beach_palm_tall
++ *     moved to the west beach end so the closest pull no longer looks through its crown.
+  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
+  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
+  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
+@@ -46,6 +48,10 @@ export const ISLAND_PROPS = Object.freeze({
+     boxMin: [-1.235, 0, -0.183] as V3, boxMax: [1.235, 1.875, 0.183] as V3,
+     /** props_info.json text_quad_local (Blender) -> Cocos local: (x, z, -y). Panel front face. */
+     text: { center: [0.2355, 0.98, 0.19] as V3, widthM: 1.44, heightM: 0.48, string: '继续旅程', color: '#633f21', nightColor: '#3a220f' },
++    /** Candidate B (Voice Bot): dark wood backing plate on the cream panel face with cream words on it, so the label reads
++     * as one high-contrast block from the wide shot. Sign-local metres; Graphics in the text RenderRoot2D, 0 asset bytes.
++     * text/nightText replace signpost.text.color/nightColor while the plate is present. */
++    plate: { widthM: 1.40, heightM: 0.44, radiusM: 0.07, edgeM: 0.03, fill: '#5b3a1f', edge: '#3e2612', nightFill: '#3e2a18', nightEdge: '#24160a', text: '#fbf3df', nightText: '#d8cdb5' },
+     /** Night-only warm lamp light (T9n). A real SphereLight just in front of lamp_glass (sign-local metres), restricted by
+      * Light.visibility to the sign's own layer so only the sign (2 renderers) gets the forward-add pass; range/size are
+      * sign-local and scale with the sign. luminanceScale multiplies the engine default luminance (HDR/LDR-safe, same
+@@ -57,7 +63,7 @@ export const ISLAND_PROPS = Object.freeze({
+     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
+   },
+   palms: [
+-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
++    { prefab: 'beach_palm_tall', position: [-3.3, 0.05, 6.6] as V3, yawDeg: 60, scale: 0.75 },
+     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
+   ] as readonly WorldProp[],
+   buttons: {
+diff --git a/docs/T9.md b/docs/T9.md
+index ba807dd..572c489 100644
+--- a/docs/T9.md
++++ b/docs/T9.md
+@@ -5,9 +5,9 @@
+ ## 运行时
+ - `world-r2/IslandProps.ts`：宿主。`WorldIntegrationBoot` 在世界 ready 后创建并异步 `load()`（region_island 包内 `ui-props/` 6 个 prefab + 岛的 `M_env_palette` 材质 uuid）。失败 = 保持原平面按钮，不影响启动。
+ - 所有道具渲染器共享岛上的 M_env_palette 材质资产 → 与岛同一主光 / 环境光 / 昼夜写入（RoomLightingRig 不改，无新增换材质）。唯一的换材质是路牌灯罩：白天 M_signpost_lamp，夜晚 M_env_palette（UV 在调色板自发光行，暖光）。
+-- 路牌：世界坐标固定在西侧草地（`ISLAND_PROPS.signpost` = (-4.08, 0.127, 0.7)，yaw 5.58°，scale 0.79）。两只立柱落在 `env_island_main` 的草地（调色板第 0 行）上，底面取较高那只立柱的地面高度，较高的那只立柱贴着草地，较低的那只因为坡度高出地面约 3.5 cm。牌面法线与朝向镜头的水平方向大约偏 15°，远景和拉近都能读字。远景投影宽度不超过画面的 22%。立柱处仍有接触阴影 + 两圈涟漪数据（程序网格，海面高度；草地盖住这块 xz，所以涟漪不露在草上）。文字“继续旅程”是 RenderRoot2D 下的系统字体 Label。原 `mainline` WarmButton 仍是命中区与动作（`composition.enterMainline()` 不变），透明，尺寸 = 路牌投影框扩到至少 88x88 逻辑像素（`signpostHitUi`；扩展部分仍完整覆盖路牌，留在 8px 安全边内并避开底排按钮，取离画面中心最远的一块，避免远景里盖住女主）。
++- 路牌：世界坐标固定在西侧草地（`ISLAND_PROPS.signpost` = (-4.08, 0.127, 0.7)，yaw 5.58°，scale 0.79）。两只立柱落在 `env_island_main` 的草地（调色板第 0 行）上，底面取较高那只立柱的地面高度，较高的那只立柱贴着草地，较低的那只因为坡度高出地面约 3.5 cm。牌面法线与朝向镜头的水平方向大约偏 15°，远景和拉近都能读字。远景投影宽度不超过画面的 22%。立柱处仍有接触阴影 + 两圈涟漪数据（程序网格，海面高度；草地盖住这块 xz，所以涟漪不露在草上）。文字“继续旅程”是 RenderRoot2D 下的系统字体 Label（候选 B：字后面加一块深木色圆角底板 `signpost.plate`（#5b3a1f，边 #3e2612），Graphics 画，0 资源字节；字改成奶油色 #fbf3df；夜间底板和字按同一夜间权重变暗）。原 `mainline` WarmButton 仍是命中区与动作（`composition.enterMainline()` 不变），透明，尺寸 = 路牌投影框扩到至少 88x88 逻辑像素（`signpostHitUi`；扩展部分仍完整覆盖路牌，留在 8px 安全边内并避开底排按钮，取离画面中心最远的一块，避免远景里盖住女主）。
+ - 三个按钮：原 `Island-bag/journal/settings` WarmButton 节点不变（动作不变），透明后作为命中区，按 `propButtonLayout` 放到底排；3D 道具每帧由 `seaAnchor` 放在命中区下方海面上并按像素高度缩放；奶油色圆角标签（Graphics + 系统字体 Label，深棕字）。
+-- 海滩：只加两棵棕榈（`beach_palm_tall` 左沙滩、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
++- 海滩：只加两棵棕榈（`beach_palm_tall` 西岸草地边 (-3.3, 0.05, 6.6) yaw 60°、scale 0.75（原 0.9），避开 0.46 最近停靠的镜头正下方、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
+ 
+ ## 点击订阅 API（给 Voice bot A5）
+ ```ts
+diff --git a/tools/camera-frame-test/t9_props.cjs b/tools/camera-frame-test/t9_props.cjs
+index ddfd001..fcd9bbf 100644
+--- a/tools/camera-frame-test/t9_props.cjs
++++ b/tools/camera-frame-test/t9_props.cjs
+@@ -8,7 +8,7 @@
+ const fs=require('fs'),path=require('path'),os=require('os'),cp=require('child_process'),G=require('./glb_geometry.cjs');
+ const T9_SHA='0ec1701',ROOT=path.resolve(__dirname,'..','..'),REL='creator-build-project/assets/bundles/region_island/ui-props';
+ const PROPS=[{prefab:'ui_signpost',position:[-4.08,0.127,0.7],yawDeg:5.58,scale:0.79},
+-  {prefab:'beach_palm_tall',position:[-0.5,-0.30,9.0],yawDeg:200,scale:0.9},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
++  {prefab:'beach_palm_tall',position:[-3.3,0.05,6.6],yawDeg:60,scale:0.75},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
+ function dir(){return process.env.T9_ROOT?path.join(process.env.T9_ROOT,REL):'git:'+T9_SHA+':'+REL;}
+ function glbFile(prefab){
+   if(process.env.T9_ROOT){const f=path.join(process.env.T9_ROOT,REL,prefab+'.glb');return fs.existsSync(f)?f:null;}
+-- 
+2.47.3
+

@@ -1,0 +1,53 @@
+{
+ "tap": "audioworklet",
+ "clockMap": "markers",
+ "videoEpoch0": 1792240306.255838,
+ "videoFrames": 3179,
+ "videoFpsMean": 52.91265421379277,
+ "frameDtMedianMs": 16.74807071685791,
+ "frameDtP95Ms": 30.12822866439809,
+ "maxFrameGapS": 4.048293113708496,
+ "audioSeconds": 60.074666666666666,
+ "audioBlockGaps": 0,
+ "audioGapFrames": [],
+ "gosOffsetSpanMs": 0.2923333512108002,
+ "sr": 48000,
+ "markers": [
+  {
+   "beepExpectedEpoch": 1792240307.3205264,
+   "beepOnsetEpoch": 1792240307.3205254,
+   "beepMinusExpectedMs": -0.00095367431640625,
+   "flashFrameEpoch": 1792240307.323375,
+   "flashMinusBeepMs": 2.849578857421875,
+   "frameDtAtFlashMs": 2.5620460510253906,
+   "gosMinusMarkerMs": -0.021696090698242188
+  },
+  {
+   "beepExpectedEpoch": 1792240309.4272203,
+   "beepOnsetEpoch": 1792240309.427213,
+   "beepMinusExpectedMs": -0.0073909759521484375,
+   "flashFrameEpoch": 1792240309.439152,
+   "flashMinusBeepMs": 11.939048767089844,
+   "frameDtAtFlashMs": 8.177042007446289,
+   "gosMinusMarkerMs": -0.0667572021484375
+  },
+  {
+   "beepExpectedEpoch": 1792240363.4962254,
+   "beepOnsetEpoch": 1792240363.496213,
+   "beepMinusExpectedMs": -0.01239776611328125,
+   "flashFrameEpoch": 1792240363.520653,
+   "flashMinusBeepMs": 24.44005012512207,
+   "frameDtAtFlashMs": 3.3791065216064453,
+   "gosMinusMarkerMs": 0.06318092346191406
+  },
+  {
+   "beepExpectedEpoch": 1792240365.6029112,
+   "beepOnsetEpoch": 1792240365.6029005,
+   "beepMinusExpectedMs": -0.010728836059570312,
+   "flashFrameEpoch": 1792240365.62097,
+   "flashMinusBeepMs": 18.06950569152832,
+   "frameDtAtFlashMs": 13.174057006835938,
+   "gosMinusMarkerMs": 0.00095367431640625
+  }
+ ]
+}

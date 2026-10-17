@@ -1,0 +1,10 @@
+87b15862666ee462872f75ed9f024876426cff07d3bf3270437c83c463852a9a  ./README.md
+37903005769044fcb5410eee84f05fc37a1e020ac3be6d248288190a70ffae3b  ./emu_warmfill_half.png
+cd8c8f7eaec600261b31f537033b5b6022fa18653afd2e59593dd888ffd44fb5  ./patches/0001-lakeside-v3.4-bridge-whiteness-Cocos-3.8.8-takes-lig.patch
+8050b6e59e8694b1768aa0cac058e8e1394c58bbcba761e8a6b28836f3d8d682  ./patches/0002-lakeside-v3.4-near-water-refit-the-51aaa85-water-onl.patch
+de1d0d30da0fe1154822d7206baea0a17217223e7b411a6868d23b6e0c84207d  ./patches/0003-lakeside-v3.4-pavilion-on-the-bridge-finding-no-real.patch
+33c90387167ff9487098982e28d5593a7e690d8b7f6eecce5194e5daf5613879  ./patches/0004-lakeside-r2-light-encoding-exactly-one-linear-Cocos-.patch
+7019ab6029f047f3f5937a837fa0ee4b8bb7194fcd81a1280518567864ead2c0  ./patches/0005-lakeside-r2-brightness-sun-0.5-0.7-warm-hemisphere-a.patch
+c7229ded9b3dd61898ff9bdf1bed14c72758e7a6ff6226d6b4db55dd0802affa  ./patches/0006-lakeside-r2b-warm-fill-halved-ground-ambient-warm-sa.patch
+ad5fd0fded6b3917849f9e8ff7bd171c6db105df50908f874c68a72ef0a12fe0  ./suite.log
+f1d24512593eeabf29a4f6f78861f4b8aeff62a050d06486ebcc2489c2c6ecaa  ./voice-build05-lakeside-art-engine-r2.bundle

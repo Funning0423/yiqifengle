@@ -1,0 +1,92 @@
+ .../bundles/board_art/popup/reward_seal_lake.png   | Bin 0 -> 5389 bytes
+ .../board_art/popup/reward_seal_lake.png.meta      |  42 ++
+ .../assets/bundles/board_art/r2/chapter_lake.png   | Bin 0 -> 3730 bytes
+ .../bundles/board_art/r2/chapter_lake.png.meta     |  42 ++
+ .../assets/bundles/board_art/r2/region_lake.png    | Bin 0 -> 9341 bytes
+ .../bundles/board_art/r2/region_lake.png.meta      |  42 ++
+ .../assets/scripts/ManagedMobileBoardUI.ts         |   2 +-
+ .../assets/scripts/SharedBundles.ts                |   2 +-
+ .../assets/scripts/WorldIntegrationBoot.ts         |   2 +-
+ .../scripts/region/LakesideBoardBackground.ts      |  51 ++
+ .../scripts/region/LakesideBoardBackground.ts.meta |   9 +
+ .../assets/scripts/region/LakesideSceneData.ts     |  61 ++
+ .../scripts/region/LakesideSceneData.ts.meta       |   9 +
+ .../runtime/board-session-provider.d.ts            |   2 +-
+ .../regional-r05/runtime/board-session-provider.js |   2 +-
+ .../assets/scripts/regional-r05/runtime/index.d.ts |   4 +-
+ .../assets/scripts/regional-r05/runtime/index.js   |   3 +-
+ .../regional-r05/runtime/progress-journal.js       |   9 +-
+ .../assets/scripts/ui/BoardArt.ts                  |   3 +-
+ .../assets/scripts/ui/IslandPanels.ts              |  24 +-
+ .../scripts/world-r2/IslandJourneyOverlay.ts       |   2 +-
+ .../assets/scripts/world-r2/LevelRegion.ts         |   5 +
+ .../assets/scripts/world-r2/RegionalOverlay.ts     |   1 +
+ .../scripts/world-r2/WorldNativeComposition.ts     |  11 +-
+ .../reports/board-freeze-recovery.stderr.txt       | 174 +++---
+ .../reports/board-runtime.stderr.txt               |   2 +
+ .../reports/board-storage-recovery.stderr.txt      |  20 +-
+ .../reports/build-guard-selftest.stderr.txt        |   0
+ .../reports/build-guard-selftest.stdout.txt        |   2 +
+ .../reports/cconb-bin-only.stderr.txt              |   0
+ .../reports/cconb-bin-only.stdout.txt              |   1 +
+ .../reports/cloud-web-contract.stderr.txt          |  10 +
+ .../reports/cloud-web-contract.stdout.txt          |  48 --
+ .../reports/composition-boundaries.json            |   2 +-
+ .../reports/composition-boundaries.stdout.txt      |   2 +-
+ .../reports/exit-background-resume.stderr.txt      |   0
+ .../reports/exit-background-resume.stdout.txt      |   4 +
+ .../reports/exit-cine-audio.stderr.txt             |   0
+ .../reports/exit-cine-audio.stdout.txt             |  11 +
+ .../reports/exit-restart-quiet.stderr.txt          |   0
+ .../reports/exit-restart-quiet.stdout.txt          |   2 +
+ .../reports/fade-cover-alpha.stderr.txt            |   0
+ .../reports/fade-cover-alpha.stdout.txt            |   1 +
+ .../reports/glass-sign-layout.stderr.txt           |   0
+ .../reports/glass-sign-layout.stdout.txt           |   1 +
+ .../reports/independent-journey.stdout.txt         |   4 +-
+ .../reports/independent-mainline.stdout.txt        |   2 +-
+ .../reports/journey-framing.json                   |  81 ++-
+ .../reports/journey-framing.stdout.txt             |  27 +-
+ .../reports/journey-lifecycle.json                 |   4 +-
+ .../reports/journey-occlusion.json                 | 662 +++++++++++----------
+ .../reports/journey-start-continuity.json          |   2 +-
+ .../reports/journey-start-continuity.stderr.txt    |   0
+ .../reports/journey-start-continuity.stdout.txt    |  33 +
+ .../journey-integration/reports/journey-types.json |   2 +-
+ .../reports/journey-types.stdout.txt               |   2 +-
+ .../reports/lakeside-entry.stderr.txt              |   0
+ .../reports/lakeside-entry.stdout.txt              |   9 +
+ .../reports/lakeside-rules.stderr.txt              |   0
+ .../reports/lakeside-rules.stdout.txt              |   8 +
+ .../reports/legacy-board-ui-pure.stderr.txt        |  27 +-
+ .../reports/legacy-board-ui-pure.stdout.txt        |  12 -
+ .../reports/mainline-boundaries.json               |   2 +-
+ .../reports/meadow-night-grade.stderr.txt          |   0
+ .../reports/meadow-night-grade.stdout.txt          |   3 +
+ .../reports/meadow-night-sky.stderr.txt            |   3 +
+ .../reports/meadow-night-sky.stdout.txt            |   1 +
+ .../reports/production-integrity.stderr.txt        |  24 +
+ .../reports/production-integrity.stdout.txt        |  19 -
+ .../reports/region-entry.stdout.txt                |   6 +-
+ .../reports/result-chest-handoff.stderr.txt        |   0
+ .../reports/result-chest-handoff.stdout.txt        |   1 +
+ .../reports/result-claim-batch.stderr.txt          |   0
+ .../reports/result-claim-batch.stdout.txt          |   1 +
+ .../reports/result-float-lift.stderr.txt           |   0
+ .../reports/result-float-lift.stdout.txt           |   1 +
+ .../reports/result-screen-style.stderr.txt         |   0
+ .../reports/result-screen-style.stdout.txt         | 137 +++++
+ .../reports/retry-protection.stderr.txt            |  10 +
+ .../reports/retry-protection.stdout.txt            |   1 -
+ .../reports/reward-background-return.stderr.txt    |  16 +-
+ .../reports/reward-background-return.stdout.txt    |  33 -
+ tools/journey-integration/reports/suite.json       | 340 +++++++++--
+ .../reports/wind-audio.stderr.txt                  |   0
+ .../reports/wind-audio.stdout.txt                  |  84 +++
+ .../reports/world-region-exit.json                 |   2 +-
+ .../reports/world-region-exit.stdout.txt           |   2 +-
+ tools/journey-integration/run-suite.cjs            |   2 +-
+ tools/lakeside/test_lakeside_entry.cjs             |  72 +++
+ tools/region-levels/test-region-levels.cjs         |   2 +-
+ tools/test_retry_protection.cjs                    |   6 +-
+ 91 files changed, 1579 insertions(+), 672 deletions(-)

@@ -1,0 +1,64 @@
+From ed2e532b7ab02d47b852d6e582ca6c51a71817eb Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 17:52:50 +0800
+Subject: [PATCH 13/15] lakeside water: colour uniforms pass through as linear
+ (drop linear:true)
+
+Cocos 3.8.8 Material._uploadProperty (cocos/asset/assets/material.ts) treats a property tagged
+`linear: true` as sRGB and squares it (pipeline-funcs SRGBToLinear x*x) on upload. The lease sends
+linear values, so waterTint / skyZenith / skyLow / skyHorizon were decoded a second time. Mac r3
+(f3d3614) bg-only 360x640 pixels are reproduced by the emulator only with that squaring
+(water mean max-channel error 21 -> 1.1 day / 3.7 night): the orange-saturated 'sandy' lake centre.
+Test: lakeside-water-fog asserts no linear:true in the CCEffect block.
+---
+ .../region_lakeside/water/lakeside-water.effect       | 11 +++++++----
+ tools/lakeside/test_lakeside_water_fog.cjs            |  4 ++++
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index 87a1025..0cfb244 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -1,6 +1,9 @@
+ // 风铃湖畔 water (GGbot D1 v3, v3.3). Cheap mobile water for WeChat WebGL1/2: lit like builtin-standard's diffuse terms
+ // (vertex colour x waterTint), Fresnel blend to the r5h3 sky colour at grazing angles, a Blinn-Phong sunset streak from the
+ // main DirectionalLight, optional sin-wave normal (cc_time). No textures, no render targets, scene fog applied. Instancing via local-batch.
++// r4 (VB): the four colour properties carry NO `linear: true`. In Cocos 3.8.8 Material._uploadProperty (asset/assets/material.ts)
++// a property tagged `linear` is treated as sRGB and squared (SRGBToLinear x*x) on upload; the lease sets LINEAR values
++// (LakesideSceneData LAKESIDE_WATER_SKY), so the tag decoded them a second time (Mac r3: the sky reflection came out orange-saturated).
+ CCEffect %{
+   techniques:
+   - name: opaque
+@@ -8,10 +11,10 @@ CCEffect %{
+     - vert: lk-water-vs:vert
+       frag: lk-water-fs:frag
+       properties:
+-        waterTint:     { value: [0.9, 1.0, 1.0, 1.0], linear: true, editor: { type: color } }
+-        skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], linear: true, editor: { type: color } }
+-        skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], linear: true, editor: { type: color } }
+-        skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], linear: true, editor: { type: color } }
++        waterTint:     { value: [0.9, 1.0, 1.0, 1.0], editor: { type: color } }
++        skyZenith:     { value: [0.0116, 0.2747, 0.4793, 1.0], editor: { type: color } }
++        skyLow:        { value: [0.9216, 0.5776, 0.2705, 1.0], editor: { type: color } }
++        skyHorizon:    { value: [1.0, 0.5457, 0.1441, 1.0], editor: { type: color } }
+         fresnelParams: { value: [5.0, 0.02, 0.85, 1.0], editor: { tooltip: 'x power, y F0, z max mix, w sky strength' } }
+         specParams:    { value: [300.0, 1.6, 0.0, 0.31], editor: { tooltip: 'x Blinn exponent, y intensity, z exponent noise (v3.3: 0 - its x-striped sin made the moving mid-lake bands), w sky-reflection floor (v3.2)' } }
+         waveParams:    { value: [0.06, 0.9, 0.7, 0.0], editor: { tooltip: 'x normal tilt, y freq (1/m), z speed, w unused' } }
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 5f33d7b..4024f99 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -25,6 +25,10 @@ assert(/CC_TRANSFER_FOG\(pos\)/.test(fx)&&/CC_APPLY_FOG\(o, v_worldPos\)/.test(f
+ assert(/CCGetWorldMatrixFull\(matWorld, matWorldIT\)/.test(fx),'instancing-aware world matrix');
+ assert(!/sampler2D|texture\(/.test(fx),'no textures');
+ const ub=fx.match(/uniform LakesideWater \{([\s\S]*?)\};/)[1].trim().split(/\n/).map(s=>s.trim());assert(ub.every(l=>/^vec4 \w+;$/.test(l)),'std140-safe vec4 block');
++// r4 (VB): Cocos 3.8.8 Material._uploadProperty squares (SRGBToLinear) any property tagged `linear: true`; the lease sends linear
++// values, so the colour properties must NOT carry the tag (r3 Mac: reflection orange-saturated = the colours squared once more).
++{const blk=fx.match(/^CCEffect %\{([\s\S]*?)\n\}%/m)[1];assert(!/linear:\s*true/.test(blk),'water colour uniforms pass through as authored (linear), no linear:true double decode');
++ for(const k of ['waterTint','skyZenith','skyLow','skyHorizon'])assert(new RegExp(k+':\\s+\\{ value: \\[[^\\]]*\\], editor: \\{ type: color \\} \\}').test(blk),k+' colour without linear tag');}
+ for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams','lightParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
+ // metas / material
+ const em=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.effect.meta'))),mt=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl'))),mm=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl.meta')));
+-- 
+2.47.3
+

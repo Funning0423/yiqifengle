@@ -1,0 +1,1499 @@
+{
+ "DY": -2.858,
+ "pieceBBoxBefore": [
+  [
+   -49.48,
+   -5,
+   64.73
+  ],
+  [
+   -44.63,
+   -0.53,
+   69.66
+  ]
+ ],
+ "env_sky_static_palette": [
+  {
+   "verts": 223,
+   "vertexIdRange": [
+    16363,
+    16585
+   ],
+   "bboxBefore": [
+    [
+     -49.48,
+     -3.27,
+     64.73
+    ],
+    [
+     -44.63,
+     -0.53,
+     69.66
+    ]
+   ],
+   "minVertDistToRouteBody": 3.24
+  },
+  {
+   "verts": 92,
+   "vertexIdRange": [
+    16586,
+    16677
+   ],
+   "bboxBefore": [
+    [
+     -46.1,
+     -5,
+     68.15
+    ],
+    [
+     -45.45,
+     -2.6,
+     68.8
+    ]
+   ],
+   "minVertDistToRouteBody": 5.02
+  },
+  {
+   "verts": 92,
+   "vertexIdRange": [
+    16678,
+    16769
+   ],
+   "bboxBefore": [
+    [
+     -48.65,
+     -5,
+     68.15
+    ],
+    [
+     -48,
+     -2.6,
+     68.8
+    ]
+   ],
+   "minVertDistToRouteBody": 7.24
+  },
+  {
+   "verts": 92,
+   "vertexIdRange": [
+    16770,
+    16861
+   ],
+   "bboxBefore": [
+    [
+     -46.1,
+     -5,
+     65.6
+    ],
+    [
+     -45.46,
+     -2.6,
+     66.25
+    ]
+   ],
+   "minVertDistToRouteBody": 3.8
+  },
+  {
+   "verts": 12,
+   "vertexIdRange": [
+    20809,
+    20820
+   ],
+   "bboxBefore": [
+    [
+     -45.63,
+     -1.32,
+     65.75
+    ],
+    [
+     -45.29,
+     -1.13,
+     66.02
+    ]
+   ],
+   "minVertDistToRouteBody": 3.51
+  },
+  {
+   "verts": 12,
+   "vertexIdRange": [
+    20821,
+    20832
+   ],
+   "bboxBefore": [
+    [
+     -47.55,
+     -1.26,
+     65.13
+    ],
+    [
+     -46.78,
+     -0.85,
+     65.77
+    ]
+   ],
+   "minVertDistToRouteBody": 4.55
+  },
+  {
+   "verts": 12,
+   "vertexIdRange": [
+    20833,
+    20844
+   ],
+   "bboxBefore": [
+    [
+     -47.34,
+     -1.09,
+     65.41
+    ],
+    [
+     -46.44,
+     -0.64,
+     66.26
+    ]
+   ],
+   "minVertDistToRouteBody": 4.58
+  },
+  {
+   "verts": 8,
+   "vertexIdRange": [
+    21805,
+    21812
+   ],
+   "bboxBefore": [
+    [
+     -47.35,
+     -0.57,
+     66.42
+    ],
+    [
+     -45.68,
+     -0.57,
+     68.03
+    ]
+   ],
+   "minVertDistToRouteBody": 4.46
+  },
+  {
+   "verts": 12,
+   "vertexIdRange": [
+    22189,
+    22200
+   ],
+   "bboxBefore": [
+    [
+     -46.25,
+     -0.84,
+     66.93
+    ],
+    [
+     -45.89,
+     -0.63,
+     67.37
+    ]
+   ],
+   "minVertDistToRouteBody": 4.57
+  },
+  {
+   "verts": 8,
+   "vertexIdRange": [
+    22561,
+    22568
+   ],
+   "bboxBefore": [
+    [
+     -46.28,
+     -0.83,
+     66.2
+    ],
+    [
+     -44.7,
+     -0.83,
+     67.99
+    ]
+   ],
+   "minVertDistToRouteBody": 3.46
+  }
+ ],
+ "env_sky_static_foliage_cards": [
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1592,
+    1595
+   ],
+   "bboxBefore": [
+    [
+     -46.97,
+     -0.66,
+     66.45
+    ],
+    [
+     -46.36,
+     -0.19,
+     66.49
+    ]
+   ],
+   "minVertDistToRouteBody": 4.75
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1596,
+    1599
+   ],
+   "bboxBefore": [
+    [
+     -46.68,
+     -0.66,
+     66.17
+    ],
+    [
+     -46.64,
+     -0.19,
+     66.78
+    ]
+   ],
+   "minVertDistToRouteBody": 4.84
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1600,
+    1603
+   ],
+   "bboxBefore": [
+    [
+     -47.84,
+     -0.66,
+     66.56
+    ],
+    [
+     -47.49,
+     -0.25,
+     66.96
+    ]
+   ],
+   "minVertDistToRouteBody": 5.97
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1604,
+    1607
+   ],
+   "bboxBefore": [
+    [
+     -47.87,
+     -0.66,
+     66.59
+    ],
+    [
+     -47.47,
+     -0.25,
+     66.94
+    ]
+   ],
+   "minVertDistToRouteBody": 5.76
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1608,
+    1611
+   ],
+   "bboxBefore": [
+    [
+     -47.77,
+     -1.26,
+     64.96
+    ],
+    [
+     -47.47,
+     -0.9,
+     65.32
+    ]
+   ],
+   "minVertDistToRouteBody": 4.98
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1612,
+    1615
+   ],
+   "bboxBefore": [
+    [
+     -47.8,
+     -1.26,
+     64.99
+    ],
+    [
+     -47.44,
+     -0.9,
+     65.29
+    ]
+   ],
+   "minVertDistToRouteBody": 5.11
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1616,
+    1619
+   ],
+   "bboxBefore": [
+    [
+     -46.61,
+     -1.03,
+     65.25
+    ],
+    [
+     -46.42,
+     -0.62,
+     65.74
+    ]
+   ],
+   "minVertDistToRouteBody": 4.37
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1620,
+    1623
+   ],
+   "bboxBefore": [
+    [
+     -46.76,
+     -1.03,
+     65.4
+    ],
+    [
+     -46.27,
+     -0.62,
+     65.59
+    ]
+   ],
+   "minVertDistToRouteBody": 4.14
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1624,
+    1627
+   ],
+   "bboxBefore": [
+    [
+     -48.18,
+     -1.17,
+     65.34
+    ],
+    [
+     -47.78,
+     -0.83,
+     65.53
+    ]
+   ],
+   "minVertDistToRouteBody": 5.53
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1628,
+    1631
+   ],
+   "bboxBefore": [
+    [
+     -48.08,
+     -1.17,
+     65.23
+    ],
+    [
+     -47.89,
+     -0.83,
+     65.63
+    ]
+   ],
+   "minVertDistToRouteBody": 5.48
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1632,
+    1635
+   ],
+   "bboxBefore": [
+    [
+     -46.26,
+     -1.22,
+     65.16
+    ],
+    [
+     -45.92,
+     -0.81,
+     65.58
+    ]
+   ],
+   "minVertDistToRouteBody": 3.92
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1636,
+    1639
+   ],
+   "bboxBefore": [
+    [
+     -46.3,
+     -1.22,
+     65.2
+    ],
+    [
+     -45.88,
+     -0.81,
+     65.54
+    ]
+   ],
+   "minVertDistToRouteBody": 3.71
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1640,
+    1643
+   ],
+   "bboxBefore": [
+    [
+     -45.53,
+     -1.19,
+     66.16
+    ],
+    [
+     -44.97,
+     -0.71,
+     66.43
+    ]
+   ],
+   "minVertDistToRouteBody": 3.37
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1644,
+    1647
+   ],
+   "bboxBefore": [
+    [
+     -45.39,
+     -1.19,
+     66.02
+    ],
+    [
+     -45.12,
+     -0.71,
+     66.58
+    ]
+   ],
+   "minVertDistToRouteBody": 3.67
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1648,
+    1651
+   ],
+   "bboxBefore": [
+    [
+     -45.72,
+     -0.96,
+     67.52
+    ],
+    [
+     -45.2,
+     -0.51,
+     67.78
+    ]
+   ],
+   "minVertDistToRouteBody": 4.35
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1652,
+    1655
+   ],
+   "bboxBefore": [
+    [
+     -45.59,
+     -0.96,
+     67.39
+    ],
+    [
+     -45.33,
+     -0.51,
+     67.91
+    ]
+   ],
+   "minVertDistToRouteBody": 4.28
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1656,
+    1659
+   ],
+   "bboxBefore": [
+    [
+     -47.23,
+     -0.61,
+     66.66
+    ],
+    [
+     -46.85,
+     -0.15,
+     67.12
+    ]
+   ],
+   "minVertDistToRouteBody": 5.48
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    1660,
+    1663
+   ],
+   "bboxBefore": [
+    [
+     -47.27,
+     -0.61,
+     66.7
+    ],
+    [
+     -46.81,
+     -0.15,
+     67.08
+    ]
+   ],
+   "minVertDistToRouteBody": 5.24
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5816,
+    5819
+   ],
+   "bboxBefore": [
+    [
+     -46.59,
+     -0.65,
+     66.87
+    ],
+    [
+     -46.13,
+     -0.19,
+     67.27
+    ]
+   ],
+   "minVertDistToRouteBody": 4.73
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5820,
+    5823
+   ],
+   "bboxBefore": [
+    [
+     -46.56,
+     -0.65,
+     66.84
+    ],
+    [
+     -46.16,
+     -0.19,
+     67.3
+    ]
+   ],
+   "minVertDistToRouteBody": 4.96
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5824,
+    5827
+   ],
+   "bboxBefore": [
+    [
+     -47.35,
+     -0.6,
+     67.31
+    ],
+    [
+     -46.81,
+     -0.19,
+     67.41
+    ]
+   ],
+   "minVertDistToRouteBody": 5.59
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5828,
+    5831
+   ],
+   "bboxBefore": [
+    [
+     -47.13,
+     -0.6,
+     67.09
+    ],
+    [
+     -47.03,
+     -0.19,
+     67.63
+    ]
+   ],
+   "minVertDistToRouteBody": 5.62
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5832,
+    5835
+   ],
+   "bboxBefore": [
+    [
+     -47.3,
+     -0.59,
+     67.08
+    ],
+    [
+     -46.9,
+     -0.2,
+     67.41
+    ]
+   ],
+   "minVertDistToRouteBody": 5.51
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5836,
+    5839
+   ],
+   "bboxBefore": [
+    [
+     -47.26,
+     -0.59,
+     67.05
+    ],
+    [
+     -46.93,
+     -0.2,
+     67.44
+    ]
+   ],
+   "minVertDistToRouteBody": 5.71
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5840,
+    5843
+   ],
+   "bboxBefore": [
+    [
+     -48.03,
+     -0.66,
+     67.24
+    ],
+    [
+     -47.53,
+     -0.2,
+     67.58
+    ]
+   ],
+   "minVertDistToRouteBody": 6.3
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5844,
+    5847
+   ],
+   "bboxBefore": [
+    [
+     -47.96,
+     -0.66,
+     67.16
+    ],
+    [
+     -47.61,
+     -0.2,
+     67.65
+    ]
+   ],
+   "minVertDistToRouteBody": 6.16
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5848,
+    5851
+   ],
+   "bboxBefore": [
+    [
+     -47.97,
+     -0.65,
+     67.19
+    ],
+    [
+     -47.59,
+     -0.34,
+     67.33
+    ]
+   ],
+   "minVertDistToRouteBody": 6.16
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5852,
+    5855
+   ],
+   "bboxBefore": [
+    [
+     -47.85,
+     -0.65,
+     67.07
+    ],
+    [
+     -47.71,
+     -0.34,
+     67.45
+    ]
+   ],
+   "minVertDistToRouteBody": 6.34
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5856,
+    5859
+   ],
+   "bboxBefore": [
+    [
+     -47.49,
+     -0.66,
+     66.34
+    ],
+    [
+     -47.01,
+     -0.28,
+     66.46
+    ]
+   ],
+   "minVertDistToRouteBody": 5.31
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5860,
+    5863
+   ],
+   "bboxBefore": [
+    [
+     -47.31,
+     -0.66,
+     66.16
+    ],
+    [
+     -47.19,
+     -0.28,
+     66.64
+    ]
+   ],
+   "minVertDistToRouteBody": 5.32
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5864,
+    5867
+   ],
+   "bboxBefore": [
+    [
+     -47.26,
+     -0.74,
+     65.88
+    ],
+    [
+     -46.94,
+     -0.3,
+     66.36
+    ]
+   ],
+   "minVertDistToRouteBody": 4.96
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5868,
+    5871
+   ],
+   "bboxBefore": [
+    [
+     -47.33,
+     -0.74,
+     65.96
+    ],
+    [
+     -46.86,
+     -0.3,
+     66.28
+    ]
+   ],
+   "minVertDistToRouteBody": 5.09
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5872,
+    5875
+   ],
+   "bboxBefore": [
+    [
+     -46.5,
+     -1.16,
+     65.15
+    ],
+    [
+     -46.25,
+     -0.84,
+     65.48
+    ]
+   ],
+   "minVertDistToRouteBody": 4.17
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5876,
+    5879
+   ],
+   "bboxBefore": [
+    [
+     -46.54,
+     -1.16,
+     65.19
+    ],
+    [
+     -46.21,
+     -0.84,
+     65.44
+    ]
+   ],
+   "minVertDistToRouteBody": 3.99
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5880,
+    5883
+   ],
+   "bboxBefore": [
+    [
+     -46.21,
+     -0.83,
+     66.18
+    ],
+    [
+     -45.77,
+     -0.42,
+     66.5
+    ]
+   ],
+   "minVertDistToRouteBody": 4.08
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5884,
+    5887
+   ],
+   "bboxBefore": [
+    [
+     -46.15,
+     -0.83,
+     66.12
+    ],
+    [
+     -45.83,
+     -0.42,
+     66.56
+    ]
+   ],
+   "minVertDistToRouteBody": 4.31
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5888,
+    5891
+   ],
+   "bboxBefore": [
+    [
+     -45.93,
+     -0.89,
+     66.5
+    ],
+    [
+     -45.39,
+     -0.47,
+     66.58
+    ]
+   ],
+   "minVertDistToRouteBody": 3.94
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5892,
+    5895
+   ],
+   "bboxBefore": [
+    [
+     -45.7,
+     -0.89,
+     66.27
+    ],
+    [
+     -45.62,
+     -0.47,
+     66.81
+    ]
+   ],
+   "minVertDistToRouteBody": 3.99
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5896,
+    5899
+   ],
+   "bboxBefore": [
+    [
+     -46.37,
+     -0.88,
+     68.26
+    ],
+    [
+     -46.1,
+     -0.54,
+     68.61
+    ]
+   ],
+   "minVertDistToRouteBody": 5.37
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5900,
+    5903
+   ],
+   "bboxBefore": [
+    [
+     -46.4,
+     -0.88,
+     68.3
+    ],
+    [
+     -46.06,
+     -0.54,
+     68.57
+    ]
+   ],
+   "minVertDistToRouteBody": 5.48
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5904,
+    5907
+   ],
+   "bboxBefore": [
+    [
+     -48.39,
+     -0.81,
+     66.74
+    ],
+    [
+     -48.31,
+     -0.41,
+     67.25
+    ]
+   ],
+   "minVertDistToRouteBody": 6.57
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5908,
+    5911
+   ],
+   "bboxBefore": [
+    [
+     -48.6,
+     -0.81,
+     66.96
+    ],
+    [
+     -48.09,
+     -0.41,
+     67.03
+    ]
+   ],
+   "minVertDistToRouteBody": 6.52
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5912,
+    5915
+   ],
+   "bboxBefore": [
+    [
+     -48.23,
+     -0.8,
+     66.13
+    ],
+    [
+     -47.68,
+     -0.33,
+     66.41
+    ]
+   ],
+   "minVertDistToRouteBody": 5.86
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5916,
+    5919
+   ],
+   "bboxBefore": [
+    [
+     -48.09,
+     -0.8,
+     66
+    ],
+    [
+     -47.81,
+     -0.33,
+     66.55
+    ]
+   ],
+   "minVertDistToRouteBody": 5.78
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5920,
+    5923
+   ],
+   "bboxBefore": [
+    [
+     -48.4,
+     -1.13,
+     65.49
+    ],
+    [
+     -47.98,
+     -0.75,
+     65.75
+    ]
+   ],
+   "minVertDistToRouteBody": 5.81
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5924,
+    5927
+   ],
+   "bboxBefore": [
+    [
+     -48.32,
+     -1.13,
+     65.41
+    ],
+    [
+     -48.06,
+     -0.75,
+     65.83
+    ]
+   ],
+   "minVertDistToRouteBody": 5.71
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5928,
+    5931
+   ],
+   "bboxBefore": [
+    [
+     -45.99,
+     -0.94,
+     65.99
+    ],
+    [
+     -45.63,
+     -0.61,
+     66.25
+    ]
+   ],
+   "minVertDistToRouteBody": 3.87
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5932,
+    5935
+   ],
+   "bboxBefore": [
+    [
+     -45.94,
+     -0.94,
+     65.94
+    ],
+    [
+     -45.68,
+     -0.61,
+     66.3
+    ]
+   ],
+   "minVertDistToRouteBody": 4.06
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5936,
+    5939
+   ],
+   "bboxBefore": [
+    [
+     -45.37,
+     -1.03,
+     66.52
+    ],
+    [
+     -45.27,
+     -0.58,
+     67.1
+    ]
+   ],
+   "minVertDistToRouteBody": 3.81
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5940,
+    5943
+   ],
+   "bboxBefore": [
+    [
+     -45.61,
+     -1.03,
+     66.77
+    ],
+    [
+     -45.03,
+     -0.58,
+     66.86
+    ]
+   ],
+   "minVertDistToRouteBody": 3.76
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5944,
+    5947
+   ],
+   "bboxBefore": [
+    [
+     -45.2,
+     -1.22,
+     66.9
+    ],
+    [
+     -44.81,
+     -0.77,
+     67.34
+    ]
+   ],
+   "minVertDistToRouteBody": 3.58
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5948,
+    5951
+   ],
+   "bboxBefore": [
+    [
+     -45.23,
+     -1.22,
+     66.92
+    ],
+    [
+     -44.78,
+     -0.77,
+     67.31
+    ]
+   ],
+   "minVertDistToRouteBody": 3.76
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5952,
+    5955
+   ],
+   "bboxBefore": [
+    [
+     -45.37,
+     -1.17,
+     67.74
+    ],
+    [
+     -44.99,
+     -0.86,
+     67.9
+    ]
+   ],
+   "minVertDistToRouteBody": 4.23
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5956,
+    5959
+   ],
+   "bboxBefore": [
+    [
+     -45.26,
+     -1.17,
+     67.63
+    ],
+    [
+     -45.1,
+     -0.86,
+     68.01
+    ]
+   ],
+   "minVertDistToRouteBody": 4.2
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5960,
+    5963
+   ],
+   "bboxBefore": [
+    [
+     -48.69,
+     -1.01,
+     67.53
+    ],
+    [
+     -48.69,
+     -0.59,
+     68.09
+    ]
+   ],
+   "minVertDistToRouteBody": 7.29
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5964,
+    5967
+   ],
+   "bboxBefore": [
+    [
+     -48.96,
+     -1.01,
+     67.81
+    ],
+    [
+     -48.41,
+     -0.59,
+     67.81
+    ]
+   ],
+   "minVertDistToRouteBody": 7.18
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5968,
+    5971
+   ],
+   "bboxBefore": [
+    [
+     -48.98,
+     -1.06,
+     67.07
+    ],
+    [
+     -48.77,
+     -0.69,
+     67.5
+    ]
+   ],
+   "minVertDistToRouteBody": 7.14
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5972,
+    5975
+   ],
+   "bboxBefore": [
+    [
+     -49.09,
+     -1.06,
+     67.18
+    ],
+    [
+     -48.66,
+     -0.69,
+     67.39
+    ]
+   ],
+   "minVertDistToRouteBody": 7.19
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5976,
+    5979
+   ],
+   "bboxBefore": [
+    [
+     -48.84,
+     -1.01,
+     66.4
+    ],
+    [
+     -48.54,
+     -0.69,
+     66.7
+    ]
+   ],
+   "minVertDistToRouteBody": 6.76
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5980,
+    5983
+   ],
+   "bboxBefore": [
+    [
+     -48.84,
+     -1.01,
+     66.4
+    ],
+    [
+     -48.54,
+     -0.69,
+     66.7
+    ]
+   ],
+   "minVertDistToRouteBody": 6.61
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5984,
+    5987
+   ],
+   "bboxBefore": [
+    [
+     -48.54,
+     -0.92,
+     66.14
+    ],
+    [
+     -48.1,
+     -0.58,
+     66.22
+    ]
+   ],
+   "minVertDistToRouteBody": 6.1
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5988,
+    5991
+   ],
+   "bboxBefore": [
+    [
+     -48.36,
+     -0.92,
+     65.97
+    ],
+    [
+     -48.28,
+     -0.58,
+     66.4
+    ]
+   ],
+   "minVertDistToRouteBody": 6.24
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5992,
+    5995
+   ],
+   "bboxBefore": [
+    [
+     -48.67,
+     -1.21,
+     65.64
+    ],
+    [
+     -48.65,
+     -0.8,
+     66.18
+    ]
+   ],
+   "minVertDistToRouteBody": 6.35
+  },
+  {
+   "verts": 4,
+   "vertexIdRange": [
+    5996,
+    5999
+   ],
+   "bboxBefore": [
+    [
+     -48.93,
+     -1.21,
+     65.9
+    ],
+    [
+     -48.39,
+     -0.8,
+     65.91
+    ]
+   ],
+   "minVertDistToRouteBody": 6.24
+  }
+ ]
+}

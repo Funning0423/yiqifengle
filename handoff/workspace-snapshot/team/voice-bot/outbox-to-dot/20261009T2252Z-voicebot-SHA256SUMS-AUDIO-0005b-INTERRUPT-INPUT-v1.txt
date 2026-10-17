@@ -1,0 +1,17 @@
+# SHA256 for 20261009T2252Z-voicebot-AUDIO-0005b-INTERRUPT-INPUT-v1.zip and its inner files (Voice Bot, AUDIO-0005b interruption input v1)
+# zip:
+191eec330fddbcb027519bf42c12244c22efde1babb7e2c7b99bf45c5d7694c9  20261009T2252Z-voicebot-AUDIO-0005b-INTERRUPT-INPUT-v1.zip
+# inner files (paths inside zip):
+a883165b0ae6914020d91735edee926b46526b41fd3a1e72d17baa4c7df72d7c  GameAudio-v0.3-vs-OiR6.diff
+c81654f7a2562f014fa3b6687762888076e741fc257dfb23d2e67bac0bc147c1  GameAudio.ts
+77b67c4b71e84308678208f0f4d7b77830d3afdcfa9e6b5961fa2e58ade1379a  README.md
+b45008eda9861d75a3e4745c6df4143a4cc364678b67b9e4d795819af6489479  test/AudioBridge_0005.ts
+ea3b2f6a92ef85b08dcde65a087757629ea890df4e3c4c4d81f390e581a49645  test/AudioBridge_R6.ts
+8ba181e0418efadff0f1911263cc4d9f4944aaa688b41405a350bc6bda9bb34f  test/ManagedMobileBoardUI.ts
+f0cb9415eb290733315e7e86162ba3d28ad50ad9dfa9e695068f6ce1421459fd  test/RESULT-v0.3.txt
+3494fe55fd8cf8854b6398478afeb8717a207985b1053ebbf98e31e2196055f6  test/cc.d.ts
+6bdb1dc3743ba8a616b747844202142da75f44d75a6c53d6849b0ac3e99d7181  test/mock-cc.cjs
+86b5e026506150ce535363679428838c6d63b98e8fec990b0b7fe9d65fdf7ecf  test/test_gameaudio_v03.cjs
+1fb7b16ad2e9700f02be71c501980f0a9a8be533f72d2dcde9dcd11fffee590b  test/tsconfig.json
+# base used (not in zip): Oi R6 GameAudio.ts, restored from team/oi/r6audio/delta-from-5df737a.patch, git blob 4b6f0ac
+# a2f40503278f6237c325aabb7816372da37db718b9caacec18b51a830ef7272e  creator-build-project/assets/scripts/audio/GameAudio.ts (Oi R6)

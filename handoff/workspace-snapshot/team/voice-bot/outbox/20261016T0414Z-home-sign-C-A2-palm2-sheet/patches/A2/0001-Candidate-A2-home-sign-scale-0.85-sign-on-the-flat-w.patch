@@ -1,0 +1,196 @@
+From 3e6b7df6f38414d720468ab71417caeb1be55674 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Thu, 15 Oct 2026 21:47:35 -0400
+Subject: [PATCH] Candidate A2 (home sign): scale 0.85 sign on the flat west
+ lawn, words clear of trees at the 0.46 pull, left post lengthened in code to
+ meet the slope; palm out of the close pull.
+
+Sign: [-4.05,0.1295,1.1], yaw -2, scale 0.85; legs.leftExtendLocal 0.057. Palm: [2.0,0.04,6.6], yaw 180, scale 0.65 (east lawn edge; clears all four exit camera paths).
+Not for merge: art candidate for Funning to choose (item 16 annotation).
+---
+ .../assets/scripts/render/GullFlockCore.ts    |  2 +-
+ .../assets/scripts/world-r2/IslandProps.ts    | 28 +++++++++++++++++--
+ .../scripts/world-r2/IslandPropsLayout.ts     | 16 ++++++++---
+ docs/T9.md                                    |  4 +--
+ tools/camera-frame-test/t9_props.cjs          |  4 +--
+ tools/scene-fx/test_island_fx.cjs             |  2 +-
+ tools/t9-island-props/test_island_props.cjs   |  2 +-
+ 7 files changed, 44 insertions(+), 14 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/render/GullFlockCore.ts b/creator-build-project/assets/scripts/render/GullFlockCore.ts
+index 9ceadcd..781f3b7 100644
+--- a/creator-build-project/assets/scripts/render/GullFlockCore.ts
++++ b/creator-build-project/assets/scripts/render/GullFlockCore.ts
+@@ -18,7 +18,7 @@ export const GULL_FX = {
+   lighthouse: { c: [0, -2.65] as [number, number], r: 3.3, topY: 10.8 },
+   house: { min: [.7, -2, -5.1] as V3, max: [5.5, 5.9, 1.2] as V3 },
+   trees: [[2.3, -7.9, 2, 3.9], [-4.9, .2, 2.4, 6.6], [5.1, 9.3, 2.2, 4.5], [3.1, 2.6, 1.7, 5], [-3.2, -6, 2.8, 7.4]] as number[][],   // x, z, r, top
+-  sign: { base: [-4.08, 0.127, 0.7] as V3, topY: 1.85, clearM: 2, postR: 1 },
++  sign: { base: [-4.05, 0.1295, 1.1] as V3, topY: 1.95, clearM: 2, postR: 1 },
+   /** Body-centre positions (surface + 0.09 m body half-height). Not on the lighthouse, not on the signpost. */
+   perches: [
+     { id: 'roof_ridge_a', p: [3.25, 4.55, -1.38] as V3, out: null as number[] | null },
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandProps.ts b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+index 561fa04..5d11e31 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandProps.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandProps.ts
+@@ -1,4 +1,4 @@
+-import { Node, Prefab, Material, MeshRenderer, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
++import { Node, Prefab, Material, MeshRenderer, gfx, Camera, Label, UITransform, UIOpacity, RenderRoot2D, Color, SphereLight, EffectAsset, Mesh, assetManager, AssetManager, instantiate, isValid, utils, game } from 'cc';
+ import { fromLookAt, type CameraPose } from '../world-r1/CameraPose';
+ import { islandPoseEntry } from '../world-r1/RegionCameraData';
+ import { ISLAND_PROPS, PROP_ROLES, propButtonLayout, screenPropPose, signpostHitUi, signpostRectUi, uiToScreen, softEllipse, softRing, rippleAt, mixHex, nightWeightStep, lampLightAt, setPropNightWeight, seaColorAt, liveSeaY, seaDecalY, type FlatMesh, type PropRole, type Rect } from './IslandPropsLayout';
+@@ -22,7 +22,7 @@ export class IslandProps {
+   private sign: Node | null = null; private palms: Node[] = []; private buttons = new Map<PropRole, Node>(); private pivots = new Map<PropRole, Node>();
+   /** Settled island wide shot. A pull moves the live lens only; the three bottom props keep this picture. */
+   private readonly buttonRef: CameraPose = fromLookAt(islandPoseEntry());
+-  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string };
++  private stats = { prefabs: 0, renderers: 0, rebound: 0, lampSwaps: 0, label: 'none' as string, water: 'none' as string, entrance: 1, fadeMaterials: 0, lampLight: 'none' as string, nightWeight: 0, sea: 'none' as string, legs: 'none' as string };
+   /** T9n: smoothed night weight (0 day .. 1 night) shared by the lamp light, water tint, sign text and the bottom tags. */
+   private nightW = 0; private lastTime = -1; private wallMs = 0; private lampLight: SphereLight | null = null; private lampBase = 0; private glow: { node: Node; material: Material } | null = null; private signLabel: Label | null = null;
+   /** T9n-2: unlit amber lamp glass (night), its glow disc, and the night sea tint binding (restored at weight 0). */
+@@ -66,6 +66,7 @@ export class IslandProps {
+         n.removeFromParent(); pivot.addChild(n); n.setPosition(0, 0, 0); n.setScale(1, 1, 1); n.active = true;
+         this.pivots.set(role, pivot); this.buttons.set(role, n);
+       }
++      this.levelSignPosts(this.sign);
+       this.addSignText(this.sign);
+       this.addSignWater();
+       this.addLampLight();
+@@ -74,6 +75,27 @@ export class IslandProps {
+       this.ready_ = true; return true;
+     } catch (e) { this.failure = String(e); console.warn('[T9_PROPS] props unavailable, flat buttons stay', this.failure); return false; }
+   }
++  /** A2: lengthen the left post so both posts stand on the sloped lawn (ISLAND_PROPS.signpost.legs). Copies the board
++   * mesh once with the left post's bottom ring moved down; on any failure the imported mesh stays (posts as before). */
++  private legMesh: Mesh | null = null;
++  private levelSignPosts(sign: Node) {
++    const L = ISLAND_PROPS.signpost.legs; if (!L || !(L.leftExtendLocal > 0)) return;
++    try {
++      for (const r of sign.getComponentsInChildren(MeshRenderer)) {
++        const m = r.mesh; if (r.node.name === ISLAND_PROPS.signpost.lampNode || !m) continue;
++        if (m.struct.primitives.length !== 1) { this.stats.legs = 'skipped:primitives'; return; }
++        const pos = m.readAttribute(0, gfx.AttributeName.ATTR_POSITION), nor = m.readAttribute(0, gfx.AttributeName.ATTR_NORMAL);
++        const uv = m.readAttribute(0, gfx.AttributeName.ATTR_TEX_COORD), idx = m.readIndices(0);
++        if (!pos || !idx) { this.stats.legs = 'skipped:no-data'; return; }
++        const copy = (a: ArrayLike<number>) => { const o: number[] = []; for (let i = 0; i < a.length; i++) o.push(a[i]); return o; };
++        const p = copy(pos as unknown as ArrayLike<number>); let moved = 0;
++        for (let i = 0; i < p.length; i += 3) if (p[i + 1] < L.bottomBandM && p[i] < L.splitX) { p[i + 1] -= L.leftExtendLocal; moved++; }
++        const mesh = utils.MeshUtils.createMesh({ positions: p, normals: nor ? copy(nor as unknown as ArrayLike<number>) : undefined,
++          uvs: uv ? copy(uv as unknown as ArrayLike<number>) : undefined, indices: copy(idx as unknown as ArrayLike<number>) });
++        r.mesh = mesh; this.legMesh = mesh; this.stats.legs = 'extended:' + moved;
++      }
++    } catch (e) { this.stats.legs = 'failed:' + String(e); console.warn('[T9_PROPS] sign legs unchanged', String(e)); }
++  }
+   private mount(prefab: Prefab, p: readonly number[], yawDeg: number, scale: number): Node {
+     const n = instantiate(prefab); this.root.addChild(n); n.setPosition(p[0], p[1], p[2]); n.setRotationFromEuler(0, yawDeg, 0); n.setScale(scale, scale, scale);
+     for (const r of n.getComponentsInChildren(MeshRenderer)) {
+@@ -367,5 +389,5 @@ export class IslandProps {
+     const r = signpostHitUi(pose, width, height); if (!r) return null;
+     return { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) };
+   }
+-  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
++  dispose() { if (this.disposed) return; if (this.seaBound) { unbindSeaSurface(this.onSeaSurface); this.seaBound = false; } this.endButtonFade(); this.endFade(); this.restoreSea(); this.lampGlow?.material.destroy(); this.lampGlow = null; this.glow?.material.destroy(); this.glow = null; this.lampLight = null; this.signLabel = null; this.legMesh?.destroy(); this.legMesh = null; setPropNightWeight(0); this.disposed = true; this.ready_ = false; for (const m of this.water.meshes) m.destroy(); this.water.shadow?.destroy(); for (const r of this.water.ripples) r.material.destroy(); this.water = { meshes: [], shadow: null, ripples: [] }; this.waterNodes = []; this.buttons.clear(); this.pivots.clear(); this.palms = []; this.sign = null; this.lamp = null; if (isValid(this.root, true)) this.root.destroy(); this.lampNightMat?.destroy(); this.lampNightMat = null; }
+ }
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+index eed18d2..5692861 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+@@ -8,8 +8,12 @@
+  *   - ui_signpost "继续旅程" on the west lawn, just clear of the shrubs. The posts sit on the
+  *     grass (env_island_main, palette row 0), not in the sea. The face is turned about 15°
+  *     off both the wide shot and the closest pull, so the words stay readable and the board
+- *     still reads as a solid. Scale is small enough that the wide shot keeps it under 22%
+- *     of the frame and the close shot stays left of the lighthouse.
++ *     still reads as a solid. Candidate A2 (Voice Bot): scale 0.85 (was 0.79) on the flat
++ *     part of the west lawn at (-4.05, 1.1), yaw -2. Here no tree or palm covers the words at the 0.46 pull (402x874
++ *     and 600x800), the board clears the lighthouse foot and the door in the wide shot, and each post footprint is level
++ *     within 8 mm. The lawn still drops ~4.9 cm from the right post to the left one, so `legs` lengthens the left post
++ *     in code (bottom ring moved down) instead of sinking the right one. beach_palm_tall trimmed (0.75) and moved to
++ *     the west shore so the closest pull no longer looks through its crown.
+  *     Its screen rect is the hit area of the existing `mainline` control (same handler: composition.enterMainline).
+  *   - beach_palm_tall on the left end of the beach, beach_palm_short on the right end.
+  * Screen props (bag / journal / settings): stand on the sea under a fixed SCREEN anchor (bottom row) for
+@@ -37,8 +41,12 @@ export const ISLAND_PROPS = Object.freeze({
+   /** env_sea_surface node height in combined_visual_m.glb. */
+   seaY: -0.92,
+   signpost: {
+-    prefab: 'ui_signpost', position: [-4.08, 0.127, 0.7] as V3, yawDeg: 5.58, scale: 0.79,
++    prefab: 'ui_signpost', position: [-4.05, 0.1295, 1.1] as V3, yawDeg: -2, scale: 0.85,
+     lampNode: 'lamp_glass', lampDayMaterial: 'M_signpost_lamp',
++    /** A2: lengthen the left post at runtime so both posts reach the sloped lawn (sign-local metres). Vertices of the
++     * board mesh with y < bottomBandM and x < splitX (the left post's bottom ring) move down by leftExtendLocal.
++     * Measured ground (env_island_main): right post 0.126..0.133, left post 0.077..0.085 -> 0.0485 m / 0.85 = 0.057. */
++    legs: { leftExtendLocal: 0.057, splitX: 0.235, bottomBandM: 0.03 },
+     /** Water at the posts (procedural, no asset): contact shadow + two expanding ripple rings, sign-local metres, on the sea surface. */
+     water: { centerX: 0.25, postsX: [-0.4, 0.9], shadow: { rx: 1.3, rz: 0.45, color: '#123a44', alpha: 0.5, nightAlpha: 0.35 },
+       ripple: { rx: 1.05, rz: 0.36, band: 0.1, color: '#f4fbff', alpha: 0.75, nightColor: '#a9c4dc', nightAlpha: 0.30, periodS: 2.6, grow: 0.45, lift: 0.015 } },
+@@ -57,7 +65,7 @@ export const ISLAND_PROPS = Object.freeze({
+     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
+   },
+   palms: [
+-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
++    { prefab: 'beach_palm_tall', position: [2.0, 0.04, 6.6] as V3, yawDeg: 180, scale: 0.65 }, // east lawn edge: clear of 0.46 close pull + exit cams (was [-0.5,-0.30,9.0], 200, 0.9)
+     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
+   ] as readonly WorldProp[],
+   buttons: {
+diff --git a/docs/T9.md b/docs/T9.md
+index ba807dd..de18703 100644
+--- a/docs/T9.md
++++ b/docs/T9.md
+@@ -5,9 +5,9 @@
+ ## 运行时
+ - `world-r2/IslandProps.ts`：宿主。`WorldIntegrationBoot` 在世界 ready 后创建并异步 `load()`（region_island 包内 `ui-props/` 6 个 prefab + 岛的 `M_env_palette` 材质 uuid）。失败 = 保持原平面按钮，不影响启动。
+ - 所有道具渲染器共享岛上的 M_env_palette 材质资产 → 与岛同一主光 / 环境光 / 昼夜写入（RoomLightingRig 不改，无新增换材质）。唯一的换材质是路牌灯罩：白天 M_signpost_lamp，夜晚 M_env_palette（UV 在调色板自发光行，暖光）。
+-- 路牌：世界坐标固定在西侧草地（`ISLAND_PROPS.signpost` = (-4.08, 0.127, 0.7)，yaw 5.58°，scale 0.79）。两只立柱落在 `env_island_main` 的草地（调色板第 0 行）上，底面取较高那只立柱的地面高度，较高的那只立柱贴着草地，较低的那只因为坡度高出地面约 3.5 cm。牌面法线与朝向镜头的水平方向大约偏 15°，远景和拉近都能读字。远景投影宽度不超过画面的 22%。立柱处仍有接触阴影 + 两圈涟漪数据（程序网格，海面高度；草地盖住这块 xz，所以涟漪不露在草上）。文字“继续旅程”是 RenderRoot2D 下的系统字体 Label。原 `mainline` WarmButton 仍是命中区与动作（`composition.enterMainline()` 不变），透明，尺寸 = 路牌投影框扩到至少 88x88 逻辑像素（`signpostHitUi`；扩展部分仍完整覆盖路牌，留在 8px 安全边内并避开底排按钮，取离画面中心最远的一块，避免远景里盖住女主）。
++- 路牌：世界坐标固定在西侧草地（`ISLAND_PROPS.signpost` = (-4.05, 0.1295, 1.1)，yaw -2°，scale 0.85；候选 A2：西侧草地较平的一块，最近停靠 0.46 时 402×874 和 600×800 下字都不被树或棕榈挡，远景不压灯塔脚和门。每只立柱脚下的地面起伏都在 8 mm 以内，但两只立柱之间草地落差约 4.9 cm，所以运行时用 `signpost.legs` 把左立柱底圈往下延长 0.057（牌子本地米），右立柱不下沉）。两只立柱落在 `env_island_main` 的草地（调色板第 0 行）上，底面取较高那只立柱的地面高度，较高的那只立柱贴着草地，较低的那只因为坡度高出地面约 3.5 cm。牌面法线与朝向镜头的水平方向大约偏 15°，远景和拉近都能读字。远景投影宽度不超过画面的 22%。立柱处仍有接触阴影 + 两圈涟漪数据（程序网格，海面高度；草地盖住这块 xz，所以涟漪不露在草上）。文字“继续旅程”是 RenderRoot2D 下的系统字体 Label。原 `mainline` WarmButton 仍是命中区与动作（`composition.enterMainline()` 不变），透明，尺寸 = 路牌投影框扩到至少 88x88 逻辑像素（`signpostHitUi`；扩展部分仍完整覆盖路牌，留在 8px 安全边内并避开底排按钮，取离画面中心最远的一块，避免远景里盖住女主）。
+ - 三个按钮：原 `Island-bag/journal/settings` WarmButton 节点不变（动作不变），透明后作为命中区，按 `propButtonLayout` 放到底排；3D 道具每帧由 `seaAnchor` 放在命中区下方海面上并按像素高度缩放；奶油色圆角标签（Graphics + 系统字体 Label，深棕字）。
+-- 海滩：只加两棵棕榈（`beach_palm_tall` 左沙滩、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
++- 海滩：只加两棵棕榈（`beach_palm_tall` 东侧草地边 (2.0, 0.04, 6.6) yaw 180°、scale 0.65（避开出门镜头四条路径，见 voice-bot outbox）（原 0.9），避开 0.46 最近停靠的镜头正下方、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
+ 
+ ## 点击订阅 API（给 Voice bot A5）
+ ```ts
+diff --git a/tools/camera-frame-test/t9_props.cjs b/tools/camera-frame-test/t9_props.cjs
+index ddfd001..b3d2e1b 100644
+--- a/tools/camera-frame-test/t9_props.cjs
++++ b/tools/camera-frame-test/t9_props.cjs
+@@ -7,8 +7,8 @@
+  * signpost during the fly-to-island segment; it is still included (conservative). */
+ const fs=require('fs'),path=require('path'),os=require('os'),cp=require('child_process'),G=require('./glb_geometry.cjs');
+ const T9_SHA='0ec1701',ROOT=path.resolve(__dirname,'..','..'),REL='creator-build-project/assets/bundles/region_island/ui-props';
+-const PROPS=[{prefab:'ui_signpost',position:[-4.08,0.127,0.7],yawDeg:5.58,scale:0.79},
+-  {prefab:'beach_palm_tall',position:[-0.5,-0.30,9.0],yawDeg:200,scale:0.9},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
++const PROPS=[{prefab:'ui_signpost',position:[-4.05,0.1295,1.1],yawDeg:-2,scale:0.85},
++  {prefab:'beach_palm_tall',position:[2.0,0.04,6.6],yawDeg:180,scale:0.65},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
+ function dir(){return process.env.T9_ROOT?path.join(process.env.T9_ROOT,REL):'git:'+T9_SHA+':'+REL;}
+ function glbFile(prefab){
+   if(process.env.T9_ROOT){const f=path.join(process.env.T9_ROOT,REL,prefab+'.glb');return fs.existsSync(f)?f:null;}
+diff --git a/tools/scene-fx/test_island_fx.cjs b/tools/scene-fx/test_island_fx.cjs
+index 771e486..6e241f4 100644
+--- a/tools/scene-fx/test_island_fx.cjs
++++ b/tools/scene-fx/test_island_fx.cjs
+@@ -106,7 +106,7 @@ const d3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+    const cam=pose.position,q=pose.rotation,tY=Math.tan(pose.fovVerticalDeg*Math.PI/360),R=qrot(q,[1,0,0]),U=qrot(q,[0,1,0]),W=qrot(q,[0,0,-1]);
+    const pj=p=>{const d=[p[0]-cam[0],p[1]-cam[1],p[2]-cam[2]],z=d[0]*W[0]+d[1]*W[1]+d[2]*W[2];if(z<=0)return null;return [((d[0]*R[0]+d[1]*R[1]+d[2]*R[2])/z/(tY*aspect)+1)/2,(1-(d[0]*U[0]+d[1]*U[1]+d[2]*U[2])/z/tY)/2,z];};
+    const M=X.moon,B=X.band,mc=pj(M.pos),dist=d3(M.pos,cam),rScr=M.radiusM/dist/(2*tY),haloScr=M.haloRadiusM*.5/dist/(2*tY); // halo core radius (vertex alpha > ~.25), fraction of screen height
+-   const S=X.seaY,SG=[-4.08,0.127,0.7],sign=[pj([SG[0]-1.2,S,SG[2]]),pj([SG[0]+1.2,SG[1]+1.5,SG[2]])],head=pj([hero[0],1.75,hero[2]]),feet=pj(hero);
++   const S=X.seaY,SG=[-4.05,0.1295,1.1],sign=[pj([SG[0]-1.2,S,SG[2]]),pj([SG[0]+1.2,SG[1]+1.5,SG[2]])],head=pj([hero[0],1.75,hero[2]]),feet=pj(hero);
+    const horizon=pj([cam[0]+W[0]*250/Math.hypot(W[0],W[2]),S,cam[2]+W[2]*250/Math.hypot(W[0],W[2])]);
+    let cloudHits=0,cloudVerts=0;if(G&&G.meshes.env_cloud_layer){for(const tri of G.meshes.env_cloud_layer)for(const v of tri){const c=pj(v);if(!c)continue;cloudVerts++;const dx=(c[0]-mc[0])*aspect,dy=c[1]-mc[1];if(Math.hypot(dx,dy)<haloScr*1.4)cloudHits++;}}
+    const signRect={x0:Math.min(sign[0][0],sign[1][0]),x1:Math.max(sign[0][0],sign[1][0]),y0:Math.min(sign[0][1],sign[1][1]),y1:Math.max(sign[0][1],sign[1][1])};
+diff --git a/tools/t9-island-props/test_island_props.cjs b/tools/t9-island-props/test_island_props.cjs
+index b275439..beef5ad 100644
+--- a/tools/t9-island-props/test_island_props.cjs
++++ b/tools/t9-island-props/test_island_props.cjs
+@@ -303,7 +303,7 @@ ok('pull keeps bag/journal/settings at the settled wide-shot screen size; labels
+     }
+     const farSign=L.signpostRectUi(far,w,h);rail.restore(0);const nearSign=L.signpostRectUi(rail.pose(),w,h);
+     assert(farSign&&nearSign&&nearSign.width*nearSign.height>farSign.width*farSign.height*1.4,'sign stays in the world and grows when the lens comes in');
+-    assert.deepEqual(P.signpost.position,[-4.08,0.127,0.7]);
++    assert.deepEqual(P.signpost.position,[-4.05,0.1295,1.1]);
+   }
+   rail.restore(0);const close=rail.pose();
+   const aabb=(b)=>{const o=[];for(const x of [b[0][0],b[1][0]])for(const y of [b[0][1],b[1][1]])for(const z of [b[0][2],b[1][2]])o.push([x,y,z]);return o;};
+-- 
+2.47.3
+

@@ -1,0 +1,11 @@
+err 10 warn 0 info 31
+0 BUFFER_VIEW_TARGET_OVERRIDE /meshes/7/primitives/0/attributes/_DRIFT Override of previously set bufferView target or usage. Initial: 'IndexBuffer', new: 'VertexBuffer'.
+0 MESH_PRIMITIVE_ACCESSOR_UNALIGNED /meshes/7/primitives/0/attributes/_DRIFT Vertex attribute data must be aligned to 4-byte boundaries.
+0 MESH_PRIMITIVE_UNEQUAL_ACCESSOR_COUNT /meshes/7/primitives/0/attributes/POSITION All accessors of the same primitive must have the same count.
+0 MESH_PRIMITIVE_UNEQUAL_ACCESSOR_COUNT /meshes/7/primitives/0/attributes/NORMAL All accessors of the same primitive must have the same count.
+0 MESH_PRIMITIVE_UNEQUAL_ACCESSOR_COUNT /meshes/7/primitives/0/attributes/TEXCOORD_0 All accessors of the same primitive must have the same count.
+0 MESH_PRIMITIVE_UNEQUAL_ACCESSOR_COUNT /meshes/7/primitives/0/attributes/TEXCOORD_1 All accessors of the same primitive must have the same count.
+0 ACCESSOR_USAGE_OVERRIDE /meshes/8/primitives/0/indices Override of previously set accessor usage. Initial: 'VertexAttribute', new: 'PrimitiveIndices'.
+0 ACCESSOR_MIN_MISMATCH /accessors/146/min/0 Declared minimum value for this component (0) does not match actual minimum (1.2417634698280722e-9).
+0 ACCESSOR_MIN_MISMATCH /accessors/207/min/0 Declared minimum value for this component (0) does not match actual minimum (1.2417634698280722e-9).
+0 ACCESSOR_MIN_MISMATCH /accessors/238/min/0 Declared minimum value for this component (0) does not match actual minimum (1.2417634698280722e-9).

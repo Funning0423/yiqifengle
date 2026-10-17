@@ -1,0 +1,49 @@
+From f7f892f06bb49bf25c0c176384c4ef3f2def83e2 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 16:00:21 +0800
+Subject: [PATCH 6/6] lakeside r2b warm fill halved: ground ambient warm
+ saturation cut in half (rails/sky no longer yellow), sun stays 0.7
+
+Grok Bot review of c60ac55: bridge rails clearly yellow, sky/far hills yellow-green; r5h3 bridge is cool grey-white.
+- ambientGroundColorLinear 1/0.841/0.0687 -> 0.9095/0.83/0.4439: half-way toward its own luminance (0.819 kept), so the
+  hemisphere luminance and with it the night ratios (moon/sun 0.857, ambient 0.219; lakeside-light-encoding) are unchanged.
+- Sun 0.7, ambient 0.49, sky 0.0107/0.0656/0.1106, water scales unchanged. One sanity pass on the emulator (no iteration;
+  Mac decides): bridge side 140/126/70 -> 140/126/110 (r5h3 108/110/88; neutral now, still ~+18% luma), far trees
+  31/95/16 -> 29/94/30 (luma 1.00), roof 128/43/14 (1.08), near water 59/153/146, grass_L 109/134/59 unchanged.
+Test dirlight follows.
+---
+ .../assets/scripts/region/LakesideSceneData.ts                | 4 +++-
+ tools/lakeside/test_lakeside_dirlight.cjs                     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 2ecdc1a..a2e21b5 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -86,7 +86,9 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   /** r2 warm hemisphere fill (linear; r5h3 sky 0.0116/0.2747/0.4793, ground 1/0.5457/0.1441). Up faces get the sky, the
+    *  camera-facing backlit faces about half sky / half ground. */
+   ambientSkyColorLinear: [0.0107, 0.0656, 0.1106] as readonly number[],
+-  ambientGroundColorLinear: [1.0, 0.841, 0.0687] as readonly number[],
++  /** r2b (Grok Bot: warm fill too strong, rails yellow): ground warm saturation halved toward its own luminance (c60ac55 1/0.841/0.0687,
++   *  luminance 0.819 kept, so the night ratios are unchanged). */
++  ambientGroundColorLinear: [0.9095, 0.83, 0.4439] as readonly number[],
+   ambientSkyIllumToSun: 0.49,
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index 9c8a95a..bc74d7d 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -13,7 +13,7 @@ assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');asser
+ assert.deepEqual(D.lakesideCocosLightColor(R.ambientSky),b8(R.ambientSky));assert.deepEqual(D.lakesideCocosLightColor(R.ambientGround),b8(R.ambientGround));
+ for(let i=0;i<101;i++){const x=i/100;assert.equal(D.lakesideCocosLightColor([x,x,x])[0],Math.round(x*255),'linear -> byte '+x);}
+ assert.equal(P.sunIlluminanceScale,0.7,'r2 sun 0.7 x base (Grok Bot 0.7-0.8; emulator fit, device check)');
+-assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.deepEqual([...P.ambientGroundColorLinear],[1.0,0.841,0.0687]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
++assert.deepEqual([...P.ambientSkyColorLinear],[0.0107,0.0656,0.1106]);assert.deepEqual([...P.ambientGroundColorLinear],[0.9095,0.83,0.4439]);assert(P.ambientGroundColorLinear[0]>P.ambientSkyColorLinear[0]*10,'r2 warm fill: ground warm, sky dim');
+ // v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
+ const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
+ const gr=R.ambientGround;assert(gr[0]>gr[1]&&gr[1]>gr[2],'ground stays warm');
+-- 
+2.47.3
+

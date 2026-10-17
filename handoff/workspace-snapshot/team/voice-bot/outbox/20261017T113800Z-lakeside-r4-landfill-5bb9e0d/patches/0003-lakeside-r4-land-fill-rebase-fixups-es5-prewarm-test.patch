@@ -1,0 +1,87 @@
+From 6902ba33792160fb9f722af81b4fcf63f93ec3ea Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 19:27:36 +0800
+Subject: [PATCH 3/4] lakeside r4 land fill: rebase fixups (es5/prewarm test
+ regexes) + lakesideModeLighting(mode).skyDomeColor = the clear colour per
+ mode (documented, tested)
+
+---
+ .../assets/scripts/region/LakesideSceneData.ts      | 13 ++++++++++---
+ .../test_lakeside_journey_water_prewarm.cjs         |  2 +-
+ tools/lakeside/test_lakeside_land_fill.cjs          |  5 +++++
+ tools/test_es5_iterator_spread.cjs                  |  3 ++-
+ 4 files changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 1e3c272..1bf0105 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -163,16 +163,23 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
+   /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
+   waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
+   /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
+-  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[] }>;
++  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[];
++  /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
++   *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
++   *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
++   *  water's REFLECTED-sky inputs, pre-compensated for the water tint (their mean comes out lavender), not colours of the sky itself. */
++  skyDomeColor: string }>;
+ /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
+ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
+-  if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
++  if (mode === 'night') return LAKESIDE_NIGHT_MODE_LIGHTING;
+   const P = LAKESIDE_DIR_LIGHT_PARAMS;
+   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
+     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
+-    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear };
++    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear, skyDomeColor: lakesideDayClearColor() };
+ }
++/** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
++const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
+ export type LakesideLandFillClass = 'near' | 'far';
+ /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
+ export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
+diff --git a/tools/lakeside/test_lakeside_journey_water_prewarm.cjs b/tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+index c84b8c9..0283213 100644
+--- a/tools/lakeside/test_lakeside_journey_water_prewarm.cjs
++++ b/tools/lakeside/test_lakeside_journey_water_prewarm.cjs
+@@ -43,7 +43,7 @@ t('ordering: prewarm runs on the first show(true) right after prime(), under the
+  assert.match(prep,/const warmWater=\(\)=>\{if\(warm\|\|dead\|\|!journeyWater\)return;warm=prewarmLakesideWaterDraw\(camera,journeyWater,lakesideWaterSourceRenderer\(lakeModel,isLakesideWaterNode\)\);\};/);
+  assert.match(prep,/useLakesideWater\(model,water\);[\s\S]{0,200}journeyWater=water;\}/,'the journey copy, after it is on the lake');
+  assert.doesNotMatch(prep.slice(prep.indexOf('progress(d)')),/warmWater\(\)/,'not from the walk');
+- assert.match(prep,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)[^;]*;warm\?\.cancel\(\)/);
++ assert.match(prep,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);(offLand\(\);)?atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)[^;]*;warm\?\.cancel\(\)/);
+  const black=core.indexOf("this.fadeState='black'"),show=core.indexOf('this.show(true);',black),fadeIn=core.indexOf("this.fadeState='in'",black);
+  assert(black>0&&show>black&&fadeIn>show,'show(true) happens under full black, before the fade-in');});
+ (async()=>{let fail=0;for(const [n,f] of tests){try{await f();console.log('PASS',n);}catch(e){fail++;console.log('FAIL',n,'\n',e.stack||e);}}
+diff --git a/tools/lakeside/test_lakeside_land_fill.cjs b/tools/lakeside/test_lakeside_land_fill.cjs
+index 516a1e4..d79b496 100644
+--- a/tools/lakeside/test_lakeside_land_fill.cjs
++++ b/tools/lakeside/test_lakeside_land_fill.cjs
+@@ -55,4 +55,9 @@ run('day/night writer: night values on land only; water material and bridge unto
+  assert.match(ad,/offLand=onDayNightChange\(\(\)=>\{if\(!dead\)applyLakesideLandFill\(model,lakesideDayNightMode\(\)\);\}\);/);assert.match(ad,/dead=true;offWater\(\);offLand\(\);/);});
+ run('night land fill is cool and small (no brown)',()=>{const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
+  for(const k of ['landFillNearLinear','landFillFarLinear']){const c=N[k];assert(c[2]>=c[1]&&c[1]>=c[0]&&c[2]>c[0],'night '+k+' blue >= green >= red');assert(Math.max(...c)<Math.max(...Dy[k])*0.5,'night '+k+' far below day');}});
++run('skyDomeColor = the clear colour per mode (not the reflected-sky inputs)',()=>{for(const m of ['day','night']){const L=D.lakesideModeLighting(m);
++ assert.equal(L.skyDomeColor,L.clearColor,m+' sky dome = clear colour');}
++ assert.equal(D.lakesideModeLighting('day').skyDomeColor,D.lakesideDayClearColor());assert.equal(D.lakesideModeLighting('night').skyDomeColor,D.LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor);
++ const hx=h=>[1,3,5].map(i=>parseInt(String(h).slice(i,i+2),16));assert.deepEqual(hx(D.lakesideModeLighting('day').skyDomeColor),[28,143,184],'day sky dome 28/143/184');assert.deepEqual(hx(D.lakesideModeLighting('night').skyDomeColor),[28,39,64],'night sky dome = #1c2740');
++ const sd=fs.readFileSync(S+'LakesideSceneData.ts','utf8');assert.equal((sd.match(/skyDomeColor\s*:\s*['"#]/g)||[]).length,0,'skyDomeColor is derived from the clear colour, never a literal');});
+ console.log('lakeside land fill OK');
+diff --git a/tools/test_es5_iterator_spread.cjs b/tools/test_es5_iterator_spread.cjs
+index 7deaebf..2157a30 100644
+--- a/tools/test_es5_iterator_spread.cjs
++++ b/tools/test_es5_iterator_spread.cjs
+@@ -30,5 +30,6 @@ assert.deepEqual(bad,[],'spread of a non-array (use Array.from):\n'+bad.join('\n
+ const old=' const shared=new Map();return [...shared.values()];const missing=[...new Set(list)];';
+ const sf=ts.createSourceFile('x.ts',old,ts.ScriptTarget.ES2019,true);let hits=0;(function v(n){if(ts.isSpreadElement(n))hits++;ts.forEachChild(n,v);})(sf);assert.equal(hits,2);
+ const bg=fs.readFileSync(path.join(ROOT,'region/LakesideBoardBackground.ts'),'utf8');
+-assert(/return Array\.from\(shared\.values\(\)\);/.test(bg)&&/const missing=Array\.from\(new Set\(/.test(bg),'lakeside uses Array.from');
++// r4 land fill (VB): enableLakesideInstancing collects its copies in a plain array (out.push) instead of Array.from(shared.values())
++assert((/return Array\.from\(shared\.values\(\)\);/.test(bg)||/out\.push\(m\);\}r\.setSharedMaterial\(m,k\);\}\}\n return out;/.test(bg))&&/const missing=Array\.from\(new Set\(/.test(bg),'lakeside uses Array.from');
+ console.log('es5 iterator spread OK ('+files.length+' TS files)');
+-- 
+2.47.3
+

@@ -1,0 +1,386 @@
+{
+ "cur_far_402x874": {
+  "sign_w_px": 43,
+  "sign_w_frac": 0.107,
+  "sign_px": 364,
+  "sign_bbox": [
+   65,
+   422,
+   107,
+   452
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 22.8,
+  "palm_leaf_cov_frame": 0.0049,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1533,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.72,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 293
+ },
+ "cur_close_402x874": {
+  "sign_w_px": 104,
+  "sign_w_frac": 0.2587,
+  "sign_px": 3435,
+  "sign_bbox": [
+   54,
+   315,
+   157,
+   388
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 54.5,
+  "palm_leaf_cov_frame": 0.218,
+  "palm_leaf_cov_bottom40": 0.5435,
+  "door_px_visible": 9087,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 13.35,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 1902
+ },
+ "cur_far_600x800": {
+  "sign_w_px": 39,
+  "sign_w_frac": 0.065,
+  "sign_px": 309,
+  "sign_bbox": [
+   176,
+   386,
+   214,
+   414
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 20.9,
+  "palm_leaf_cov_frame": 0.003,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1292,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.72,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 253
+ },
+ "cur_close_600x800": {
+  "sign_w_px": 96,
+  "sign_w_frac": 0.16,
+  "sign_px": 2872,
+  "sign_bbox": [
+   165,
+   288,
+   260,
+   355
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 49.9,
+  "palm_leaf_cov_frame": 0.1375,
+  "palm_leaf_cov_bottom40": 0.3431,
+  "door_px_visible": 7611,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 13.35,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 1590
+ },
+ "A_far_402x874": {
+  "sign_w_px": 54,
+  "sign_w_frac": 0.1343,
+  "sign_px": 696,
+  "sign_bbox": [
+   54,
+   420,
+   107,
+   460
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 29.7,
+  "palm_leaf_cov_frame": 0.0034,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1562,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.09,
+  "feet": [
+   {
+    "foot_y": -0.02,
+    "ground_y": -0.03,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": -0.02,
+    "ground_y": 0.119,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 293
+ },
+ "A_close_402x874": {
+  "sign_w_px": 136,
+  "sign_w_frac": 0.3383,
+  "sign_px": 4372,
+  "sign_bbox": [
+   12,
+   312,
+   147,
+   389
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 70.5,
+  "palm_leaf_cov_frame": 0.0144,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 9087,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 12.78,
+  "feet": [
+   {
+    "foot_y": -0.02,
+    "ground_y": -0.03,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": -0.02,
+    "ground_y": 0.119,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 2550
+ },
+ "A_far_600x800": {
+  "sign_w_px": 50,
+  "sign_w_frac": 0.0833,
+  "sign_px": 587,
+  "sign_bbox": [
+   165,
+   385,
+   214,
+   421
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 27.2,
+  "palm_leaf_cov_frame": 0.002,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1313,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.09,
+  "feet": [
+   {
+    "foot_y": -0.02,
+    "ground_y": -0.03,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": -0.02,
+    "ground_y": 0.119,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 253
+ },
+ "A_close_600x800": {
+  "sign_w_px": 124,
+  "sign_w_frac": 0.2067,
+  "sign_px": 3665,
+  "sign_bbox": [
+   127,
+   286,
+   250,
+   356
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 64.5,
+  "palm_leaf_cov_frame": 0.0308,
+  "palm_leaf_cov_bottom40": 0.0148,
+  "door_px_visible": 7611,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 12.78,
+  "feet": [
+   {
+    "foot_y": -0.02,
+    "ground_y": -0.03,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": -0.02,
+    "ground_y": 0.119,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 2137
+ },
+ "B_far_402x874": {
+  "sign_w_px": 43,
+  "sign_w_frac": 0.107,
+  "sign_px": 364,
+  "sign_bbox": [
+   65,
+   422,
+   107,
+   452
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 22.8,
+  "palm_leaf_cov_frame": 0.0034,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1562,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.72,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 293
+ },
+ "B_close_402x874": {
+  "sign_w_px": 104,
+  "sign_w_frac": 0.2587,
+  "sign_px": 3435,
+  "sign_bbox": [
+   54,
+   315,
+   157,
+   388
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 54.5,
+  "palm_leaf_cov_frame": 0.0144,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 9087,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 13.35,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 2550
+ },
+ "B_far_600x800": {
+  "sign_w_px": 39,
+  "sign_w_frac": 0.065,
+  "sign_px": 309,
+  "sign_bbox": [
+   176,
+   386,
+   214,
+   414
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 20.9,
+  "palm_leaf_cov_frame": 0.002,
+  "palm_leaf_cov_bottom40": 0.0,
+  "door_px_visible": 1313,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 49.72,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 253
+ },
+ "B_close_600x800": {
+  "sign_w_px": 96,
+  "sign_w_frac": 0.16,
+  "sign_px": 2872,
+  "sign_bbox": [
+   165,
+   288,
+   260,
+   355
+  ],
+  "sign_touches_edge": false,
+  "text_area_w_px": 49.9,
+  "palm_leaf_cov_frame": 0.0308,
+  "palm_leaf_cov_bottom40": 0.0148,
+  "door_px_visible": 7611,
+  "door_px_hidden_by_sign": 0,
+  "lighthouse_px_hidden_by_sign": 0,
+  "sign_cam_min_m": 13.35,
+  "feet": [
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.092,
+    "ground_obj": "env_island_main"
+   },
+   {
+    "foot_y": 0.127,
+    "ground_y": 0.127,
+    "ground_obj": "env_island_main"
+   }
+  ],
+  "char_px": 2137
+ }
+}

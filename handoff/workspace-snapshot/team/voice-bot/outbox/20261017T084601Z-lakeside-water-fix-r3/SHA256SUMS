@@ -1,0 +1,10 @@
+874952b26e231701aba1b83210e1f8494e5f2d58a7f70d1423aebd2e5d93d9d8  ./README.md
+86a11aa9b739a3fb48409bcecfdfbd5acff1dbe2fcc9bdb853d1f48265ab9f9c  ./evidence/D-alone-check.txt
+62e5617c85f7a22f7a3d540f71000661c004e3b9729370b8d306c3ff31e9d4d6  ./evidence/compare_water_fix_only.png
+485981136a11b14231414c7e50ce941b9f732673665bf771fa54b9665c054de2  ./evidence/standin_S.md
+66c9fc6fb8b4da2b27ab05425111ac7dc4bc1fff7d1cbe58c84999ebd7af50fc  ./evidence/wfix_eval.py
+d5555d649558401d373188327dfc46cbab4062ffd7bd857d5a1f3766230454d2  ./lakeside-water-fix-r3.bundle
+34cc37fce76ce6ddbdb339e4c846f6f5b5a5a4e9bd6314e17ba9a88ea39c7c3e  ./patches/0001-lakeside-diag-one-time-QF_LAKE_DIAG-print-at-the-boa.patch
+e6575aa3e313a3b5ea7ab56f95319c935a8aed905144c9f58e2fba1c026c9464  ./patches/0002-lakeside-water-fix-the-v_color-double-decode-in-lake.patch
+864bd064addcfa6824356da952e4f68480279cb17ac0b9cc88de8f7c1bf791c5  ./suite-D.log
+864bd064addcfa6824356da952e4f68480279cb17ac0b9cc88de8f7c1bf791c5  ./suite-S.log

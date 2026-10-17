@@ -1,0 +1,2 @@
+467b36d (land fill only): 430 pieces -> 3 merged chunks + 2 instanced kinds + 0 blended + 1 water = 6 background draws; + 43 board/UI = 49
+this commit: 430 pieces -> 7 merged chunks + 2 instanced kinds + 0 blended + 1 water = 10 background draws; + 43 board/UI = 53

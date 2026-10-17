@@ -1,0 +1,124 @@
+From 25b55af03a6b7033f3a25e872be64bf657d58f34 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 17:29:07 +0800
+Subject: [PATCH 01/15] =?UTF-8?q?r4-prep=201/3:=20landing=20from=20the=20j?=
+ =?UTF-8?q?ourney=20into=20a=20=E9=A3=8E=E9=93=83=E6=B9=96=E7=95=94=20boar?=
+ =?UTF-8?q?d=20no=20longer=20opens=20=E3=80=8C=E6=9A=82=E5=81=9C=E4=B8=80?=
+ =?UTF-8?q?=E4=B8=8B=E3=80=8D=20for=20a=20restored=20unfinished=20attempt?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Cause (existing behaviour since before 09a1b8e, not a lakeside/journey/hook regression): regionSelection picks the unfinished
+attempt in forest-regional-r05-active (namespace dot-r5-v12-isolated-20261009:), the R5 provider restores it paused
+(this.paused=true; only a fresh start clears it), and ManagedMobileBoardUI.presentForPlay deliberately opens the pause panel for
+restored attempts; tool intros wait for run.ready, so the tutorial only came after 继续.
+Fix: NativeWorldLevelAdapter sets ui.resumeRestoredOnPresent=requiresLakesideScene(selection); on reveal such a board resumes the
+restored attempt directly (falls back to the pause panel if resume is refused). Saves untouched; first-time intros still show;
+every other board keeps the explicit Resume. Test lakeside-landing-no-pause.
+---
+ .../assets/scripts/ManagedMobileBoardUI.ts    |  9 +++++-
+ .../world-r2/NativeWorldLevelAdapter.ts       |  3 ++
+ .../test_lakeside_landing_no_pause.cjs        | 29 +++++++++++++++++++
+ tools/journey-integration/run-suite.cjs       |  1 +
+ 4 files changed, 41 insertions(+), 1 deletion(-)
+ create mode 100644 tools/board-ui/test_lakeside_landing_no_pause.cjs
+
+diff --git a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+index e9da850..0b832cf 100644
+--- a/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
++++ b/creator-build-project/assets/scripts/ManagedMobileBoardUI.ts
+@@ -62,6 +62,10 @@ export class ManagedMobileBoardUI extends Component {
+   private visualStamp = 0; private visualDone: (() => void) | null = null; private visualLeft = -1;
+   /** Last presentation was hidden (lock / background). The next visible paused frame asks update() to open the pause panel. */
+   private boardWasHidden = false; private returnPause = false;
++  /** r4-prep (lead): set by the world adapter for 风铃湖畔 boards, which are only reached by landing from the island→lakeside
++   *  journey. A restored unfinished attempt there resumes straight into a playable board on reveal (steps shown as usual,
++   *  first-time tool intros still queue on run.ready) instead of opening 「暂停一下」. Other boards keep the explicit Resume. */
++  resumeRestoredOnPresent = false;
+   private pressHandles: PressHandle[] = [];
+   private resetOnHide = () => this.resetInput();
+   private presentationActive = () => { if (this.root && !this.root.activeInHierarchy) this.resetInput(); };
+@@ -293,7 +297,10 @@ export class ManagedMobileBoardUI extends Component {
+     // Restored attempts intentionally stay paused. Unlike an OS hide/show,
+     // a new view has no boardWasHidden edge to request the recovery controls.
+     // Offer explicit Resume on its first visible update; never unlock silently.
+-    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) this.returnPause = true;
++    if (this.snapshot?.state === 'run.paused' && !this.snapshot.hidden) {
++      if (this.resumeRestoredOnPresent && this.snapshot.active && !this.modalOpen()) { let r: any = null; try { r = this.managed?.intercept?.('resume') ?? this.host.command('resume'); } catch { r = null; } if (!r || r.ok === false) this.returnPause = true; }
++      else this.returnPause = true;
++    }
+   }
+   private cancelToolInput() { for (const n of this.tools) { if (!isValid(n, true)) continue; const f = n.getChildByName('Face'); if (f && isValid(f, true)) f.setPosition(0, 0, 0); } this.toolDrag = null; this.armedTool = null; this.toolTapAccepted = false; if (!this.disposing && this.toolGhost && isValid(this.toolGhost, true)) this.toolGhost.active = false; if (!this.disposing && this.pieceGhost && isValid(this.pieceGhost, true)) this.pieceGhost.active = false; this.selected = -1; }
+   /** Freeze the tool bar per run: only tools in stock at the start, priority order, max 3; used-up ones stay greyed in place. */
+diff --git a/creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts b/creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts
+index ffc4012..7400309 100644
+--- a/creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts
++++ b/creator-build-project/assets/scripts/world-r2/NativeWorldLevelAdapter.ts
+@@ -9,6 +9,7 @@ import type { LevelAdapter, LevelLease, Cancellation, Result } from '../world-r1
+ import { createManagedBoardSession } from './ManagedBoardSession';
+ import type { Selection, DisposableStores } from './ManagedBoardSession';
+ import { paintRegionalOverlay } from './RegionalOverlay';
++import { requiresLakesideScene } from './LevelRegion';
+ /** Direct adapter to the ACTUAL NativeBoardUI with the managed-mode patch. No idealized boardFactory. */
+ export function createNativeWorldLevelAdapter(options:{
+   uiParent:Node; select:(stageId:string)=>Selection; fixture:any;
+@@ -70,6 +71,8 @@ export function createNativeWorldLevelAdapter(options:{
+       if(typeof (ui as any).initializeManaged!=='function')throw Error('Apply NativeBoardUI managed-mode patch before use');
+       // Hold touches until WorldFlow reveals, after the shot and a finger-ready board. Test boards leave this unset.
+       (ui as any).deferPresentation=true;
++      // r4-prep: 风铃湖畔 is entered by landing from the journey; a restored attempt resumes on reveal (no 「暂停一下」 first).
++      (ui as any).resumeRestoredOnPresent=requiresLakesideScene(selection);
+       (ui as any).initializeManaged(options.fixture,session.binding,background.frame,()=>background.diagnostics());token.check();
+       // These existing local dialogs do not change the controller's run state.
+       // Observe their active event once, so original boardTime also freezes for bag/restart dialogs.
+diff --git a/tools/board-ui/test_lakeside_landing_no_pause.cjs b/tools/board-ui/test_lakeside_landing_no_pause.cjs
+new file mode 100644
+index 0000000..2c827cc
+--- /dev/null
++++ b/tools/board-ui/test_lakeside_landing_no_pause.cjs
+@@ -0,0 +1,29 @@
++'use strict';
++// r4-prep (lead): landing from the island→lakeside journey into a 风铃湖畔 board must not open 「暂停一下」 for a restored
++// unfinished attempt: it resumes straight into a playable board (steps shown as usual), first-time tool intros still show,
++// saved bytes and actions are untouched. Boards without the flag keep the explicit Resume (test_restored_entry_resume).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {createHarness}=require('./harness.cjs');
++const MainPort=require('../../creator-build-project/assets/scripts/mainline-r1/adapter/mainline-port.js');
++async function restoredBoard(seen,flag){
++ const H=createHarness();H.cc.sys.localStorage.setItem('qfl.ui.seenTools',JSON.stringify(seen));
++ const mem=new Map(),port=MainPort.createPort({getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,v)});const c=port.createController();
++ assert(c.startStage('mainline-01',{seed:1}).ok);const preview=c.previewAction(['swap',23,24]);assert(preview.ok);assert(c.commitAction(preview.token).ok);
++ const restored=port.createController();assert.equal(restored.snapshot().state,'run.paused');const bytes=JSON.stringify([...mem]);
++ const {createManagedMainlineBinding}=H.load('world-r2/ManagedMainlineBinding'),{ManagedMobileBoardUI}=H.load('ManagedMobileBoardUI');
++ const u=new ManagedMobileBoardUI();u.node=new H.cc.Node('lake-owner');u.node.active=false;H.cc._scene.addChild(u.node);u.deferPresentation=true;u.resumeRestoredOnPresent=flag;
++ u.initializeManaged({},createManagedMainlineBinding(port,restored,{exit:()=>({ok:true}),resume:()=>undefined}));await H.flush();u.update(1/60);
++ assert(!u.popups.find('PausePanel'),'nothing before reveal');return {H,u,restored,mem,bytes};}
++(async()=>{
++ {const {u,restored,mem,bytes}=await restoredBoard(['starlight','windbell','tidebottle'],true);u.presentForPlay();for(let i=0;i<5;i++)u.update(1/60);
++  assert(!u.popups.find('PausePanel'),'lakeside landing: no 「暂停一下」');assert.equal(restored.snapshot().state,'run.ready','playable at once');
++  assert.equal(restored.snapshot().active.moves,u.snapshot.active.moves,'steps shown from the restored attempt');assert.deepEqual(restored.snapshot().active.actions,[['swap',23,24]],'restored action kept');
++  assert.equal(JSON.stringify([...mem]),bytes,'resume does not rewrite the save');u.onDestroy();console.log('PASS restored lakeside landing resumes without the pause panel; steps, action and saved bytes kept');}
++ {const {u,restored}=await restoredBoard([],true);u.presentForPlay();for(let i=0;i<5;i++)u.update(1/60);
++  assert(!u.popups.find('PausePanel'));assert.equal(restored.snapshot().state,'run.ready');assert(u.popups.find('ToolIntroPanel'),'unseen first-time tool intro still shows (and first)');u.onDestroy();console.log('PASS unseen tool intro still shows on the lakeside landing, with no pause panel before it');}
++ {const {u,restored}=await restoredBoard(['starlight','windbell','tidebottle'],false);u.presentForPlay();u.update(1/60);
++  assert(u.popups.find('PausePanel'),'other boards keep the explicit Resume');assert.equal(restored.snapshot().state,'run.paused');u.onDestroy();console.log('PASS boards without the flag keep 「暂停一下」 (existing behaviour)');}
++ const S=path.join(__dirname,'../../creator-build-project/assets/scripts/'),ad=fs.readFileSync(S+'world-r2/NativeWorldLevelAdapter.ts','utf8'),lr=fs.readFileSync(S+'world-r2/LevelRegion.ts','utf8');
++ assert.match(ad,/\(ui as any\)\.resumeRestoredOnPresent=requiresLakesideScene\(selection\);\s*\n\s*\(ui as any\)\.initializeManaged\(/,'adapter sets the flag for 风铃湖畔 before initializeManaged');
++ assert.match(lr,/\^r0\[45\]-lake-\\d\+\$/,'flag only for r04/r05-lake-* stages');console.log('PASS wiring: adapter flag = requiresLakesideScene(selection)');
++})().catch(e=>{console.error(e);process.exitCode=1});
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index c1f2a6f..88d4c31 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -35,6 +35,7 @@ const tests=[
+  ['board-storage-recovery','tools/board-ui/test_board_storage_recovery.cjs'],
+  ['reward-background-return','tools/board-ui/test_reward_background_return.cjs'],
+  ['restored-entry-resume','tools/board-ui/test_restored_entry_resume.cjs'],
++ ['lakeside-landing-no-pause','tools/board-ui/test_lakeside_landing_no_pause.cjs'],
+  ['result-retry','tools/board-ui/test_result_retry.cjs'],
+  ['board-art-retry','tools/board-ui/test_board_art_retry.cjs'],
+  ['deferred-entry-art','tools/board-ui/test_deferred_entry_art.cjs'],
+-- 
+2.47.3
+

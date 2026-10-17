@@ -1,0 +1,10 @@
+file	model	end_dBFS	start_dBFS	jump_dB
+meadow40_before	ingame_150ms_xfade	-24.04	-28.37	4.33
+meadow40_before	gapless	-31.14	-28.29	2.86
+meadow40_before	raw	-32.53	-31.45	1.08
+meadow48_original	ingame_150ms_xfade	-23.43	-27.81	4.38
+meadow48_original	gapless	-30.71	-27.46	3.25
+meadow48_original	raw	-31.96	-30.68	1.29
+meadow40_after	ingame_150ms_xfade	-26.79	-28.46	1.67
+meadow40_after	gapless	-28.51	-28.29	0.22
+meadow40_after	raw	-29.78	-31.34	1.56

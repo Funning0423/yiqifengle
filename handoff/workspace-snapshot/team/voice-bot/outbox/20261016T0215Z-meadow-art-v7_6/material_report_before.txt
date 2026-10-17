@@ -1,0 +1,7 @@
+used ['KHR_materials_unlit', 'KHR_materials_specular'] req None
+0 {"doubleSided": true, "extensions": {"KHR_materials_unlit": {}}, "name": "M_meadow_cloud", "pbrMetallicRoughness": {"metallicFactor": 0, "roughnessFactor": 0.
+1 {"doubleSided": true, "extensions": {"KHR_materials_specular": {"specularFactor": 0.4000000059604645}}, "name": "M_meadow_palette", "pbrMetallicRoughness": {"
+2 {"doubleSided": true, "extensions": {"KHR_materials_specular": {"specularFactor": 0.4000000059604645}}, "extras": {"engine_shader": "meadow_grass_wind (see RE
+3 {"doubleSided": true, "extensions": {"KHR_materials_specular": {"specularFactor": 0.4000000059604645}}, "extras": {"bank_combine": "c = g * (0.55 + 0.9 * d.r)
+4 {"doubleSided": true, "extensions": {"KHR_materials_unlit": {}}, "name": "M_meadow_sky", "pbrMetallicRoughness": {"baseColorTexture": {"index": 3}, "metallicF
+5 {"doubleSided": true, "extensions": {"KHR_materials_specular": {"specularFactor": 0.4000000059604645}}, "extras": {"ground_texture": "meadow_ground_v0_8_1024.

@@ -1,0 +1,32 @@
+{
+ "22_sail_day_": {
+  "onset_wav": 25.638,
+  "implied_wav_to_video_offset": 2.082,
+  "summary_assumed_offset": "~0.13-0.19",
+  "sting_leaves_ref_after_s": 2.85,
+  "hold_enter_after_sting_s": 2.807,
+  "summary_drop_video_mapped_after_sting": 2.78
+ },
+ "22_sail_nigh": {
+  "onset_wav": 25.872,
+  "implied_wav_to_video_offset": 2.072,
+  "summary_assumed_offset": "~0.13-0.19",
+  "sting_leaves_ref_after_s": 2.85,
+  "hold_enter_after_sting_s": 2.806,
+  "summary_drop_video_mapped_after_sting": 2.72
+ },
+ "23_sail_day_": {
+  "onset_wav": 25.723,
+  "implied_wav_to_video_offset": 2.052,
+  "summary_assumed_offset": "~0.13-0.19",
+  "sting_leaves_ref_after_s": 2.42,
+  "skip_tap_after_sting_s": 1.355
+ },
+ "23_sail_nigh": {
+  "onset_wav": 25.729,
+  "implied_wav_to_video_offset": 2.08,
+  "summary_assumed_offset": "~0.13-0.19",
+  "sting_leaves_ref_after_s": 2.46,
+  "skip_tap_after_sting_s": 1.351
+ }
+}

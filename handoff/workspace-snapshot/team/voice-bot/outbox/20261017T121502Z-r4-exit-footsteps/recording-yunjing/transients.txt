@@ -1,0 +1,24 @@
+runs/A_exit 
+ top transients (50ms vs prev 400ms, dB / t / dBFS): [(np.float64(4.7), 0.67, np.float64(-22.9)), (np.float64(4.4), -0.33, np.float64(-25.4)), (np.float64(4.2), 0.37, np.float64(-25.2)), (np.float64(4.1), 20.77, np.float64(-15.9)), (np.float64(4.0), 2.32, np.float64(-24.1))] 
+ peak excl markers dBFS/t [np.float64(-6.75), np.float64(20.72)]
+ steps 25 started 25 onset-log [26.4, 35.7, 29.2] corrmin 0.103 step-bed [-19.7, -4.2] steppk -13.5 
+ cmp {'count_ours': 25, 'count_table': 25, 'surface_match': 25, 'foot_match': 25, 'const_offset_ms(anchor->game leaveHome start)': -2.0, 'log_vs_table_ms_range': [-1.0, 17.0], 'audible_onset_minus_table_plant_ms_range': [3.4, 32.7], 'audible_onset_minus_table_plant_ms_mean': 11.9}
+ states [[-6.164, 'home'], [0.002, 'standing'], [1.29, 'turning-out'], [2.785, 'walking-out'], [8.785, 'opening-door'], [10.789, 'crossing-out'], [30.794, 'island']] 
+ marks {'leave': [0.0]}
+ non-step starts [{'t': -5.585, 'dur': 83.478}, {'t': 10.803, 'dur': 20}, {'t': 10.934, 'dur': 2.9}, {'t': 11.797, 'dur': 8}, {'t': 15.833, 'dur': 2.9}, {'t': 16.867, 'dur': 3.26}, {'t': 16.867, 'dur': 3.26}, {'t': 20.666, 'dur': 1}, {'t': 21.083, 'dur': 3.36}, {'t': 21.083, 'dur': 3.36}]
+runs/B_return 
+ top transients (50ms vs prev 400ms, dB / t / dBFS): [(np.float64(4.4), 10.46, np.float64(-22.7)), (np.float64(4.1), 3.46, np.float64(-22.1)), (np.float64(4.0), 7.61, np.float64(-20.2)), (np.float64(3.9), 8.46, np.float64(-17.8)), (np.float64(3.7), 16.66, np.float64(-23.5))] 
+ peak excl markers dBFS/t [np.float64(-7.75), np.float64(0.21)]
+ steps 27 started 27 onset-log [26.4, 44.1, 29.9] corrmin 0.115 step-bed [-18.7, -5.0] steppk -13.0 
+ cmp {'count_ours': 27, 'count_table': 27, 'surface_match': 27, 'foot_match': 27, 'const_offset_ms(anchor->game leaveHome start)': -31774.0, 'log_vs_table_ms_range': [-25.0, 17.0], 'audible_onset_minus_table_plant_ms_range': [3.6, 31.6], 'audible_onset_minus_table_plant_ms_mean': 14.1}
+ states [[-37.775, 'home'], [-37.755, 'standing'], [-36.485, 'turning-out'], [-34.969, 'walking-out'], [-28.969, 'opening-door'], [-26.969, 'crossing-out'], [-6.821, 'island'], [0.048, 'walking-home'], [10.177, 'crossing-in'], [12.246, 'walking-to-seat'], [18.167, 'sitting'], [20.876, 'home']] 
+ marks {'returnHome': [0.0]}
+ non-step starts [{'t': -37.523, 'dur': 83.478}, {'t': -35.238, 'dur': 0.26}, {'t': -34.454, 'dur': 0.26}, {'t': -33.671, 'dur': 0.22}, {'t': -33.072, 'dur': 0.22}, {'t': -32.539, 'dur': 0.22}, {'t': -31.988, 'dur': 0.26}, {'t': -31.454, 'dur': 0.26}, {'t': -30.886, 'dur': 0.26}, {'t': -30.288, 'dur': 0.26}, {'t': -29.522, 'dur': 0.26}, {'t': -29.122, 'dur': 0.26}, {'t': -26.939, 'dur': 20}, {'t': -26.821, 'dur': 2.9}, {'t': -26.454, 'dur': 0.22}, {'t': -25.941, 'dur': 8}, {'t': -25.67, 'dur': 0.22}, {'t': -25.071, 'dur': 0.26}, {'t': -24.521, 'dur': 0.26}, {'t': -23.938, 'dur': 0.26}, {'t': -23.37, 'dur': 0.3}, {'t': -22.788, 'dur': 0.3}, {'t': -22.223, 'dur': 0.3}, {'t': -21.921, 'dur': 2.9}, {'t': -21.623, 'dur': 0.3}, {'t': -21.055, 'dur': 0.3}, {'t': -20.888, 'dur': 3.26}, {'t': -20.888, 'dur': 3.26}, {'t': -20.472, 'dur': 0.3}, {'t': -19.823, 'dur': 0.26}, {'t': -18.939, 'dur': 0.26}, {'t': -18.472, 'dur': 0.26}, {'t': -17.086, 'dur': 1}, {'t': -16.654, 'dur': 3.36}, {'t': -16.654, 'dur': 3.36}]
+runs/C_gating 
+ top transients (50ms vs prev 400ms, dB / t / dBFS): [(np.float64(146.9), 18.85, np.float64(-33.1)), (np.float64(13.2), 18.9, np.float64(-29.0)), (np.float64(7.9), 18.95, np.float64(-28.6)), (np.float64(5.6), 29.8, np.float64(-23.8)), (np.float64(5.4), 19.0, np.float64(-28.7))] 
+ peak excl markers dBFS/t [np.float64(-4.02), np.float64(39.2)]
+ steps 42 started 36 onset-log [26.6, 34.7, 29.4] corrmin 0.154 step-bed [-16.2, -3.3] steppk -13.5 
+ cmp None
+ states [[-5.828, 'home'], [0.007, 'standing'], [1.256, 'turning-out'], [2.775, 'walking-out'], [8.774, 'opening-door'], [10.793, 'crossing-out'], [14.849, 'paused'], [18.878, 'standing'], [20.142, 'turning-out'], [21.659, 'walking-out'], [27.656, 'opening-door'], [29.655, 'crossing-out'], [49.664, 'island']] 
+ marks {'leave': [0.0], 'sfx off': [5.503], 'sfx on': [9.007], 'hide': [14.849], 'show': [18.874]}
+ non-step starts [{'t': -5.549, 'dur': 83.478}, {'t': 10.823, 'dur': 20}, {'t': 10.939, 'dur': 2.9}, {'t': 11.818, 'dur': 8}, {'t': 18.854, 'dur': 83.478}, {'t': 29.671, 'dur': 20}, {'t': 29.801, 'dur': 2.9}, {'t': 30.668, 'dur': 8}, {'t': 34.704, 'dur': 2.9}, {'t': 35.738, 'dur': 3.26}, {'t': 35.738, 'dur': 3.26}, {'t': 39.538, 'dur': 1}, {'t': 39.954, 'dur': 3.36}, {'t': 39.954, 'dur': 3.36}, {'t': 46.97, 'dur': 3.19}, {'t': 46.97, 'dur': 3.19}]

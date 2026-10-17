@@ -1,0 +1,713 @@
+{
+ "tool": "Blender 4.5.14 LTS",
+ "baseline_blend": "/workspace/wechat-game/art/island/v2.2a/scene/env_scene_island_v2_2a.blend",
+ "baseline_blend_sha256": "6f06872a639906b9b5f7ce32def5b687b3f4b5b61df681a754f303776083768d",
+ "baseline_glb_sha256": "8361db8e01ef8be30129a83da2050b43cfc8b2ee9e00ee4bc926c0f8484ee376",
+ "control_reexport": {
+  "sha256": "8361db8e01ef8be30129a83da2050b43cfc8b2ee9e00ee4bc926c0f8484ee376",
+  "byte_identical_to_v2_2a_glb": true,
+  "size": 6503180,
+  "v2_2a_size": 6503180
+ },
+ "fence": {
+  "object": "env_island_props_merged (static batch; fence is 6 loose parts inside it)",
+  "parts": [
+   8,
+   12,
+   8,
+   12,
+   8,
+   8
+  ],
+  "vertices_moved": 56,
+  "far_post_y": [
+   -2.3,
+   -1.95
+  ],
+  "near_post_y": [
+   -0.3,
+   -0.58
+  ],
+  "length_between_post_centres_m": [
+   2.0,
+   1.37
+  ],
+  "posts_before": [
+   {
+    "centre_blender_xy": [
+     -1.66,
+     -2.3
+    ],
+    "bottom_corners": [
+     [
+      -1.615,
+      -2.345,
+      -0.0204,
+      0.0
+     ],
+     [
+      -1.705,
+      -2.345,
+      -0.0204,
+      0.0024
+     ],
+     [
+      -1.615,
+      -2.255,
+      -0.0204,
+      0.0013
+     ],
+     [
+      -1.705,
+      -2.255,
+      -0.0204,
+      0.0069
+     ]
+    ]
+   },
+   {
+    "centre_blender_xy": [
+     -1.66,
+     -0.3
+    ],
+    "bottom_corners": [
+     [
+      -1.615,
+      -0.345,
+      -0.0204,
+      -0.0046
+     ],
+     [
+      -1.705,
+      -0.345,
+      -0.0204,
+      0.0024
+     ],
+     [
+      -1.615,
+      -0.255,
+      -0.0204,
+      -0.0058
+     ],
+     [
+      -1.705,
+      -0.255,
+      -0.0204,
+      0.0016
+     ]
+    ]
+   }
+  ],
+  "posts_after": [
+   {
+    "centre_blender_xy": [
+     -1.66,
+     -1.95
+    ],
+    "bottom_z": -0.0078
+   },
+   {
+    "centre_blender_xy": [
+     -1.66,
+     -0.58
+    ],
+    "bottom_z": -0.0213
+   }
+  ]
+ },
+ "candidate_glb_sha256": "5ab038aedc97449f66266d3a9dc4ea290fd4c3fcdbf811722c94846652ec2250",
+ "candidate_blend_sha256": "baf0e8ee773e7a6468c8c2c6346a18d83b69e321e19bef004c6884c2f6b70e2e",
+ "collision": {
+  "source": "/workspace/wechat-game/art/x/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/assets/glb/env_exterior_collision.glb",
+  "source_sha256": "b688adb255175dccac71ec98ec32b76941e05a011674fdba1d637875625f1f0c",
+  "candidate": "/workspace/wechat-game/team/voice-bot/m5-island/candidate/collision/env_exterior_collision_v2_2b_candidate.glb",
+  "candidate_sha256": "0b4b60451e91741613dc7258827aeab49b441c2fe73e962641d06d4915b7cda6",
+  "fence_hull_vertices_moved": 69,
+  "tower_slabs": [
+   {
+    "angle_deg": [
+     -73.53,
+     -61.47
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     3.1292
+    ],
+    "outer_face_min_r_m": [
+     2.6487,
+     3.1119
+    ],
+    "rendered_max_r_in_span_m": 3.0971,
+    "rendered_max_at_blender": [
+     1.349,
+     -0.138,
+     3.191
+    ]
+   },
+   {
+    "angle_deg": [
+     -62.53,
+     -49.97
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     3.0038
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.9858
+    ],
+    "rendered_max_r_in_span_m": 2.9787,
+    "rendered_max_at_blender": [
+     1.418,
+     0.03,
+     1.97
+    ]
+   },
+   {
+    "angle_deg": [
+     -51.29,
+     -38.71
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6635
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6475
+    ],
+    "rendered_max_r_in_span_m": null,
+    "rendered_max_at_blender": null
+   },
+   {
+    "angle_deg": [
+     -40.04,
+     -27.46
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6635
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6475
+    ],
+    "rendered_max_r_in_span_m": null,
+    "rendered_max_at_blender": null
+   },
+   {
+    "angle_deg": [
+     -28.79,
+     -16.21
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6635
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6475
+    ],
+    "rendered_max_r_in_span_m": null,
+    "rendered_max_at_blender": null
+   },
+   {
+    "angle_deg": [
+     -17.53,
+     -4.97
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6635
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6475
+    ],
+    "rendered_max_r_in_span_m": null,
+    "rendered_max_at_blender": null
+   },
+   {
+    "angle_deg": [
+     -6.28,
+     6.28
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6635
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6475
+    ],
+    "rendered_max_r_in_span_m": null,
+    "rendered_max_at_blender": null
+   },
+   {
+    "angle_deg": [
+     4.97,
+     17.53
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     3.057
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     3.0387
+    ],
+    "rendered_max_r_in_span_m": 3.019,
+    "rendered_max_at_blender": [
+     2.969,
+     3.197,
+     3.002
+    ]
+   },
+   {
+    "angle_deg": [
+     16.22,
+     28.78
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7889
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7722
+    ],
+    "rendered_max_r_in_span_m": 2.7675,
+    "rendered_max_at_blender": [
+     2.431,
+     3.972,
+     0.35
+    ]
+   },
+   {
+    "angle_deg": [
+     27.47,
+     40.03
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.8704
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8531
+    ],
+    "rendered_max_r_in_span_m": 2.8381,
+    "rendered_max_at_blender": [
+     2.449,
+     4.084,
+     2.304
+    ]
+   },
+   {
+    "angle_deg": [
+     38.72,
+     51.28
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.8245
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8075
+    ],
+    "rendered_max_r_in_span_m": 2.7951,
+    "rendered_max_at_blender": [
+     1.825,
+     4.766,
+     1.668
+    ]
+   },
+   {
+    "angle_deg": [
+     49.97,
+     62.53
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6837
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6676
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     1.557,
+     4.793,
+     0.6
+    ]
+   },
+   {
+    "angle_deg": [
+     61.22,
+     73.78
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7991
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7823
+    ],
+    "rendered_max_r_in_span_m": 2.7631,
+    "rendered_max_at_blender": [
+     1.12,
+     5.176,
+     0.338
+    ]
+   },
+   {
+    "angle_deg": [
+     72.47,
+     85.03
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6837
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6676
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     0.414,
+     5.267,
+     3.003
+    ]
+   },
+   {
+    "angle_deg": [
+     83.71,
+     96.29
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6939
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6777
+    ],
+    "rendered_max_r_in_span_m": 2.6597,
+    "rendered_max_at_blender": [
+     -0.105,
+     5.307,
+     3.033
+    ]
+   },
+   {
+    "angle_deg": [
+     94.97,
+     107.53
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7971
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7803
+    ],
+    "rendered_max_r_in_span_m": 2.7632,
+    "rendered_max_at_blender": [
+     -0.663,
+     5.332,
+     2.507
+    ]
+   },
+   {
+    "angle_deg": [
+     106.22,
+     118.78
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6776
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6615
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     -0.819,
+     5.17,
+     0.6
+    ]
+   },
+   {
+    "angle_deg": [
+     117.47,
+     130.03
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.8611
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8439
+    ],
+    "rendered_max_r_in_span_m": 2.8251,
+    "rendered_max_at_blender": [
+     -1.635,
+     4.953,
+     0.271
+    ]
+   },
+   {
+    "angle_deg": [
+     128.72,
+     141.28
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.8797
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8625
+    ],
+    "rendered_max_r_in_span_m": 2.8517,
+    "rendered_max_at_blender": [
+     -1.847,
+     4.822,
+     2.294
+    ]
+   },
+   {
+    "angle_deg": [
+     139.97,
+     152.53
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6837
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6676
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     -2.144,
+     4.207,
+     0.6
+    ]
+   },
+   {
+    "angle_deg": [
+     151.22,
+     163.78
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6775
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6615
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     -2.361,
+     3.853,
+     0.6
+    ]
+   },
+   {
+    "angle_deg": [
+     162.47,
+     175.03
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7598
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7433
+    ],
+    "rendered_max_r_in_span_m": 2.7258,
+    "rendered_max_at_blender": [
+     -2.694,
+     3.065,
+     2.959
+    ]
+   },
+   {
+    "angle_deg": [
+     173.72,
+     186.28
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7346
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7182
+    ],
+    "rendered_max_r_in_span_m": 2.7093,
+    "rendered_max_at_blender": [
+     -2.698,
+     2.894,
+     1.055
+    ]
+   },
+   {
+    "angle_deg": [
+     -175.03,
+     -162.47
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.6837
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.6676
+    ],
+    "rendered_max_r_in_span_m": 2.6496,
+    "rendered_max_at_blender": [
+     -2.617,
+     2.235,
+     0.6
+    ]
+   },
+   {
+    "angle_deg": [
+     -163.79,
+     -151.21
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.7901
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.7733
+    ],
+    "rendered_max_r_in_span_m": 2.7659,
+    "rendered_max_at_blender": [
+     -2.443,
+     1.352,
+     0.315
+    ]
+   },
+   {
+    "angle_deg": [
+     -152.54,
+     -139.96
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.8691
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8518
+    ],
+    "rendered_max_r_in_span_m": 2.8327,
+    "rendered_max_at_blender": [
+     -2.315,
+     1.018,
+     1.731
+    ]
+   },
+   {
+    "angle_deg": [
+     -141.29,
+     -128.71
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.912
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.8945
+    ],
+    "rendered_max_r_in_span_m": 2.8771,
+    "rendered_max_at_blender": [
+     -1.946,
+     0.53,
+     0.339
+    ]
+   },
+   {
+    "angle_deg": [
+     -130.03,
+     -117.47
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.9245
+    ],
+    "outer_face_min_r_m": [
+     2.6475,
+     2.9069
+    ],
+    "rendered_max_r_in_span_m": 2.8879,
+    "rendered_max_at_blender": [
+     -1.542,
+     0.208,
+     1.554
+    ]
+   },
+   {
+    "angle_deg": [
+     -118.53,
+     -106.47
+    ],
+    "outer_corner_r_m": [
+     2.6635,
+     2.9328
+    ],
+    "outer_face_min_r_m": [
+     2.6487,
+     2.9166
+    ],
+    "rendered_max_r_in_span_m": 2.8988,
+    "rendered_max_at_blender": [
+     -1.003,
+     -0.07,
+     2.595
+    ]
+   }
+  ],
+  "lintel_box": {
+   "x": [
+    -0.9,
+    0.9
+   ],
+   "y": [
+    -0.12,
+    0.3
+   ],
+   "z": [
+    2.712,
+    3.25
+   ]
+  },
+  "tower_margin_m": 0.02,
+  "node_names": [
+   "col_ext_cottage",
+   "col_ext_ground_walkable",
+   "col_ext_props_misc",
+   "col_ext_rocks",
+   "col_ext_shore_barrier",
+   "col_ext_tower_wall",
+   "col_ext_trees"
+  ]
+ }
+}

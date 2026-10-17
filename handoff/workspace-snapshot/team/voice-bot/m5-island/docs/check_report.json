@@ -1,0 +1,1185 @@
+{
+ "fence_posts_on_ground": {
+  "rule": "post bottom below the terrain at every corner and along every bottom edge (gap < 0 = no floating), deepest embed <= 0.035 m (no visible sinking). gap_m = post bottom - terrain (negative = embedded)",
+  "before": [
+   {
+    "centre_gltf_xz": [
+     -1.66,
+     0.3
+    ],
+    "top_y": 0.8496,
+    "corners": [
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       0.345
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": -0.0046,
+      "gap_m": -0.0158
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       0.345
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0024,
+      "gap_m": -0.0228
+     },
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       0.255
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": -0.0058,
+      "gap_m": -0.0146
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       0.255
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0016,
+      "gap_m": -0.022
+     }
+    ],
+    "max_gap_along_edges_m": -0.0146,
+    "max_embed_along_edges_m": 0.0228
+   },
+   {
+    "centre_gltf_xz": [
+     -1.66,
+     2.3
+    ],
+    "top_y": 0.8496,
+    "corners": [
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       2.345
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0,
+      "gap_m": -0.0204
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       2.345
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0024,
+      "gap_m": -0.0228
+     },
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       2.255
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0013,
+      "gap_m": -0.0217
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       2.255
+      ],
+      "post_bottom_y": -0.0204,
+      "terrain_y": 0.0069,
+      "gap_m": -0.0273
+     }
+    ],
+    "max_gap_along_edges_m": -0.0204,
+    "max_embed_along_edges_m": 0.0273
+   }
+  ],
+  "after": [
+   {
+    "centre_gltf_xz": [
+     -1.66,
+     0.58
+    ],
+    "top_y": 0.8496,
+    "corners": [
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       0.625
+      ],
+      "post_bottom_y": -0.0213,
+      "terrain_y": 0.0004,
+      "gap_m": -0.0218
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       0.625
+      ],
+      "post_bottom_y": -0.0213,
+      "terrain_y": 0.0073,
+      "gap_m": -0.0286
+     },
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       0.535
+      ],
+      "post_bottom_y": -0.0213,
+      "terrain_y": -0.0013,
+      "gap_m": -0.02
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       0.535
+      ],
+      "post_bottom_y": -0.0213,
+      "terrain_y": 0.0065,
+      "gap_m": -0.0278
+     }
+    ],
+    "max_gap_along_edges_m": -0.02,
+    "max_embed_along_edges_m": 0.0286
+   },
+   {
+    "centre_gltf_xz": [
+     -1.66,
+     1.95
+    ],
+    "top_y": 0.8496,
+    "corners": [
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       1.995
+      ],
+      "post_bottom_y": -0.0078,
+      "terrain_y": 0.0122,
+      "gap_m": -0.02
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       1.995
+      ],
+      "post_bottom_y": -0.0078,
+      "terrain_y": 0.0178,
+      "gap_m": -0.0257
+     },
+     {
+      "corner_gltf_xz": [
+       -1.615,
+       1.905
+      ],
+      "post_bottom_y": -0.0078,
+      "terrain_y": 0.0159,
+      "gap_m": -0.0237
+     },
+     {
+      "corner_gltf_xz": [
+       -1.705,
+       1.905
+      ],
+      "post_bottom_y": -0.0078,
+      "terrain_y": 0.0234,
+      "gap_m": -0.0312
+     }
+    ],
+    "max_gap_along_edges_m": -0.02,
+    "max_embed_along_edges_m": 0.0312
+   }
+  ]
+ },
+ "fence_route_clearance": {
+  "requirement_m": 0.5,
+  "sampling": "every 2 cm along each route polyline, outdoor part only (glTF z > +0.12)",
+  "routes": {
+   "ia_outbound": 37,
+   "ia_returnPath": 34,
+   "camworld_fixed_exit_girl": 181,
+   "camworld_fixed_ret_girl": 63,
+   "camworld_motion_exit_girl": 181,
+   "camworld_motion_ret_girl": 63,
+   "v2_2a_anchor_exit_path_00_17": 18,
+   "v2_2a_anchor_return_path_00_15": 16
+  },
+  "collision_hull_gltf_xz": {
+   "before": [
+    [
+     -1.7116,
+     2.2867
+    ],
+    [
+     -1.705,
+     2.345
+    ],
+    [
+     -1.6334,
+     2.3494
+    ],
+    [
+     -1.615,
+     2.345
+    ],
+    [
+     -1.6098,
+     0.271
+    ],
+    [
+     -1.615,
+     0.255
+    ],
+    [
+     -1.66,
+     0.2463
+    ],
+    [
+     -1.705,
+     0.255
+    ],
+    [
+     -1.7099,
+     0.27
+    ]
+   ],
+   "after": [
+    [
+     -1.7116,
+     1.9367
+    ],
+    [
+     -1.705,
+     1.995
+    ],
+    [
+     -1.6334,
+     1.9994
+    ],
+    [
+     -1.615,
+     1.995
+    ],
+    [
+     -1.6098,
+     0.551
+    ],
+    [
+     -1.615,
+     0.535
+    ],
+    [
+     -1.66,
+     0.5263
+    ],
+    [
+     -1.705,
+     0.535
+    ],
+    [
+     -1.7099,
+     0.55
+    ]
+   ]
+  },
+  "visual_hull_gltf_xz": {
+   "before": [
+    [
+     -1.711,
+     2.3166
+    ],
+    [
+     -1.705,
+     2.345
+    ],
+    [
+     -1.66,
+     2.3537
+    ],
+    [
+     -1.615,
+     2.345
+    ],
+    [
+     -1.609,
+     2.3166
+    ],
+    [
+     -1.609,
+     0.2834
+    ],
+    [
+     -1.615,
+     0.255
+    ],
+    [
+     -1.66,
+     0.2463
+    ],
+    [
+     -1.705,
+     0.255
+    ],
+    [
+     -1.711,
+     0.2834
+    ]
+   ],
+   "after": [
+    [
+     -1.711,
+     1.9666
+    ],
+    [
+     -1.705,
+     1.995
+    ],
+    [
+     -1.66,
+     2.0037
+    ],
+    [
+     -1.615,
+     1.995
+    ],
+    [
+     -1.609,
+     1.9666
+    ],
+    [
+     -1.609,
+     0.5634
+    ],
+    [
+     -1.615,
+     0.535
+    ],
+    [
+     -1.66,
+     0.5263
+    ],
+    [
+     -1.705,
+     0.535
+    ],
+    [
+     -1.711,
+     0.5634
+    ]
+   ]
+  },
+  "to_collision_hull": {
+   "before": {
+    "ia_outbound": {
+     "min_m": 0.413,
+     "at_gltf_xz": [
+      -1.2964,
+      2.608
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3048,
+      2.6186
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.381,
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.381,
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.296,
+      2.6084
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.2949,
+      2.6075
+     ]
+    }
+   },
+   "after": {
+    "ia_outbound": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1342,
+      2.4187
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1294,
+      2.4131
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.6,
+     "at_gltf_xz": [
+      -1.1414,
+      2.3638
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1298,
+      2.4137
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.6,
+     "at_gltf_xz": [
+      -1.1414,
+      2.3638
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1298,
+      2.4137
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1208,
+      2.4028
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1246,
+      2.4079
+     ]
+    }
+   }
+  },
+  "to_visual_fence": {
+   "before": {
+    "ia_outbound": {
+     "min_m": 0.413,
+     "at_gltf_xz": [
+      -1.2964,
+      2.608
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3048,
+      2.6186
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.381,
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.381,
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.296,
+      2.6084
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.414,
+     "at_gltf_xz": [
+      -1.2949,
+      2.6075
+     ]
+    }
+   },
+   "after": {
+    "ia_outbound": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1342,
+      2.4187
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1294,
+      2.4131
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.6,
+     "at_gltf_xz": [
+      -1.1414,
+      2.3638
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1298,
+      2.4137
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.6,
+     "at_gltf_xz": [
+      -1.1414,
+      2.3638
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1298,
+      2.4137
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1208,
+      2.4028
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.641,
+     "at_gltf_xz": [
+      -1.1246,
+      2.4079
+     ]
+    }
+   }
+  },
+  "summary_min_m": {
+   "to_collision_hull": {
+    "before": 0.381,
+    "after": 0.6
+   },
+   "to_visual_fence": {
+    "before": 0.381,
+    "after": 0.6
+   }
+  }
+ },
+ "fence_interpenetration": {
+  "before": [
+   {
+    "fence_part": "post gltf z 2.26..2.35",
+    "with": "env_island_main",
+    "tri_pairs": 6,
+    "expected": true
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#175",
+    "tri_pairs": 10,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#176",
+    "tri_pairs": 2,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#177",
+    "tri_pairs": 2,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#178",
+    "tri_pairs": 8,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#180",
+    "tri_pairs": 12,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#185",
+    "tri_pairs": 4,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#896",
+    "tri_pairs": 8,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_props_merged part#903",
+    "tri_pairs": 4,
+    "expected": false
+   },
+   {
+    "fence_part": "post gltf z 0.26..0.35",
+    "with": "env_island_main",
+    "tri_pairs": 10,
+    "expected": true
+   },
+   {
+    "fence_part": "rail gltf z 0.30..2.30",
+    "with": "env_island_props_merged part#175",
+    "tri_pairs": 4,
+    "expected": false
+   },
+   {
+    "fence_part": "rail gltf z 0.30..2.30",
+    "with": "env_island_props_merged part#177",
+    "tri_pairs": 3,
+    "expected": false
+   }
+  ],
+  "after": [
+   {
+    "fence_part": "post gltf z 1.91..2.00",
+    "with": "env_island_main",
+    "tri_pairs": 6,
+    "expected": true
+   },
+   {
+    "fence_part": "post gltf z 0.54..0.63",
+    "with": "env_island_main",
+    "tri_pairs": 6,
+    "expected": true
+   }
+  ],
+  "note": "post x env_island_main = the 2 cm footing (expected). Anything else is a real intersection."
+ },
+ "fence_zfight_scan": {
+  "before": {
+   "rays": 14025,
+   "grid_m": 0.02,
+   "area_gltf_x": [
+    -2.5,
+    -0.8
+   ],
+   "area_gltf_z": [
+    -0.4,
+    2.9
+   ],
+   "coplanar_pairs_lt_2mm": 0,
+   "samples": [],
+   "pairs_by_surface": {}
+  },
+  "after": {
+   "rays": 14025,
+   "grid_m": 0.02,
+   "area_gltf_x": [
+    -2.5,
+    -0.8
+   ],
+   "area_gltf_z": [
+    -0.4,
+    2.9
+   ],
+   "coplanar_pairs_lt_2mm": 0,
+   "samples": [],
+   "pairs_by_surface": {}
+  }
+ },
+ "tower_collision_vs_rendered": {
+  "rendered_tower_r_m (z 0.02-3.25, cottage footprint + doorway excluded)": {
+   "max": 3.0971,
+   "median": 2.6778
+  },
+  "tower_axis_gltf_xz": [
+   0.0,
+   -2.6496
+  ],
+  "rule": "every rendered tower vertex in the body band must be inside col_ext_tower_wall / col_ext_cottage / col_int_door_frame / col_int_walls (3 mm tolerance)",
+  "before_v2_1_collision": {
+   "rendered_verts_checked": 779,
+   "not_inside_collision": 269,
+   "worst_outside_by_m": 0.2858,
+   "worst_at_gltf": [
+    1.3491,
+    3.2115,
+    0.1381
+   ],
+   "collider_corner_r_max": 2.6635
+  },
+  "after_candidate_collision": {
+   "rendered_verts_checked": 779,
+   "not_inside_collision": 70,
+   "worst_outside_by_m": 0.0799,
+   "worst_at_gltf": [
+    -2.2519,
+    1.8159,
+    -1.0262
+   ],
+   "collider_corner_r_max": 3.1292
+  }
+ },
+ "route_door_anchor_vs_all_blockers": {
+  "before": {
+   "routes": {
+    "ia_outbound": {
+     "min_m": 0.413,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.2964,
+      2.608
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.414,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.3048,
+      2.6186
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.381,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.414,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.381,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.3242,
+      2.5906
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.414,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.3046,
+      2.6182
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.414,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.296,
+      2.6084
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.414,
+     "nearest": "col_ext_props_misc",
+     "at_gltf_xz": [
+      -1.2949,
+      2.6075
+     ]
+    }
+   },
+   "door_swing_sector_blockers": [],
+   "outdoor_anchor_min_clearance_m": {
+    "exit_path_06": 1.064,
+    "exit_path_07": 1.175,
+    "exit_path_08": 0.736,
+    "exit_path_09": 0.476,
+    "exit_path_10": 0.451,
+    "exit_path_11": 0.725,
+    "exit_path_12": 1.087,
+    "exit_path_13": 1.427,
+    "exit_path_14": 1.05,
+    "exit_path_15": 0.799,
+    "exit_path_16": 0.817,
+    "exit_path_17": 0.943,
+    "exit_point": 0.601,
+    "return_path": 0.944,
+    "return_path_00": 0.944,
+    "return_path_01": 0.785,
+    "return_path_02": 1.256,
+    "return_path_03": 0.985,
+    "return_path_04": 0.457,
+    "return_path_05": 0.647,
+    "return_path_06": 1.087,
+    "return_path_07": 1.316,
+    "return_path_08": 0.795
+   }
+  },
+  "after": {
+   "routes": {
+    "ia_outbound": {
+     "min_m": 0.015,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.1917,
+      0.1351
+     ]
+    },
+    "ia_returnPath": {
+     "min_m": 0.019,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.1961,
+      0.1389
+     ]
+    },
+    "camworld_fixed_exit_girl": {
+     "min_m": 0.007,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.2582,
+      0.1265
+     ]
+    },
+    "camworld_fixed_ret_girl": {
+     "min_m": 0.018,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      0.0217,
+      0.1377
+     ]
+    },
+    "camworld_motion_exit_girl": {
+     "min_m": 0.007,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.2582,
+      0.1265
+     ]
+    },
+    "camworld_motion_ret_girl": {
+     "min_m": 0.018,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      0.0217,
+      0.1377
+     ]
+    },
+    "v2_2a_anchor_exit_path_00_17": {
+     "min_m": 0.012,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.1574,
+      0.1319
+     ]
+    },
+    "v2_2a_anchor_return_path_00_15": {
+     "min_m": 0.015,
+     "nearest": "col_ext_tower_wall",
+     "at_gltf_xz": [
+      -0.1702,
+      0.1348
+     ]
+    }
+   },
+   "door_swing_sector_blockers": [],
+   "outdoor_anchor_min_clearance_m": {
+    "exit_path_06": 0.569,
+    "exit_path_07": 1.176,
+    "exit_path_08": 0.747,
+    "exit_path_09": 0.642,
+    "exit_path_10": 0.781,
+    "exit_path_11": 1.075,
+    "exit_path_12": 1.431,
+    "exit_path_13": 1.427,
+    "exit_path_14": 1.05,
+    "exit_path_15": 0.799,
+    "exit_path_16": 0.817,
+    "exit_path_17": 0.943,
+    "exit_point": 0.021,
+    "return_path": 0.944,
+    "return_path_00": 0.944,
+    "return_path_01": 0.785,
+    "return_path_02": 1.256,
+    "return_path_03": 1.332,
+    "return_path_04": 0.789,
+    "return_path_05": 0.687,
+    "return_path_06": 1.088,
+    "return_path_07": 0.95,
+    "return_path_08": 0.281
+   }
+  },
+  "note": "2D hull distance (body radius NOT subtracted), same method as v2.1 check_exterior_collision.py; tower = slabs (door gap open), lintel is above head height"
+ },
+ "node_anchor_set": {
+  "blend_objects_identical (name, path, type)": true,
+  "blend_empty_world_positions_identical": true,
+  "glb_node_paths_identical": true,
+  "glb_nodes": 249,
+  "glb_nodes_with_any_difference (TRS/mesh/skin/extras)": [],
+  "glb_meshes_materials_images_counts": [
+   [
+    54,
+    54
+   ],
+   [
+    15,
+    15
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    30,
+    30
+   ]
+  ],
+  "glb_accessors_changed": [],
+  "glb_materials_identical": true
+ },
+ "gltf_validator": {
+  "v2_2a": {
+   "file": "/workspace/wechat-game/art/island/v2.2a/glb/env_scene_island_v2_2a.glb",
+   "validator": "2.0.0-dev.2.7",
+   "errors": 0,
+   "warnings": 2,
+   "infos": 9,
+   "hints": 0,
+   "messages": [
+    {
+     "code": "UNSUPPORTED_EXTENSION",
+     "message": "Cannot validate an extension as it is not supported by the validator: 'KHR_materials_emissive_strength'.",
+     "severity": 1,
+     "pointer": "/extensionsUsed/0"
+    },
+    {
+     "code": "UNSUPPORTED_EXTENSION",
+     "message": "Cannot validate an extension as it is not supported by the validator: 'KHR_materials_specular'.",
+     "severity": 1,
+     "pointer": "/extensionsUsed/1"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/15/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/21/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/22/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/24/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/34/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0, 1).",
+     "severity": 2,
+     "pointer": "/meshes/35/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/36/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/37/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/38/primitives/0/material"
+    }
+   ]
+  },
+  "candidate_scene": {
+   "file": "/workspace/wechat-game/team/voice-bot/m5-island/candidate/glb/env_scene_island_v2_2b_candidate.glb",
+   "validator": "2.0.0-dev.2.7",
+   "errors": 0,
+   "warnings": 2,
+   "infos": 9,
+   "hints": 0,
+   "messages": [
+    {
+     "code": "UNSUPPORTED_EXTENSION",
+     "message": "Cannot validate an extension as it is not supported by the validator: 'KHR_materials_emissive_strength'.",
+     "severity": 1,
+     "pointer": "/extensionsUsed/0"
+    },
+    {
+     "code": "UNSUPPORTED_EXTENSION",
+     "message": "Cannot validate an extension as it is not supported by the validator: 'KHR_materials_specular'.",
+     "severity": 1,
+     "pointer": "/extensionsUsed/1"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/15/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/21/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/22/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/24/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/34/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0, 1).",
+     "severity": 2,
+     "pointer": "/meshes/35/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/36/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/37/primitives/0/material"
+    },
+    {
+     "code": "MESH_PRIMITIVE_UNUSED_TEXCOORD",
+     "message": "Material does not use texture coordinates sets with indices (0).",
+     "severity": 2,
+     "pointer": "/meshes/38/primitives/0/material"
+    }
+   ]
+  },
+  "candidate_collision": {
+   "file": "/workspace/wechat-game/team/voice-bot/m5-island/candidate/collision/env_exterior_collision_v2_2b_candidate.glb",
+   "validator": "2.0.0-dev.2.7",
+   "errors": 0,
+   "warnings": 0,
+   "infos": 0,
+   "hints": 0,
+   "messages": []
+  },
+  "v2_1_collision": {
+   "file": "/workspace/wechat-game/art/x/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/GROKBOT-ART-001-ISLAND-EXTERIOR-v2.1.0/assets/glb/env_exterior_collision.glb",
+   "validator": "2.0.0-dev.2.7",
+   "errors": 0,
+   "warnings": 0,
+   "infos": 0,
+   "hints": 0,
+   "messages": []
+  }
+ },
+ "files": {
+  "/workspace/wechat-game/team/voice-bot/m5-island/candidate/scene/env_scene_island_v2_2b_candidate.blend": "baf0e8ee773e7a6468c8c2c6346a18d83b69e321e19bef004c6884c2f6b70e2e",
+  "/workspace/wechat-game/team/voice-bot/m5-island/candidate/glb/env_scene_island_v2_2b_candidate.glb": "5ab038aedc97449f66266d3a9dc4ea290fd4c3fcdbf811722c94846652ec2250",
+  "/workspace/wechat-game/team/voice-bot/m5-island/candidate/collision/env_exterior_collision_v2_2b_candidate.glb": "0b4b60451e91741613dc7258827aeab49b441c2fe73e962641d06d4915b7cda6"
+ },
+ "checks": {
+  "fence_posts_on_ground": true,
+  "fence_clearance_ge_0_5": true,
+  "fence_no_interpenetration": true,
+  "fence_area_no_new_coplanar": true,
+  "tower_collision_ge_rendered": false,
+  "door_swing_free": true,
+  "routes_not_blocked": false,
+  "anchors_not_inside_blockers": true,
+  "anchor_ids_unchanged": true,
+  "glb_validates": true
+ },
+ "status": "failed"
+}

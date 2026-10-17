@@ -1,0 +1,24 @@
+PASS FootstepData.ts is up to date with the shipped character GLB and world ground map
+{"fps":60,"plants":25,"steps":25,"matched":25,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.68568403401772,"errMaxMs":-10.169261282996445,"errMeanMs":-17.35677692458671,"untrimmedWithin40":25,"errMaxAbsUntrimmedMs":14.887428059407185}
+PASS exit 60 fps: every plant one step <= 40 ms (also with 25 ms untrimmed mp3 priming), no extra, right surface
+PASS the room walk has steps from her first plant (the reported bug): turn + walk + stop, before the door opens
+{"fps":30,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.61871866645493,"errMaxMs":36.20396539015047,"errMeanMs":-7.166664297246755,"untrimmedWithin40":50,"errMaxAbsUntrimmedMs":61.2606547325541}
+PASS exit + return 30 fps: one step per plant within 40 ms, none extra, surfaces right
+{"fps":45,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-25.671788280825503,"errMaxMs":25.262818587336255,"errMeanMs":-12.001437120125575,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":50.319507929739885}
+PASS exit + return 45 fps: one step per plant within 40 ms, none extra, surfaces right
+{"fps":60,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.97248266145391,"errMaxMs":18.092427974806924,"errMeanMs":-16.72303676143171,"untrimmedWithin40":51,"errMaxAbsUntrimmedMs":43.14911731721055}
+PASS exit + return 60 fps (+-30% frame jitter): one step per plant within 40 ms, none extra, surfaces right
+{"fps":120,"plants":52,"steps":52,"matched":52,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.35757734011279,"errMaxMs":11.723281625783954,"errMeanMs":-19.938698235296194,"untrimmedWithin40":52,"errMaxAbsUntrimmedMs":36.779970968187584}
+PASS exit + return 120 fps: one step per plant within 40 ms, none extra, surfaces right
+PASS tracker: loop wrap, no burst after reset / clip jump, same-foot dedupe
+PASS variant picker: never the same file twice in a row, volume = STEP_GAIN +-1.5 dB
+PASS ground: rug / wood / slab / path / grass cells; off-map falls back by side of the door
+PASS FootstepAudio: loads region_island/audio_steps on home, adopted by GameAudio (ref-counted); walking plays one step per plant
+PASS muted: no steps, none queued, no burst when sound returns
+PASS sfx muted (设置「音效」): no steps, none queued, no burst when sound returns
+PASS background (hide): no steps, none queued, no burst when sound returns
+PASS silent outside exit / return states (region journey, level, paused) and before clips load
+PASS Boot wiring: FootstepAudio fed every world state next to GameAudio, ticked in lateUpdate, disposed; frozen stand-in untouched
+steps total bytes 27504
+PASS assets: 20 mono 44.1 kHz mp3 one-shots (<= 2 KB each, <= 32 KB total) + metas; exit track has no baked steps
+{"status":"PASS_MOCK_AND_SIM","cases":17,"creatorBuild":"NOT_RUN","deviceListening":"NOT_RUN"}

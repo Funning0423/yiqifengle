@@ -1,0 +1,34 @@
+From e79bfcad4a3e2077a3bae62872a7a524206d756a Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 18:17:10 +0800
+Subject: [PATCH 3/3] legacy-board-ui-pure: require Node >=22.6 explicitly;
+ report BLOCKED_NODE on older Node (never a pass)
+
+The test needs node:module.stripTypeScriptTypes (Node >=22.6) for the GameAudio sfxMuted check. On
+older Node it used to die with "TypeError: stripTypeScriptTypes is not a function", which run-suite
+counted as a plain FAIL. It now prints
+'BLOCKED_NODE: legacy-board-ui-pure requires Node >=22.6 (node:module.stripTypeScriptTypes), found vX'
+and exits 78, the same mechanism and format as f9baed9 (reward-background-return). run-suite.cjs
+already maps exit 78 + that marker to BLOCKED with the reason (from f9baed9), so run-suite is not
+touched. The guard runs before any check, so nothing passes on old Node; any other non-zero exit is
+still FAIL. On Node >=22.6 (or with a TypeScript stand-in for the function) all 13 checks run and pass.
+---
+ tools/board-ui/test_board_ui_pure.cjs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/board-ui/test_board_ui_pure.cjs b/tools/board-ui/test_board_ui_pure.cjs
+index 2cfd1b9..2e5a2e3 100644
+--- a/tools/board-ui/test_board_ui_pure.cjs
++++ b/tools/board-ui/test_board_ui_pure.cjs
+@@ -4,6 +4,8 @@
+ // board background cover fit, beaconRoute in the R4 / mainline snapshots, art inventory and removed assets.
+ const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), assert = require('node:assert/strict');
+ const { stripTypeScriptTypes } = require('node:module');
++// Needs node:module.stripTypeScriptTypes (Node >=22.6). Older Node: report the reason and exit 78 (run-suite: BLOCKED_NODE); never a pass.
++if (typeof stripTypeScriptTypes !== 'function') { console.error('BLOCKED_NODE: legacy-board-ui-pure requires Node >=22.6 (node:module.stripTypeScriptTypes), found ' + process.version); process.exit(78); }
+ const { createHarness, pngSize, SCRIPTS, BUNDLES, ROOT } = require('./harness.cjs');
+ const checks = []; const ok = (name, fn) => { fn(); checks.push(name); console.log('PASS', name); };
+ const H = createHarness(), store = H.cc.sys.localStorage;
+-- 
+2.47.3
+

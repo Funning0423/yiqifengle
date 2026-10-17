@@ -1,0 +1,200 @@
+From 6b3edad64c0a2c26b2c582078a549a63b2c233cc Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 17:54:01 +0800
+Subject: [PATCH 05/15] r4-prep D: journey lake reads the board's water source
+ (shared lakesideWaterMaterial / applyLakesideWaterMode)
+
+The board's lakeside-water.mtl setup is now two shared helpers written only from LAKESIDE_DIR_LIGHT_PARAMS and
+lakesideModeLighting(mode); the journey's lake takes its own copy through the same helpers (and follows the
+day/night toggle), so Voice Bot's values show on both sides of the swap. No values changed. The water shader is
+then also compiled during the journey, not in the board's first frame. Sky: the journey end sky is the shared
+clear colour once the island props fade (C). Test: tools/lakeside/test_lakeside_shared_water.cjs.
+---
+ .../scripts/region/LakesideBoardBackground.ts | 28 +++++++++++----
+ .../scripts/region/RegionJourneyAdapter.ts    | 14 +++++---
+ tools/journey-integration/run-suite.cjs       |  1 +
+ .../test_lakeside_journey_atmosphere.cjs      |  2 +-
+ tools/lakeside/test_lakeside_shared_water.cjs | 36 +++++++++++++++++++
+ tools/lakeside/test_lakeside_water_fog.cjs    |  2 +-
+ 6 files changed, 71 insertions(+), 12 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_shared_water.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index fea68c3..ff6446b 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -109,6 +109,26 @@ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fai
+ const lakesideGlbOf=new WeakMap<Node,string>();
+ /** journey-merge: true for a node mountLakesideScenery instantiated from one of the water GLBs (kept out of the static merge). */
+ export function isLakesideWaterNode(n:Node):boolean{const g=lakesideGlbOf.get(n);return !!g&&(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(g);}
++/** r4-prep D (lead): ONE water parameter source for the board and the journey's lake. Both take their own copy of
++ *  lakeside-water.mtl and write it only from LAKESIDE_DIR_LIGHT_PARAMS (static) + lakesideModeLighting(mode) (day/night), so
++ *  whatever values Voice Bot sets there show on both sides of the swap. No values are chosen here. */
++export function lakesideWaterMaterial(asset:Material):Material{
++ const P=LAKESIDE_DIR_LIGHT_PARAMS,water=new Material(),v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);water.copy(asset);
++ water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
++ water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
++ water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
++ water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));return water;}
++/** The day/night part of the same source (board applyDir and the journey's day/night listener). */
++export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode);
++ water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
++/** The lakeside-water.mtl asset (dir light mode only; null otherwise or when it fails to load: callers keep their old look). */
++export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{
++ if(LAKESIDE_LIGHT_MODE!=='dir')return null;const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
++ const a=await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token);token.check();return a?take(a):null;}
++/** Puts `water` on every renderer of the lakeside water instances under `root` (direct children, as mounted). Returns slots set. */
++export function useLakesideWater(root:Node,water:Material):number{let n=0;
++ for(const child of root.children)if(isLakesideWaterNode(child))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;for(let k=0;k<mats.length;k++)if(mats[k]){r.setSharedMaterial(water,k);n++;}}
++ return n;}
+ export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<number>{
+  const t=token,bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),t);token.check();
+  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),t));token.check();
+@@ -162,7 +182,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
+   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
+-  if(waterMat){waterMat.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));waterMat.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
++  if(waterMat)applyLakesideWaterMode(waterMat,mode);
+   applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
+@@ -202,11 +222,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
+    const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=lakesideCocosLightColor(P.waterTintLinear)/* r2 VB: legacy standard albedo (mainColor) uniform is used as linear, Color -> bytes/255 */,waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+    let water:Material|null=null;
+-   if(waterAsset){water=new Material();water.copy(waterAsset);waterMat=water;const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+-    water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
+-    water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
+-    water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
+-    water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));instanced.push(water);}
++   if(waterAsset){water=lakesideWaterMaterial(waterAsset)/* r4-prep D: shared with the journey's lake */;waterMat=water;instanced.push(water);}
+    const tinted=new Set<Material>();
+    for(const child of scenery.children)if(waterNames.has(child.name))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+     for(let k=0;k<mats.length;k++){const m=mats[k];if(!m)continue;if(water){r.setSharedMaterial(water,k);waterShaded++;}else if(!tinted.has(m)&&instanced.includes(m)){m.setProperty('mainColor',new Color(wc[0],wc[1],wc[2],255));tinted.add(m);}}}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index aff7c89..6d25278 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -9,13 +9,14 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+-import {enableLakesideInstancing,isLakesideWaterNode,mergeLakesideStatic,mountLakesideScenery} from './LakesideBoardBackground';
++import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,useLakesideWater} from './LakesideBoardBackground';
+ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
+ import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
+ import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+ import {lakesideViewport} from './LakesideLandingHook';
+ import {boardSafeInsets} from '../ui/BoardLayout';
+-import {lakesideAtmosphereWeight} from './LakesideJourneyAtmosphere';
++import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
++import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
+ function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+ function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+@@ -121,14 +122,19 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+- let waterY=0,batching:JourneyBatching|null=null;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
+- const release=()=>{if(dead)return;dead=true;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ let waterY=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
++ const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
+   await mountLakesideScenery(model,token,take);token.check();
+   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
+   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
++  // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
++  // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look.
++  let waterAsset:Material|null=null;try{waterAsset=await loadLakesideWaterAsset(token,take);}catch(error){if(token.cancelled||dead)throw error;waterAsset=null;}token.check();
++  if(waterAsset){const water=lakesideWaterMaterial(waterAsset);owned.push(water);applyLakesideWaterMode(water,lakesideDayNightMode());useLakesideWater(model,water);
++   offWater=onDayNightChange(()=>{if(!dead)applyLakesideWaterMode(water,lakesideDayNightMode());});}
+   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
+   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 8f57a33..6c656da 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -69,6 +69,7 @@ const tests=[
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
++ ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
+  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index bec70b2..ee4fc0e 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -43,7 +43,7 @@ assert(/progress\?\(distance:number\):void;/.test(core));
+ assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
+ assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
+ assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)atmosphere\.prime\(\);\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
+-assert(/const release=\(\)=>\{if\(dead\)return;dead=true;atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
++assert(/const release=\(\)=>\{if\(dead\)return;dead=true;(offWater\(\);)?atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
+ assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
+ assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');
+ assert(/const bi=\(lakesideJourneyBaseIllum\(\)\?\?saved\.illum\/lakesideIslandLightScale\(saved\.mode\)\)\*lakesideIslandLightScale\(mode\)/.test(bg)&&/l\.illuminance=bi\*M\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*M\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey (r2: day base x mode scale)');
+diff --git a/tools/lakeside/test_lakeside_shared_water.cjs b/tools/lakeside/test_lakeside_shared_water.cjs
+new file mode 100644
+index 0000000..eb2d1ed
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_shared_water.cjs
+@@ -0,0 +1,36 @@
++// r4-prep D (lead): the journey end and the board use ONE sky and water parameter source. Water: both take their own copy of
++// lakeside-water.mtl written only by lakesideWaterMaterial (LAKESIDE_DIR_LIGHT_PARAMS) + applyLakesideWaterMode (lakesideModeLighting),
++// so whatever Voice Bot sets there shows on both sides of the swap (no values chosen here). Sky: see lakeside-far-view (the island
++// props fade out, the sky is the camera clear colour, which both take from lakesideModeLighting(mode).clearColor).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++class Vec4{constructor(x=0,y=0,z=0,w=0){Object.assign(this,{x,y,z,w});}}
++let copies=0;
++class Material{constructor(){this.props={};this.src=null;}copy(a){this.src=a;copies++;}setProperty(k,v){this.props[k]=[v.x,v.y,v.z,v.w];}}
++const cc=new Proxy({Vec4,Material,isValid:o=>!!o,gfx:{}},{get:(t,k)=>k in t?t[k]:class{static ProjectionType={};static FOVAxis={};static ClearFlag={};}});
++const cache=new Map();
++function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const m={exports:{}};cache.set(file,m);
++ const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ const req=spec=>spec==='cc'?cc:spec==='cc/env'?{DEBUG:false}:spec.endsWith('.js')?require(path.resolve(path.dirname(file),spec)):load(path.resolve(path.dirname(file),spec)+'.ts');
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
++const B=load(S+'region/LakesideBoardBackground.ts'),D=load(S+'region/LakesideSceneData.ts');
++const P=D.LAKESIDE_DIR_LIGHT_PARAMS,run=(n,f)=>{f();console.log('PASS',n);};
++const asset={name:'lakeside-water.mtl'};
++run('one source: two copies (journey, board) carry identical params straight from LAKESIDE_DIR_LIGHT_PARAMS, asset untouched',()=>{
++ const j=B.lakesideWaterMaterial(asset),b=B.lakesideWaterMaterial(asset);assert.equal(copies,2);assert.equal(j.src,asset);assert.notEqual(j,b);assert.deepEqual(j.props,b.props);
++ assert.deepEqual(j.props.waterTint,[...P.waterTintLinear,1]);assert.deepEqual(j.props.skyZenith,[...P.waterSkyZenithLinear,1]);assert.deepEqual(j.props.skyLow,[...P.waterSkyLowLinear,1]);assert.deepEqual(j.props.skyHorizon,[...P.waterSkyHorizonLinear,1]);
++ assert.deepEqual(j.props.specParams,[P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor]);assert.deepEqual(j.props.waveParams,[P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0]);
++ assert.equal(Object.keys(asset).length,1);});
++run('day/night: applyLakesideWaterMode writes lakesideModeLighting(mode) on either copy, identically',()=>{
++ for(const m of ['day','night']){const M=D.lakesideModeLighting(m),j=B.lakesideWaterMaterial(asset),b=B.lakesideWaterMaterial(asset);B.applyLakesideWaterMode(j,m);B.applyLakesideWaterMode(b,m);
++  assert.deepEqual(j.props,b.props);assert.deepEqual(j.props.lightParams,[M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd]);
++  assert.deepEqual(j.props.fresnelParams,[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength]);}});
++run('wiring: board and journey both use the helpers; journey follows the toggle, frees its copy and listener once',()=>{
++ const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8');
++ assert.match(bg,/water=lakesideWaterMaterial\(waterAsset\)/);assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);/);
++ assert.doesNotMatch(bg.slice(bg.indexOf('export const createLakesideBoardBackground')),/setProperty\('(waterTint|lightParams|fresnelParams)'/,'no second writer in the board');
++ assert.match(ja,/waterAsset=await loadLakesideWaterAsset\(token,take\)/);assert.match(ja,/const water=lakesideWaterMaterial\(waterAsset\);owned\.push\(water\);applyLakesideWaterMode\(water,lakesideDayNightMode\(\)\);useLakesideWater\(model,water\);/);
++ assert.match(ja,/offWater=onDayNightChange\(\(\)=>\{if\(!dead\)applyLakesideWaterMode\(water,lakesideDayNightMode\(\)\);\}\);/);assert.match(ja,/const release=\(\)=>\{if\(dead\)return;dead=true;offWater\(\);/);
++ assert.doesNotMatch(ja,/setProperty\('(waterTint|lightParams|fresnelParams)'/,'journey writes nothing of its own');
++ assert.match(bg,/export function useLakesideWater\(root:Node,water:Material\):number\{let n=0;\n for\(const child of root\.children\)if\(isLakesideWaterNode\(child\)\)/);});
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 87e5689..3d548bb 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -33,7 +33,7 @@ assert.equal(em.importer,'effect');assert.equal(mm.importer,'material');assert.e
+ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+ // lease wiring
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+-assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\);water\.copy\(waterAsset\);/.test(bg)&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
++assert(/loadMaterial\(bundle,LAKESIDE_DIR_LIGHT_PARAMS\.waterMaterialPath\)/.test(bg)&&/water=new Material\(\),[^;]*;water\.copy\(asset\);/.test(bg)&&/water=lakesideWaterMaterial\(waterAsset\)/.test(bg)/* r4-prep D: shared helper */&&/instanced\.push\(water\)/.test(bg),'own copy, destroyed with the lease');
+ assert(/r\.setSharedMaterial\(water,k\)/.test(bg),'lake gets the water material');
+ assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAYERED/.test(bg)&&/fog\.fogEnd=lakesideFogEnd\(P\)/.test(bg)&&/restoreDir=\(\)=>\{restoreFog\(\);/.test(bg)&&/applyFog\(\);\};/.test(bg),'fog applied with the lights, restored with them');
+ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
+-- 
+2.47.3
+

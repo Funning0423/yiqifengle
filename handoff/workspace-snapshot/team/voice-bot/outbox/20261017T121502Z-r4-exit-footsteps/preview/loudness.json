@@ -1,0 +1,289 @@
+{
+ "stepsPlaced": 25,
+ "integratedLUFS": {
+  "mix": -23.3,
+  "bed": -23.3,
+  "bgm": -26.6,
+  "steps": -36.3
+ },
+ "samplePeakDbfs": {
+  "mix": -7.0,
+  "steps": -13.9,
+  "bed": -7.0
+ },
+ "stepUnderBed": {
+  "room(standing..opening-door)": {
+   "n": 11,
+   "minDb": 7.7,
+   "meanDb": 10.9
+  },
+  "outside(crossing-out)": {
+   "n": 14,
+   "minDb": 9.5,
+   "meanDb": 12.1
+  },
+  "all": {
+   "n": 25,
+   "minDb": 7.7,
+   "meanDb": 11.6
+  }
+ },
+ "oldBakedTrackForComparison": {
+  "stepUnderBedDb_min": -0.5,
+  "stepUnderBedDb_mean": 4.6,
+  "samplePeakDbfs": -3.4,
+  "note": "negative = steps LOUDER than BGM+wind+waves"
+ },
+ "perStep": [
+  {
+   "t": 2.5166666666666626,
+   "surface": "wood",
+   "file": "step_wood_4",
+   "gain": 0.32,
+   "state": "turning-out",
+   "stepM": -37.2,
+   "bedM": -26.8,
+   "stepUnderBedDb": 10.4
+  },
+  {
+   "t": 3.299999999999993,
+   "surface": "wood",
+   "file": "step_wood_2",
+   "gain": 0.344,
+   "state": "walking-out",
+   "stepM": -36.2,
+   "bedM": -24.6,
+   "stepUnderBedDb": 11.6
+  },
+  {
+   "t": 4.083333333333324,
+   "surface": "rug",
+   "file": "step_rug_1",
+   "gain": 0.327,
+   "state": "walking-out",
+   "stepM": -37.0,
+   "bedM": -26.7,
+   "stepUnderBedDb": 10.3
+  },
+  {
+   "t": 4.683333333333322,
+   "surface": "rug",
+   "file": "step_rug_3",
+   "gain": 0.353,
+   "state": "walking-out",
+   "stepM": -37.2,
+   "bedM": -27.4,
+   "stepUnderBedDb": 9.8
+  },
+  {
+   "t": 5.2166666666666535,
+   "surface": "rug",
+   "file": "step_rug_4",
+   "gain": 0.288,
+   "state": "walking-out",
+   "stepM": -38.1,
+   "bedM": -26.3,
+   "stepUnderBedDb": 11.9
+  },
+  {
+   "t": 5.7666666666666515,
+   "surface": "wood",
+   "file": "step_wood_1",
+   "gain": 0.373,
+   "state": "walking-out",
+   "stepM": -38.9,
+   "bedM": -26.7,
+   "stepUnderBedDb": 12.2
+  },
+  {
+   "t": 6.299999999999983,
+   "surface": "wood",
+   "file": "step_wood_2",
+   "gain": 0.428,
+   "state": "walking-out",
+   "stepM": -34.3,
+   "bedM": -24.5,
+   "stepUnderBedDb": 9.8
+  },
+  {
+   "t": 6.849999999999981,
+   "surface": "wood",
+   "file": "step_wood_4",
+   "gain": 0.307,
+   "state": "walking-out",
+   "stepM": -37.6,
+   "bedM": -27.2,
+   "stepUnderBedDb": 10.3
+  },
+  {
+   "t": 7.4666666666666455,
+   "surface": "wood",
+   "file": "step_wood_2",
+   "gain": 0.374,
+   "state": "walking-out",
+   "stepM": -35.5,
+   "bedM": -27.8,
+   "stepUnderBedDb": 7.7
+  },
+  {
+   "t": 8.233333333333322,
+   "surface": "wood",
+   "file": "step_wood_1",
+   "gain": 0.322,
+   "state": "walking-out",
+   "stepM": -40.2,
+   "bedM": -25.5,
+   "stepUnderBedDb": 14.7
+  },
+  {
+   "t": 8.633333333333342,
+   "surface": "wood",
+   "file": "step_wood_2",
+   "gain": 0.355,
+   "state": "walking-out",
+   "stepM": -35.9,
+   "bedM": -24.3,
+   "stepUnderBedDb": 11.6
+  },
+  {
+   "t": 11.300000000000141,
+   "surface": "stone",
+   "file": "step_stone_3",
+   "gain": 0.374,
+   "state": "crossing-out",
+   "stepM": -38.0,
+   "bedM": -23.1,
+   "stepUnderBedDb": 14.9
+  },
+  {
+   "t": 12.083333333333513,
+   "surface": "stone",
+   "file": "step_stone_4",
+   "gain": 0.424,
+   "state": "crossing-out",
+   "stepM": -36.6,
+   "bedM": -24.9,
+   "stepUnderBedDb": 11.7
+  },
+  {
+   "t": 12.683333333333543,
+   "surface": "path",
+   "file": "step_path_2",
+   "gain": 0.307,
+   "state": "crossing-out",
+   "stepM": -35.1,
+   "bedM": -24.0,
+   "stepUnderBedDb": 11.1
+  },
+  {
+   "t": 13.23333333333357,
+   "surface": "path",
+   "file": "step_path_3",
+   "gain": 0.385,
+   "state": "crossing-out",
+   "stepM": -33.7,
+   "bedM": -24.0,
+   "stepUnderBedDb": 9.7
+  },
+  {
+   "t": 13.816666666666933,
+   "surface": "path",
+   "file": "step_path_2",
+   "gain": 0.403,
+   "state": "crossing-out",
+   "stepM": -32.7,
+   "bedM": -23.2,
+   "stepUnderBedDb": 9.5
+  },
+  {
+   "t": 14.383333333333628,
+   "surface": "grass",
+   "file": "step_grass_3",
+   "gain": 0.292,
+   "state": "crossing-out",
+   "stepM": -35.7,
+   "bedM": -22.8,
+   "stepUnderBedDb": 12.9
+  },
+  {
+   "t": 14.96666666666699,
+   "surface": "grass",
+   "file": "step_grass_2",
+   "gain": 0.338,
+   "state": "crossing-out",
+   "stepM": -34.1,
+   "bedM": -23.4,
+   "stepUnderBedDb": 10.8
+  },
+  {
+   "t": 15.533333333333685,
+   "surface": "grass",
+   "file": "step_grass_3",
+   "gain": 0.296,
+   "state": "crossing-out",
+   "stepM": -35.6,
+   "bedM": -23.3,
+   "stepUnderBedDb": 12.3
+  },
+  {
+   "t": 16.1333333333337,
+   "surface": "grass",
+   "file": "step_grass_2",
+   "gain": 0.318,
+   "state": "crossing-out",
+   "stepM": -34.7,
+   "bedM": -24.4,
+   "stepUnderBedDb": 10.3
+  },
+  {
+   "t": 16.700000000000333,
+   "surface": "grass",
+   "file": "step_grass_3",
+   "gain": 0.325,
+   "state": "crossing-out",
+   "stepM": -34.8,
+   "bedM": -22.9,
+   "stepUnderBedDb": 11.9
+  },
+  {
+   "t": 17.283333333333633,
+   "surface": "grass",
+   "file": "step_grass_1",
+   "gain": 0.369,
+   "state": "crossing-out",
+   "stepM": -33.9,
+   "bedM": -23.5,
+   "stepUnderBedDb": 10.4
+  },
+  {
+   "t": 17.933333333333596,
+   "surface": "path",
+   "file": "step_path_1",
+   "gain": 0.318,
+   "state": "crossing-out",
+   "stepM": -37.9,
+   "bedM": -22.3,
+   "stepUnderBedDb": 15.6
+  },
+  {
+   "t": 18.81666666666688,
+   "surface": "path",
+   "file": "step_path_2",
+   "gain": 0.322,
+   "state": "crossing-out",
+   "stepM": -34.7,
+   "bedM": -20.0,
+   "stepUnderBedDb": 14.7
+  },
+  {
+   "t": 19.28333333333352,
+   "surface": "path",
+   "file": "step_path_3",
+   "gain": 0.346,
+   "state": "crossing-out",
+   "stepM": -34.7,
+   "bedM": -21.3,
+   "stepUnderBedDb": 13.3
+  }
+ ]
+}

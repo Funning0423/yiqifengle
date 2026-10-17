@@ -1,0 +1,161 @@
+{
+ "source_dir": "/workspace/wechat-game/ui-audit/2026-10-15/pr56-recordings-r3",
+ "commit": "50cba71",
+ "video_fps": 25,
+ "timing_fps": 30,
+ "timing_json": "team/cinematic/work/sail-transition-20261015T2119/timing/sail_transition.timing.json",
+ "sceneSwap_frame": 81,
+ "conventions": "wav_s = 音轨时间; video_s = wav_s + audioStartMs; video_frame = floor(video_s*25); timing_frame = (wav_s - sfx_onset_wav)*30",
+ "runs": {
+  "12_sail_day_p750": {
+   "audio_offset_s": 0.163,
+   "marks": {
+    "goto": 0.03,
+    "home": 2.71,
+    "enterTap": 3.62,
+    "leftHome": 3.63,
+    "sailStart": 27.5,
+    "sailGone": 33.6,
+    "boardReady": 33.6,
+    "end": 35.61
+   },
+   "sfx_onset": {
+    "wav_s": 25.552,
+    "video_s": 25.715,
+    "video_frame": 642,
+    "xcorr_peak": 0.599,
+    "gain_db": -0.7
+   },
+   "sfx_lead_vs_visual_sailStart_s": 1.785,
+   "tf81_by_sfx_clock": {
+    "video_s": 28.415,
+    "video_frame": 710
+   },
+   "largest_80ms_drop_in_sfx_window": {
+    "start_wav": 27.09,
+    "end_wav": 27.17,
+    "drop_db_80ms": 6.6,
+    "from_db": -18.6,
+    "to_db": -25.2,
+    "ref_change_db_same_span": 0.6,
+    "start_video_s": 27.253,
+    "start_video_frame": 681,
+    "start_sfx_offset_s": 1.538,
+    "start_timing_frame": 46.1,
+    "end_video_s": 27.333,
+    "end_video_frame": 683,
+    "end_sfx_offset_s": 1.618,
+    "end_timing_frame": 48.5,
+    "visual_sail_offset_s": -0.247,
+    "visual_timing_frame_if_clock=sailStart": -7.4
+   },
+   "drops_ge6db_from_onset_minus1s": [
+    {
+     "start_wav": 29.65,
+     "end_wav": 29.75,
+     "from_db": -24.5,
+     "to_db": -30.4,
+     "drop_db": 6.0,
+     "dur_ms": 100,
+     "ref_drop_db_same_span": 0.7,
+     "start_video_s": 29.813,
+     "start_video_frame": 745,
+     "sfx_offset_s": 4.098,
+     "timing_frame": 122.9
+    }
+   ],
+   "wind_loop": {
+    "detected": false,
+    "note": "amb_wind_soft_loop 互相关最大 0.526，与音效之前的背景段(≈0.5)无差别，无法判定；录音在 sailGone 截止，落地后的风声未录到"
+   }
+  },
+  "12_sail_night_p750": {
+   "audio_offset_s": 0.131,
+   "marks": {
+    "goto": 0.03,
+    "home": 2.72,
+    "enterTap": 3.77,
+    "leftHome": 3.78,
+    "sailStart": 27.64,
+    "sailGone": 33.12,
+    "boardReady": 33.13,
+    "end": 35.13
+   },
+   "sfx_onset": {
+    "wav_s": 25.729,
+    "video_s": 25.86,
+    "video_frame": 646,
+    "xcorr_peak": 0.449,
+    "gain_db": -4.6
+   },
+   "sfx_lead_vs_visual_sailStart_s": 1.78,
+   "tf81_by_sfx_clock": {
+    "video_s": 28.56,
+    "video_frame": 714
+   },
+   "largest_80ms_drop_in_sfx_window": {
+    "start_wav": 28.53,
+    "end_wav": 28.61,
+    "drop_db_80ms": 8.4,
+    "from_db": -19.4,
+    "to_db": -27.8,
+    "ref_change_db_same_span": -0.9,
+    "start_video_s": 28.661,
+    "start_video_frame": 716,
+    "start_sfx_offset_s": 2.801,
+    "start_timing_frame": 84.0,
+    "end_video_s": 28.741,
+    "end_video_frame": 718,
+    "end_sfx_offset_s": 2.881,
+    "end_timing_frame": 86.4,
+    "visual_sail_offset_s": 1.021,
+    "visual_timing_frame_if_clock=sailStart": 30.6
+   },
+   "drops_ge6db_from_onset_minus1s": [
+    {
+     "start_wav": 25.51,
+     "end_wav": 25.66,
+     "from_db": -23.0,
+     "to_db": -29.9,
+     "drop_db": 6.9,
+     "dur_ms": 150,
+     "ref_drop_db_same_span": null,
+     "start_video_s": 25.641,
+     "start_video_frame": 641,
+     "sfx_offset_s": -0.219,
+     "timing_frame": -6.6
+    },
+    {
+     "start_wav": 29.12,
+     "end_wav": 29.21,
+     "from_db": -22.9,
+     "to_db": -29.2,
+     "drop_db": 6.3,
+     "dur_ms": 90,
+     "ref_drop_db_same_span": 1.9,
+     "start_video_s": 29.251,
+     "start_video_frame": 731,
+     "sfx_offset_s": 3.391,
+     "timing_frame": 101.7
+    },
+    {
+     "start_wav": 31.05,
+     "end_wav": 31.19,
+     "from_db": -21.1,
+     "to_db": -28.0,
+     "drop_db": 6.9,
+     "dur_ms": 140,
+     "ref_drop_db_same_span": null,
+     "start_video_s": 31.181,
+     "start_video_frame": 779,
+     "sfx_offset_s": 5.321,
+     "timing_frame": 159.6
+    }
+   ],
+   "wind_loop": {
+    "detected": false,
+    "note": "amb_wind_soft_loop 互相关最大 0.573，与音效之前的背景段(≈0.5)无差别，无法判定；录音在 sailGone 截止，落地后的风声未录到"
+   }
+  }
+ }
+}

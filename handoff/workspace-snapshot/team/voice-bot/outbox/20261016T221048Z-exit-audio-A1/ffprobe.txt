@@ -1,0 +1,36 @@
+== /tmp/old_exit.mp3
+[STREAM]
+codec_name=mp3
+sample_rate=22050
+channels=1
+bit_rate=24000
+[/STREAM]
+[FORMAT]
+duration=20.062041
+size=60412
+bit_rate=24090
+[/FORMAT]
+== sfx_exit_outbound.mp3
+[STREAM]
+codec_name=mp3
+sample_rate=32000
+channels=1
+bit_rate=56000
+[/STREAM]
+[FORMAT]
+duration=20.052000
+size=140660
+bit_rate=56118
+[/FORMAT]
+== alt_full_mix_with_baked_wind_sea.mp3
+[STREAM]
+codec_name=mp3
+sample_rate=32000
+channels=1
+bit_rate=56000
+[/STREAM]
+[FORMAT]
+duration=20.052000
+size=140660
+bit_rate=56118
+[/FORMAT]

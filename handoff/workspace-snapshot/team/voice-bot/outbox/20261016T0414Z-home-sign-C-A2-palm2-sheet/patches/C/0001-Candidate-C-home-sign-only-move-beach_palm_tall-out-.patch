@@ -1,0 +1,56 @@
+From 2936c308e9586ce1f283bf843bc6d8abc21c8df1 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Thu, 15 Oct 2026 21:47:38 -0400
+Subject: [PATCH] Candidate C (home sign): only move beach_palm_tall out of the
+ 0.46 close pull.
+
+Palm: [2.0,0.04,6.6], yaw 180, scale 0.65 (east lawn edge; clears all four exit camera paths) (was [-0.5,-0.30,9.0], 200, 0.9). Sign unchanged from b14067c.
+Not for merge: candidate for Funning to choose.
+---
+ .../assets/scripts/world-r2/IslandPropsLayout.ts                | 2 +-
+ docs/T9.md                                                      | 2 +-
+ tools/camera-frame-test/t9_props.cjs                            | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+index eed18d2..bdc05b5 100644
+--- a/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
++++ b/creator-build-project/assets/scripts/world-r2/IslandPropsLayout.ts
+@@ -57,7 +57,7 @@ export const ISLAND_PROPS = Object.freeze({
+     lampGlass: { nightColor: '#ffb04a', glow: { center: [-1.005, 1.13, 0.17] as V3, radius: 0.36, color: '#ff9a3c', alpha: 0.4 } },
+   },
+   palms: [
+-    { prefab: 'beach_palm_tall', position: [-0.5, -0.30, 9.0] as V3, yawDeg: 200, scale: 0.9 },
++    { prefab: 'beach_palm_tall', position: [2.0, 0.04, 6.6] as V3, yawDeg: 180, scale: 0.65 }, // east lawn edge: clear of 0.46 close pull + exit cams (was [-0.5,-0.30,9.0], 200, 0.9)
+     { prefab: 'beach_palm_short', position: [7.0, -0.36, 7.4] as V3, yawDeg: 180, scale: 1 },
+   ] as readonly WorldProp[],
+   buttons: {
+diff --git a/docs/T9.md b/docs/T9.md
+index ba807dd..89fe717 100644
+--- a/docs/T9.md
++++ b/docs/T9.md
+@@ -7,7 +7,7 @@
+ - 所有道具渲染器共享岛上的 M_env_palette 材质资产 → 与岛同一主光 / 环境光 / 昼夜写入（RoomLightingRig 不改，无新增换材质）。唯一的换材质是路牌灯罩：白天 M_signpost_lamp，夜晚 M_env_palette（UV 在调色板自发光行，暖光）。
+ - 路牌：世界坐标固定在西侧草地（`ISLAND_PROPS.signpost` = (-4.08, 0.127, 0.7)，yaw 5.58°，scale 0.79）。两只立柱落在 `env_island_main` 的草地（调色板第 0 行）上，底面取较高那只立柱的地面高度，较高的那只立柱贴着草地，较低的那只因为坡度高出地面约 3.5 cm。牌面法线与朝向镜头的水平方向大约偏 15°，远景和拉近都能读字。远景投影宽度不超过画面的 22%。立柱处仍有接触阴影 + 两圈涟漪数据（程序网格，海面高度；草地盖住这块 xz，所以涟漪不露在草上）。文字“继续旅程”是 RenderRoot2D 下的系统字体 Label。原 `mainline` WarmButton 仍是命中区与动作（`composition.enterMainline()` 不变），透明，尺寸 = 路牌投影框扩到至少 88x88 逻辑像素（`signpostHitUi`；扩展部分仍完整覆盖路牌，留在 8px 安全边内并避开底排按钮，取离画面中心最远的一块，避免远景里盖住女主）。
+ - 三个按钮：原 `Island-bag/journal/settings` WarmButton 节点不变（动作不变），透明后作为命中区，按 `propButtonLayout` 放到底排；3D 道具每帧由 `seaAnchor` 放在命中区下方海面上并按像素高度缩放；奶油色圆角标签（Graphics + 系统字体 Label，深棕字）。
+-- 海滩：只加两棵棕榈（`beach_palm_tall` 左沙滩、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
++- 海滩：只加两棵棕榈（`beach_palm_tall` 东侧草地边 (2.0, 0.04, 6.6) yaw 180°、scale 0.65（避开出门镜头四条路径，见 voice-bot outbox）（原 (-0.5, -0.30, 9.0) yaw 200° scale 0.9，在 0.46 最近停靠镜头正下方），、`beach_palm_short` 右沙滩）。海鸥/螃蟹/海龟岛上已有（env_anim_seagull_01、env_anim_crab_01 + hermit crab、env_anim_turtle_01），未重复添加。
+ 
+ ## 点击订阅 API（给 Voice bot A5）
+ ```ts
+diff --git a/tools/camera-frame-test/t9_props.cjs b/tools/camera-frame-test/t9_props.cjs
+index ddfd001..cb83724 100644
+--- a/tools/camera-frame-test/t9_props.cjs
++++ b/tools/camera-frame-test/t9_props.cjs
+@@ -8,7 +8,7 @@
+ const fs=require('fs'),path=require('path'),os=require('os'),cp=require('child_process'),G=require('./glb_geometry.cjs');
+ const T9_SHA='0ec1701',ROOT=path.resolve(__dirname,'..','..'),REL='creator-build-project/assets/bundles/region_island/ui-props';
+ const PROPS=[{prefab:'ui_signpost',position:[-4.08,0.127,0.7],yawDeg:5.58,scale:0.79},
+-  {prefab:'beach_palm_tall',position:[-0.5,-0.30,9.0],yawDeg:200,scale:0.9},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
++  {prefab:'beach_palm_tall',position:[2.0,0.04,6.6],yawDeg:180,scale:0.65},{prefab:'beach_palm_short',position:[7.0,-0.36,7.4],yawDeg:180,scale:1}];
+ function dir(){return process.env.T9_ROOT?path.join(process.env.T9_ROOT,REL):'git:'+T9_SHA+':'+REL;}
+ function glbFile(prefab){
+   if(process.env.T9_ROOT){const f=path.join(process.env.T9_ROOT,REL,prefab+'.glb');return fs.existsSync(f)?f:null;}
+-- 
+2.47.3
+

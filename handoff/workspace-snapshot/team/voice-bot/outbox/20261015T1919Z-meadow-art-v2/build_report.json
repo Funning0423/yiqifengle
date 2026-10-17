@@ -1,0 +1,17 @@
+{
+ "sails_verts": [
+  192,
+  904
+ ],
+ "windmill_static": "unchanged (v1 door-step stones removed: overlapped existing wooden steps)",
+ "path": {
+  "verts": 1049,
+  "clearance_m_min": 0.035,
+  "edge_stones": 32,
+  "stone_bottom_minus_lowest_ground_max_m": -0.073,
+  "stone_scale_range": [
+   0.64,
+   1.42
+  ]
+ }
+}

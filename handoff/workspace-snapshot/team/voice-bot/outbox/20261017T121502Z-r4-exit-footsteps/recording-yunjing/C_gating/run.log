@@ -1,0 +1,41 @@
+2026-10-17T12:31:44.724Z home ready
+2026-10-17T12:31:44.733Z renderer ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)
+2026-10-17T12:31:44.738Z step {"op":"eval","js":"(()=>{const g=__ga();if(!g)return 'no GameAudio';g.onGesture();return {gate:g.ambienceGate(),sfxMuted:g.isSfxMuted(),muted:g.isMuted(),music:g.getMusicVolume()};})()"}
+2026-10-17T12:31:44.739Z eval -> {"gate":"ok","sfxMuted":false,"muted":false,"music":0.4}
+2026-10-17T12:31:44.739Z step {"op":"wait","ms":1500}
+2026-10-17T12:31:46.241Z step {"op":"startRec"}
+2026-10-17T12:31:46.243Z recording
+2026-10-17T12:31:46.243Z step {"op":"wait","ms":800}
+2026-10-17T12:31:47.044Z step {"op":"marker"}
+2026-10-17T12:31:47.046Z marker {"beepPerf":4131.326333333333,"ctxTime":3.882}
+2026-10-17T12:31:47.647Z step {"op":"wait","ms":1500}
+2026-10-17T12:31:49.148Z step {"op":"marker"}
+2026-10-17T12:31:49.149Z marker {"beepPerf":6238.020333321412,"ctxTime":5.988666666666667}
+2026-10-17T12:31:49.750Z step {"op":"wait","ms":800}
+2026-10-17T12:31:50.550Z step {"op":"play","js":"(__qfMark('leave'),__worldIntegration.leave())"}
+2026-10-17T12:31:50.551Z step {"op":"wait","ms":5500}
+2026-10-17T12:31:56.053Z step {"op":"eval","js":"(__qfMark('sfx off'),__ga().setSfxMuted(true),__ga().isSfxMuted())"}
+2026-10-17T12:31:56.054Z eval -> true
+2026-10-17T12:31:56.055Z step {"op":"wait","ms":3500}
+2026-10-17T12:31:59.556Z step {"op":"eval","js":"(__qfMark('sfx on'),__ga().setSfxMuted(false),__ga().isSfxMuted())"}
+2026-10-17T12:31:59.558Z eval -> false
+2026-10-17T12:31:59.558Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"crossing-out\"","timeout":60000}
+2026-10-17T12:32:01.386Z until ok
+2026-10-17T12:32:01.387Z step {"op":"wait","ms":4000}
+2026-10-17T12:32:05.388Z step {"op":"eval","js":"__qfVis(true)"}
+2026-10-17T12:32:05.401Z play -> {"ok":false,"reason":"cancelled"}
+2026-10-17T12:32:05.401Z eval -> true
+2026-10-17T12:32:05.401Z step {"op":"wait","ms":4000}
+2026-10-17T12:32:09.403Z step {"op":"eval","js":"__qfVis(false)"}
+2026-10-17T12:32:09.426Z eval -> false
+2026-10-17T12:32:09.426Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"island\"","timeout":180000}
+2026-10-17T12:32:40.217Z until ok
+2026-10-17T12:32:40.217Z step {"op":"wait","ms":3000}
+2026-10-17T12:32:43.219Z step {"op":"marker"}
+2026-10-17T12:32:43.222Z marker {"beepPerf":60307.02533332141,"ctxTime":60.058}
+2026-10-17T12:32:43.823Z step {"op":"wait","ms":1500}
+2026-10-17T12:32:45.324Z step {"op":"marker"}
+2026-10-17T12:32:45.326Z marker {"beepPerf":62413.71133330949,"ctxTime":62.16466666666667}
+2026-10-17T12:32:45.927Z step {"op":"wait","ms":400}
+2026-10-17T12:32:46.330Z stopped
+2026-10-17T12:32:47.010Z saved 3179 frames 123 logs 52 starts webaudio:wl704

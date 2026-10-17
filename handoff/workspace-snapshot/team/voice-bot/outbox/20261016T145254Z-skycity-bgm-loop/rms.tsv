@@ -1,0 +1,13 @@
+file	decode	end_dBFS	start_dBFS	jump_dB	ingame_xfade_dB
+skycity40_before	gapless	-34.4	-28.4	6.0	2.4
+skycity40_before	raw	-36.5	-30.8	5.6	
+skycity48_original	gapless			6.0	2.6
+skycity48_original	raw			5.5	
+skycity40_after	gapless	-29.6	-28.2	1.4	2.3
+skycity40_after	raw	-31.2	-30.8	0.3	
+main40	gapless			4.9	1.1
+main40	raw			2.1	
+main48	gapless			4.7	
+meadow40	gapless			2.9	4.5
+meadow40	raw			1.1	
+meadow48	gapless			3.2	

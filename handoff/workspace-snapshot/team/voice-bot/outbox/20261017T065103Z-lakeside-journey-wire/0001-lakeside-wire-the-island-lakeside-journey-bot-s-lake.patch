@@ -1,0 +1,446 @@
+From 4728814a9b0b7daafc15b4a5a06abbe663546699 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 14:50:49 +0800
+Subject: [PATCH] =?UTF-8?q?lakeside:=20wire=20the=20island=E2=86=92lakesid?=
+ =?UTF-8?q?e=20journey=20(=E8=BF=90=E9=95=9Cbot's=20lakesideJourney)=20and?=
+ =?UTF-8?q?=20add=20a=20landing=E2=86=92board=20hook=20call=20site?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- JourneyRegion/Place/State gain 'lakeside'; validateJourneyRoute accepts island→lakeside; RegionCameraData gets a 'lake' stop
+- selectionRegion: r04-lake-* (and r05 renumbering) → lakeside; ensureRegion uses the island→lakeside branch order, with no
+  mainline campaign gate (the stage gate stays CampaignHost.inspectSelection)
+- RegionJourneyAdapter mounts the real r5h3 scene via the shared mountLakesideScenery + lakesideJourney(start) (root/yaw,
+  focus, landing) with the same rainbow bridge strips
+- One LAKESIDE LANDING → BOARD HOOK call site (region/LakesideLandingHook.ts stub keeps the existing cut;
+  TODO 运镜bot swaps in their ~1 s transition)
+- UI: 'lakeside' gets the same nav/home/notice handling as meadow; [QF_LAKE] console.error on lakeside load/journey failures
+- Set spread → Array.from in LakesideBoardBackground
+- test-lakeside-journey-wire (8 checks) + K1 in test-lakeside-camera now accepts island→lakeside
+---
+ .../assets/scripts/WorldIntegrationBoot.ts    | 12 ++--
+ .../scripts/region/LakesideBoardBackground.ts | 28 +++++---
+ .../scripts/region/LakesideLandingHook.ts     |  7 ++
+ .../region/LakesideLandingHook.ts.meta        |  9 +++
+ .../scripts/region/RegionJourneyAdapter.ts    | 24 ++++++-
+ .../scripts/world-r1/RegionCameraData.ts      |  2 +
+ .../scripts/world-r1/RegionJourneyCore.ts     |  4 +-
+ .../assets/scripts/world-r1/WorldFlowCore.ts  |  8 +--
+ .../world-r2/WorldNativeComposition.ts        | 22 ++++---
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ .../test-lakeside-camera.cjs                  |  4 +-
+ .../test-lakeside-journey-wire.cjs            | 65 +++++++++++++++++++
+ 12 files changed, 153 insertions(+), 34 deletions(-)
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideLandingHook.ts
+ create mode 100644 creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta
+ create mode 100644 tools/journey-integration/test-lakeside-journey-wire.cjs
+
+diff --git a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+index 9b21c70..f035dfe 100644
+--- a/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
++++ b/creator-build-project/assets/scripts/WorldIntegrationBoot.ts
+@@ -58,7 +58,7 @@ function enqueueResultBatch(start:(run:()=>Promise<any>)=>void):(fn:()=>any)=>vo
+ }
+ /** end enqueueResultBatch */
+ /** R3: flow states in which the T9 signpost is hidden (everything except island-idle, level/skycity + loading, paused, error). */
+-const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting','region-loading','region-travel','meadow'];
++const SIGN_AWAY_STATES=['idle','loading','home','standing','turning-out','walking-out','opening-door','crossing-out','walking-home','crossing-in','closing-door','walking-to-seat','sitting','region-loading','region-travel','meadow','lakeside'];
+ /** Island world art lives in the region_island Asset Bundle (subpackage or remote), never in the start scene's static deps. */
+ 
+ /** Explicit flow-reference stand-in. The calibrated flag certifies only these reference coordinates,
+@@ -600,14 +600,14 @@ export class WorldIntegrationBoot extends Component {
+  this.notice.node.parent!.active=false;this.status.string='';
+  this.logSuppressedStatus(this.error?'error':s.state==='skycity'?'skycity':'',this.error||(s.state==='skycity'?'天空城 · 轻点机器人或庭院':''));
+  const board=this.board(),b=board?.hostPresentation();const registered=s.state==='level'&&!s.needsResume&&b?.provider==='regional-r05'&&b.state==='result.saved'&&b.result?.completionRecorded;
+- for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&['skycity-loading','region-loading','region-travel'].includes(s.state):k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
+- const journey=s.journey;if(journey&&['region-loading','region-travel'].includes(s.state)){this.notice.string=journey.phase==='loading'?'正在准备'+(journey.target==='meadow'?'草原':'天空之城')+'，完成后继续前行':journey.phase==='bridge'?'沿着彩虹，去下一片天地':journey.phase==='arrival'?'快到了，跟着风往前走':'走向彩虹桥';this.notice.node.parent!.active=true;}else if(journey&&s.state!=='level'&&!s.needsResume&&['paused','failed'].includes(journey.phase)){this.notice.string=journey.phase==='failed'?'旅程暂时受阻，成绩已保留。点继续旅程重试':'旅程已暂停。点继续旅程从这里接着走';this.notice.node.parent!.active=true;}
+- const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
++ for(const [k,n]of Array.from(this.controls)){if(k.startsWith('flowTest'))continue;n.active=k==='cancelVisit'?!s.needsResume&&['skycity-loading','region-loading','region-travel'].includes(s.state):k==='returnIsland'?!s.needsResume&&s.state==='skycity'&&s.journey?.region!=='skycity':k==='resume'?s.needsResume&&!board?.hostModalOpen():k==='mainNext'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&b.nextStageId):k==='chest'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.chests?.find((x:any)=>x.level===b.active.level)?.earned):k==='regionReward'?!!(s.state==='level'&&b?.provider==='mainline-v33'&&b.state==='result.saved'&&b.result?.completionRecorded&&!b.readOnly&&b.journey.regionRewards?.find((x:any)=>x.region===Math.floor(b.active.level/4))?.unlocked):k==='next'?!!(registered&&b.nextStageId):k==='claim'?!!(registered&&!b.nextStageId&&Object.keys(b.progress.records).filter(id=>id.startsWith('r05-'+b.active.region+'-')).length===4):!s.needsResume&&(k==='leave'?s.state==='home':k==='mainline'?(['island','meadow','lakeside'].includes(s.state)||s.state==='skycity'&&s.journey?.region==='skycity'):k==='home'?(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'):false);}
++ const journey=s.journey;if(journey&&['region-loading','region-travel'].includes(s.state)){this.notice.string=journey.phase==='loading'?'正在准备'+(journey.target==='meadow'?'草原':journey.target==='lakeside'?'风铃湖畔':'天空之城')+'，完成后继续前行':journey.phase==='bridge'?'沿着彩虹，去下一片天地':journey.phase==='arrival'?'快到了，跟着风往前走':'走向彩虹桥';this.notice.node.parent!.active=true;}else if(journey&&s.state!=='level'&&!s.needsResume&&['paused','failed'].includes(journey.phase)){this.notice.string=journey.phase==='failed'?'旅程暂时受阻，成绩已保留。点继续旅程重试':'旅程已暂停。点继续旅程从这里接着走';this.notice.node.parent!.active=true;}
++ const f=this.navLayout(),navigation=worldNavigationLayout(f.width,f.height);this.islandJourney?.sync(f.width,f.height,s.state==='island'&&!s.needsResume&&!this.busy);this.islandHome?.sync(f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.busy&&!this.error&&!this.islandJourney?.isOpen());if(this.islandJourney?.isOpen())this.controls.get('mainline')!.active=false;this.trackTransitionHud(s.state);this.syncIslandProps(s,f);if(['island','meadow','skycity','lakeside'].includes(s.state))for(const id of ISLAND_NAV_IDS)if(!(id==='mainline'&&this.propSign))this.placeNavigationControl(this.controls.get(id)!,navigation.buttons[id]);if(s.state==='island')this.applyIslandEntrance(dt,this.controls.get('mainline')??null);else if(this.islandEntrance>=0){this.islandEntrance=-1;const dock=this.canvas?.getChildByName('IslandJourneyOverlay')?.getChildByName('IslandUtilityDock');dock?.setPosition(0,0,0);dock?.setScale(1,1,1);}this.gateSignEntrance(s.state,dt);
+  if(s.state==='level')this.sawLevel=true;if(s.state==='island'&&this.sawLevel&&!this.cabinHint&&!cabinHintSeen()){this.cabinHint=new CabinHint(this.canvas);this.cabinHint.start();}
+  this.cabinHint?.update(dt,f.width,f.height,s.state==='island'&&!s.hidden&&!s.needsResume&&!this.islandJourney?.isOpen());
+  this.controls.get('cancelVisit')!.getComponentsInChildren(Label)[0].string=s.state==='skycity-loading'?'取消前往':'暂停旅程';
+  for(const id of ['returnIsland','cancelVisit','home'])if(this.controls.get(id)!.active)this.placeNavigationControl(this.controls.get(id)!,navigation.back);
+-  if(s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity')for(const id of ['mainline','home'] as const){const n=this.controls.get(id);if(n?.active)this.placeNavigationControl(n,navigation.region[id]);}
++  if(s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity')for(const id of ['mainline','home'] as const){const n=this.controls.get(id);if(n?.active)this.placeNavigationControl(n,navigation.region[id]);}
+  // Result actions are drawn by the board's result page (ui/BoardPanels.openResult); the host only owns availability + commands.
+  // Do not rebuild the result behind a live RewardPanel while the app is hidden.
+  // Its dismissal callback owns that exact panel; on show the settled lease restores level before painting.
+@@ -641,7 +641,7 @@ dn.getComponentsInChildren(Label)[0].string=view.mode==='night'?'夜色':'晴昼
+  private paintCover(c:{g:Graphics;alpha:number},alpha:number){const a=coverAlphaByte(alpha);if(a===c.alpha)return;c.alpha=a;const g=c.g;g.clear();g.fillColor=new Color(0,0,0,a);g.rect(-2000,-2000,4000,4000);g.fill();}
+  goHome():Promise<{ok:boolean;reason?:string;seconds?:number}>{
+   const cmd=this.composition.worldCommands(),s=cmd.snapshot() as any;
+-  const inRegion=s.state==='meadow'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
++  const inRegion=s.state==='meadow'||s.state==='lakeside'||s.state==='skycity'&&s.journey?.region==='skycity'||!!(s.journey&&s.state==='island'&&['paused','failed'].includes(s.journey.phase));
+   const wall=()=>Date.now()/1000,wait=(sec:number)=>new Promise<void>(r=>this.homeWaits.push({at:Date.now()+sec*1000,r}));   // ticked by update (wall clock, no timers)
+   if(!inRegion)return runHomeTransition({now:wall,wait,cover:()=>{},audioOut:()=>{},audioIn:()=>{},audioRestore:()=>{},act:()=>cmd.returnHome(),state:()=>cmd.snapshot().state},{outS:0,timeoutS:60});
+   const audio=GameAudio.instance as any;
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 436ce8b..42314f1 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -3,6 +3,7 @@ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
++import type {Cancellation} from '../world-r1/WorldFlowCore';
+ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+@@ -12,6 +13,21 @@ function setLayer(n:Node){n.layer=LAKESIDE_LAYER;for(const c of n.children)setLa
+ function loadBundle(name:string){return new Promise<AssetManager.Bundle>((ok,fail)=>assetManager.loadBundle(name,(e,b)=>e||!b?fail(e||Error('no bundle '+name)):ok(b)));}
+ function loadJson(b:AssetManager.Bundle,path:string){return new Promise<JsonAsset>((ok,fail)=>b.load(path,JsonAsset,(e,a)=>e||!a?fail(e||Error('lakeside transforms missing')):ok(a)));}
+ function loadPrefabs(b:AssetManager.Bundle){return new Promise<Prefab[]>((ok,fail)=>b.loadDir(LAKESIDE_MODELS_DIR,Prefab,(e,list)=>e?fail(e):ok(list||[])));}
++/** Loads region_lakeside and instantiates the real scene (lakesideSceneInstances) under scenery: rigid placement only, embedded
++ *  cameras/animations off. Shared by the board background and the island→lakeside journey (RegionJourneyAdapter). take()
++ *  must addRef+hold every loaded asset for the caller's lifetime. Returns the instance count. */
++export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<number>{
++ const t=token,bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),t);token.check();
++ const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),t));token.check();
++ const prefabs=await waitRegionAsset(loadPrefabs(bundle),t,30000);token.check();for(const p of prefabs)take(p);
++ if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
++ const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
++ const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
++ let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;}
++ for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
++ for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
++ return n;
++}
+ /** Live r5h3 lakeside behind 风铃湖畔 challenge boards (camera priority 44, own camera and lights; never writes the world
+  *  camera, saves or progression). Scene composition = scene_r5h_slim_transforms.json minus what the 2D board draws. */
+ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,token})=>{
+@@ -23,17 +39,9 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  try{
+   token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
+   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&LAKESIDE_LAYER)!==0))throw Error('lakeside-background-layer-conflict');
+-  const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+-  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),token));token.check();
+-  const prefabs=await waitRegionAsset(loadPrefabs(bundle),token,30000);token.check();for(const p of prefabs)take(p);
+-  if(!isValid(parent,true)||!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+-  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+-  const missing=[...new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n)))];if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+   rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
+   const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
+-  for(const i of list){const n=instantiate(byName.get(lakesidePrefabName(i.glb))!);n.name=i.name;n.setPosition(i.pos[0],i.pos[1],i.pos[2]);n.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);n.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(n);instances++;}
+-  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+-  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
++  instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+   setLayer(scenery);
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+@@ -48,5 +56,5 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),
+    dispose,
+   };
+- }catch(error){dispose();throw error;}
++ }catch(error){try{console.error('[QF_LAKE] board-background load failed: '+String((error as any)?.stack||error));}catch{}dispose();throw error;}
+ };
+diff --git a/creator-build-project/assets/scripts/region/LakesideLandingHook.ts b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts
+new file mode 100644
+index 0000000..93f0275
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts
+@@ -0,0 +1,7 @@
++/** LANDING → BOARD camera hook for 风铃湖畔 (single call site: WorldNativeComposition.enterSelectedLevel).
++ *  TODO(运镜bot): replace this stub with your landing→board transition hook (~1 s, owned by 运镜bot per Grok Bot) — the
++ *  swap is a one-line change of the import in WorldNativeComposition (or of this body). Until then this keeps the
++ *  existing behaviour: resolve at once, the level then mounts and the board-background camera takes over (hard cut).
++ *  Pure (no engine imports). Must resolve (never reject) and must not touch saves/progression. */
++export type LakesideLandingContext=Readonly<{stageId:string;journey:unknown}>;
++export function lakesideLandingToBoard(_context:LakesideLandingContext):Promise<void>{return Promise.resolve();}
+diff --git a/creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta
+new file mode 100644
+index 0000000..f36c436
+--- /dev/null
++++ b/creator-build-project/assets/scripts/region/LakesideLandingHook.ts.meta
+@@ -0,0 +1,9 @@
++{
++  "ver": "4.0.24",
++  "importer": "typescript",
++  "imported": true,
++  "uuid": "c47e2eb3-ad6b-4f4b-a1cb-ead28e1ca9db",
++  "files": [],
++  "subMetas": {},
++  "userData": {}
++}
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 9a84694..9b1bfe5 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -8,7 +8,9 @@ import {rotate} from '../world-r1/CameraPose';
+ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCore';
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+-import type {Pose, Vec} from '../world-r1/WorldFlowCore';
++import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
++import {mountLakesideScenery} from './LakesideBoardBackground';
++import {lakesideJourney} from './LakesideCameraLayout';
+ function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
+ function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
+ /** Placement numbers and pure route maths live in RegionJourneyLayout (tested against the real GLB geometry). */
+@@ -35,6 +37,7 @@ export function createRegionJourney(options:{parent:Node;camera:Camera}):RegionJ
+  return new RegionJourneyController({
+   readCamera():Pose{const c=options.camera,p=c.node.worldPosition,q=c.node.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]);return {position:[p.x,p.y,p.z],target:[p.x+f[0]*8,p.y+f[1]*8,p.z+f[2]*8],fovVerticalDeg:c.fov};},
+   async prepare(from,to,start,token,progress){
++   if(to==='lakeside')return prepareLakesideJourney(options.parent,from,start,token,progress);
+    const def=REGIONS[to];if(!def||to==='island')throw Error('journey-region-unavailable');
+    const prefab=await waitRegionAsset(loadRegionPrefab(def,p=>progress(p*.72)),token);token.check();
+    if(!isValid(options.parent,true)||!isValid(options.camera.node,true))throw Error('journey-owner-destroyed');
+@@ -102,3 +105,22 @@ export function mountMeadowNightSky(model:Node,night:boolean=meadowNightNow()):S
+  return sky;
+ }
+ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNight?.snapshot?.()?.mode;return typeof m==='string'&&m.includes('night');}catch{return false;}}
++/** 风铃湖畔: island → lakeside journey (运镜bot's LakesideCameraLayout.lakesideJourney). The real r5h3 scene (same instances as
++ *  the board background, default world layer so the world camera sees it) is mounted rigidly at the layout's root/yaw; the
++ *  route carries the Landing A focus/landing overrides. Same rainbow bridge strips as the other legs. */
++async function prepareLakesideJourney(parent:Node,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
++ if(from!=='island')throw Error('journey-region-order');
++ const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
++ const release=()=>{if(dead)return;dead=true;rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
++ try{
++  progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
++  await mountLakesideScenery(model,token,take);token.check();progress(.86);
++  if(!isValid(parent,true))throw Error('journey-owner-destroyed');
++  const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);
++  const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
++  const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing};
++  rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
++  return {route,show(visible){if(!dead)rig.active=visible;},dispose:release};
++ }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
++}
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+index a7409aa..12a0900 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionCameraData.ts
+@@ -61,6 +61,8 @@ export const REGION_CAMERA = {
+     { id: 'tide', pose: 'island' },
+     { id: 'meadow', pose: null },
+     { id: 'sky', pose: null },
++    /** 风铃湖畔: physical journey island→lakeside (LakesideCameraLayout); no drag-stop pose yet. */
++    { id: 'lake', pose: null },
+   ],
+ } as const;
+ 
+diff --git a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+index adfb532..ad5e259 100644
+--- a/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/RegionJourneyCore.ts
+@@ -1,5 +1,5 @@
+ import type { Cancellation, CharacterAdapter, Pose, StablePose, Vec, WorldLease } from './WorldFlowCore';
+-export type JourneyRegion = 'island'|'meadow'|'skycity';
++export type JourneyRegion = 'island'|'meadow'|'skycity'|'lakeside';
+ export type JourneyPhase = 'idle'|'loading'|'ready'|'approach'|'bridge'|'arrival'|'paused'|'failed'|'arrived'|'disposed';
+ export type JourneyRoute = Readonly<{ from:JourneyRegion; to:JourneyRegion; path:readonly Vec[]; bridgeStart:number; bridgeEnd:number; speed:number; focus?:Vec; lens?:readonly LensKey[]; startBlendM?:number; landing?:JourneyLanding }>;
+ export interface JourneySceneLease { route:JourneyRoute; show(visible:boolean):void; dispose():void; }
+@@ -19,7 +19,7 @@ export function remainingRoute(path:readonly Vec[],distance:number):Vec[] {
+ export function validateJourneyRoute(route:JourneyRoute,start:Vec):void {
+  if(!route.path||route.path.length<2||route.path.some(p=>p.length!==3||p.some(n=>!Number.isFinite(n))))throw Error('journey-invalid-path');
+  const length=routeLength(route.path);if(dist(start,route.path[0])>1e-4||!(length>0)||!Number.isFinite(length)||!(route.speed>0&&route.speed<=2)||!(route.bridgeStart>=0&&route.bridgeEnd>route.bridgeStart&&route.bridgeEnd<=length))throw Error('journey-invalid-continuity');
+- if(!((route.from==='island'&&route.to==='meadow')||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
++ if(!((route.from==='island'&&(route.to==='meadow'||route.to==='lakeside'))||(route.from==='meadow'&&route.to==='skycity')))throw Error('journey-region-order');
+  if(route.landing!==undefined&&(!route.focus||Object.keys(route.landing).some(k=>!(k in LANDING_KEYS)||!Number.isFinite((route.landing as any)[k]))))throw Error('journey-invalid-landing');
+ }
+ /** Follow lens for the region bridges. Build05 occlusion fix: the offset is in the PATH frame (behind/left/up of the
+diff --git a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+index 490c045..204ec64 100644
+--- a/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
++++ b/creator-build-project/assets/scripts/world-r1/WorldFlowCore.ts
+@@ -4,10 +4,10 @@ import type { TrackOptions, WeightRamp } from './CameraPose';
+ /** Engine-independent orchestration. No scene graph, timers, persistence or browser globals. */
+ export type Vec = readonly [number, number, number];
+ export type Mode = 'fixed' | 'motion';
+-export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity';
++export type Place = 'home' | 'island' | 'meadow' | 'level' | 'skycity' | 'lakeside';
+ export type State = 'idle' | 'loading' | 'home' | 'standing' | 'turning-out' | 'walking-out' | 'opening-door' |
+   'crossing-out' | 'island' | 'level-loading' | 'level' | 'skycity-loading' | 'skycity' | 'walking-home' | 'crossing-in' |
+-  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
++  'closing-door' | 'walking-to-seat' | 'sitting' | 'meadow' | 'lakeside' | 'region-loading' | 'region-travel' | 'paused' | 'error' | 'disposed';
+ /** V1: home-exit states (seat to island) that a background/foreground round trip restarts. */
+ export const EXIT_STATES:readonly State[]=['standing','turning-out','walking-out','opening-door','crossing-out'];
+ /** doorwayInterior (T2): keep only the interior renderers that can be seen through the open door/windows from the
+@@ -446,7 +446,7 @@ export class WorldFlow {
+     if(!this.journey)return {ok:false,reason:'journey-unavailable'};
+     if(this.journey.snapshot().region===target&&!this.journey.isInTransit())return {ok:true};
+     const expected=this.stable,fail=this.blocked(expected,true);if(fail)return fail;
+-    if(!['island','meadow','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
++    if(!['island','meadow','lakeside','level'].includes(expected))return {ok:false,reason:'journey-wrong-origin'};
+     if(expected==='level'&&!this.level?.isSettledResult?.())return {ok:false,reason:'journey-requires-settled-result'};
+     return this.operate('region-loading',async token=>{
+       const pose=this.pose();if(pose.kind!=='standing')throw Error('journey-needs-standing-origin');
+@@ -531,7 +531,7 @@ export class WorldFlow {
+    *  walks home as usual. A journey that is actively running stays busy; the region-visit skycity keeps exitSkycity. */
+   private leaveJourneyForIsland():Result|null {
+     const j=this.journey;if(!j||this.current||this.visit||this.hidden||this.needsResume)return null;
+-    if(!['island','meadow','skycity'].includes(this.state))return null;
++    if(!['island','meadow','skycity','lakeside'].includes(this.state))return null;
+     if(j.snapshot().region==='island'&&!j.isInTransit())return null;
+     try{j.returnToIsland();}catch(error){return {ok:false,reason:String((error as Error)?.message??error)};}
+     // Mac re-check 2607de6: walking island→home from a region took 44-48 s (day) / >127 s (night, frame-dt
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index 6489c50..b99cb8b 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -18,6 +18,7 @@ import { createPersistentR5Port } from './PersistentR5Port';
+ import { createPersistentMainlinePort } from './PersistentMainlinePort';
+ import R4 from '../r4-cloud-compat/runtime/challenge-controller.js';
+ import R4Port from '../r4-cloud-compat/adapter/cocos-port.js';
++import {lakesideLandingToBoard} from '../region/LakesideLandingHook';
+ import { installR5PersistenceProbe,createIsolatedTestPort } from './R5PersistenceProbe';
+ const {ccclass,property}=_decorator;
+ /** NEW composition component; do not enable alongside FirstsliceBoot. No automatic rewards/progress. */
+@@ -53,7 +54,7 @@ export class WorldNativeComposition extends Component {
+   }
+   selectProvider(selection:Selection):Result {
+     if(!this.world)return {ok:false,reason:'world-not-ready'};
+-    if(!['home','island','meadow','skycity'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
++    if(!['home','island','meadow','skycity','lakeside'].includes(this.world.commands().snapshot().state))return {ok:false,reason:'exit-current-level-first'};
+     if(selection.provider==='r5'){
+       const stage=(RegionalAPI as any).getStage(selection.stageId);
+       if(!stage||!stage.seedBank.includes(selection.seed))return {ok:false,reason:'unverified-r5-stage-or-seed'};
+@@ -69,22 +70,27 @@ export class WorldNativeComposition extends Component {
+   async enterSelectedLevel(){
+     if(!this.world||!this.selection)throw Error('World not ready');const selection={...this.selection};
+     if(selection.provider==='r5'){const permission=(CampaignHost as any).inspectSelection(this.persistence,selection);if(!permission.ok)return permission;}
+-    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(this.selectionRegion(selection));if(!arrived.ok)return arrived;
++    const region=this.selectionRegion(selection);
++    this.pendingJourneySelection=selection;const arrived=await this.ensureRegion(region);if(!arrived.ok){if(region==='lakeside')console.error('[QF_LAKE] lakeside journey not reached: '+arrived.reason);return arrived;}
++    // ===== LAKESIDE LANDING → BOARD HOOK (运镜bot owns the transition; swap lakesideLandingToBoard for their hook) =====
++    if(region==='lakeside')await lakesideLandingToBoard({stageId:selection.stageId,journey:this.world?.commands().snapshot().journey??null});
+     const result=await this.world.commands().enterLevel(selection.stageId);if(result.ok)this.pendingJourneySelection=null;return result;
+   }
+   private selectionRegion(selection:Selection):JourneyRegion {
+     if(selection.provider==='mainline')return (RegionCampaign as any).stage(selection.stageId)?.regionId||'island';
+-    // 风铃湖畔 (r04-lake-*) is played from the island stop like tide: no physical lakeside journey route exists yet
+-    // (运镜bot's travel/landing camera is the hook, see LakesideBoardBackground LAKESIDE_NODES).
+-    return /^r05-meadow-/.test(selection.stageId)?'meadow':/^r05-sky-/.test(selection.stageId)?'skycity':'island';
++    // r05-meadow-* meadow, r05-sky-* skycity, 风铃湖畔 r04-lake-* (r05 renumbering too) lakeside, else island (tide).
++    const id=selection.stageId;return /^r05-meadow-/.test(id)?'meadow':/^r05-sky-/.test(id)?'skycity':/^r0[45]-lake-\d+$/.test(id)?'lakeside':'island';
+   }
+   /** Cold progress opens the same physical route in order. Unlocks are read from verified records, never counters. */
+   private async ensureRegion(target:JourneyRegion):Promise<Result>{
+-    const commands=this.world!.commands(),order:JourneyRegion[]=['island','meadow','skycity'];
++    const commands=this.world!.commands();
+     let current=commands.snapshot().journey?.region||'island';
+     if(current===target&&!commands.snapshot().journey?.target)return {ok:true};
+-    const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;
+-    if(order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
++    // 风铃湖畔 is a side branch off the island (island→lakeside, LakesideCameraLayout.lakesideJourney). It is not a mainline
++    // campaign region (its r04-lake-* stages are gated by CampaignHost.inspectSelection in selectProvider/enterSelectedLevel).
++    if(target!=='lakeside'){const permission=(RegionCampaign as any).canEnterRegion(this.mainline.journeySnapshot(),target);if(!permission.ok)return permission;}
++    const order:JourneyRegion[]=target==='lakeside'?['island','lakeside']:['island','meadow','skycity'];
++    if(!order.includes(current)||order.indexOf(target)<order.indexOf(current))return {ok:false,reason:'return-route-not-yet-available'};
+     while(current!==target){const next=order[order.indexOf(current)+1];const result=await commands.travelRegion(next);if(!result.ok)return result;current=next;}
+     return {ok:true};
+   }
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 703626a..5ca6abc 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -57,7 +57,7 @@ const tests=[
+  ['exit-restart-quiet','tools/test_exit_restart_quiet.cjs'],
+  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
+  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
+- ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],
++ ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/journey-integration/test-lakeside-camera.cjs b/tools/journey-integration/test-lakeside-camera.cjs
+index 957d05e..9e4642b 100644
+--- a/tools/journey-integration/test-lakeside-camera.cjs
++++ b/tools/journey-integration/test-lakeside-camera.cjs
+@@ -4,7 +4,7 @@
+  * LakesideCameraLayout.lakesideJourney() places it (real TS through the board-ui harness) against the real geometry: the
+  * Build05 island fixture + palms (journey-scene.cjs, as 04→05) and every instance of region_lakeside
+  * scene_r5h_slim_transforms.json (lakeside/lakeside-scene.cjs), plus the rainbow bridge strip itself. Samples every 0.05 m.
+- *  K1 route: continuity passes validateJourneyRoute (region order is Voice Bot's wiring, still rejected here); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
++ *  K1 route: continuity passes validateJourneyRoute (island→lakeside order accepted since Voice Bot's wiring); landing overrides need a focus and known keys; 04→05/08→09 unchanged.
+  *  K2 her face (1.5 m), head (1.6) and chest (0.9) never hidden, at most one low graze; lens clearance ≥ 1.1 m everywhere.
+  *     Reported, not hidden: the 04→05 set-off exemption (d < 1 m, only her legs behind the island prop strip).
+  *  K3 lens on her RIGHT for the whole leg (never left of behind).
+@@ -38,7 +38,7 @@ function ndc(c,p,aspect){const f=sub(c.target,c.position),fl=Math.hypot(...f),fw
+ check('K1 lakeside route continuity valid; landing needs focus + known keys; routes without landing unchanged',()=>{
+  // Region order + 'lakeside' JourneyRegion/Place/State are Voice Bot's wiring (README); the continuity and landing checks run on
+  // the same route with the order label of the Build05 island leg.
+- const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);assert.throws(()=>Core.validateJourneyRoute(route,start),/journey-region-order/);
++ const asIsland={...route,to:'meadow'};Core.validateJourneyRoute(asIsland,start);Core.validateJourneyRoute(route,start); // island→lakeside wired (Voice Bot)
+  assert.throws(()=>Core.validateJourneyRoute({...asIsland,focus:undefined},start),/journey-invalid-landing/);
+  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{arrivalSideM:NaN}},start),/journey-invalid-landing/);
+  assert.throws(()=>Core.validateJourneyRoute({...asIsland,landing:{fovDeg:30}},start),/journey-invalid-landing/);
+diff --git a/tools/journey-integration/test-lakeside-journey-wire.cjs b/tools/journey-integration/test-lakeside-journey-wire.cjs
+new file mode 100644
+index 0000000..090ae19
+--- /dev/null
++++ b/tools/journey-integration/test-lakeside-journey-wire.cjs
+@@ -0,0 +1,65 @@
++#!/usr/bin/env node
++'use strict';
++/* 风铃湖畔 journey wiring (Voice Bot): region select → r04-lake-* → ensureRegion walks island→lakeside → the adapter mounts the
++ * real scene through LakesideCameraLayout.lakesideJourney(start) → single landing→board hook call site → level.
++ * Real TS through the board-ui harness (pure modules) + source contracts for the engine-bound call sites. */
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const ROOT=path.resolve(__dirname,'../..'),S=ROOT+'/creator-build-project/assets/scripts/',R=S+'regional-r05/runtime';
++const {createHarness}=require('../board-ui/harness.cjs'),H=createHarness();
++const Core=H.load(S+'world-r1/RegionJourneyCore.ts'),LK=H.load(S+'region/LakesideCameraLayout.ts'),Hook=H.load(S+'region/LakesideLandingHook.ts');
++const API=require(R+'/index.js'),src=f=>fs.readFileSync(S+f,'utf8'),vm=require('node:vm'),ts=require('../qf-env.cjs').typescript();
++const Campaign=require(S+'mainline-r1/runtime/region-campaign.js');
++const compFile=src('world-r2/WorldNativeComposition.ts'),body=compFile.slice(compFile.indexOf('export class WorldNativeComposition')).replace(/@property\([^)]*\) /g,'');
++const hooked=[];const ctx={exports:{},Component:class{},RegionCampaign:Campaign,DEBUG:false,console:{...console,error:()=>{}},lakesideLandingToBoard:c=>{hooked.push(c.stageId);return Promise.resolve();}};
++vm.runInNewContext(ts.transpileModule(body,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,ctx);const Comp=ctx.exports.WorldNativeComposition;
++const sel=id=>Comp.prototype.selectionRegion.call({}, {provider:'r5',stageId:id});
++const Route={journeySelectionRegion:sel};
++function host(region){const h=Object.create(Comp.prototype),events=[],snap={state:region,journey:{region,target:null}};
++ h.world={commands:()=>({snapshot:()=>snap,async travelRegion(t){events.push(['travel',t]);snap.state=t;snap.journey.region=t;return {ok:true};},async enterLevel(id){events.push(['enter',id]);snap.state='level';return {ok:true};}})};
++ h.mainline={journeySnapshot:()=>({readOnly:false,records:[]})};return {h,events};}
++let n=0,fail=0;const t=(m,f)=>{try{f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
++t('selectionRegion mapping: r04-lake-01..06 (and r05 renumbering) → lakeside; meadow/sky/tide unchanged',()=>{
++ for(const s of API.catalog.filter(s=>s.region==='lake'))assert.equal(Route.journeySelectionRegion(s.id),'lakeside',s.id);
++ assert.equal(Route.journeySelectionRegion('r05-lake-03'),'lakeside');
++ for(const s of API.catalog.filter(s=>s.region!=='lake'))assert.equal(Route.journeySelectionRegion(s.id),s.region==='meadow'?'meadow':s.region==='sky'?'skycity':'island',s.id);
++ assert.equal(Route.journeySelectionRegion('r04-lakeside'),'island');});
++t('RegionJourneyCore accepts island→lakeside only (validateJourneyRoute on the real lakesideJourney route)',()=>{
++ const start=[0,0,0];const j=LK.lakesideJourney(start),path=[...j.approach,...j.bridge.slice(1),...j.arrival];
++ const route={from:'island',to:'lakeside',path,bridgeStart:Core.routeLength(j.approach),bridgeEnd:Core.routeLength([...j.approach,...j.bridge.slice(1)]),speed:j.speed,startBlendM:0,focus:j.focus,landing:j.landing};
++ const s0=path[0];Core.validateJourneyRoute(route,s0);
++ assert.throws(()=>Core.validateJourneyRoute({...route,from:'meadow'},s0),/journey-region-order/);
++ assert.throws(()=>Core.validateJourneyRoute({...route,from:'lakeside',to:'skycity'},s0),/journey-region-order/);});
++t('reachable from region select: 风铃湖畔 button → enterRegion(lake) → r5 selection → ensureRegion(lakeside) → travelRegion',()=>{
++ const boot=src('WorldIntegrationBoot.ts'),comp=src('world-r2/WorldNativeComposition.ts'),flow=src('world-r1/WorldFlowCore.ts');
++ assert.match(boot,/this\.button\('lake','风铃湖畔',\(\)=>this\.composition\.enterRegion\('lake'\)\)/);
++ const first=API.catalog.find(s=>s.region==='lake'&&s.ordinal===1);assert(first,'lake ordinal 1 in catalog');assert.equal(Route.journeySelectionRegion(first.id),'lakeside');
++ assert.match(comp,/target==='lakeside'\?\['island','lakeside'\]:\['island','meadow','skycity'\]/);
++ assert.match(comp,/if\(target!=='lakeside'\)\{const permission=\(RegionCampaign as any\)\.canEnterRegion/);
++ assert.match(comp,/\['home','island','meadow','skycity','lakeside'\]\.includes/);
++ assert.match(flow,/export type Place = [^;]*'lakeside'/);assert.match(flow,/'meadow' \| 'lakeside' \|/);
++ assert.match(flow,/\['island','meadow','lakeside','level'\]/);assert.match(flow,/\['island','meadow','skycity','lakeside'\]\.includes\(this\.state\)/);
++ assert.match(src('world-r1/RegionJourneyCore.ts'),/export type JourneyRegion = 'island'\|'meadow'\|'skycity'\|'lakeside';/);
++ assert(/\{ id: 'lake', pose: null \}/.test(src('world-r1/RegionCameraData.ts')),'RegionCameraData stop');});
++t('adapter mounts the lakeside model via lakesideJourney(start) (shared scene loader, real instances)',()=>{
++ const a=src('region/RegionJourneyAdapter.ts'),b=src('region/LakesideBoardBackground.ts');
++ assert.match(a,/if\(to==='lakeside'\)return prepareLakesideJourney\(/);assert.match(a,/const L=lakesideJourney\(start\);model\.setRotationFromEuler\(0,L\.yawDeg,0\);model\.setWorldPosition\(L\.root\[0\],L\.root\[1\],L\.root\[2\]\);/);
++ assert.match(a,/focus:L\.focus,landing:L\.landing/);assert.match(a,/await mountLakesideScenery\(model,token,take\)/);
++ assert.match(b,/instances=await mountLakesideScenery\(scenery,token,take\)/);assert.match(b,/lakesideSceneInstances\(/);});
++t('landing→board hook call site',()=>{
++ const comp=src('world-r2/WorldNativeComposition.ts');assert.equal((comp.match(/lakesideLandingToBoard\(/g)||[]).length,1);
++ assert.match(comp,/if\(region==='lakeside'\)await lakesideLandingToBoard\(/);
++ const i=comp.indexOf('lakesideLandingToBoard({'),e=comp.indexOf('ensureRegion(region)'),l=comp.indexOf("enterLevel(selection.stageId)");assert(e>0&&e<i&&i<l,'between arrival and enterLevel');
++ const p=Hook.lakesideLandingToBoard({stageId:'r04-lake-01',journey:null});assert(p&&typeof p.then==='function');
++ assert.match(src('region/LakesideLandingHook.ts'),/TODO\(运镜bot\)/);});
++t('pitch and route speed untouched (pending Grok Bot / 运镜bot)',()=>{assert.equal(LK.LAKESIDE_CAMERA_LAYOUT.board.pitchDeg,64);});
++(async()=>{
++ const T=async(m,f)=>{try{await f();n++;console.log('PASS',m);}catch(e){fail++;console.log('FAIL',m,'\n',e.stack||e);}};
++ await T('ensureRegion (real class method): island→lakeside one travel, lakeside→lakeside none, meadow→lakeside refused',async()=>{
++  let x=host('island');assert.equal((await x.h.ensureRegion('lakeside')).ok,true);assert.deepEqual(JSON.parse(JSON.stringify(x.events)),[['travel','lakeside']]);
++  x=host('lakeside');assert.equal((await x.h.ensureRegion('lakeside')).ok,true);assert.equal(x.events.length,0);
++  x=host('meadow');assert.equal((await x.h.ensureRegion('lakeside')).reason,'return-route-not-yet-available');assert.deepEqual(x.events,[]);});
++ await T('enterSelectedLevel r04-lake-01 from the island: travel lakeside → landing hook → enterLevel (in that order)',async()=>{
++  const x=host('island');x.h.selection={provider:'mainline-free',stageId:'r04-lake-01',seed:4};hooked.length=0;
++  const r=await x.h.enterSelectedLevel();assert.equal(r.ok,true);assert.deepEqual(x.events,[['travel','lakeside'],['enter','r04-lake-01']]);assert.deepEqual(hooked,['r04-lake-01']);});
++ console.log(fail?`FAIL ${fail}`:`OK ${n}`);process.exit(fail?1:0);
++})();
+-- 
+2.47.3
+

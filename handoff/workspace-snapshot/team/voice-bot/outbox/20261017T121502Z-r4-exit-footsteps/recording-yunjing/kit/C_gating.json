@@ -1,0 +1,106 @@
+{
+"out": "/Users/<mac-user>/lkcam-tmp/fs/runs/C_gating",
+"chrome": "/Users/<mac-user>/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+"port": 8771,
+"w": 390,
+"h": 844,
+"dpr": 2,
+"quality": 72,
+"tz": "Asia/Shanghai",
+"init": "try{localStorage.setItem('dot-mainline-r1-isolated-20261009:forest-v3-completed','12');}catch(e){}",
+"steps": [
+{
+"op": "eval",
+"js": "(()=>{const g=__ga();if(!g)return 'no GameAudio';g.onGesture();return {gate:g.ambienceGate(),sfxMuted:g.isSfxMuted(),muted:g.isMuted(),music:g.getMusicVolume()};})()"
+},
+{
+"op": "wait",
+"ms": 1500
+},
+{
+"op": "startRec"
+},
+{
+"op": "wait",
+"ms": 800
+},
+{
+"op": "marker"
+},
+{
+"op": "wait",
+"ms": 1500
+},
+{
+"op": "marker"
+},
+{
+"op": "wait",
+"ms": 800
+},
+{
+"op": "play",
+"js": "(__qfMark('leave'),__worldIntegration.leave())"
+},
+{
+"op": "wait",
+"ms": 5500
+},
+{
+"op": "eval",
+"js": "(__qfMark('sfx off'),__ga().setSfxMuted(true),__ga().isSfxMuted())"
+},
+{
+"op": "wait",
+"ms": 3500
+},
+{
+"op": "eval",
+"js": "(__qfMark('sfx on'),__ga().setSfxMuted(false),__ga().isSfxMuted())"
+},
+{
+"op": "until",
+"js": "(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"crossing-out\"",
+"timeout": 60000
+},
+{
+"op": "wait",
+"ms": 4000
+},
+{
+"op": "eval",
+"js": "__qfVis(true)"
+},
+{
+"op": "wait",
+"ms": 4000
+},
+{
+"op": "eval",
+"js": "__qfVis(false)"
+},
+{
+"op": "until",
+"js": "(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"island\"",
+"timeout": 180000
+},
+{
+"op": "wait",
+"ms": 3000
+},
+{
+"op": "marker"
+},
+{
+"op": "wait",
+"ms": 1500
+},
+{
+"op": "marker"
+},
+{
+"op": "wait",
+"ms": 400
+}
+]
+}

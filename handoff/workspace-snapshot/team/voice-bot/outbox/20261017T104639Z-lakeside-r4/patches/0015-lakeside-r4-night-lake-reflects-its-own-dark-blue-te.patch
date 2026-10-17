@@ -1,0 +1,146 @@
+From 9581c232a9aae3dbec449d80eaef5edc2f7a8b8c Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 06:45:47 -0400
+Subject: [PATCH 15/15] lakeside r4: night lake reflects its own dark blue-teal
+ sky; tests lock sky reflection > 0
+
+r3 reused the day dusk beige/orange low/horizon at night (x0.12) -> orange-brown lake centre.
+lakesideModeLighting now also carries the reflected sky, tint and mix floor per mode and
+applyLakesideWaterMode writes them (board and journey copies alike). Night: zenith = #1c2740
+linear 0.011/0.02/0.051, low 0.014/0.045/0.065, horizon 0.018/0.06/0.068, skyStrength 0.6,
+floor 0.28, tint 0.7/0.95/1, amb 1.0. lakeside-shared-water checks the per-mode part on both
+copies; new lakeside-sky-reflection locks strength/floor/Fresnel > 0, night B>=G>R, day not warm.
+---
+ .../scripts/region/LakesideBoardBackground.ts |  7 +++++--
+ .../scripts/region/LakesideSceneData.ts       | 14 ++++++++++---
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_daynight.cjs     |  2 +-
+ tools/lakeside/test_lakeside_shared_water.cjs |  6 +++++-
+ .../lakeside/test_lakeside_sky_reflection.cjs | 20 +++++++++++++++++++
+ 6 files changed, 43 insertions(+), 8 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_sky_reflection.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index ae11f44..88130d1 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -132,8 +132,11 @@ export function lakesideWaterMaterial(asset:Material):Material{
+  water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
+  water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
+  water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));return water;}
+-/** The day/night part of the same source (board applyDir and the journey's day/night listener). */
+-export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode);
++/** The day/night part of the same source (board applyDir and the journey's day/night listener). r4 (VB): also the per-mode
++ *  reflected sky (zenith/low/horizon), tint and reflection-mix floor, so night reflects its own dark blue-teal sky. */
++export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode),v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
++ water.setProperty('waterTint',v(M.waterTintLinear));water.setProperty('skyZenith',v(M.waterSkyZenithLinear));water.setProperty('skyLow',v(M.waterSkyLowLinear));water.setProperty('skyHorizon',v(M.waterSkyHorizonLinear));
++ water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor));
+  water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
+ /** The lakeside-water.mtl asset (dir light mode only; null otherwise or when it fails to load: callers keep their old look). */
+ export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 1026a04..18ae246 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -138,18 +138,26 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+   ambientSkyIllumToSun: 0.643, // r4: keeps hemisphere ambient night/day 0.219 vs the r4 day (fill 0.236, ground 0.97/0.533/0.296); r2 1.76
+   clearColor: '#1c2740',
+   fogColorSrgb: [44, 54, 84] as const,
+-  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
++  /** r4 (VB): the night lake reflects its OWN dark blue-teal sky. r3 reused the day dusk beige/orange low/horizon (x skyStrength
++   *  0.12) -> the orange-brown night lake centre. Zenith = this clear colour #1c2740 (linear), low/horizon dark teal; the sky
++   *  reflection stays on at night (0.6 of the night ambient illuminance). */
++  waterMainLightScale: 0.8, waterAmbientScale: 1.0, waterSkyStrength: 0.6, // r4 (r2 amb 0.6, sky 0.12)
++  waterTintLinear: [0.7, 0.95, 1.0] as const, waterSkyReflectFloor: 0.28,
++  waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
+ });
+ export type LakesideDayNight = 'day' | 'night';
+ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
+   ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
+-  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number }>;
++  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number;
++  /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
++  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[] }>;
+ /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
+ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
+   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
+   const P = LAKESIDE_DIR_LIGHT_PARAMS;
+   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+-    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
++    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
++    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear };
+ }
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+ /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 3eb9aac..dfc5a7c 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -69,7 +69,7 @@ const tests=[
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
+- ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],
++ ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],
+  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
+  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+diff --git a/tools/lakeside/test_lakeside_daynight.cjs b/tools/lakeside/test_lakeside_daynight.cjs
+index 5b1c341..6c3a9c9 100644
+--- a/tools/lakeside/test_lakeside_daynight.cjs
++++ b/tools/lakeside/test_lakeside_daynight.cjs
+@@ -41,7 +41,7 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
+ const run=(name,f)=>{f();console.log('PASS',name);};
+ const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
+ run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.lakesideDayClearColor());
+- assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
++ assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);{const l=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];/* r4: night keeps a sky reflection (> 0) of its own, darker, dark blue-teal sky */assert(N.waterSkyStrength>0);assert(l(N.waterSkyLowLinear)*N.waterSkyStrength<l(Dy.waterSkyLowLinear)*Dy.waterSkyStrength);}});
+ run('day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR',()=>{
+  assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');const init=D.linearToSrgb8(D.LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);
+  assert.deepEqual(rgb(new Color(Dy.clearColor)),init,'day pack clear bytes = board init bytes');assert.deepEqual(init,[28,143,184]);assert.notEqual(Dy.clearColor.toLowerCase(),'#f2b98a');
+diff --git a/tools/lakeside/test_lakeside_shared_water.cjs b/tools/lakeside/test_lakeside_shared_water.cjs
+index eb2d1ed..cf343d8 100644
+--- a/tools/lakeside/test_lakeside_shared_water.cjs
++++ b/tools/lakeside/test_lakeside_shared_water.cjs
+@@ -25,7 +25,11 @@ run('one source: two copies (journey, board) carry identical params straight fro
+ run('day/night: applyLakesideWaterMode writes lakesideModeLighting(mode) on either copy, identically',()=>{
+  for(const m of ['day','night']){const M=D.lakesideModeLighting(m),j=B.lakesideWaterMaterial(asset),b=B.lakesideWaterMaterial(asset);B.applyLakesideWaterMode(j,m);B.applyLakesideWaterMode(b,m);
+   assert.deepEqual(j.props,b.props);assert.deepEqual(j.props.lightParams,[M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd]);
+-  assert.deepEqual(j.props.fresnelParams,[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength]);}});
++  assert.deepEqual(j.props.fresnelParams,[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength]);
++  // r4 (VB): reflected sky, tint and mix floor are per mode as well - the journey copy and the board copy get the same ones
++  assert.deepEqual(j.props.waterTint,[...M.waterTintLinear,1]);assert.deepEqual(j.props.skyZenith,[...M.waterSkyZenithLinear,1]);assert.deepEqual(j.props.skyLow,[...M.waterSkyLowLinear,1]);assert.deepEqual(j.props.skyHorizon,[...M.waterSkyHorizonLinear,1]);
++  assert.deepEqual(j.props.specParams,[P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor]);
++  assert(j.props.fresnelParams[3]>0&&j.props.specParams[3]>0,m+': sky reflection > 0 on the journey and board copies');}});
+ run('wiring: board and journey both use the helpers; journey follows the toggle, frees its copy and listener once',()=>{
+  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8');
+  assert.match(bg,/water=lakesideWaterMaterial\(waterAsset\)/);assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);/);
+diff --git a/tools/lakeside/test_lakeside_sky_reflection.cjs b/tools/lakeside/test_lakeside_sky_reflection.cjs
+new file mode 100644
+index 0000000..ed2e0cb
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_sky_reflection.cjs
+@@ -0,0 +1,20 @@
++// r4 (VB, Grok Bot): the lake ALWAYS reflects the sky - day and night - and the reflection is not the sand/orange of r3.
++// Values come from the one water source (LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting, written to the board and journey
++// copies by lakesideWaterMaterial / applyLakesideWaterMode - see lakeside-shared-water). Locks: skyStrength > 0, mix floor and
++// Fresnel > 0, non-black reflected colours and the shader really uses them; night reflection dark blue-teal (B >= G > R);
++// day reflection above the horizon band not warm.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const A=path.join(__dirname,'../../creator-build-project/assets');
++const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
++const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,lum=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
++assert(P.waterFresnelF0>0&&P.waterFresnelMax>0&&P.waterFresnelPower>0,'Fresnel on (grazing-angle reflection)');
++for(const mode of ['day','night']){const M=D.lakesideModeLighting(mode);
++ assert(M.waterSkyStrength>0,mode+': sky reflection strength > 0');assert(M.waterSkyReflectFloor>0,mode+': reflection mix floor > 0');
++ for(const k of ['waterSkyZenithLinear','waterSkyLowLinear','waterSkyHorizonLinear'])assert(lum(M[k])>0.005,mode+' '+k+' not black');}
++const N=D.lakesideModeLighting('night');for(const k of ['waterSkyZenithLinear','waterSkyLowLinear','waterSkyHorizonLinear']){const c=N[k];assert(c[2]>=c[1]&&c[1]>c[0],'night '+k+' dark blue-teal (no orange-brown)');assert(lum(c)<0.08,'night '+k+' dark');}
++const Dy=D.lakesideModeLighting('day');for(const k of ['waterSkyZenithLinear','waterSkyLowLinear'])assert(Dy[k][2]>Dy[k][0],'day '+k+' not warm (no sand)');
++const fx=fs.readFileSync(path.join(A,'bundles/region_lakeside/water/lakeside-water.effect'),'utf8');
++assert(/sky = mix\(sky, skyZenith\.rgb, smoothstep\(0\.16, 0\.38, e\)\) \* cc_ambientSky\.w \* fresnelParams\.w;/.test(fx),'reflected sky x ambient illuminance x skyStrength');
++assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx),'Fresnel / floor mix to the sky');
++console.log('lakeside sky reflection OK (day %s, night %s)',Dy.waterSkyStrength,N.waterSkyStrength);
+-- 
+2.47.3
+

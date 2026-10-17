@@ -1,0 +1,12 @@
+8ada1e0626c1f6519b53a352bebcd7ed98e5e55d33adb30caf48edf79480ccb0  ./README.md
+9993e254be8e28f20451002c1bee18bd0313eb86411e77370fddb2cc5503db9d  ./evidence/before-7c1047b-production-integrity-20-mismatches.txt
+711c3ff602eeb50ad4c57010dfbac0cbef4d3381e75b3631a5127969832030cf  ./evidence/legacy-board-ui-pure.node20.log
+2b57b787ae78b295b5eb764edfa8e067d08088721fbbaa69baba1ddec94522e3  ./evidence/legacy-board-ui-pure.standin-node20.log
+605d4580143de6ac3b74e57ada984f1e58a4b81744d050827208e82e3c22ef0e  ./evidence/scratch-stripTypeScriptTypes-standin.cjs
+e589c277c8fcdd3cfdd206935b8973c509e2ddcb420921336a3a2c6038e4b0b5  ./evidence/suite-f3d3614-baseline.log
+0ce4fa09cc0ac7f492c9e0893aea8a38f1d0d39143ce1efbcddc521a27ab51d3  ./patches/0001-production-integrity-re-baseline-20-frozen-sha256-va.patch
+dd1e3b757af09ffc9e741af0b32f062f6e8b5525118d5f221af63783bc7aec09  ./patches/0002-legacy-board-ui-pure-expect-3-sfxMuted-gates-play-pl.patch
+c16b3cd452346dcbf6995d3c0224bf682f0b646a8a749ea96f454e9d04680016  ./patches/0003-legacy-board-ui-pure-require-Node-22.6-explicitly-re.patch
+6837f6776fbf25fa3226532fe09495e5c991f89c7e9960b35a57783a1c398bfb  ./suite.json
+0253d12f0f69a126c7ba30c0f92941136339c54dbfd14d883c770b26fcc27b00  ./suite.log
+457566d47c651d84202dd7209274e8903070ee84b76da623f74a155b455f425f  ./voice-build05-r4-tests.bundle

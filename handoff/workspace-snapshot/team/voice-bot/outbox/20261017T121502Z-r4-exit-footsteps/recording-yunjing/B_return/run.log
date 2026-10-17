@@ -1,0 +1,33 @@
+2026-10-17T12:30:37.170Z home ready
+2026-10-17T12:30:37.178Z renderer ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)
+2026-10-17T12:30:37.181Z step {"op":"eval","js":"(()=>{const g=__ga();if(!g)return 'no GameAudio';g.onGesture();return {gate:g.ambienceGate(),sfxMuted:g.isSfxMuted(),muted:g.isMuted(),music:g.getMusicVolume()};})()"}
+2026-10-17T12:30:37.182Z eval -> {"gate":"ok","sfxMuted":false,"muted":false,"music":0.4}
+2026-10-17T12:30:37.182Z step {"op":"eval","js":"__worldIntegration.leave()"}
+2026-10-17T12:31:07.989Z eval -> {"ok":true}
+2026-10-17T12:31:07.989Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"island\"","timeout":180000}
+2026-10-17T12:31:08.126Z until ok
+2026-10-17T12:31:08.127Z step {"op":"wait","ms":2500}
+2026-10-17T12:31:10.628Z step {"op":"startRec"}
+2026-10-17T12:31:10.632Z recording
+2026-10-17T12:31:10.632Z step {"op":"wait","ms":800}
+2026-10-17T12:31:11.434Z step {"op":"marker"}
+2026-10-17T12:31:11.436Z marker {"beepPerf":36084.42233335718,"ctxTime":35.82866666666666}
+2026-10-17T12:31:12.039Z step {"op":"wait","ms":1500}
+2026-10-17T12:31:13.539Z step {"op":"marker"}
+2026-10-17T12:31:13.541Z marker {"beepPerf":38191.13033334525,"ctxTime":37.93533333333333}
+2026-10-17T12:31:14.143Z step {"op":"wait","ms":800}
+2026-10-17T12:31:14.944Z step {"op":"play","js":"(__qfMark('returnHome'),__worldIntegration.returnHome())"}
+2026-10-17T12:31:14.944Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()!==\"island\"","timeout":20000}
+2026-10-17T12:31:14.994Z until ok
+2026-10-17T12:31:14.994Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"home\"","timeout":120000}
+2026-10-17T12:31:35.822Z play -> {"ok":true,"seconds":20.87600016593933}
+2026-10-17T12:31:35.822Z until ok
+2026-10-17T12:31:35.822Z step {"op":"wait","ms":3000}
+2026-10-17T12:31:38.824Z step {"op":"marker"}
+2026-10-17T12:31:38.825Z marker {"beepPerf":63476.33233333333,"ctxTime":63.220666666666666}
+2026-10-17T12:31:39.426Z step {"op":"wait","ms":1500}
+2026-10-17T12:31:40.928Z step {"op":"marker"}
+2026-10-17T12:31:40.929Z marker {"beepPerf":65582.93833335717,"ctxTime":65.32733333333333}
+2026-10-17T12:31:41.531Z step {"op":"wait","ms":400}
+2026-10-17T12:31:41.933Z stopped
+2026-10-17T12:31:42.516Z saved 1717 frames 129 logs 62 starts webaudio:wl366

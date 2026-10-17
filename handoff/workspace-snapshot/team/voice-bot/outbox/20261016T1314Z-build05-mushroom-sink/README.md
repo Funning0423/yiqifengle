@@ -1,0 +1,7 @@
+# Build05 mushroom sink (Voice Bot) on GGbot d238881 (local only, not pushed)
+- Branch voice/build05-mushroom-sink · commit 08fdfeafa506705e219e0bb2731f8c8d285a3f01 · tree 0471e900753b0cf1f650324ad66ffe2deab923a6 · parent d238881
+- Patch SHA256 2d391ceb6b6f8769d239b07dcbf33420fcfeeef9630270817d099aed62de4594 (git am on d238881 -> tree 0471e900753b0cf1f650324ad66ffe2deab923a6)
+- Cherry-pick of preview dca9c30 (applied cleanly), message without PREVIEW wording, fixture rebuilt and amended in.
+- env_skycity.glb sha256 d3bf7e1d92c74d667796096fc03f68314fa5ed5328736c9611334c4526193564 (same as dca9c30). Mushroom near (-47,67) glb-local moved -2.858 m: palette cap + 3 stems + 6 cap pieces (563 v), 64 foliage tufts (256 v). No triangle count change; .meta unchanged.
+- Occlusion fixture: skycity pins 1727cfdb -> d3bf7e1d; triangles rebuilt with build-fixture.cjs (glbs decoded with decode-draco-blender.py, Blender 5.2.2), as d238881 did. binSha256 92091dac… -> 16cf404a…. Compared with d238881's fixture (order-independent, 0.01 m): only 600 triangles differ, all inside the mushroom box x -49.5…-44.6, z 64.7…69.7 (new y -7.9…-3.0). Island/palm sources unchanged.
+- Suite (run-suite.cjs, Node 20): 08fdfea 32/37, d238881 32/37, per-test results identical. Same 5 known non-journey failures: production-integrity, legacy-board-ui-pure, reward-background-return, cloud-web-contract, navigation-guard BLOCKED_BROWSER. Logs: suite_08fdfea.log, suite_d238881.log.

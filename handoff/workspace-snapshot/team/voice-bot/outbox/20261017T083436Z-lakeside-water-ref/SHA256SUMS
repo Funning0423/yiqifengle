@@ -1,0 +1,15 @@
+884eafaa8f45eabef50d0cefa9916be38de1c1d38464591e96c2e0b69c0feec0  ./0001-lakeside-water-ref-candidate-1-2-fix-the-v_color-dou.patch
+2899a33a2c898320b0fbde00b8920445ad18fc332e0265339673641021e3aa89  ./0002-lakeside-water-ref-candidate-2-2-one-time-QF_LAKE_DI.patch
+77de5ebce87a97938a6718aa96895acdb33bb4cc1a24098424d3d2e9b4a4014a  ./README.md
+933f7101f8ec39c93d2feddf2add579fd95f90042de3721e08772ac38c887e2b  ./evidence/compare_water_ref.png
+16697bcf5db3a0ee51afb8619b8274e1423612f16ac2a119d60dafa12f88ce95  ./evidence/emu.py
+bbae529c478a75d8cca44cecb8feba8330f1b92b65eb9e2e83bbf07ca93623b2  ./evidence/wref_base.py
+be0239a3953d8b3c021c7905bac9f6c1a84c9cfa785ff4864628830c63298d56  ./evidence/wref_c1.json
+7f4f0022a082392f39b2f9f7d2a116534ec9edc4fc50b0aaf001860a566824bb  ./evidence/wref_c1t.json
+009a912c0ff7a377435033accf53a8972d127b2cd5ef8270aec2e806fb9b520b  ./evidence/wref_c2.json
+ea9ff05d212dd82bed99c52f42658ff0720b8d1d3d71aebfbba8e4c940edb7e7  ./evidence/wref_eval.py
+b5b19c31c8dbe0ed702a8594ba8dcc7b66db21b2157fff5b2534c520355ef234  ./evidence/wref_final.py
+f9f19e336136bc6eb7036706921eb3ea95dad113d07d6c489bc84b77078d1a13  ./evidence/wref_fit.py
+1e588e63d4b9373028a265f345dd12f6c795ed2f3bf7f43e9744538b4ba06b23  ./evidence/wref_fit3.py
+864bd064addcfa6824356da952e4f68480279cb17ac0b9cc88de8f7c1bf791c5  ./suite.log
+3f25740514f3aa7985a58cca4d0c75e647e03b526ed19c820e04ce74e460ddac  ./voice-build05-lakeside-water-ref.bundle

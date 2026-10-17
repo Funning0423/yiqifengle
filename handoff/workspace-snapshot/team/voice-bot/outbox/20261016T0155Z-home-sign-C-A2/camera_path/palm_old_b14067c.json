@@ -1,0 +1,139 @@
+{
+ "exit_current_outbound": {
+  "frames": 790,
+  "min_dist_m": 3.09799861907959,
+  "min_frame": {
+   "i": 318,
+   "t": 14.81667,
+   "phase": "outbound",
+   "d": 3.09799861907959,
+   "face_occ": false,
+   "leaf_in_front": true
+  },
+  "within_1m": [],
+  "within_near_0p05": [],
+  "face_occluded": []
+ },
+ "exit_current_return": {
+  "frames": 691,
+  "min_dist_m": 0.5904746055603027,
+  "min_frame": {
+   "i": 256,
+   "t": 27.11667,
+   "phase": "return",
+   "d": 0.5904746055603027,
+   "face_occ": false,
+   "leaf_in_front": false
+  },
+  "within_1m": [
+   242,
+   243,
+   244,
+   245,
+   246,
+   247,
+   248,
+   249,
+   250,
+   251,
+   252,
+   253,
+   254,
+   255,
+   256,
+   257,
+   258,
+   259,
+   260,
+   261,
+   262,
+   263,
+   264,
+   265
+  ],
+  "within_near_0p05": [],
+  "face_occluded": []
+ },
+ "exit_B4_outbound": {
+  "frames": 586,
+  "min_dist_m": 6.890237808227539,
+  "min_frame": {
+   "i": 196,
+   "t": 12.78333,
+   "phase": "outbound",
+   "d": 6.890237808227539,
+   "face_occ": false,
+   "leaf_in_front": true
+  },
+  "within_1m": [],
+  "within_near_0p05": [],
+  "face_occluded": []
+ },
+ "exit_B4_return": {
+  "frames": 691,
+  "min_dist_m": 0.5985752940177917,
+  "min_frame": {
+   "i": 235,
+   "t": 23.36667,
+   "phase": "return",
+   "d": 0.5985752940177917,
+   "face_occ": false,
+   "leaf_in_front": false
+  },
+  "within_1m": [
+   213,
+   214,
+   215,
+   216,
+   217,
+   218,
+   219,
+   220,
+   221,
+   222,
+   223,
+   224,
+   225,
+   226,
+   227,
+   228,
+   229,
+   230,
+   231,
+   232,
+   233,
+   234,
+   235,
+   236,
+   237,
+   238,
+   239,
+   240,
+   241,
+   242,
+   243,
+   244,
+   245,
+   246,
+   247,
+   248
+  ],
+  "within_near_0p05": [],
+  "face_occluded": []
+ },
+ "sail_island_side_0_81": {
+  "frames": 82,
+  "min_dist_m": 40.68826675415039,
+  "min_frame": {
+   "i": 0,
+   "t": 0.0,
+   "phase": null,
+   "d": 40.68826675415039,
+   "face_occ": false,
+   "leaf_in_front": true
+  },
+  "within_1m": [],
+  "within_near_0p05": [],
+  "face_occluded": []
+ }
+}

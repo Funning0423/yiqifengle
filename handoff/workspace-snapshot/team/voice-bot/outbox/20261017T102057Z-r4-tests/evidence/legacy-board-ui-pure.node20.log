@@ -1,0 +1,2 @@
+BLOCKED_NODE: legacy-board-ui-pure requires Node >=22.6 (node:module.stripTypeScriptTypes), found v20.19.2
+exit=78

@@ -1,0 +1,29 @@
+{
+ "rawSamples": 460800,
+ "gaplessSamples": 459600,
+ "encoderDelaySamples": 1105,
+ "encoderDelayS": 0.04604,
+ "circularLoopS": 19.0,
+ "crossloop_linear": {
+  "maxLevelStepAtSeam_dB": 6.89,
+  "p99.5StepWholeLoop_dB": 5.42,
+  "overlapMismatch_dB": -17.5
+ },
+ "crossloop_equal-power": {
+  "maxLevelStepAtSeam_dB": 6.89,
+  "p99.5StepWholeLoop_dB": 5.42,
+  "overlapMismatch_dB": -17.5
+ },
+ "platformLoopFallback_maxStep_dB": 56.04,
+ "gaplessCircularWrap_maxStep_dB": 3.11,
+ "crossloop_levelJump_20ms_dB": {
+  "seamMax": 4.53,
+  "elsewhereP50": 1.03,
+  "elsewhereP95": 3.49
+ },
+ "crossloop_levelJump_50ms_dB": {
+  "seamMax": 2.63,
+  "elsewhereP50": 0.77,
+  "elsewhereP95": 2.49
+ }
+}

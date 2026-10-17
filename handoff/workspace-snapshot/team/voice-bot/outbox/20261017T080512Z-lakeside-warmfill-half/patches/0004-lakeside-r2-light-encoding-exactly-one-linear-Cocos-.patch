@@ -1,0 +1,297 @@
+From de093cd2d20d106549a9202d1ecb88a2dde8be77 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 15:51:34 +0800
+Subject: [PATCH 4/6] lakeside r2 light encoding: exactly one linear ->
+ Cocos-byte conversion on every light path (board, journey end, day AND night)
+
+Cocos 3.8.8 reads DirectionalLight.color, Ambient sky/ground colours and the legacy-standard albedo uniform (mainColor) as
+Color bytes/255 = linear. r2's call sites ran linearToSrgb8(param), and the v3.4 commit compensated with pre-encoded day params
+only, so the NIGHT params (and the journey night targets) still went sRGB-as-linear (moon 0.635/0.710/0.898 instead of
+0.36/0.46/0.78, sky ambient 0.114/0.188/0.333 instead of 0.012/0.03/0.09).
+- lakesideCocosLightColor(lin) is now THE conversion: round(clamp(lin) x 255). Params (day and night) are authored linear.
+- LakesideBoardBackground.applyDir (main light + ambient sky/ground) and LakesideJourneyAtmosphere.lakesideAtmosphereTarget
+  (journey end values, also the day/night toggle) call it instead of linearToSrgb8; so the journey end == board bytes.
+- Water fallback mainColor (line 181): legacy standard uses the albedo uniform directly (baseColor = albedo, no SRGBToLinear),
+  so it is linear too: 243/255/255 -> 230/255/255 (= tint 0.9/1/1). Clear colour (line 200) and fog stay sRGB, untouched.
+- Day look unchanged (same bytes as v3.4). Night: colours kept as authored; illuminance ratios re-derived so night/day keeps
+  r2's balance per term (luminance): sun 1.0 -> 0.617 (moon/sun 0.857), ambient 0.6 -> 0.694 (hemisphere night/day 0.219).
+- No control-flow change (day/night, journey, restore). Tests: new lakeside-light-encoding (byte contract, params linear,
+  journey end == board in both modes, no linearToSrgb8/stacked conversion on light call sites, night balance);
+  dirlight / water_fog / daynight / journey_atmosphere follow the convention.
+---
+ .../scripts/region/LakesideBoardBackground.ts |  6 +--
+ .../region/LakesideJourneyAtmosphere.ts       |  4 +-
+ .../scripts/region/LakesideSceneData.ts       | 30 +++++++------
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_daynight.cjs     |  6 +--
+ tools/lakeside/test_lakeside_dirlight.cjs     | 10 ++---
+ .../test_lakeside_journey_atmosphere.cjs      |  2 +-
+ .../lakeside/test_lakeside_light_encoding.cjs | 42 +++++++++++++++++++
+ tools/lakeside/test_lakeside_water_fog.cjs    |  4 +-
+ 9 files changed, 77 insertions(+), 29 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_light_encoding.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index b3c14ab..eb7fe72 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -7,7 +7,7 @@ import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+ import type {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+@@ -135,7 +135,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+  const applyDir=()=>{if(LAKESIDE_LIGHT_MODE!=='dir')return;const l=saved?.light??mainLight(),amb=(director.getScene() as any)?.globals?.ambient;if(!l||!isValid(l,true)||!amb)return;
+   const mode=lakesideDayNightMode();if(!saved)saved={light:l,rot:l.node.rotation.clone(),color:l.color.clone(),illum:l.illuminance,vis:(l as any).visibility,sky:amb.skyLightingColor.clone(),ground:amb.groundLightingColor.clone(),skyIllum:amb.skyIllum,mode};
+   setLakesideBoardHolding(true);/* r2: the board owns the lakeside lighting while it shows (journey listener stands down) */
+-  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=linearToSrgb8(M.sunColorLinear),sk=linearToSrgb8(M.ambientSkyColorLinear),gr=linearToSrgb8(M.ambientGroundColorLinear);
++  const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode)/* r2: lakeside day (r5h3 dusk) or night look for the current toggle */,f=P.sunForward,w=l.node.worldPosition,c=lakesideCocosLightColor(M.sunColorLinear),sk=lakesideCocosLightColor(M.ambientSkyColorLinear),gr=lakesideCocosLightColor(M.ambientGroundColorLinear)/* r2 VB: the one linear->Cocos-byte conversion (bytes/255 are read as linear) */;
+   l.node.lookAt(new Vec3(w.x+f[0],w.y+f[1],w.z+f[2]));l.color=new Color(c[0],c[1],c[2],255);const bi=(lakesideJourneyBaseIllum()??saved.illum/lakesideIslandLightScale(saved.mode))*lakesideIslandLightScale(mode)/* island main light for the current mode: day base (journey capture, else this capture) x island scale; no double scale after the blend */;l.illuminance=bi*M.sunIlluminanceScale;
+   if(typeof saved.vis==='number')(l as any).visibility=saved.vis|LAKESIDE_LAYER;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
+@@ -178,7 +178,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   instanced=enableLakesideInstancing(scenery);
+   if(LAKESIDE_LIGHT_MODE==='dir'){/* v3: the lake gets the lease's own copy of lakeside-water.mtl (Fresnel sky + sun streak + fog); if it failed to
+    * load, v2 fallback: tint the lease's instanced palette copy. Assets untouched; copies destroyed with the lease. */
+-   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=linearToSrgb8(P.waterTintLinear),waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
++   const P=LAKESIDE_DIR_LIGHT_PARAMS,wc=lakesideCocosLightColor(P.waterTintLinear)/* r2 VB: legacy standard albedo (mainColor) uniform is used as linear, Color -> bytes/255 */,waterNames=new Set(list.filter(i=>(P.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));
+    let water:Material|null=null;
+    if(waterAsset){water=new Material();water.copy(waterAsset);waterMat=water;const v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+     water.setProperty('waterTint',v(P.waterTintLinear));water.setProperty('skyZenith',v(P.waterSkyZenithLinear));water.setProperty('skyLow',v(P.waterSkyLowLinear));water.setProperty('skyHorizon',v(P.waterSkyHorizonLinear));
+diff --git a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+index 8dd22f6..71eb06b 100644
+--- a/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
++++ b/creator-build-project/assets/scripts/region/LakesideJourneyAtmosphere.ts
+@@ -1,4 +1,4 @@
+-import {LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,lakesideModeLighting,linearToSrgb8,type LakesideDayNight,type LakesideFogMode} from './LakesideSceneData';
++import {LAKESIDE_DIR_LIGHT_PARAMS,LAKESIDE_LAYERED_FOG,LAKESIDE_LIGHT_MODE,lakesideFogEnd,lakesideModeLighting,lakesideCocosLightColor,type LakesideDayNight,type LakesideFogMode} from './LakesideSceneData';
+ import {resolveDayNight} from '../world-r1/DayNightContract';
+ /** build05-next (lead, 03:00): the island→lakeside journey's final stretch takes the lakeside board lighting (v3.2: main
+  *  directional light direction/colour/illuminance, ambient sky/ground/illum, clear colour, layered fog), so the landing frame
+@@ -34,7 +34,7 @@ export const LAKESIDE_JOURNEY_ATMOSPHERE_ON=LAKESIDE_LIGHT_MODE==='dir';
+  *  sunIlluminanceScale, skyIllum = illum × ambientSkyIllumToSun; colours, clear and fog colour from lakesideModeLighting(mode)). */
+ export function lakesideAtmosphereTarget(base:LakesideAtmosphereBase,mode:LakesideDayNight='day'):LakesideAtmosphereBase{
+  const M=lakesideModeLighting(mode);
+- return {illum:base.illum*M.sunIlluminanceScale,color:linearToSrgb8(M.sunColorLinear),sky:linearToSrgb8(M.ambientSkyColorLinear),ground:linearToSrgb8(M.ambientGroundColorLinear),skyIllum:base.illum*M.ambientSkyIllumToSun,clear:hexRgb(M.clearColor)};
++ return {illum:base.illum*M.sunIlluminanceScale,color:lakesideCocosLightColor(M.sunColorLinear),sky:lakesideCocosLightColor(M.ambientSkyColorLinear),ground:lakesideCocosLightColor(M.ambientGroundColorLinear),skyIllum:base.illum*M.ambientSkyIllumToSun,clear:hexRgb(M.clearColor)};
+ }
+ /** build05-next r2: current world day/night mode (the island's __worldDayNight; day when absent). */
+ export function lakesideDayNightMode():LakesideDayNight{try{return (globalThis as any).__worldDayNight?.snapshot?.()?.mode==='night'?'night':'day';}catch{return 'day';}}
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 7acb416..3f1104c 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -60,25 +60,28 @@ export const LAKESIDE_LIGHT_MODE: 'dir' | 'points' = 'dir';
+  *  path, Ambient.skyLightingColor / groundLightingColor -> Color.x without SRGBToLinear; only fog colour is linearised). The lease sends
+  *  linearToSrgb8(<linear r5h3 colour>), so Cocos saw sRGB bytes as linear: sky ambient (0.110,0.565,0.718) instead of r5h3
+  *  (0.0116,0.2747,0.4793) - ~2x too bright and cyan - and ambient w = 0.75 x sun; ACES then washed the light stone bridge to
+- *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass). Fix, data only (call sites untouched):
+- *  lakesideCocosLightColor(lin) returns the value whose linearToSrgb8() is round(lin*255), i.e. Cocos gets the r5h3 linear colour.
+- *  The authored r5h3 values stay readable as LAKESIDE_R5H3_LIGHT_LINEAR. */
++ *  cyan-white (Mac v3.2 bridge 179/217/214 vs r5h3 104/128/116; same cause for the lime grass).
++ *  r2 (VB, owner of the light colour conversion): EXACTLY ONE conversion. Every *ColorLinear light param (day AND night) is authored
++ *  linear; the light call sites (LakesideBoardBackground.applyDir main light + ambient sky/ground, LakesideJourneyAtmosphere
++ *  lakesideAtmosphereTarget = journey end values, also used by the day/night toggle) turn it into Cocos Color bytes with
++ *  lakesideCocosLightColor(lin) = round(lin x 255), which Cocos reads back as lin. No linearToSrgb8 on those paths (test
++ *  lakeside-light-encoding). linearToSrgb8 stays for colours Cocos treats as sRGB: clear colour, water fallback mainColor. Fog is sRGB. */
+ export function lakesideCocosLightColor(lin: readonly number[]): [number, number, number] {
+-  const dec = (x: number) => { const v = Math.max(0, Math.min(1, x)); return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+-  return [dec(lin[0]), dec(lin[1]), dec(lin[2])];
++  const b = (x: number) => Math.round(Math.max(0, Math.min(1, Number.isFinite(x) ? x : 0)) * 255);
++  return [b(lin[0]), b(lin[1]), b(lin[2])];
+ }
+ export const LAKESIDE_R5H3_LIGHT_LINEAR = Object.freeze({
+   sun: [1.0, 0.6, 0.32] as const, ambientSky: [0.0116, 0.2747, 0.4793] as const, ambientGround: [1.0, 0.5457, 0.1441] as const,
+ });
+ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   sunForward: [-0.4182, -0.3983, 0.8164] as const,
+-  /** pre-encoded for Cocos (see lakesideCocosLightColor): linearToSrgb8() of these = r5h3 linear x 255. */
+-  sunColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.sun) as readonly number[],
++  /** linear (r5h3); the call sites convert once with lakesideCocosLightColor. */
++  sunColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.sun as readonly number[],
+   /** v3.4: 1.0 -> 0.5 and ambient 0.75 -> 0.2 of the base illuminance (= 0.4 x lakeside sun). With the colours now really linear,
+    *  a grid search on the Mac-calibrated Blender G-buffer emulator vs r5h3 (bridge, grass, trees, roof) put the land score 1535 -> 326. */
+   sunIlluminanceScale: 0.5,
+-  ambientSkyColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky) as readonly number[],
+-  ambientGroundColorLinear: lakesideCocosLightColor(LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround) as readonly number[],
++  ambientSkyColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.ambientSky as readonly number[],
++  ambientGroundColorLinear: LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround as readonly number[],
+   ambientSkyIllumToSun: 0.2,
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
+@@ -110,13 +113,16 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+ /** build05-next r2 (lead): lakeside's own NIGHT look for the day/night toggle (board + journey). Same structure as the day values
+  *  (LAKESIDE_DIR_LIGHT_PARAMS, the r5h3 dusk); relative to the island's current-mode main light, so the island's 0.35 night scale
+  *  carries over. Moonlight from the same direction (shadows do not jump), cool blue ambient, dark blue clear and fog; water: more
+- *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide. */
++ *  ambient share (night ambient is dark), much less reflected (dusk-orange) sky. Proxy values - Mac day/night screenshots decide.
++ *  r2 (VB, one conversion): the colours are now really linear in Cocos (before, linearToSrgb8 bytes were read as linear: moon
++ *  0.635/0.710/0.898, sky 0.114/0.188/0.333, ground 0.153/0.161/0.220). The illuminance ratios are re-derived so night/day keeps
++ *  the r2 balance per term (luminance): moon/sun 0.857, hemisphere ambient night/day 0.219, against the CURRENT day values. */
+ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+   sunColorLinear: [0.36, 0.46, 0.78] as const,
+-  sunIlluminanceScale: 1.0,
++  sunIlluminanceScale: 0.617, // r2 one-conversion: 1.0 -> 0.617 keeps moon/sun 0.857 (luminance)
+   ambientSkyColorLinear: [0.012, 0.03, 0.09] as const,
+   ambientGroundColorLinear: [0.02, 0.022, 0.04] as const,
+-  ambientSkyIllumToSun: 0.6,
++  ambientSkyIllumToSun: 0.694, // r2 one-conversion: 0.6 -> 0.694 keeps hemisphere ambient night/day 0.219
+   clearColor: '#1c2740',
+   fogColorSrgb: [44, 54, 84] as const,
+   waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 4550960..b4ea501 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -67,7 +67,7 @@ const tests=[
+  ['lakeside-fallback','tools/lakeside/test_lakeside_fallback.cjs'],
+  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+- ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],
++ ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],
+ ];
+ const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
+ if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');
+diff --git a/tools/lakeside/test_lakeside_daynight.cjs b/tools/lakeside/test_lakeside_daynight.cjs
+index f8f5dde..704cb03 100644
+--- a/tools/lakeside/test_lakeside_daynight.cjs
++++ b/tools/lakeside/test_lakeside_daynight.cjs
+@@ -31,8 +31,8 @@ applyDayNight();
+ const camera={clearColor:new Color(51,51,51)};
+ const rgb=c=>[c.r,c.g,c.b],near=(a,b,eps=1e-6)=>Math.abs(a-b)<=eps*Math.max(1,Math.abs(b));
+ function expectLake(m,label){const M=D.lakesideModeLighting(m),isl=lightHome*DN.resolveDayNight(m,true).lightScale;
+- assert(near(light.illuminance,isl*M.sunIlluminanceScale),label+' illum '+light.illuminance);assert.deepEqual(rgb(light.color),D.linearToSrgb8(M.sunColorLinear),label+' sun colour');
+- assert.deepEqual(rgb(globals.ambient.skyLightingColor),D.linearToSrgb8(M.ambientSkyColorLinear),label+' ambient sky');assert.deepEqual(rgb(globals.ambient.groundLightingColor),D.linearToSrgb8(M.ambientGroundColorLinear),label+' ambient ground');
++ assert(near(light.illuminance,isl*M.sunIlluminanceScale),label+' illum '+light.illuminance);assert.deepEqual(rgb(light.color),D.lakesideCocosLightColor(M.sunColorLinear),label+' sun colour');
++ assert.deepEqual(rgb(globals.ambient.skyLightingColor),D.lakesideCocosLightColor(M.ambientSkyColorLinear),label+' ambient sky');assert.deepEqual(rgb(globals.ambient.groundLightingColor),D.lakesideCocosLightColor(M.ambientGroundColorLinear),label+' ambient ground');
+  assert(near(globals.ambient.skyIllum,isl*M.ambientSkyIllumToSun),label+' skyIllum');assert.deepEqual(rgb(camera.clearColor),rgb(new Color(M.clearColor)),label+' clear');
+  assert.deepEqual(rgb(globals.fog.fogColor),[...M.fogColorSrgb],label+' fog colour');assert.equal(globals.fog.type,3);assert.equal(globals.fog.enabled,true);}
+ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);assert(near(light.illuminance,lightHome*v.lightScale),label+' island illum '+light.illuminance);assert.deepEqual(rgb(light.color),[...v.lightColor],label+' island colour');
+@@ -40,7 +40,7 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
+  if(primed){assert.equal(globals.fog.enabled,true);assert(globals.fog.fogRange>=D.LAKESIDE_LAYERED_FOG.fogRange*999,label+' primed fog ~invisible');}else{assert.equal(globals.fog.enabled,false,label+' island fog off');assert.equal(globals.fog.type,0);}}
+ const run=(name,f)=>{f();console.log('PASS',name);};
+ const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
+-run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.linearToSrgb8(N.sunColorLinear),D.linearToSrgb8(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
++run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.LAKESIDE_CLEAR_COLOR);
+  assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
+ // journey 1: day -> lake -> night -> day -> night -> leave -> toggle back on the island
+ let J=Lt.lakesideJourneyAtmosphere(camera,()=>-0.58);J.prime();
+diff --git a/tools/lakeside/test_lakeside_dirlight.cjs b/tools/lakeside/test_lakeside_dirlight.cjs
+index 1e2d89c..1867319 100644
+--- a/tools/lakeside/test_lakeside_dirlight.cjs
++++ b/tools/lakeside/test_lakeside_dirlight.cjs
+@@ -7,11 +7,11 @@ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS,J=JSON.parse(fs.readFileSync(pat
+ const L=n=>J.lights.find(l=>l.name===n);
+ assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');
+ assert.deepEqual([...P.sunForward],L('Sun').forward,'main = json Sun direction');
+-// v3.4: Cocos takes light/ambient Color bytes/255 as linear -> the bytes the lease sends (linearToSrgb8(param)) must be r5h3 linear x 255
++// v3.4/r2: Cocos takes light/ambient Color bytes/255 as linear -> params are linear and the ONE conversion lakesideCocosLightColor gives r5h3 linear x 255
+ const R=D.LAKESIDE_R5H3_LIGHT_LINEAR,b8=c=>c.map(v=>Math.round(v*255));
+-assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),b8(R.sun),'Cocos sun = json Sun (linear)');
+-assert.deepEqual(D.linearToSrgb8(P.ambientSkyColorLinear),b8(R.ambientSky));assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),b8(R.ambientGround));
+-for(let i=0;i<101;i++){const x=i/100;assert.equal(D.linearToSrgb8(D.lakesideCocosLightColor([x,x,x]))[0],Math.round(x*255),'round trip '+x);}
++assert.deepEqual([...R.sun],L('Sun').colorLinear,'r5h3 = json Sun colour');assert.deepEqual([...P.sunColorLinear],[...R.sun],'param is linear');assert.deepEqual(D.lakesideCocosLightColor(P.sunColorLinear),b8(R.sun),'Cocos sun = json Sun (linear)');
++assert.deepEqual(D.lakesideCocosLightColor(R.ambientSky),b8(R.ambientSky));assert.deepEqual(D.lakesideCocosLightColor(R.ambientGround),b8(R.ambientGround));
++for(let i=0;i<101;i++){const x=i/100;assert.equal(D.lakesideCocosLightColor([x,x,x])[0],Math.round(x*255),'linear -> byte '+x);}
+ assert.equal(P.sunIlluminanceScale,0.5,'v3.4 sun 0.5 x base (emulator fit, device check)');
+ // v2: blue sky (r5h3 world ramp top stop), warm ground, bluer water, blue clear colour
+ const sky=R.ambientSky;assert.deepEqual([...sky],[0.0116,0.2747,0.4793]);assert(sky[2]>sky[1]&&sky[1]>sky[0],'sky is blue, not the dusk yellow');
+@@ -20,7 +20,7 @@ assert.equal(P.ambientSkyIllumToSun,0.2,'v3.4: 0.75 only compensated the sRGB-as
+ const wt=P.waterTintLinear;assert(wt[2]>=wt[1]&&wt[1]>wt[0]&&wt.every(c=>c>=0&&c<=1),'water tint cyan-blue, a valid Color');assert.deepEqual([...P.waterGlbs],['LK_lake.glb']);
+ assert.deepEqual([...P.clearColorLinear],[...sky],'clear colour = sky stop');assert.deepEqual(D.linearToSrgb8(P.clearColorLinear),[28,143,184]);
+ assert(!JSON.stringify(P).includes('0.212'),'Sun.001 (0.08) dropped, not folded');
+-assert.deepEqual(D.linearToSrgb8(P.sunColorLinear),[255,153,82]);
++assert.deepEqual(D.lakesideCocosLightColor(P.sunColorLinear),[255,153,82]);
+ const bg=fs.readFileSync(path.join(A,'scripts/region/LakesideBoardBackground.ts'),'utf8');
+ assert(/if\(LAKESIDE_LIGHT_MODE==='points'\)for\(const l of LAKESIDE_LIGHTS\)/.test(bg),'SphereLights only in points mode');
+ assert(/getChildByName\('Main Light'\)/.test(bg)&&!/addComponent\(DirectionalLight\)/.test(bg),'reuses the scene main light, never adds one');
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index 0384e31..73cef74 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -15,7 +15,7 @@ const P0=D.LAKESIDE_DIR_LIGHT_PARAMS;
+ for(const [label,base] of [['day',{illum:65000,color:[255,244,214],sky:[200,220,255],ground:[120,110,90],skyIllum:20000,clear:[51,51,51]}],['night',{illum:9000,color:[150,170,255],sky:[40,50,90],ground:[20,20,30],skyIllum:3000,clear:[51,51,51]}]]){
+  const t=A.lakesideAtmosphereTarget(base),f1=A.lakesideAtmosphereAt(base,W(T),'layered',j.root[1]);
+  assert.equal(f1.illum,base.illum*P0.sunIlluminanceScale);assert.equal(f1.skyIllum,base.illum*P0.ambientSkyIllumToSun,'board: skyIllum = base illum × ambientSkyIllumToSun');
+- assert.deepEqual([...f1.color],D.linearToSrgb8(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.linearToSrgb8(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.linearToSrgb8(P0.ambientGroundColorLinear));
++ assert.deepEqual([...f1.color],D.lakesideCocosLightColor(P0.sunColorLinear));assert.deepEqual([...f1.sky],D.lakesideCocosLightColor(P0.ambientSkyColorLinear));assert.deepEqual([...f1.ground],D.lakesideCocosLightColor(P0.ambientGroundColorLinear));
+  assert.deepEqual([...f1.clear],[0xf2,0xb9,0x8a],'clear = LAKESIDE_CLEAR_COLOR');
+  assert.equal(f1.fog.type,3);assert.equal(f1.fog.range,D.LAKESIDE_LAYERED_FOG.fogRange);assert.equal(f1.fog.atten,D.LAKESIDE_LAYERED_FOG.fogAtten);
+  const f0=A.lakesideAtmosphereAt(base,0,'layered');assert.equal(f0.illum,base.illum);assert.deepEqual([...f0.color],base.color);assert(f0.fog.range>=D.LAKESIDE_LAYERED_FOG.fogRange*999,'primed fog ≈ invisible');
+diff --git a/tools/lakeside/test_lakeside_light_encoding.cjs b/tools/lakeside/test_lakeside_light_encoding.cjs
+new file mode 100644
+index 0000000..9323eab
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_light_encoding.cjs
+@@ -0,0 +1,42 @@
++// r2 (Voice Bot): lakeside light colours are converted EXACTLY ONCE. Cocos 3.8.8 reads DirectionalLight.color, Ambient sky/ground
++// colours and the legacy-standard albedo (mainColor) as Color bytes/255 = LINEAR. So: params are linear (<= 1), the light call sites
++// (board applyDir, journey end values = lakesideAtmosphereTarget, day AND night) and the water fallback tint use lakesideCocosLightColor
++// (round(lin x 255)) and never linearToSrgb8; clear colour and fog stay sRGB. Journey end (w = 1) == board bytes in both modes.
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++const cache=new Map(),cc={};
++function load(file){file=path.resolve(file);if(cache.has(file))return cache.get(file).exports;const m={exports:{}};cache.set(file,m);
++ const out=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:1,target:7}}).outputText;
++ const req=spec=>spec==='cc'?cc:load(path.resolve(path.dirname(file),spec)+'.ts');
++ vm.runInThisContext('(function(exports,require,module){'+out+'\n})')(m.exports,req,m);return m.exports;}
++const D=load(S+'region/LakesideSceneData.ts'),A=load(S+'region/LakesideJourneyAtmosphere.ts');
++const b8=c=>[...c].map(v=>Math.round(v*255)),lum=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
++// 1) contract: linear -> byte, once
++for(let i=0;i<=255;i++){const x=i/255;assert.deepEqual(D.lakesideCocosLightColor([x,x,x]),[i,i,i],'byte '+i);}
++assert.deepEqual(D.lakesideCocosLightColor([-1,2,NaN]),[0,255,0],'clamped, finite');
++// 2) every light colour param (day + night) is authored linear (a pre-encoded or byte value would show up here)
++const COLS=['sunColorLinear','ambientSkyColorLinear','ambientGroundColorLinear'];
++for(const mode of ['day','night']){const M=D.lakesideModeLighting(mode);for(const k of COLS){const c=M[k];assert.equal(c.length,3);assert(c.every(v=>Number.isFinite(v)&&v>=0&&v<=1),mode+' '+k+' linear 0..1');}}
++assert.deepEqual([...D.lakesideModeLighting('day').sunColorLinear],[...D.LAKESIDE_R5H3_LIGHT_LINEAR.sun],'day sun = r5h3 linear, not pre-encoded');
++// 3) journey end values (w = 1) == the bytes the board writes == round(lin x 255), day and night; clear stays the sRGB hex
++const base={illum:60000,color:[255,244,214],sky:[200,220,255],ground:[120,110,90],skyIllum:20000,clear:[51,51,51]};
++for(const mode of ['day','night']){const M=D.lakesideModeLighting(mode),f=A.lakesideAtmosphereAt(base,1,'layered',0,mode);
++ assert.deepEqual([...f.color],b8(M.sunColorLinear),mode+' journey end sun');assert.deepEqual([...f.sky],b8(M.ambientSkyColorLinear),mode+' journey end sky');
++ assert.deepEqual([...f.ground],b8(M.ambientGroundColorLinear),mode+' journey end ground');assert.deepEqual([...f.clear],A.hexRgb(M.clearColor),mode+' clear colour untouched (sRGB)');
++ assert.deepEqual([...f.fog.color],[...M.fogColorSrgb],mode+' fog colour untouched (sRGB)');}
++// 4) sources: the light call sites convert with lakesideCocosLightColor only, never linearToSrgb8 (and never twice)
++const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),at=fs.readFileSync(S+'region/LakesideJourneyAtmosphere.ts','utf8');
++assert(/c=lakesideCocosLightColor\(M\.sunColorLinear\),sk=lakesideCocosLightColor\(M\.ambientSkyColorLinear\),gr=lakesideCocosLightColor\(M\.ambientGroundColorLinear\)/.test(bg),'board applyDir');
++assert(/color:lakesideCocosLightColor\(M\.sunColorLinear\),sky:lakesideCocosLightColor\(M\.ambientSkyColorLinear\),ground:lakesideCocosLightColor\(M\.ambientGroundColorLinear\)/.test(at),'journey targets');
++assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg),'water fallback mainColor (linear uniform)');
++for(const [n,src] of [['board',bg],['journey',at]]){
++ assert(!/linearToSrgb8\(\s*[MP]\.(sun|ambient|waterTint)/.test(src),n+': no sRGB encode on a light colour');
++ assert(!/(linearToSrgb8|lakesideCocosLightColor)\(\s*(linearToSrgb8|lakesideCocosLightColor)\(/.test(src),n+': no stacked conversion');}
++assert(!/linearToSrgb8/.test(at),'journey atmosphere has no sRGB-encoded light path left');
++const sd=fs.readFileSync(S+'region/LakesideSceneData.ts','utf8');assert(!/ColorLinear:\s*lakesideCocosLightColor\(/.test(sd),'params are not pre-encoded');
++// 5) night keeps the r2 night/day balance (luminance, per term) from before the fix: moon/sun 0.857, hemisphere ambient 0.219
++const Dy=D.lakesideModeLighting('day'),N=D.lakesideModeLighting('night'),hemi=M=>0.5*(lum(M.ambientSkyColorLinear)+lum(M.ambientGroundColorLinear));
++const sunR=lum(N.sunColorLinear)*N.sunIlluminanceScale/(lum(Dy.sunColorLinear)*Dy.sunIlluminanceScale),ambR=hemi(N)*N.ambientSkyIllumToSun/(hemi(Dy)*Dy.ambientSkyIllumToSun);
++assert(Math.abs(sunR-0.857)<0.01,'night/day main light '+sunR.toFixed(3));assert(Math.abs(ambR-0.219)<0.01,'night/day ambient '+ambR.toFixed(3));
++console.log('lakeside light encoding OK (sun night/day %s, ambient %s)',sunR.toFixed(3),ambR.toFixed(3));
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index b345fad..5f65dbf 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -5,7 +5,7 @@ const A=path.join(__dirname,'../../creator-build-project/assets'),W=path.join(A,
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(path.join(A,'scripts/region/LakesideSceneData.ts'),'utf8'),{compilerOptions:{module:1,target:6}}).outputText)(m,m.exports,require);
+ const D=m.exports,P=D.LAKESIDE_DIR_LIGHT_PARAMS;
+ // Voice Bot verified values
+-assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.linearToSrgb8(P.ambientGroundColorLinear),[255,139,37],"v3.4 Cocos bytes = linear x 255");
++assert.deepEqual([...D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround],[1.0,0.5457,0.1441]);assert.deepEqual(D.lakesideCocosLightColor(D.LAKESIDE_R5H3_LIGHT_LINEAR.ambientGround),[255,139,37],"v3.4 Cocos bytes = linear x 255");
+ assert.equal(P.waterFresnelF0,0.02);assert.equal(P.waterFresnelPower,5);
+ assert.deepEqual([...P.waterSkyZenithLinear],[0.0116,0.2747,0.4793]);assert.deepEqual([...P.waterSkyLowLinear],[0.9216,0.5776,0.2705]);assert.deepEqual([...P.waterSkyHorizonLinear],[1.0,0.5457,0.1441]);
+ assert(P.waterSpecExponent>=200&&P.waterSpecExponent<=500&&P.waterSpecNoise===0,'v3.3: streak noise off (its x-striped sin made moving bands)');
+@@ -44,7 +44,7 @@ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTAN
+ assert.equal(P.waterSkyReflectFloor,0.3);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.3\]/.test(fx));
+ assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
+ assert(/P\.waterSpecNoise,P\.waterSkyReflectFloor\)/.test(bg));
+-assert(/wc=linearToSrgb8\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.linearToSrgb8(P.waterTintLinear),[243,255,255],'fallback mainColor ~white');
++assert(/wc=lakesideCocosLightColor\(P\.waterTintLinear\)/.test(bg));assert.deepEqual(D.lakesideCocosLightColor(P.waterTintLinear),[230,255,255],'r2: fallback mainColor (legacy albedo uniform, linear) = tint x 255, was sRGB 243/255/255');
+ // fog modes + URL override (guarded for WeChat)
+ assert.equal(D.LAKESIDE_FOG_MODE,'layered');
+ assert.equal(D.lakesideFogMode('?lakefog=off'),'off');assert.equal(D.lakesideFogMode('?a=1&lakefog=linear60'),'linear60');assert.equal(D.lakesideFogMode('?lakefog=layered'),'layered');
+-- 
+2.47.3
+

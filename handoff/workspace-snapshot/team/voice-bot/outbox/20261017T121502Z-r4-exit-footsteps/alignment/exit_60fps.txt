@@ -1,0 +1,26 @@
+{"fps":60,"plants":25,"steps":25,"matched":25,"missing":0,"extra":0,"surfaceMismatch":0,"errMinMs":-24.68568403401772,"errMaxMs":-10.169261282996445,"errMeanMs":-17.35677692458671,"untrimmedWithin40":25,"errMaxAbsUntrimmedMs":14.887428059407185}
+2.531	foot.L	turning-out	walk_turn_90_bodyL	wood	2.517	walk_turn_90_bodyL	wood	-14.1	ok	
+3.315	foot.L	walking-out	walk_start	wood	3.300	walk_start	wood	-14.8	ok	
+4.102	foot.R	walking-out	walk_start	rug	4.083	walk_start	rug	-18.8	ok	
+4.704	foot.L	walking-out	walk_loop	rug	4.683	walk_loop	rug	-20.4	ok	
+5.233	foot.R	walking-out	walk_loop	rug	5.217	walk_loop	rug	-16.6	ok	
+5.789	foot.L	walking-out	walk_loop	wood	5.767	walk_loop	wood	-22.5	ok	
+6.319	foot.R	walking-out	walk_loop	wood	6.300	walk_loop	wood	-19.2	ok	
+6.875	foot.L	walking-out	walk_loop	wood	6.850	walk_loop	wood	-24.7	ok	
+7.483	foot.R	walking-out	walk_loop	wood	7.467	walk_loop	wood	-16.0	ok	
+8.248	foot.L	walking-out	walk_stop_bodyL	wood	8.233	walk_stop_bodyL	wood	-14.8	ok	
+8.650	foot.R	walking-out	walk_stop_bodyL	wood	8.633	walk_stop_bodyL	wood	-16.3	ok	
+11.315	foot.L	crossing-out	walk_start	stone	11.300	walk_start	stone	-14.8	ok	
+12.102	foot.R	crossing-out	walk_start	stone	12.083	walk_start	stone	-18.8	ok	
+12.704	foot.L	crossing-out	walk_loop	path	12.683	walk_loop	path	-21.0	ok	
+13.248	foot.R	crossing-out	walk_loop	path	13.233	walk_loop	path	-14.9	ok	
+13.833	foot.L	crossing-out	walk_loop	path	13.817	walk_loop	path	-15.9	ok	
+14.397	foot.R	crossing-out	walk_loop	grass	14.383	walk_loop	grass	-13.9	ok	
+14.990	foot.L	crossing-out	walk_loop	grass	14.967	walk_loop	grass	-23.5	ok	
+15.555	foot.R	crossing-out	walk_loop	grass	15.533	walk_loop	grass	-21.7	ok	
+16.147	foot.L	crossing-out	walk_loop	grass	16.133	walk_loop	grass	-13.9	ok	
+16.712	foot.R	crossing-out	walk_loop	grass	16.700	walk_loop	grass	-12.3	ok	
+17.305	foot.L	crossing-out	walk_loop	grass	17.283	walk_loop	grass	-21.3	ok	
+17.952	foot.R	crossing-out	walk_loop	path	17.933	walk_loop	path	-18.6	ok	
+18.832	foot.L	crossing-out	walk_stop_bodyL	path	18.817	walk_stop_bodyL	path	-14.9	ok	
+19.294	foot.R	crossing-out	walk_stop_bodyL	path	19.283	walk_stop_bodyL	path	-10.2	ok	

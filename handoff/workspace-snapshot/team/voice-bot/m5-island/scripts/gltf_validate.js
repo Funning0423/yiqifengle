@@ -1,0 +1,2 @@
+const v=require('/workspace/e4/tools/asar-x/node_modules/gltf-validator');const fs=require('fs');
+const f=process.argv[2];v.validateBytes(new Uint8Array(fs.readFileSync(f))).then(r=>{console.log(JSON.stringify({file:f,validator:r.validatorVersion,errors:r.issues.numErrors,warnings:r.issues.numWarnings,infos:r.issues.numInfos,hints:r.issues.numHints,messages:r.issues.messages.slice(0,30)},null,1))}).catch(e=>{console.error(e);process.exit(2)});

@@ -1,0 +1,303 @@
+could not get a list of mounted file-systems
+INFO Draco mesh compression is available, use library at /opt/blender-4.5.14-linux-x64/4.5/scripts/addons_core/io_scene_gltf2/libextern_draco.so
+23:12:17 | INFO: Starting glTF 2.0 export
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:17 | INFO: Extracting primitive: env_int_anim_cat
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_int_anim_hanging_plants
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_int_anim_window_breeze
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_int_anim_small_props
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_int_anim_ship_mobile
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_prop_palm_tall_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+23:12:17 | INFO: Extracting primitive: env_prop_palm_lean_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_prop_palm_young_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_seagull_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_crab_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_cat_tuxedo_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_turtle_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_crab_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_crab_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_hermit_crab_01
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_fx_chimney_smoke
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_gull_fly_a
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_gull_fly_b
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_anim_gull_fly_c
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_beach_details_merged
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_beach_tidepool_water
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_beach_wet_sand
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_cloud_layer
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_fx_lighthouse_beam_night
+23:12:17 | WARNING: We are not managing this case for now (Vertex Color alpha without color)
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_interior_glass.001
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_interior_props_merged
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_interior_shell
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_island_main
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_island_props_merged
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_lighthouse_door
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_lighthouse_door_leaf
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_lighthouse_ext
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_night_moon
+23:12:17 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_night_stars
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_sea_foam
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_sea_surface
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_sea_foam.001
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_sea_foam.002
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_sky_dome
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: env_window_blind_cards
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_ceiling
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_chair_armrest_l
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_chair_armrest_r
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_chair_back
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_chair_seat
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_desk
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_door_frame
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_props_misc
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_side_table
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_stairs
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_stool
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_walls
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: col_int_floor_walkable
+23:12:17 | INFO: Primitives created: 1
+23:12:17 | INFO: Extracting primitive: ref_girl_height_placeholder_1p626m
+23:12:17 | INFO: Primitives created: 1
+23:12:23 | INFO: Finished glTF 2.0 export in 6.666865348815918 s
+
+Info: Saved as "env_scene_island_v2_2b_candidate.blend"
+23:12:23 | INFO: Starting glTF 2.0 export
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | WARNING: Armature must be the parent of skinned meshArmature is selected by its name, but may be false in case of instances
+23:12:23 | INFO: Extracting primitive: env_int_anim_cat
+23:12:23 | INFO: Primitives created: 1
+23:12:23 | INFO: Extracting primitive: env_int_anim_hanging_plants
+23:12:23 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_int_anim_window_breeze
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_int_anim_small_props
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_int_anim_ship_mobile
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_prop_palm_tall_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+23:12:24 | INFO: Extracting primitive: env_prop_palm_lean_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_prop_palm_young_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_seagull_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_crab_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_cat_tuxedo_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_turtle_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_crab_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_crab_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_hermit_crab_01
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_fx_chimney_smoke
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_gull_fly_a
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_gull_fly_b
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_anim_gull_fly_c
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_beach_details_merged
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_beach_tidepool_water
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_beach_wet_sand
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_cloud_layer
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_fx_lighthouse_beam_night
+23:12:24 | WARNING: We are not managing this case for now (Vertex Color alpha without color)
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_interior_glass.001
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_interior_props_merged
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_interior_shell
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_island_main
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_island_props_merged
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_lighthouse_door
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_lighthouse_door_leaf
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_lighthouse_ext
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_night_moon
+23:12:24 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_night_stars
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_sea_foam
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_sea_surface
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_sea_foam.001
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_sea_foam.002
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_sky_dome
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: env_window_blind_cards
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_ceiling
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_chair_armrest_l
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_chair_armrest_r
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_chair_back
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_chair_seat
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_desk
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_door_frame
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_props_misc
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_side_table
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_stairs
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_stool
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_walls
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: col_int_floor_walkable
+23:12:24 | INFO: Primitives created: 1
+23:12:24 | INFO: Extracting primitive: ref_girl_height_placeholder_1p626m
+23:12:24 | INFO: Primitives created: 1
+23:12:30 | INFO: Finished glTF 2.0 export in 6.736417293548584 s
+
+23:12:30 | INFO: Data are loaded, start creating Blender stuff
+23:12:30 | INFO: Blender create Mesh node col_ext_tower_wall
+23:12:30 | INFO: Blender create Mesh node col_ext_cottage
+23:12:30 | INFO: Blender create Mesh node col_ext_trees
+23:12:30 | INFO: Blender create Mesh node col_ext_rocks
+23:12:30 | INFO: Blender create Mesh node col_ext_props_misc
+23:12:30 | INFO: Blender create Mesh node col_ext_ground_walkable
+23:12:30 | INFO: Blender create Mesh node col_ext_shore_barrier
+23:12:30 | INFO: glTF import finished in 0.01s
+23:12:30 | INFO: Starting glTF 2.0 export
+23:12:30 | INFO: Extracting primitive: col_ext_tower_wall
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_cottage
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_trees
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_rocks
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_props_misc
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_ground_walkable
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Extracting primitive: col_ext_shore_barrier
+23:12:30 | INFO: Primitives created: 1
+23:12:30 | INFO: Finished glTF 2.0 export in 0.013570070266723633 s
+
+BUILD_V2_2B_CANDIDATE_OK {
+ "control_reexport": {
+  "sha256": "8361db8e01ef8be30129a83da2050b43cfc8b2ee9e00ee4bc926c0f8484ee376",
+  "byte_identical_to_v2_2a_glb": true,
+  "size": 6503180,
+  "v2_2a_size": 6503180
+ },
+ "candidate_glb_sha256": "5ab038aedc97449f66266d3a9dc4ea290fd4c3fcdbf811722c94846652ec2250"
+}
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-09-15 01:31:19)
+Read blend: "/workspace/wechat-game/team/voice-bot/m5-island/candidate/scene/env_scene_island_v2_2b_candidate.blend"
+Read blend: "/workspace/wechat-game/team/voice-bot/m5-island/candidate/scene/env_scene_island_v2_2b_candidate.blend"
+
+Blender quit

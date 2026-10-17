@@ -1,0 +1,26 @@
+# SHA256 for 20261009T2331Z-voicebot-AUDIO-0005c-GAMEAUDIO-v0.3.2.zip and its inner files (Voice Bot, AUDIO-0005c, GameAudio v0.3.2)
+# zip:
+b660a45cf74c42ef0f22dd099a5cc5e10036c8ad2b1c668c77a6ccaa434cec79  20261009T2331Z-voicebot-AUDIO-0005c-GAMEAUDIO-v0.3.2.zip
+# inner files (paths inside zip):
+ab753a2a02b55682f5a3694a26d735b024cba6e1348e63a7ef1049fd51835a34  GameAudio-v0.3.2-vs-OiR6.diff
+cbaad6721395e8088db945598a0d5d8ac2674f21828ebb21a6a1a0c42d07fd09  GameAudio-v0.3.2-vs-v0.3.1.diff
+cc39d4590b17938a0c0746abde3d5a2ffa9ad0b65c113b40838f220ea8bc0ea8  GameAudio.ts
+de4dcd1a5501ae9dccafdbdbe45677e1bce0aef064afea7435fd9dd4ecd6f27c  README.md
+66ad5ed025404854bdc44704e85ce00aa5849a8bb3f258389e51824ed9c8f81a  review/audio-review-results-v0.3.1.json
+68196ddb10fd5c7c423f1537fb84debdc65a9dd50a5735f6e07e178743ea233e  review/audio-review-results-v0.3.2.json
+d49c429cfa559d14a9819afa40f1a9095668eca65be9a518a99bfd21663f54f3  review/bridge-review-results.json
+2658253c9e5e6b6179d969633b50f7f83a066527e1216305bec85f94e48b7ff0  review/run_review.cjs
+b7fb2e3321a34955732262b5544279cd16da4341c7eedcb5da4aec205fe26720  review/test_audio_review.cjs
+b36255c2186182d6976f291d80533496e098eda186aabb3ecabb09982b09279b  review/test_bridge_review.cjs
+b45008eda9861d75a3e4745c6df4143a4cc364678b67b9e4d795819af6489479  test/AudioBridge_0005.ts
+ea3b2f6a92ef85b08dcde65a087757629ea890df4e3c4c4d81f390e581a49645  test/AudioBridge_R6.ts
+8ba181e0418efadff0f1911263cc4d9f4944aaa688b41405a350bc6bda9bb34f  test/ManagedMobileBoardUI.ts
+cdefcc47c89a1ad8682f2db14638ad64ec9eac1b506dac15b52a459be54d8986  test/RESULT-v0.3.2.txt
+3494fe55fd8cf8854b6398478afeb8717a207985b1053ebbf98e31e2196055f6  test/cc.d.ts
+2aa20a917e86ea9fff58d8543f1935321e512e8e7dc798ce18e79bff0adb18fe  test/mock-cc.cjs
+92c41b8ea17a960ecb733a8b4de9a85bc499af952036159de6eab9376c3d4738  test/test_gameaudio_v03.cjs
+1fb7b16ad2e9700f02be71c501980f0a9a8be533f72d2dcde9dcd11fffee590b  test/tsconfig.json
+# bases (not in zip):
+# 7f6b580822dae4986f3217ecd70af34ad3b19153e2ffd6e8d3120e37bba3d377  GameAudio.ts v0.3.1 (0005b candidate)
+# a2f40503278f6237c325aabb7816372da37db718b9caacec18b51a830ef7272e  GameAudio.ts Oi R6
+# e20ff1da689696cd0c92e854ef7eb04f8d84d56ed481c8ad20cbcfbba51d3a75  AudioBridge.ts Oi R6 (unchanged)

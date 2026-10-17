@@ -1,0 +1,271 @@
+From 2d71e7600fbd5a51cbbc1434b2cdeb2e333baf43 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:01:13 +0800
+Subject: [PATCH 07/15] =?UTF-8?q?r4-prep=20A:=20preload=20the=20=E9=A3=8E?=
+ =?UTF-8?q?=E9=93=83=E6=B9=96=E7=95=94=20board=20during=20the=20arrival/la?=
+ =?UTF-8?q?nding;=20the=20swap=20frame=20only=20turns=20its=20camera=20on?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From blend weight 0.9 (and the landing hook's preload, not awaited) one board lease is built under a hidden
+holder: 24 instances per frame, board layer + camera off first, then components enabled 24 per frame. The board
+entry adopts it (entry token owns it, her copy is taken on adopt); the rig stays active and the camera turns on
+only when visible and the board host is shown (reveal). Lighting writes unchanged. Unadopted preload is
+cancelled/disposed with the journey; no preload or a failed one -> the normal build. Test:
+tools/lakeside/test_lakeside_board_preload.cjs (lakeside-board-preload).
+---
+ .../scripts/region/LakesideBoardBackground.ts | 60 +++++++++++++++----
+ .../scripts/region/RegionJourneyAdapter.ts    | 11 +++-
+ .../world-r2/WorldNativeComposition.ts        |  4 +-
+ tools/journey-integration/run-suite.cjs       |  1 +
+ tools/lakeside/test_lakeside_board_guest.cjs  |  2 +-
+ .../lakeside/test_lakeside_board_preload.cjs  | 27 +++++++++
+ 6 files changed, 87 insertions(+), 18 deletions(-)
+ create mode 100644 tools/lakeside/test_lakeside_board_preload.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 0c4024a..f24af7e 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -3,8 +3,8 @@ import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppend
+ import {waitRegionAsset} from './RegionAssetDeadline';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+-import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
+-import type {Cancellation} from '../world-r1/WorldFlowCore';
++import type {LevelBackgroundFactory,LevelBackgroundLease} from '../world-r2/LevelBackground';
++import {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+@@ -130,14 +130,15 @@ export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends
+ export function useLakesideWater(root:Node,water:Material):number{let n=0;
+  for(const child of root.children)if(isLakesideWaterNode(child))for(const r of child.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;for(let k=0;k<mats.length;k++)if(mats[k]){r.setSharedMaterial(water,k);n++;}}
+  return n;}
+-export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<number>{
++export async function mountLakesideScenery(scenery:Node,token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T,yieldFrame?:()=>Promise<void>):Promise<number>{
+  const t=token,bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),t);token.check();
+  const json=take(await waitRegionAsset(loadJson(bundle,LAKESIDE_TRANSFORMS),t));token.check();
+  const prefabs=await waitRegionAsset(loadPrefabs(bundle),t,30000);token.check();for(const p of prefabs)take(p);
+  if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');
+  const list=lakesideSceneInstances(((json.json as any)?.instances||[]) as LakesideInstance[]),byName=new Map(prefabs.map(p=>[p.name,p]));
+  const missing=Array.from(new Set(list.map(i=>lakesidePrefabName(i.glb)).filter(n=>!byName.has(n))));if(missing.length)throw Error('lakeside-prefab-missing: '+missing.join(','));
+- let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;}
++ let n=0;for(const i of list){const node=instantiate(byName.get(lakesidePrefabName(i.glb))!);node.name=i.name;lakesideGlbOf.set(node,i.glb);node.setPosition(i.pos[0],i.pos[1],i.pos[2]);node.setRotation(i.rot_quat_xyzw[0],i.rot_quat_xyzw[1],i.rot_quat_xyzw[2],i.rot_quat_xyzw[3]);node.setScale(i.scale[0],i.scale[1],i.scale[2]);scenery.addChild(node);n++;
++  /* r4-prep A: the board preload instantiates a batch per frame (the journey copy keeps one pass under the set-off black) */if(yieldFrame&&n%LAKESIDE_PRELOAD_BATCH===0){await yieldFrame();token.check();if(!isValid(scenery,true))throw Error('lakeside-scene-owner-destroyed');}}
+  for(const c of scenery.getComponentsInChildren(Camera))c.enabled=false;
+  for(const a of scenery.getComponentsInChildren(Animation)){a.playOnLoad=false;a.enabled=false;}
+  return n;
+@@ -167,7 +168,12 @@ export function releaseLakesidePrewarm(){const st=prewarm;prewarm=null;if(!st)re
+ export const LAKESIDE_LOAD_FAILED='lakeside-scene-load-failed';
+ /** Always-on error line (not gated by __worldFlowLog: a missing lake must be visible in any device log). Never throws. */
+ export function logLakesideFailure(step:string,stageId:string,error:unknown){try{console.error('[QF_LAKESIDE] '+JSON.stringify({event:'load-failed',stageId,step,error:String((error as any)?.message??error)}));}catch{}}
+-export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,selection,token})=>{
++/** r4-prep A (lead): the board is preloaded during the landing so the swap frame only turns its camera on. */
++export const LAKESIDE_PRELOAD_BATCH=24;
++type LakesideBoardLease=LevelBackgroundLease&{adopt(parent:Node,token:Cancellation):void};
++type LakesidePreloadMode={yieldFrame:()=>Promise<void>};
++const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;selection:any;token:Cancellation},pre:LakesidePreloadMode|null=null):Promise<LakesideBoardLease>=>{
++ let token=buildToken,host:Node=parent,scenery:Node|null=null;
+  let merged:MergeOut|null=null,guest:LakesideGuest|null=null;
+  let step='start',rig:Node|null=null,camera:Camera|null=null,visible=false,paused=true,dead=false,off=()=>{},instances=0,waterTinted=0,waterShaded=0,instanced:Material[]=[];
+  const held:Array<{decRef():unknown}>=[];
+@@ -205,16 +211,16 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   try{if(!reapplyLakesideJourney()&&s0.mode!==lakesideDayNightMode())(globalThis as any).__worldDayNight?.reapply?.();}catch{}};
+  /** r2: day/night toggle while the board shows -> the lakeside look for the new mode (the world has just written the island's). */
+  const offDayNight=onDayNightChange(()=>{if(visible&&!dead)applyDir();});
+- const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
++ const dispose=()=>{if(dead)return;restoreDir();dead=true;off();offDayNight();if(guest){guest.dispose();guest=null;}if(pre&&isValid(parent,true))parent.destroy()/* preload holder */;if(camera&&isValid(camera,true))camera.enabled=false;if(rig&&isValid(rig,true)){rig.active=false;rig.destroy();}rig=null;camera=null;for(const m of instanced.splice(0))m.destroy();if(merged){for(const m of merged.meshes.splice(0))m.destroy();merged=null;}for(const a of held.splice(0))a.decRef();};
+  off=token.onCancel(dispose);
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('lakeside-background-disposed');a.addRef();held.push(a);return a;};
+  try{
+   step='owner';token.check();const scene=director.getScene();if(!scene||!isValid(parent,true))throw Error('lakeside-background-owner-missing');
+   if(scene.getComponentsInChildren(Camera).some(c=>c.enabled&&(c.visibility&LAKESIDE_LAYER)!==0))throw Error('lakeside-background-layer-conflict');
+   rig=new Node(LAKESIDE_NODES.rig);rig.active=false;rig.layer=LAKESIDE_LAYER;parent.addChild(rig);
+-  const scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
++  scenery=new Node(LAKESIDE_NODES.scenery);rig.addChild(scenery);
+   // Voice Bot 4728814: the shared mountLakesideScenery (bundle, transforms, prefabs, Array.from missing-check, instantiate) also feeds the journey.
+-  step='scenery';instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
++  step='scenery';if(pre)instances=await mountLakesideScenery(scenery,token,take,pre.yieldFrame);else instances=await mountLakesideScenery(scenery,token,take);if(!isValid(scene,true))throw Error('lakeside-background-owner-destroyed');
+   step='water-material';const bundle=await waitRegionAsset(loadBundle(LAKESIDE_BUNDLE),token);token.check();
+   const waterAsset=LAKESIDE_LIGHT_MODE==='dir'?await waitRegionAsset(loadMaterial(bundle,LAKESIDE_DIR_LIGHT_PARAMS.waterMaterialPath),token):null;token.check();if(waterAsset)take(waterAsset);
+   const list=lakesideSceneInstances((((bundle.get(LAKESIDE_TRANSFORMS,JsonAsset) as JsonAsset|null)?.json as any)?.instances||[]) as LakesideInstance[]);
+@@ -230,7 +236,8 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+    waterTinted=tinted.size;}
+   step='static-merge';if(lakesideStaticMergeFromEnv()){const water=new Set(list.filter(i=>(LAKESIDE_DIR_LIGHT_PARAMS.waterGlbs as readonly string[]).includes(i.glb)).map(i=>i.name));merged=mergeLakesideStatic(scenery,n=>water.has(n.name));}
+   setLayer(scenery);
+-  step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);/* r4-prep B: she stays in frame after landing (frozen copy at her landed spot) */
++  /* r4-prep B: she stays in frame after landing (frozen copy at her landed spot). A preloaded lease takes her copy on adopt (after the landing hook). */
++  if(!pre){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}
+   step='lights-camera';
+   const lights=new Node(LAKESIDE_NODES.lights);lights.layer=LAKESIDE_LAYER;rig.addChild(lights);
+   if(LAKESIDE_LIGHT_MODE==='points')for(const l of LAKESIDE_LIGHTS){if(l.onlyLayer)continue;const n=new Node('Lakeside_'+l.name);n.layer=LAKESIDE_LAYER;lights.addChild(n);const p=lakesideLightPosition(l);n.setPosition(p[0],p[1],p[2]);
+@@ -239,11 +246,17 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   camera.projection=Camera.ProjectionType.PERSPECTIVE;camera.fovAxis=Camera.FOVAxis.VERTICAL;camera.near=LAKESIDE_BOARD_CAMERA.near;camera.far=LAKESIDE_BOARD_CAMERA.far;camera.visibility=LAKESIDE_LAYER;
+   releaseLakesidePrewarm();
+   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=new Color(lakesideDayClearColor())/* same helper as the day pack + journey day end */;camera.enabled=false;
++  // r4-prep A: preloaded → the scene's components load/enable now, a batch of instances per frame, on the board layer with the camera
++  // off (nothing draws it). The rig then stays active under the preload holder; only the camera follows "visible and the board host shown".
++  if(pre){step='preload-activate';const kids=scenery.children.slice();for(const k of kids)k.active=false;rig.active=true;
++   for(let i=0;i<kids.length;i++){if(isValid(kids[i],true))kids[i].active=true;if((i+1)%LAKESIDE_PRELOAD_BATCH===0){await pre.yieldFrame();token.check();}}}
++  const showCamera=()=>{if(!camera||!isValid(camera,true))return;camera.enabled=visible&&(!pre||(isValid(host,true)&&host.activeInHierarchy));};
+   return {
+-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+-   setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
++   adopt:(owner,next)=>{if(dead)return;host=owner;off();token=next;off=next.onCancel(dispose);if(!guest&&scenery&&isValid(scenery,true)){step='guest';guest=mountLakesideGuest(scenery,LAKESIDE_LAYER);}showCamera();},
++   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();showCamera();},
++   setVisible:value=>{if(dead)return;visible=value;if(!pre)rig!.active=value;if(pre)showCamera();else camera!.enabled=value;if(value)applyDir();else restoreDir();},
+    setPaused:value=>{if(dead)return;paused=value;},
+-   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0}),
++   diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0,staticMerge:merged?merged.stats:null,guest:guest?guest.renderers:0,preloaded:!!pre,cameraOn:!!camera&&camera.enabled}),
+    dispose,
+   };
+  }catch(error){dispose();
+@@ -251,3 +264,26 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
+   // WorldFlow keeps the player on the island (operate() restores the stable place).
+   if(token.cancelled)throw error;logLakesideFailure(step,String(selection?.stageId??''),error);throw Error(LAKESIDE_LOAD_FAILED);}
+ };
++/** r4-prep A: one preloaded board lease (journey arrival / landing hook); the next lakeside board entry adopts it. */
++type LakesideBoardPreload={token:Cancellation;holder:Node;promise:Promise<LakesideBoardLease|null>;adopted:boolean};
++let boardPreload:LakesideBoardPreload|null=null;
++const nextFrame=()=>new Promise<void>(resolve=>{let done=false;const go=()=>{if(done)return;done=true;resolve();};try{director.once('director_after_draw' as any,go);}catch{}setTimeout(go,50)/* paused game: never stall */;});
++/** Starts building the 风铃湖畔 board lease now (idempotent): a batch of instances per frame under a hidden holder, camera off. Never rejects. */
++export function preloadLakesideBoard():Promise<unknown>{
++ if(boardPreload)return boardPreload.promise;const scene=director.getScene();if(!scene)return Promise.resolve(null);
++ const holder=new Node('LakesideBoardPreload');scene.addChild(holder);
++ const st:LakesideBoardPreload={token:new Cancellation(),holder,promise:Promise.resolve(null),adopted:false};boardPreload=st;const t0=Date.now();
++ st.promise=buildLakesideBoard({parent:holder,selection:{stageId:'lakeside-preload'},token:st.token},{yieldFrame:nextFrame}).then(lease=>{
++   try{if((globalThis as any).__worldFlowLog)console.info('[QF_LAKESIDE] '+JSON.stringify({event:'board-preload',ms:Date.now()-t0}));}catch{}return lease;},
++  ()=>{if(boardPreload===st)boardPreload=null;if(isValid(holder,true))holder.destroy();return null;});
++ return st.promise;}
++/** Drops a preload nobody adopted (journey left, fallback). */
++export function releaseLakesideBoardPreload(){const st=boardPreload;boardPreload=null;if(!st||st.adopted)return;st.token.cancel();void st.promise.then(l=>{l?.dispose();if(isValid(st.holder,true))st.holder.destroy();});}
++export function lakesideBoardPreloadInfo(){const st=boardPreload;return st?{pending:true,adopted:st.adopted}:null;}
++export const createLakesideBoardBackground:LevelBackgroundFactory=async ctx=>{
++ const st=boardPreload;
++ if(st){boardPreload=null;st.adopted=true;let lease:LakesideBoardLease|null=null;
++  try{lease=await ctx.token.wait(st.promise);}catch(error){void st.promise.then(l=>l?.dispose());throw error;}
++  if(lease){lease.adopt(ctx.parent,ctx.token);return lease;}/* preload failed (logged) → the normal build below reports any failure */}
++ return buildLakesideBoard(ctx);
++};
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 6d25278..1a724a7 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -9,7 +9,7 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+-import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,useLakesideWater} from './LakesideBoardBackground';
++import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
+ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
+ import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
+ import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+@@ -119,11 +119,13 @@ function meadowNightNow():boolean{try{const m=(globalThis as any).__worldDayNigh
+  *  base landing is kept if anything about the screen cannot be read. */
+ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
+  try{const v=lakesideViewport(view.getFrameSize());return lakesideScreenLanding(L,lakesideScreenFrame(v.width,v.height,boardSafeInsets(v.width,v.height)));}catch{return L.landing;}}
++/** r4-prep A: blend weight at which the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame; ~1 m + the 1 s landing hook before the swap). */
++export const LAKESIDE_BOARD_PRELOAD_W=.9;
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
+  let waterY=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
+- const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
+@@ -140,6 +142,9 @@ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegi
+   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
+   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
+   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
+-  return {route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
++  const lease:JourneySceneLease={route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
++  // r4-prep A: the arrival starts preloading the 风铃湖畔 board (a batch of instances per frame) so the swap frame only turns its camera on.
++  const walk=lease.progress!;lease.progress=d=>{walk(d);if(!dead&&lakesideAtmosphereWeight(route,total,d)>=LAKESIDE_BOARD_PRELOAD_W)void preloadLakesideBoard();};
++  return lease;
+  }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
+ }
+diff --git a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+index f9140aa..eef451c 100644
+--- a/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
++++ b/creator-build-project/assets/scripts/world-r2/WorldNativeComposition.ts
+@@ -1,5 +1,5 @@
+ import { createSkycityBoardBackground } from '../region/SkycityBoardBackground';
+-import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets } from '../region/LakesideBoardBackground';
++import { createLakesideBoardBackground, LAKESIDE_LOAD_FAILED, prewarmLakesideAssets, preloadLakesideBoard } from '../region/LakesideBoardBackground';
+ import RegionCampaign from '../mainline-r1/runtime/region-campaign.js';
+ import type { JourneyRegion } from '../world-r1/RegionJourneyCore';
+ import { _decorator, Component, Node, Prefab, Camera, JsonAsset, Layers, sys, director, view } from 'cc';
+@@ -103,7 +103,7 @@ export class WorldNativeComposition extends Component {
+       nextFrame:()=>new Promise<number>(resolve=>this.scheduleOnce(()=>resolve(director.getDeltaTime()),0)),
+       viewport:()=>lakesideViewport(view.getFrameSize()),
+       safe:(w,h)=>boardSafeInsets(w,h),
+-      preload:()=>prewarmLakesideAssets(),
++      preload:()=>prewarmLakesideAssets().then(r=>{void preloadLakesideBoard()/* r4-prep A: board preloaded during the landing (not awaited) */;return r;}),
+       log:entry=>{try{if((globalThis as any).__worldFlowLog||DEBUG)console.info('[QF_LAKESIDE] '+JSON.stringify(entry));}catch{}},
+     };
+   }
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 0e310d3..970623c 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -71,6 +71,7 @@ const tests=[
+  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
+  ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],
+  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
++ ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
+  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+diff --git a/tools/lakeside/test_lakeside_board_guest.cjs b/tools/lakeside/test_lakeside_board_guest.cjs
+index e2b3f80..c346717 100644
+--- a/tools/lakeside/test_lakeside_board_guest.cjs
++++ b/tools/lakeside/test_lakeside_board_guest.cjs
+@@ -52,7 +52,7 @@ run('free once: dispose destroys the copy exactly once; missing her / journey sc
+  const w3=world();scene.children[0].children=[];assert.equal(G.mountLakesideGuest(w3.scenery,1<<20),null);});
+ run('wiring: board lease mounts her after the layer pass, frees her in dispose (once), reports her renderer count',()=>{
+  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8');
+- assert.match(bg,/setLayer\(scenery\);\n  step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/);assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
++ assert.match(bg,/setLayer\(scenery\);\n[^\n]*\n  if\(!pre\)\{step='guest';guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);\}/);assert.match(bg,/adopt:\(owner,next\)=>\{[^\n]*guest=mountLakesideGuest\(scenery,LAKESIDE_LAYER\);/,'preloaded lease: her copy on adopt (after the landing hook)');assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);if\(guest\)\{guest\.dispose\(\);guest=null;\}/);
+  assert.match(bg,/guest:guest\?guest\.renderers:0/);
+  // other regions: their board cameras only see their own layer (by design no girl there)
+  for(const f of ['region/MeadowBoardBackground.ts','region/SkycityBoardBackground.ts']){const t=fs.readFileSync(S+f,'utf8');assert.doesNotMatch(t,/mountLakesideGuest/);}});
+diff --git a/tools/lakeside/test_lakeside_board_preload.cjs b/tools/lakeside/test_lakeside_board_preload.cjs
+new file mode 100644
+index 0000000..6e5b362
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_board_preload.cjs
+@@ -0,0 +1,27 @@
++// r4-prep A (lead): the 风铃湖畔 board is preloaded during the arrival/landing (a batch of instances per frame, on the board layer,
++// camera off) and the board entry adopts it, so the swap frame only turns the board camera on (no instantiate / onLoad / merge /
++// water compile there). Structural checks of the real sources (a full lease needs the engine; see README Mac checks).
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const S=path.join(__dirname,'../../creator-build-project/assets/scripts/');
++const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8'),wn=fs.readFileSync(S+'world-r2/WorldNativeComposition.ts','utf8');
++const run=(n,f)=>{f();console.log('PASS',n);};
++run('start: the journey arrival (w >= 0.9) and the landing hook preload (not awaited) both start the one idempotent preload',()=>{
++ assert.match(ja,/export const LAKESIDE_BOARD_PRELOAD_W=\.9;/);assert.match(ja,/lease\.progress=d=>\{walk\(d\);if\(!dead&&lakesideAtmosphereWeight\(route,total,d\)>=LAKESIDE_BOARD_PRELOAD_W\)void preloadLakesideBoard\(\);\};/);
++ assert.match(wn,/preload:\(\)=>prewarmLakesideAssets\(\)\.then\(r=>\{void preloadLakesideBoard\(\)[^}]*;return r;\}\),/,'the hook still waits for the assets only');
++ assert.match(bg,/export function preloadLakesideBoard\(\):Promise<unknown>\{\n if\(boardPreload\)return boardPreload\.promise;/);});
++run('spread: instances a batch per frame, then components enabled a batch per frame, camera off, board layer first',()=>{
++ assert.match(bg,/if\(yieldFrame&&n%LAKESIDE_PRELOAD_BATCH===0\)\{await yieldFrame\(\);token\.check\(\);/);assert.match(bg,/export const LAKESIDE_PRELOAD_BATCH=24;/);
++ assert.match(bg,/if\(pre\)instances=await mountLakesideScenery\(scenery,token,take,pre\.yieldFrame\);else instances=await mountLakesideScenery\(scenery,token,take\);/,'normal entry unchanged');
++ const a=bg.indexOf("step='preload-activate'"),l=bg.lastIndexOf('setLayer(scenery);',a),c=bg.lastIndexOf('camera.enabled=false;',a);assert(a>0&&l>0&&l<a&&c<a,'layer + camera off before anything activates');
++ assert.match(bg,/for\(const k of kids\)k\.active=false;rig\.active=true;\n   for\(let i=0;i<kids\.length;i\+\+\)\{if\(isValid\(kids\[i\],true\)\)kids\[i\]\.active=true;if\(\(i\+1\)%LAKESIDE_PRELOAD_BATCH===0\)\{await pre\.yieldFrame\(\);token\.check\(\);\}\}/);
++ assert.match(bg,/setTimeout\(go,50\)\/\* paused game: never stall \*\//);});
++run('swap: adopted lease keeps its rig active; the camera shows only when visible AND the board host is shown (reveal), lighting as before',()=>{
++ assert.match(bg,/const showCamera=\(\)=>\{if\(!camera\|\|!isValid\(camera,true\)\)return;camera\.enabled=visible&&\(!pre\|\|\(isValid\(host,true\)&&host\.activeInHierarchy\)\);\};/);
++ assert.match(bg,/setVisible:value=>\{if\(dead\)return;visible=value;if\(!pre\)rig!\.active=value;if\(pre\)showCamera\(\);else camera!\.enabled=value;if\(value\)applyDir\(\);else restoreDir\(\);\},/);
++ assert.match(bg,/adopt:\(owner,next\)=>\{if\(dead\)return;host=owner;off\(\);token=next;off=next\.onCancel\(dispose\);/,'entry token owns it after adopt');
++ assert.match(bg,/if\(st\)\{boardPreload=null;st\.adopted=true;let lease:LakesideBoardLease\|null=null;\n  try\{lease=await ctx\.token\.wait\(st\.promise\);\}catch\(error\)\{void st\.promise\.then\(l=>l\?\.dispose\(\)\);throw error;\}\n  if\(lease\)\{lease\.adopt\(ctx\.parent,ctx\.token\);return lease;\}/);
++ assert.match(bg,/ return buildLakesideBoard\(ctx\);\n\};/,'no preload / failed preload → the normal build (and its single fallback reason)');});
++run('free once: unadopted preload cancelled + disposed with the journey; adopted lease disposes its holder with itself',()=>{
++ assert.match(ja,/atmosphere\.restore\(\);releaseLakesideBoardPreload\(\)/);
++ assert.match(bg,/export function releaseLakesideBoardPreload\(\)\{const st=boardPreload;boardPreload=null;if\(!st\|\|st\.adopted\)return;st\.token\.cancel\(\);/);
++ assert.match(bg,/if\(pre&&isValid\(parent,true\)\)parent\.destroy\(\)\/\* preload holder \*\//);assert.match(bg,/const dispose=\(\)=>\{if\(dead\)return;/);});
+-- 
+2.47.3
+

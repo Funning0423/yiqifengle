@@ -1,0 +1,221 @@
+From 32be13f677d5cca7b34aad2bccb0f0b6e029d358 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 20:01:10 +0800
+Subject: [PATCH] lakeside r4 prop fill: foliage / house walls / rocks / clouds
+ get the land-fill emissive, own per-mode value in lakesideModeLighting; water
+ + bridge untouched; test locks values, classes, night cool, draws <= 60
+
+---
+ .../scripts/region/LakesideBoardBackground.ts |  9 +++--
+ .../scripts/region/LakesideSceneData.ts       | 32 ++++++++++++++-
+ tools/lakeside/test_lakeside_instancing.cjs   |  2 +-
+ tools/lakeside/test_lakeside_land_fill.cjs    | 40 ++++++++++++++-----
+ 4 files changed, 67 insertions(+), 16 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index 3edd060..9fc3ff0 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -9,7 +9,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,lakesideFillLinear,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+@@ -33,9 +33,10 @@ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'Lake
+ export function enableLakesideInstancing(root:Node):Material[]{
+  // r4 land fill (VB): landform GLBs (lakesideLandFillClass) get their OWN instanced copy per class carrying the fill, so water,
+  // bridge and every other GLB keep the plain copy, and the static merge (keyed by material content) keeps land in its own chunks.
+- const plain=new Map<Material,Material>(),near=new Map<Material,Material>(),far=new Map<Material,Material>(),out:Material[]=[],mode=lakesideDayNightMode();
++ // r4 prop fill: the same for foliage / house walls / rocks / clouds - one copy cache per fill class.
++ const plain=new Map<Material,Material>(),byCls=new Map<string,Map<Material,Material>>(),out:Material[]=[],mode=lakesideDayNightMode();
+  for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
+-  const cache=cls==='near'?near:cls==='far'?far:plain;
++  let cache=plain;if(cls){const c=byCls.get(cls);if(c)cache=c;else{cache=new Map<Material,Material>();byCls.set(cls,cache);}}
+   for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
+    if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
+  return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
+@@ -51,7 +52,7 @@ function initLakesideLandFill(m:Material,cls:LakesideLandFillClass,glb:string,mo
+  // builtin-standard: emissive (tagged linear: true -> squared on upload, white stays 1) x emissiveScale (untagged) = the fill, linear.
+  m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);writeLakesideLandFill(m,cls,mode);}
+ function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight){
+- const M=lakesideModeLighting(mode),c=cls==='near'?M.landFillNearLinear:M.landFillFarLinear;m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
++ const c=lakesideFillLinear(mode,cls);m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
+ /** r4 land fill, day/night part: re-writes every land material under root from lakesideModeLighting(mode) (board applyDir and the
+  *  journey's day/night listener - the one writer). Returns how many land materials were written. */
+ export function applyLakesideLandFill(root:Node,mode:LakesideDayNight):number{const seen=new Set<Material>();let n=0;
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 1bf0105..fb70eb1 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -103,6 +103,18 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+   landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
+   landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
+   landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
++  /** r4 prop fill (VB, Grok Bot): the SAME flat emissive fill on four more classes, each with its own per-mode value in
++   *  lakesideModeLighting (foliageFillLinear / wallFillLinear / rockFillLinear / cloudFillLinear). Still never filled: water
++   *  (waterGlbs), bridge (LK_bridge, LK_bridge_steps), small props (posts, lanterns, boats, barrels, ...), reeds/flowers/grass cards.
++   *  Day values fit to the engine-cam r5h3 reference (object pixels; stand-in); every value >= 0 (no negative emissive).
++   *  foliage = the tree-like vegetation; wall = the house bodies; rock = LK_rock (not visible from either board pose, so it gets a
++   *  neutral fill of the far-land luminance by day and the far-land night value); cloud = back to the reference's warm white. */
++  foliageFillGlbs: ['LK_tree_conifer.glb', 'LK_tree_round.glb', 'LK_bush.glb'] as const,
++  wallFillGlbs: ['LK_house_A.glb', 'LK_house_B.glb', 'LK_house_C.glb'] as const,
++  rockFillGlbs: ['LK_rock.glb'] as const,
++  cloudFillGlbs: ['LK_cloud.glb'] as const,
++  foliageFillLinear: [0.019, 0.065, 0] as const, wallFillLinear: [0.023, 0.02, 0.017] as const,
++  rockFillLinear: [0.079, 0.079, 0.079] as const, cloudFillLinear: [0.33, 0.24, 0.218] as const,
+   waterMaterialPath: 'water/lakeside-water',
+   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
+@@ -155,6 +167,9 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+   waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
+   /** r4 land fill, night: cool (blue) and small - night land ~80% of the Mac r3 night land luma, no brown. */
+   landFillNearLinear: [0, 0, 0.0014] as const, landFillFarLinear: [0.0049, 0.0116, 0.0356] as const,
++  /** r4 prop fill, night: ~80% of the Mac r3 night luma of each class with r3's cool hue (blue >= red); rock = the far-land night value. */
++  foliageFillLinear: [0.0006, 0.0058, 0.0029] as const, wallFillLinear: [0.0085, 0.013, 0.0232] as const,
++  rockFillLinear: [0.0049, 0.0116, 0.0356] as const, cloudFillLinear: [0.0078, 0.0091, 0.0145] as const,
+ });
+ export type LakesideDayNight = 'day' | 'night';
+ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
+@@ -164,6 +179,8 @@ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[];
+   waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
+   /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
+   landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[];
++  /** r4 prop fill (emissive, linear) per class - see LAKESIDE_DIR_LIGHT_PARAMS.foliage/wall/rock/cloudFillGlbs. */
++  foliageFillLinear: readonly number[]; wallFillLinear: readonly number[]; rockFillLinear: readonly number[]; cloudFillLinear: readonly number[];
+   /** r4 (VB): the colour of the visible SKY DOME / backdrop for this mode, sRGB hex = the board camera clear colour (day lakesideDayClearColor(),
+    *  night LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor; day 28/143/184, night #1c2740 = 28/39/64). Read by
+    *  lakesideSkyDomeColor(mode) (journey sky sphere target). NOT waterSkyZenith/Low/HorizonLinear: those are the
+@@ -176,18 +193,29 @@ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighti
+   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
+     waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
+-    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear, skyDomeColor: lakesideDayClearColor() };
++    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear,
++    foliageFillLinear: P.foliageFillLinear, wallFillLinear: P.wallFillLinear, rockFillLinear: P.rockFillLinear, cloudFillLinear: P.cloudFillLinear, skyDomeColor: lakesideDayClearColor() };
+ }
+ /** night mode lighting = the night params + the derived sky dome colour (same value as the night clear colour, no second literal). */
+ const LAKESIDE_NIGHT_MODE_LIGHTING: LakesideModeLighting = Object.freeze(Object.assign({}, LAKESIDE_NIGHT_LIGHT_PARAMS, { skyDomeColor: LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor }));
+-export type LakesideLandFillClass = 'near' | 'far';
++export type LakesideLandFillClass = 'near' | 'far' | 'foliage' | 'wall' | 'rock' | 'cloud';
+ /** r4 land fill: which landform class a GLB is (null = not land: never filled). */
+ export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
+   const P = LAKESIDE_DIR_LIGHT_PARAMS;
+   if ((P.landFillNearGlbs as readonly string[]).includes(glb)) return 'near';
+   if ((P.landFillFarGlbs as readonly string[]).includes(glb)) return 'far';
++  if ((P.foliageFillGlbs as readonly string[]).includes(glb)) return 'foliage';
++  if ((P.wallFillGlbs as readonly string[]).includes(glb)) return 'wall';
++  if ((P.rockFillGlbs as readonly string[]).includes(glb)) return 'rock';
++  if ((P.cloudFillGlbs as readonly string[]).includes(glb)) return 'cloud';
+   return null;
+ }
++/** The fill (emissiveScale, linear) of a class in a mode - the only class -> value map (board and journey writers read it). */
++export function lakesideFillLinear(mode: LakesideDayNight, cls: LakesideLandFillClass): readonly number[] {
++  const M = lakesideModeLighting(mode);
++  return cls === 'near' ? M.landFillNearLinear : cls === 'far' ? M.landFillFarLinear : cls === 'foliage' ? M.foliageFillLinear
++    : cls === 'wall' ? M.wallFillLinear : cls === 'rock' ? M.rockFillLinear : M.cloudFillLinear;
++}
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+ /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+  *  mountains (LK_far_hills y -2..40.8, far-shore trees from y~5.7) keep their upper halves deep green; 'linear60' = LINEAR from
+diff --git a/tools/lakeside/test_lakeside_instancing.cjs b/tools/lakeside/test_lakeside_instancing.cjs
+index 639a738..d6eb073 100644
+--- a/tools/lakeside/test_lakeside_instancing.cjs
++++ b/tools/lakeside/test_lakeside_instancing.cjs
+@@ -6,7 +6,7 @@ assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,4000}?  setLaye
+ assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
+ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
+ // Behaviour on stand-ins: 3 renderers over 2 source materials -> 2 copies, renderers sharing a source share the copy.
+-const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/:Material\[\]|<Material,Material>/g,'');
++const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/<string,Map<Material,Material>>|:Material\[\]|<Material,Material>/g,'');
+ class Material{copy(src,o){this.src=src;this.defines=o.defines;}}
+ const A={},B={},rs=[A,A,B].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
+ const run=(glbOf,landOf)=>{const inits=[];const out=new Function('root','Material','MeshRenderer','lakesideTopGlb','lakesideLandFillClass','lakesideDayNightMode','initLakesideLandFill',body)(
+diff --git a/tools/lakeside/test_lakeside_land_fill.cjs b/tools/lakeside/test_lakeside_land_fill.cjs
+index d79b496..42000c1 100644
+--- a/tools/lakeside/test_lakeside_land_fill.cjs
++++ b/tools/lakeside/test_lakeside_land_fill.cjs
+@@ -13,16 +13,24 @@ run('single source: day = LAKESIDE_DIR_LIGHT_PARAMS.landFill*, night its own, bo
+  assert.equal(Dy.landFillNearLinear,P.landFillNearLinear);assert.equal(Dy.landFillFarLinear,P.landFillFarLinear);
+  assert.equal(N.landFillNearLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillNearLinear);assert.equal(N.landFillFarLinear,D.LAKESIDE_NIGHT_LIGHT_PARAMS.landFillFarLinear);
+  assert.deepEqual([...P.landFillNearLinear],[0.104,0.196,0.025]);assert.deepEqual([...P.landFillFarLinear],[0.043,0.087,0.107]);
++ // r4 prop fill: foliage / wall / rock / cloud, same single source (day = P, night = its own), values locked
++ const PF={foliageFillLinear:[[0.019,0.065,0],[0.0006,0.0058,0.0029]],wallFillLinear:[[0.023,0.02,0.017],[0.0085,0.013,0.0232]],rockFillLinear:[[0.079,0.079,0.079],[0.0049,0.0116,0.0356]],cloudFillLinear:[[0.33,0.24,0.218],[0.0078,0.0091,0.0145]]};
++ for(const k of Object.keys(PF)){assert.equal(Dy[k],P[k],k+' day = P');assert.equal(N[k],D.LAKESIDE_NIGHT_LIGHT_PARAMS[k],k+' night own');assert.deepEqual(Array.from(P[k]),PF[k][0],k+' day');assert.deepEqual(Array.from(N[k]),PF[k][1],k+' night');}
++ const CK={near:'landFillNearLinear',far:'landFillFarLinear',foliage:'foliageFillLinear',wall:'wallFillLinear',rock:'rockFillLinear',cloud:'cloudFillLinear'};
++ for(const md of ['day','night'])for(const c of Object.keys(CK)){const v=D.lakesideFillLinear(md,c);assert.equal(v,D.lakesideModeLighting(md)[CK[c]],md+' '+c+' via lakesideFillLinear');assert(v.every(x=>x>=0),md+' '+c+' no negative emissive');}
+  const all=fs.readdirSync(path.join(A,'scripts'),{recursive:true}).filter(f=>String(f).endsWith('.ts')&&/Lakeside|RegionJourney/.test(String(f))); // the lakeside paths (other scenes have their own emissive uses)
+  for(const f of all){const src=fs.readFileSync(path.join(A,'scripts',String(f)),'utf8');
+   if(String(f).replace(/\\/g,'/')!=='region/LakesideBoardBackground.ts')assert(!/setProperty\('emissive(Scale)?'/.test(src),f+': no second land-fill writer');
+-  if(String(f).replace(/\\/g,'/')!=='region/LakesideSceneData.ts')assert(!/landFill(Near|Far)Linear\s*:\s*\[/.test(src),f+': no second copy of the fill values');}
++  if(String(f).replace(/\\/g,'/')!=='region/LakesideSceneData.ts')assert(!/(landFill(Near|Far)|foliageFill|wallFill|rockFill|cloudFill)Linear\s*:\s*\[/.test(src),f+': no second copy of the fill values');}
+  const bg=fs.readFileSync(S+'LakesideBoardBackground.ts','utf8');assert.equal((bg.match(/setProperty\('emissiveScale'/g)||[]).length,1);assert.equal((bg.match(/setProperty\('emissive'/g)||[]).length,1);
+- assert.match(bg,/const M=lakesideModeLighting\(mode\),c=cls==='near'\?M\.landFillNearLinear:M\.landFillFarLinear;/);});
++ assert.match(bg,/const c=lakesideFillLinear\(mode,cls\);m\.setProperty\('emissiveScale',new Vec3\(c\[0\],c\[1\],c\[2\]\)\);/);});
+ run('land = the landform GLBs only (principled list), every other GLB in the bundle is not land',()=>{
+  assert.deepEqual([...P.landFillNearGlbs],['LK_terrain.glb']);assert.deepEqual([...P.landFillFarGlbs],['LK_far_hills.glb','LK_far_shore.glb']);
+  const glbs=fs.readdirSync(path.join(A,'bundles/region_lakeside/models')).filter(f=>f.endsWith('.glb'));assert(glbs.length>40);
+- for(const g of glbs){const c=D.lakesideLandFillClass(g);if(['LK_terrain.glb'].includes(g))assert.equal(c,'near');else if(['LK_far_hills.glb','LK_far_shore.glb'].includes(g))assert.equal(c,'far');else assert.equal(c,null,g+' is not land');}
++ const WANT={'LK_terrain.glb':'near','LK_far_hills.glb':'far','LK_far_shore.glb':'far','LK_tree_conifer.glb':'foliage','LK_tree_round.glb':'foliage','LK_bush.glb':'foliage','LK_house_A.glb':'wall','LK_house_B.glb':'wall','LK_house_C.glb':'wall','LK_rock.glb':'rock','LK_cloud.glb':'cloud'};
++ assert.deepEqual(Array.from(P.foliageFillGlbs),['LK_tree_conifer.glb','LK_tree_round.glb','LK_bush.glb']);assert.deepEqual(Array.from(P.wallFillGlbs),['LK_house_A.glb','LK_house_B.glb','LK_house_C.glb']);assert.deepEqual(Array.from(P.rockFillGlbs),['LK_rock.glb']);assert.deepEqual(Array.from(P.cloudFillGlbs),['LK_cloud.glb']);
++ for(const g of Object.keys(WANT))assert(glbs.includes(g),g+' in the bundle');
++ for(const g of glbs){const c=D.lakesideLandFillClass(g);assert.equal(c,WANT[g]??null,g+' fill class');}
+  for(const g of [...P.waterGlbs,'LK_bridge.glb','LK_bridge_steps.glb'])assert.equal(D.lakesideLandFillClass(g),null);});
+ // behaviour: the real board functions (transpiled from LakesideBoardBackground.ts) on a stand-in scene sharing ONE palette material
+ const bg=fs.readFileSync(S+'LakesideBoardBackground.ts','utf8');
+@@ -32,24 +40,27 @@ const src=[grab(/export function enableLakesideInstancing\(root:Node\):Material\
+ class Vec3{constructor(x,y,z){Object.assign(this,{x,y,z});}}class Color{constructor(r,g,b,a){Object.assign(this,{r,g,b,a});}}
+ class Material{constructor(){this.props={};this.passes=[{getHandle:k=>['emissive','emissiveScale'].includes(k)?1:0}];}copy(s,o){this.src=s;this.defines=o?.defines;}setProperty(k,v){this.props[k]=v instanceof Vec3?[v.x,v.y,v.z]:v instanceof Color?[v.r,v.g,v.b,v.a]:v;}}
+ const glbOf=new WeakMap();let mode='day';
+-const F=new Function('Material','MeshRenderer','Color','Vec3','lakesideGlbOf','lakesideLandFillClass','lakesideModeLighting','lakesideDayNightMode','exports',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass};')(
+- Material,{},Color,Vec3,glbOf,D.lakesideLandFillClass,D.lakesideModeLighting,()=>mode,{});
++const F=new Function('Material','MeshRenderer','Color','Vec3','lakesideGlbOf','lakesideLandFillClass','lakesideFillLinear','lakesideModeLighting','lakesideDayNightMode','exports',tsjs(src)+'\nreturn {enableLakesideInstancing,applyLakesideLandFill,lakesideLandFillMaterialClass};')(
++ Material,{},Color,Vec3,glbOf,D.lakesideLandFillClass,D.lakesideFillLinear,D.lakesideModeLighting,()=>mode,{});
+ const palette={name:'M_LK_palette'};
+ const mk=glb=>{const top={name:glb,parent:null},r={node:{parent:top},sharedMaterials:[palette],setSharedMaterial(x,k){this.sharedMaterials[k]=x;}};top.parent=root;glbOf.set(top,glb);return r;};
+ const root={parent:null,getComponentsInChildren:()=>rs};
+ const names=['LK_terrain.glb','LK_far_hills.glb','LK_far_shore.glb','LK_bridge.glb','LK_bridge_steps.glb','LK_lake.glb','LK_tree_round.glb','LK_house_A.glb','LK_rock.glb','LK_cloud.glb'],rs=names.map(mk);
+ run('instancing: land copies carry the day fill, water / bridge / everything else the plain copy (no emissive at all)',()=>{
+- const out=F.enableLakesideInstancing(root);assert.equal(out.length,3,'plain + near + far');
++ const out=F.enableLakesideInstancing(root);assert.equal(out.length,7,'plain + near + far + foliage + wall + rock + cloud');
+  const by=Object.fromEntries(names.map((n,i)=>[n,rs[i].sharedMaterials[0]]));
+  assert.equal(F.lakesideLandFillMaterialClass(by['LK_terrain.glb']),'near');assert.equal(F.lakesideLandFillMaterialClass(by['LK_far_hills.glb']),'far');assert.equal(by['LK_far_shore.glb'],by['LK_far_hills.glb']);
+  assert.deepEqual(by['LK_terrain.glb'].props,{emissive:[255,255,255,255],emissiveScale:[...P.landFillNearLinear]});assert.deepEqual(by['LK_far_hills.glb'].props,{emissive:[255,255,255,255],emissiveScale:[...P.landFillFarLinear]});
+- for(const n of names.slice(3)){assert.equal(by[n],by['LK_bridge.glb'],n+' plain copy');assert.deepEqual(by[n].props,{},n+' untouched');assert.equal(F.lakesideLandFillMaterialClass(by[n]),null);}
++ const PC={'LK_tree_round.glb':['foliage','foliageFillLinear'],'LK_house_A.glb':['wall','wallFillLinear'],'LK_rock.glb':['rock','rockFillLinear'],'LK_cloud.glb':['cloud','cloudFillLinear']};
++ for(const n of Object.keys(PC)){assert.equal(F.lakesideLandFillMaterialClass(by[n]),PC[n][0]);assert.deepEqual(by[n].props,{emissive:[255,255,255,255],emissiveScale:Array.from(P[PC[n][1]])},n+' day fill');assert.notEqual(by[n],by['LK_bridge.glb']);}
++ for(const n of ['LK_bridge.glb','LK_bridge_steps.glb','LK_lake.glb']){assert.equal(by[n],by['LK_bridge.glb'],n+' plain copy');assert.deepEqual(by[n].props,{},n+' untouched');assert.equal(F.lakesideLandFillMaterialClass(by[n]),null);}
+  assert.notEqual(by['LK_terrain.glb'],by['LK_bridge.glb']);});
+ run('day/night writer: night values on land only; water material and bridge untouched; journey and board use it',()=>{
+  const water=new Material();water.setProperty('waterTint',new Vec3(1,1,1));rs[5].sharedMaterials[0]=water;const before=JSON.stringify(water.props),bridge=rs[3].sharedMaterials[0];
+- mode='night';assert.equal(F.applyLakesideLandFill(root,'night'),2);const N=D.lakesideModeLighting('night');
++ mode='night';assert.equal(F.applyLakesideLandFill(root,'night'),6,'near, far, foliage, wall, rock, cloud');const N=D.lakesideModeLighting('night');
+  assert.deepEqual(rs[0].sharedMaterials[0].props.emissiveScale,[...N.landFillNearLinear]);assert.deepEqual(rs[1].sharedMaterials[0].props.emissiveScale,[...N.landFillFarLinear]);
+- assert.equal(JSON.stringify(water.props),before);assert.deepEqual(bridge.props,{});
++ for(const [i,k] of [[6,'foliageFillLinear'],[7,'wallFillLinear'],[8,'rockFillLinear'],[9,'cloudFillLinear']])assert.deepEqual(rs[i].sharedMaterials[0].props.emissiveScale,Array.from(N[k]),k+' night');
++ assert.equal(JSON.stringify(water.props),before);assert.deepEqual(bridge.props,{});assert.deepEqual(rs[4].sharedMaterials[0].props,{},'bridge steps untouched');
+  assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);\n  if\(scenery&&isValid\(scenery,true\)\)applyLakesideLandFill\(scenery,mode\);/,'board applyDir');
+  const ad=fs.readFileSync(S+'RegionJourneyAdapter.ts','utf8');assert.match(ad,/batching=applyLakesideJourneyBatching\(model,\{instancing:enableLakesideInstancing,/,'journey land copies from the same instancing');
+  assert.match(ad,/offLand=onDayNightChange\(\(\)=>\{if\(!dead\)applyLakesideLandFill\(model,lakesideDayNightMode\(\)\);\}\);/);assert.match(ad,/dead=true;offWater\(\);offLand\(\);/);});
+@@ -60,4 +71,15 @@ run('skyDomeColor = the clear colour per mode (not the reflected-sky inputs)',()
+  assert.equal(D.lakesideModeLighting('day').skyDomeColor,D.lakesideDayClearColor());assert.equal(D.lakesideModeLighting('night').skyDomeColor,D.LAKESIDE_NIGHT_LIGHT_PARAMS.clearColor);
+  const hx=h=>[1,3,5].map(i=>parseInt(String(h).slice(i,i+2),16));assert.deepEqual(hx(D.lakesideModeLighting('day').skyDomeColor),[28,143,184],'day sky dome 28/143/184');assert.deepEqual(hx(D.lakesideModeLighting('night').skyDomeColor),[28,39,64],'night sky dome = #1c2740');
+  const sd=fs.readFileSync(S+'LakesideSceneData.ts','utf8');assert.equal((sd.match(/skyDomeColor\s*:\s*['"#]/g)||[]).length,0,'skyDomeColor is derived from the clear colour, never a literal');});
++run('night prop fill is cool (red lowest, never brown) and dimmer than day',()=>{const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day'),lum=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
++ for(const k of ['foliageFillLinear','wallFillLinear','rockFillLinear','cloudFillLinear']){const c=N[k];assert(c[0]<=c[1]&&c[0]<=c[2]&&c[2]>c[0],'night '+k+' red lowest');assert(lum(c)<lum(Dy[k]),'night '+k+' below day');}});
++run('draw calls: each fill class is its own merge group; lakeside background + board/UI stays <= 60',()=>{
++ const MS={exports:{}};new Function('module','exports','require',tsjs(fs.readFileSync(S+'LakesideStaticMerge.ts','utf8')))(MS,MS.exports,require);const R=path.join(A,'bundles/region_lakeside');
++ const tr=JSON.parse(fs.readFileSync(path.join(R,'scene_r5h_slim_transforms.json'),'utf8')),list=D.lakesideSceneInstances(tr.instances),info={},pieces=[];let singles=0;
++ const glb=f=>{const b=fs.readFileSync(path.join(R,'models',f));const l=b.readUInt32LE(12);return JSON.parse(b.slice(20,20+l));};
++ for(const i of list){if(P.waterGlbs.includes(i.glb))continue;const j=info[i.glb]||(info[i.glb]=glb(i.glb)),pr=j.meshes[0].primitives[0],mat=j.materials[pr.material];
++  const key=JSON.stringify({...mat,name:undefined})+'#'+Object.keys(pr.attributes).sort().join('+')+'|fill='+(D.lakesideLandFillClass(i.glb)||'');
++  if(mat.alphaMode==='BLEND'){singles++;continue;}pieces.push({group:key,vertices:j.accessors[pr.attributes.POSITION].count,indices:j.accessors[pr.indices].count});}
++ const ch=MS.exports.lakesideMergePlan(pieces),bgDraws=ch.filter(c=>c.pieces.length>1).length+new Set(ch.filter(c=>c.pieces.length===1).map(c=>c.group)).size+singles+1;
++ console.log('  background ~'+bgDraws+' draws, total ~'+(bgDraws+43));assert(bgDraws+43<=60,'total draws '+(bgDraws+43));});
+ console.log('lakeside land fill OK');
+-- 
+2.47.3
+

@@ -1,0 +1,45 @@
+From c4965cb724e3feede2b5b2e729b6d5eea38077cd Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 16:41:38 +0800
+Subject: [PATCH 12/15] lakeside water: fix the v_color double decode in
+ lakeside-water.effect (albedo *= v_color.rgb), params unchanged
+
+glTF COLOR_0 is linear (spec; LK_lake.glb shallow #7FE0CF stored 0.212/0.745/0.624, UNSIGNED_BYTE normalized) and Cocos 3.8.8
+passes it through as a_color (v_color = a_color); SRGBToLinear (x*x in 3.8.8) decoded it a second time (shallow R 0.212 -> 0.045:
+the single-digit red / pure cyan near water). Only line 89 changes. All water params (tint 0.9/1/1, main 1.37, ambient 1.85,
+sky strength 0.35, floor 0.31, night values) stay as in f3d3614 - they are refit after the Mac measurements (r4). Test water_fog:
+the no-decode check replaces the old SRGBToLinear assertion. Supersedes candidate 803b59c (refit not taken).
+---
+ .../assets/bundles/region_lakeside/water/lakeside-water.effect  | 2 +-
+ tools/lakeside/test_lakeside_water_fog.cjs                      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+index 821ad62..87a1025 100644
+--- a/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
++++ b/creator-build-project/assets/bundles/region_lakeside/water/lakeside-water.effect
+@@ -86,7 +86,7 @@ CCProgram lk-water-fs %{
+     vec3 L = normalize(-cc_mainLitDir.xyz);
+     vec3 albedo = waterTint.rgb;
+     #if USE_VERTEX_COLOR
+-      albedo *= SRGBToLinear(v_color.rgb);
++      albedo *= v_color.rgb; // glTF COLOR_0 is linear and Cocos passes it through as a_color; SRGBToLinear here decoded it a second time
+     #endif
+     // Diffuse: the same terms as legacy/shading-standard-base (direct NL/PI + hemispheric ambient), so it sits with the palette props.
+     float NL = max(dot(N, L), 0.0);
+diff --git a/tools/lakeside/test_lakeside_water_fog.cjs b/tools/lakeside/test_lakeside_water_fog.cjs
+index 3d548bb..5f33d7b 100644
+--- a/tools/lakeside/test_lakeside_water_fog.cjs
++++ b/tools/lakeside/test_lakeside_water_fog.cjs
+@@ -39,7 +39,7 @@ assert(/fog\.type=0\/\* FogType\.LINEAR/.test(bg)&&/fog\.type=3\/\* FogType\.LAY
+ assert(/fog\.type=f0\.type;fog\.fogColor=f0\.color;fog\.fogStart=f0\.start;fog\.fogEnd=f0\.end;fog\.fogTop=f0\.top;fog\.fogRange=f0\.range;fog\.fogAtten=f0\.atten;fog\.enabled=f0\.enabled;/.test(bg));
+ // v3.2 tint: near-white (0.9,1,1) multiplies the r5h3 vertex colours (kept: shallow shore / deep middle); sky-reflection floor 0.25
+ assert.deepEqual([...P.waterTintLinear],[0.9,1.0,1.0]);assert(Math.min(...P.waterTintLinear)>=0.9,'no flattening of vertex colours');
+-assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= SRGBToLinear\(v_color\.rgb\)/.test(fx));
++assert(/waterTint:\s+\{ value: \[0\.9, 1\.0, 1\.0, 1\.0\]/.test(fx));assert(/albedo \*= v_color\.rgb;/.test(fx)&&!/SRGBToLinear\(v_color/.test(fx),'glTF COLOR_0 is linear: no second decode in the shader');
+ assert.deepEqual(mt._defines[0],{USE_VERTEX_COLOR:true,USE_WAVES:true,USE_INSTANCING:true});
+ assert.equal(P.waterSkyReflectFloor,0.31);assert(/specParams:\s+\{ value: \[300\.0, 1\.6, 0\.0, 0\.31\]/.test(fx));
+ assert(/col = mix\(col, sky, clamp\(max\(F, specParams\.w\), 0\.0, fresnelParams\.z\)\);/.test(fx)&&/specParams\.y \* F;/.test(fx),'floor on sky mix only, streak still x F');
+-- 
+2.47.3
+

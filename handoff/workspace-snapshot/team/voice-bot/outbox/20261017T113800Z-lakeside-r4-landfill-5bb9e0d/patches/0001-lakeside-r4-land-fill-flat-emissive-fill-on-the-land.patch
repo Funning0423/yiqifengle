@@ -1,0 +1,216 @@
+From b1314714a4b433cc6bd5a03a67ba584348be3101 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 19:15:57 +0800
+Subject: [PATCH 1/4] lakeside r4 land fill: flat emissive fill on the landform
+ GLBs only, per mode from lakesideModeLighting
+
+Grok Bot approved; global lights stay at r4. Land = landform GLBs: near LK_terrain (ground/grass),
+far LK_far_hills + LK_far_shore (hills, mountains, snow). Not land: water, bridge, buildings, props,
+vegetation, rocks, clouds. enableLakesideInstancing (board AND journey) gives land its own copy per
+class (emissive white x emissiveScale = fill, linear, pre-tonemap); the static merge keys by
+material content so land stays in its own chunks. applyLakesideLandFill(root, mode) is the one
+day/night writer (board applyDir, journey toggle listener). Unsupported material -> [QF_LAKE]
+land-fill-unsupported. Day near 0.104/0.196/0.025, far 0.043/0.087/0.107; night near 0/0/0.0014,
+far 0.0049/0.0116/0.0356 (cool).
+---
+ .../scripts/region/LakesideBoardBackground.ts | 33 +++++++++++++++----
+ .../scripts/region/LakesideSceneData.ts       | 26 +++++++++++++--
+ .../scripts/region/RegionJourneyAdapter.ts    |  9 +++--
+ tools/lakeside/test_lakeside_instancing.cjs   | 14 ++++++--
+ .../test_lakeside_journey_atmosphere.cjs      |  2 +-
+ 5 files changed, 69 insertions(+), 15 deletions(-)
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index e774790..3edd060 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -9,7 +9,7 @@ import {Cancellation} from '../world-r1/WorldFlowCore';
+ import {lakesideJourneyBaseIllum,lakesideDayNightMode,lakesideIslandLightScale,setLakesideBoardHolding,reapplyLakesideJourney} from './LakesideJourneyAtmosphere';
+ import {onDayNightChange} from '../world-r1/DayNightContract';
+ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
++import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,lakesideLandFillClass,type LakesideLandFillClass,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ import {LAKESIDE_BOARD_YAW_DEG,lakesideSunForward} from './LakesideSunDirection';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
+@@ -31,12 +31,32 @@ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'Lake
+  *  of every source material with USE_INSTANCING lets Cocos draw each GLB's instances as one GPU-instanced batch (~42).
+  *  Returns the copies so dispose() can destroy them. Free: no assets, no re-import. */
+ export function enableLakesideInstancing(root:Node):Material[]{
+- const shared=new Map<Material,Material>();
+- for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials;
+-  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=shared.get(src);
+-   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});shared.set(src,m);}r.setSharedMaterial(m,k);}}
+- return Array.from(shared.values()); // not [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
++ // r4 land fill (VB): landform GLBs (lakesideLandFillClass) get their OWN instanced copy per class carrying the fill, so water,
++ // bridge and every other GLB keep the plain copy, and the static merge (keyed by material content) keeps land in its own chunks.
++ const plain=new Map<Material,Material>(),near=new Map<Material,Material>(),far=new Map<Material,Material>(),out:Material[]=[],mode=lakesideDayNightMode();
++ for(const r of root.getComponentsInChildren(MeshRenderer)){const mats=r.sharedMaterials,glb=lakesideTopGlb(root,r.node),cls=glb?lakesideLandFillClass(glb):null;
++  const cache=cls==='near'?near:cls==='far'?far:plain;
++  for(let k=0;k<mats.length;k++){const src=mats[k];if(!src)continue;let m=cache.get(src);
++   if(!m){m=new Material();m.copy(src,{defines:{USE_INSTANCING:true}});if(cls)initLakesideLandFill(m,cls,glb||'',mode);cache.set(src,m);out.push(m);}r.setSharedMaterial(m,k);}}
++ return out; // a plain array, no [...iterator]: the WeChat ES5 build turns spread into [].concat(iterator) (Mac v3.2)
+ }
++/** r4 land fill: the landform class of each land material copy (only enableLakesideInstancing registers; nothing else is ever filled). */
++const lakesideLandFillOf=new WeakMap<Material,LakesideLandFillClass>();
++export function lakesideLandFillMaterialClass(m:Material):LakesideLandFillClass|null{return lakesideLandFillOf.get(m)??null;}
++/** GLB of the mounted top-level instance a renderer belongs to (mountLakesideScenery records it), or null. */
++function lakesideTopGlb(root:Node,n:Node):string|null{let c:Node|null=n;while(c){const g=lakesideGlbOf.get(c);if(g)return g;if(c===root)return null;c=c.parent;}return null;}
++function initLakesideLandFill(m:Material,cls:LakesideLandFillClass,glb:string,mode:LakesideDayNight){
++ const pass:any=m.passes[0];
++ if(!pass||!pass.getHandle('emissiveScale')||!pass.getHandle('emissive')){console.error('[QF_LAKE] '+JSON.stringify({event:'land-fill-unsupported',glb,effect:String((m as any).effectName||'')}));return;}
++ // builtin-standard: emissive (tagged linear: true -> squared on upload, white stays 1) x emissiveScale (untagged) = the fill, linear.
++ m.setProperty('emissive',new Color(255,255,255,255));lakesideLandFillOf.set(m,cls);writeLakesideLandFill(m,cls,mode);}
++function writeLakesideLandFill(m:Material,cls:LakesideLandFillClass,mode:LakesideDayNight){
++ const M=lakesideModeLighting(mode),c=cls==='near'?M.landFillNearLinear:M.landFillFarLinear;m.setProperty('emissiveScale',new Vec3(c[0],c[1],c[2]));}
++/** r4 land fill, day/night part: re-writes every land material under root from lakesideModeLighting(mode) (board applyDir and the
++ *  journey's day/night listener - the one writer). Returns how many land materials were written. */
++export function applyLakesideLandFill(root:Node,mode:LakesideDayNight):number{const seen=new Set<Material>();let n=0;
++ for(const r of root.getComponentsInChildren(MeshRenderer))for(const m of r.sharedMaterials){if(!m||seen.has(m))continue;seen.add(m);const cls=lakesideLandFillOf.get(m);if(cls){writeLakesideLandFill(m,cls,mode);n++;}}
++ return n;}
+ /** v3.3 static merge (see LakesideStaticMerge.ts): after instancing, every static renderer whose materials match by CONTENT and whose
+  *  vertex layout matches is baked into one world-space mesh per <=65,535 vertices; originals are disabled (kept for names/diagnostics).
+  *  Mac v3.2: background 36 draw calls (one instanced batch per GLB kind). Expected after: palette chunk(s) + 2 rope materials + water.
+@@ -210,6 +230,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
+   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
+   if(waterMat)applyLakesideWaterMode(waterMat,mode);
++  if(scenery&&isValid(scenery,true))applyLakesideLandFill(scenery,mode);
+   lakesideDiagOnce(camera,l,amb);
+   applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+diff --git a/creator-build-project/assets/scripts/region/LakesideSceneData.ts b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+index 18ae246..1e3c272 100644
+--- a/creator-build-project/assets/scripts/region/LakesideSceneData.ts
++++ b/creator-build-project/assets/scripts/region/LakesideSceneData.ts
+@@ -94,6 +94,15 @@ export const LAKESIDE_DIR_LIGHT_PARAMS = Object.freeze({
+ 
+   clearColorLinear: [0.0116, 0.2747, 0.4793] as const,
+   waterGlbs: ['LK_lake.glb'] as const,
++  /** r4 land fill (VB, Grok Bot approved): the r4 global lights put the water + bridge on the engine-camera r5h3 reference but leave
++   *  the land too dark/brown (the reference land is lit by Blender's world). An extra flat, unshadowed fill (builtin-standard
++   *  emissive, linear, added before tone mapping, NOT scaled by exposure) on the LANDFORM GLBs only - the ground surface (near) and
++   *  the distant landscape (far). Not land: water, bridge, buildings, props, vegetation (trees/bushes/reeds/flowers), rocks, clouds.
++   *  The day/night values are per mode in lakesideModeLighting (landFillNearLinear / landFillFarLinear). */
++  landFillNearGlbs: ['LK_terrain.glb'] as const,
++  landFillFarGlbs: ['LK_far_hills.glb', 'LK_far_shore.glb'] as const,
++  landFillNearLinear: [0.104, 0.196, 0.025] as const, // day: grass back to the reference (fit, 390x844)
++  landFillFarLinear: [0.043, 0.087, 0.107] as const, // day: far hills + snow back to the reference, cool haze
+   waterMaterialPath: 'water/lakeside-water',
+   waterTintLinear: [0.714, 0.858, 1.0] as const, // r4 refit: tint saturation fitted on the engine-camera reference (r3 0.9/1/1). Was: v3.2 (VB): near-white (mild cool, VB cap) - the r5h3 vertex colours (shallow at shore / deep mid) ARE the water colour; Fresnel + streak on top
+   waterFresnelF0: 0.02, waterFresnelPower: 5, waterFresnelMax: 0.85,
+@@ -144,20 +153,33 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
+   waterMainLightScale: 0.8, waterAmbientScale: 1.0, waterSkyStrength: 0.6, // r4 (r2 amb 0.6, sky 0.12)
+   waterTintLinear: [0.7, 0.95, 1.0] as const, waterSkyReflectFloor: 0.28,
+   waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
++  /** r4 land fill, night: cool (blue) and small - night land ~80% of the Mac r3 night land luma, no brown. */
++  landFillNearLinear: [0, 0, 0.0014] as const, landFillFarLinear: [0.0049, 0.0116, 0.0356] as const,
+ });
+ export type LakesideDayNight = 'day' | 'night';
+ export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
+   ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
+   waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number;
+   /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
+-  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[] }>;
++  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[];
++  /** r4: land fill (emissive, linear) per landform class - see LAKESIDE_DIR_LIGHT_PARAMS.landFill*Glbs. */
++  landFillNearLinear: readonly number[]; landFillFarLinear: readonly number[] }>;
+ /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
+ export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
+   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
+   const P = LAKESIDE_DIR_LIGHT_PARAMS;
+   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
+     ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
+-    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear };
++    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear,
++    landFillNearLinear: P.landFillNearLinear, landFillFarLinear: P.landFillFarLinear };
++}
++export type LakesideLandFillClass = 'near' | 'far';
++/** r4 land fill: which landform class a GLB is (null = not land: never filled). */
++export function lakesideLandFillClass(glb: string): LakesideLandFillClass | null {
++  const P = LAKESIDE_DIR_LIGHT_PARAMS;
++  if ((P.landFillNearGlbs as readonly string[]).includes(glb)) return 'near';
++  if ((P.landFillFarGlbs as readonly string[]).includes(glb)) return 'far';
++  return null;
+ }
+ /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
+ /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the
+diff --git a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+index 201ca5e..98a801f 100644
+--- a/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
++++ b/creator-build-project/assets/scripts/region/RegionJourneyAdapter.ts
+@@ -9,7 +9,7 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
+ import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
+ import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
+ import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
+-import {applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
++import {applyLakesideLandFill,applyLakesideWaterMode,enableLakesideInstancing,isLakesideWaterNode,lakesideWaterMaterial,loadLakesideWaterAsset,mergeLakesideStatic,mountLakesideScenery,preloadLakesideBoard,releaseLakesideBoardPreload,useLakesideWater} from './LakesideBoardBackground';
+ import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
+ import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
+ import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
+@@ -125,14 +125,17 @@ export const LAKESIDE_BOARD_PRELOAD_W=.9;
+ async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
+  if(from!=='island')throw Error('journey-region-order');
+  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false,warm:LakesideWaterPrewarm|null=null,journeyWater:Material|null=null,lakeModel:Node|null=null;
+- let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
+- const release=()=>{if(dead)return;dead=true;offWater();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
++ let waterY=0,lakeYaw=0,batching:JourneyBatching|null=null,offWater=()=>{},offLand=()=>{};const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY,()=>lakeYaw);
++ const release=()=>{if(dead)return;dead=true;offWater();offLand();atmosphere.restore();releaseLakesideBoardPreload()/* r4-prep A: an unadopted board preload goes with the journey */;warm?.cancel()/* r4 journey fix 3 */;rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
+  try{
+   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);lakeModel=model;
+   await mountLakesideScenery(model,token,take);token.check();
+   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
+   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
++  // r4 land fill (VB): enableLakesideInstancing gave the landform GLBs their filled copies (same source as the board:
++  // lakesideModeLighting(mode).landFill*); the journey re-writes them on the day/night toggle like the board's applyDir.
++  offLand=onDayNightChange(()=>{if(!dead)applyLakesideLandFill(model,lakesideDayNightMode());});
+   // r4-prep D (lead): the journey's lake reads the SAME water source as the board (its own lakeside-water.mtl copy written by
+   // lakesideWaterMaterial / applyLakesideWaterMode from LAKESIDE_DIR_LIGHT_PARAMS + lakesideModeLighting). Not loaded = old look,
+   // r4 journey fix 1: and one always-on [QF_LAKE] journey-water-fallback ERROR line with the reason + asset path (no throw, the walk goes on).
+diff --git a/tools/lakeside/test_lakeside_instancing.cjs b/tools/lakeside/test_lakeside_instancing.cjs
+index dc6f229..639a738 100644
+--- a/tools/lakeside/test_lakeside_instancing.cjs
++++ b/tools/lakeside/test_lakeside_instancing.cjs
+@@ -1,7 +1,7 @@
+ // B1: lakeside scenery is GPU-instanced (one shared USE_INSTANCING copy per source material), copies destroyed on dispose.
+ const fs=require('fs'),path=require('path'),assert=require('assert');
+ const s=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
+-assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);shared\.set\(src,m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy');
++assert(/m=new Material\(\);m\.copy\(src,\{defines:\{USE_INSTANCING:true\}\}\);if\(cls\)initLakesideLandFill\(m,cls,glb\|\|'',mode\);cache\.set\(src,m\);out\.push\(m\);\}r\.setSharedMaterial\(m,k\);/.test(s),'shared instanced copy (r4: one per source material and land class)');
+ assert(/instanced=enableLakesideInstancing\(scenery\);\n[\s\S]{0,4000}?  setLayer\(scenery\);/.test(s),'applied after instantiate');
+ assert(/for\(const m of instanced\.splice\(0\)\)m\.destroy\(\);/.test(s),'destroyed on dispose');
+ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
+@@ -9,6 +9,14 @@ assert(/instancedMaterials:instanced\.length/.test(s),'diagnostics');
+ const body=s.match(/export function enableLakesideInstancing\(root:Node\):Material\[\]\{\n([\s\S]*?)\n\}\n/)[1].replace(/:Material\[\]|<Material,Material>/g,'');
+ class Material{copy(src,o){this.src=src;this.defines=o.defines;}}
+ const A={},B={},rs=[A,A,B].map(m=>({sharedMaterials:[m],set:[],setSharedMaterial(x,k){this.set[k]=x;}}));
+-const out=new Function('root','Material','MeshRenderer',body)({getComponentsInChildren:()=>rs},Material,{});
+-assert.equal(out.length,2);assert(rs[0].set[0]===rs[1].set[0]&&rs[0].set[0]!==rs[2].set[0]&&rs[0].set[0].defines.USE_INSTANCING===true);
++const run=(glbOf,landOf)=>{const inits=[];const out=new Function('root','Material','MeshRenderer','lakesideTopGlb','lakesideLandFillClass','lakesideDayNightMode','initLakesideLandFill',body)(
++ {getComponentsInChildren:()=>rs},Material,{},(root,n)=>glbOf(n),g=>landOf[g]||null,()=>'day',(m,cls,glb,mode)=>inits.push([m,cls,glb,mode]));return {out,inits};};
++for(const r of rs)r.node={};
++{const {out,inits}=run(()=>'LK_bridge.glb',{});
++ assert.equal(out.length,2);assert(rs[0].set[0]===rs[1].set[0]&&rs[0].set[0]!==rs[2].set[0]&&rs[0].set[0].defines.USE_INSTANCING===true);assert.equal(inits.length,0,'no land: nothing filled');}
++// r4 land fill: same source material on a land GLB and a non-land GLB -> two copies; only the land one is initialised
++{rs.forEach(r=>{r.set=[];});const glbs=new Map([[rs[0],'LK_terrain.glb'],[rs[1],'LK_bridge.glb'],[rs[2],'LK_far_hills.glb']]);rs.forEach(r=>{r.node={r};});
++ const {out,inits}=run(n=>glbs.get(n.r),{'LK_terrain.glb':'near','LK_far_hills.glb':'far'});
++ assert.equal(out.length,3);assert(rs[0].set[0]!==rs[1].set[0],'land and bridge never share a copy');
++ assert.deepEqual(inits.map(i=>[i[1],i[2],i[3]]),[['near','LK_terrain.glb','day'],['far','LK_far_hills.glb','day']]);assert(inits[0][0]===rs[0].set[0]&&inits[1][0]===rs[2].set[0]);}
+ console.log('lakeside instancing OK');
+diff --git a/tools/lakeside/test_lakeside_journey_atmosphere.cjs b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+index 2eaf9e4..c4b74e8 100644
+--- a/tools/lakeside/test_lakeside_journey_atmosphere.cjs
++++ b/tools/lakeside/test_lakeside_journey_atmosphere.cjs
+@@ -43,7 +43,7 @@ assert(/progress\?\(distance:number\):void;/.test(core));
+ assert((core.match(/this\.leaseProgress\(\);/g)||[]).length===2,'observe + stop');
+ assert(/private leaseProgress\(\)\{const l=this\.lease;if\(!l\?\.progress\)return;try\{l\.progress\(this\.distance\);\}catch\{\}\}/.test(core),'a lighting error never breaks the walk');
+ assert(/show\(visible\)\{if\(dead\)return;rig\.active=visible;if\(visible\)\{atmosphere\.prime\(\);warmWater\(\);\}\},progress\(d\)\{if\(!dead\)atmosphere\.apply\(lakesideAtmosphereWeight\(route,total,d\)\);\}/.test(ad));
+-assert(/const release=\(\)=>\{if\(dead\)return;dead=true;(offWater\(\);)?atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
++assert(/const release=\(\)=>\{if\(dead\)return;dead=true;(offWater\(\);)?(offLand\(\);)?atmosphere\.restore\(\);/.test(ad),'restored on dispose / 主页');
+ assert(/landing:L\.landing,timing:L\.timing/.test(ad),'17 s S-curve walk from 运镜bot layout');
+ assert(/Quat\.slerp\(q,s\.wrot,target,f\.weight\)/.test(lt)&&/Quat\.fromViewUp\(target,new Vec3\(-v\[0\],-v\[1\],-v\[2\]\)\.normalize\(\),Vec3\.UP\)/.test(lt),'sun direction slerps to sunForward (r2: LakesideJourneyLighting.ts)');
+ assert(/const bi=\(lakesideJourneyBaseIllum\(\)\?\?saved\.illum\/lakesideIslandLightScale\(saved\.mode\)\)\*lakesideIslandLightScale\(mode\)/.test(bg)&&/l\.illuminance=bi\*M\.sunIlluminanceScale/.test(bg)&&/amb\.skyIllum=bi\*M\.ambientSkyIllumToSun/.test(bg),'board: no double scale after the journey (r2: day base x mode scale)');
+-- 
+2.47.3
+

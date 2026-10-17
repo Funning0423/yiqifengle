@@ -1,0 +1,26 @@
+From c30eeecf65bb4fbd2fa92693ec3e3e48033713bf Mon Sep 17 00:00:00 2001
+From: Cursor-Agent <cursoragent@cursor.com>
+Date: Sat, 17 Oct 2026 18:14:57 +0800
+Subject: [PATCH 09/15] r4-prep D (test): lakeside-daynight reads the water
+ day/night scales through the shared applyLakesideWaterMode
+
+---
+ tools/lakeside/test_lakeside_daynight.cjs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/lakeside/test_lakeside_daynight.cjs b/tools/lakeside/test_lakeside_daynight.cjs
+index efddeb1..5b1c341 100644
+--- a/tools/lakeside/test_lakeside_daynight.cjs
++++ b/tools/lakeside/test_lakeside_daynight.cjs
+@@ -77,7 +77,7 @@ run('board applyDir = journey target in both modes; board re-applies on toggle a
+  assert(/const offDayNight=onDayNightChange\(\(\)=>\{if\(visible&&!dead\)applyDir\(\);\}\);/.test(bg),'board re-applies on toggle');
+  assert(/const dispose=\(\)=>\{if\(dead\)return;restoreDir\(\);dead=true;off\(\);offDayNight\(\);/.test(bg),'unsubscribed on dispose');
+  assert(/M=lakesideModeLighting\(mode\)/.test(bg)&&/camera\.clearColor=new Color\(M\.clearColor\)/.test(bg),'board colours + clear per mode');
+- assert(/waterMat\.setProperty\('lightParams',new Vec4\(M\.waterMainLightScale,M\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\);waterMat\.setProperty\('fresnelParams',new Vec4\(P\.waterFresnelPower,P\.waterFresnelF0,P\.waterFresnelMax,M\.waterSkyStrength\)\);/.test(bg),'water-only light scales per mode');
++ assert(/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);/.test(bg)&&/water\.setProperty\('lightParams',new Vec4\(M\.waterMainLightScale,M\.waterAmbientScale,P\.waterWaveFadeStart,P\.waterWaveFadeEnd\)\);water\.setProperty\('fresnelParams',new Vec4\(P\.waterFresnelPower,P\.waterFresnelF0,P\.waterFresnelMax,M\.waterSkyStrength\)\);/.test(bg),'water-only light scales per mode (r4-prep D: shared applyLakesideWaterMode)');
+  assert(/const c=lakesideModeLighting\(lakesideDayNightMode\(\)\)\.fogColorSrgb;/.test(bg),'fog colour per mode');
+  assert(/restoreDir=\(\)=>\{restoreFog\(\);setLakesideBoardHolding\(false\);/.test(bg)&&/if\(!reapplyLakesideJourney\(\)&&s0\.mode!==lakesideDayNightMode\(\)\)\(globalThis as any\)\.__worldDayNight\?\.reapply\?\.\(\);/.test(bg),'restore-on-leave chain');
+  const wf=fs.readFileSync(S+'world-r1/WorldFlowComponent.ts','utf8');assert(/emitDayNightChange\(this\.dayNightMode\);/.test(wf)&&/reapply:\(\)=>self\.applyDayNight\(\)/.test(wf),'world emits + non-locking reapply');});
+-- 
+2.47.3
+

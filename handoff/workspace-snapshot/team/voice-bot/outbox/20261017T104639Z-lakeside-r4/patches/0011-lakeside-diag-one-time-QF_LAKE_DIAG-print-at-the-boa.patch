@@ -1,0 +1,100 @@
+From 193b4f18326f843bb960d7f4e7ec3a341191a3d8 Mon Sep 17 00:00:00 2001
+From: Voice Bot <voicebot@local>
+Date: Sat, 17 Oct 2026 16:41:38 +0800
+Subject: [PATCH 11/15] lakeside diag: one-time [QF_LAKE_DIAG] print at the
+ board light apply, gated by cc/env DEBUG && ?lakediag=1
+
+Scene design asked whether tone mapping applies. Prints once: isHDR / toneMappingType (pipelineSceneData, postSettings), pipeline,
+camera usePostProcess / exposure (render camera) / aperture / shutter / iso, main light illuminance, ambient skyIllum, plus the
+list of fields that came back undefined; failures console.error. DEBUG is false in release builds, so it never runs or prints
+there; in debug it needs ?lakediag=1. Test lakeside-diag (gate truth table, gate before print, one call site, errors logged).
+
+Standalone on r3 f3d3614 (supersedes a47c8fe, same content).
+---
+ .../scripts/region/LakesideBoardBackground.ts | 14 +++++++++++++
+ tools/journey-integration/run-suite.cjs       |  2 +-
+ tools/lakeside/test_lakeside_diag.cjs         | 20 +++++++++++++++++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 tools/lakeside/test_lakeside_diag.cjs
+
+diff --git a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+index f24af7e..ae11f44 100644
+--- a/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
++++ b/creator-build-project/assets/scripts/region/LakesideBoardBackground.ts
+@@ -1,6 +1,7 @@
+ import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Mat4,Material,Mesh,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,gfx,instantiate,isValid,utils} from 'cc';
+ import {lakesideMaterialKey,lakesideMergePlan,lakesideAttrToFloat,lakesideAppendPiece,lakesideStaticMergeFromEnv,type LakesideAttr} from './LakesideStaticMerge';
+ import {waitRegionAsset} from './RegionAssetDeadline';
++import {DEBUG} from 'cc/env';
+ import {applyCameraPose} from '../world-r1/CameraPose';
+ import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
+ import type {LevelBackgroundFactory,LevelBackgroundLease} from '../world-r2/LevelBackground';
+@@ -11,6 +12,18 @@ import {mountLakesideGuest,type LakesideGuest} from './LakesideBoardGuest';
+ import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,lakesideDayClearColor,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,lakesideModeLighting,type LakesideDayNight,LAKESIDE_DIR_LIGHT_PARAMS,lakesideCocosLightColor,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+ /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
+ export const LAKESIDE_LAYER=1<<20;
++/** water-ref candidate (VB) diagnostic, scene design asked: is tone mapping on? ONE console.log at the first board light apply,
++ *  only when BOTH cc/env DEBUG (false in release builds: never runs or prints there) AND ?lakediag=1. Failures log, no fallback. */
++export function lakesideDiagEnabled(debug:boolean,search:string|null|undefined):boolean{return !!debug&&/[?&]lakediag=1(&|$)/.test(String(search||''));}
++let lakeDiagDone=false;
++function lakesideDiagOnce(camera:Camera|null,l:DirectionalLight,amb:any){if(lakeDiagDone)return;let q:string|null=null;try{q=(globalThis as any).location?.search??null;}catch{q=null;}
++ if(!lakesideDiagEnabled(DEBUG,q))return;lakeDiagDone=true;
++ try{const root:any=director.root,psd:any=root?.pipeline?.pipelineSceneData,rc:any=camera&&isValid(camera,true)?(camera as any).camera:null;
++  const v={isHDR:psd?.isHDR,toneMappingType:psd?.postSettings?.toneMappingType,pipeline:root?.pipeline?.constructor?.name,usePostProcess:camera?camera.usePostProcess:undefined,
++   exposure:rc?.exposure,aperture:camera?.aperture,shutter:camera?.shutter,iso:camera?.iso,mainLightIlluminance:l.illuminance,skyIllum:amb?.skyIllum};
++  const missing=Object.keys(v).filter(k=>(v as any)[k]===undefined);
++  console.log('[QF_LAKE_DIAG] '+JSON.stringify(Object.assign({},v,{missing})));}
++ catch(error){console.error('[QF_LAKE_DIAG] '+JSON.stringify({event:'diag-failed',error:String((error as any)?.message||error)}));}}
+ /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
+ export const LAKESIDE_NODES=Object.freeze({rig:'LakesideLiveScene',scenery:'LakesideScenery',camera:'LakesideBackgroundCamera',lights:'LakesideLights'});
+ /** B1 (GGbot): 465 instances of 42 GLBs, each GLB with its own palette material -> ~465 draw calls unbatched. One shared copy
+@@ -190,6 +203,7 @@ const buildLakesideBoard=async({parent,selection,token:buildToken}:{parent:Node;
+   amb.skyLightingColor=new Color(sk[0],sk[1],sk[2],255);amb.groundLightingColor=new Color(gr[0],gr[1],gr[2],255);amb.skyIllum=bi*M.ambientSkyIllumToSun;
+   if(camera&&isValid(camera,true))camera.clearColor=new Color(M.clearColor);
+   if(waterMat)applyLakesideWaterMode(waterMat,mode);
++  lakesideDiagOnce(camera,l,amb);
+   applyFog();};
+  /** v3: scene LINEAR fog while the lake shows (far shore + mountains only); previous fog restored on hide/dispose. */
+  let savedFog:{enabled:boolean;type:number;color:Color;start:number;end:number;top:number;range:number;atten:number}|null=null;
+diff --git a/tools/journey-integration/run-suite.cjs b/tools/journey-integration/run-suite.cjs
+index 970623c..3eb9aac 100644
+--- a/tools/journey-integration/run-suite.cjs
++++ b/tools/journey-integration/run-suite.cjs
+@@ -73,7 +73,7 @@ const tests=[
+  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
+  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
+- ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],
++ ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
+  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
+  ['lakeside-merge-share','tools/lakeside/test_lakeside_merge_share.cjs'],
+ ];
+diff --git a/tools/lakeside/test_lakeside_diag.cjs b/tools/lakeside/test_lakeside_diag.cjs
+new file mode 100644
+index 0000000..e7a03e6
+--- /dev/null
++++ b/tools/lakeside/test_lakeside_diag.cjs
+@@ -0,0 +1,20 @@
++// water-ref candidate (VB): the [QF_LAKE_DIAG] print is gated: cc/env DEBUG (false in release) AND ?lakediag=1, once, at the board
++// light apply; it never runs or prints otherwise; failures console.error, no silent fallback.
++const fs=require('fs'),path=require('path'),assert=require('assert');
++const ts=require(process.env.QF_TYPESCRIPT_MODULE||'typescript');
++const src=fs.readFileSync(path.join(__dirname,'../../creator-build-project/assets/scripts/region/LakesideBoardBackground.ts'),'utf8');
++assert(/^import \{DEBUG\} from 'cc\/env';$/m.test(src),'DEBUG from cc/env');
++const fn=src.match(/export function lakesideDiagEnabled\([^)]*\):boolean\{[^\n]*\}/)[0];
++const m={exports:{}};new Function('module','exports',ts.transpileModule(fn,{compilerOptions:{module:1,target:7}}).outputText)(m,m.exports);
++const on=m.exports.lakesideDiagEnabled;
++assert.equal(on(false,'?lakediag=1'),false,'release (DEBUG false) never');assert.equal(on(true,''),false,'debug without the switch: off');
++assert.equal(on(true,null),false);assert.equal(on(true,'?lakediag=0'),false);assert.equal(on(true,'?xlakediag=1'),false);
++assert.equal(on(true,'?lakediag=1'),true);assert.equal(on(true,'?a=1&lakediag=1&b=2'),true);
++const once=src.match(/function lakesideDiagOnce\([\s\S]*?\n catch\(error\)\{[^\n]*\}\}/)[0];
++assert(/if\(lakeDiagDone\)return;/.test(once)&&/if\(!lakesideDiagEnabled\(DEBUG,q\)\)return;lakeDiagDone=true;/.test(once),'gate before anything else, once');
++assert(once.indexOf('console.log')>once.indexOf('lakesideDiagEnabled(DEBUG,q)'),'print only after the gate');
++assert((src.match(/\[QF_LAKE_DIAG\]/g)||[]).length===2&&(once.match(/\[QF_LAKE_DIAG\]/g)||[]).length===2,'no other diag print');
++assert(/console\.error\('\[QF_LAKE_DIAG\] '\+JSON\.stringify\(\{event:'diag-failed'/.test(once),'errors are logged');
++for(const k of ['isHDR','toneMappingType','exposure','mainLightIlluminance','skyIllum','usePostProcess'])assert(once.includes(k+':'),k);
++assert.equal((src.match(/lakesideDiagOnce\(camera,l,amb\);/g)||[]).length,1,'one call site (applyDir)');
++console.log('lakeside diag OK (gated by DEBUG && ?lakediag=1)');
+-- 
+2.47.3
+

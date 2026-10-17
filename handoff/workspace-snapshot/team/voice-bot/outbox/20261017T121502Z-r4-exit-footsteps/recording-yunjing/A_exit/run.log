@@ -1,0 +1,29 @@
+2026-10-17T12:29:51.675Z home ready
+2026-10-17T12:29:51.684Z renderer ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)
+2026-10-17T12:29:51.689Z step {"op":"eval","js":"(()=>{const g=__ga();if(!g)return 'no GameAudio';g.onGesture();return {gate:g.ambienceGate(),sfxMuted:g.isSfxMuted(),muted:g.isMuted(),music:g.getMusicVolume()};})()"}
+2026-10-17T12:29:51.690Z eval -> {"gate":"ok","sfxMuted":false,"muted":false,"music":0.4}
+2026-10-17T12:29:51.690Z step {"op":"wait","ms":1500}
+2026-10-17T12:29:53.192Z step {"op":"startRec"}
+2026-10-17T12:29:53.194Z recording
+2026-10-17T12:29:53.194Z step {"op":"wait","ms":800}
+2026-10-17T12:29:53.996Z step {"op":"marker"}
+2026-10-17T12:29:53.999Z marker {"beepPerf":4261.773333333333,"ctxTime":3.9726666666666666}
+2026-10-17T12:29:54.600Z step {"op":"wait","ms":1500}
+2026-10-17T12:29:56.101Z step {"op":"marker"}
+2026-10-17T12:29:56.102Z marker {"beepPerf":6363.042333381017,"ctxTime":6.074}
+2026-10-17T12:29:56.703Z step {"op":"wait","ms":800}
+2026-10-17T12:29:57.504Z step {"op":"play","js":"(__qfMark('leave'),__worldIntegration.leave())"}
+2026-10-17T12:29:57.505Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()!==\"home\"","timeout":20000}
+2026-10-17T12:29:57.509Z until ok
+2026-10-17T12:29:57.509Z step {"op":"until","js":"(()=>{try{return __worldIntegration.snapshot().state}catch(e){return ''}})()===\"island\"","timeout":180000}
+2026-10-17T12:30:28.301Z play -> {"ok":true}
+2026-10-17T12:30:28.301Z until ok
+2026-10-17T12:30:28.301Z step {"op":"wait","ms":3000}
+2026-10-17T12:30:31.304Z step {"op":"marker"}
+2026-10-17T12:30:31.306Z marker {"beepPerf":41568.24133336909,"ctxTime":41.279333333333334}
+2026-10-17T12:30:31.907Z step {"op":"wait","ms":1500}
+2026-10-17T12:30:33.408Z step {"op":"marker"}
+2026-10-17T12:30:33.409Z marker {"beepPerf":43669.431333357184,"ctxTime":43.38066666666667}
+2026-10-17T12:30:34.009Z step {"op":"wait","ms":400}
+2026-10-17T12:30:34.411Z stopped
+2026-10-17T12:30:34.946Z saved 2459 frames 86 logs 35 starts webaudio:wl483
