@@ -1,4 +1,5 @@
 import { Sprite, SpriteFrame, Node, Camera, Material, MeshRenderer, EffectAsset, Label, UITransform, UIOpacity, RenderRoot2D, Color, Vec3, Vec4, Layers, resources, utils, isValid, screen } from 'cc';
+import { uiNightWeight } from '../ui/NightTint';
 
 /**
  * Glass sign v4-refined3.2 (运镜bot, approved prototype glass-panel-v4refined3.2-20261016T1419Z).
@@ -14,7 +15,37 @@ export const GLASS_SIGN = Object.freeze({
   px: [280, 100] as const, pad: [130, 85] as const, refWidthCss: 123.2,
   rim: { alpha: 0.43, gamma: 0.6, widthCss: 1.3 }, top: { alpha: 0.8, widthCss: 1.2, gamma: 0.6 },
   caption: '出发去看海', leaf: { size: 44, png: 'world/glass-sign-leaf/spriteFrame', bbox: [7, 41, 48] as const, gap: 6 } as const, leaveAtFrame: 27,
+  text: { color: [255, 255, 255, 255] as const, shadow: [0, 40, 60, 115] as const, shadowBlur: 6 },
 });
+
+/**
+ * Night-only glass set (运镜bot, cine/night-glass-r4; Funning on 09a1b8e: night button too bright / milky).
+ * Blended by uiNightWeight() (0 day .. 1 night, same 0.5 s approach as every night UI). At weight 0 every value
+ * resolves to GLASS_SIGN exactly, so the approved day refine 3.2 is untouched.
+ * - baseAlpha: multiplier on the white base layer (gradient + inner glow) -> walls and window light read through.
+ * - baseTint: base colour at night (sRGB multiplier of white) = the room's dark warm wood/stone, not grey-white.
+ * - rim: rim alpha multiplier (<= .5 of day), rimTint: faint chandelier warmth; top: top highlight multiplier
+ *   (0 = only one thin rim reflection remains).
+ * - text: warm white caption (TEXT_NIGHT.white) + thin dark-warm outline and soft shadow; no white backing.
+ */
+export const GLASS_SIGN_NIGHT = Object.freeze({
+  baseAlpha: 0.45, baseTint: [0.22, 0.15, 0.09] as const,
+  rim: 0.45, rimTint: [1.0, 0.86, 0.66] as const, top: 0.0,
+  text: { color: [232, 226, 212, 255] as const, shadow: [20, 12, 5, 200] as const, shadowBlur: 3, outline: [38, 24, 12, 230] as const, outlineWidth: 1.5 },
+});
+const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t; // exact at both ends
+/** Glass params at night weight w (exported for tests). w = 0 returns the day refine 3.2 values bit-for-bit. */
+export function glassSignLook(w: number) {
+  const t = Math.max(0, Math.min(1, Number.isFinite(w) ? w : 0)), N = GLASS_SIGN_NIGHT, D = GLASS_SIGN.text;
+  const c4 = (a: readonly number[], b: readonly number[]) => [0, 1, 2, 3].map(i => Math.round(lerp(a[i], b[i], t)));
+  return {
+    w: t, params3: [lerp(1, N.baseAlpha, t), lerp(1, N.rim, t), lerp(1, N.top, t), 0],
+    params4: [lerp(1, N.baseTint[0], t), lerp(1, N.baseTint[1], t), lerp(1, N.baseTint[2], t), 0],
+    params5: [lerp(1, N.rimTint[0], t), lerp(1, N.rimTint[1], t), lerp(1, N.rimTint[2], t), 0],
+    text: c4(D.color, N.text.color), shadow: c4(D.shadow, N.text.shadow), shadowBlur: lerp(D.shadowBlur, N.text.shadowBlur, t),
+    outline: t > 0 ? [N.text.outline[0], N.text.outline[1], N.text.outline[2], Math.round(N.text.outline[3] * t)] : null, outlineWidth: N.text.outlineWidth,
+  };
+}
 
 export class GlassSign {
   readonly root: Node;
@@ -23,7 +54,8 @@ export class GlassSign {
   private t = 0; private tapT: number | null = null; private left = false; private shown = false; private disposed = false;
   private corners: Vec3[] = [new Vec3(), new Vec3(), new Vec3(), new Vec3()];
   private box: { l: number; r: number; t: number; b: number } | null = null; private onScreen = false;
-  private stats = { effect: 'loading' as string, frames: 0 };
+  private stats = { effect: 'loading' as string, frames: 0, night: 0 };
+  private labels: Label[] = []; private lookW = -1;
 
   constructor(scene: Node, private camera: Camera, private leave: () => void) {
     const S = GLASS_SIGN;
@@ -60,7 +92,7 @@ export class GlassSign {
       const n = new Node(name); n.layer = this.root.layer; this.text.addChild(n); n.addComponent(UITransform).setContentSize(w, S.px[1]); n.setPosition(x, 1, 0);
       const l = n.addComponent(Label); l.string = s; l.fontSize = size; l.lineHeight = size + 4; l.isBold = true; l.fontFamily = 'sans-serif'; // bold system face (CSS 600); an outline pass merged strokes into blobs
       l.color = new Color(255, 255, 255, 255); l.horizontalAlign = Label.HorizontalAlign.CENTER; l.verticalAlign = Label.VerticalAlign.CENTER;
-      l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; return l;
+      l.enableShadow = true; l.shadowColor = new Color(0, 40, 60, 115); l.shadowOffset.set(0, -1); l.shadowBlur = 6; (l as any).spacingX = 4; this.labels.push(l); return l;
     };
     // G2b: leaf = 48x48 PNG (two leaves #6DBA3C/#A6DB6A, stem, thin dark outline; 8x supersampled then downscaled) drawn at
     // 44 px, visible leaf ~37 px = 1.1x the 34 px caption. Gap 6 px between the VISIBLE leaf edge (PNG bbox x 7..41 of 48) and
@@ -104,14 +136,30 @@ export class GlassSign {
     this.box = { l: Math.min(...xs), r: Math.max(...xs), t: Math.max(...ys), b: Math.min(...ys) }; // screen px, y up
     const dpr = screen.devicePixelRatio || 1, r = (this.box.r - this.box.l) / dpr / S.refWidthCss;
     const localPerPx = S.px[0] / Math.max(1, this.box.r - this.box.l);
+    const look = glassSignLook(uiNightWeight()); this.stats.night = look.w; this.applyTextLook(look);
     if (this.material) {
       this.material.setProperty('params0', new Vec4(Math.min(1, S.rim.alpha * Math.pow(r, S.rim.gamma)), S.top.widthCss * Math.pow(r, S.top.gamma) * dpr, S.rim.widthCss * dpr, fb.op));
       this.material.setProperty('params1', new Vec4(fb.sc, fb.ring, fb.rip, fb.k));
-      this.material.setProperty('params2', new Vec4(fb.ripA, 0, localPerPx, dpr));
+      this.material.setProperty('params2', new Vec4(fb.ripA, look.w, localPerPx, dpr));
+      this.material.setProperty('params3', new Vec4(...(look.params3 as [number, number, number, number])));
+      this.material.setProperty('params4', new Vec4(...(look.params4 as [number, number, number, number])));
+      this.material.setProperty('params5', new Vec4(...(look.params5 as [number, number, number, number])));
     }
     this.text.setScale(fb.sc * S.widthM / S.px[0], fb.sc * S.heightM / S.px[1], 1);
     if (this.textOpacity) this.textOpacity.opacity = Math.round(255 * fb.op);
     if (fb.f >= S.leaveAtFrame && !this.left) { this.left = true; this.root.active = false; this.leave(); }
+  }
+  /** Caption colours follow the night weight; only touched when the weight moves, so day keeps the built Label as is. */
+  private applyTextLook(look: ReturnType<typeof glassSignLook>) {
+    const q = Math.round(look.w * 255); if (q === this.lookW) return; const first = this.lookW < 0; this.lookW = q;
+    if (first && q === 0) return; // day from the start: the day Label stays exactly as built
+    for (const l of this.labels) {
+      if (!isValid(l, true)) continue;
+      l.color = new Color(look.text[0], look.text[1], look.text[2], look.text[3]);
+      l.shadowColor = new Color(look.shadow[0], look.shadow[1], look.shadow[2], look.shadow[3]); l.shadowBlur = look.shadowBlur;
+      if (look.outline) { l.enableOutline = true; l.outlineColor = new Color(look.outline[0], look.outline[1], look.outline[2], look.outline[3]); l.outlineWidth = look.outlineWidth; }
+      else l.enableOutline = false;
+    }
   }
   /** Tap test in screen px (y up, same space as Camera.worldToScreen / EventTouch.getLocation). Starts the feedback. */
   tap(x: number, y: number): boolean {
