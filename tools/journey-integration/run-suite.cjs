@@ -73,7 +73,7 @@ const tests=[
  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
  ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],['lakeside-journey-water-fallback','tools/lakeside/test_lakeside_journey_water_fallback.cjs'],['lakeside-journey-sun','tools/lakeside/test_lakeside_journey_sun.cjs'],['lakeside-journey-water-prewarm','tools/lakeside/test_lakeside_journey_water_prewarm.cjs'],
  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
- ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
+ ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],['region-board-ambient','tools/lakeside/test_region_board_ambient.cjs'],
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['region-landing-hook','tools/journey-integration/test-region-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],
  ['lakeside-static-merge','tools/lakeside/test_lakeside_static_merge.cjs'],['lakeside-pavilion','tools/lakeside/test_lakeside_pavilion.cjs'],['lakeside-light-encoding','tools/lakeside/test_lakeside_light_encoding.cjs'],['lakeside-olive','tools/lakeside/test_lakeside_olive.cjs'],['lakeside-diag','tools/lakeside/test_lakeside_diag.cjs'],
  ['lakeside-journey-merge','tools/lakeside/test_lakeside_journey_merge.cjs'],
