@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-/** 390×844 shots of the real web-test world at the v2.3 balloon keyframes. No test banner. */
-const fs=require('fs'),path=require('path'),{spawn}=require('child_process');
+/** 390×844 (DPR2 → 780×1688) shots of the real web-test world at v2.3 keyframes. */
+const fs=require('fs'),path=require('path'),{spawn,execSync}=require('child_process');
 const env=require('../qf-env.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const WEB=path.join(ROOT,'creator-build-project/build/web-test');
@@ -23,44 +23,51 @@ const FRAMES=[
  {name:'light_11_3',t:11.3,night:0},
  {name:'light_11_4',t:11.4,night:0},
 ];
+function freePort(){
+ try{execSync(`lsof -ti :${PORT} | xargs kill -9`,{stdio:'ignore'});}catch{}
+}
 function server(){return spawn('python3',['-m','http.server',String(PORT),'--bind','127.0.0.1'],{cwd:WEB,stdio:['ignore','pipe','pipe']});}
 async function ready(url){
- for(let i=0;i<40;i++){try{const r=await fetch(url);if(r.ok)return;}catch{}await new Promise(r=>setTimeout(r,250));}
+ for(let i=0;i<60;i++){try{const r=await fetch(url,{signal:AbortSignal.timeout(2000)});if(r.ok)return;}catch{}await new Promise(r=>setTimeout(r,300));}
  throw Error('server not ready');
 }
 async function main(){
  if(!fs.existsSync(path.join(WEB,'index.html')))throw Error('missing web-test');
  fs.mkdirSync(OUT,{recursive:true});
- const child=server();
  const {chromium}=env.playwright();
  const log=[];
+ let child=null;
  try{
-  await ready('http://127.0.0.1:'+PORT+'/index.html');
   for(const frame of FRAMES){
+   freePort(); if(child){try{child.kill('SIGTERM');}catch{}}
+   child=server(); await ready('http://127.0.0.1:'+PORT+'/index.html');
    if(process.env.BALLOON_ONLY&&!frame.name.includes(process.env.BALLOON_ONLY))continue;
-   const browser=await chromium.launch({headless:true,executablePath:env.chromiumExecutable(),args:['--disable-frame-rate-limit']});
-   try{
-    const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,deviceScaleFactor:2});
-    page.on('pageerror',e=>console.log('PAGE',String(e).slice(0,400)));
-    page.on('console',msg=>{if(msg.type()==='error')console.log('CONSOLE',msg.text().slice(0,300));});
-    const q='?balloonPreview=1&balloonNight='+frame.night+'&balloonAt='+frame.t;
-    await page.goto('http://127.0.0.1:'+PORT+'/'+q,{waitUntil:'domcontentloaded',timeout:180000});
-    const hit=await page.waitForFunction(t=>{const b=globalThis.__QF_BALLOON;return !!(b&&b.hold&&Math.abs(b.t-t)<0.2);},frame.t,{timeout:180000,polling:200}).catch(()=>null);
-    await page.waitForTimeout(700);
-    const info=await page.evaluate(()=>{
-     const b=globalThis.__QF_BALLOON||null;
-     const h=globalThis.__QF_BALLOON_HANDOFF||null;
-     let dc=null;try{dc=globalThis.cc.director.root.device.numDrawCalls;}catch{}
-     return {b,h,dc};
-    });
-    const samples=await page.evaluate(()=>new Promise(ok=>{const t0=performance.now();let n=0;function step(now){n++;if(now-t0<1000)requestAnimationFrame(step);else ok(n);}requestAnimationFrame(step);}));
-    const file=path.join(OUT,frame.name+'.png');
-    if(hit)await page.screenshot({path:file,type:'png'});
-    log.push({name:frame.name,ok:!!hit,fps:samples,info});
-    console.log(hit?'SHOT':'MISS',frame.name,JSON.stringify({fps:samples,dc:info&&info.dc,t:info&&info.b&&info.b.t,fade:info&&info.h&&info.h.fade}));
-   }finally{await browser.close();}
+   const dest=path.join(OUT,frame.name+'.png');
+   if(process.env.BALLOON_SKIP_EXISTING&&fs.existsSync(dest)){console.log('SKIP',frame.name);continue;}
+   let ok=false,info=null,samples=0;
+   for(let attempt=1;attempt<=2&&!ok;attempt++){
+    const browser=await chromium.launch({headless:true,executablePath:env.chromiumExecutable(),args:['--disable-frame-rate-limit','--disable-dev-shm-usage']});
+    try{
+     const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,deviceScaleFactor:2});
+     page.setDefaultTimeout(240000);
+     const q='?balloonPreview=1&balloonNight='+frame.night+'&balloonAt='+frame.t;
+     await page.goto('http://127.0.0.1:'+PORT+'/'+q,{waitUntil:'load',timeout:240000});
+     const hit=await page.waitForFunction(t=>{const b=globalThis.__QF_BALLOON;return !!(b&&b.hold&&Math.abs(b.t-t)<0.25);},frame.t,{timeout:240000,polling:250}).catch(()=>null);
+     await page.waitForTimeout(800);
+     info=await page.evaluate(()=>{
+      const b=globalThis.__QF_BALLOON||null;
+      const h=globalThis.__QF_BALLOON_HANDOFF||null;
+      let dc=null;try{dc=globalThis.cc.director.root.device.numDrawCalls;}catch{}
+      return {b,h,dc};
+     });
+     samples=await page.evaluate(()=>new Promise(ok=>{const t0=performance.now();let n=0;function step(now){n++;if(now-t0<1000)requestAnimationFrame(step);else ok(n);}requestAnimationFrame(step);}));
+     if(hit){await page.screenshot({path:dest,type:'png'});ok=true;}
+     console.log(ok?'SHOT':'MISS',frame.name,'try'+attempt,JSON.stringify({fps:samples,dc:info&&info.dc,t:info&&info.b&&info.b.t,dcWorst:info&&info.b&&info.b.dcWorst,fade:info&&info.h&&info.h.fade}));
+    }finally{await browser.close();}
+   }
+   log.push({name:frame.name,ok,fps:samples,info});
   }
   fs.writeFileSync(path.join(OUT,'capture.json'),JSON.stringify(log,null,2));
- }finally{child.kill('SIGTERM');}
+ }finally{try{if(child)child.kill('SIGTERM');}catch{}freePort();}
 }
 main().catch(e=>{console.error(e);process.exit(1);});
