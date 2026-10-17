@@ -8,8 +8,8 @@
 | 内容 | 分支 | SHA | 状态 |
 |---|---|---|---|
 | 湖畔 lakeside 落地钩子 v3 | `cine/lakeside-hook-v3-on-r3` | c3cbf89（进关遮罩保持落地板面机位）+ a8ba19a（swap 帧测试） | 已交付。suite 69/74（已知 5 个失败）；Mac GPU 5 屏 swap 0/0/0。outbox `20261017T0940Z-lakeside-hook-v3-on-r3` |
-| 地区钩子 meadow/skycity r4 | `cine/region-hooks-meadow-skycity-r4` | **95d3eee**（基于 5b1f41d ← GGbot r4-prep 97b761d） | **r4 现在合并它**。suite 77/82（已知 5 个失败）；Mac GPU 10 次运行 swap 0/0/0。草地停点在 390x844/414x896 上会碰到提示条（toast），这一项留到 r4.1 |
-| 草地 r4.1（方案 b：提示条按真实宽度算） | `cine/region-hooks-meadow-r4.1`（现在 = 95d3eee，没有新提交） | — | **没做成，等决定**（见 §5.1）。WIP 补丁：`outbox/20261017T1207Z-girl-endpoints-r4/r4.1-wip/` |
+| 地区钩子 meadow/skycity r4 | `cine/region-hooks-meadow-skycity-r4` | **95d3eee**（基于 5b1f41d ← GGbot r4-prep 97b761d） | **r4 现在合并它**。suite 77/82（已知 5 个失败）；Mac GPU 10 次运行 swap 0/0/0。草地停点在 390x844/414x896 上会碰到提示条（toast），由 r4.1 解决 |
+| 草地 r4.1（提示条移到托盘上方后） | `cine/region-hooks-meadow-r4.1-on-260ea02` | **0ea1564**（← abeb1fa = 95d3eee cherry-pick ← GGbot 260ea02 提示条上移，基于 6f42df4） | **完成，等合并**。7 个竖屏间距 16.3–32.5 pt（独立 fixture 375x667 13.4 pt），O5 ≤ +2.98 s，F7b 全过，swap 0。suite 90/93（只剩已知的 3 个 BLOCKED）。Mac GPU 没测（Mac 连不上）。资料：`outbox/20261017T1255Z-meadow-r41-on-260ea02/`。旧分支 `cine/region-hooks-meadow-r4.1`（=95d3eee）作废 |
 | 作废 | `cine/region-hooks-meadow-r4-ggkeepout` | 2665429 | Grok Bot 决定不用（左下角停点，O5 +4.40 s） |
 | 夜间玻璃 | `cine/night-glass-r4` | 9c8fb36 | 只改夜间玻璃组（白天 refine 3.2 不变）。outbox `20261017T112348Z-night-glass` |
 | m1v2 穿模修复（出门动画：腿 × 裙/围裙/椅背） | 没有游戏分支（只有证据） | — | **进行中**：`team/cinematic/work/m1v2-clipfix/`（STATUS.md / STATUS.log）。v3 constrained-smooth：cs2 通过 QP，下一步是 cs/solve3.py（加三角形对三角形约束）。渲染任务在 run_render.sh（可续跑） |
@@ -30,7 +30,7 @@
 - **女孩可见性测试**：
   - `tools/journey-integration/girl-frame.cjs`：独立投影，输出每个屏幕上她的框、是否被 UI 覆盖、和 UI 的间距、宽度占比、是否在 frameLimits 里。
   - test-region-landing-hook 里的 “her board copy at the board camera” 和 “meadow stand” 两项：检查脚是否贴地、身体有没有穿模、是否被场景遮挡。
-  - UI 来自 `BoardLayout.boardLayout/toolSlots(lay,3)`。GGbot 给的工具栏矩形（含角标和选中圈）已经作为独立 fixture 写在 r4.1 WIP 里。
+  - UI 来自 `BoardLayout.boardLayout/toolSlots(lay,3)`。GGbot 给的工具栏矩形（含角标和选中圈）和 GGbot r4.1 的提示条/托盘 footprint（team/ggbot/outbox/20261017T124421Z-r41-hint-above-tray/footprint.json）一起，作为独立 fixture 写在 girl-frame.cjs 里（0ea1564）。
 - **条带图（strips）**：
   - 机上：post.sh → landana.py（落地分析）、swapstrip.py（swap 前后帧条）。
   - 离线：`/workspace/tmp-lkcam/rh2/rast.py`（numpy 光栅化 GLB），view.py / panel_m2.py 画板面视角并标出 UI 框。
@@ -61,18 +61,10 @@
 
 ## 5. 未完成事项
 
-1. **草地 r4.1（等决定）**：这几条要求在 390x844 和 360x780 上**不能同时满足**：
-   - 提示条按游戏里最宽的真实提示算：ManagedTools「这件道具已用完，可从已获得的宝箱或地区礼物领取」，measure(text,15)+40 被夹到 330 pt，高 32 pt，外加阴影；
-   - 和 UI 的间距 ≥13 pt；
-   - O5 ≤ +3 s；
-   - F7b。
-
-   实测上限：
-   - 390x844：同时满足 O5 和 F7b 时，间距最多 7.1 pt；要间距 ≥13，O5 至少 +3.36 s。
-   - 360x780：同时满足 O5 和 F7b 时，间距最多 5.3 pt，而且贴着左边缘。
-   - 其他 5 个屏幕可以做到 ≥13。
-   - 如果提示条不放在托盘和工具栏之间（比如移到托盘上方或屏幕顶部，这是 GGbot 的 UI 改动），7 个屏幕都能同时满足 ≥13 pt、O5、F7b：390x844 31 pt，360x780 21 pt。
-   - 地图和脚本见 `r4.1-wip/`（o5-f7b-map.txt、scan2d/scanline/nohint.cjs）。
+1. **草地 r4.1（已完成，等合并）**：GGbot 把提示条移到托盘上方（260ea02）后，7 个竖屏都能同时满足间距 ≥13、O5、F7b。
+   - 做法：在草地出生点左侧、08→09 镜头保持在她右后方的那条窄带（模型 x≈-0.8..-1.5，z 14–18）上放一条 6.5 m 的站位线；regionGirlStand 每个屏幕自己挑停点，adapter 只接受 08→09 多走不超过 MEADOW_EXIT_BUDGET_M（0.432 m）的点。
+   - 结果：390x844/414x896/360x780/375x667/768x1024 停在线末端 (-0.8,14.0)，O5 +1.19 s；390x520 停 4.3 m，+2.98 s；320x568 停 5.0 m，+2.40 s。F7b 最差 -0.22°（负值 = 通过）。
+   - 还要做：合并后在 Mac 上跑 GPU 复核（Mac 这次连不上）；她在多数屏幕上比较小（屏宽 4–6%），只在 390x520 和 768x1024 上落在取景框内，Funning 要看截图决定接不接受。
 2. **skycity**：方案 B 放到 r5，前提是场景设计先完成（彩虹桥落在星庭前沿，平顶 y -0.25，z≈48.5，x≈-1，步行 5–10 m，会改 O4 “真实入口” 的决定，镜头和遮挡要重调）。现在什么都不做。阻塞的原因：云桥甲板在 12.5–15.1 m 有缺口；state_bridge_before 木板浮在甲板上方 1.7–2.5 m；绕行要多约 50 s。
 3. **m1v2 穿模修复**：继续做 cs/solve3.py，见 work/m1v2-clipfix/STATUS.md。
 4. **r4 录制**：白天、夜间、390x520，都要带音频（用 AudioWorklet 流程），在 r4（95d3eee + GGbot 的 r4）上录。
