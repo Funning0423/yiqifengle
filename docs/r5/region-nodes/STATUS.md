@@ -8,4 +8,6 @@
 - 棋盘位姿：海岛仍是 2D。草地和天空之城主线节点的离线覆盖检查没有在不改 GLB 的前提下证明 ≥ 99.5%，全部标成 `default`（F6 允许）。`setAnchor` 只加在草地棋盘上；天空之城棋盘文件被 `journey-occlusion` 的 Build05 SHA 钉住，不能改字节，所以天空之城节点保持现在的 `skycityVisitPose`。
 - 地图缩放：52° 俯视会把站立的人压短。为了保证身体 ≥ 0.12 屏高，`zoomForBody` 会把请求的倍数收到大约 1.34 倍以内。设计里的 1.6 / 1.8 上限仍是请求上限。原因写进 REPORT。
 - 2026-10-18 01:04 本地：Node 22 套件 103/104，唯一非 PASS 是 `navigation-guard: BLOCKED_BROWSER`。Node 20 套件 101/104，另外两项是 `legacy-board-ui-pure` 与 `reward-background-return` 的 `BLOCKED_NODE`。新增 9 项测试全部 PASS。
-- 下一步：本地提交，然后冒烟构建、wechat-release / web-test、截图、REPORT、清理。
+- 2026-10-18 01:08 本地：提交 `6f47e4748e`。冒烟 wechat/web 完成，工作区干净。build-guard both：wechat-release 19,413,434 B（比 r4 多 77,679 B），web-test 20,201,068 B。
+- 2026-10-18 01:27 本地：截图在 `docs/r5/region-nodes/shots/`。实机只有海岛世界、海岛棋盘、昼夜和多分辨率。FollowWalk、MapExplore、标记三态、草地 M2、天空 S4 没有接到画面上。headless 海岛帧间隔中位数 99.8 ms。棋盘 DC 45。清理后剩余约 7.0 GiB。
+- 下一步：提交报告和截图。不 push。
