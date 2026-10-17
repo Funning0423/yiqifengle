@@ -25,6 +25,10 @@ assert(/CC_TRANSFER_FOG\(pos\)/.test(fx)&&/CC_APPLY_FOG\(o, v_worldPos\)/.test(f
 assert(/CCGetWorldMatrixFull\(matWorld, matWorldIT\)/.test(fx),'instancing-aware world matrix');
 assert(!/sampler2D|texture\(/.test(fx),'no textures');
 const ub=fx.match(/uniform LakesideWater \{([\s\S]*?)\};/)[1].trim().split(/\n/).map(s=>s.trim());assert(ub.every(l=>/^vec4 \w+;$/.test(l)),'std140-safe vec4 block');
+// r4 (VB): Cocos 3.8.8 Material._uploadProperty squares (SRGBToLinear) any property tagged `linear: true`; the lease sends linear
+// values, so the colour properties must NOT carry the tag (r3 Mac: reflection orange-saturated = the colours squared once more).
+{const blk=fx.match(/^CCEffect %\{([\s\S]*?)\n\}%/m)[1];assert(!/linear:\s*true/.test(blk),'water colour uniforms pass through as authored (linear), no linear:true double decode');
+ for(const k of ['waterTint','skyZenith','skyLow','skyHorizon'])assert(new RegExp(k+':\\s+\\{ value: \\[[^\\]]*\\], editor: \\{ type: color \\} \\}').test(blk),k+' colour without linear tag');}
 for(const k of ['waterTint','skyZenith','skyLow','skyHorizon','fresnelParams','specParams','waveParams','lightParams'])assert(new RegExp('\\n\\s+'+k+':\\s+\\{ value:').test(fx)&&ub.includes('vec4 '+k+';'),k);
 // metas / material
 const em=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.effect.meta'))),mt=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl'))),mm=JSON.parse(fs.readFileSync(path.join(W,'lakeside-water.mtl.meta')));
