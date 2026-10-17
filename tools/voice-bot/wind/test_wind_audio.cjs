@@ -230,4 +230,24 @@ for (const [file, lift] of [['exit138_timeline.json', null], ['exit50c_timeline.
   music = 0.2; e.run(1 / 60);
   ok(near(e.w.snapshot().strong, full.strong * 0.5, 0.02) && near(e.a.src.volume, full.waves * 0.5, 0.02), 'music 0.2: half the design level, wind-duck ratio stays inside it', { strong: e.w.snapshot().strong, waves: e.a.src.volume, full });
 }
+// A3b (GGbot): every (re)start of the waves bed fades in from 0 - also when the bed paused ITSELF (transition gain -> 0, heard < 0.002),
+// which is the real meadow -> home path (Mac readme-v2-a3: waves-play heard 0.516). The slider-at-0 resume stays immediate (above).
+{ const e = env({ withAmbience: true }); let tg = 1; const logs = [];
+  e.GameAudio.instance.getMusicVolume = () => 0.4; e.GameAudio.instance.transitionGain = () => tg;
+  const ci = console.info; console.info = (m) => { if (String(m).startsWith('[QF_AUDIO]')) logs.push(JSON.parse(String(m).slice(11))); };
+  global.__worldFlowLog = true;
+  try {
+    e.flow.w = 0; e.run(4); const full = e.a.src.volume;
+    ok(e.a.src.playing && full > 0.3, 'A3b: outdoors waves at the bed level', full);
+    tg = 0; e.run(0.5); ok(!e.a.src.playing && e.a.vol > 0.3, 'A3b: transition gain 0 -> waves self-pause, smoothed vol still stale', { playing: e.a.src.playing, vol: e.a.vol });
+    tg = 1; let first = -1;
+    for (let i = 0; i < 180 && first < 0; i++) { e.run(1 / 60); if (e.a.src.playing) first = e.a.src.volume; }
+    ok(first > 0 && first < 0.05, 'A3b: self-pause restart: first audible frame near 0 (not the stale ~0.5)', first);
+    const st = logs.filter(l => l.event === 'waves-start').pop();
+    ok(st && st.from === 'zero' && near(st.vol, +first.toFixed(3), 1e-3), 'A3b: [QF_AUDIO] waves-start logs the first-frame vol', st);
+    e.run(2.5); ok(near(e.a.src.volume, full, 0.03), 'A3b: back at the bed level ~2.5 s later', e.a.src.volume);
+    e.a.quiet(); let q = -1; for (let i = 0; i < 180 && q < 0; i++) { e.run(1 / 60); if (e.a.src.playing) q = e.a.src.volume; }
+    ok(q > 0 && q < 0.05, 'A3b: restart after quiet() (hide / external stop) also from 0', q);
+  } finally { console.info = ci; delete global.__worldFlowLog; }
+}
 console.log(fail ? 'FAILED ' + fail : 'ALL PASS wind-audio'); process.exitCode = fail ? 1 : 0;
