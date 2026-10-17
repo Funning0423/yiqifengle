@@ -1,16 +1,122 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "642c0": {
+      "importer": "gltf-mesh",
+      "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@642c0",
+      "displayName": "",
+      "id": "642c0",
+      "name": "far_meadow_card.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 2112
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e1a6d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@e1a6d",
+      "displayName": "",
+      "id": "e1a6d",
+      "name": "far_meadow_card_albedo_v2_3.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": false,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".jpg",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "e39f7": {
+      "importer": "texture",
+      "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@e39f7",
+      "displayName": "",
+      "id": "e39f7",
+      "name": "UnnamedTexture.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "linear",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@e1a6d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ee288": {
+      "importer": "gltf-material",
+      "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@ee288",
+      "displayName": "",
+      "id": "ee288",
+      "name": "M_far_meadow_card.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "40bfb": {
+      "importer": "gltf-scene",
+      "uuid": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@40bfb",
+      "displayName": "",
+      "id": "40bfb",
+      "name": "far_meadow_card.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "lods": {
-      "maxSize": 0,
-      "screenRatio": 1,
-      "faceCount": 1,
-      "levels": []
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
     },
     "meshCompress": {
       "enable": true,
@@ -18,12 +124,40 @@
       "quantize": true,
       "encode": true
     },
-    "imageMetas": [],
+    "imageMetas": [
+      {
+        "name": "far_meadow_card_albedo_v2_3",
+        "uri": "1c126a55-4150-4a5d-a5c2-ee33399c42cb@e1a6d"
+      }
+    ],
     "assetFinder": {
-      "meshes": [],
-      "materials": [],
-      "textures": [],
-      "skeletons": []
+      "meshes": [
+        "1c126a55-4150-4a5d-a5c2-ee33399c42cb@642c0"
+      ],
+      "materials": [
+        "1c126a55-4150-4a5d-a5c2-ee33399c42cb@ee288"
+      ],
+      "textures": [
+        "1c126a55-4150-4a5d-a5c2-ee33399c42cb@e39f7"
+      ],
+      "skeletons": [],
+      "scenes": [
+        "1c126a55-4150-4a5d-a5c2-ee33399c42cb@40bfb"
+      ]
+    },
+    "legacyFbxImporter": false,
+    "allowMeshDataAccess": true,
+    "addVertexColor": false,
+    "generateLightmapUVNode": false,
+    "meshOptimizer": {
+      "enable": false,
+      "algorithm": "simplify",
+      "simplifyOptions": {
+        "targetRatio": 1,
+        "enableSmartLink": true,
+        "agressiveness": 7,
+        "maxIterationCount": 100
+      }
     }
   }
 }

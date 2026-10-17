@@ -13,7 +13,7 @@
       "name": "clouds_floor_merged.mesh",
       "userData": {
         "gltfIndex": 4,
-        "triangleCount": 1232
+        "triangleCount": 1220
       },
       "ver": "1.1.1",
       "imported": true,
@@ -121,7 +121,7 @@
       "name": "clouds_floor_puff_merged.mesh",
       "userData": {
         "gltfIndex": 5,
-        "triangleCount": 2240
+        "triangleCount": 2080
       },
       "ver": "1.1.1",
       "imported": true,

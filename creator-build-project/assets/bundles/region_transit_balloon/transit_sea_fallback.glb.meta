@@ -1,16 +1,79 @@
 {
   "ver": "2.3.14",
   "importer": "gltf",
-  "imported": false,
+  "imported": true,
   "uuid": "e97761d7-374a-491c-bf20-ee4b0dff116a",
   "files": [],
-  "subMetas": {},
+  "subMetas": {
+    "e70c7": {
+      "importer": "gltf-mesh",
+      "uuid": "e97761d7-374a-491c-bf20-ee4b0dff116a@e70c7",
+      "displayName": "",
+      "id": "e70c7",
+      "name": "transit_sea_fallback.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 336
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a297f": {
+      "importer": "gltf-material",
+      "uuid": "e97761d7-374a-491c-bf20-ee4b0dff116a@a297f",
+      "displayName": "",
+      "id": "a297f",
+      "name": "M_transit_sea_fallback.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "806e3": {
+      "importer": "gltf-scene",
+      "uuid": "e97761d7-374a-491c-bf20-ee4b0dff116a@806e3",
+      "displayName": "",
+      "id": "806e3",
+      "name": "transit_sea_fallback.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
   "userData": {
     "lods": {
-      "maxSize": 0,
-      "screenRatio": 1,
-      "faceCount": 1,
-      "levels": []
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
     },
     "meshCompress": {
       "enable": true,
@@ -20,10 +83,31 @@
     },
     "imageMetas": [],
     "assetFinder": {
-      "meshes": [],
-      "materials": [],
+      "meshes": [
+        "e97761d7-374a-491c-bf20-ee4b0dff116a@e70c7"
+      ],
+      "materials": [
+        "e97761d7-374a-491c-bf20-ee4b0dff116a@a297f"
+      ],
       "textures": [],
-      "skeletons": []
+      "skeletons": [],
+      "scenes": [
+        "e97761d7-374a-491c-bf20-ee4b0dff116a@806e3"
+      ]
+    },
+    "legacyFbxImporter": false,
+    "allowMeshDataAccess": true,
+    "addVertexColor": false,
+    "generateLightmapUVNode": false,
+    "meshOptimizer": {
+      "enable": false,
+      "algorithm": "simplify",
+      "simplifyOptions": {
+        "targetRatio": 1,
+        "enableSmartLink": true,
+        "agressiveness": 7,
+        "maxIterationCount": 100
+      }
     }
   }
 }
