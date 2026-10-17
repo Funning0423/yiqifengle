@@ -132,8 +132,11 @@ export function lakesideWaterMaterial(asset:Material):Material{
  water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,P.waterSkyStrength));water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,P.waterSkyReflectFloor));
  water.setProperty('waveParams',new Vec4(P.waterWaveTilt,P.waterWaveFreq,P.waterWaveSpeed,0));
  water.setProperty('lightParams',new Vec4(P.waterMainLightScale,P.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));return water;}
-/** The day/night part of the same source (board applyDir and the journey's day/night listener). */
-export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode);
+/** The day/night part of the same source (board applyDir and the journey's day/night listener). r4 (VB): also the per-mode
+ *  reflected sky (zenith/low/horizon), tint and reflection-mix floor, so night reflects its own dark blue-teal sky. */
+export function applyLakesideWaterMode(water:Material,mode:LakesideDayNight){const P=LAKESIDE_DIR_LIGHT_PARAMS,M=lakesideModeLighting(mode),v=(c:readonly number[])=>new Vec4(c[0],c[1],c[2],1);
+ water.setProperty('waterTint',v(M.waterTintLinear));water.setProperty('skyZenith',v(M.waterSkyZenithLinear));water.setProperty('skyLow',v(M.waterSkyLowLinear));water.setProperty('skyHorizon',v(M.waterSkyHorizonLinear));
+ water.setProperty('specParams',new Vec4(P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor));
  water.setProperty('lightParams',new Vec4(M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd));water.setProperty('fresnelParams',new Vec4(P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength));}
 /** The lakeside-water.mtl asset (dir light mode only; null otherwise or when it fails to load: callers keep their old look). */
 export async function loadLakesideWaterAsset(token:Cancellation,take:<T extends {addRef():unknown;decRef():unknown}>(a:T)=>T):Promise<Material|null>{

@@ -69,7 +69,7 @@ const tests=[
  ['lakeside-daynight','tools/lakeside/test_lakeside_daynight.cjs'],
  ['lakeside-sky-follow','tools/lakeside/test_lakeside_sky_follow.cjs'],
  ['lakeside-far-view','tools/lakeside/test_lakeside_far_view.cjs'],
- ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],
+ ['lakeside-shared-water','tools/lakeside/test_lakeside_shared_water.cjs'],['lakeside-sky-reflection','tools/lakeside/test_lakeside_sky_reflection.cjs'],
  ['lakeside-board-guest','tools/lakeside/test_lakeside_board_guest.cjs'],
  ['lakeside-board-preload','tools/lakeside/test_lakeside_board_preload.cjs'],
  ['lakeside-camera','tools/journey-integration/test-lakeside-camera.cjs'],['lakeside-journey-wire','tools/journey-integration/test-lakeside-journey-wire.cjs'],['lakeside-landing-hook','tools/journey-integration/test-lakeside-landing-hook.cjs'],['lake-ambience','tools/test_lake_ambience.cjs'],

@@ -138,18 +138,26 @@ export const LAKESIDE_NIGHT_LIGHT_PARAMS = Object.freeze({
   ambientSkyIllumToSun: 0.643, // r4: keeps hemisphere ambient night/day 0.219 vs the r4 day (fill 0.236, ground 0.97/0.533/0.296); r2 1.76
   clearColor: '#1c2740',
   fogColorSrgb: [44, 54, 84] as const,
-  waterMainLightScale: 0.8, waterAmbientScale: 0.6, waterSkyStrength: 0.12,
+  /** r4 (VB): the night lake reflects its OWN dark blue-teal sky. r3 reused the day dusk beige/orange low/horizon (x skyStrength
+   *  0.12) -> the orange-brown night lake centre. Zenith = this clear colour #1c2740 (linear), low/horizon dark teal; the sky
+   *  reflection stays on at night (0.6 of the night ambient illuminance). */
+  waterMainLightScale: 0.8, waterAmbientScale: 1.0, waterSkyStrength: 0.6, // r4 (r2 amb 0.6, sky 0.12)
+  waterTintLinear: [0.7, 0.95, 1.0] as const, waterSkyReflectFloor: 0.28,
+  waterSkyZenithLinear: [0.011, 0.02, 0.051] as const, waterSkyLowLinear: [0.014, 0.045, 0.065] as const, waterSkyHorizonLinear: [0.018, 0.06, 0.068] as const,
 });
 export type LakesideDayNight = 'day' | 'night';
 export type LakesideModeLighting = Readonly<{ sunColorLinear: readonly number[]; sunIlluminanceScale: number; ambientSkyColorLinear: readonly number[];
   ambientGroundColorLinear: readonly number[]; ambientSkyIllumToSun: number; clearColor: string; fogColorSrgb: readonly [number, number, number];
-  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number }>;
+  waterMainLightScale: number; waterAmbientScale: number; waterSkyStrength: number;
+  /** r4: the reflected sky + tint + mix floor are per mode too (written by applyLakesideWaterMode on the board AND journey copies). */
+  waterTintLinear: readonly number[]; waterSkyReflectFloor: number; waterSkyZenithLinear: readonly number[]; waterSkyLowLinear: readonly number[]; waterSkyHorizonLinear: readonly number[] }>;
 /** The lakeside look for a day/night mode: day = the v3.2/v3.3 dusk values (unchanged), night = LAKESIDE_NIGHT_LIGHT_PARAMS. */
 export function lakesideModeLighting(mode: LakesideDayNight): LakesideModeLighting {
   if (mode === 'night') return LAKESIDE_NIGHT_LIGHT_PARAMS;
   const P = LAKESIDE_DIR_LIGHT_PARAMS;
   return { sunColorLinear: P.sunColorLinear, sunIlluminanceScale: P.sunIlluminanceScale, ambientSkyColorLinear: P.ambientSkyColorLinear, ambientGroundColorLinear: P.ambientGroundColorLinear,
-    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength };
+    ambientSkyIllumToSun: P.ambientSkyIllumToSun, clearColor: lakesideDayClearColor(), fogColorSrgb: P.fogColorSrgb, waterMainLightScale: P.waterMainLightScale, waterAmbientScale: P.waterAmbientScale, waterSkyStrength: P.waterSkyStrength,
+    waterTintLinear: P.waterTintLinear, waterSkyReflectFloor: P.waterSkyReflectFloor, waterSkyZenithLinear: P.waterSkyZenithLinear, waterSkyLowLinear: P.waterSkyLowLinear, waterSkyHorizonLinear: P.waterSkyHorizonLinear };
 }
 /** Cocos LINEAR fog end that reproduces "amount fogMaxAmount at fogMaxAt" with a linear ramp from fogStart. */
 /** v3.1 fog mode (lead + VB): 'layered' = Cocos LAYERED height fog, a thin golden slab just above the water (y=0) so the

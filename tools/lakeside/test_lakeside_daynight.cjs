@@ -41,7 +41,7 @@ function expectIsland(m,label,primed=false){const v=DN.resolveDayNight(m,true);a
 const run=(name,f)=>{f();console.log('PASS',name);};
 const N=D.lakesideModeLighting('night'),Dy=D.lakesideModeLighting('day');
 run('night look differs from day and day is the unchanged r5h3 dusk',()=>{assert.notDeepEqual(D.lakesideCocosLightColor(N.sunColorLinear),D.lakesideCocosLightColor(Dy.sunColorLinear));assert.equal(Dy.clearColor,D.lakesideDayClearColor());
- assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);assert(N.waterSkyStrength<Dy.waterSkyStrength);});
+ assert.equal(Dy.waterMainLightScale,D.LAKESIDE_DIR_LIGHT_PARAMS.waterMainLightScale);assert.equal(Dy.waterSkyStrength,D.LAKESIDE_DIR_LIGHT_PARAMS.waterSkyStrength);{const l=c=>0.2126*c[0]+0.7152*c[1]+0.0722*c[2];/* r4: night keeps a sky reflection (> 0) of its own, darker, dark blue-teal sky */assert(N.waterSkyStrength>0);assert(l(N.waterSkyLowLinear)*N.waterSkyStrength<l(Dy.waterSkyLowLinear)*Dy.waterSkyStrength);}});
 run('day clear = board init clear byte for byte (dir mode), journey day end clear too; points mode keeps LAKESIDE_CLEAR_COLOR',()=>{
  assert.equal(D.LAKESIDE_LIGHT_MODE,'dir');const init=D.linearToSrgb8(D.LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);
  assert.deepEqual(rgb(new Color(Dy.clearColor)),init,'day pack clear bytes = board init bytes');assert.deepEqual(init,[28,143,184]);assert.notEqual(Dy.clearColor.toLowerCase(),'#f2b98a');

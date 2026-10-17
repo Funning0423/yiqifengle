@@ -25,7 +25,11 @@ run('one source: two copies (journey, board) carry identical params straight fro
 run('day/night: applyLakesideWaterMode writes lakesideModeLighting(mode) on either copy, identically',()=>{
  for(const m of ['day','night']){const M=D.lakesideModeLighting(m),j=B.lakesideWaterMaterial(asset),b=B.lakesideWaterMaterial(asset);B.applyLakesideWaterMode(j,m);B.applyLakesideWaterMode(b,m);
   assert.deepEqual(j.props,b.props);assert.deepEqual(j.props.lightParams,[M.waterMainLightScale,M.waterAmbientScale,P.waterWaveFadeStart,P.waterWaveFadeEnd]);
-  assert.deepEqual(j.props.fresnelParams,[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength]);}});
+  assert.deepEqual(j.props.fresnelParams,[P.waterFresnelPower,P.waterFresnelF0,P.waterFresnelMax,M.waterSkyStrength]);
+  // r4 (VB): reflected sky, tint and mix floor are per mode as well - the journey copy and the board copy get the same ones
+  assert.deepEqual(j.props.waterTint,[...M.waterTintLinear,1]);assert.deepEqual(j.props.skyZenith,[...M.waterSkyZenithLinear,1]);assert.deepEqual(j.props.skyLow,[...M.waterSkyLowLinear,1]);assert.deepEqual(j.props.skyHorizon,[...M.waterSkyHorizonLinear,1]);
+  assert.deepEqual(j.props.specParams,[P.waterSpecExponent,P.waterSpecIntensity,P.waterSpecNoise,M.waterSkyReflectFloor]);
+  assert(j.props.fresnelParams[3]>0&&j.props.specParams[3]>0,m+': sky reflection > 0 on the journey and board copies');}});
 run('wiring: board and journey both use the helpers; journey follows the toggle, frees its copy and listener once',()=>{
  const bg=fs.readFileSync(S+'region/LakesideBoardBackground.ts','utf8'),ja=fs.readFileSync(S+'region/RegionJourneyAdapter.ts','utf8');
  assert.match(bg,/water=lakesideWaterMaterial\(waterAsset\)/);assert.match(bg,/if\(waterMat\)applyLakesideWaterMode\(waterMat,mode\);/);
