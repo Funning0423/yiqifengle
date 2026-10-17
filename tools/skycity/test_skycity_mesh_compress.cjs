@@ -8,5 +8,6 @@ const P=path.resolve(__dirname,'../../creator-build-project'),m=JSON.parse(fs.re
 assert.deepStrictEqual(m.userData.meshCompress,{enable:true,compress:true,encode:false,quantize:false});
 assert.equal(m.userData.tangents,1,'tangent import unchanged');
 const eng=JSON.parse(fs.readFileSync(P+'/settings/v2/packages/engine.json','utf8'));
-assert.equal(eng.modules.configs.defaultConfig.cache.meshopt._value,false,'encode stays off while the meshopt module is culled');
+// v3.3 (GGbot): the meshopt module is now ON for the lakeside GLBs (encode:true); skycity keeps compress-only above (no visual re-check needed).
+assert.equal(eng.modules.configs.defaultConfig.cache.meshopt._value,true,'meshopt module present (lakeside v3.3)');
 console.log('PASS skycity meshCompress lossless (compress only)');

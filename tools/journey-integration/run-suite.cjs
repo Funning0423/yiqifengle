@@ -59,6 +59,7 @@ const tests=[
  ['build-guard-selftest','tools/build-guard/test_build_guard.cjs'],
  ['lakeside-rules','tools/lakeside/test_lakeside_rules.cjs'],['lakeside-entry','tools/lakeside/test_lakeside_entry.cjs'],
  ['lakeside-instancing','tools/lakeside/test_lakeside_instancing.cjs'],['lakeside-dirlight','tools/lakeside/test_lakeside_dirlight.cjs'],['lakeside-water-fog','tools/lakeside/test_lakeside_water_fog.cjs'],
+ ['lakeside-meshopt','tools/lakeside/test_lakeside_meshopt.cjs'],
 ];
 const selection=process.argv.slice(2);const selected=selection.length?tests.filter(([id])=>selection.includes(id)):tests;
 if(selection.some(id=>!tests.some(t=>t[0]===id)))throw Error('Unknown test id');

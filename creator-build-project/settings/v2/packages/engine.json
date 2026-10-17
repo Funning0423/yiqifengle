@@ -27,7 +27,7 @@
             "_value": true
           },
           "meshopt": {
-            "_value": false
+            "_value": true
           },
           "2d": {
             "_value": true
@@ -200,6 +200,7 @@
           "gfx-webgl",
           "gfx-webgl2",
           "graphics",
+          "meshopt",
           "primitive",
           "profiler",
           "skeletal-animation",
