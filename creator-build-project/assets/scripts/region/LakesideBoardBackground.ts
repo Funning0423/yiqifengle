@@ -1,8 +1,9 @@
 import {Animation,AssetManager,Camera,Color,DirectionalLight,JsonAsset,Material,MeshRenderer,Node,Prefab,Quat,Vec3,Vec4,SphereLight,assetManager,director,instantiate,isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {applyCameraPose} from '../world-r1/CameraPose';
+import {lakesideAlignedBoardPose} from './LakesideCameraLayout';
 import type {LevelBackgroundFactory} from '../world-r2/LevelBackground';
-import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideBoardPose,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
+import {LAKESIDE_BUNDLE,LAKESIDE_TRANSFORMS,LAKESIDE_MODELS_DIR,LAKESIDE_LIGHTS,LAKESIDE_CLEAR_COLOR,LAKESIDE_BOARD_CAMERA,lakesideLightPosition,lakesideLightSrgb,lakesideSceneInstances,lakesidePrefabName,LAKESIDE_LIGHT_MODE,LAKESIDE_DIR_LIGHT_PARAMS,linearToSrgb8,lakesideFogEnd,lakesideFogModeFromEnv,LAKESIDE_LAYERED_FOG,type LakesideInstance} from './LakesideSceneData';
 /** Dedicated level-background layer, shared with the mutually exclusive meadow / sky-city leases (never two at once). */
 export const LAKESIDE_LAYER=1<<20;
 /** Scene node names (stable; 运镜bot's travel/landing camera hook and tests use them). */
@@ -115,7 +116,7 @@ export const createLakesideBoardBackground:LevelBackgroundFactory=async({parent,
   releaseLakesidePrewarm();
   camera.priority=44;camera.usePostProcess=false;camera.clearFlags=Camera.ClearFlag.SOLID_COLOR;camera.clearColor=LAKESIDE_LIGHT_MODE==='dir'?(()=>{const c=linearToSrgb8(LAKESIDE_DIR_LIGHT_PARAMS.clearColorLinear);return new Color(c[0],c[1],c[2],255);})():new Color(LAKESIDE_CLEAR_COLOR);camera.enabled=false;
   return {
-   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideBoardPose(layout.width/layout.height),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
+   frame:(_portrait,layout)=>{if(dead)return;token.check();if(!layout||!(layout.width>0&&layout.height>0))throw Error('lakeside-background-layout-missing');if(!applyCameraPose(camera!,lakesideAlignedBoardPose(layout),'lakeside.board-background'))throw Error('lakeside-background-camera-rejected');if(visible)applyDir();},
    setVisible:value=>{if(dead)return;visible=value;rig!.active=value;camera!.enabled=value;if(value)applyDir();else restoreDir();},
    setPaused:value=>{if(dead)return;paused=value;},
    diagnostics:()=>({renderer:'region-live-3d',region:'lake',bundle:LAKESIDE_BUNDLE,instances,instancedMaterials:instanced.length,lightMode:LAKESIDE_LIGHT_MODE,waterTinted,waterShaded,fogHeld:!!savedFog,fogMode,mainLightHeld:!!saved,visible,paused,layer:LAKESIDE_LAYER,cameraPriority:44,nodes:LAKESIDE_NODES,dynamicTextureUploads:0}),

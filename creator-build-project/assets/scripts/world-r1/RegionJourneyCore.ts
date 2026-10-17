@@ -47,10 +47,11 @@ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,
  // late lift keeps her head/chest clear over the sunk mushroom at d41-43. Blend 14.3 m: turn <=20 deg/s, right side until
  // the last ~10 m.
  arrivalBlendM:14.3,arrivalHoldM:.5,arrivalLiftM:2.5,arrivalRiseM:5,arrivalDropM:2,arrivalBackM:12,arrivalSideM:-1.5,arrivalUpM:2,arrivalAim:0,arrivalPitchDeg:2.5,
- // 0 = off (Build05 routes). > 0 (route.landing only): over the last arrivalSettleM metres the lens's progress along the route is
- // eased (settleDistance) so the lens reaches its final pose with zero velocity and acceleration exactly when she stops: she
- // walks into a still frame instead of the lens stopping dead with her.
- arrivalSettleM:0,
+ // 0 = off (Build05 routes). 1 (route.landing only): over the arrival (arrivalBlendM) the lens POSITION runs on a quintic
+ // Hermite from the follow pose (matching its velocity, zero acceleration) to the final arrival pose (zero velocity and
+ // acceleration), so it decelerates monotonically on an S-curve and comes to rest exactly when she stops; the view direction
+ // keeps the Landing A blend. arrivalLiftM is not applied on this path.
+ arrivalHermite:0,
  // 0 = off (Build05 routes). > 0 (route.landing only): the lens anchors on her route position smoothed with a triangular
  // kernel ±anchorSmoothM (narrowed to the distance left to either end), so polyline corners (approach→bridge, bridge→ground)
  // no longer kick the lens: its acceleration stays finite and continuous. On straight runs it is exactly her position.
@@ -58,12 +59,9 @@ export const JOURNEY_CAMERA={blendM:18,startAimM:2,startTurn:1,headingWindowM:5,
  anchorSmoothM:0} as const;
 /** Per-route Landing A overrides (route.landing, needs route.focus). Same machinery as 08→09; any key left out keeps the
  * JOURNEY_CAMERA value, so routes without `landing` (04→05, 08→09) are byte-for-byte unchanged. Used by island→lakeside. */
-export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalSettleM'|'anchorSmoothM',number>>>;
-const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalSettleM:1,anchorSmoothM:1} as const;
+export type JourneyLanding = Readonly<Partial<Record<'arrivalBlendM'|'arrivalHoldM'|'arrivalLiftM'|'arrivalRiseM'|'arrivalDropM'|'arrivalBackM'|'arrivalSideM'|'arrivalUpM'|'arrivalAim'|'arrivalPitchDeg'|'arrivalHermite'|'anchorSmoothM',number>>>;
+const LANDING_KEYS={arrivalBlendM:1,arrivalHoldM:1,arrivalLiftM:1,arrivalRiseM:1,arrivalDropM:1,arrivalBackM:1,arrivalSideM:1,arrivalUpM:1,arrivalAim:1,arrivalPitchDeg:1,arrivalHermite:1,anchorSmoothM:1} as const;
 const landingCamera=(landing?:JourneyLanding)=>landing?{...JOURNEY_CAMERA,...landing}:JOURNEY_CAMERA;
-/** Lens progress for her distance d on a route of length T: identity until T−S, then T−S·g(u), u=(T−d)/S, g=6u³−8u⁴+3u⁵
- * (g(1)=1, g'(1)=1, g''(1)=0: no kink where it starts; g'(0)=g''(0)=0: velocity and acceleration reach 0 at the end). */
-export function settleDistance(d:number,T:number,S:number):number{if(!(S>0)||d<=T-S)return d;const u=Math.max(0,Math.min(1,(T-d)/S));return T-S*u*u*u*(6-8*u+3*u*u);}
 /** Route point at d smoothed with a triangular kernel of half-width w=min(W, d, T−d), computed EXACTLY from the polyline's
  * second arc-length integral I2 (Tri(d)=(I2(d+w)−2·I2(d)+I2(d−w))/w²): piecewise cubic, so the result has continuous velocity
  * and acceleration across polyline corners. W 0 = sampleRoute. */
@@ -122,7 +120,7 @@ export function orbitOffset(a:Vec,b:Vec,t:number,turn=0):Vec{
  const ang=aa+d*t,r=ra>1e-3&&rb>1e-3?ra*Math.pow(rb/ra,t):ra+(rb-ra)*t;return [Math.sin(ang)*r,a[1]+(b[1]-a[1])*t,Math.cos(ang)*r];
 }
 export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,focus?:Vec,keys?:readonly LensKey[],startBlendM:number=JOURNEY_CAMERA.blendM,landing?:JourneyLanding):Pose {
- const C=landingCamera(landing),T=routeLength(path);if(focus&&C.arrivalSettleM>0)distance=settleDistance(distance,T,Math.min(C.arrivalSettleM,T));
+ const C=landingCamera(landing),T=routeLength(path);
  const raw=sampleRoute(path,distance),p=C.anchorSmoothM>0?smoothRoutePoint(path,distance,C.anchorSmoothM):raw,f0=followPose(path,distance,keys,C.anchorSmoothM),dp:Vec=[p[0]-raw[0],p[1]-raw[1],p[2]-raw[2]];
  const f={position:[f0.position[0]+dp[0],f0.position[1]+dp[1],f0.position[2]+dp[2]] as Vec,target:[f0.target[0]+dp[0],f0.target[1]+dp[1],f0.target[2]+dp[2]] as Vec};
  const rel=(q:Vec,o:Vec):Vec=>[q[0]-o[0],q[1]-o[1],q[2]-o[2]],at=(o:Vec):Vec=>[p[0]+o[0],p[1]+o[1],p[2]+o[2]];
@@ -135,7 +133,13 @@ export function journeyCamera(path:readonly Vec[],distance:number,start:Pose,foc
  if(focus){const w=smoother((C.arrivalBlendM-(T-distance))/(C.arrivalBlendM-C.arrivalHoldM));
   if(w>0){const e=arrivalPose(path,focus,landing),end=path[path.length-1],eo=rel(e.position,end),ed=unit(rel(e.target,e.position)),r=Math.hypot(eo[0],eo[1]-.9,eo[2]);
    const o=orbitOffset(offset,eo,w,0);const left=T-distance,lift=C.arrivalLiftM*smooth((C.arrivalBlendM-left)/C.arrivalRiseM)*smooth(left/C.arrivalDropM);offset=[o[0],o[1]+lift,o[2]];aim=lerp(aim,at([eo[0]+ed[0]*r,eo[1]+ed[1]*r,eo[2]+ed[2]*r]),w);}}
- const position=at(offset);let dir=unit(rel(aim,position));
+ let position=at(offset);
+ if(focus&&C.arrivalHermite>0){const Lb=Math.min(C.arrivalBlendM,T),d0=T-Lb;if(distance>d0&&Lb>0){
+  const fa=(d:number):Vec=>{const r=sampleRoute(path,d),q=C.anchorSmoothM>0?smoothRoutePoint(path,d,C.anchorSmoothM):r,o=followPose(path,d,keys,C.anchorSmoothM).position;return [o[0]+q[0]-r[0],o[1]+q[1]-r[1],o[2]+q[2]-r[2]];};
+  const h=Math.min(.01,d0),a=fa(d0),b=fa(d0-h),E=arrivalPose(path,focus,landing).position,u=Math.min(1,(distance-d0)/Lb),u3=u*u*u;
+  const H=u3*(10-15*u+6*u*u),H1=u-6*u3+8*u3*u-3*u3*u*u,k=h>0?Lb/h:0;
+  position=[a[0]+(a[0]-b[0])*k*H1+(E[0]-a[0])*H,a[1]+(a[1]-b[1])*k*H1+(E[1]-a[1])*H,a[2]+(a[2]-b[2])*k*H1+(E[2]-a[2])*H];}}
+ let dir=unit(rel(aim,position));
  // Leaving the live lens: the view first turns from wherever it was looking onto her, over startAimM.
  if(startBlendM>0&&distance<C.startAimM)dir=slerpDir(unit(rel(start.target,start.position)),dir,smoother(distance/C.startAimM));
  const fov=(start.fovVerticalDeg??45)+(C.fovDeg-(start.fovVerticalDeg??45))*blend;

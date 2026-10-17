@@ -2,7 +2,8 @@ import type { Node } from 'cc';
 import type { Cancellation } from '../world-r1/WorldFlowCore';
 import type { Selection } from './ManagedBoardSession';
 /** The composition root must supply verified region art and framing. No fallback island, loading art or solid fill. */
-export type LevelBackgroundFrame=Readonly<{width:number;height:number;boardTop:number}>;
+/** board: optional 2D grid rect (BoardLayout.grid, centre x/y and side, top-left px) so a 3D background can align to it. */
+export type LevelBackgroundFrame=Readonly<{width:number;height:number;boardTop:number;board?:Readonly<{x:number;y:number;size:number}>}>;
 export interface LevelBackgroundLease {
   frame(portrait:boolean,layout?:LevelBackgroundFrame):void;
   setVisible(visible:boolean):void;
