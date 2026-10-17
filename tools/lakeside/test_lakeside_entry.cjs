@@ -68,7 +68,8 @@ t('scene instances: every kept GLB is in the subpackage (with .meta), 3D pieces 
  for(const g of new Set(keep.map(i=>i.glb))){assert(fs.existsSync(path.join(models,g)),g);assert(fs.existsSync(path.join(models,g+'.meta')),g+'.meta');}
  for(const i of keep){assert.equal(i.pos.length,3);assert.equal(i.rot_quat_xyzw.length,4);assert(Math.abs(Math.hypot(...i.rot_quat_xyzw)-1)<1e-3,i.name);}
  // r5h3 ASSETS-collection templates (name == GLB basename, at the origin) are not placed: no house/pavilion on the bridge.
- const tpl=tr.instances.filter(i=>i.name===i.glb.replace(/\.glb$/,''));assert.equal(tpl.length,34);for(const i of tpl)assert.deepEqual(i.pos.map(Math.abs),[0,0,0],i.name);
+ // Since the art/tools/export_region.py re-export the JSON itself carries no templates (581 instances); the runtime filter stays as a guard.
+ const tpl=tr.instances.filter(i=>i.name===i.glb.replace(/\.glb$/,''));assert.equal(tpl.length,0);assert.equal(tr.instances.length,581);
  assert(!keep.some(i=>D.isLakesideAssetTemplate(i)));assert(!keep.some(i=>/LK_(house_[ABC]|pavilion)\.glb/.test(i.glb)&&Math.hypot(...i.pos)<5),'nothing house-like within 5 m of the bridge origin');
  assert.equal(keep.filter(i=>i.glb==='LK_pavilion.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_lake.glb').length,1);assert.equal(keep.filter(i=>i.glb==='LK_bridge.glb').length,1);
  assert.deepEqual(D.lakesideCellCenter(0),[-3.3,0,8.7]);assert.deepEqual(D.lakesideCellCenter(48),[3.3,0,15.3]);assert.throws(()=>D.lakesideCellCenter(49));
