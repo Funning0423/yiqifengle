@@ -1,1 +1,2 @@
 2026-10-18 05:47:33 接入 v2.1 路径与分包 region_transit_balloon，删掉程序化气球。Node 22 套件 98/99，仅 navigation-guard BLOCKED_BROWSER。frame-background 5054 帧 PASS，seamLeak=0，时长 36s。下一步：Creator 导入 meta 后 build-guard。提交 5702182b21
+2026-10-18 06:37:19 套件 98/99。build-guard wechat 19876558（+540803 vs r4），region_transit_balloon 470111。截图 01/02/04/05/06/07 能看到气球和女孩；03 穿云看不到气球。城在画面里时 DC 约 70，高于 53。提交 be8c566a71 及随后的镜头补写。磁盘约 6.3GiB。

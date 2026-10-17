@@ -1,4 +1,4 @@
-import {Camera, Color, Component, JsonAsset, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
+import {Camera, Color, Component, Director, JsonAsset, MeshRenderer, Node, Prefab, Quat, Vec3, assetManager, director, gfx, instantiate, isValid} from 'cc';
 import {waitRegionAsset} from './RegionAssetDeadline';
 import {REGIONS, loadRegionPrefab, mountRegion} from './RegionLoader';
 import {routeLength} from '../world-r1/RegionJourneyCore';
@@ -30,6 +30,9 @@ function skybox(node:Node|null):void{
   const m=r.getMaterialInstance(0);if(!m)return;
   try{m.overridePipelineStates({depthStencilState:{depthTest:false,depthWrite:false,depthFunc:gfx.ComparisonFunc.ALWAYS}},0);}catch{/* material without a pass */}
  });
+}
+function showBothSides(root:Node):void{
+ eachNamed(root,n=>{for(const r of n.getComponents(MeshRenderer)){const m=r.getMaterialInstance(0);if(!m)continue;try{m.overridePipelineStates({rasterizerState:{cullMode:gfx.CullMode.NONE}},0);}catch{/* unlit pass */}}});
 }
 function setEmissive(root:Node,night:boolean):void{
  const black=new Color(0,0,0,255);
@@ -65,8 +68,8 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
  const prefab=await waitRegionAsset(loadRegionPrefab(REGIONS.skycity,p=>progress(p*.45)),token);token.check();
  prefab.addRef();
  const owned:Array<{destroy():void}>=[],rig=new Node('RegionJourney-skycity');rig.active=false;opts.parent.addChild(rig);
- let dead=false,model:Node|null=null,offNight=()=>{};
- const release=()=>{if(dead)return;dead=true;(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;offNight();rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
+ let dead=false,model:Node|null=null,offNight=()=>{},beforeDraw=()=>{};
+ const release=()=>{if(dead)return;dead=true;director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);(globalThis as any).__QF_BALLOON_LENS=false;(globalThis as any).__QF_BALLOON_HOLD_SKY=false;offNight();rig.active=false;if(isValid(rig,true))rig.destroy();for(const a of owned)a.destroy();prefab.decRef();};
  try{
   const json=await loadFlightJson();token.check();if(json.format!==FLIGHT_FORMAT)throw Error('balloon-flight-format');
   publishFlight(json);
@@ -89,10 +92,12 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
   if(!balloonPrefab)throw Error('balloon-art-missing');
   balloonPrefab.addRef();owned.push({destroy(){balloonPrefab.decRef();}});
   const vehicle=mountVehicle(balloonPrefab,rig);
+  showBothSides(vehicle);
   const cloudsPrefab=await loadTransitPrefab('transit_clouds_merged');
   if(!cloudsPrefab)throw Error('balloon-clouds-missing');
   cloudsPrefab.addRef();owned.push({destroy(){cloudsPrefab.decRef();}});
   const clouds=instantiate(cloudsPrefab);clouds.name='transit_clouds_merged';rig.addChild(clouds);
+  showBothSides(clouds);
   const nightPrefab=await loadTransitPrefab('transit_night_dome');
   let nightDome:Node|null=null;
   if(nightPrefab){nightPrefab.addRef();owned.push({destroy(){nightPrefab.decRef();}});nightDome=instantiate(nightPrefab);nightDome.name='transit_night_dome';rig.addChild(nightDome);nightDome.active=false;skybox(nightDome);}
@@ -135,26 +140,32 @@ export async function mountBalloonLease(opts:{parent:Node;meadow:Node|null;start
    const fired=new Set<string>();
    const cues:Array<[number,string]>=Object.entries(json.cues).map(([name,t])=>[t,name]).sort((a,b)=>a[0]-b[0]);
    let dcWorst=0,dcAt=0,frames=0;
+   const apply=()=>{
+    const t=Math.max(0,Math.min(plan.total,clock.t));
+    const sample=plan.vehicle(t);
+    vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
+    const qq=balloonQuat(sample.yaw*180/Math.PI,sample.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
+    placeClouds(clouds,t,city,meadowFrame);
+    const pose=plan.camera(t);world.setCamera(pose);
+    const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
+    if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
+    paint(t);
+    return t;
+   };
+   beforeDraw=()=>{if(!dead)apply();};
+   director.on(Director.EVENT_BEFORE_DRAW,beforeDraw);
    await new Promise<void>((ok,bad)=>{
     const off=rideToken.onCancel(()=>bad(Error('cancelled')));
     driver.step=(dt)=>{
      const hidden=typeof document!=='undefined'&&!!document.hidden;
      if(!(hold!=null&&clock.t>=hold-1e-4)){const next=stepTransitClock(clock,dt,hidden);clock.t=next.t;clock.hiddenFor=next.hiddenFor;clock.fade=next.fade;}
-     const t=Math.max(0,Math.min(plan.total,clock.t));
-     const sample=plan.vehicle(t);
-     vehicle.setWorldPosition(sample.pos[0],sample.pos[1],sample.pos[2]);
-     const qq=balloonQuat(sample.yaw*180/Math.PI,sample.roll);Quat.set(q,qq[0],qq[1],qq[2],qq[3]);vehicle.setWorldRotation(q);
-     placeClouds(clouds,t,city,meadowFrame);
-     const pose=plan.camera(t);world.setCamera(pose);
-     const cam=findCamera();if(nightDome&&cam)nightDome.setWorldPosition(cam.worldPosition);if(cam)for(const n of domes)if(n.active&&isValid(n,true))n.setWorldPosition(cam.worldPosition);
-     if(girl&&isValid(girl,true)&&girl.parent===seat){girl.setPosition(0,0,0);girl.setRotationFromEuler(0,GIRL_YAW,0);}
-     paint(t);
+     const t=apply();
      for(const [ct,name] of cues){if(fired.has(name)||t<ct||hidden)continue;fired.add(name);emitTransitCue(name as any,{t,region:'meadow-skycity',id:name});}
      let dc=0;try{dc=Number((director as any).root?.device?.numDrawCalls)||0;}catch{dc=0;}
      frames++;if(dc>dcWorst){dcWorst=dc;dcAt=t;}
      const beat=plan.beats.find(b=>t>=b.t0&&t<b.t1)?.id??'board';
-     (globalThis as any).__QF_BALLOON={t,total:plan.total,beat,alt:sample.pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3};
-     if(t>=plan.total&&hold==null){off();driver.step=()=>{};ok();}
+     (globalThis as any).__QF_BALLOON={t,total:plan.total,beat,alt:plan.vehicle(t).pos[1]-plan.launch[1],wind:0.35,night,meadow:t<MEADOW_OFF_T,city:t>=CITY_ON_T,dc,dcWorst,dcAt,frames,hold:hold!=null&&t>=(hold??0)-1e-3};
+     if(t>=plan.total&&hold==null){off();director.off(Director.EVENT_BEFORE_DRAW,beforeDraw);driver.step=()=>{};ok();}
     };
    });
    rideToken.check();

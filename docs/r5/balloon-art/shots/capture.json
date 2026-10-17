@@ -1,0 +1,25 @@
+[
+  {
+    "name": "r5_balloon_07_night",
+    "ok": true,
+    "fps": 17,
+    "info": {
+      "b": {
+        "t": 24.001600000023828,
+        "total": 36,
+        "beat": "B-d",
+        "alt": 11.953108926627383,
+        "wind": 0.35,
+        "night": true,
+        "meadow": false,
+        "city": true,
+        "dc": 58,
+        "dcWorst": 58,
+        "dcAt": 22.851000000059603,
+        "frames": 601,
+        "hold": true
+      },
+      "dc": 61
+    }
+  }
+]
