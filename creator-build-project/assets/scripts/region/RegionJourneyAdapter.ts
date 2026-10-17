@@ -9,13 +9,15 @@ import {RegionJourneyController, routeLength} from '../world-r1/RegionJourneyCor
 import {REGION_JOURNEY_LAYOUT,bridgePath,islandApproach,lensKeys,plus,skyDeckRoute,skycityYawDeg} from './RegionJourneyLayout';
 import type {JourneyRegion, JourneyRoute, JourneySceneLease} from '../world-r1/RegionJourneyCore';
 import type {Cancellation, Pose, Vec} from '../world-r1/WorldFlowCore';
-import {enableLakesideInstancing,isLakesideWaterNode,mergeLakesideStatic,mountLakesideScenery} from './LakesideBoardBackground';
+import {enableLakesideInstancing,isLakesideWaterNode,loadLakesideWater,mergeLakesideStatic,mountLakesideScenery,shadeLakesideWater} from './LakesideBoardBackground';
+import {applyLakesideWaterUniforms} from './LakesideWaterUniforms';
+import {onDayNightChange} from '../world-r1/DayNightContract';
 import {lakesideStaticMergeFromEnv} from './LakesideStaticMerge';
 import {applyLakesideJourneyBatching,type JourneyBatching} from './LakesideJourneyBatching';
 import {lakesideJourney,lakesideScreenFrame,lakesideScreenLanding} from './LakesideCameraLayout';
 import {lakesideViewport} from './LakesideLandingHook';
 import {boardSafeInsets} from '../ui/BoardLayout';
-import {lakesideAtmosphereWeight} from './LakesideJourneyAtmosphere';
+import {lakesideAtmosphereWeight,lakesideDayNightMode} from './LakesideJourneyAtmosphere';
 import {lakesideJourneyAtmosphere} from './LakesideJourneyLighting';
 function find(node:Node,name:string):Node|null {if(node.name===name)return node;for(const child of node.children){const hit=find(child,name);if(hit)return hit;}return null;}
 function anchor(model:Node,name:string):Vec{const node=find(model,name);if(!node)throw Error('journey-anchor-missing:'+name);const p=node.worldPosition;if(![p.x,p.y,p.z].every(Number.isFinite))throw Error('journey-anchor-invalid:'+name);return [p.x,p.y,p.z];}
@@ -121,19 +123,23 @@ function lakesideRouteLanding(L:ReturnType<typeof lakesideJourney>){
 async function prepareLakesideJourney(parent:Node,camera:Camera,from:JourneyRegion,start:Vec,token:Cancellation,progress:(n:number)=>void):Promise<JourneySceneLease>{
  if(from!=='island')throw Error('journey-region-order');
  const held:Array<{decRef():unknown}>=[],owned:Array<Mesh|Material>=[],rig=new Node('RegionJourney-lakeside');rig.active=false;parent.addChild(rig);let dead=false;
- let waterY=0,batching:JourneyBatching|null=null;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
- const release=()=>{if(dead)return;dead=true;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
+ let waterY=0,batching:JourneyBatching|null=null,water:Material|null=null,offWater:(()=>void)|null=null;const atmosphere=lakesideJourneyAtmosphere(camera,()=>waterY);
+ const release=()=>{if(dead)return;dead=true;offWater?.();offWater=null;water=null;atmosphere.restore();rig.active=false;if(isValid(rig,true))rig.destroy();batching?.release();batching=null;for(const a of owned)a.destroy();for(const a of held.splice(0))a.decRef();};
  const take=<T extends {addRef():unknown;decRef():unknown}>(a:T):T=>{if(dead)throw Error('journey-lakeside-disposed');a.addRef();held.push(a);return a;};
  try{
   progress(.05);const model=new Node('LakesideJourneyScene');rig.addChild(model);
   await mountLakesideScenery(model,token,take);token.check();
   // journey-merge (side branch): the board's instancing + static merge on the journey copy too (431 renderers -> ~4 lakeside draws); ?lakemerge=off keeps instancing only.
   batching=applyLakesideJourneyBatching(model,{instancing:enableLakesideInstancing,merge:mergeLakesideStatic,mergeEnabled:lakesideStaticMergeFromEnv,isWater:isLakesideWaterNode});progress(.86);
+  // r4 (VB): the journey lake gets the board's water material with the SAME LAKESIDE_WATER_SKY uniforms (shadeLakesideWater ->
+  // applyLakesideWaterUniforms), so the journey's lakeside end and the board show one water + reflected sky; re-applied on day/night.
+  {const sh=shadeLakesideWater(model,await loadLakesideWater(token,take),'journey');if(sh.water){owned.push(sh.water);water=sh.water;
+   offWater=onDayNightChange(()=>{if(!dead&&water)applyLakesideWaterUniforms(water,lakesideDayNightMode());});}token.check();}
   if(!isValid(parent,true))throw Error('journey-owner-destroyed');
   const L=lakesideJourney(start);model.setRotationFromEuler(0,L.yawDeg,0);model.setWorldPosition(L.root[0],L.root[1],L.root[2]);waterY=L.root[1];L.landing=lakesideRouteLanding(L);
   const path=[...L.approach,...L.bridge.slice(1),...L.arrival];
   const route:JourneyRoute={from,to:'lakeside',path,bridgeStart:routeLength(L.approach),bridgeEnd:routeLength([...L.approach,...L.bridge.slice(1)]),speed:L.speed,startBlendM:L.startBlendM,focus:L.focus,landing:L.landing,timing:L.timing/* build05-next: 运镜bot 0e39055/b0c21d2 17 s S-curve walk (lakesideJourney contract) */};const total=routeLength(path);
   rainbowBridge(rig,L.bridge,owned);token.check();progress(.98);
-  return {route,show(visible){if(dead)return;rig.active=visible;if(visible)atmosphere.prime();},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
+  return {route,show(visible){if(dead)return;rig.active=visible;if(visible){atmosphere.prime();if(water)applyLakesideWaterUniforms(water,lakesideDayNightMode());}},progress(d){if(!dead)atmosphere.apply(lakesideAtmosphereWeight(route,total,d));},dispose:release};
  }catch(error){try{console.error('[QF_LAKE] island→lakeside journey prepare failed: '+String((error as any)?.stack||error));}catch{}release();throw error;}
 }
