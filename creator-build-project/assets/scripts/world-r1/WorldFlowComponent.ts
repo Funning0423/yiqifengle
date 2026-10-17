@@ -287,6 +287,11 @@ export class WorldFlowComponent extends Component {
   private pullIsland(dy:number,scale:number):boolean {const rail=this.islandRail;if(!rail||!this.islandView()||!this.worldCamera)return false;const before=rail.fraction();if(!rail.nudge(dy,scale))return false;if(applyCameraPose(this.worldCamera,rail.pose(),'island.pull'))return true;rail.restore(before);return false;}
   /** Enter-level push from the camera as it stands (wide shot or a pull). Same look direction, a short dolly and a tighter fov.
    *  The exit arc is not read or written. */
+  /** 运镜bot: one-shot. The 风铃湖畔 landing→board hook already put the world camera on the board camera's pose, so the
+   *  next enter-level cover holds that frame (same ENTER_LEVEL_SHOT_S, no dolly, no fov change) instead of pushing in 2.6 m
+   *  and then cutting back to the board camera. Set by WorldNativeComposition after the hook lands; cleared after enterLevel. */
+  private enterLevelHold=false;
+  holdEnterLevel(on:boolean){this.enterLevelHold=on;}
   private enterLevelLook():Pose[]|null {
     const camera=this.worldCamera;if(!camera||!isValid(camera.node,true))return null;
     const n=camera.node,p=n.worldPosition,q=n.worldRotation,f=rotate([q.x,q.y,q.z,q.w],[0,0,-1]),fl=Math.hypot(f[0],f[1],f[2]);
@@ -414,6 +419,7 @@ export class WorldFlowComponent extends Component {
           // Push in from the live island camera (including a finger pull). Not the exit arc.
           // WorldFlow calls this for every flow mode; a missing clock tick is still this run(), not a skipped shot.
           console.info('[enter-level] shot', this.flow?.snapshot().mode);
+          if(this.enterLevelHold){this.enterLevelHold=false;console.info('[enter-level] hold (lakeside landing on the board pose)');return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});}
           let path:Pose[]|null=null;try{path=this.enterLevelLook();}catch(error){console.warn('enter-level shot skipped',String(error));}
           if(!path)return this.run(ENTER_LEVEL_SHOT_S,token,()=>{});
           const track=createCameraTrack(camera,path,'world.enterLevel',{easeIn:0.14,easeOut:0.4});
